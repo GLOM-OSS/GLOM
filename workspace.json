@@ -12,6 +12,8 @@
     "landing-e2e": "apps/landing-e2e",
     "student": "apps/student",
     "student-e2e": "apps/student-e2e",
-    "theme": "libs/theme"
+    "theme": "libs/theme",
+    "toast": "libs/toast",
+    "utils": "libs/utils"
   }
 }
