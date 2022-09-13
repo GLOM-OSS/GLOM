@@ -32,7 +32,6 @@ export class AppModule implements NestModule {
         session({
           name: process.env.SESSION_NAME,
           store: new RedisStore({
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             client: redisClient,
             host: process.env.REDIS_HOST,
             port: Number(process.env.REDIS_PORT),
