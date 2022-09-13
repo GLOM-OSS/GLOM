@@ -6,7 +6,6 @@ import {
   State,
   Language,
   LanguageContextProviderProps,
-  LanguageType,
 } from './language.interface';
 
 const languageReducer: Reducer<Language, Action> = (state: State, action: Action) => {
@@ -28,7 +27,7 @@ function LanguageContextProvider({
   children,
 }: LanguageContextProviderProps): JSX.Element {
   const initialState: Language = {
-    activeLanguage: localStorage.getItem('squoolr_active_language') as LanguageType || 'Fr',
+    activeLanguage: 'Fr',
     languageDispatch: () => null,
   };
 
