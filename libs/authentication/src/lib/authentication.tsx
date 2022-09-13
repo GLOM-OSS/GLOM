@@ -6,7 +6,11 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { EmailRounded, LockPersonRounded } from '@mui/icons-material';
+import {
+  EmailRounded,
+  LockPersonRounded,
+  ReportRounded,
+} from '@mui/icons-material';
 import { theme } from '@squoolr/theme';
 import { IntlShape } from 'react-intl';
 import { useFormik } from 'formik';
@@ -14,6 +18,9 @@ import * as Yup from 'yup';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import favicon from './logo.png';
+import random from './random';
+import useNotification from './notification';
+import ErrorMessage from './ErrorMessage';
 
 export function Authentication({
   intl: { formatMessage },
@@ -30,21 +37,50 @@ export function Authentication({
     email: Yup.string().email().required(),
     password: Yup.string().required(),
   });
+  const navigate = useNavigate();
 
+  const [notifications, setNotifications] = useState<useNotification[]>();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const formik = useFormik({
     initialValues,
     validationSchema,
     onSubmit: (values, { resetForm }) => {
       setIsSubmitting(true);
+      if (notifications)
+        notifications.forEach((notification) => notification.dismiss());
+      const newNotification = new useNotification();
+      if (notifications) setNotifications([...notifications, newNotification]);
+      else setNotifications([newNotification]);
+      newNotification.notify({
+        render: formatMessage({ id: 'signingUserIn' }),
+      });
+      //TODO: CALL SIGNIN API HERE
       setTimeout(() => {
         console.log(values);
         setIsSubmitting(false);
-        resetForm();
+        if (random() > 5) {
+          newNotification.update({
+            render: formatMessage({ id: 'signinSuccess' }),
+          });
+          navigate(localStorage.getItem('previousRoute') ?? '/dashboard');
+          resetForm();
+        } else {
+          newNotification.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={formik.handleSubmit}
+                notification={newNotification}
+                message={formatMessage({ id: 'signinFailed' })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
       }, 3000);
     },
   });
-  const navigate = useNavigate();
 
   return (
     <Box
@@ -122,6 +158,12 @@ export function Authentication({
             variant="contained"
             size="large"
             fullWidth
+            type="submit"
+            disabled={
+              isSubmitting ||
+              Boolean(formik.errors.password) ||
+              Boolean(formik.errors.email)
+            }
             sx={{ marginTop: theme.spacing(6.25), textTransform: 'none' }}
           >
             {isSubmitting && (
@@ -147,7 +189,7 @@ export function Authentication({
             component="span"
           >
             {formatMessage({ id: 'resetPassword' })}
-          </Typography>{' '}
+          </Typography>
         </Typography>
       )}
     </Box>
@@ -155,15 +197,3 @@ export function Authentication({
 }
 
 export default Authentication;
-
-/*
-  enterEmail: 'Enter your email',
-  email: 'Email',
-  enterCredentials: 'Enter your credentials to access your account',
-  welcomeBack: 'Welcome back',
-  password: 'Password',
-  enterPassword:'Enter your password'
-  signin:'Sign In',
-  forgotPassword:'Forgot your password? ',
-  resetPassword:'Reset Password'
-*/
