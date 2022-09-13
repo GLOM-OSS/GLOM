@@ -1,6 +1,6 @@
 import { Box, Button, Typography } from '@mui/material';
 import { theme } from '@squoolr/theme';
-import useNotification from '../utils/notification';
+import useNotification from './notification';
 
 export const ErrorMessage = ({
   retryFunction,
