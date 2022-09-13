@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  CircularProgress,
   InputAdornment,
   TextField,
   Typography,
@@ -18,12 +17,11 @@ import * as Yup from 'yup';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import favicon from './logo.png';
-import random from './random';
-import useNotification from './notification';
-import ErrorMessage from './ErrorMessage';
-
+import { ErrorMessage, useNotification } from '@squoolr/toast';
+import { random } from '@squoolr/utils';
 export function Authentication({
   intl: { formatMessage },
+  intl,
   callingApp,
 }: {
   intl: IntlShape;
@@ -72,6 +70,7 @@ export function Authentication({
                 retryFunction={formik.handleSubmit}
                 notification={newNotification}
                 message={formatMessage({ id: 'signinFailed' })}
+                intl={intl}
               />
             ),
             autoClose: false,
@@ -161,18 +160,11 @@ export function Authentication({
             type="submit"
             disabled={
               isSubmitting ||
-              Boolean(formik.errors.password) ||
-              Boolean(formik.errors.email)
+              formik.values.password === '' ||
+              formik.values.email === ''
             }
             sx={{ marginTop: theme.spacing(6.25), textTransform: 'none' }}
           >
-            {isSubmitting && (
-              <CircularProgress
-                thickness={3}
-                size={25}
-                sx={{ marginRight: theme.spacing(1) }}
-              />
-            )}
             {formatMessage({ id: 'signin' })}
           </Button>
         </form>
