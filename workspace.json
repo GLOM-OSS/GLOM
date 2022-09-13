@@ -2,7 +2,13 @@
   "$schema": "./node_modules/nx/schemas/workspace-schema.json",
   "version": 2,
   "projects": {
+    "admin": "apps/admin",
+    "admin-e2e": "apps/admin-e2e",
+    "app": "apps/app",
+    "app-e2e": "apps/app-e2e",
     "landing": "apps/landing",
-    "landing-e2e": "apps/landing-e2e"
+    "landing-e2e": "apps/landing-e2e",
+    "student": "apps/student",
+    "student-e2e": "apps/student-e2e"
   }
 }
