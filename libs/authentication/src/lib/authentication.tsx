@@ -19,7 +19,8 @@ import { useNavigate } from 'react-router';
 import favicon from './logo.png';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
-export function Authentication({
+
+export function Signin({
   intl: { formatMessage },
   intl,
   callingApp,
@@ -188,4 +189,4 @@ export function Authentication({
   );
 }
 
-export default Authentication;
+export default Signin;
