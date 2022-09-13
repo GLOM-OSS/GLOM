@@ -1,15 +1,15 @@
 import { Typography } from '@mui/material';
 import { Navigate } from 'react-router';
-import Signin from '../pages/signin';
+import SigninPage from '../pages/signin';
 
 export const routes = [
   {
     path: '/',
-    element: <Typography variant="h1">Welcome to Squoolr Admin</Typography>,
+    element: <SigninPage />,
   },
   {
     path: '/signin',
-    element: <Signin />,
+    element: <Typography variant="h1">Welcome to Squoolr Admin</Typography>,
   },
   { path: '*', element: <Navigate to="/" /> },
 ];

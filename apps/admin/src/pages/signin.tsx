@@ -1,10 +1,8 @@
-import { Authentication } from "@squoolr/auth";
-import { injectIntl, IntlShape } from "react-intl";
+import { Signin } from '@squoolr/auth';
+import { injectIntl, IntlShape } from 'react-intl';
 
-function Signin({intl}:{intl:IntlShape}) {
-  return (
-    <Authentication callingApp="admin" intl={intl} />
-  )
+function SigninPage({ intl }: { intl: IntlShape }) {
+  return <Signin callingApp="admin" intl={intl} />;
 }
 
-export default injectIntl(Signin)
+export default injectIntl(SigninPage);
