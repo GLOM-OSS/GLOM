@@ -1,13 +1,23 @@
-import styles from './authentication.module.css';
+import { Box, Button, Typography } from '@mui/material';
+import { theme } from '@squoolr/theme';
+import { IntlShape } from 'react-intl';
 
-/* eslint-disable-next-line */
-export interface AuthenticationProps {}
-
-export function Authentication(props: AuthenticationProps) {
+export function Authentication({
+  intl: { formatMessage },
+  user,
+}: {
+  intl: IntlShape;
+  user: string;
+}) {
   return (
-    <div className={styles['container']}>
-      <h1>Welcome to Authentication!</h1>
-    </div>
+    <Box>
+      <Typography sx={{ color: theme.palette.primary.main }}>
+        Hello world {user}👋
+      </Typography>
+      <Button variant="contained" color="secondary">
+        {formatMessage({ id: 'worldText' })}
+      </Button>
+    </Box>
   );
 }
 
