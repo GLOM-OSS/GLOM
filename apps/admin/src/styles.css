@@ -5,5 +5,5 @@
 }
 
 .Toastify__toast-theme--dark {
-  background-color: rgb(7, 83, 153);
+  background-color: rgb(7, 83, 153) !important;
 }
