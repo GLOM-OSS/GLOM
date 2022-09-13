@@ -11,4 +11,6 @@ export const website = {
   signingUserIn: 'Please wait while we sign you in',
   signinSuccess: 'Sign in successfull, we wish you a good work session!',
   signinFailed: 'Something went wrong while signing you in. Please try again',
+  retry: 'Retry',
+  close: 'Close'
 };
