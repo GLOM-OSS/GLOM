@@ -1,4 +1,4 @@
-import { useReducer, useContext } from 'react';
+import { useReducer, useContext, Reducer } from 'react';
 import LanguageContext from './languageContext';
 
 import {
@@ -6,16 +6,17 @@ import {
   State,
   Language,
   LanguageContextProviderProps,
+  LanguageType,
 } from './language.interface';
 
-const languageReducer = (state: State, action: Action) => {
+const languageReducer: Reducer<Language, Action> = (state: State, action: Action) => {
   switch (action.type) {
     case 'USE_ENGLISH': {
-      localStorage.setItem('skeleton_active_language', 'En');
+      localStorage.setItem('squoolr_active_language', 'En');
       return { ...state, activeLanguage: 'En' };
     }
     case 'USE_FRENCH': {
-      localStorage.setItem('skeleton_active_language', 'Fr');
+      localStorage.setItem('squoolr_active_language', 'Fr');
       return { ...state, activeLanguage: 'Fr' };
     }
     default:
@@ -27,7 +28,7 @@ function LanguageContextProvider({
   children,
 }: LanguageContextProviderProps): JSX.Element {
   const initialState: Language = {
-    activeLanguage:  'Fr',
+    activeLanguage: localStorage.getItem('squoolr_active_language') as LanguageType || 'Fr',
     languageDispatch: () => null,
   };
 
