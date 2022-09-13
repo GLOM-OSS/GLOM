@@ -14,7 +14,10 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@squoolr/auth": ["libs/authentication/src/index.ts"],
+      "@squoolr/theme": ["libs/theme/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

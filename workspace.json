@@ -6,9 +6,11 @@
     "admin-e2e": "apps/admin-e2e",
     "app": "apps/app",
     "app-e2e": "apps/app-e2e",
+    "authentication": "libs/authentication",
     "landing": "apps/landing",
     "landing-e2e": "apps/landing-e2e",
     "student": "apps/student",
-    "student-e2e": "apps/student-e2e"
+    "student-e2e": "apps/student-e2e",
+    "theme": "libs/theme"
   }
 }
