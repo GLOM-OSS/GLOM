@@ -17,7 +17,7 @@ export class useNotification {
         autoClose: false,
         closeButton: false,
         closeOnClick: false,
-        icon: () => <CircularProgress thickness={3} size={20} />,
+        icon: () => <CircularProgress sx={{color:theme.common.background}} thickness={3} size={20} />,
       }
     ));
 
