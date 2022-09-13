@@ -1,7 +1,4 @@
 import { CacheProvider, EmotionCache } from '@emotion/react';
-import { IntlProvider } from 'react-intl';
-import { CssBaseline, ThemeProvider } from '@mui/material';
-import { Flip, ToastContainer } from 'react-toastify';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useEffect } from 'react';
@@ -11,8 +8,9 @@ import LanguageContextProvider, {
 } from '../contexts/language/LanguageContextProvider';
 import enMessages from '../languages/en-us';
 import frMessages from '../languages/fr';
-import theme from '../config_mui/theme/theme';
 import './globalStyles.css';
+import 'react-toastify/dist/ReactToastify.css';
+import { SquoolrThemeProvider } from '@squoolr/theme';
 
 const App = (props) => {
   const { Component, pageProps, emotionCache } = props;
@@ -20,7 +18,7 @@ const App = (props) => {
   useEffect(() => {
     languageDispatch({
       type:
-        localStorage.getItem('skeleton_active_language') === 'En'
+        localStorage.getItem('squoolr_active_language') === 'En'
           ? 'USE_ENGLISH'
           : 'USE_FRENCH',
     });
@@ -30,26 +28,12 @@ const App = (props) => {
   return (
     <>
       <CacheProvider value={emotionCache}>
-        <IntlProvider
-          messages={activeLanguage === 'En' ? enMessages : frMessages}
-          locale={activeLanguage}
-          defaultLocale="Fr"
+        <SquoolrThemeProvider
+          activeMessages={activeLanguage === 'En' ? enMessages : frMessages}
+          activeLanguage={activeLanguage}
         >
-          <ThemeProvider theme={theme}>
-            <ToastContainer
-              position="top-right"
-              autoClose={1000}
-              newestOnTop
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              transition={Flip}
-            />
-            <CssBaseline />
-            <Component {...pageProps} />
-          </ThemeProvider>
-        </IntlProvider>
+          <Component {...pageProps} />
+        </SquoolrThemeProvider>
       </CacheProvider>
     </>
   );
