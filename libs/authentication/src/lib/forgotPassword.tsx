@@ -145,22 +145,26 @@ export function ForgotPassword({
           </form>
         )}
         {isLinkSent && (
-          <Typography variant='h5'>{formatMessage({ id: 'verifyMail' })}</Typography>
+          <Typography variant="h5">
+            {formatMessage({ id: 'verifyMail' })}
+          </Typography>
         )}
       </Box>
-      <Typography
-        sx={{ color: theme.common.placeholder, justifySelf: 'center' }}
-        component="span"
-      >
-        {formatMessage({ id: 'rememberedPassword' })}{' '}
+      {!isLinkSent && (
         <Typography
-          sx={{ color: theme.palette.primary.main, cursor: 'pointer' }}
-          onClick={() => navigate('/')}
+          sx={{ color: theme.common.placeholder, justifySelf: 'center' }}
           component="span"
         >
-          {formatMessage({ id: 'signin' })}
+          {formatMessage({ id: 'rememberedPassword' })}{' '}
+          <Typography
+            sx={{ color: theme.palette.primary.main, cursor: 'pointer' }}
+            onClick={() => navigate('/')}
+            component="span"
+          >
+            {formatMessage({ id: 'signin' })}
+          </Typography>
         </Typography>
-      </Typography>
+      )}
     </Box>
   );
 }
