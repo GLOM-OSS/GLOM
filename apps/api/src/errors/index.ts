@@ -14,6 +14,10 @@ export const AUTH03 = (message: string) => ({
   En: `Your login request failed with error: ${message}`,
   Fr: 'La demande de connexion a échoué avec une erreur :',
 });
+export const AUTH04 = {
+  En: `Oops, you've recently triggered this action. Please try later`,
+  Fr: 'Oups, vous avez récemment déclenché cette action. Veuillez essayer plus tard',
+};
 export const AUTH06 = (message: string) => ({
   En: `Log out error ${message}`,
   Fr: `Erreur de deconnexion ${message}`,
@@ -34,6 +38,10 @@ export const AUTH404 = (search: string) => ({
   En: `${search} not found.`,
   Fr: `${search} introuvable`,
 });
+export const sAUTH404 = {
+  En: `Your rest password request cannot be found or has expired.`,
+  Fr: `Votre demande de renouvellement de mot de passe est introuvable ou a expiré.`,
+};
 
 export const AUTH403 = (ressource: string) => ({
   En: `Access borbidden for ${ressource}.`,
