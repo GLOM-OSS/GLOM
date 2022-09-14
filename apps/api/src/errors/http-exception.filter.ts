@@ -15,6 +15,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { statusCode, error, message } = exception.getResponse() as any;
+    console.log(exception)
     response.status(statusCode ?? HttpStatus.INTERNAL_SERVER_ERROR).json({
       error,
       path: request.url,
