@@ -2,17 +2,30 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
   Patch,
   Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
+import { AUTH04, AUTH404, sAUTH404 } from '../../errors';
+import { PrismaService } from '../../prisma/prisma.service';
 import { AnnualConfiguratorService } from '../../services/annual-configurator.service';
 import { AnnualRegistryService } from '../../services/annual-registry.service';
 import { AnnualStudentService } from '../../services/annual-student.service';
 import { AnnualTeacherService } from '../../services/annual-teacher.service';
-import { Role, SerializeSessionData, UserRole } from '../../utils/types';
+import { LoginService } from '../../services/login.service';
+import { ResetPasswordService } from '../../services/reset-password.service';
+import {
+  DeserializeSessionData,
+  Role,
+  SerializeSessionData,
+  UserRole,
+} from '../../utils/types';
+import { NewPasswordDto } from '../class-vaditor';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { LocalGuard } from './local/local.guard';
@@ -21,6 +34,9 @@ import { LocalGuard } from './local/local.guard';
 export class AuthController {
   constructor(
     private authService: AuthService,
+    private loginService: LoginService,
+    private prismaService: PrismaService,
+    private resetPasswordService: ResetPasswordService,
     private annualStudentService: AnnualStudentService,
     private annualTeacherService: AnnualTeacherService,
     private annualRegistryService: AnnualRegistryService,
@@ -55,7 +71,7 @@ export class AuthController {
     @Req() request,
     @Body('selected_academic_year_id') academic_year_id: string
   ) {
-    const { login_id } = request.user as SerializeSessionData;
+    const { login_id } = request.user as DeserializeSessionData;
     const userRoles: UserRole[] = [];
     //check for annual student
     const annualStudent = await this.annualStudentService.findOne({
@@ -112,6 +128,75 @@ export class AuthController {
       annualRegistry,
       annualTeacher,
     };
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Req() request: Request, @Body('email') email: string) {
+    const squoolr_client = request.headers.host.replace('https://', '');
+    const login = await this.loginService.findOne({
+      Person: { email },
+      School:
+        squoolr_client !== process.env.SQUOOLR_URL
+          ? { subdomain: squoolr_client }
+          : undefined,
+    });
+    if (login) {
+      const resetPasswords = await this.prismaService.resetPassword.count({
+        where: { OR: { is_valid: true, expires_at: { gt: new Date() } } },
+      });
+      if (resetPasswords === 1)
+        throw new HttpException(AUTH04['Fr'], HttpStatus.NOT_FOUND);
+      const { reset_password_id } = await this.resetPasswordService.create({
+        Login: { connect: { login_id: login.login_id } },
+        expires_at: new Date(
+          new Date().setMinutes(new Date().getMinutes() + 30)
+        ),
+      });
+
+      return {
+        reset_link: `${request.headers.host}/forgot-password/${reset_password_id}/new-password`,
+      };
+    }
+    throw new HttpException(AUTH404('Email')['Fr'], HttpStatus.NOT_FOUND);
+  }
+
+  @Post('new-password')
+  async setNewPassword(
+    @Req() request: Request,
+    @Body() { reset_password_id, new_password }: NewPasswordDto
+  ) {
+    const squoolr_client = request.headers.host.replace('https://', '');
+    const login = await this.loginService.findOne({
+      School:
+        squoolr_client !== process.env.SQUOOLR_URL
+          ? { subdomain: squoolr_client }
+          : undefined,
+      ResetPasswords: {
+        some: {
+          reset_password_id,
+          is_valid: true,
+          expires_at: { gte: new Date() },
+        },
+      },
+    });
+    if (login) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { created_at, person_id, school_id, ...data } = login;
+      return await this.prismaService.$transaction([
+        this.prismaService.loginAudit.create({ data }),
+        this.prismaService.login.update({
+          data: {
+            password: bcrypt.hashSync(new_password, Number(process.env.SALT)),
+          },
+          where: { login_id: login.login_id },
+        }),
+        this.prismaService.resetPassword.update({
+          data: { is_valid: false },
+          where: { reset_password_id },
+        }),
+      ]);
+    }
+    throw new HttpException(sAUTH404['Fr'], HttpStatus.NOT_FOUND);
   }
 
   @Get('user')

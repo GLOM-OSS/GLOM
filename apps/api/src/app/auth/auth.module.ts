@@ -7,6 +7,7 @@ import { AnnualTeacherService } from '../../services/annual-teacher.service';
 import { LogService } from '../../services/log.service';
 import { LoginService } from '../../services/login.service';
 import { PersonService } from '../../services/person.service';
+import { ResetPasswordService } from '../../services/reset-password.service';
 import { SchoolService } from '../../services/school.service';
 import { StudentService } from '../../services/student.service';
 import { AuthController } from './auth.controller';
@@ -30,6 +31,7 @@ import { LocalStrategy } from './local/local.strategy';
     StudentService,
     AnnualTeacherService,
     AnnualStudentService,
+    ResetPasswordService,
     AnnualRegistryService,
     AnnualConfiguratorService,
   ],
