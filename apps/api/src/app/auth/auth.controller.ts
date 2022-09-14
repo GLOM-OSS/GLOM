@@ -7,11 +7,14 @@ import {
   Patch,
   Post,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
-import { AUTH04, AUTH404, sAUTH404 } from '../../errors';
+import {
+  AUTH04, AUTH404,
+  AUTH500, sAUTH404
+} from '../../errors';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AnnualConfiguratorService } from '../../services/annual-configurator.service';
 import { AnnualRegistryService } from '../../services/annual-registry.service';
@@ -23,7 +26,7 @@ import {
   DeserializeSessionData,
   Role,
   SerializeSessionData,
-  UserRole,
+  UserRole
 } from '../../utils/types';
 import { NewPasswordDto } from '../class-vaditor';
 import { AuthenticatedGuard } from './auth.guard';
@@ -197,6 +200,24 @@ export class AuthController {
       ]);
     }
     throw new HttpException(sAUTH404['Fr'], HttpStatus.NOT_FOUND);
+  }
+
+  @Patch('log-out')
+  @UseGuards(AuthenticatedGuard)
+  async logOut(@Req() request: Request) {
+    const { log_id } = request.session['passport']['user'];
+
+    return request.session.destroy(async (err) => {
+      if (!err)
+        throw new HttpException(
+          AUTH500['Fr'],
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
+      await this.prismaService.log.update({
+        data: { logged_out_at: new Date() },
+        where: { log_id },
+      });
+    });
   }
 
   @Get('user')

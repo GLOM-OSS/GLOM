@@ -47,6 +47,10 @@ export const AUTH403 = (ressource: string) => ({
   En: `Access borbidden for ${ressource}.`,
   Fr: `Accès interdit pour ${ressource}`,
 });
+export const AUTH500 = {
+  En: `Sorry, we could not destroy your session`,
+  Fr: `Désolé, nous avons pas pu deruire votre session`,
+};
 export const AUTH501 = (element: string) => ({
   En: `Sorry, this ${element} is not yet implemented`,
   Fr: `Désolé, cette ${element} n'est pas encore implémenté.`,
