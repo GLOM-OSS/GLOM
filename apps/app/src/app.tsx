@@ -7,7 +7,7 @@ import { SquoolrThemeProvider } from '@squoolr/theme';
 
 export function App() {
   const { activeLanguage } = useLanguage();
-  const activeMessage = activeLanguage === 'En' ? frMessages : enMessages;
+  const activeMessage = activeLanguage === 'Fr' ? frMessages : enMessages;
   const routing = useRoutes(routes);
 
   return (
