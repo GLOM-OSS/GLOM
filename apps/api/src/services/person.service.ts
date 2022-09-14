@@ -6,9 +6,16 @@ import { Person, Prisma } from '@prisma/client';
 export class PersonService {
   constructor(private prisma: PrismaService) {}
 
-  async findOne(personWhereInput: Prisma.PersonWhereInput): Promise<Person> {
+  async findOne({
+    where,
+    include,
+  }: {
+    include?: Prisma.PersonInclude;
+    where?: Prisma.PersonWhereInput;
+  }) {
     return this.prisma.person.findFirst({
-      where: personWhereInput,
+      where,
+      include,
     });
   }
 
