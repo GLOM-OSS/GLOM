@@ -104,6 +104,7 @@ export function Signin({
                 year_status: 'finished',
               },
             ];
+            //TODO: AUTO SIGN-IN USER IF ACADEMIC YEARS.length ===1
             setAcademicYears(newAcademicYears);
             setIsAcademicYearDialogOpen(true);
           }
