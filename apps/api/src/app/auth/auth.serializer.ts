@@ -29,6 +29,7 @@ export class AuthSerializer extends PassportSerializer {
     done: (err, user: SerializeSessionData) => void
   ) {
     done(null, {
+      log_id: user['log_id'] as string,
       login_id: user['login_id'] as string,
       roles: user['roles'] as UserRole[],
     });

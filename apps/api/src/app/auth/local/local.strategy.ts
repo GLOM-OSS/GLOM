@@ -23,9 +23,9 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       email,
       password
     );
-    await this.logService.create({
+    const { log_id } = await this.logService.create({
       Login: { connect: { login_id: user.login_id } },
     });
-    return user;
+    return { log_id, ...user };
   }
 }

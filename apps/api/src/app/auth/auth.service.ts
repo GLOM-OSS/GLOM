@@ -54,7 +54,7 @@ export class AuthService {
 
   async validateLogin(host: string, login: Omit<Login, 'password'>) {
     const { login_id, school_id } = login;
-    const user: SerializeSessionData = { login_id, roles: [] };
+    const user: Omit<SerializeSessionData, 'log_id'> = { login_id, roles: [] };
     const activeLogs = await this.logService.count({
       login_id,
       NOT: {

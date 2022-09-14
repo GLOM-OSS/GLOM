@@ -27,6 +27,7 @@ export type UserRole = {
 };
 
 export type SerializeSessionData = {
+  log_id: string;
   login_id: string;
   roles: UserRole[];
 };
