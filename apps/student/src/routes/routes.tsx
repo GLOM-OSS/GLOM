@@ -14,7 +14,7 @@ export const routes = [
     element: <ForgotPassword />,
   },
   {
-    path: 'reset-password/:code/new-password',
+    path: 'forgot-password/:reset_password_id/new-password',
     element: <NewPassword />,
   },
   {

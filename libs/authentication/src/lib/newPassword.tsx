@@ -54,7 +54,7 @@ export function NewPassword({
       });
       //TODO: CALL reset password API HERE
       setTimeout(() => {
-        console.log(values, params['code']);
+        console.log(values, params['reset_password_id']);
         setIsSubmitting(false);
         if (random() > 5) {
           newNotification.update({
