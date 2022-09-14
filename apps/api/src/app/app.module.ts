@@ -7,9 +7,16 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 import { createClient } from 'redis';
 
+import { PassportModule } from '@nestjs/passport';
+import { AnnualConfiguratorService } from '../services/annual-configurator.service';
+import { LoginService } from '../services/login.service';
+import { StudentService } from '../services/student.service';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PassportModule } from '@nestjs/passport';
+import { AuthModule } from './auth/auth.module';
+import { PersonService } from '../services/person.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { AnnualStudentService } from '../services/annual-student.service';
 
 @Module({
   imports: [
@@ -17,9 +24,18 @@ import { PassportModule } from '@nestjs/passport';
     PassportModule.register({
       session: true,
     }),
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    LoginService,
+    PersonService,
+    PrismaService,
+    StudentService,
+    AnnualStudentService,
+    AnnualConfiguratorService,
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
