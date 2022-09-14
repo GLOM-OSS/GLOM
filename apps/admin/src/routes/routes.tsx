@@ -18,7 +18,7 @@ export const routes = [
     element: <NewPassword />,
   },
   {
-    path: '/signin',
+    path: '/dashboard',
     element: <Typography variant="h1">Welcome to Squoolr Admin</Typography>,
   },
   { path: '*', element: <Navigate to="/" /> },
