@@ -11,6 +11,7 @@
     "dialog-transition": "libs/dialog-transition",
     "landing": "apps/landing",
     "landing-e2e": "apps/landing-e2e",
+    "layout": "libs/layout",
     "student": "apps/student",
     "student-e2e": "apps/student-e2e",
     "theme": "libs/theme",
