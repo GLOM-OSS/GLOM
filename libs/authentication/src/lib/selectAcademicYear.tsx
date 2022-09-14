@@ -55,6 +55,7 @@ export function SelectAcademicYearDialog({
           render: formatMessage({ id: 'academicYearSet' }),
         });
         navigate('/dashboard');
+        closeDialog()
       } else {
         newNotification.update({
           type: 'ERROR',
