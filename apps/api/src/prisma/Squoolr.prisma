@@ -29,12 +29,12 @@ model Person {
     birthdate          DateTime @db.DateTime(0)
     gender             Gender
     national_id_number String   @db.VarChar(15)
-    address            String   @db.VarChar(20)
-    longitude          Int
-    latitude           Int
+    address            String?  @db.VarChar(20)
+    longitude          Int?
+    latitude           Int?
     email              String   @unique @db.VarChar(50)
-    preferred_lang     Lang
-    image_ref          String   @db.VarChar(50)
+    preferred_lang     Lang     @default(Fr)
+    image_ref          String?  @db.VarChar(50)
     created_at         DateTime @default(now()) @db.DateTime(0)
 
     Schools      School[]
@@ -50,12 +50,12 @@ model PersonAudit {
     birthdate          DateTime @db.DateTime(0)
     gender             Gender
     national_id_number String   @db.VarChar(15)
-    address            String   @db.VarChar(20)
-    longitude          Int
-    latitude           Int
+    address            String?  @db.VarChar(20)
+    longitude          Int?
+    latitude           Int?
     email              String   @db.VarChar(50)
     preferred_lang     Lang
-    image_ref          String   @db.VarChar(50)
+    image_ref          String?  @db.VarChar(50)
     audited_at         DateTime @default(now()) @db.DateTime(0)
     audited_by         String   @db.VarChar(36)
     Person             Person   @relation(fields: [audited_by], references: [person_id], onDelete: Cascade, onUpdate: Cascade)
@@ -63,15 +63,16 @@ model PersonAudit {
 
 model School {
     school_id              String   @id @default(uuid()) @db.VarChar(36)
-    address                String   @db.VarChar(20)
-    longitude              Int
-    latitude               Int
-    email                  String   @db.VarChar(50)
+    address                String?  @db.VarChar(20)
+    longitude              Int?
+    latitude               Int?
+    school_name            String   @db.VarChar(50)
+    email                  String   @unique @db.VarChar(50)
     phone_number           String   @db.VarChar(15)
-    description            String   @db.Text
-    logo_ref               String   @db.VarChar(45)
-    subdomain              String   @db.VarChar(30)
-    creation_decree_number String   @db.VarChar(45)
+    description            String?  @db.Text
+    logo_ref               String?  @db.VarChar(45)
+    subdomain              String?  @db.VarChar(30)
+    creation_decree_number String?  @db.VarChar(45)
     is_validated           Boolean  @default(false) @db.TinyInt
     is_deleted             Boolean  @default(false) @db.TinyInt
     created_at             DateTime @default(now()) @db.DateTime(0)
@@ -108,22 +109,23 @@ model AcademicYear {
     ends_at            DateTime            @db.DateTime(0)
     started_at         DateTime?           @db.DateTime(0)
     ended_at           DateTime?           @db.DateTime(0)
-    status             AcademicYearStatus
-    code               String              @db.VarChar(36)
+    status             AcademicYearStatus  @default(INACTIVE)
+    code               String              @unique @db.VarChar(36)
     is_deleted         Boolean             @default(false) @db.TinyInt
-    created_at         DateTime            @db.DateTime(0)
+    created_at         DateTime            @default(now()) @db.DateTime(0)
     created_by         String?             @db.VarChar(36)
     AnnualConfigurator AnnualConfigurator? @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualConfigurators AnnualConfigurator[] @relation(name: "Configurator_AcademiqueYear")
     AnnualRegistries    AnnualRegistry[]
     AnnualTeachers      AnnualTeacher[]
+    AnnualStudents      AnnualStudent[]
 }
 
 model Login {
     login_id     String   @id @default(uuid()) @db.VarChar(36)
     password     String   @db.VarChar(75)
-    cookie_age   String   @db.VarChar(36)
+    cookie_age   Int      @default(600) //10* 60 seconds of inativity
     is_personnel Boolean  @default(false) @db.TinyInt
     is_deleted   Boolean  @default(false) @db.TinyInt()
     created_at   DateTime @default(now()) @db.DateTime(0)
@@ -179,9 +181,11 @@ model Student {
 }
 
 model AnnualStudent {
-    annual_student_id String  @id @default(uuid()) @db.VarChar(36)
+    annual_student_id String       @id @default(uuid()) @db.VarChar(36)
     student_id        String
-    Student           Student @relation(fields: [student_id], references: [student_id], onDelete: Cascade, onUpdate: Cascade)
+    Student           Student      @relation(fields: [student_id], references: [student_id], onDelete: Cascade, onUpdate: Cascade)
+    academic_year_id  String
+    AcademicYear      AcademicYear @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model AnnualRegistry {
@@ -211,7 +215,7 @@ model AnnualTeacher {
 }
 
 enum AuthMethod {
-    MANUAL
+    LOCAL
     GOOGLE
 
     @@map("auth_method_enum")
@@ -219,7 +223,7 @@ enum AuthMethod {
 
 model Log {
     log_id        String     @id @default(uuid()) @db.VarChar(36)
-    auth_method   AuthMethod
+    auth_method   AuthMethod @default(LOCAL)
     logged_in_at  DateTime   @default(now()) @db.DateTime(0)
     logged_out_at DateTime   @default(now()) @db.DateTime(0)
     closed_at     DateTime   @default(now()) @db.DateTime(0)
