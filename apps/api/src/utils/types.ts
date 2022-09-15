@@ -26,7 +26,7 @@ export type UserRole = {
   role: Role;
 };
 
-export type SerializeSessionData = {
+export type PassportSession = {
   log_id: string;
   login_id: string;
   roles: UserRole[];
@@ -43,14 +43,8 @@ export type DeserializeSessionData = {
 
 declare module 'express-session' {
   interface SessionData {
-    views: number;
-    SessionData: {
-      login_id: string; //admin,
-      student?: Student; //Student
-      //Personnel
-      annualConfigurator?: AnnualConfigurator;
-      annualTeacher?: AnnualTeacher;
-      annualRegistry?: AnnualRegistry;
+    passport: {
+      user: PassportSession;
     };
   }
 }

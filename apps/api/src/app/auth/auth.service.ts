@@ -11,7 +11,7 @@ import { LoginService } from '../../services/login.service';
 import { PersonService } from '../../services/person.service';
 import { SchoolService } from '../../services/school.service';
 import { StudentService } from '../../services/student.service';
-import { SerializeSessionData } from '../../utils/types';
+import { PassportSession } from '../../utils/types';
 
 type AcademicYearObject = { AcademicYear: AcademicYear };
 
@@ -54,7 +54,7 @@ export class AuthService {
 
   async validateLogin(host: string, login: Omit<Login, 'password'>) {
     const { login_id, school_id } = login;
-    const user: Omit<SerializeSessionData, 'log_id'> = { login_id, roles: [] };
+    const user: Omit<PassportSession, 'log_id'> = { login_id, roles: [] };
     const activeLogs = await this.logService.count({
       login_id,
       NOT: {
@@ -103,7 +103,6 @@ export class AuthService {
 
   async getAcademicYears(login_id: string) {
     const select = {
-      academic_year_id: true,
       AcademicYear: {
         select: {
           code: true,
@@ -112,6 +111,7 @@ export class AuthService {
           status: true,
           starts_at: true,
           ends_at: true,
+          academic_year_id: true,
         },
       },
     };

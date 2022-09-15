@@ -7,9 +7,9 @@ import { AnnualTeacherService } from '../../services/annual-teacher.service';
 import { StudentService } from '../../services/student.service';
 import {
   DeserializeSessionData,
+  PassportSession,
   RecordValue,
   Role,
-  SerializeSessionData,
   UserRole,
 } from '../../utils/types';
 
@@ -26,7 +26,7 @@ export class AuthSerializer extends PassportSerializer {
 
   serializeUser(
     user: Record<string, RecordValue>,
-    done: (err, user: SerializeSessionData) => void
+    done: (err, user: PassportSession) => void
   ) {
     done(null, {
       log_id: user['log_id'] as string,
@@ -36,7 +36,7 @@ export class AuthSerializer extends PassportSerializer {
   }
 
   async deserializeUser(
-    user: SerializeSessionData,
+    user: PassportSession,
     done: (err, user: DeserializeSessionData) => void
   ) {
     const { login_id, roles } = user;
