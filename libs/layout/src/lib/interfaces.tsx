@@ -26,17 +26,17 @@ export interface User {
   birthdate: Date;
   gender: Gender;
   national_id_number: string;
-  address: string | null;
-  longitude: number | null;
-  latitude: number | null;
+  address?: string;
+  longitude?: number;
+  latitude?: number;
   email: string;
   preferred_lang: Lang;
-  image_ref: string | null;
+  image_ref?: string;
   login_id: string;
   annualStudent?: {
     annual_student_id: string;
     student_id: string;
-  }; 
+  };
 
   annualConfigurator?: {
     annual_configurator_id: string;
