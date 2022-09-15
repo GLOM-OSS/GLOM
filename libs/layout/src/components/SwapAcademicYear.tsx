@@ -8,9 +8,10 @@ import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 
 export default function SwapAcademicYear({
-  activeYear: { starts_at, ends_at },
+  activeYear: { starts_at, ends_at }, callingApp
 }: {
   activeYear: { academic_yeear_id: string; starts_at: Date; ends_at: Date };
+  callingApp: 'admin'|'personnel'
 }) {
   const intl = useIntl();
   const { formatMessage } = intl;
@@ -118,7 +119,7 @@ export default function SwapAcademicYear({
           academicYears.length > 1 &&
           !isFetchingAcademicYears
         }
-        callingApp="admin"
+        callingApp={callingApp}
       />
       <Box
         sx={{
