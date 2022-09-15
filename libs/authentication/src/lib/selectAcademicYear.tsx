@@ -1,11 +1,18 @@
-import { Box, Dialog, lighten, Typography } from '@mui/material';
+import {
+  Box,
+  Dialog,
+  IconButton,
+  lighten,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { theme } from '@squoolr/theme';
 import { IntlShape } from 'react-intl';
 import AcademicYear from '../components/AcademicYear';
 import favicon from './logo.png';
 import { Scrollbars } from 'react-custom-scrollbars-2';
-import { ReportRounded } from '@mui/icons-material';
+import { CloseRounded, ReportRounded } from '@mui/icons-material';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
 import { useState } from 'react';
@@ -25,11 +32,13 @@ export function SelectAcademicYearDialog({
   academicYears,
   closeDialog,
   isDialogOpen,
+  callingApp,
 }: {
   intl: IntlShape;
   academicYears: AcademicYearInterface[];
   isDialogOpen: boolean;
   closeDialog: () => void;
+  callingApp?: 'admin' | 'personnel';
 }) {
   const [notifications, setNotifications] = useState<useNotification[]>();
   const [selectedAcademicYearId, setSelectedAcademicYearId] =
@@ -55,7 +64,7 @@ export function SelectAcademicYearDialog({
           render: formatMessage({ id: 'academicYearSet' }),
         });
         navigate('/dashboard');
-        closeDialog()
+        closeDialog();
       } else {
         newNotification.update({
           type: 'ERROR',
@@ -83,7 +92,25 @@ export function SelectAcademicYearDialog({
       keepMounted
       onClose={closeDialog}
       fullScreen
+      // sx={{ position: 'relative' }}
     >
+      {callingApp === 'admin' && (
+        <IconButton
+          sx={{
+            position: 'absolute',
+            top: 7,
+            right: 10,
+            border: `1px solid ${theme.common.placeholder}`,
+          }}
+          onClick={closeDialog}
+        >
+          <Tooltip arrow title={formatMessage({ id: 'close' })}>
+            <CloseRounded
+              sx={{ color: theme.common.placeholder, fontSize: 25 }}
+            />
+          </Tooltip>
+        </IconButton>
+      )}
       <Box
         sx={{
           height: '100%',
