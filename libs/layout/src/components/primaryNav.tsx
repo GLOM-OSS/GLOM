@@ -1,0 +1,87 @@
+import { LogoutRounded } from '@mui/icons-material';
+import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
+import { theme } from '@squoolr/theme';
+import { IntlShape } from 'react-intl';
+import { useNavigate } from 'react-router';
+import { NavItem } from '../lib/interfaces';
+import favicon from '../lib/logo.png';
+import PrimaryNavItem from './PrimaryNavItem';
+
+export default function PrimaryNav({
+  intl: { formatMessage },
+  isLoggingOut,
+  isLogoutDialogOpen,
+  navItems,
+  setActiveNavItem,
+  openLogoutDialog,
+  activeNavItem,
+}: {
+  intl: IntlShape;
+  isLoggingOut: boolean;
+  isLogoutDialogOpen: boolean;
+  navItems: NavItem[];
+  setActiveNavItem: (navItem: NavItem) => void;
+  openLogoutDialog: () => void;
+  activeNavItem: NavItem;
+}) {
+  const navigate = useNavigate();
+  return (
+    <Box
+      sx={{
+        backgroundColor: theme.palette.primary.main,
+        padding: `${theme.spacing(2)} ${theme.spacing(1)}`,
+        display: 'grid',
+        gridTemplateRows: 'auto 1fr auto',
+        height: '100%',
+      }}
+    >
+      <Box
+        sx={{
+          backgroundColor: theme.common.background,
+          borderRadius: '100%',
+          padding: ` ${theme.spacing(0.5)} ${theme.spacing(1)}`,
+          cursor: 'pointer',
+        }}
+        onClick={() => navigate('/dashboard')}
+      >
+        <Tooltip arrow title={formatMessage({ id: 'dashboard' })}>
+          <img src={favicon} alt={'Squoolr icon'} width={35} />
+        </Tooltip>
+      </Box>
+      <Box sx={{display:'grid', alignContent:'center', rowGap: theme.spacing(2.5), }}>
+        {navItems.map((navItem, index) => (
+          <PrimaryNavItem
+            navItem={navItem}
+            key={index}
+            activeNavItem={activeNavItem}
+            handleSelect={()=>setActiveNavItem(navItem)}
+          />
+        ))}
+      </Box>
+      <IconButton
+        onClick={() =>
+          isLoggingOut || isLogoutDialogOpen ? null : openLogoutDialog
+        }
+      >
+        {isLoggingOut || isLogoutDialogOpen ? (
+          <CircularProgress
+            sx={{ color: theme.common.background }}
+            thickness={3}
+            size={30}
+          />
+        ) : (
+          <Tooltip arrow title={formatMessage({ id: 'logout' })}>
+            <LogoutRounded
+              fontSize="large"
+              sx={{
+                color: theme.common.background,
+                justifySelf: 'center',
+                fontSize: 30,
+              }}
+            />
+          </Tooltip>
+        )}
+      </IconButton>
+    </Box>
+  );
+}
