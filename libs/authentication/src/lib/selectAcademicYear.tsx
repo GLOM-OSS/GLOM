@@ -94,7 +94,7 @@ export function SelectAcademicYearDialog({
       fullScreen
       // sx={{ position: 'relative' }}
     >
-      {callingApp === 'admin' && (
+      {callingApp === 'personnel' && (
         <IconButton
           sx={{
             position: 'absolute',
