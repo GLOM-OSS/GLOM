@@ -14,3 +14,47 @@ export interface NavItem {
   title: string;
   children: NavChild[];
 }
+
+export type Gender = 'Male' | 'Female';
+export type Lang = 'En' | 'Fr';
+
+export interface User {
+  person_id: string;
+  fisrt_name: string;
+  last_name: string;
+  phone_number: string;
+  birthdate: Date;
+  gender: Gender;
+  national_id_number: string;
+  address: string | null;
+  longitude: number | null;
+  latitude: number | null;
+  email: string;
+  preferred_lang: Lang;
+  image_ref: string | null;
+  login_id: string;
+  annualStudent?: {
+    annual_student_id: string;
+    student_id: string;
+  }; 
+
+  annualConfigurator?: {
+    annual_configurator_id: string;
+    is_sudo: boolean;
+  };
+  annualTeacher?: {
+    annual_teacher_id: string;
+    hourly_rate: number;
+    origin_institute: string;
+    has_signed_convention: boolean;
+    teacher_id: string;
+  };
+  annualRegistry?: {
+    annual_registry_id: string;
+  };
+  activeYear: {
+    academic_yeear_id: string;
+    starts_at: Date;
+    ends_at: Date;
+  };
+}
