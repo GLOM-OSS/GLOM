@@ -33,6 +33,7 @@ export default function PrimaryNav({
         display: 'grid',
         gridTemplateRows: 'auto 1fr auto',
         height: '100%',
+        boxShadow: '0px 4px 8px 2px rgba(0, 0, 0, 0.25)',
       }}
     >
       <Box
@@ -48,13 +49,19 @@ export default function PrimaryNav({
           <img src={favicon} alt={'Squoolr icon'} width={35} />
         </Tooltip>
       </Box>
-      <Box sx={{display:'grid', alignContent:'center', rowGap: theme.spacing(2.5), }}>
+      <Box
+        sx={{
+          display: 'grid',
+          alignContent: 'center',
+          rowGap: theme.spacing(2.5),
+        }}
+      >
         {navItems.map((navItem, index) => (
           <PrimaryNavItem
             navItem={navItem}
             key={index}
             activeNavItem={activeNavItem}
-            handleSelect={()=>setActiveNavItem(navItem)}
+            handleSelect={() => setActiveNavItem(navItem)}
           />
         ))}
       </Box>
