@@ -25,7 +25,7 @@ export default function SecondaryNavItem({
         variant="body1"
         sx={{
           width: '100%',
-          padding: `${theme.spacing(2)} ${theme.spacing(2.5)} `,
+          padding: `${theme.spacing(1)} ${theme.spacing(2.5)} `,
           borderRadius: '10px',
           '&:hover': {
             backgroundColor: lighten(theme.palette.primary.dark, 0.85),
