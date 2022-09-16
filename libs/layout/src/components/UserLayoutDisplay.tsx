@@ -10,7 +10,7 @@ import {
 import { theme } from '@squoolr/theme';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
-import { PeronnelRole, User } from '../lib/interfaces';
+import { PersonnelRole, User } from '../lib/interfaces';
 
 export default function UserLayoutDisplay({
   user: { fisrt_name, image_ref },
@@ -19,9 +19,9 @@ export default function UserLayoutDisplay({
   userRoles,
 }: {
   user: User;
-  selectRole: (item: PeronnelRole) => void;
-  activeRole?: PeronnelRole | 'administrator';
-  userRoles?: PeronnelRole[];
+  selectRole: (item: PersonnelRole) => void;
+  activeRole?: PersonnelRole | 'administrator';
+  userRoles?: PersonnelRole[];
 }) {
   const intl = useIntl();
   const { formatMessage } = intl;

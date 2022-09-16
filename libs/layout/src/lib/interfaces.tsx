@@ -18,6 +18,8 @@ export interface NavItem {
 export type Gender = 'Male' | 'Female';
 export type Lang = 'En' | 'Fr';
 
+export type PersonnelRole = 'secretary'|'teacher'|'registry'
+
 export interface User {
   person_id: string;
   fisrt_name: string;
