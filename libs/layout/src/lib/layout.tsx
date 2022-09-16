@@ -1,5 +1,9 @@
-import { ReportRounded, SettingsRounded } from '@mui/icons-material';
-import { Box, Typography } from '@mui/material';
+import {
+  KeyboardDoubleArrowLeftRounded,
+  ReportRounded,
+  SettingsRounded,
+} from '@mui/icons-material';
+import { Box, Collapse, IconButton, Tooltip, Typography } from '@mui/material';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
@@ -110,72 +114,85 @@ export function Layout({
           openSecondaryNav={() => setIsSecondaryNavOpen(true)}
         />
         <Box
+          component={Collapse}
+          timeout={170}
+          orientation="horizontal"
+          in={isSecondaryNavOpen}
           sx={{
             padding: isSecondaryNavOpen
               ? `${theme.spacing(2.375)} ${theme.spacing(1.75)}`
               : 0,
             borderRight: `1px solid ${theme.common.line}`,
-            display: 'grid',
-            gridTemplateRows: 'auto auto 1fr auto auto',
-            alignItems: 'start',
-            width: isSecondaryNavOpen ? 'fit-content' : 0,
-            transition: '0.2s',
+            '& .MuiCollapse-wrapper>.MuiCollapse-wrapperInner': {
+              display: 'grid',
+              gridTemplateRows: 'auto auto 1fr auto auto',
+              alignItems: 'start',
+            },
+            position: 'relative',
+            paddingTop: theme.spacing(4),
           }}
         >
-          {isSecondaryNavOpen && (
-            <>
-              <UserLayoutDisplay
-                user={user}
-                activeRole={activeRole}
-                userRoles={userRoles}
-                selectRole={(newRole: PersonnelRole) =>
-                  handleSwapRole && handleSwapRole(newRole)
-                }
+          <IconButton
+            size="small"
+            onClick={() => setIsSecondaryNavOpen(false)}
+            sx={{ position: 'absolute', top: 0, right: 0 }}
+          >
+            <Tooltip arrow title={formatMessage({ id: 'collapseMenu' })}>
+              <KeyboardDoubleArrowLeftRounded
+                sx={{ fontSize: 20, color: theme.common.titleActive }}
               />
-              <Typography variant="body2" sx={{ color: theme.common.label }}>
-                {activeNavItem.title}
-              </Typography>
-              <Scrollbars>
-                <Box
-                  sx={{
-                    marginTop: theme.spacing(2.5),
-                    display: 'grid',
-                    rowGap: theme.spacing(1),
-                  }}
-                >
-                  {activeNavItem.children.map((child, index) => (
-                    <SecondaryNavItem item={child} key={index} />
-                  ))}
-                </Box>
-              </Scrollbars>
-              {callingApp === 'personnel' && (
-                <SwapAcademicYear
-                  callingApp={callingApp}
-                  activeYear={activeYear}
-                />
-              )}
-              <Box
-                sx={{
-                  display: 'grid',
-                  justifyItems: 'center',
-                  marginTop: theme.spacing(3.75),
-                }}
-              >
-                <Typography
-                  variant="caption"
-                  sx={{ color: theme.common.placeholder }}
-                >
-                  {`© ${new Date().getFullYear()} Squoolr`}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ color: theme.common.placeholder }}
-                >
-                  {formatMessage({ id: 'allRightsReserved' })}
-                </Typography>
-              </Box>
-            </>
+            </Tooltip>
+          </IconButton>
+
+          <UserLayoutDisplay
+            user={user}
+            activeRole={activeRole}
+            userRoles={userRoles}
+            selectRole={(newRole: PersonnelRole) =>
+              handleSwapRole && handleSwapRole(newRole)
+            }
+          />
+          <Typography variant="body2" sx={{ color: theme.common.label }}>
+            {activeNavItem.title}
+          </Typography>
+          <Scrollbars>
+            <Box
+              sx={{
+                marginTop: theme.spacing(2.5),
+                display: 'grid',
+                rowGap: theme.spacing(1),
+              }}
+            >
+              {activeNavItem.children.map((child, index) => (
+                <SecondaryNavItem item={child} key={index} />
+              ))}
+            </Box>
+          </Scrollbars>
+          {callingApp === 'personnel' && (
+            <SwapAcademicYear callingApp={callingApp} activeYear={activeYear} />
           )}
+          <Box
+            sx={{
+              display: 'grid',
+              justifyItems: 'center',
+              marginTop: theme.spacing(3.75),
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{ color: theme.common.placeholder }}
+            >
+              {`© ${new Date().getFullYear()} Squoolr`}
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{ color: theme.common.placeholder }}
+            >
+              {formatMessage({ id: 'allRightsReserved' })}
+            </Typography>
+          </Box>
+          {/* </Collapse> */}
+          {/* )} */}
         </Box>
       </Box>
     </>
@@ -204,5 +221,6 @@ administrator:'Squoolr Admin',
 teacher: 'Teacher', 
 secretary: 'Secretary',
 registry: 'Registry',
-listRoles: 'Roles'
+listRoles: 'Roles',
+collapseMenu:'Collapse menu'
  */
