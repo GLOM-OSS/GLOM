@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
-import { AcademicYear, Login } from '@prisma/client';
+import { AcademicYear, AcademicYearStatus, Login } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { AUTH02, AUTH401 } from '../../errors';
 import { AnnualConfiguratorService } from '../../services/annual-configurator.service';
@@ -11,7 +11,7 @@ import { LoginService } from '../../services/login.service';
 import { PersonService } from '../../services/person.service';
 import { SchoolService } from '../../services/school.service';
 import { StudentService } from '../../services/student.service';
-import { PassportSession } from '../../utils/types';
+import { PassportSession, ActiveYear } from '../../utils/types';
 
 type AcademicYearObject = { AcademicYear: AcademicYear };
 
@@ -118,7 +118,7 @@ export class AuthService {
     //check for annual student
     const annualStudents = (await this.annualStudentService.findAll({
       select,
-      where: { Student: { login_id } },
+      where: { Student: { login_id }, is_deleted: false },
     })) as AcademicYearObject[];
     if (annualStudents.length > 0) {
       return annualStudents.map(
@@ -129,31 +129,47 @@ export class AuthService {
     //check for annual configurator
     const annualConfigurators = (await this.AnnualConfiguratorService.findAll({
       select,
-      where: { login_id },
+      where: { login_id, is_deleted: false },
     })) as AcademicYearObject[];
 
     //check for annual registry
     const annualRegistries = (await this.annualRegistryService.findAll({
       select,
-      where: { login_id },
+      where: { login_id, is_deleted: false },
     })) as AcademicYearObject[];
 
     //check for annual registry
     const annualTeachers = (await this.annualTeacherService.findAll({
       select,
-      where: { login_id },
+      where: { login_id, is_deleted: false },
     })) as AcademicYearObject[];
 
-    const academic_years: AcademicYear[] = [];
+    const academic_years: ActiveYear[] = [];
 
     [...annualConfigurators, ...annualRegistries, ...annualTeachers].forEach(
-      ({ AcademicYear: academicYear }) => {
+      ({
+        AcademicYear: {
+          academic_year_id,
+          code,
+          ended_at,
+          ends_at,
+          started_at,
+          starts_at,
+          status,
+        },
+      }) => {
         if (
-          !academic_years.find(
-            (_) => _.academic_year_id === academicYear.academic_year_id
-          )
+          !academic_years.find((_) => _.academic_year_id === academic_year_id)
         ) {
-          academic_years.push(academicYear);
+          academic_years.push({
+            code,
+            status,
+            academic_year_id,
+            starting_date:
+              status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,
+            ending_date:
+              status !== AcademicYearStatus.FIINISHED ? ends_at : ended_at,
+          });
         }
       }
     );

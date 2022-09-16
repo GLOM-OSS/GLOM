@@ -7,14 +7,11 @@ import {
   Patch,
   Post,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
-import {
-  AUTH04, AUTH404,
-  AUTH500, sAUTH404
-} from '../../errors';
+import { AUTH04, AUTH404, AUTH500, sAUTH404 } from '../../errors';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AnnualConfiguratorService } from '../../services/annual-configurator.service';
 import { AnnualRegistryService } from '../../services/annual-registry.service';
@@ -22,12 +19,7 @@ import { AnnualStudentService } from '../../services/annual-student.service';
 import { AnnualTeacherService } from '../../services/annual-teacher.service';
 import { LoginService } from '../../services/login.service';
 import { ResetPasswordService } from '../../services/reset-password.service';
-import {
-  DeserializeSessionData,
-  Role,
-  SerializeSessionData,
-  UserRole
-} from '../../utils/types';
+import { DeserializeSessionData, Role, UserRole } from '../../utils/types';
 import { NewPasswordDto } from '../class-vaditor';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
@@ -50,18 +42,19 @@ export class AuthController {
   @UseGuards(LocalGuard)
   async userSignIn(@Req() request: Request) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { roles, ...user } = request.user as SerializeSessionData;
+    const { created_at, ...user } = request.user as DeserializeSessionData;
     const academic_years = await this.authService.getAcademicYears(
       user.login_id
     );
     if (academic_years.length === 1) {
+      const selected_roles = await this.getSelectedYearRoles(
+        request,
+        academic_years[0].academic_year_id
+      );
       return {
         user: {
           ...user,
-          ...(await this.setSelectedYear(
-            request,
-            academic_years[0].academic_year_id
-          )),
+          ...selected_roles,
         },
       };
     }
@@ -70,15 +63,16 @@ export class AuthController {
 
   @Patch('active-year')
   @UseGuards(AuthenticatedGuard)
-  async setSelectedYear(
-    @Req() request,
+  async getSelectedYearRoles(
+    @Req() request: Request,
     @Body('selected_academic_year_id') academic_year_id: string
   ) {
-    const { login_id } = request.user as DeserializeSessionData;
+    const { login_id, log_id } = request.session.passport.user;
     const userRoles: UserRole[] = [];
     //check for annual student
     const annualStudent = await this.annualStudentService.findOne({
       academic_year_id,
+      is_deleted: false,
       Student: { login_id },
     });
     if (annualStudent) {
@@ -86,9 +80,19 @@ export class AuthController {
         user_id: annualStudent.annual_student_id,
         role: Role.STUDENT,
       });
-      request.session.passport.user.roles = userRoles;
+      await new Promise((resolve) =>
+        request.logIn(
+          { log_id, login_id, roles: userRoles, academic_year_id },
+          (err) => {
+            if (err)
+              throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+            resolve('Session saved');
+          }
+        )
+      );
       return {
         login_id,
+        ...request.user,
         annualStudent,
       };
     }
@@ -96,6 +100,7 @@ export class AuthController {
     const annualConfigurator = await this.AnnualConfiguratorService.findOne({
       login_id,
       academic_year_id,
+      is_deleted: false,
     });
     if (annualConfigurator)
       userRoles.push({
@@ -107,6 +112,7 @@ export class AuthController {
     const annualRegistry = await this.annualRegistryService.findOne({
       login_id,
       academic_year_id,
+      is_deleted: false,
     });
     if (annualRegistry)
       userRoles.push({
@@ -117,6 +123,7 @@ export class AuthController {
     //check for annual registry
     const annualTeacher = await this.annualTeacherService.findOne({
       academic_year_id,
+      is_deleted: false,
       login_id,
     });
     if (annualTeacher)
@@ -124,7 +131,17 @@ export class AuthController {
         user_id: annualTeacher.annual_teacher_id,
         role: Role.TEACHER,
       });
-    request.session.passport.user.roles = userRoles;
+
+    await new Promise((resolve) =>
+      request.login(
+        { log_id, login_id, roles: userRoles, academic_year_id },
+        (err) => {
+          if (err)
+            throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+          resolve('Session saved');
+        }
+      )
+    );
     return {
       login_id,
       annualConfigurator,
@@ -205,19 +222,23 @@ export class AuthController {
   @Patch('log-out')
   @UseGuards(AuthenticatedGuard)
   async logOut(@Req() request: Request) {
-    const { log_id } = request.session['passport']['user'];
+    const { log_id } = request.session.passport.user;
 
-    return request.session.destroy(async (err) => {
-      if (!err)
-        throw new HttpException(
-          AUTH500['Fr'],
-          HttpStatus.INTERNAL_SERVER_ERROR
-        );
-      await this.prismaService.log.update({
-        data: { logged_out_at: new Date() },
-        where: { log_id },
+    try {
+      return request.session.destroy(async (err) => {
+        if (err)
+          throw new HttpException(
+            AUTH500['Fr'],
+            HttpStatus.INTERNAL_SERVER_ERROR
+          );
+        await this.prismaService.log.update({
+          data: { logged_out_at: new Date() },
+          where: { log_id },
+        });
       });
-    });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Get('user')

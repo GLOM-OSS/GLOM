@@ -142,7 +142,7 @@ model Login {
     Students             Student[]
     AnnualRegistries     AnnualRegistry[]
     SchoolDemand         SchoolDemand[]
-    AnnualTeacher        AnnualTeacher[]
+    AnnualTeachers       AnnualTeacher[]
 }
 
 model AnnualConfigurator {
@@ -184,6 +184,7 @@ model Student {
 
 model AnnualStudent {
     annual_student_id String       @id @default(uuid()) @db.VarChar(36)
+    is_deleted        Boolean      @default(false) @db.TinyInt
     student_id        String
     Student           Student      @relation(fields: [student_id], references: [student_id], onDelete: Cascade, onUpdate: Cascade)
     academic_year_id  String
@@ -192,6 +193,7 @@ model AnnualStudent {
 
 model AnnualRegistry {
     annual_registry_id String             @id @default(uuid()) @db.VarChar(36)
+    is_deleted         Boolean            @default(false) @db.TinyInt
     academic_year_id   String
     AcademicYear       AcademicYear       @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
     added_by           String

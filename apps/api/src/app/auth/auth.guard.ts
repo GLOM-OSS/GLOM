@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
-import { Observable } from 'rxjs';
 import { sAUTH403 } from '../../errors';
 import { SchoolService } from '../../services/school.service';
 import { DeserializeSessionData } from '../../utils/types';
@@ -19,20 +18,19 @@ export class AuthenticatedGuard implements CanActivate {
     private schoolService: SchoolService
   ) {}
 
-  canActivate(
-    context: ExecutionContext
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest<Request>();
     const isPublic = this.reflector.get<boolean>(
       'isPublic',
       context.getHandler()
     );
     const user = request.user as DeserializeSessionData;
-    const squoolr_client = request.headers.host;
+    const squoolr_client = request.headers.host.replace('https://', '');
 
     const isAuthenticated =
       isPublic ||
-      (request.isAuthenticated() && this.isClientCorrect(user, squoolr_client));
+      (request.isAuthenticated() &&
+        (await this.isClientCorrect(user, squoolr_client)));
     if (isAuthenticated) return isAuthenticated;
     else throw new HttpException(sAUTH403['Fr'], HttpStatus.FORBIDDEN);
   }
