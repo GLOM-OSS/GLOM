@@ -57,9 +57,9 @@ export class AuthService {
     const user: Omit<PassportSession, 'log_id'> = { login_id, roles: [] };
     const activeLogs = await this.logService.count({
       login_id,
-      NOT: {
-        logged_out_at: { lte: new Date() },
-        closed_at: { lte: new Date() },
+      OR: {
+        logged_out_at: { not: { lte: new Date() } },
+        closed_at: { not: { lte: new Date() } },
       },
     });
     if (activeLogs === 3) {

@@ -13,10 +13,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     private authService: AuthService,
     private personService: PersonService
   ) {
-    console.log({
-      GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-      GOOGLE_SECRET: process.env.GOOGLE_SECRET,
-    });
     super({
       callbackURL: `${process.env.NX_API_BASE_URL}/auth/redirect`,
       clientSecret: process.env.GOOGLE_SECRET,
@@ -32,11 +28,10 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     refreshToken: string,
     profile: Profile
   ) {
-    console.log(profile);
     const {
-      _json: { email_verified, email, exp },
+      _json: { email_verified, email },
     } = profile;
-    if (email_verified && new Date(exp) > new Date()) {
+    if (email_verified) {
       const person = (await this.personService.findOne({
         where: { email },
         include: {

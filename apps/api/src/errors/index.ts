@@ -30,6 +30,10 @@ export const AUTH08 = {
   En: `Oops, you have an ongoing subscription. Try later`,
   Fr: 'Oups, vous avez un abonnement en cours. Essayez plus tard',
 };
+export const AUTH400 = {
+  En: `Bad Request. Invalid grant`,
+  Fr: 'Mauvaise demande. Subvention non valide',
+};
 export const AUTH401 = {
   En: `Incorrect email or password.`,
   Fr: 'Adresse mail ou mot de passe incorrect.',

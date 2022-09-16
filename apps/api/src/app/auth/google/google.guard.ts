@@ -1,5 +1,6 @@
-import { ExecutionContext } from '@nestjs/common';
-import { AuthGuard,  } from '@nestjs/passport';
+import { ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { AUTH400 } from '../../../errors';
 import { Request } from 'express';
 
 export class GoogleGuard extends AuthGuard('google') {
@@ -8,9 +9,13 @@ export class GoogleGuard extends AuthGuard('google') {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const result = (await super.canActivate(context)) as boolean;
     const request = context.switchToHttp().getRequest<Request>();
-    await super.logIn(request);
-    return result;
+    try {
+      const result = (await super.canActivate(context)) as boolean;
+      await super.logIn(request);
+      return result;
+    } catch (error) {
+      throw new HttpException(AUTH400['Fr'], HttpStatus.BAD_REQUEST);
+    }
   }
 }
