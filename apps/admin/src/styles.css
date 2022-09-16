@@ -3,3 +3,7 @@
   margin: 0;
   padding: 0;
 }
+
+.Toastify__toast-theme--dark {
+  background-color: rgb(7, 83, 153) !important;
+}
