@@ -14,6 +14,7 @@ import { StudentService } from '../../services/student.service';
 import { AuthController } from './auth.controller';
 import { AuthSerializer } from './auth.serializer';
 import { AuthService } from './auth.service';
+import { GoogleStrategy } from './google/google.strategy';
 import { LocalStrategy } from './local/local.strategy';
 
 @Module({
@@ -23,6 +24,7 @@ import { LocalStrategy } from './local/local.strategy';
 
     AuthService,
     LocalStrategy,
+    GoogleStrategy,
     AuthSerializer,
 
     LogService,

@@ -23,6 +23,7 @@ import { DeserializeSessionData, Role, UserRole } from '../../utils/types';
 import { NewPasswordDto } from '../class-vaditor';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
+import { GoogleGuard } from './google/google.guard';
 import { LocalGuard } from './local/local.guard';
 
 @Controller('auth')
@@ -244,6 +245,18 @@ export class AuthController {
   @Get('user')
   @UseGuards(AuthenticatedGuard)
   async getUser(@Req() request) {
+    return request.user;
+  }
+
+  @Get('google-signin')
+  @UseGuards(GoogleGuard)
+  async googleSignIn(@Req() request) {
+    // return request.user;
+  }
+
+  @Get('redirect')
+  @UseGuards(GoogleGuard)
+  async googleSignInRedirect(@Req() request: Request) {
     return request.user;
   }
 }
