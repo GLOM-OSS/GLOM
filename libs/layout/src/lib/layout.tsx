@@ -34,7 +34,7 @@ export function Layout({
   const navigate = useNavigate();
   const location = useLocation();
   const intl = useIntl();
-  const {formatMessage} = intl
+  const { formatMessage } = intl;
 
   const [notifications, setNotifications] = useState<useNotification[]>();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);

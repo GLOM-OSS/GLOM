@@ -23,7 +23,7 @@ const user: User = {
   annualRegistry: { annual_registry_id: 'lsk' },
 };
 
-function AdminLayout({ intl, intl: { formatMessage } }: { intl: IntlShape }) {
+function AdminLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
   const navItems: NavItem[] = [
     {
       id: 1,

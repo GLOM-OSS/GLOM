@@ -1,8 +1,7 @@
 import { Signin } from '@squoolr/auth';
-import { injectIntl, IntlShape } from 'react-intl';
 
-function SigninPage({ intl }: { intl: IntlShape }) {
-  return <Signin callingApp="student"/>;
+function SigninPage() {
+  return <Signin callingApp="student" />;
 }
 
-export default injectIntl(SigninPage);
+export default SigninPage;

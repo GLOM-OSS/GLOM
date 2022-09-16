@@ -1,7 +1,6 @@
 import { NewPassword } from '@squoolr/auth';
-import { injectIntl, IntlShape } from 'react-intl';
 
-function NewPasswordPage({ intl }: { intl: IntlShape }) {
+function NewPasswordPage() {
   return <NewPassword />;
 }
-export default injectIntl(NewPasswordPage);
+export default NewPasswordPage;

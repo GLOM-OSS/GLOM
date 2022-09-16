@@ -1,7 +1,6 @@
 import { ForgotPassword } from '@squoolr/auth';
-import { injectIntl, IntlShape } from 'react-intl';
 
-function ForgotPasswordPage({ intl }: { intl: IntlShape }) {
+function ForgotPasswordPage() {
   return <ForgotPassword />;
 }
-export default injectIntl(ForgotPasswordPage);
+export default ForgotPasswordPage;
