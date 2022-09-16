@@ -67,7 +67,7 @@ export default function PrimaryNav({
       </Box>
       <IconButton
         onClick={() =>
-          isLoggingOut || isLogoutDialogOpen ? null : openLogoutDialog
+          isLoggingOut || isLogoutDialogOpen ? null : openLogoutDialog()
         }
       >
         {isLoggingOut || isLogoutDialogOpen ? (
