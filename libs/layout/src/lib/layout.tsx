@@ -1,13 +1,12 @@
 import {
   KeyboardDoubleArrowLeftRounded,
   ReportRounded,
-  SettingsRounded,
 } from '@mui/icons-material';
 import { Box, Collapse, IconButton, Tooltip, Typography } from '@mui/material';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import { useLocation, useNavigate } from 'react-router';
@@ -34,7 +33,12 @@ export function Layout({
   userRoles?: PersonnelRole[];
   handleSwapRole?: (newRole: PersonnelRole) => void;
 }) {
-  // export function Layout() {
+  useEffect(() => {
+    if (navItems.length > 0) {
+      setActiveNavItem(navItems[0]);
+      setIsSecondaryNavOpen(true);
+    }
+  }, [navItems]);
   const navigate = useNavigate();
   const location = useLocation();
   const intl = useIntl();
@@ -82,12 +86,7 @@ export function Layout({
     }, 3000);
   };
 
-  const [activeNavItem, setActiveNavItem] = useState<NavItem>({
-    id: 1,
-    children: [],
-    Icon: SettingsRounded,
-    title: formatMessage({ id: 'settings' }),
-  });
+  const [activeNavItem, setActiveNavItem] = useState<NavItem>();
   const [isSecondaryNavOpen, setIsSecondaryNavOpen] = useState<boolean>(false);
   return (
     <>
@@ -113,87 +112,92 @@ export function Layout({
           activeNavItem={activeNavItem}
           openSecondaryNav={() => setIsSecondaryNavOpen(true)}
         />
-        <Box
-          component={Collapse}
-          timeout={170}
-          orientation="horizontal"
-          in={isSecondaryNavOpen}
-          sx={{
-            padding: isSecondaryNavOpen
-              ? `${theme.spacing(2.375)} ${theme.spacing(1.75)}`
-              : 0,
-            borderRight: `1px solid ${theme.common.line}`,
-            '& .MuiCollapse-wrapper>.MuiCollapse-wrapperInner': {
-              display: 'grid',
-              gridTemplateRows: 'auto auto 1fr auto auto',
-              alignItems: 'start',
-            },
-            position: 'relative',
-            paddingTop: theme.spacing(4),
-          }}
-        >
-          <IconButton
-            size="small"
-            onClick={() => setIsSecondaryNavOpen(false)}
-            sx={{ position: 'absolute', top: 0, right: 0 }}
-          >
-            <Tooltip arrow title={formatMessage({ id: 'collapseMenu' })}>
-              <KeyboardDoubleArrowLeftRounded
-                sx={{ fontSize: 20, color: theme.common.titleActive }}
-              />
-            </Tooltip>
-          </IconButton>
-
-          <UserLayoutDisplay
-            user={user}
-            activeRole={activeRole}
-            userRoles={userRoles}
-            selectRole={(newRole: PersonnelRole) =>
-              handleSwapRole && handleSwapRole(newRole)
-            }
-          />
-          <Typography variant="body2" sx={{ color: theme.common.label }}>
-            {activeNavItem.title}
-          </Typography>
-          <Scrollbars>
-            <Box
-              sx={{
-                marginTop: theme.spacing(2.5),
-                display: 'grid',
-                rowGap: theme.spacing(1),
-              }}
-            >
-              {activeNavItem.children.map((child, index) => (
-                <SecondaryNavItem item={child} key={index} />
-              ))}
-            </Box>
-          </Scrollbars>
-          {callingApp === 'personnel' && (
-            <SwapAcademicYear callingApp={callingApp} activeYear={activeYear} />
-          )}
+        {activeNavItem && (
           <Box
+            component={Collapse}
+            timeout={170}
+            orientation="horizontal"
+            in={isSecondaryNavOpen}
             sx={{
-              display: 'grid',
-              justifyItems: 'center',
-              marginTop: theme.spacing(3.75),
+              padding: isSecondaryNavOpen
+                ? `${theme.spacing(2.375)} ${theme.spacing(1.75)}`
+                : 0,
+              borderRight: `1px solid ${theme.common.line}`,
+              '& .MuiCollapse-wrapper>.MuiCollapse-wrapperInner': {
+                display: 'grid',
+                gridTemplateRows: 'auto auto 1fr auto auto',
+                alignItems: 'start',
+              },
+              position: 'relative',
+              paddingTop: theme.spacing(4),
             }}
           >
-            <Typography
-              variant="caption"
-              sx={{ color: theme.common.placeholder }}
+            <IconButton
+              size="small"
+              onClick={() => setIsSecondaryNavOpen(false)}
+              sx={{ position: 'absolute', top: 0, right: 0 }}
             >
-              {`© ${new Date().getFullYear()} Squoolr`}
+              <Tooltip arrow title={formatMessage({ id: 'collapseMenu' })}>
+                <KeyboardDoubleArrowLeftRounded
+                  sx={{ fontSize: 20, color: theme.common.titleActive }}
+                />
+              </Tooltip>
+            </IconButton>
+
+            <UserLayoutDisplay
+              user={user}
+              activeRole={activeRole}
+              userRoles={userRoles}
+              selectRole={(newRole: PersonnelRole) =>
+                handleSwapRole && handleSwapRole(newRole)
+              }
+            />
+            <Typography variant="body2" sx={{ color: theme.common.label }}>
+              {activeNavItem.title}
             </Typography>
-            <Typography
-              variant="caption"
-              sx={{ color: theme.common.placeholder }}
+            <Scrollbars>
+              <Box
+                sx={{
+                  marginTop: theme.spacing(2.5),
+                  display: 'grid',
+                  rowGap: theme.spacing(1),
+                }}
+              >
+                {activeNavItem.children.map((child, index) => (
+                  <SecondaryNavItem item={child} key={index} />
+                ))}
+              </Box>
+            </Scrollbars>
+            {callingApp === 'personnel' && (
+              <SwapAcademicYear
+                callingApp={callingApp}
+                activeYear={activeYear}
+              />
+            )}
+            <Box
+              sx={{
+                display: 'grid',
+                justifyItems: 'center',
+                marginTop: theme.spacing(3.75),
+              }}
             >
-              {formatMessage({ id: 'allRightsReserved' })}
-            </Typography>
+              <Typography
+                variant="caption"
+                sx={{ color: theme.common.placeholder }}
+              >
+                {`© ${new Date().getFullYear()} Squoolr`}
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{ color: theme.common.placeholder }}
+              >
+                {formatMessage({ id: 'allRightsReserved' })}
+              </Typography>
+            </Box>
+            {/* </Collapse> */}
+            {/* )} */}
           </Box>
-          {/* </Collapse> */}
-          {/* )} */}
-        </Box>
+        )}
       </Box>
     </>
   );
