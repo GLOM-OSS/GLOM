@@ -39,6 +39,28 @@ export function Layout({
       setIsSecondaryNavOpen(true);
     }
   }, [navItems]);
+
+  useEffect(() => {
+    //TODO: call api here to Verify if user is authenticated here if user is not, then disconnect them and send them to sign in page
+    setTimeout(() => {
+      if (random() > 5) {
+        //TODO: write user data to context here
+      } else {
+        const notif = new useNotification();
+        notif.notify({ render: 'verifyingAuth' });
+        notif.update({
+          type: 'ERROR',
+          render: 'unauthenticatedUser',
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+        localStorage.setItem('previousRoute', location.pathname);
+        navigate('/');
+      }
+    }, 3000);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const navigate = useNavigate();
   const location = useLocation();
   const intl = useIntl();
@@ -226,5 +248,7 @@ teacher: 'Teacher',
 secretary: 'Secretary',
 registry: 'Registry',
 listRoles: 'Roles',
-collapseMenu:'Collapse menu'
+collapseMenu:'Collapse menu',
+verifyingAuth: 'Verifying user authenticity',
+unauthenticatedUser:'You have no active session. Please sign in'
  */
