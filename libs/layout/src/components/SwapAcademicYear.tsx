@@ -8,10 +8,11 @@ import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 
 export default function SwapAcademicYear({
-  activeYear: { starts_at, ends_at }, callingApp
+  activeYear: { starting_date, ending_date },
+  callingApp,
 }: {
-  activeYear: { academic_yeear_id: string; starts_at: Date; ends_at: Date };
-  callingApp: 'admin'|'personnel'
+  activeYear: AcademicYearInterface;
+  callingApp: 'admin' | 'personnel';
 }) {
   const intl = useIntl();
   const { formatMessage } = intl;
@@ -46,28 +47,28 @@ export default function SwapAcademicYear({
             {
               academic_year_id: 'https:qwoeiofs/sldie',
               code: 'YEAR-202100012022',
-              end_date: new Date(),
+              ending_date: new Date(),
               starting_date: new Date(),
               year_status: 'inactive',
             },
             {
               academic_year_id: 'https:qwwoeios/sldie',
               code: 'YEAR-1',
-              end_date: new Date(),
+              ending_date: new Date(),
               starting_date: new Date(),
               year_status: 'inactive',
             },
             {
               academic_year_id: 'https:qwoerios/sldie',
               code: 'YEAR-1',
-              end_date: new Date(),
+              ending_date: new Date(),
               starting_date: new Date(),
               year_status: 'active',
             },
             {
               academic_year_id: 'https:qwoeios/sldige',
               code: 'YEAR-1',
-              end_date: new Date(),
+              ending_date: new Date(),
               starting_date: new Date(),
               year_status: 'finished',
             },
@@ -132,8 +133,8 @@ export default function SwapAcademicYear({
           sx={{ fontWeight: 400 }}
         >{`${formatMessage({
           id: 'activeYear',
-        })}: ${new Date(starts_at).getFullYear()} - ${new Date(
-          ends_at
+        })}: ${new Date(starting_date).getFullYear()} - ${new Date(
+          ending_date
         ).getFullYear()}`}</Typography>
         <Button
           sx={{ textTransform: 'none' }}

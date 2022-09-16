@@ -8,7 +8,7 @@ export default function AcademicYear({
     academic_year_id,
     code,
     starting_date: startingDate,
-    end_date: endDate,
+    ending_date: endDate,
     year_status: yearStatus,
   },
   handleSelectAcademicYear,

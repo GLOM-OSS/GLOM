@@ -22,7 +22,7 @@ export interface AcademicYearInterface {
   academic_year_id: string;
   code: string;
   starting_date: Date;
-  end_date: Date;
+  ending_date: Date;
   year_status: 'inactive' | 'finished' | 'active';
 }
 

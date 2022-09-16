@@ -1,5 +1,6 @@
 import { SvgIconTypeMap } from '@mui/material';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
+import { AcademicYearInterface } from '@squoolr/auth';
 
 export interface NavChild {
   title: string;
@@ -54,9 +55,5 @@ export interface User {
   annualRegistry?: {
     annual_registry_id: string;
   };
-  activeYear: {
-    academic_yeear_id: string;
-    starts_at: Date;
-    ends_at: Date;
-  };
+  activeYear: AcademicYearInterface
 }

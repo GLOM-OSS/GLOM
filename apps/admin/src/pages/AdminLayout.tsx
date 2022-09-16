@@ -5,9 +5,11 @@ import { injectIntl, IntlShape } from 'react-intl';
 //TODO: replace this data with the data from user context later on
 const user: User = {
   activeYear: {
-    academic_yeear_id: 'hello world',
-    ends_at: new Date('2003-10-12'),
-    starts_at: new Date('2022-10-12'),
+    academic_year_id: 'hello world',
+    ending_date: new Date('2003-10-12'),
+    starting_date: new Date('2022-10-12'),
+    code: 'kskdls',
+    year_status:'active'
   },
   birthdate: new Date('1999/03/27'),
   email: 'lorraintchakoumi@gmail.com',
