@@ -84,6 +84,7 @@ export function Layout({
     Icon: SettingsRounded,
     title: formatMessage({ id: 'settings' }),
   });
+  const [isSecondaryNavOpen, setIsSecondaryNavOpen] = useState<boolean>(false);
   return (
     <>
       <LogoutDialog
@@ -106,64 +107,75 @@ export function Layout({
           openLogoutDialog={() => setIsConfirmLogoutDialogOpen(true)}
           setActiveNavItem={(navItem: NavItem) => setActiveNavItem(navItem)}
           activeNavItem={activeNavItem}
+          openSecondaryNav={() => setIsSecondaryNavOpen(true)}
         />
         <Box
           sx={{
-            padding: `${theme.spacing(2.375)} ${theme.spacing(1.75)}`,
+            padding: isSecondaryNavOpen
+              ? `${theme.spacing(2.375)} ${theme.spacing(1.75)}`
+              : 0,
             borderRight: `1px solid ${theme.common.line}`,
             display: 'grid',
             gridTemplateRows: 'auto auto 1fr auto auto',
             alignItems: 'start',
+            width: isSecondaryNavOpen ? 'fit-content' : 0,
+            transition: '0.2s',
           }}
         >
-          {/*TODO: active user section */}
-          <UserLayoutDisplay
-            user={user}
-            activeRole={activeRole}
-            userRoles={userRoles}
-            selectRole={(newRole: PersonnelRole) =>
-              handleSwapRole && handleSwapRole(newRole)
-            }
-          />
-          <Typography variant="body2" sx={{ color: theme.common.label }}>
-            {activeNavItem.title}
-          </Typography>
-          <Scrollbars>
-            <Box
-              sx={{
-                marginTop: theme.spacing(2.5),
-                display: 'grid',
-                rowGap: theme.spacing(1),
-              }}
-            >
-              {activeNavItem.children.map((child, index) => (
-                <SecondaryNavItem item={child} key={index} />
-              ))}
-            </Box>
-          </Scrollbars>
-          {callingApp === 'personnel' && (
-            <SwapAcademicYear callingApp={callingApp} activeYear={activeYear} />
+          {isSecondaryNavOpen && (
+            <>
+              <UserLayoutDisplay
+                user={user}
+                activeRole={activeRole}
+                userRoles={userRoles}
+                selectRole={(newRole: PersonnelRole) =>
+                  handleSwapRole && handleSwapRole(newRole)
+                }
+              />
+              <Typography variant="body2" sx={{ color: theme.common.label }}>
+                {activeNavItem.title}
+              </Typography>
+              <Scrollbars>
+                <Box
+                  sx={{
+                    marginTop: theme.spacing(2.5),
+                    display: 'grid',
+                    rowGap: theme.spacing(1),
+                  }}
+                >
+                  {activeNavItem.children.map((child, index) => (
+                    <SecondaryNavItem item={child} key={index} />
+                  ))}
+                </Box>
+              </Scrollbars>
+              {callingApp === 'personnel' && (
+                <SwapAcademicYear
+                  callingApp={callingApp}
+                  activeYear={activeYear}
+                />
+              )}
+              <Box
+                sx={{
+                  display: 'grid',
+                  justifyItems: 'center',
+                  marginTop: theme.spacing(3.75),
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{ color: theme.common.placeholder }}
+                >
+                  {`© ${new Date().getFullYear()} Squoolr`}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{ color: theme.common.placeholder }}
+                >
+                  {formatMessage({ id: 'allRightsReserved' })}
+                </Typography>
+              </Box>
+            </>
           )}
-          <Box
-            sx={{
-              display: 'grid',
-              justifyItems: 'center',
-              marginTop: theme.spacing(3.75),
-            }}
-          >
-            <Typography
-              variant="caption"
-              sx={{ color: theme.common.placeholder }}
-            >
-              {`© ${new Date().getFullYear()} Squoolr`}
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{ color: theme.common.placeholder }}
-            >
-              {formatMessage({ id: 'allRightsReserved' })}
-            </Typography>
-          </Box>
         </Box>
       </Box>
     </>
