@@ -19,6 +19,9 @@ export interface NavItem {
 export type Gender = 'Male' | 'Female';
 export type Lang = 'En' | 'Fr';
 
+export type UserAction = { type: "LOAD_USER";   payload: { user: User; };
+} | { type: "CLEAR_USER" };
+
 export type PersonnelRole = 'secretary'|'teacher'|'registry'
 
 export interface User {
