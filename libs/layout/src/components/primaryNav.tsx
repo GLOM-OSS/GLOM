@@ -1,14 +1,13 @@
 import { LogoutRounded } from '@mui/icons-material';
 import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
 import { theme } from '@squoolr/theme';
-import { IntlShape } from 'react-intl';
+import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router';
 import { NavItem } from '../lib/interfaces';
 import favicon from '../lib/logo.png';
 import PrimaryNavItem from './PrimaryNavItem';
 
 export default function PrimaryNav({
-  intl: { formatMessage },
   isLoggingOut,
   isLogoutDialogOpen,
   navItems,
@@ -16,7 +15,6 @@ export default function PrimaryNav({
   openLogoutDialog,
   activeNavItem,
 }: {
-  intl: IntlShape;
   isLoggingOut: boolean;
   isLogoutDialogOpen: boolean;
   navItems: NavItem[];
@@ -25,6 +23,9 @@ export default function PrimaryNav({
   activeNavItem: NavItem;
 }) {
   const navigate = useNavigate();
+  const intl = useIntl()
+  const {formatMessage} = intl
+
   return (
     <Box
       sx={{

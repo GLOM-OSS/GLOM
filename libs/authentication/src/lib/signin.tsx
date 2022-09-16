@@ -11,7 +11,7 @@ import {
   ReportRounded,
 } from '@mui/icons-material';
 import { theme } from '@squoolr/theme';
-import { IntlShape } from 'react-intl';
+import { useIntl } from 'react-intl';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useState } from 'react';
@@ -25,13 +25,13 @@ import {
 } from './selectAcademicYear';
 
 export function Signin({
-  intl: { formatMessage },
-  intl,
   callingApp,
 }: {
-  intl: IntlShape;
   callingApp: 'student' | 'admin' | 'personnel';
 }) {
+  const intl = useIntl()
+  const {formatMessage} = intl
+
   const initialValues: { email: string; password: string } = {
     email: '',
     password: '',
@@ -117,7 +117,6 @@ export function Signin({
                 retryFunction={formik.handleSubmit}
                 notification={newNotification}
                 message={formatMessage({ id: 'signinFailed' })}
-                intl={intl}
               />
             ),
             autoClose: false,
@@ -135,7 +134,6 @@ export function Signin({
           academicYears={academicYears}
           closeDialog={() => setIsAcademicYearDialogOpen(false)}
           isDialogOpen={isAcademicYearDialogOpen}
-          intl={intl}
         />
       )}
       <Box

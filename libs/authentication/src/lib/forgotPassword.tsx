@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import { EmailRounded, ReportRounded } from '@mui/icons-material';
 import { theme } from '@squoolr/theme';
-import { IntlShape } from 'react-intl';
+import { useIntl } from 'react-intl';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useState } from 'react';
@@ -16,12 +16,9 @@ import favicon from './logo.png';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
 
-export function ForgotPassword({
-  intl: { formatMessage },
-  intl,
-}: {
-  intl: IntlShape;
-}) {
+export function ForgotPassword() {
+  const intl = useIntl();
+  const { formatMessage } = intl;
   const initialValues: { email: string } = {
     email: '',
   };
@@ -64,7 +61,6 @@ export function ForgotPassword({
                 notification={newNotification}
                 //TODO: MESSAGE SHOULD COME FROM BACKEND
                 message={formatMessage({ id: 'failedToSendLink' })}
-                intl={intl}
               />
             ),
             autoClose: false,

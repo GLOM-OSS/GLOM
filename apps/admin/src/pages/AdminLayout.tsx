@@ -62,7 +62,6 @@ function AdminLayout({ intl, intl: { formatMessage } }: { intl: IntlShape }) {
       activeRole={activeRole}
       userRoles={['secretary', 'registry']}
       user={user}
-      intl={intl}
       navItems={navItems}
       handleSwapRole={handleSwapRole}
     />

@@ -3,7 +3,7 @@ import { theme } from '@squoolr/theme';
 import { DoneAllRounded } from '@mui/icons-material';
 import { v4 as uuidv4 } from 'uuid';
 import { Id, toast } from 'react-toastify';
-import { IntlShape } from 'react-intl';
+import { IntlShape, useIntl } from 'react-intl';
 
 export class useNotification {
   toastId: Id;
@@ -56,13 +56,15 @@ export const ErrorMessage = ({
   retryFunction,
   notification,
   message,
-  intl:{formatMessage}
 }: {
   retryFunction: () => void;
   notification: useNotification;
   message: string;
-  intl:IntlShape
-}) => (
+}) => {
+  const intl = useIntl()
+  const {formatMessage} = intl
+
+  return (
   <Box sx={{ textAlign: 'center' }}>
     <Typography variant="caption">{message}</Typography>
     <Box
@@ -104,4 +106,4 @@ export const ErrorMessage = ({
       </Button>
     </Box>
   </Box>
-);
+)};

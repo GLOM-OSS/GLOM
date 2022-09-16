@@ -89,7 +89,6 @@ export default function SwapAcademicYear({
                 retryFunction={getAcademicYears}
                 notification={newNotification}
                 message={formatMessage({ id: 'getAcademicYearsFailed' })}
-                intl={intl}
               />
             ),
             autoClose: false,
@@ -113,7 +112,6 @@ export default function SwapAcademicYear({
           setIsAcademicYearDialogOpen(false);
           setAcademicYears([]);
         }}
-        intl={intl}
         isDialogOpen={
           isAcademciYearDialogOpen &&
           academicYears.length > 1 &&

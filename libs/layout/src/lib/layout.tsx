@@ -5,7 +5,7 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
 import { useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
-import { IntlShape } from 'react-intl';
+import { useIntl } from 'react-intl';
 import { useLocation, useNavigate } from 'react-router';
 import LogoutDialog from '../components/logoutDialog';
 import PrimaryNav from '../components/primaryNav';
@@ -15,8 +15,6 @@ import UserLayoutDisplay from '../components/UserLayoutDisplay';
 import { NavItem, PersonnelRole, User } from './interfaces';
 
 export function Layout({
-  intl: { formatMessage },
-  intl,
   navItems,
   user: { activeYear },
   user,
@@ -25,7 +23,6 @@ export function Layout({
   userRoles,
   handleSwapRole,
 }: {
-  intl: IntlShape;
   navItems: NavItem[];
   user: User;
   callingApp: 'admin' | 'personnel';
@@ -36,6 +33,8 @@ export function Layout({
   // export function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const intl = useIntl();
+  const {formatMessage} = intl
 
   const [notifications, setNotifications] = useState<useNotification[]>();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -70,7 +69,6 @@ export function Layout({
               notification={newNotification}
               //TODO: message comes from backend
               message={formatMessage({ id: 'signOutFailed' })}
-              intl={intl}
             />
           ),
           autoClose: false,
@@ -90,7 +88,6 @@ export function Layout({
     <>
       <LogoutDialog
         closeDialog={() => setIsConfirmLogoutDialogOpen(false)}
-        intl={intl}
         isDialogOpen={isConfirmLogoutDialogOpen}
         logout={handleLogout}
       />
@@ -103,7 +100,6 @@ export function Layout({
         }}
       >
         <PrimaryNav
-          intl={intl}
           isLoggingOut={isSubmitting}
           isLogoutDialogOpen={isConfirmLogoutDialogOpen}
           navItems={navItems}
