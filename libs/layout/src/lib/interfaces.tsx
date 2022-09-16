@@ -36,11 +36,6 @@ export interface User {
   preferred_lang: Lang;
   image_ref?: string;
   login_id: string;
-  annualStudent?: {
-    annual_student_id: string;
-    student_id: string;
-  };
-
   annualConfigurator?: {
     annual_configurator_id: string;
     is_sudo: boolean;
