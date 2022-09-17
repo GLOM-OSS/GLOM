@@ -1,7 +1,8 @@
 import { DashboardRounded, SettingsRounded } from '@mui/icons-material';
-import { Layout, NavItem, PersonnelRole, User } from '@squoolr/layout';
+import { Layout, NavItem, PersonnelRole, User, useUser } from '@squoolr/layout';
 import { useState } from 'react';
 import { injectIntl, IntlShape } from 'react-intl';
+
 //TODO: replace this data with the data from user context later on
 const user: User = {
   activeYear: {
@@ -9,12 +10,12 @@ const user: User = {
     ending_date: new Date('2003-10-12'),
     starting_date: new Date('2022-10-12'),
     code: 'kskdls',
-    year_status:'active'
+    year_status: 'active',
   },
   birthdate: new Date('1999/03/27'),
   email: 'lorraintchakoumi@gmail.com',
   fisrt_name: 'Tchakoumi Lorrain',
-  gender: 'Male',
+  gender: 'Female',
   last_name: 'Kouatchoua',
   login_id: 'disoeosenso',
   national_id_number: '000316122',
@@ -23,6 +24,13 @@ const user: User = {
   preferred_lang: 'En',
   annualConfigurator: { annual_configurator_id: 'lsk', is_sudo: false },
   annualRegistry: { annual_registry_id: 'lsk' },
+};
+
+export const Testing2 = () => {
+  const { preferred_lang, gender } = useUser();
+
+  alert(`${preferred_lang}, ${gender}`);
+  return <div>massa mi heeee</div>;
 };
 
 function AdminLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
@@ -56,8 +64,9 @@ function AdminLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
 
   const [activeRole, setActiveRole] = useState<PersonnelRole | 'administrator'>(
     'administrator'
-  ); //TODO; redefine initial value with roles
+  ); //TODO: redefine initial value with roles
   const handleSwapRole = (newRole: PersonnelRole) => setActiveRole(newRole);
+
   return (
     <Layout
       callingApp="admin"

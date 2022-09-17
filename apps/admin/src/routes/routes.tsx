@@ -1,6 +1,8 @@
 import { Typography } from '@mui/material';
+import { Layout } from '@squoolr/layout';
+import UserContextProvider from 'libs/layout/src/contexts/UserContextProvider';
 import { Navigate } from 'react-router';
-import AdminLayout from '../pages/AdminLayout';
+import AdminLayout, { Testing2 } from '../pages/AdminLayout';
 import ForgotPassword from '../pages/forgotPassword';
 import NewPassword from '../pages/newPassword';
 import SigninPage from '../pages/signin';
@@ -20,7 +22,12 @@ export const routes = [
   },
   {
     path: '/layout',
-    element: <AdminLayout />,
+    element: (
+        <AdminLayout />
+    ),
+    children: [
+      {path:'test', element:<Testing2 />}
+    ]
   },
   {
     path: '/dashboard',
