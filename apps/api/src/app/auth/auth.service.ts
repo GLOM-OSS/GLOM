@@ -31,18 +31,21 @@ export class AuthService {
 
   async validateUser(origin: string, email: string, password: string) {
     const person = await this.personService.findUnique({ email });
-    const userLogins = (await this.loginService.findAll({
-      where: { person_id: person?.person_id },
-    })) as Login[];
-    for (let i = 0; i < userLogins.length; i++) {
-      const login = userLogins[i];
-      if (bcrypt.compareSync(password, login?.password)) {
-        const user = await this.validateLogin(origin, login);
-        return {
-          ...user,
-          ...person,
-          login_id: login.login_id,
-        };
+    if (person) {
+      const userLogins = (await this.loginService.findAll({
+        where: { person_id: person?.person_id },
+      })) as Login[];
+      for (let i = 0; i < userLogins.length; i++) {
+        const login = userLogins[i];
+        if (bcrypt.compareSync(password, login?.password)) {
+          const user = await this.validateLogin(origin, login);
+          console.log(user, person);
+          return {
+            ...user,
+            ...person,
+            login_id: login.login_id,
+          };
+        }
       }
     }
     throw new UnauthorizedException({

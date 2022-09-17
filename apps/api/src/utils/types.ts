@@ -36,7 +36,7 @@ export type ActiveYear = {
   code: string;
 };
 
-export type DeserializeSessionData = {
+export type DesirializeRoles = {
   login_id: string;
   annualStudent?: {
     annual_student_id: string;
@@ -58,7 +58,9 @@ export type DeserializeSessionData = {
     annual_registry_id: string;
   };
   activeYear?: ActiveYear;
-} & Person;
+};
+
+export type DeserializeSessionData = DesirializeRoles & Person;
 
 declare module 'express-session' {
   interface SessionData {

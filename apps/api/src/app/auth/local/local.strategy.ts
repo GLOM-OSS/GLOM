@@ -31,9 +31,13 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       {
         name: CronJobNames.AUTO_LOGOUT,
         callback: async () => {
-          await this.logService.update({
-            data: { closed_at: new Date() },
-            where: { log_id },
+          request.session.destroy(async (err) => {
+            if (!err) {
+              await this.logService.update({
+                data: { closed_at: new Date() },
+                where: { log_id },
+              });
+            }
           });
         },
       },
