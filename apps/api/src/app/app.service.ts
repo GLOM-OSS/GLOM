@@ -31,35 +31,36 @@ export class AppService {
         national_id_number: '1102645613',
         phone_number: '6730564895',
       });
-      await this.annualConfiguratorService.create({
-        AcademicYear: {
-          create: {
-            code: 'Year-202120220001',
-            starts_at: new Date(),
-            ends_at: new Date(),
+      const { annual_configurator_id } =
+        await this.annualConfiguratorService.create({
+          AcademicYear: {
+            create: {
+              code: 'Year-202120220001',
+              starts_at: new Date(),
+              ends_at: new Date(),
+            },
           },
-        },
-        Login: {
-          create: {
-            password: bcrypt.hashSync('123456789', Number(process.env.SALT)),
-            is_personnel: true,
-            School: {
-              create: {
-                email: 'contact@iaicameroun.com',
-                phone_number: '67584986532',
-                school_name: 'IAI-CAMEROUN',
-                subdomain: 'iai.squoolr.com',
-                Person: {
-                  connect: { person_id },
+          Login: {
+            create: {
+              password: bcrypt.hashSync('123456789', Number(process.env.SALT)),
+              is_personnel: true,
+              School: {
+                create: {
+                  email: 'contact@iaicameroun.com',
+                  phone_number: '67584986532',
+                  school_name: 'IAI-CAMEROUN',
+                  subdomain: 'iai.squoolr.com',
+                  Person: {
+                    connect: { person_id },
+                  },
                 },
               },
-            },
-            Person: {
-              connect: { person_id },
+              Person: {
+                connect: { person_id },
+              },
             },
           },
-        },
-      });
+        });
 
       //seed admin
       await this.loginService.create({
@@ -81,6 +82,52 @@ export class AppService {
       await this.annualStudentService.create({
         Student: {
           create: {
+            Classroom: {
+              create: {
+                classroom_code: 'YEAR-INF1#GL#1202120220001',
+                classroom_name: 'Genie Logiciel 3C',
+                classroom_short_name: 'GL3C',
+                Major: {
+                  create: {
+                    major_code: 'YEAR-INF1#GL202120220001',
+                    major_name: 'Genie Logiciel',
+                    Department: {
+                      create: {
+                        department_code: 'YEAR-INF#1L202120220001',
+                        department_name: 'Informatique',
+                        department_short_name: 'INF',
+                        School: {
+                          connect: { email: 'contact@iaicameroun.com' },
+                        },
+                        AnnualConfigurator: {
+                          connect: { annual_configurator_id },
+                        },
+                      },
+                    },
+                    AnnualConfigurator: {
+                      connect: { annual_configurator_id },
+                    },
+                    Cycle: {
+                      create: {
+                        cycle_name: 'Licence',
+                        cycle_type: 'LONG',
+                        number_of_years: 3,
+                      },
+                    },
+                  },
+                },
+                Level: {
+                  create: {
+                    level: 3,
+                  },
+                },
+                AnnualConfigurator: {
+                  connect: {
+                    annual_configurator_id,
+                  },
+                },
+              },
+            },
             Login: {
               create: {
                 password: bcrypt.hashSync(
@@ -101,7 +148,6 @@ export class AppService {
                 School: { connect: { email: 'contact@iaicameroun.com' } },
               },
             },
-            classroom_id: randomUUID(),
             matricule: randomUUID(),
           },
         },
