@@ -4,6 +4,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
@@ -41,12 +42,17 @@ export class AuthenticatedGuard implements CanActivate {
         },
       } = request;
       const now = new Date();
-      this.tasksService.updateCronTime(
-        job_name,
-        new Date(now.setSeconds(now.getSeconds() + cookie_age))
-      );
-      return isAuthenticated;
-    } else throw new HttpException(sAUTH403['Fr'], HttpStatus.FORBIDDEN);
+      try {
+        this.tasksService.updateCronTime(
+          job_name,
+          new Date(now.setSeconds(now.getSeconds() + cookie_age))
+        );
+        return isAuthenticated;
+      } catch (error) {
+        Logger.error(error.message, 'SEVER RESTART');
+      }
+    }
+    throw new HttpException(sAUTH403['Fr'], HttpStatus.FORBIDDEN);
   }
 
   async isClientCorrect(

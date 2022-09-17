@@ -39,7 +39,6 @@ export class AuthService {
         const login = userLogins[i];
         if (bcrypt.compareSync(password, login?.password)) {
           const user = await this.validateLogin(origin, login);
-          console.log(user, person);
           return {
             ...user,
             ...person,

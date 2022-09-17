@@ -1,6 +1,6 @@
 export const sAUTH403 = {
-  En: `Your session has expired. Please login!`,
-  Fr: 'Votre session a expiré. Veuillez vous connecter !',
+  En: `Your session has been invalidated. Please login!`,
+  Fr: 'Votre session a été invalidé. Veuillez vous connecter !',
 };
 export const AUTH01 = {
   En: `Your google access token or email has been invalidated`,
