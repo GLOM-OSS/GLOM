@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -270,7 +271,7 @@ export class AuthController {
     throw new HttpException(sAUTH404['Fr'], HttpStatus.NOT_FOUND);
   }
 
-  @Patch('log-out')
+  @Delete('log-out')
   @UseGuards(AuthenticatedGuard)
   async logOut(@Req() request: Request) {
     const { log_id } = request.session.passport.user;
