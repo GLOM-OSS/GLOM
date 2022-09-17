@@ -6,6 +6,7 @@ const userReducer: Reducer<User & DispatchInterface, UserAction> = (
   state: User & DispatchInterface,
   action: UserAction
 ) => {
+  alert('combi');
   switch (action.type) {
     case 'CLEAR_USER': {
       return {
@@ -54,7 +55,7 @@ function UserContextProvider({
     birthdate: new Date(),
     email: '',
     fisrt_name: '',
-    gender: 'Male',
+    gender: 'Female',
     last_name: '',
     login_id: '',
     national_id_number: '',

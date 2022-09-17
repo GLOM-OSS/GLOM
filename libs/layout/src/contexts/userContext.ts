@@ -25,7 +25,7 @@ const UserContext = createContext<User & DispatchInterface>({
   preferred_lang: 'En',
   annualConfigurator: { annual_configurator_id: 'lsk', is_sudo: false },
   annualRegistry: { annual_registry_id: 'lsk' },
-  userDispatch: () => null,
+  userDispatch: () => {alert("Hellom I'm alive ")},
 });
 
 export default UserContext;
