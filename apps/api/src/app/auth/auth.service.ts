@@ -19,9 +19,9 @@ type AcademicYearObject = { AcademicYear: AcademicYear };
 export class AuthService {
   constructor(
     private logService: LogService,
-    private personService: PersonService,
     private loginService: LoginService,
     private schoolService: SchoolService,
+    private personService: PersonService,
     private studentService: StudentService,
     private annualStudentService: AnnualStudentService,
     private annualTeacherService: AnnualTeacherService,
@@ -54,7 +54,12 @@ export class AuthService {
 
   async validateLogin(origin: string, login: Omit<Login, 'password'>) {
     const { login_id, school_id, cookie_age } = login;
-    const user: Omit<PassportSession, 'log_id'> = { login_id, cookie_age, roles: [] };
+
+    const user: Omit<PassportSession, 'log_id'> = {
+      login_id,
+      cookie_age,
+      roles: [],
+    };
     const activeLogs = await this.logService.count({
       login_id,
       OR: {

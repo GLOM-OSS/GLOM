@@ -44,6 +44,7 @@ export class AuthController {
   async userSignIn(@Req() request: Request) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { created_at, ...user } = request.user as DeserializeSessionData;
+
     const academic_years = await this.authService.getAcademicYears(
       user.login_id
     );
@@ -68,7 +69,7 @@ export class AuthController {
     @Req() request: Request,
     @Body('selected_academic_year_id') academic_year_id: string
   ) {
-    const { login_id, log_id } = request.session.passport.user;
+    const { login_id } = request.session.passport.user;
     const userRoles: UserRole[] = [];
     //check for annual student
     const annualStudent = await this.annualStudentService.findOne({
@@ -83,7 +84,11 @@ export class AuthController {
       });
       await new Promise((resolve) =>
         request.logIn(
-          { log_id, login_id, roles: userRoles, academic_year_id },
+          {
+            ...request.session.passport.user,
+            roles: userRoles,
+            academic_year_id,
+          },
           (err) => {
             if (err)
               throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -135,7 +140,11 @@ export class AuthController {
 
     await new Promise((resolve) =>
       request.login(
-        { log_id, login_id, roles: userRoles, academic_year_id },
+        {
+          ...request.session.passport.user,
+          roles: userRoles,
+          academic_year_id,
+        },
         (err) => {
           if (err)
             throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -153,7 +162,7 @@ export class AuthController {
 
   @Post('reset-password')
   async resetPassword(@Req() request: Request, @Body('email') email: string) {
-    const squoolr_client = request.headers.host.replace('https://', '');
+    const squoolr_client = request.headers.origin.replace('https://', '');
     const login = await this.loginService.findOne({
       Person: { email },
       School:
@@ -175,7 +184,7 @@ export class AuthController {
       });
 
       return {
-        reset_link: `${request.headers.host}/forgot-password/${reset_password_id}/new-password`,
+        reset_link: `${request.headers.origin}/forgot-password/${reset_password_id}/new-password`,
       };
     }
     throw new HttpException(AUTH404('Email')['Fr'], HttpStatus.NOT_FOUND);
@@ -186,7 +195,7 @@ export class AuthController {
     @Req() request: Request,
     @Body() { reset_password_id, new_password }: NewPasswordDto
   ) {
-    const squoolr_client = request.headers.host.replace('https://', '');
+    const squoolr_client = request.headers.origin.replace('https://', '');
     const login = await this.loginService.findOne({
       School:
         squoolr_client !== process.env.SQUOOLR_URL

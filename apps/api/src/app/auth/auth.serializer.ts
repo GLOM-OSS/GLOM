@@ -13,7 +13,7 @@ import {
   PassportSession,
   RecordValue,
   Role,
-  UserRole
+  UserRole,
 } from '../../utils/types';
 
 @Injectable()
@@ -35,9 +35,11 @@ export class AuthSerializer extends PassportSerializer {
   ) {
     done(null, {
       log_id: user['log_id'] as string,
-      login_id: user['login_id'] as string,
-      academic_year_id: user['academic_year_id'] as string,
       roles: user['roles'] as UserRole[],
+      login_id: user['login_id'] as string,
+      job_name: user['job_name'] as string,
+      cookie_age: Number(user['cookie_age'] ?? 3600), //1 hour equivalent
+      academic_year_id: user['academic_year_id'] as string,
     });
   }
 

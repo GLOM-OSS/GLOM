@@ -23,6 +23,8 @@ export type PassportSession = {
   log_id: string;
   login_id: string;
   roles: UserRole[];
+  cookie_age: number;
+  job_name?: string;
   academic_year_id?: string;
 };
 

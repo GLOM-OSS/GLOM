@@ -39,7 +39,7 @@ import { AnnualStudentService } from '../services/annual-student.service';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    const redisClient = createClient({ legacyMode: true });
+    const redisClient = createClient({ legacyMode: true,   });
     redisClient.connect().catch((message) => Logger.error(message));
     const RedisStore = connectRedis(session);
 
@@ -50,7 +50,7 @@ export class AppModule implements NestModule {
           store: new RedisStore({
             client: redisClient,
             host: process.env.REDIS_HOST,
-            port: Number(process.env.REDIS_PORT),
+            port: Number(process.env.REDIS_PORT), 
           }),
           secret: process.env.SESSION_SECRET,
           genid: () => randomUUID(),
@@ -58,7 +58,7 @@ export class AppModule implements NestModule {
           resave: false,
           rolling: true,
           cookie: {
-            maxAge: 10 * 60 * 1000, //10 minutes of inativity
+            maxAge: 60 * 60 * 1000, //60 minutes of inativity
           },
         }),
         passport.initialize(),
