@@ -1,6 +1,5 @@
 import { DashboardRounded, SettingsRounded } from '@mui/icons-material';
-import { Layout, NavItem, PersonnelRole, User, useUser } from '@squoolr/layout';
-import { useLanguage } from '@squoolr/theme';
+import { Layout, NavItem, PersonnelRole, User } from '@squoolr/layout';
 import { useState } from 'react';
 import { injectIntl, IntlShape } from 'react-intl';
 
@@ -28,14 +27,10 @@ const user: User = {
 };
 
 export const Testing2 = () => {
-  const { gender } = useUser();
-  const { activeLanguage } = useLanguage();
-  alert(`${gender}, ${activeLanguage}`);
   return <div>massa mi heeee</div>;
 };
 
 function AdminLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
-  alert('admin')
   const navItems: NavItem[] = [
     {
       id: 1,
@@ -44,15 +39,18 @@ function AdminLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
       children: [
         {
           title: formatMessage({ id: 'Departments' }),
-          route: '/layout',
+          route: 'test',
+          page_title: 'layout',
         },
         {
           title: formatMessage({ id: 'Major' }),
-          route: '/dashboard',
+          route: 'dashboard',
+          page_title: 'dashboard',
         },
         {
           title: formatMessage({ id: 'academic year' }),
-          route: '/dashboard',
+          route: 'dashboard',
+          page_title: 'dashboard',
         },
       ],
     },
@@ -65,13 +63,13 @@ function AdminLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
   ];
 
   const [activeRole, setActiveRole] = useState<PersonnelRole | 'administrator'>(
-    'administrator'
+    'teacher'
   ); //TODO: redefine initial value with roles
   const handleSwapRole = (newRole: PersonnelRole) => setActiveRole(newRole);
 
   return (
     <Layout
-      callingApp="admin"
+      callingApp="personnel"
       activeRole={activeRole}
       userRoles={['secretary', 'registry']}
       user={user}
