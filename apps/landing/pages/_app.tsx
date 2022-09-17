@@ -3,18 +3,13 @@ import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useEffect } from 'react';
 import createEmotionCache from '../config_mui/createEmotionCache';
-import LanguageContextProvider, {
-  useLanguage,
-} from '../contexts/language/LanguageContextProvider';
-import enMessages from '../languages/en-us';
-import frMessages from '../languages/fr';
 import './globalStyles.css';
 import 'react-toastify/dist/ReactToastify.css';
-import { SquoolrThemeProvider } from '@squoolr/theme';
+import { SquoolrThemeProvider, useLanguage } from '@squoolr/theme';
 
 const App = (props) => {
   const { Component, pageProps, emotionCache } = props;
-  const { activeLanguage, languageDispatch } = useLanguage();
+  const { languageDispatch } = useLanguage();
   useEffect(() => {
     languageDispatch({
       type:
@@ -28,10 +23,7 @@ const App = (props) => {
   return (
     <>
       <CacheProvider value={emotionCache}>
-        <SquoolrThemeProvider
-          activeMessages={activeLanguage === 'En' ? enMessages : frMessages}
-          activeLanguage={activeLanguage}
-        >
+        <SquoolrThemeProvider>
           <Component {...pageProps} />
         </SquoolrThemeProvider>
       </CacheProvider>
@@ -54,9 +46,7 @@ function CustomApp(props: CustomAppProps) {
         <title>Squoolr</title>
         <link rel="icon" type="image/x-icon" href="/favicon.png" />
       </Head>
-      <LanguageContextProvider>
         <App {...{ Component, pageProps, emotionCache }} />
-      </LanguageContextProvider>
     </>
   );
 }
