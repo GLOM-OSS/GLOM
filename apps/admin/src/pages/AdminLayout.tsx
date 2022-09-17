@@ -1,5 +1,6 @@
 import { DashboardRounded, SettingsRounded } from '@mui/icons-material';
 import { Layout, NavItem, PersonnelRole, User, useUser } from '@squoolr/layout';
+import { useLanguage } from '@squoolr/theme';
 import { useState } from 'react';
 import { injectIntl, IntlShape } from 'react-intl';
 
@@ -27,13 +28,14 @@ const user: User = {
 };
 
 export const Testing2 = () => {
-  const { preferred_lang, gender } = useUser();
-
-  alert(`${preferred_lang}, ${gender}`);
+  const { gender } = useUser();
+  const { activeLanguage } = useLanguage();
+  alert(`${gender}, ${activeLanguage}`);
   return <div>massa mi heeee</div>;
 };
 
 function AdminLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
+  alert('admin')
   const navItems: NavItem[] = [
     {
       id: 1,

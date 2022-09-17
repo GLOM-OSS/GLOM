@@ -111,6 +111,7 @@ export function Layout({
 
   const [activeNavItem, setActiveNavItem] = useState<NavItem>();
   const [isSecondaryNavOpen, setIsSecondaryNavOpen] = useState<boolean>(false);
+  alert('layout')
   return (
     <UserContextProvider>
       <>

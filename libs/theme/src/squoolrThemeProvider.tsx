@@ -4,6 +4,7 @@ import { theme } from './theme';
 import { Flip, ToastContainer } from 'react-toastify';
 import { IntlProvider } from 'react-intl';
 import 'react-toastify/dist/ReactToastify.css';
+import LanguageContextProvider from './contexts/language/LanguageContextProvider';
 
 export function SquoolrThemeProvider({
   children,
@@ -20,20 +21,22 @@ export function SquoolrThemeProvider({
       locale={activeLanguage}
       defaultLocale="Fr"
     >
-      <ThemeProvider theme={theme}>
-        <ToastContainer
-          position="top-right"
-          autoClose={1000}
-          newestOnTop
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          transition={Flip}
-        />
-        <CssBaseline />
-        {children}
-      </ThemeProvider>
+      <LanguageContextProvider>
+        <ThemeProvider theme={theme}>
+          <ToastContainer
+            position="top-right"
+            autoClose={1000}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            transition={Flip}
+          />
+          <CssBaseline />
+          {children}
+        </ThemeProvider>
+      </LanguageContextProvider>
     </IntlProvider>
   );
 }
