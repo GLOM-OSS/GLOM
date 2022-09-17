@@ -14,10 +14,12 @@ export default function LogoutDialog({
   isDialogOpen,
   closeDialog,
   logout,
+  isSubmitting
 }: {
   isDialogOpen: boolean;
   closeDialog: () => void;
   logout: () => void;
+  isSubmitting:boolean
 }) {
   const intl = useIntl()
   const {formatMessage} = intl
@@ -36,8 +38,8 @@ export default function LogoutDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={closeDialog} size='small'>{formatMessage({ id: 'cancel' })}</Button>
-        <Button onClick={logout} variant='contained' size='small'>{formatMessage({ id: 'logout' })}</Button>
+        <Button disabled={isSubmitting} onClick={closeDialog} size='small'>{formatMessage({ id: 'cancel' })}</Button>
+        <Button disabled={isSubmitting} onClick={logout} variant='contained' size='small'>{formatMessage({ id: 'logout' })}</Button>
       </DialogActions>
     </Dialog>
   );
