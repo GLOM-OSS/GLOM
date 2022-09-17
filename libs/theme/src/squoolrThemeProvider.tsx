@@ -4,17 +4,22 @@ import { theme } from './theme';
 import { Flip, ToastContainer } from 'react-toastify';
 import { IntlProvider } from 'react-intl';
 import 'react-toastify/dist/ReactToastify.css';
-import LanguageContextProvider from './contexts/language/LanguageContextProvider';
+import LanguageContextProvider, { useLanguage } from './contexts/language/LanguageContextProvider';
+import frMessages from './languages/fr';
+import enMessages from './languages/en-us';
 
 export function SquoolrThemeProvider({
   children,
-  activeMessages,
-  activeLanguage,
+  // activeMessages,
+  // activeLanguage,
 }: {
   children: React.ReactNode;
-  activeMessages: Record<string, string>;
-  activeLanguage: 'En' | 'Fr';
+  // activeMessages: Record<string, string>;
+  // activeLanguage: 'En' | 'Fr';
 }) {
+  const { activeLanguage } = useLanguage();
+  const activeMessages = activeLanguage === 'Fr' ? frMessages : enMessages;
+
   return (
     <IntlProvider
       messages={activeMessages}
