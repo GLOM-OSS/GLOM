@@ -29,7 +29,7 @@ export class AuthService {
     private AnnualConfiguratorService: AnnualConfiguratorService
   ) {}
 
-  async validateUser(host: string, email: string, password: string) {
+  async validateUser(origin: string, email: string, password: string) {
     const person = await this.personService.findUnique({ email });
     const userLogins = (await this.loginService.findAll({
       where: { person_id: person?.person_id },
@@ -37,7 +37,7 @@ export class AuthService {
     for (let i = 0; i < userLogins.length; i++) {
       const login = userLogins[i];
       if (bcrypt.compareSync(password, login?.password)) {
-        const user = await this.validateLogin(host, login);
+        const user = await this.validateLogin(origin, login);
         return {
           ...user,
           ...person,
@@ -52,9 +52,9 @@ export class AuthService {
     });
   }
 
-  async validateLogin(host: string, login: Omit<Login, 'password'>) {
-    const { login_id, school_id } = login;
-    const user: Omit<PassportSession, 'log_id'> = { login_id, roles: [] };
+  async validateLogin(origin: string, login: Omit<Login, 'password'>) {
+    const { login_id, school_id, cookie_age } = login;
+    const user: Omit<PassportSession, 'log_id'> = { login_id, cookie_age, roles: [] };
     const activeLogs = await this.logService.count({
       login_id,
       OR: {
@@ -70,18 +70,11 @@ export class AuthService {
       });
     }
 
-    if (!school_id && host !== process.env.SQUOOLR_URL)
-      throw new UnauthorizedException({
-        statusCode: HttpStatus.UNAUTHORIZED,
-        error: 'Unauthorized access',
-        message: AUTH401['Fr'],
-      });
-    //attrmting to be an admin
-    else {
+    if (school_id) {
       const school = await this.schoolService.findOne({
         school_id,
       });
-      if (host === school?.subdomain) {
+      if (origin === school?.subdomain) {
         const student = await this.studentService.findOne({
           login_id,
         });
@@ -91,13 +84,18 @@ export class AuthService {
             error: 'Unauthorized access',
             message: AUTH401['Fr'],
           }); //someone attempting to be a student
-      } else if (!login.is_personnel)
+      } else if (!login.is_personnel || origin !== `admin.${school.subdomain}`)
         throw new UnauthorizedException({
           statusCode: HttpStatus.UNAUTHORIZED,
           error: 'Unauthorized access',
           message: AUTH401['Fr'],
         }); //someone attempting to be a personnel
-    }
+    } else if (origin !== process.env.SQUOOLR_URL)
+      throw new UnauthorizedException({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        error: 'Unauthorized access',
+        message: AUTH401['Fr'],
+      }); //attempting to be an admin
     return user;
   }
 
