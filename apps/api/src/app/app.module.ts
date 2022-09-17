@@ -17,6 +17,9 @@ import { AuthModule } from './auth/auth.module';
 import { PersonService } from '../services/person.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AnnualStudentService } from '../services/annual-student.service';
+import { AppInterceptor } from './app.interceptor';
+import { AppMiddleware } from './app.middleware';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -35,11 +38,15 @@ import { AnnualStudentService } from '../services/annual-student.service';
     StudentService,
     AnnualStudentService,
     AnnualConfiguratorService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AppInterceptor,
+    },
   ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    const redisClient = createClient({ legacyMode: true,   });
+    const redisClient = createClient({ legacyMode: true });
     redisClient.connect().catch((message) => Logger.error(message));
     const RedisStore = connectRedis(session);
 
@@ -50,7 +57,7 @@ export class AppModule implements NestModule {
           store: new RedisStore({
             client: redisClient,
             host: process.env.REDIS_HOST,
-            port: Number(process.env.REDIS_PORT), 
+            port: Number(process.env.REDIS_PORT),
           }),
           secret: process.env.SESSION_SECRET,
           genid: () => randomUUID(),
@@ -62,7 +69,8 @@ export class AppModule implements NestModule {
           },
         }),
         passport.initialize(),
-        passport.session()
+        passport.session(),
+        AppMiddleware
       )
       .forRoutes('*');
   }
