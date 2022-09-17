@@ -5,6 +5,7 @@ import { AcademicYearInterface } from '@squoolr/auth';
 export interface NavChild {
   title: string;
   route: string;
+  page_title:string
 }
 
 export interface NavItem {

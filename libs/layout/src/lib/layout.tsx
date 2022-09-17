@@ -1,8 +1,19 @@
 import {
+  HelpOutlineRounded,
   KeyboardDoubleArrowLeftRounded,
+  NotificationsActiveOutlined,
   ReportRounded,
+  SearchRounded,
 } from '@mui/icons-material';
-import { Box, Collapse, IconButton, Tooltip, Typography } from '@mui/material';
+import {
+  Box,
+  Collapse,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
@@ -16,7 +27,7 @@ import SecondaryNavItem from '../components/SecondaryNavItem';
 import SwapAcademicYear from '../components/SwapAcademicYear';
 import UserLayoutDisplay from '../components/UserLayoutDisplay';
 import UserContextProvider from '../contexts/UserContextProvider';
-import { NavItem, PersonnelRole, User } from './interfaces';
+import { NavChild, NavItem, PersonnelRole, User } from './interfaces';
 
 export function Layout({
   navItems,
@@ -34,6 +45,11 @@ export function Layout({
   userRoles?: PersonnelRole[];
   handleSwapRole?: (newRole: PersonnelRole) => void;
 }) {
+  const [activeNavItem, setActiveNavItem] = useState<NavItem>();
+  const [isSecondaryNavOpen, setIsSecondaryNavOpen] = useState<boolean>(false);
+  const [activeSecondaryNavItem, setActiveSecondaryNavItem] =
+    useState<NavChild>();
+
   useEffect(() => {
     if (navItems.length > 0) {
       setActiveNavItem(navItems[0]);
@@ -42,25 +58,29 @@ export function Layout({
   }, [navItems]);
 
   useEffect(() => {
-    //TODO: call api here to Verify if user is authenticated here if user is not, then disconnect them and send them to sign in page
-    setTimeout(() => {
-      if (random() > 5) {
-        //TODO: write user data to context here
-      } else {
-        const notif = new useNotification();
-        notif.notify({ render: 'verifyingAuth' });
-        notif.update({
-          type: 'ERROR',
-          render: 'unauthenticatedUser',
-          autoClose: false,
-          icon: () => <ReportRounded fontSize="medium" color="error" />,
-        });
-        localStorage.setItem('previousRoute', location.pathname);
-        navigate('/');
-      }
-    }, 3000);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    setActiveSecondaryNavItem(activeNavItem?.children[0]);
+  }, [activeNavItem]);
+
+  // useEffect(() => {
+  //   //TODO: call api here to Verify if user is authenticated here if user is not, then disconnect them and send them to sign in page
+  //   setTimeout(() => {
+  //     if (random() > 5) {
+  //       //TODO: write user data to context here
+  //     } else {
+  //       const notif = new useNotification();
+  //       notif.notify({ render: 'verifyingAuth' });
+  //       notif.update({
+  //         type: 'ERROR',
+  //         render: 'unauthenticatedUser',
+  //         autoClose: false,
+  //         icon: () => <ReportRounded fontSize="medium" color="error" />,
+  //       });
+  //       localStorage.setItem('previousRoute', location.pathname);
+  //       navigate('/');
+  //     }
+  //   }, 3000);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -109,9 +129,6 @@ export function Layout({
     }, 3000);
   };
 
-  const [activeNavItem, setActiveNavItem] = useState<NavItem>();
-  const [isSecondaryNavOpen, setIsSecondaryNavOpen] = useState<boolean>(false);
-  alert('layout')
   return (
     <UserContextProvider>
       <>
@@ -119,6 +136,7 @@ export function Layout({
           closeDialog={() => setIsConfirmLogoutDialogOpen(false)}
           isDialogOpen={isConfirmLogoutDialogOpen}
           logout={handleLogout}
+          isSubmitting={isSubmitting}
         />
         <Box
           sx={{
@@ -189,7 +207,11 @@ export function Layout({
                   }}
                 >
                   {activeNavItem.children.map((child, index) => (
-                    <SecondaryNavItem item={child} key={index} />
+                    <SecondaryNavItem
+                      item={child}
+                      key={index}
+                      onClick={() => setActiveSecondaryNavItem(child)}
+                    />
                   ))}
                 </Box>
               </Scrollbars>
@@ -221,7 +243,78 @@ export function Layout({
               </Box>
             </Box>
           )}
-          <Outlet />
+          <Box
+            sx={{
+              padding: `${theme.spacing(2.75)} ${theme.spacing(4.5)} `,
+              display: 'grid',
+              gridTemplateRows: 'auto 1fr',
+            }}
+          >
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: '1fr auto',
+                alignItems: 'center',
+                columnGap: theme.spacing(2),
+              }}
+            >
+              <TextField
+                placeholder={formatMessage({ id: 'searchSomething' })}
+                variant="outlined"
+                size="small"
+                sx={{
+                  width: '25%',
+                  '& input': { ...theme.typography.caption },
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchRounded
+                        sx={{ fontSize: 25, color: theme.common.body }}
+                        color="primary"
+                      />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: 'auto auto',
+                  columnGap: theme.spacing(3),
+                }}
+              >
+                <Tooltip arrow title={formatMessage({ id: 'helpCenter' })}>
+                  <HelpOutlineRounded
+                    sx={{ fontSize: 25, color: theme.common.body }}
+                  />
+                </Tooltip>
+                <Tooltip arrow title={formatMessage({ id: 'notifications' })}>
+                  <NotificationsActiveOutlined
+                    sx={{ fontSize: 25, color: theme.common.body }}
+                  />
+                </Tooltip>
+              </Box>
+            </Box>
+            <Box
+              sx={{
+                marginTop: theme.spacing(8),
+                display: 'grid',
+                gridTemplateRows: 'auto 1fr',
+              }}
+            >
+              <Typography variant="h5">
+                {formatMessage({
+                  id: activeSecondaryNavItem
+                    ? activeSecondaryNavItem.page_title
+                    : 'emptySection',
+                })}
+              </Typography>
+              <Scrollbars>
+                <Outlet />
+              </Scrollbars>
+            </Box>
+          </Box>
         </Box>
       </>
     </UserContextProvider>
@@ -229,29 +322,3 @@ export function Layout({
 }
 
 export default Layout;
-
-/*
-  confirmLogoutTitle: 'Confirm Logout',
-  confirmLogoutMessage: 'Are you sure you want to logout? Click logout to continue or cancel',
-  cancel:'Cancel',
-  logout:'Logout',
-  dashboard:'Dashboard',
-  signingUserOut:'Logging user out. Please be patient',
-  signOutSuccess: 'Your work session has successfully been logged out',
-  signOutFailed:'Something went wrong while logging you out. Please try again',
-activeYear:'Active Year',
-changeActiveYear:'Change active year',
-allRightsReserved:'All rights reserved',
-fetchingAcademicYears:'Getting your academic years...',
-getAcademicYearsFailed:'Something went wrong while we tried getting your academic years. please try again'
-onlyOneAcademicYear:'You are already in your only academic year!',
-close:'Close',
-administrator:'Squoolr Admin',
-teacher: 'Teacher', 
-secretary: 'Secretary',
-registry: 'Registry',
-listRoles: 'Roles',
-collapseMenu:'Collapse menu',
-verifyingAuth: 'Verifying user authenticity',
-unauthenticatedUser:'You have no active session. Please sign in'
- */

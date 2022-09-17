@@ -5,12 +5,15 @@ import { NavChild } from '../lib/interfaces';
 
 export default function SecondaryNavItem({
   item: { route, title },
+  onClick
 }: {
   item: NavChild;
+  onClick:()=>void
 }) {
   return (
     <Box
       component={NavLink}
+      onClick={onClick}
       to={route}
       sx={{
         color: theme.common.titleActive,
