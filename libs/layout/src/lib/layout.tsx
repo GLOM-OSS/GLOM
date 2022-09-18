@@ -340,9 +340,16 @@ export function Layout({
                               1
                               ? 400
                               : 200,
+                          color:
+                            location.pathname.split('/').filter((_) => _ !== '')
+                              .length - 1
+                              ? theme.common.titleActive
+                              : 'inherit',
+
                           '&:hover': {
                             textDecoration: 'underline',
                             fontWeight: 400,
+                            color: theme.common.titleActive,
                           },
                         }}
                       >
