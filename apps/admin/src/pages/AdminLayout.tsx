@@ -1,4 +1,4 @@
-import { DashboardRounded, SettingsRounded } from '@mui/icons-material';
+import { DashboardRounded, LayersOutlined, SettingsRounded } from '@mui/icons-material';
 import { Layout, NavItem, PersonnelRole, User } from '@squoolr/layout';
 import { useState } from 'react';
 import { injectIntl, IntlShape } from 'react-intl';
@@ -34,30 +34,30 @@ function AdminLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
   const navItems: NavItem[] = [
     {
       id: 1,
-      Icon: SettingsRounded,
+      Icon: LayersOutlined,
       title: formatMessage({ id: 'management' }),
       children: [
         {
-          title: formatMessage({ id: 'Departments' }),
-          route: 'test',
-          page_title: 'layout',
+          title: formatMessage({ id: 'demands' }),
+          route: 'demands',
+          page_title: 'demands',
         },
         {
-          title: formatMessage({ id: 'Major' }),
-          route: 'dashboard',
-          page_title: 'dashboard',
+          title: formatMessage({ id: 'schools' }),
+          route: 'schools',
+          page_title: 'schools',
         },
         {
-          title: formatMessage({ id: 'academic year' }),
-          route: 'dashboard',
-          page_title: 'dashboard',
+          title: formatMessage({ id: 'configurators' }),
+          route: 'configurators',
+          page_title: 'configurators',
         },
       ],
     },
     {
       id: 2,
       Icon: DashboardRounded,
-      title: formatMessage({ id: 'dashboard' }),
+      title: formatMessage({ id: 'settings' }),
       children: [],
     },
   ];
@@ -69,9 +69,9 @@ function AdminLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
 
   return (
     <Layout
-      callingApp="personnel"
+      callingApp="admin"
       activeRole={activeRole}
-      userRoles={['secretary', 'registry']}
+      userRoles={[]}
       user={user}
       navItems={navItems}
       handleSwapRole={handleSwapRole}
