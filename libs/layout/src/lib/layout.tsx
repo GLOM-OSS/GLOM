@@ -52,15 +52,22 @@ export function Layout({
     useState<NavChild>();
 
   useEffect(() => {
+    alert('hello');
     if (navItems.length > 0) {
-      setActiveNavItem(navItems[0]);
+      setActiveNavItem(
+        navItems.find(
+          ({ title }) => title === location.pathname.split('/')[1]
+        ) ?? navItems[0]
+      );
       setIsSecondaryNavOpen(true);
     }
-  }, [navItems]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  useEffect(() => {
-    setActiveSecondaryNavItem(activeNavItem?.children[0]);
-  }, [activeNavItem]);
+  // useEffect(() => {
+  //   setActiveSecondaryNavItem(activeNavItem?.children[0]);
+  //   alert(JSON.stringify(activeNavItem));
+  // }, [activeNavItem]);
 
   // useEffect(() => {
   //   //TODO: call api here to Verify if user is authenticated here if user is not, then disconnect them and send them to sign in page
@@ -152,7 +159,17 @@ export function Layout({
             isLogoutDialogOpen={isConfirmLogoutDialogOpen}
             navItems={navItems}
             openLogoutDialog={() => setIsConfirmLogoutDialogOpen(true)}
-            setActiveNavItem={(navItem: NavItem) => setActiveNavItem(navItem)}
+            setActiveNavItem={(navItem: NavItem) => {
+              const { children, title } = navItem;
+              setActiveNavItem(navItem);
+              setActiveSecondaryNavItem(
+                children.length > 0 ? navItem.children[0] : undefined
+              );
+              setIsSecondaryNavOpen(children.length > 0);
+              if (children.length > 0)
+                navigate(`/${title}/${children[0].route}`);
+              else navigate(`/${title}`);
+            }}
             activeNavItem={activeNavItem}
             openSecondaryNav={() => setIsSecondaryNavOpen(true)}
           />

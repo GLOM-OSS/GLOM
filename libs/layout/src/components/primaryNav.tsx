@@ -66,7 +66,7 @@ export default function PrimaryNav({
             activeNavItem={activeNavItem}
             handleSelect={() => {
               setActiveNavItem(navItem);
-              openSecondaryNav();
+              // openSecondaryNav();
             }}
           />
         ))}
