@@ -204,7 +204,7 @@ export class AuthController {
 
   @Post('reset-password')
   async resetPassword(@Req() request: Request, @Body('email') email: string) {
-    const squoolr_client = request.headers.origin.replace('https://', '');
+    const squoolr_client = new URL(request.headers.origin).hostname;
     const login = await this.loginService.findOne({
       Person: { email },
       School:
@@ -237,7 +237,7 @@ export class AuthController {
     @Req() request: Request,
     @Body() { reset_password_id, new_password }: NewPasswordDto
   ) {
-    const squoolr_client = request.headers.origin.replace('https://', '');
+    const squoolr_client = new URL(request.headers.origin).hostname;
     const login = await this.loginService.findOne({
       School:
         squoolr_client !== process.env.SQUOOLR_URL

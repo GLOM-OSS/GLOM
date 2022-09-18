@@ -43,7 +43,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         for (let i = 0; i < userLogins.length; i++) {
           const login = userLogins[i];
           const user = await this.authService.validateLogin(
-            request.headers.origin.replace('https://', ''),
+            new URL(request.headers.origin).hostname,
             login
           );
           return { ...person, ...user };

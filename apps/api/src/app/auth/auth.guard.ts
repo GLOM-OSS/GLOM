@@ -28,7 +28,7 @@ export class AuthenticatedGuard implements CanActivate {
       context.getHandler()
     );
     const user = request.user as DeserializeSessionData;
-    const squoolr_client = request.headers.origin.replace('https://', '');
+    const squoolr_client = new URL(request.headers.origin).hostname;
     const isAuthenticated =
       isPublic ||
       (request.isAuthenticated() &&

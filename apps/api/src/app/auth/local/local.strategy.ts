@@ -21,7 +21,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(request: Request, email: string, password: string) {
-    const origin = request.headers.origin.replace('https://', '');
+    const origin = new URL(request.headers.origin).hostname;
     const user = await this.authService.validateUser(origin, email, password);
     const { log_id } = await this.logService.create({
       Login: { connect: { login_id: user.login_id } },
