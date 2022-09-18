@@ -78,6 +78,12 @@ export function Layout({
       setIsSecondaryNavOpen(
         currentNavItem ? currentNavItem.children.length > 0 : false
       );
+    } else {
+      setIsSecondaryNavOpen(false);
+      setActiveNavItem(undefined);
+      setActiveSecondaryNavItem(undefined);
+      navigate('/');
+      //TODO: call api here to NOTIFY ADMIN HERE that activeRole has no navItems then notify a 404
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roleNavigationItems]);
@@ -203,92 +209,89 @@ export function Layout({
           activeNavItem={activeNavItem}
           openSecondaryNav={() => setIsSecondaryNavOpen(true)}
         />
-        {activeNavItem && (
-          <Box
-            component={Collapse}
-            timeout={170}
-            orientation="horizontal"
-            in={isSecondaryNavOpen}
-            sx={{
-              padding: isSecondaryNavOpen
-                ? `${theme.spacing(2.375)} ${theme.spacing(1.75)}`
-                : 0,
-              borderRight: `1px solid ${theme.common.line}`,
-              '& .MuiCollapse-wrapper>.MuiCollapse-wrapperInner': {
-                display: 'grid',
-                gridTemplateRows: 'auto auto 1fr auto auto',
-                alignItems: 'start',
-              },
-              position: 'relative',
-              paddingTop: theme.spacing(4),
-            }}
+        <Box
+          component={Collapse}
+          timeout={170}
+          orientation="horizontal"
+          in={isSecondaryNavOpen}
+          sx={{
+            padding: isSecondaryNavOpen
+              ? `${theme.spacing(2.375)} ${theme.spacing(1.75)}`
+              : 0,
+            borderRight: `1px solid ${theme.common.line}`,
+            '& .MuiCollapse-wrapper>.MuiCollapse-wrapperInner': {
+              display: 'grid',
+              gridTemplateRows: 'auto auto 1fr auto auto',
+              alignItems: 'start',
+            },
+            position: 'relative',
+            paddingTop: theme.spacing(4),
+          }}
+        >
+          <IconButton
+            size="small"
+            onClick={() => setIsSecondaryNavOpen(false)}
+            sx={{ position: 'absolute', top: 0, right: 0 }}
           >
-            <IconButton
-              size="small"
-              onClick={() => setIsSecondaryNavOpen(false)}
-              sx={{ position: 'absolute', top: 0, right: 0 }}
-            >
-              <Tooltip arrow title={formatMessage({ id: 'collapseMenu' })}>
-                <KeyboardDoubleArrowLeftRounded
-                  sx={{ fontSize: 20, color: theme.common.titleActive }}
-                />
-              </Tooltip>
-            </IconButton>
-
-            <UserLayoutDisplay
-              activeRole={activeRole}
-              selectRole={(newRole: PersonnelRole) =>
-                handleSwapRole && handleSwapRole(newRole)
-              }
-            />
-            <Typography variant="body2" sx={{ color: theme.common.label }}>
-              {activeNavItem.title}
-            </Typography>
-            <Scrollbars>
-              <Box
-                sx={{
-                  marginTop: theme.spacing(2.5),
-                  display: 'grid',
-                  rowGap: theme.spacing(1),
-                }}
-              >
-                {activeNavItem.children.map((child, index) => (
-                  <SecondaryNavItem
-                    item={child}
-                    key={index}
-                    onClick={() => setActiveSecondaryNavItem(child)}
-                  />
-                ))}
-              </Box>
-            </Scrollbars>
-            {callingApp === 'personnel' && (
-              <SwapAcademicYear
-                callingApp={callingApp}
-                activeYear={activeYear}
+            <Tooltip arrow title={formatMessage({ id: 'collapseMenu' })}>
+              <KeyboardDoubleArrowLeftRounded
+                sx={{ fontSize: 20, color: theme.common.titleActive }}
               />
-            )}
+            </Tooltip>
+          </IconButton>
+
+          <UserLayoutDisplay
+            activeRole={activeRole}
+            selectRole={(newRole: PersonnelRole) =>
+              handleSwapRole && handleSwapRole(newRole)
+            }
+          />
+          <Typography variant="body2" sx={{ color: theme.common.label }}>
+            {activeNavItem ? activeNavItem.title : null}
+          </Typography>
+          <Scrollbars>
             <Box
               sx={{
+                marginTop: theme.spacing(2.5),
                 display: 'grid',
-                justifyItems: 'center',
-                marginTop: theme.spacing(3.75),
+                rowGap: theme.spacing(1),
               }}
             >
-              <Typography
-                variant="caption"
-                sx={{ color: theme.common.placeholder }}
-              >
-                {`© ${new Date().getFullYear()} Squoolr`}
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{ color: theme.common.placeholder }}
-              >
-                {formatMessage({ id: 'allRightsReserved' })}
-              </Typography>
+              {activeNavItem
+                ? activeNavItem.children.map((child, index) => (
+                    <SecondaryNavItem
+                      item={child}
+                      key={index}
+                      onClick={() => setActiveSecondaryNavItem(child)}
+                    />
+                  ))
+                : null}
             </Box>
+          </Scrollbars>
+          {callingApp === 'personnel' && (
+            <SwapAcademicYear callingApp={callingApp} activeYear={activeYear} />
+          )}
+          <Box
+            sx={{
+              display: 'grid',
+              justifyItems: 'center',
+              marginTop: theme.spacing(3.75),
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{ color: theme.common.placeholder }}
+            >
+              {`© ${new Date().getFullYear()} Squoolr`}
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{ color: theme.common.placeholder }}
+            >
+              {formatMessage({ id: 'allRightsReserved' })}
+            </Typography>
           </Box>
-        )}
+        </Box>
         <Box
           sx={{
             padding: `${theme.spacing(2.75)} ${theme.spacing(4.5)} `,
