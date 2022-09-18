@@ -52,23 +52,33 @@ export function Layout({
     useState<NavChild>();
 
   useEffect(() => {
-    alert('hello');
     if (navItems.length > 0) {
-      setActiveNavItem(
-        navItems.find(
-          ({ title }) => title === location.pathname.split('/')[1]
-        ) ?? navItems[0]
+      const currentNavItem = navItems.find(
+        ({ title }) => title === location.pathname.split('/')[1]
       );
-      setIsSecondaryNavOpen(true);
+      setActiveNavItem(currentNavItem ?? navItems[0]);
+      setIsSecondaryNavOpen(
+        currentNavItem ? currentNavItem.children.length > 0 : false
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // useEffect(() => {
-  //   setActiveSecondaryNavItem(activeNavItem?.children[0]);
-  //   alert(JSON.stringify(activeNavItem));
-  // }, [activeNavItem]);
+  useEffect(() => {
+    if (activeNavItem && activeNavItem.children) {
+      const { children } = activeNavItem;
+      const pathname = location.pathname.split('/').filter((_) => _ !== '');
+      if (pathname.length === 2) {
+        setActiveSecondaryNavItem(
+          children.find(({ route }) => route === pathname[1]) ??
+            (children.length > 0 ? children[0] : undefined)
+        );
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeNavItem]);
 
+  //TODO UNCOMMENT THIS USE EFFECT WHEN DONE INTERGRATING
   // useEffect(() => {
   //   //TODO: call api here to Verify if user is authenticated here if user is not, then disconnect them and send them to sign in page
   //   setTimeout(() => {
