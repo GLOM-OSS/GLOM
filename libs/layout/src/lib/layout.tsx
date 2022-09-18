@@ -33,13 +33,9 @@ import { NavChild, NavItem, PersonnelRole } from './interfaces';
 export function Layout({
   navItems,
   callingApp,
-  activeRole,
-  handleSwapRole,
 }: {
-  navItems: NavItem[];
+  navItems: { role: PersonnelRole | 'administrator'; navItems: NavItem[] }[];
   callingApp: 'admin' | 'personnel';
-  activeRole: PersonnelRole | 'administrator';
-  handleSwapRole?: (newRole: PersonnelRole) => void;
 }) {
   const [activeNavItem, setActiveNavItem] = useState<NavItem>();
   const [isSecondaryNavOpen, setIsSecondaryNavOpen] = useState<boolean>(false);
@@ -47,18 +43,44 @@ export function Layout({
     useState<NavChild>();
   const { activeYear } = useUser();
 
+  const { annualConfigurator, annualRegistry, annualTeacher } = useUser();
+
+  const newRoles: (PersonnelRole | undefined)[] = [
+    annualConfigurator ? 'secretary' : undefined,
+    annualRegistry ? 'registry' : undefined,
+    annualTeacher ? 'teacher' : undefined,
+  ];
+  const Roles: PersonnelRole[] = newRoles.filter(
+    (_) => _ !== undefined
+  ) as PersonnelRole[];
+
+  const [activeRole, setActiveRole] = useState<PersonnelRole | 'administrator'>(
+    callingApp === 'admin'
+      ? 'administrator'
+      : Roles.sort((a, b) => (a > b ? 1 : -1))[0]
+  );
+  const handleSwapRole = (newRole: PersonnelRole) => setActiveRole(newRole);
+
+  const [roleNavigationItems, setRoleNavigationItems] = useState<NavItem[]>([]);
+
   useEffect(() => {
-    if (navItems.length > 0) {
-      const currentNavItem = navItems.find(
+    const test = navItems.find(({ role }) => role === activeRole);
+    setRoleNavigationItems(test ? test.navItems : []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeRole]);
+
+  useEffect(() => {
+    if (roleNavigationItems.length > 0) {
+      const currentNavItem = roleNavigationItems.find(
         ({ title }) => title === location.pathname.split('/')[1]
       );
-      setActiveNavItem(currentNavItem ?? navItems[0]);
+      setActiveNavItem(currentNavItem ?? roleNavigationItems[0]);
       setIsSecondaryNavOpen(
         currentNavItem ? currentNavItem.children.length > 0 : false
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [roleNavigationItems]);
 
   useEffect(() => {
     if (activeNavItem && activeNavItem.children) {
@@ -69,7 +91,11 @@ export function Layout({
           children.find(({ route }) => route === pathname[1]) ??
             (children.length > 0 ? children[0] : undefined)
         );
-      }
+      } else
+        setActiveSecondaryNavItem(
+          children.length > 0 ? children[0] : undefined
+        );
+      if (children.length > 0) navigate(`${children[0].route}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeNavItem]);
@@ -162,7 +188,7 @@ export function Layout({
         <PrimaryNav
           isLoggingOut={isSubmitting}
           isLogoutDialogOpen={isConfirmLogoutDialogOpen}
-          navItems={navItems}
+          navItems={roleNavigationItems}
           openLogoutDialog={() => setIsConfirmLogoutDialogOpen(true)}
           setActiveNavItem={(navItem: NavItem) => {
             const { children, title } = navItem;
