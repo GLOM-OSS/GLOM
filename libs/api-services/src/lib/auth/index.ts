@@ -9,7 +9,7 @@ export async function signIn(email: string, password: string) {
 }
 
 export async function setActiveYear(selected_academic_year_id: string) {
-  const { data } = await http.patch(`auth/active-password`, {
+  const { data } = await http.patch(`auth/active-year`, {
     selected_academic_year_id,
   });
   return data;
