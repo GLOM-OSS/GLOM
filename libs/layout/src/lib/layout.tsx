@@ -34,13 +34,11 @@ export function Layout({
   navItems,
   callingApp,
   activeRole,
-  userRoles,
   handleSwapRole,
 }: {
   navItems: NavItem[];
   callingApp: 'admin' | 'personnel';
   activeRole: PersonnelRole | 'administrator';
-  userRoles?: PersonnelRole[];
   handleSwapRole?: (newRole: PersonnelRole) => void;
 }) {
   const [activeNavItem, setActiveNavItem] = useState<NavItem>();
@@ -146,7 +144,6 @@ export function Layout({
   };
 
   return (
-    // <UserContextProvider>
     <>
       <LogoutDialog
         closeDialog={() => setIsConfirmLogoutDialogOpen(false)}
@@ -214,7 +211,6 @@ export function Layout({
 
             <UserLayoutDisplay
               activeRole={activeRole}
-              userRoles={userRoles}
               selectRole={(newRole: PersonnelRole) =>
                 handleSwapRole && handleSwapRole(newRole)
               }
@@ -388,7 +384,6 @@ export function Layout({
         </Box>
       </Box>
     </>
-    // </UserContextProvider>
   );
 }
 

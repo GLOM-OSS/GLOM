@@ -8,28 +8,40 @@ import {
   Typography,
 } from '@mui/material';
 import { theme } from '@squoolr/theme';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useUser } from '../contexts/UserContextProvider';
 import { PersonnelRole } from '../lib/interfaces';
 
 export default function UserLayoutDisplay({
-  // user: { fisrt_name, image_ref },
   selectRole,
   activeRole,
-  userRoles,
 }: {
-  // user: User;
   selectRole: (item: PersonnelRole) => void;
   activeRole?: PersonnelRole | 'administrator';
-  userRoles?: PersonnelRole[];
 }) {
   const intl = useIntl();
   const { formatMessage } = intl;
-  const {fisrt_name, image_ref} = useUser()
+  const {
+    fisrt_name,
+    image_ref,
+    annualConfigurator,
+    annualRegistry,
+    annualTeacher,
+  } = useUser();
+
+  const [userRoles, setUserRoles] = useState<PersonnelRole[]>([]);
+  useEffect(() => {
+    const newRoles: (PersonnelRole | undefined)[] = [
+      annualConfigurator ? 'secretary' : undefined,
+      annualRegistry ? 'registry' : undefined,
+      annualTeacher ? 'teacher' : undefined,
+    ];
+    setUserRoles(newRoles.filter((_) => _ !== undefined) as PersonnelRole[]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // alert(preferred_lang)
-
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -71,13 +83,15 @@ export default function UserLayoutDisplay({
             <Typography variant="caption">
               {formatMessage({ id: activeRole })}
             </Typography>
-            {userRoles && userRoles.length > 0 && (
-              <Tooltip arrow title={formatMessage({ id: 'listRoles' })}>
-                <KeyboardArrowDownRounded
-                  sx={{ color: theme.common.label, fontSize: 15 }}
-                />
-              </Tooltip>
-            )}
+            {userRoles &&
+              userRoles.length > 0 &&
+              activeRole !== 'administrator' && (
+                <Tooltip arrow title={formatMessage({ id: 'listRoles' })}>
+                  <KeyboardArrowDownRounded
+                    sx={{ color: theme.common.label, fontSize: 15 }}
+                  />
+                </Tooltip>
+              )}
           </Box>
           <Menu
             anchorEl={anchorEl}
