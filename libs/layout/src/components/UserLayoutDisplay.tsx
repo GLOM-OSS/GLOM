@@ -10,21 +10,26 @@ import {
 import { theme } from '@squoolr/theme';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
-import { PersonnelRole, User } from '../lib/interfaces';
+import { useUser } from '../contexts/UserContextProvider';
+import { PersonnelRole } from '../lib/interfaces';
 
 export default function UserLayoutDisplay({
-  user: { fisrt_name, image_ref },
+  // user: { fisrt_name, image_ref },
   selectRole,
   activeRole,
   userRoles,
 }: {
-  user: User;
+  // user: User;
   selectRole: (item: PersonnelRole) => void;
   activeRole?: PersonnelRole | 'administrator';
   userRoles?: PersonnelRole[];
 }) {
   const intl = useIntl();
   const { formatMessage } = intl;
+  const {fisrt_name, image_ref} = useUser()
+
+  // alert(preferred_lang)
+
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
