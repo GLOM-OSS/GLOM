@@ -7,6 +7,7 @@ import {
 } from '@mui/icons-material';
 import {
   Box,
+  Breadcrumbs,
   Collapse,
   IconButton,
   InputAdornment,
@@ -303,13 +304,53 @@ export function Layout({
                 gridTemplateRows: 'auto 1fr',
               }}
             >
-              <Typography variant="h5">
-                {formatMessage({
-                  id: activeSecondaryNavItem
-                    ? activeSecondaryNavItem.page_title
-                    : 'emptySection',
-                })}
-              </Typography>
+              <Box>
+                <Typography variant="h5">
+                  {formatMessage({
+                    id: activeSecondaryNavItem
+                      ? activeSecondaryNavItem.page_title
+                      : 'emptySection',
+                  })}
+                </Typography>
+                <Breadcrumbs
+                  sx={{
+                    marginTop: theme.spacing(1 / 4),
+                    '& .MuiBreadcrumbs-separator': {
+                      ...theme.typography.caption,
+                      margin: '0 3px',
+                    },
+                  }}
+                >
+                  {location.pathname
+                    .split('/')
+                    .filter((_) => _ !== '')
+                    .map((item, index) => (
+                      <Typography
+                        key={index}
+                        variant="body2"
+                        onClick={() =>
+                          navigate(location.pathname.split(item)[0] + item)
+                        }
+                        sx={{
+                          cursor: 'pointer',
+                          fontWeight:
+                            index ===
+                            location.pathname.split('/').filter((_) => _ !== '')
+                              .length -
+                              1
+                              ? 400
+                              : 200,
+                          '&:hover': {
+                            textDecoration: 'underline',
+                            fontWeight: 400,
+                          },
+                        }}
+                      >
+                        {formatMessage({ id: item })}
+                      </Typography>
+                    ))}
+                </Breadcrumbs>
+              </Box>
               <Scrollbars>
                 <Outlet />
               </Scrollbars>
