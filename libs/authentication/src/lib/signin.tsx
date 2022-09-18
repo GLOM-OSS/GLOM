@@ -18,11 +18,11 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import favicon from './logo.png';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
 import {
   AcademicYearInterface,
   SelectAcademicYearDialog,
 } from './selectAcademicYear';
+import { signIn } from '@squoolr/api-services';
 
 export function Signin({
   intl: { formatMessage },
@@ -62,69 +62,40 @@ export function Signin({
       newNotification.notify({
         render: formatMessage({ id: 'signingUserIn' }),
       });
-      //TODO: CALL SIGNIN API HERE
-      setTimeout(() => {
-        console.log(values);
-        setIsSubmitting(false);
-        if (random() > 5) {
+      signIn(values.email, values.password)
+        .then(({ user, academic_years }) => {
           newNotification.update({
             render: formatMessage({ id: 'signinSuccess' }),
           });
-          if (callingApp === 'admin') {
-            navigate(localStorage.getItem('previousRoute') ?? '/dashboard');
-          } else {
-            //TODO: SET DATA IN ACADEMIC YEAR STATE HERE
-            const newAcademicYears: AcademicYearInterface[] = [
-              {
-                academic_year_id: 'https:qwoeiofs/sldie',
-                code: 'YEAR-202100012022',
-                end_date: new Date(),
-                starting_date: new Date(),
-                year_status: 'inactive',
-              },
-              {
-                academic_year_id: 'https:qwwoeios/sldie',
-                code: 'YEAR-1',
-                end_date: new Date(),
-                starting_date: new Date(),
-                year_status: 'inactive',
-              },
-              {
-                academic_year_id: 'https:qwoerios/sldie',
-                code: 'YEAR-1',
-                end_date: new Date(),
-                starting_date: new Date(),
-                year_status: 'active',
-              },
-              {
-                academic_year_id: 'https:qwoeios/sldige',
-                code: 'YEAR-1',
-                end_date: new Date(),
-                starting_date: new Date(),
-                year_status: 'finished',
-              },
-            ];
-            //TODO: AUTO SIGN-IN USER IF ACADEMIC YEARS.length ===1
-            setAcademicYears(newAcademicYears);
-            setIsAcademicYearDialogOpen(true);
+          if (callingApp !== 'admin') {
+            if (academic_years) {
+              setAcademicYears(academic_years);
+              setIsAcademicYearDialogOpen(true);
+            }
           }
+          //TODO: dispatch user context here with new data
+          console.log(user);
+          navigate(localStorage.getItem('previousRoute') ?? '/dashboard');
           resetForm();
-        } else {
+        })
+        .catch((error) => {
           newNotification.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={formik.handleSubmit}
                 notification={newNotification}
-                message={formatMessage({ id: 'signinFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'signinFailed' })
+                }
                 intl={intl}
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        })
+        .finally(() => setIsSubmitting(false));
     },
   });
 
