@@ -31,6 +31,24 @@ export class AppService {
         national_id_number: '1102645613',
         phone_number: '6730564895',
       });
+      const { login_id } = await this.loginService.create({
+        Person: {
+          connect: { person_id },
+        },
+        password: bcrypt.hashSync('123456789', Number(process.env.SALT)),
+        is_personnel: true,
+        School: {
+          create: {
+            email: 'contact@iaicameroun.com',
+            phone_number: '67584986532',
+            school_name: 'IAI-CAMEROUN',
+            subdomain: 'iai.squoolr.com',
+            Person: {
+              connect: { person_id },
+            },
+          },
+        },
+      });
       const { annual_configurator_id } =
         await this.annualConfiguratorService.create({
           AcademicYear: {
@@ -41,24 +59,7 @@ export class AppService {
             },
           },
           Login: {
-            create: {
-              password: bcrypt.hashSync('123456789', Number(process.env.SALT)),
-              is_personnel: true,
-              School: {
-                create: {
-                  email: 'contact@iaicameroun.com',
-                  phone_number: '67584986532',
-                  school_name: 'IAI-CAMEROUN',
-                  subdomain: 'iai.squoolr.com',
-                  Person: {
-                    connect: { person_id },
-                  },
-                },
-              },
-              Person: {
-                connect: { person_id },
-              },
-            },
+            connect: { login_id },
           },
         });
 
@@ -152,6 +153,20 @@ export class AppService {
           },
         },
         AcademicYear: { connect: { code: 'Year-202120220001' } },
+      });
+
+      await this.annualConfiguratorService.create({
+        Login: { connect: { login_id } },
+        AcademicYear: {
+          create: {
+            code: 'Year-202120220002',
+            starts_at: new Date(),
+            ends_at: new Date(),
+            AnnualConfigurator: {
+              connect: { annual_configurator_id },
+            },
+          },
+        },
       });
     }
   }
