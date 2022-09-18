@@ -304,7 +304,7 @@ export function Layout({
                 gridTemplateRows: 'auto 1fr',
               }}
             >
-              <Box>
+              <Box sx={{ marginBottom: theme.spacing(5) }}>
                 <Typography variant="h5">
                   {formatMessage({
                     id: activeSecondaryNavItem
