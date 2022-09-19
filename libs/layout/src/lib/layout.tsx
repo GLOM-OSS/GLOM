@@ -312,7 +312,7 @@ export function Layout({
               variant="outlined"
               size="small"
               sx={{
-                width: '25%',
+                width: {mobile:'75%', laptop:'45%'},
                 '& input': { ...theme.typography.caption },
               }}
               InputProps={{
