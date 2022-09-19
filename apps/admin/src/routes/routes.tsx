@@ -28,6 +28,10 @@ export const routes = [
         element: <Demands />,
       },
       {
+        path: 'demands/:demand_code',
+        element: <Demands />,
+      },
+      {
         path: 'schools',
         element: <Typography variant="h1">Schools</Typography>,
       },
