@@ -312,7 +312,7 @@ export function Layout({
               variant="outlined"
               size="small"
               sx={{
-                width: {mobile:'75%', laptop:'45%'},
+                width: { mobile: '75%', laptop: '45%' },
                 '& input': { ...theme.typography.caption },
               }}
               InputProps={{
@@ -372,38 +372,53 @@ export function Layout({
                 {location.pathname
                   .split('/')
                   .filter((_) => _ !== '')
-                  .map((item, index) => (
-                    <Typography
-                      key={index}
-                      variant="body2"
-                      onClick={() =>
-                        navigate(location.pathname.split(item)[0] + item)
-                      }
-                      sx={{
-                        cursor: 'pointer',
-                        fontWeight:
-                          index ===
-                          location.pathname.split('/').filter((_) => _ !== '')
-                            .length -
-                            1
-                            ? 400
-                            : 200,
-                        color:
-                          location.pathname.split('/').filter((_) => _ !== '')
-                            .length - 1
-                            ? theme.common.titleActive
-                            : 'inherit',
+                  .map((item, index) => {
+                    const pathnameArray = location.pathname
+                      .split('/')
+                      .filter((_) => _ !== '');
+                    return (
+                      <Typography
+                        key={index}
+                        variant="body2"
+                        onClick={() =>
+                          index === 0
+                            ? activeNavItem && activeNavItem.children.length > 0
+                              ? navigate(
+                                  `/${pathnameArray[0]}/${activeNavItem.children[0].route}`
+                                )
+                              : null
+                            : navigate(
+                                `/${pathnameArray
+                                  .slice(0, index + 1)
+                                  .join('/')}`
+                              )
+                        }
+                        sx={{
+                          cursor: 'pointer',
+                          fontWeight:
+                            index ===
+                            location.pathname.split('/').filter((_) => _ !== '')
+                              .length -
+                              1
+                              ? 400
+                              : 200,
+                          color:
+                            location.pathname.split('/').filter((_) => _ !== '')
+                              .length - 1
+                              ? theme.common.titleActive
+                              : 'inherit',
 
-                        '&:hover': {
-                          textDecoration: 'underline',
-                          fontWeight: 400,
-                          color: theme.common.titleActive,
-                        },
-                      }}
-                    >
-                      {formatMessage({ id: item })}
-                    </Typography>
-                  ))}
+                          '&:hover': {
+                            textDecoration: 'underline',
+                            fontWeight: 400,
+                            color: theme.common.titleActive,
+                          },
+                        }}
+                      >
+                        {formatMessage({ id: item })}
+                      </Typography>
+                    );
+                  })}
               </Breadcrumbs>
             </Box>
             <Scrollbars>
