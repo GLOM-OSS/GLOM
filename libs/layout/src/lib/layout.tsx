@@ -247,7 +247,7 @@ export function Layout({
             }
           />
           <Typography variant="body2" sx={{ color: theme.common.label }}>
-            {activeNavItem ? activeNavItem.title : null}
+            {activeNavItem ? formatMessage({ id: activeNavItem.title }) : null}
           </Typography>
           <Scrollbars>
             <Box

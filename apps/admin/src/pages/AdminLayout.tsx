@@ -7,7 +7,7 @@ function AdminLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
     {
       id: 1,
       Icon: LayersOutlined,
-      title: formatMessage({ id: 'management' }),
+      title: 'management',
       children: [
         {
           title: formatMessage({ id: 'demands' }),
@@ -29,18 +29,15 @@ function AdminLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
     {
       id: 2,
       Icon: SettingsSuggestOutlined,
-      title: formatMessage({ id: 'settings' }),
+      title: 'settings',
       children: [],
     },
   ];
 
   return (
     <MainLayout
-      callingApp="personnel"
-      navItems={[
-        { role: 'registry', navItems: navItems },
-        { role: 'secretary', navItems: [] },
-      ]}
+      callingApp="admin"
+      navItems={[{ role: 'administrator', navItems: navItems }]}
     />
   );
 }
