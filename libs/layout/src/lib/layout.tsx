@@ -415,7 +415,9 @@ export function Layout({
                           },
                         }}
                       >
-                        {formatMessage({ id: item })}
+                        {isNaN(Number(item))
+                          ? formatMessage({ id: item })
+                          : item}
                       </Typography>
                     );
                   })}
