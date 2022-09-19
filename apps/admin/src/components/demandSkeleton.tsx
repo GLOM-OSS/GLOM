@@ -14,7 +14,7 @@ export default function DemandSkeleton() {
       }}
     >
       {[...new Array(5)].map((_, index) => (
-        <Typography>
+        <Typography key={index}>
           <Skeleton />
         </Typography>
       ))}
