@@ -335,12 +335,12 @@ export function Layout({
             >
               <Tooltip arrow title={formatMessage({ id: 'helpCenter' })}>
                 <HelpOutlineRounded
-                  sx={{ fontSize: 25, color: theme.common.body }}
+                  sx={{ fontSize: 25, color: theme.common.label }}
                 />
               </Tooltip>
               <Tooltip arrow title={formatMessage({ id: 'notifications' })}>
                 <NotificationsActiveOutlined
-                  sx={{ fontSize: 25, color: theme.common.body }}
+                  sx={{ fontSize: 25, color: theme.common.label }}
                 />
               </Tooltip>
             </Box>
