@@ -5,6 +5,7 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
+import RejectDemandDialog from './demand/rejectDailog';
 import ValidateDemandDialog from './demand/validateDialog';
 // import { DemandInterface } from './demands';
 
@@ -113,7 +114,7 @@ export default function DemandValidation() {
   const [validateNotifications, setValidateNotifications] =
     useState<useNotification[]>();
   const [isSubmitting, setIsValidating] = useState<boolean>(false);
-  const validateDemand = (subdomain: string) => {
+  const validateDemand = (response: string, usage: 'reject' | 'validate') => {
     setIsValidating(true);
     if (validateNotifications)
       validateNotifications.forEach((notification) => notification.dismiss());
@@ -122,40 +123,74 @@ export default function DemandValidation() {
       setValidateNotifications([...validateNotifications, notif]);
     else setValidateNotifications([notif]);
     notif.notify({
-      render: formatMessage({ id: 'validating' }),
+      render: formatMessage({
+        id: usage === 'validate' ? 'validating' : 'rejecting',
+      }),
     });
-    //TODO: CALL VALIDATE DEMAND API HERE
     setTimeout(() => {
-      console.log(subdomain);
+      console.log(response);
       setIsValidating(false);
-      if (random() > 5) {
-        notif.update({
-          render: formatMessage({ id: 'validatedDemand' }),
-        });
+      if (usage === 'validate') {
+        //TODO: CALL VALIDATE DEMAND API HERE WITH DATA reponse
+        if (random() > 5) {
+          notif.update({
+            render: formatMessage({ id: 'validatedDemand' }),
+          });
+        } else {
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={() => validateDemand(response, usage)}
+                notification={notif}
+                //TODO: MESSAGE SHOULD COME FROM BACKEND
+                message={formatMessage({ id: 'failedToValidate' })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
       } else {
-        notif.update({
-          type: 'ERROR',
-          render: (
-            <ErrorMessage
-              retryFunction={() => validateDemand(subdomain)}
-              notification={notif}
-              //TODO: MESSAGE SHOULD COME FROM BACKEND
-              message={formatMessage({ id: 'failedToValidate' })}
-            />
-          ),
-          autoClose: false,
-          icon: () => <ReportRounded fontSize="medium" color="error" />,
-        });
+        //TODO CALL API TO REJECT DEMAND HERE WITH DATA response
+        if (random() > 5) {
+          notif.update({
+            render: formatMessage({ id: 'rejectedDemand' }),
+          });
+        } else {
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={() => validateDemand(response, usage)}
+                notification={notif}
+                //TODO: MESSAGE SHOULD COME FROM BACKEND
+                message={formatMessage({ id: 'failedToReject' })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
       }
     }, 3000);
   };
+
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState<boolean>(false);
 
   return (
     <>
       <ValidateDemandDialog
         closeDialog={() => setIsValidateDemandDialogOpen(false)}
-        handleSubmit={(subdomain: string) => validateDemand(subdomain)}
+        handleSubmit={(response: string) =>
+          validateDemand(response, 'validate')
+        }
         isDialogOpen={isValidateDemandDialogOpen}
+      />
+      <RejectDemandDialog
+        closeDialog={() => setIsRejectDialogOpen(false)}
+        handleSubmit={(response: string) => validateDemand(response, 'reject')}
+        isDialogOpen={isRejectDialogOpen}
       />
       <Box sx={{ height: '100%' }}>
         <Typography variant="h5" sx={{ fontWeight: 400 }}>
@@ -248,7 +283,13 @@ export default function DemandValidation() {
                 color="error"
                 sx={{ textTransform: 'none' }}
                 variant="contained"
-                disabled={isSubmitting || isDemandLoading}
+                disabled={
+                  isSubmitting ||
+                  isDemandLoading ||
+                  isRejectDialogOpen ||
+                  isValidateDemandDialogOpen
+                }
+                onClick={() => setIsRejectDialogOpen(true)}
               >
                 {formatMessage({ id: 'reject' })}
               </Button>
@@ -257,7 +298,12 @@ export default function DemandValidation() {
                 sx={{ textTransform: 'none' }}
                 variant="contained"
                 onClick={() => setIsValidateDemandDialogOpen(true)}
-                disabled={isSubmitting || isDemandLoading}
+                disabled={
+                  isSubmitting ||
+                  isDemandLoading ||
+                  isRejectDialogOpen ||
+                  isValidateDemandDialogOpen
+                }
               >
                 {formatMessage({ id: 'validate' })}
               </Button>
