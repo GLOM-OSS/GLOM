@@ -32,6 +32,7 @@ export default function Demands() {
     if (notifications) setNotifications([...notifications, notif]);
     else setNotifications([notif]);
     setTimeout(() => {
+      //TODO: CALL API HERE TO GET DEMANDS
       if (random() > 5) {
         const newDemands: DemandInterface[] = [
           {
