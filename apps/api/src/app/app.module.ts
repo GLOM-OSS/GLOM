@@ -15,12 +15,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { PersonService } from '../services/person.service';
-import { PrismaService } from '../prisma/prisma.service';
 import { AnnualStudentService } from '../services/annual-student.service';
 import { AppInterceptor } from './app.interceptor';
 import { AppMiddleware } from './app.middleware';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TasksModule } from '@squoolr/tasks';
+import { DemandModule } from './demand/demand.module';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
   imports: [
@@ -28,15 +29,16 @@ import { TasksModule } from '@squoolr/tasks';
     PassportModule.register({
       session: true,
     }),
+    PrismaModule,
     TasksModule,
     AuthModule,
+    DemandModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
     LoginService,
     PersonService,
-    PrismaService,
     StudentService,
     AnnualStudentService,
     AnnualConfiguratorService,

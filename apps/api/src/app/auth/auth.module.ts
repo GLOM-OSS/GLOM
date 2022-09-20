@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
 import { AcademicYearService } from '../../services/academic-year.service';
 import { AnnualConfiguratorService } from '../../services/annual-configurator.service';
 import { AnnualRegistryService } from '../../services/annual-registry.service';
@@ -18,10 +17,7 @@ import { GoogleStrategy } from './google/google.strategy';
 import { LocalStrategy } from './local/local.strategy';
 
 @Module({
-  imports: [],
   providers: [
-    PrismaService,
-
     AuthService,
     LocalStrategy,
     GoogleStrategy,
