@@ -1,11 +1,11 @@
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { join } from 'path';
 import { MailService } from './mail.service';
 import { formatMessage } from './messages/helpers';
 
-@Global()
+// @Global()
 @Module({
   imports: [
     MailerModule.forRoot({
@@ -32,5 +32,6 @@ import { formatMessage } from './messages/helpers';
     }),
   ],
   providers: [MailService],
+  exports: [MailService]
 })
 export class MailModule {}
