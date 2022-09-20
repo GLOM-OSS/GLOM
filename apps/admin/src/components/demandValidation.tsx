@@ -5,6 +5,7 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
+import ValidateDemandDialog from './demand/validateDialog';
 // import { DemandInterface } from './demands';
 
 interface Person {
@@ -106,54 +107,74 @@ export default function DemandValidation() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const [isValidateDemandDialogOpen, setIsValidateDemandDialogOpen] =
+    useState<boolean>(false);
+
+  const [validateNotifications, setValidateNotifications] =
+    useState<useNotification[]>();
+  const [isSubmitting, setIsValidating] = useState<boolean>(false);
+  const validateDemand = (subdomain: string) => {
+    setIsValidating(true);
+    if (validateNotifications)
+      validateNotifications.forEach((notification) => notification.dismiss());
+    const notif = new useNotification();
+    if (validateNotifications)
+      setValidateNotifications([...validateNotifications, notif]);
+    else setValidateNotifications([notif]);
+    notif.notify({
+      render: formatMessage({ id: 'validating' }),
+    });
+    //TODO: CALL VALIDATE DEMAND API HERE
+    setTimeout(() => {
+      console.log(subdomain);
+      setIsValidating(false);
+      if (random() > 5) {
+        notif.update({
+          render: formatMessage({ id: 'validatedDemand' }),
+        });
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => validateDemand(subdomain)}
+              notification={notif}
+              //TODO: MESSAGE SHOULD COME FROM BACKEND
+              message={formatMessage({ id: 'failedToValidate' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
+
   return (
-    <Box sx={{ height: '100%' }}>
-      <Typography variant="h5" sx={{ fontWeight: 400 }}>
-        {isDemandLoading ? (
-          <Skeleton width={`${random() * 10 ?? 30}%`} />
-        ) : (
-          `${demand.school.code} - ${demand.school.school_name}`
-        )}
-      </Typography>
-      <Box
-        sx={{
-          marginTop: theme.spacing(6.25),
-          display: 'grid',
-          gridTemplateColumns: 'auto auto',
-          columnGap: theme.spacing(4),
-        }}
-      >
-        <Box>
-          {Object.keys(person).map((key, index) => (
-            <Box
-              key={index}
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: 'auto 1fr',
-                columnGap: theme.spacing(1),
-                padding: `${theme.spacing(1)} 0`,
-              }}
-            >
-              <Typography
-                variant="body2"
-                sx={{ color: theme.common.placeholder }}
-              >
-                {formatMessage({ id: key })}
-                {' :'}
-              </Typography>
-              <Typography variant="body2" sx={{ color: theme.common.body }}>
-                {isDemandLoading ? (
-                  <Skeleton width={`${random() * 10 ?? 30}%`} />
-                ) : (
-                  person[key as keyof Person]
-                )}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-        <Box sx={{ display: 'grid', gridTemplateRows: '1fr auto' }}>
+    <>
+      <ValidateDemandDialog
+        closeDialog={() => setIsValidateDemandDialogOpen(false)}
+        handleSubmit={(subdomain: string) => validateDemand(subdomain)}
+        isDialogOpen={isValidateDemandDialogOpen}
+      />
+      <Box sx={{ height: '100%' }}>
+        <Typography variant="h5" sx={{ fontWeight: 400 }}>
+          {isDemandLoading ? (
+            <Skeleton animation='wave' width={`${random() * 10 ?? 30}%`} />
+          ) : (
+            `${demand.school.code} - ${demand.school.school_name}`
+          )}
+        </Typography>
+        <Box
+          sx={{
+            marginTop: theme.spacing(6.25),
+            display: 'grid',
+            gridTemplateColumns: 'auto auto',
+            columnGap: theme.spacing(4),
+          }}
+        >
           <Box>
-            {Object.keys(school).map((key, index) => (
+            {Object.keys(person).map((key, index) => (
               <Box
                 key={index}
                 sx={{
@@ -172,39 +193,72 @@ export default function DemandValidation() {
                 </Typography>
                 <Typography variant="body2" sx={{ color: theme.common.body }}>
                   {isDemandLoading ? (
-                    <Skeleton width={`${random() * 10 ?? 30}%`} />
+                    <Skeleton animation='wave' width={`${random() * 10 ?? 30}%`} />
                   ) : (
-                    school[key as keyof School]
+                    person[key as keyof Person]
                   )}
                 </Typography>
               </Box>
             ))}
           </Box>
-          <Box
-            sx={{
-              justifySelf: 'start',
-              display: 'grid',
-              gridTemplateColumns: 'auto 1fr',
-              columnGap: theme.spacing(2),
-            }}
-          >
-            <Button
-              color="error"
-              sx={{ textTransform: 'none' }}
-              variant="contained"
+          <Box sx={{ display: 'grid', gridTemplateRows: '1fr auto' }}>
+            <Box>
+              {Object.keys(school).map((key, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: 'auto 1fr',
+                    columnGap: theme.spacing(1),
+                    padding: `${theme.spacing(1)} 0`,
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{ color: theme.common.placeholder }}
+                  >
+                    {formatMessage({ id: key })}
+                    {' :'}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: theme.common.body }}>
+                    {isDemandLoading ? (
+                      <Skeleton animation='wave' width={`${random() * 10 ?? 30}%`} />
+                    ) : (
+                      school[key as keyof School]
+                    )}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+            <Box
+              sx={{
+                justifySelf: 'start',
+                display: 'grid',
+                gridTemplateColumns: 'auto 1fr',
+                columnGap: theme.spacing(2),
+              }}
             >
-              {formatMessage({ id: 'reject' })}
-            </Button>
-            <Button
-              color="primary"
-              sx={{ textTransform: 'none' }}
-              variant="contained"
-            >
-              {formatMessage({ id: 'validate' })}
-            </Button>
+              <Button
+                color="error"
+                sx={{ textTransform: 'none' }}
+                variant="contained"
+                disabled={isSubmitting || isDemandLoading}
+              >
+                {formatMessage({ id: 'reject' })}
+              </Button>
+              <Button
+                color="primary"
+                sx={{ textTransform: 'none' }}
+                variant="contained"
+                onClick={() => setIsValidateDemandDialogOpen(true)}
+                disabled={isSubmitting || isDemandLoading}
+              >
+                {formatMessage({ id: 'validate' })}
+              </Button>
+            </Box>
           </Box>
         </Box>
       </Box>
-    </Box>
+    </>
   );
 }
