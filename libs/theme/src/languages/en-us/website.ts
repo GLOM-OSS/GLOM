@@ -96,5 +96,16 @@ export const website = {
   confirmValidationMessage:
     "Are you sure you want to validate? confirm below with the institute's subdomain",
   subdomain: 'subdomain',
-  validating: 'Validating',validatedDemand:'Demand validated successfully!', failedToValidate:'Something went wrong during validation. Please try again!'
+  validating: 'Validating',
+  validatedDemand: 'Demand validated successfully!',
+  failedToValidate: 'Something went wrong during validation. Please try again!',
+  reasonRequired: 'Rejection reason required',
+  rejectDemand: 'Reject Demand?',
+  confirmRejectionMessage:
+    'Are you sure you want to reject? Confirm with a rejection reason.',
+  rejectionReason: 'School does not meet required standards',
+  rejecting: 'Rejecting',
+  rejectedDemand: 'Demand was successfully rejected',
+  failedToReject:
+    'Something went wrong during Demand rejection. Please try again!',
 };
