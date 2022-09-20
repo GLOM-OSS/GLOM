@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TemplateMailer</title>
+    <style type="text/css">
+        body {
+            background-color: #ffffff;
+        }
+        .main {
+            background-color: rgb(255, 255, 255);
+            color: black;
+            margin: auto;
+            padding: 10px;
+            width: 70%;
+            box-shadow: 7px 6px 5px #888888;
+            display: grid;
+            justify-content: center;
+        }
+        .logo {
+            text-align: center;
+            height: fit-content;
+        }
+        .message {
+            text-align: center;
+            height: fit-content;
+        }
+        button {
+            background-color: #9E4CEB; 
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        button  hover {
+            background-color: #2e0553;
+        }
+        .footer {
+            text-align: center;
+            font-size: 10px;
+        }
+        .paragraphe {
+            font-size: 18px;
+            text-align: justify;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <div class="logo">
+            <img src="https://res.cloudinary.com/glom/image/upload/v1631036333/logo512_kg9ukn.png" alt="Logo" width="150">
+        </div>
+        <div class="message">
+            <h2 >Bienvenue sur DRAIVWAY</h2>
+            <h3>Felicitations ! </h3>
+            <p class="paragraphe">Vous avez été ajouté en tant que {{role}} à {{school_name}}.
+                 Utilisez votre adresse et le mot de passe qui vous été attribué 
+                ci-dessous pour vous connecter. Vous pouvez le modifier une fois connecté.</p>
+            <br>
+            <b>
+                <p class="paragraphe">Mot de passe : {{password}}</p>
+            </b>
+            <br>
+            <button><a href="{{connexion}}" class="link">Connectez-vous</a></button>
+        </div>
+    </div>
+    <br>
+    <div class="footerr">
+        <p class="footer">DRAIVWAY est une plateforme de gestion 
+            d'Auto-Ecoles, qui digitalise toutes
+            actions faites par ces dernières au quotidien.
+             @Developeurs GLOM 
+        </p>
+    </div>
+</body>
+</html>

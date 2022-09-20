@@ -18,11 +18,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import favicon from './logo.png';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
 import {
   AcademicYearInterface,
   SelectAcademicYearDialog,
 } from './selectAcademicYear';
+import { signIn } from '@squoolr/api-services';
+import { User } from '@squoolr/layout';
 
 export function Signin({
   callingApp,
@@ -62,68 +63,37 @@ export function Signin({
       newNotification.notify({
         render: formatMessage({ id: 'signingUserIn' }),
       });
-      //TODO: CALL SIGNIN API HERE
-      setTimeout(() => {
-        console.log(values);
-        setIsSubmitting(false);
-        if (random() > 5) {
+      signIn<{ user: User, academic_years: AcademicYearInterface[] }>(values.email, values.password)
+        .then(({ user, academic_years }) => {
           newNotification.update({
             render: formatMessage({ id: 'signinSuccess' }),
           });
-          if (callingApp === 'admin') {
+          if (callingApp === 'admin' || !academic_years) {
             navigate(localStorage.getItem('previousRoute') ?? '/dashboard');
+            //TODO: dispatch user context here with new data
+            resetForm();
           } else {
-            //TODO: SET DATA IN ACADEMIC YEAR STATE HERE
-            const newAcademicYears: AcademicYearInterface[] = [
-              {
-                academic_year_id: 'https:qwoeiofs/sldie',
-                code: 'YEAR-202100012022',
-                ending_date: new Date(),
-                starting_date: new Date(),
-                year_status: 'inactive',
-              },
-              {
-                academic_year_id: 'https:qwwoeios/sldie',
-                code: 'YEAR-1',
-                ending_date: new Date(),
-                starting_date: new Date(),
-                year_status: 'inactive',
-              },
-              {
-                academic_year_id: 'https:qwoerios/sldie',
-                code: 'YEAR-1',
-                ending_date: new Date(),
-                starting_date: new Date(),
-                year_status: 'active',
-              },
-              {
-                academic_year_id: 'https:qwoeios/sldige',
-                code: 'YEAR-1',
-                ending_date: new Date(),
-                starting_date: new Date(),
-                year_status: 'finished',
-              },
-            ];
-            //TODO: AUTO SIGN-IN USER IF ACADEMIC YEARS.length ===1
-            setAcademicYears(newAcademicYears);
+            setAcademicYears(academic_years);
             setIsAcademicYearDialogOpen(true);
           }
-          resetForm();
-        } else {
+        })
+        .catch((error) => {
           newNotification.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={formik.handleSubmit}
                 notification={newNotification}
-                message={formatMessage({ id: 'signinFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'signinFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        })
+        .finally(() => setIsSubmitting(false));
     },
   });
 
