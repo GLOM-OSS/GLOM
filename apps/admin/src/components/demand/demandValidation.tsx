@@ -5,6 +5,7 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
+import { useParams } from 'react-router';
 import RejectDemandDialog from './rejectDailog';
 import ValidateDemandDialog from './validateDialog';
 
@@ -34,19 +35,19 @@ export default function DemandValidation() {
   const [isDemandLoading, setIsDemandLoading] = useState<boolean>(false);
   const [demand, setDemand] = useState<DemandDetailsInterface>({
     school: {
-      school_name: 'IAI - Yaounde, Cameroun',
-      email: 'info@iai-yde.com',
-      phone: '00237657140183',
-      code: '445937',
+      school_name: '',
+      email: '',
+      phone: '',
+      code: '',
     },
     person: {
-      first_name: 'Kouatchoua Tchakoumi',
-      last_name: 'Lorrain',
-      email: 'ltchakoumi@outlook.com',
-      phone: '00237693256789',
-      date_of_birth: '27/03/1999',
+      first_name: '',
+      last_name: '',
+      email: '',
+      phone: '',
+      date_of_birth: '',
       gender: 'Male',
-      national_id_number: '000316122',
+      national_id_number: '',
     },
   });
 
@@ -54,6 +55,7 @@ export default function DemandValidation() {
   const { person, school } = demand;
 
   const [notifications, setNotifications] = useState<useNotification[]>();
+  const { demand_code } = useParams();
   const getDemandDetails = () => {
     setIsDemandLoading(true);
     if (notifications)
@@ -62,7 +64,7 @@ export default function DemandValidation() {
     if (notifications) setNotifications([...notifications, notif]);
     else setNotifications([notif]);
     setTimeout(() => {
-      //TODO: call api here to get demand details with id params.demand_code
+      //TODO: call api here to get demand details with code demand_code
       if (random() > 5) {
         const demandDetails: DemandDetailsInterface = {
           school: {
