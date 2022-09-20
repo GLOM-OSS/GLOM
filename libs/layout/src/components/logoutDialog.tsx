@@ -8,19 +8,22 @@ import {
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { theme } from '@squoolr/theme';
-import { IntlShape } from 'react-intl';
+import { useIntl } from 'react-intl';
 
 export default function LogoutDialog({
-  intl: { formatMessage },
   isDialogOpen,
   closeDialog,
   logout,
+  isSubmitting
 }: {
-  intl: IntlShape;
   isDialogOpen: boolean;
   closeDialog: () => void;
   logout: () => void;
+  isSubmitting:boolean
 }) {
+  const intl = useIntl()
+  const {formatMessage} = intl
+
   return (
     <Dialog
       open={isDialogOpen}
@@ -35,8 +38,8 @@ export default function LogoutDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={closeDialog} size='small'>{formatMessage({ id: 'cancel' })}</Button>
-        <Button onClick={logout} variant='contained' size='small'>{formatMessage({ id: 'logout' })}</Button>
+        <Button disabled={isSubmitting} onClick={closeDialog} size='small'>{formatMessage({ id: 'cancel' })}</Button>
+        <Button disabled={isSubmitting} onClick={logout} variant='contained' size='small'>{formatMessage({ id: 'logout' })}</Button>
       </DialogActions>
     </Dialog>
   );

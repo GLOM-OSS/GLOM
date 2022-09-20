@@ -1,16 +1,19 @@
 import { Box, Tooltip } from '@mui/material';
 import { theme } from '@squoolr/theme';
+import { useIntl } from 'react-intl';
 import { NavItem } from '../lib/interfaces';
 
 export default function PrimaryNavItem({
   navItem: { Icon, title, id },
-  activeNavItem: { id: activeId },
+  activeNavItem,
   handleSelect,
 }: {
   navItem: NavItem;
-  activeNavItem: NavItem;
+  activeNavItem?: NavItem;
   handleSelect: () => void;
 }) {
+  const intl = useIntl();
+  const { formatMessage } = intl;
   return (
     <Box
       sx={{
@@ -25,7 +28,7 @@ export default function PrimaryNavItem({
           position: 'absolute',
           left: '0px',
           bottom: '0px',
-          width: activeId === id ? '4px' : 0,
+          width: activeNavItem?.id === id ? '4px' : 0,
           content: '""',
           height: '100%',
           backgroundColor: theme.common.background,
@@ -37,7 +40,7 @@ export default function PrimaryNavItem({
       }}
       onClick={handleSelect}
     >
-      <Tooltip arrow title={title}>
+      <Tooltip arrow title={formatMessage({ id: title })}>
         <Icon
           fontSize="medium"
           sx={{ color: theme.common.background, fontSize: 30 }}

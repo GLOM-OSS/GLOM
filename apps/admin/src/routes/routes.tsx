@@ -1,5 +1,7 @@
 import { Typography } from '@mui/material';
 import { Navigate } from 'react-router';
+import Demands from '../components/demands';
+import DemandValidation from '../components/demandValidation';
 import AdminLayout from '../pages/AdminLayout';
 import ForgotPassword from '../pages/forgotPassword';
 import NewPassword from '../pages/newPassword';
@@ -19,8 +21,36 @@ export const routes = [
     element: <NewPassword />,
   },
   {
-    path: '/layout',
+    path: '/management',
     element: <AdminLayout />,
+    children: [
+      {
+        path: 'demands',
+        element: <Demands />,
+      },
+      {
+        path: 'demands/:demand_code',
+        element: <DemandValidation />,
+      },
+      {
+        path: 'schools',
+        element: <Typography variant="h1">Schools</Typography>,
+      },
+      {
+        path: 'configurators',
+        element: <Typography variant="h1">configurators</Typography>,
+      },
+    ],
+  },
+  {
+    path: 'settings',
+    element: <AdminLayout />,
+    children: [
+      {
+        path: '*',
+        element: <Typography variant="h1">Demands</Typography>,
+      },
+    ],
   },
   {
     path: '/dashboard',

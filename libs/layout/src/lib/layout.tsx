@@ -1,41 +1,142 @@
-import { ReportRounded, SettingsRounded } from '@mui/icons-material';
-import { Box, Typography } from '@mui/material';
+import {
+  HelpOutlineRounded,
+  KeyboardDoubleArrowLeftRounded,
+  NotificationsActiveOutlined,
+  ReportRounded,
+  SearchRounded,
+} from '@mui/icons-material';
+import {
+  Box,
+  Breadcrumbs,
+  Collapse,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
-import { IntlShape } from 'react-intl';
-import { useLocation, useNavigate } from 'react-router';
+import { useIntl } from 'react-intl';
+import { Outlet, useLocation, useNavigate } from 'react-router';
 import LogoutDialog from '../components/logoutDialog';
 import PrimaryNav from '../components/primaryNav';
 import SecondaryNavItem from '../components/SecondaryNavItem';
 import SwapAcademicYear from '../components/SwapAcademicYear';
 import UserLayoutDisplay from '../components/UserLayoutDisplay';
-import { NavItem, PersonnelRole, User } from './interfaces';
+import { useUser } from '../contexts/UserContextProvider';
+import { NavChild, NavItem, PersonnelRole } from './interfaces';
 
 export function Layout({
-  intl: { formatMessage },
-  intl,
   navItems,
-  user: { activeYear },
-  user,
   callingApp,
-  activeRole,
-  userRoles,
-  handleSwapRole,
 }: {
-  intl: IntlShape;
-  navItems: NavItem[];
-  user: User;
+  navItems: { role: PersonnelRole | 'administrator'; navItems: NavItem[] }[];
   callingApp: 'admin' | 'personnel';
-  activeRole: PersonnelRole | 'administrator';
-  userRoles?: PersonnelRole[];
-  handleSwapRole?: (newRole: PersonnelRole) => void;
 }) {
-  // export function Layout() {
+  const [activeNavItem, setActiveNavItem] = useState<NavItem>();
+  const [isSecondaryNavOpen, setIsSecondaryNavOpen] = useState<boolean>(false);
+  const [activeSecondaryNavItem, setActiveSecondaryNavItem] =
+    useState<NavChild>();
+  const { activeYear } = useUser();
+
+  const { annualConfigurator, annualRegistry, annualTeacher } = useUser();
+
+  const newRoles: (PersonnelRole | undefined)[] = [
+    annualConfigurator ? 'secretary' : undefined,
+    annualRegistry ? 'registry' : undefined,
+    annualTeacher ? 'teacher' : undefined,
+  ];
+  const Roles: PersonnelRole[] = newRoles.filter(
+    (_) => _ !== undefined
+  ) as PersonnelRole[];
+
+  const [activeRole, setActiveRole] = useState<PersonnelRole | 'administrator'>(
+    callingApp === 'admin'
+      ? 'administrator'
+      : Roles.sort((a, b) => (a > b ? 1 : -1))[0]
+  );
+  const handleSwapRole = (newRole: PersonnelRole) => setActiveRole(newRole);
+
+  const [roleNavigationItems, setRoleNavigationItems] = useState<NavItem[]>([]);
+
+  useEffect(() => {
+    const RoleNavItems = navItems.find(({ role }) => role === activeRole);
+    setRoleNavigationItems(RoleNavItems ? RoleNavItems.navItems : []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeRole]);
+
+  useEffect(() => {
+    if (roleNavigationItems.length > 0) {
+      const currentNavItem = roleNavigationItems.find(
+        ({ title }) => title === location.pathname.split('/')[1]
+      );
+      setActiveNavItem(currentNavItem ?? roleNavigationItems[0]);
+      setIsSecondaryNavOpen(
+        currentNavItem ? currentNavItem.children.length > 0 : false
+      );
+    } else {
+      setIsSecondaryNavOpen(false);
+      setActiveNavItem(undefined);
+      setActiveSecondaryNavItem(undefined);
+      navigate('/');
+      //TODO: call api here to NOTIFY ADMIN HERE that activeRole has no navItems then notify a 404
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roleNavigationItems]);
+
+  useEffect(() => {
+    if (activeNavItem && activeNavItem.children) {
+      const { children } = activeNavItem;
+      const pathname = location.pathname.split('/').filter((_) => _ !== '');
+      if (pathname.length === 2) {
+        setActiveSecondaryNavItem(
+          children.find(({ route }) => route === pathname[1]) ??
+            (children.length > 0 ? children[0] : undefined)
+        );
+      } else
+        setActiveSecondaryNavItem(
+          children.length > 0 ? children[0] : undefined
+        );
+      if (children.length > 0)
+        navigate(
+          pathname.length > 2
+            ? `/${pathname.join('/')}`
+            : `${children[0].route}`
+        );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeNavItem]);
+
+  //TODO UNCOMMENT THIS USE EFFECT WHEN DONE INTERGRATING
+  // useEffect(() => {
+  //   //TODO: call api here to Verify if user is authenticated here if user is not, then disconnect them and send them to sign in page
+  //   setTimeout(() => {
+  //     if (random() > 5) {
+  //       //TODO: write user data to context here
+  //     } else {
+  //       const notif = new useNotification();
+  //       notif.notify({ render: 'verifyingAuth' });
+  //       notif.update({
+  //         type: 'ERROR',
+  //         render: 'unauthenticatedUser',
+  //         autoClose: false,
+  //         icon: () => <ReportRounded fontSize="medium" color="error" />,
+  //       });
+  //       localStorage.setItem('previousRoute', location.pathname);
+  //       navigate('/');
+  //     }
+  //   }, 3000);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
+
   const navigate = useNavigate();
   const location = useLocation();
+  const intl = useIntl();
+  const { formatMessage } = intl;
 
   const [notifications, setNotifications] = useState<useNotification[]>();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -70,7 +171,6 @@ export function Layout({
               notification={newNotification}
               //TODO: message comes from backend
               message={formatMessage({ id: 'signOutFailed' })}
-              intl={intl}
             />
           ),
           autoClose: false,
@@ -80,19 +180,13 @@ export function Layout({
     }, 3000);
   };
 
-  const [activeNavItem, setActiveNavItem] = useState<NavItem>({
-    id: 1,
-    children: [],
-    Icon: SettingsRounded,
-    title: formatMessage({ id: 'settings' }),
-  });
   return (
     <>
       <LogoutDialog
         closeDialog={() => setIsConfirmLogoutDialogOpen(false)}
-        intl={intl}
         isDialogOpen={isConfirmLogoutDialogOpen}
         logout={handleLogout}
+        isSubmitting={isSubmitting}
       />
       <Box
         sx={{
@@ -103,34 +197,62 @@ export function Layout({
         }}
       >
         <PrimaryNav
-          intl={intl}
           isLoggingOut={isSubmitting}
           isLogoutDialogOpen={isConfirmLogoutDialogOpen}
-          navItems={navItems}
+          navItems={roleNavigationItems}
           openLogoutDialog={() => setIsConfirmLogoutDialogOpen(true)}
-          setActiveNavItem={(navItem: NavItem) => setActiveNavItem(navItem)}
+          setActiveNavItem={(navItem: NavItem) => {
+            const { children, title } = navItem;
+            setActiveNavItem(navItem);
+            setActiveSecondaryNavItem(
+              children.length > 0 ? navItem.children[0] : undefined
+            );
+            setIsSecondaryNavOpen(children.length > 0);
+            if (children.length > 0) navigate(`/${title}/${children[0].route}`);
+            else navigate(`/${title}`);
+          }}
           activeNavItem={activeNavItem}
+          openSecondaryNav={() => setIsSecondaryNavOpen(true)}
         />
         <Box
+          component={Collapse}
+          timeout={170}
+          orientation="horizontal"
+          in={isSecondaryNavOpen}
           sx={{
-            padding: `${theme.spacing(2.375)} ${theme.spacing(1.75)}`,
+            padding: isSecondaryNavOpen
+              ? `${theme.spacing(2.375)} ${theme.spacing(1.75)}`
+              : 0,
             borderRight: `1px solid ${theme.common.line}`,
-            display: 'grid',
-            gridTemplateRows: 'auto auto 1fr auto auto',
-            alignItems: 'start',
+            '& .MuiCollapse-wrapper>.MuiCollapse-wrapperInner': {
+              display: 'grid',
+              gridTemplateRows: 'auto auto 1fr auto auto',
+              alignItems: 'start',
+            },
+            position: 'relative',
+            paddingTop: theme.spacing(4),
           }}
         >
-          {/*TODO: active user section */}
+          <IconButton
+            size="small"
+            onClick={() => setIsSecondaryNavOpen(false)}
+            sx={{ position: 'absolute', top: 0, right: 0 }}
+          >
+            <Tooltip arrow title={formatMessage({ id: 'collapseMenu' })}>
+              <KeyboardDoubleArrowLeftRounded
+                sx={{ fontSize: 20, color: theme.common.titleActive }}
+              />
+            </Tooltip>
+          </IconButton>
+
           <UserLayoutDisplay
-            user={user}
             activeRole={activeRole}
-            userRoles={userRoles}
             selectRole={(newRole: PersonnelRole) =>
               handleSwapRole && handleSwapRole(newRole)
             }
           />
           <Typography variant="body2" sx={{ color: theme.common.label }}>
-            {activeNavItem.title}
+            {activeNavItem ? formatMessage({ id: activeNavItem.title }) : null}
           </Typography>
           <Scrollbars>
             <Box
@@ -140,9 +262,15 @@ export function Layout({
                 rowGap: theme.spacing(1),
               }}
             >
-              {activeNavItem.children.map((child, index) => (
-                <SecondaryNavItem item={child} key={index} />
-              ))}
+              {activeNavItem
+                ? activeNavItem.children.map((child, index) => (
+                    <SecondaryNavItem
+                      item={child}
+                      key={index}
+                      onClick={() => setActiveSecondaryNavItem(child)}
+                    />
+                  ))
+                : null}
             </Box>
           </Scrollbars>
           {callingApp === 'personnel' && (
@@ -169,32 +297,145 @@ export function Layout({
             </Typography>
           </Box>
         </Box>
+        <Box
+          sx={{
+            padding: `${theme.spacing(2.75)} ${theme.spacing(4.5)} `,
+            display: 'grid',
+            gridTemplateRows: 'auto 1fr',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: '1fr auto',
+              alignItems: 'center',
+              columnGap: theme.spacing(2),
+            }}
+          >
+            <TextField
+              placeholder={formatMessage({ id: 'searchSomething' })}
+              variant="outlined"
+              size="small"
+              sx={{
+                width: { mobile: '75%', laptop: '45%' },
+                '& input': { ...theme.typography.caption },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchRounded
+                      sx={{ fontSize: 25, color: theme.common.body }}
+                      color="primary"
+                    />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: 'auto auto',
+                columnGap: theme.spacing(3),
+              }}
+            >
+              <Tooltip arrow title={formatMessage({ id: 'helpCenter' })}>
+                <HelpOutlineRounded
+                  sx={{ fontSize: 25, color: theme.common.label }}
+                />
+              </Tooltip>
+              <Tooltip arrow title={formatMessage({ id: 'notifications' })}>
+                <NotificationsActiveOutlined
+                  sx={{ fontSize: 25, color: theme.common.label }}
+                />
+              </Tooltip>
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              marginTop: theme.spacing(8),
+              display: 'grid',
+              gridTemplateRows: 'auto 1fr',
+            }}
+          >
+            <Box sx={{ marginBottom: theme.spacing(5) }}>
+              <Typography variant="h5">
+                {formatMessage({
+                  id: activeSecondaryNavItem
+                    ? activeSecondaryNavItem.page_title
+                    : 'emptySection',
+                })}
+              </Typography>
+              <Breadcrumbs
+                sx={{
+                  marginTop: theme.spacing(1 / 4),
+                  '& .MuiBreadcrumbs-separator': {
+                    ...theme.typography.caption,
+                    margin: '0 3px',
+                  },
+                }}
+              >
+                {location.pathname
+                  .split('/')
+                  .filter((_) => _ !== '')
+                  .map((item, index) => {
+                    const pathnameArray = location.pathname
+                      .split('/')
+                      .filter((_) => _ !== '');
+                    return (
+                      <Typography
+                        key={index}
+                        variant="body2"
+                        onClick={() =>
+                          index === 0
+                            ? activeNavItem && activeNavItem.children.length > 0
+                              ? navigate(
+                                  `/${pathnameArray[0]}/${activeNavItem.children[0].route}`
+                                )
+                              : null
+                            : navigate(
+                                `/${pathnameArray
+                                  .slice(0, index + 1)
+                                  .join('/')}`
+                              )
+                        }
+                        sx={{
+                          cursor: 'pointer',
+                          fontWeight:
+                            index ===
+                            location.pathname.split('/').filter((_) => _ !== '')
+                              .length -
+                              1
+                              ? 400
+                              : 200,
+                          color:
+                            location.pathname.split('/').filter((_) => _ !== '')
+                              .length - 1
+                              ? theme.common.titleActive
+                              : 'inherit',
+
+                          '&:hover': {
+                            textDecoration: 'underline',
+                            fontWeight: 400,
+                            color: theme.common.titleActive,
+                          },
+                        }}
+                      >
+                        {isNaN(Number(item))
+                          ? formatMessage({ id: item })
+                          : item}
+                      </Typography>
+                    );
+                  })}
+              </Breadcrumbs>
+            </Box>
+            <Scrollbars>
+              <Outlet />
+            </Scrollbars>
+          </Box>
+        </Box>
       </Box>
     </>
   );
 }
 
 export default Layout;
-
-/*
-  confirmLogoutTitle: 'Confirm Logout',
-  confirmLogoutMessage: 'Are you sure you want to logout? Click logout to continue or cancel',
-  cancel:'Cancel',
-  logout:'Logout',
-  dashboard:'Dashboard',
-  signingUserOut:'Logging user out. Please be patient',
-  signOutSuccess: 'Your work session has successfully been logged out',
-  signOutFailed:'Something went wrong while logging you out. Please try again',
-activeYear:'Active Year',
-changeActiveYear:'Change active year',
-allRightsReserved:'All rights reserved',
-fetchingAcademicYears:'Getting your academic years...',
-getAcademicYearsFailed:'Something went wrong while we tried getting your academic years. please try again'
-onlyOneAcademicYear:'You are already in your only academic year!',
-close:'Close',
-administrator:'Squoolr Admin',
-teacher: 'Teacher', 
-secretary: 'Secretary',
-registry: 'Registry',
-listRoles: 'Roles'
- */

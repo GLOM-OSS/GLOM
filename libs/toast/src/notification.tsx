@@ -3,7 +3,7 @@ import { theme } from '@squoolr/theme';
 import { DoneAllRounded } from '@mui/icons-material';
 import { v4 as uuidv4 } from 'uuid';
 import { Id, toast } from 'react-toastify';
-import { IntlShape } from 'react-intl';
+import { useIntl } from 'react-intl';
 
 export class useNotification {
   toastId: Id;
@@ -17,7 +17,13 @@ export class useNotification {
         autoClose: false,
         closeButton: false,
         closeOnClick: false,
-        icon: () => <CircularProgress sx={{color:theme.common.background}} thickness={3} size={20} />,
+        icon: () => (
+          <CircularProgress
+            sx={{ color: theme.common.background }}
+            thickness={3}
+            size={20}
+          />
+        ),
       }
     ));
 
@@ -56,52 +62,55 @@ export const ErrorMessage = ({
   retryFunction,
   notification,
   message,
-  intl:{formatMessage}
 }: {
   retryFunction: () => void;
   notification: useNotification;
   message: string;
-  intl:IntlShape
-}) => (
-  <Box sx={{ textAlign: 'center' }}>
-    <Typography variant="caption">{message}</Typography>
-    <Box
-      sx={{
-        display: 'grid',
-        gridAutoFlow: 'column',
-        justifyItems: 'center',
-        marginTop: '10px',
-      }}
-    >
-      <Button
-        color="primary"
-        size="small"
-        variant="contained"
-        onClick={() => {
-          retryFunction();
-          notification.dismiss();
-        }}
-        sx={{ ...theme.typography.caption }}
-      >
-        {formatMessage({id:'retry'})}
-      </Button>
-      <Button
-        size="small"
-        variant="contained"
-        color="error"
-        onClick={() => notification.dismiss()}
+}) => {
+  const intl = useIntl();
+  const { formatMessage } = intl;
+
+  return (
+    <Box sx={{ textAlign: 'center' }}>
+      <Typography variant="caption">{message}</Typography>
+      <Box
         sx={{
-          ...theme.typography.caption,
-          backgroundColor: theme.palette.error.dark,
-          transition: '0.3s',
-          '&:hover': {
-            backgroundColor: theme.palette.error.main,
-            transition: '0.3s',
-          },
+          display: 'grid',
+          gridAutoFlow: 'column',
+          justifyItems: 'center',
+          marginTop: '10px',
         }}
       >
-        {formatMessage({id:'close'})}
-      </Button>
+        <Button
+          color="primary"
+          size="small"
+          variant="contained"
+          onClick={() => {
+            retryFunction();
+            notification.dismiss();
+          }}
+          sx={{ ...theme.typography.caption }}
+        >
+          {formatMessage({ id: 'retry' })}
+        </Button>
+        <Button
+          size="small"
+          variant="contained"
+          color="error"
+          onClick={() => notification.dismiss()}
+          sx={{
+            ...theme.typography.caption,
+            backgroundColor: theme.palette.error.dark,
+            transition: '0.3s',
+            '&:hover': {
+              backgroundColor: theme.palette.error.main,
+              transition: '0.3s',
+            },
+          }}
+        >
+          {formatMessage({ id: 'close' })}
+        </Button>
+      </Box>
     </Box>
-  </Box>
-);
+  );
+};

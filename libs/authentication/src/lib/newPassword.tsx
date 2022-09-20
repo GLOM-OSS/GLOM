@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import { LockPersonRounded, ReportRounded } from '@mui/icons-material';
 import { theme } from '@squoolr/theme';
-import { IntlShape } from 'react-intl';
+import { useIntl } from 'react-intl';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useState } from 'react';
@@ -16,12 +16,9 @@ import favicon from './logo.png';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
 
-export function NewPassword({
-  intl: { formatMessage },
-  intl,
-}: {
-  intl: IntlShape;
-}) {
+export function NewPassword() {
+  const intl = useIntl()
+  const {formatMessage} = intl
   const initialValues: { confirmPassword: string; password: string } = {
     confirmPassword: '',
     password: '',
@@ -71,7 +68,6 @@ export function NewPassword({
                 notification={newNotification}
                 //TODO: MESSAGE SHOULD COME FROM BACKEND
                 message={formatMessage({ id: 'swapPasswordFailure' })}
-                intl={intl}
               />
             ),
             autoClose: false,

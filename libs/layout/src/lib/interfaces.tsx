@@ -1,9 +1,11 @@
 import { SvgIconTypeMap } from '@mui/material';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
+import { AcademicYearInterface } from '@squoolr/auth';
 
 export interface NavChild {
   title: string;
   route: string;
+  page_title:string
 }
 
 export interface NavItem {
@@ -17,6 +19,9 @@ export interface NavItem {
 
 export type Gender = 'Male' | 'Female';
 export type Lang = 'En' | 'Fr';
+
+export type UserAction = { type: "LOAD_USER";   payload: { user: User; };
+} | { type: "CLEAR_USER" };
 
 export type PersonnelRole = 'secretary'|'teacher'|'registry'
 
@@ -35,11 +40,6 @@ export interface User {
   preferred_lang: Lang;
   image_ref?: string;
   login_id: string;
-  annualStudent?: {
-    annual_student_id: string;
-    student_id: string;
-  };
-
   annualConfigurator?: {
     annual_configurator_id: string;
     is_sudo: boolean;
@@ -54,9 +54,5 @@ export interface User {
   annualRegistry?: {
     annual_registry_id: string;
   };
-  activeYear: {
-    academic_yeear_id: string;
-    starts_at: Date;
-    ends_at: Date;
-  };
+  activeYear: AcademicYearInterface
 }

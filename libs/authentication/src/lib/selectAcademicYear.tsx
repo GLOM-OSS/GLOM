@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { theme } from '@squoolr/theme';
-import { IntlShape } from 'react-intl';
+import { useIntl } from 'react-intl';
 import AcademicYear from '../components/AcademicYear';
 import favicon from './logo.png';
 import { Scrollbars } from 'react-custom-scrollbars-2';
@@ -22,24 +22,24 @@ export interface AcademicYearInterface {
   academic_year_id: string;
   code: string;
   starting_date: Date;
-  end_date: Date;
+  ending_date: Date;
   year_status: 'inactive' | 'finished' | 'active';
 }
 
 export function SelectAcademicYearDialog({
-  intl: { formatMessage },
-  intl,
   academicYears,
   closeDialog,
   isDialogOpen,
   callingApp,
 }: {
-  intl: IntlShape;
   academicYears: AcademicYearInterface[];
   isDialogOpen: boolean;
   closeDialog: () => void;
   callingApp?: 'admin' | 'personnel';
 }) {
+  const intl = useIntl()
+  const {formatMessage} = intl
+
   const [notifications, setNotifications] = useState<useNotification[]>();
   const [selectedAcademicYearId, setSelectedAcademicYearId] =
     useState<string>('');
@@ -74,7 +74,6 @@ export function SelectAcademicYearDialog({
               notification={newNotification}
               //TODO: MESSAGE SHOULD COME FROM BACKEND
               message={formatMessage({ id: 'failedToSetAcademicYear' })}
-              intl={intl}
             />
           ),
           autoClose: false,
@@ -189,7 +188,6 @@ export function SelectAcademicYearDialog({
                 <Scrollbars>
                   {academicYears.map((academicYear, index) => (
                     <AcademicYear
-                      intl={intl}
                       key={index}
                       academicYear={academicYear}
                       handleSelectAcademicYear={handleSelectAcademicYear}
