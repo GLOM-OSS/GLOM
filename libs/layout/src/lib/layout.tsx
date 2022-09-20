@@ -101,7 +101,12 @@ export function Layout({
         setActiveSecondaryNavItem(
           children.length > 0 ? children[0] : undefined
         );
-      if (children.length > 0) navigate(`${children[0].route}`);
+      if (children.length > 0)
+        navigate(
+          pathname.length > 2
+            ? `/${pathname.join('/')}`
+            : `${children[0].route}`
+        );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeNavItem]);
