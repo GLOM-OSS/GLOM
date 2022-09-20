@@ -87,5 +87,14 @@ export const website = {
   national_id_number: 'Nid Number',
   school_name: 'School name',
   validate: 'Validate',
-  reject: 'Reject',loadingDemandDetails:'Loading demand details', getDemandDetailsFailed:'Something went wrong when trying to get demand details. Please try again'
+  reject: 'Reject',
+  loadingDemandDetails: 'Loading demand details',
+  getDemandDetailsFailed:
+    'Something went wrong when trying to get demand details. Please try again',
+  subdomainRequired: 'Subdomain is a required field',
+  validateDemand: 'Validate Demand?',
+  confirmValidationMessage:
+    "Are you sure you want to validate? confirm below with the institute's subdomain",
+  subdomain: 'subdomain',
+  validating: 'Validating',validatedDemand:'Demand validated successfully!', failedToValidate:'Something went wrong during validation. Please try again!'
 };
