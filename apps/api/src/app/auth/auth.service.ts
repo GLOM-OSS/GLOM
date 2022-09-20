@@ -167,10 +167,10 @@ export class AuthService {
     const select = {
       AcademicYear: {
         select: {
-          code: true,
+          year_code: true,
           started_at: true,
           ended_at: true,
-          status: true,
+          year_status: true,
           starts_at: true,
           ends_at: true,
           academic_year_id: true,
@@ -212,20 +212,20 @@ export class AuthService {
       ({
         AcademicYear: {
           academic_year_id,
-          code,
+          year_code,
           ended_at,
           ends_at,
           started_at,
           starts_at,
-          status,
+          year_status,
         },
       }) => {
         if (
           !academic_years.find((_) => _.academic_year_id === academic_year_id)
         ) {
           academic_years.push({
-            code,
-            status,
+            year_code,
+            year_status,
             academic_year_id,
             starting_date:
               status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,
@@ -242,7 +242,7 @@ export class AuthService {
   async getActiveRoles(login_id: string, academic_year_id: string) {
     const userRoles: UserRole[] = [];
 
-    const { started_at, ended_at, starts_at, ends_at, code, status } =
+    const { started_at, ended_at, starts_at, ends_at, year_code, year_status } =
       await this.academicYearService.findFirst({
         where: {
           academic_year_id,
@@ -253,8 +253,8 @@ export class AuthService {
     let availableRoles: DesirializeRoles = {
       login_id,
       activeYear: {
-        code,
-        status,
+        year_code,
+        year_status,
         academic_year_id,
         starting_date:
           status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,
@@ -437,7 +437,7 @@ export class AuthService {
     if (!academic_year_id) {
       return null;
     }
-    const { started_at, ended_at, starts_at, ends_at, code, status } =
+    const { started_at, ended_at, starts_at, ends_at, year_code, year_status } =
       await this.academicYearService.findFirst({
         where: {
           academic_year_id,
@@ -449,8 +449,8 @@ export class AuthService {
       login_id,
       ...person,
       activeYear: {
-        code,
-        status,
+        year_code,
+        year_status,
         academic_year_id,
         starting_date:
           status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,

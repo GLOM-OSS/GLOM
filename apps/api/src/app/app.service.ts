@@ -34,6 +34,7 @@ export class AppService {
           is_personnel: true,
           School: {
             create: {
+              school_code: "generateUniqueCode()",
               email: 'contact@iaicameroun.com',
               phone_number: '67584986532',
               school_name: 'IAI-CAMEROUN',
@@ -50,7 +51,7 @@ export class AppService {
           data: {
             AcademicYear: {
               create: {
-                code: 'Year-202120220001',
+                year_code: 'Year-202120220001',
                 starts_at: new Date(),
                 ends_at: new Date(),
                 School: { connect: { email: 'contact@iaicameroun.com' } },
@@ -154,7 +155,7 @@ export class AppService {
               matricule: randomUUID(),
             },
           },
-          AcademicYear: { connect: { code: 'Year-202120220001' } },
+          AcademicYear: { connect: { year_code: 'Year-202120220001' } },
         },
       });
 
@@ -163,7 +164,7 @@ export class AppService {
           Login: { connect: { login_id } },
           AcademicYear: {
             create: {
-              code: 'Year-202120220002',
+              year_code: 'Year-202120220002',
               starts_at: new Date(),
               ends_at: new Date(),
               AnnualConfigurator: {
