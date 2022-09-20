@@ -6,9 +6,10 @@ import createEmotionCache from '../config_mui/createEmotionCache';
 import './globalStyles.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { SquoolrThemeProvider, useLanguage } from '@squoolr/theme';
+import { Box } from '@mui/material';
 
 const App = (props) => {
-  const { Component, pageProps, emotionCache } = props;
+  const { Component, pageProps } = props;
   const { languageDispatch } = useLanguage();
   useEffect(() => {
     languageDispatch({
@@ -19,14 +20,10 @@ const App = (props) => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   return (
     <>
-      <CacheProvider value={emotionCache}>
-        <SquoolrThemeProvider>
-          <Component {...pageProps} />
-        </SquoolrThemeProvider>
-      </CacheProvider>
+      <Box>Hello world</Box>
+      <Component {...pageProps} />
     </>
   );
 };
@@ -46,7 +43,11 @@ function CustomApp(props: CustomAppProps) {
         <title>Squoolr</title>
         <link rel="icon" type="image/x-icon" href="/favicon.png" />
       </Head>
-        <App {...{ Component, pageProps, emotionCache }} />
+      <CacheProvider value={emotionCache}>
+        <SquoolrThemeProvider>
+          <App {...{ Component, pageProps, emotionCache }} />
+        </SquoolrThemeProvider>
+      </CacheProvider>
     </>
   );
 }
