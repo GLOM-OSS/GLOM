@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { SchedulerRegistry } from '@nestjs/schedule';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AcademicYearService } from '../../services/academic-year.service';
 import { AnnualConfiguratorService } from '../../services/annual-configurator.service';
@@ -12,7 +11,6 @@ import { PersonService } from '../../services/person.service';
 import { ResetPasswordService } from '../../services/reset-password.service';
 import { SchoolService } from '../../services/school.service';
 import { StudentService } from '../../services/student.service';
-import { TasksService } from '../../tasks/tasks.service';
 import { AuthController } from './auth.controller';
 import { AuthSerializer } from './auth.serializer';
 import { AuthService } from './auth.service';
@@ -31,11 +29,9 @@ import { LocalStrategy } from './local/local.strategy';
 
     LogService,
     LoginService,
-    TasksService,
     PersonService,
     SchoolService,
     StudentService,
-    SchedulerRegistry,
     AcademicYearService,
     AnnualTeacherService,
     AnnualStudentService,

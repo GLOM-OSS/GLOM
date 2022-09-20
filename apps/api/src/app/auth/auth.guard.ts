@@ -4,13 +4,13 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  Logger,
+  Logger
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { TasksService } from '@squoolr/tasks';
 import { Request } from 'express';
 import { sAUTH403 } from '../../errors';
 import { SchoolService } from '../../services/school.service';
-import { TasksService } from '../../tasks/tasks.service';
 import { DeserializeSessionData } from '../../utils/types';
 
 @Injectable()

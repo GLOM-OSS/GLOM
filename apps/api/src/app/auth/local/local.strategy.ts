@@ -5,7 +5,7 @@ import { Request } from 'express';
 import { AuthService } from '../auth.service';
 
 import { LogService } from '../../../services/log.service';
-import { CronJobNames, TasksService } from '../../../tasks/tasks.service';
+import { CronJobNames, TasksService } from '@squoolr/tasks';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {

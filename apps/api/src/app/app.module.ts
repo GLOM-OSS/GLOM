@@ -20,6 +20,7 @@ import { AnnualStudentService } from '../services/annual-student.service';
 import { AppInterceptor } from './app.interceptor';
 import { AppMiddleware } from './app.middleware';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { TasksModule } from '@squoolr/tasks';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
     PassportModule.register({
       session: true,
     }),
+    TasksModule,
     AuthModule,
   ],
   controllers: [AppController],
