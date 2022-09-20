@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router';
 import favicon from './logo.png';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
+import { resetPassword } from '@squoolr/api-services';
 
 export function ForgotPassword({
   intl: { formatMessage },
@@ -45,33 +46,32 @@ export function ForgotPassword({
       newNotification.notify({
         render: formatMessage({ id: 'sendingLink' }),
       });
-      //TODO: CALL reset password API HERE
-      setTimeout(() => {
-        console.log(values);
-        setIsSubmitting(false);
-        if (random() > 5) {
+      resetPassword(values.email)
+        .then(() => {
           newNotification.update({
             render: formatMessage({ id: 'linkSent' }),
           });
           setIsLinkSent(true);
           resetForm();
-        } else {
+        })
+        .catch((error) => {
           newNotification.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={formik.handleSubmit}
                 notification={newNotification}
-                //TODO: MESSAGE SHOULD COME FROM BACKEND
-                message={formatMessage({ id: 'failedToSendLink' })}
+                message={
+                  error?.message || formatMessage({ id: 'failedToSendLink' })
+                }
                 intl={intl}
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        })
+        .finally(() => setIsSubmitting(false));
     },
   });
 

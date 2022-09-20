@@ -14,7 +14,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import favicon from './logo.png';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
+import { setNewPassword } from '@squoolr/api-services';
 
 export function NewPassword({
   intl: { formatMessage },
@@ -52,33 +52,35 @@ export function NewPassword({
       newNotification.notify({
         render: formatMessage({ id: 'changingPassword' }),
       });
-      //TODO: CALL reset password API HERE
-      setTimeout(() => {
-        console.log(values, params['reset_password_id']);
-        setIsSubmitting(false);
-        if (random() > 5) {
+      setNewPassword(
+        params['reset_password_id'] as string,
+        values.confirmPassword
+      )
+        .then(() => {
           newNotification.update({
             render: formatMessage({ id: 'resetPasswordSuccess' }),
           });
           navigate('/');
           resetForm();
-        } else {
+        })
+        .catch((error) => {
           newNotification.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={formik.handleSubmit}
                 notification={newNotification}
-                //TODO: MESSAGE SHOULD COME FROM BACKEND
-                message={formatMessage({ id: 'swapPasswordFailure' })}
+                message={
+                  error?.message || formatMessage({ id: 'swapPasswordFailure' })
+                }
                 intl={intl}
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        })
+        .finally(() => setIsSubmitting(false));
     },
   });
 
