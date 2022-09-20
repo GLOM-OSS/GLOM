@@ -14,9 +14,9 @@ import favicon from './logo.png';
 import { Scrollbars } from 'react-custom-scrollbars-2';
 import { CloseRounded, ReportRounded } from '@mui/icons-material';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { setActiveYear } from '@squoolr/api-services';
 
 export interface AcademicYearInterface {
   academic_year_id: string;
@@ -46,7 +46,6 @@ export function SelectAcademicYearDialog({
   const navigate = useNavigate();
 
   const handleSelectAcademicYear = (academic_year_id: string) => {
-    //TODO: CALL API HERE TO SEND SELECTED ACADEMIC YEAR
     if (notifications)
       notifications.forEach((notification) => notification.dismiss());
     const newNotification = new useNotification();
@@ -55,33 +54,34 @@ export function SelectAcademicYearDialog({
     newNotification.notify({
       render: formatMessage({ id: 'gettingAcademicYear' }),
     });
-    //TODO: CALL reset password API HERE
     setSelectedAcademicYearId(academic_year_id);
-    setTimeout(() => {
-      console.log(academic_year_id);
-      if (random() > 5) {
+    setActiveYear(academic_year_id)
+      .then((userRoles) => {
+        //TODO dispatch user roles to user context
         newNotification.update({
           render: formatMessage({ id: 'academicYearSet' }),
         });
         navigate('/dashboard');
         closeDialog();
-      } else {
+      })
+      .catch((error) => {
         newNotification.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() => handleSelectAcademicYear(academic_year_id)}
               notification={newNotification}
-              //TODO: MESSAGE SHOULD COME FROM BACKEND
-              message={formatMessage({ id: 'failedToSetAcademicYear' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'failedToSetAcademicYear' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-      setSelectedAcademicYearId('');
-    }, 3000);
+        setSelectedAcademicYearId('');
+      });
   };
 
   return (

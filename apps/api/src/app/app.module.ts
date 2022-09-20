@@ -7,9 +7,15 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 import { createClient } from 'redis';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
+import { TasksModule } from '@squoolr/tasks';
+import { PrismaModule } from '../prisma/prisma.module';
+import { AppController } from './app.controller';
+import { AppInterceptor } from './app.interceptor';
+import { AppMiddleware } from './app.middleware';
+import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -17,9 +23,18 @@ import { PassportModule } from '@nestjs/passport';
     PassportModule.register({
       session: true,
     }),
+    PrismaModule,
+    TasksModule,
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AppInterceptor,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
@@ -32,7 +47,6 @@ export class AppModule implements NestModule {
         session({
           name: process.env.SESSION_NAME,
           store: new RedisStore({
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             client: redisClient,
             host: process.env.REDIS_HOST,
             port: Number(process.env.REDIS_PORT),
@@ -43,11 +57,12 @@ export class AppModule implements NestModule {
           resave: false,
           rolling: true,
           cookie: {
-            maxAge: 10 * 60 * 1000, //10 minutes of inativity
+            maxAge: 60 * 60 * 1000, //60 minutes of inativity
           },
         }),
         passport.initialize(),
-        passport.session()
+        passport.session(),
+        AppMiddleware
       )
       .forRoutes('*');
   }

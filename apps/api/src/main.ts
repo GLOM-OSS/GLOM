@@ -13,7 +13,7 @@ import { AppModule } from './app/app.module';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: {
-      origin: '*',
+      origin: ['http://localhost:4200'],
       credentials: true,
     },
   });
