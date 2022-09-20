@@ -1,6 +1,7 @@
 import { Typography } from '@mui/material';
 import { Navigate } from 'react-router';
 import Demands from '../components/demands';
+import DemandValidation from '../components/demandValidation';
 import AdminLayout from '../pages/AdminLayout';
 import ForgotPassword from '../pages/forgotPassword';
 import NewPassword from '../pages/newPassword';
@@ -29,7 +30,7 @@ export const routes = [
       },
       {
         path: 'demands/:demand_code',
-        element: <Demands />,
+        element: <DemandValidation />,
       },
       {
         path: 'schools',
