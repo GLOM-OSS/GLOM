@@ -15,7 +15,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { theme } from '@squoolr/theme';
+import { theme, useLanguage } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';
@@ -132,6 +132,18 @@ export function Layout({
   //   }, 3000);
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, []);
+
+  const { languageDispatch } = useLanguage();
+
+  useEffect(() => {
+    languageDispatch({
+      type:
+        localStorage.getItem('squoolr_active_language') === 'En'
+          ? 'USE_ENGLISH'
+          : 'USE_FRENCH',
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const navigate = useNavigate();
   const location = useLocation();
