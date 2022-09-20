@@ -160,7 +160,7 @@ export default function DemandValidation() {
       <Box sx={{ height: '100%' }}>
         <Typography variant="h5" sx={{ fontWeight: 400 }}>
           {isDemandLoading ? (
-            <Skeleton animation='wave' width={`${random() * 10 ?? 30}%`} />
+            <Skeleton animation="wave" width={`${random() * 10 ?? 30}%`} />
           ) : (
             `${demand.school.code} - ${demand.school.school_name}`
           )}
@@ -193,7 +193,10 @@ export default function DemandValidation() {
                 </Typography>
                 <Typography variant="body2" sx={{ color: theme.common.body }}>
                   {isDemandLoading ? (
-                    <Skeleton animation='wave' width={`${random() * 10 ?? 30}%`} />
+                    <Skeleton
+                      animation="wave"
+                      width={`${random() * 10 ?? 30}%`}
+                    />
                   ) : (
                     person[key as keyof Person]
                   )}
@@ -222,7 +225,10 @@ export default function DemandValidation() {
                   </Typography>
                   <Typography variant="body2" sx={{ color: theme.common.body }}>
                     {isDemandLoading ? (
-                      <Skeleton animation='wave' width={`${random() * 10 ?? 30}%`} />
+                      <Skeleton
+                        animation="wave"
+                        width={`${random() * 10 ?? 30}%`}
+                      />
                     ) : (
                       school[key as keyof School]
                     )}
