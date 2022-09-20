@@ -1,7 +1,7 @@
 import { Typography } from '@mui/material';
 import { Navigate } from 'react-router';
-import Demands from '../components/demands';
-import DemandValidation from '../components/demandValidation';
+import Demands from '../components/demand/demands';
+import DemandValidation from '../components/demand/demandValidation';
 import AdminLayout from '../pages/AdminLayout';
 import ForgotPassword from '../pages/forgotPassword';
 import NewPassword from '../pages/newPassword';

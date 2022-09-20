@@ -5,9 +5,8 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
-import RejectDemandDialog from './demand/rejectDailog';
-import ValidateDemandDialog from './demand/validateDialog';
-// import { DemandInterface } from './demands';
+import RejectDemandDialog from './rejectDailog';
+import ValidateDemandDialog from './validateDialog';
 
 interface Person {
   first_name: string;
