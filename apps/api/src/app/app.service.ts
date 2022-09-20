@@ -18,7 +18,7 @@ export class AppService {
         data: {
           email: 'personnelmarco@gmail.com',
           birthdate: new Date('03/09/2001'),
-          fisrt_name: 'Personnel',
+          first_name: 'Personnel',
           last_name: 'Marco',
           gender: 'Male',
           national_id_number: '1102645613',
@@ -53,6 +53,7 @@ export class AppService {
                 code: 'Year-202120220001',
                 starts_at: new Date(),
                 ends_at: new Date(),
+                School: { connect: { email: 'contact@iaicameroun.com' } },
               },
             },
             Login: {
@@ -69,7 +70,7 @@ export class AppService {
             create: {
               email: 'adminmarco@gmail.com',
               birthdate: new Date('03/09/2001'),
-              fisrt_name: 'Admin',
+              first_name: 'Admin',
               last_name: 'Marco',
               gender: 'Male',
               national_id_number: '1102645613',
@@ -140,7 +141,7 @@ export class AppService {
                     create: {
                       email: 'etudiantmarco@gmail.com',
                       birthdate: new Date('03/09/2001'),
-                      fisrt_name: 'Etudiant',
+                      first_name: 'Etudiant',
                       last_name: 'Marco',
                       gender: 'Male',
                       national_id_number: '1102645613',
@@ -168,6 +169,7 @@ export class AppService {
               AnnualConfigurator: {
                 connect: { annual_configurator_id },
               },
+              School: { connect: { email: 'contact@iaicameroun.com' } },
             },
           },
         },
