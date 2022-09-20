@@ -16,7 +16,6 @@ import { AppInterceptor } from './app.interceptor';
 import { AppMiddleware } from './app.middleware';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { DemandModule } from './demand/demand.module';
 
 @Module({
   imports: [
@@ -27,7 +26,6 @@ import { DemandModule } from './demand/demand.module';
     PrismaModule,
     TasksModule,
     AuthModule,
-    DemandModule,
   ],
   controllers: [AppController],
   providers: [
