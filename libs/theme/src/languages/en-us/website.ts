@@ -80,4 +80,12 @@ export const website = {
   progress: 'In Progress',
   validated: 'Validated',
   rejected: 'Rejected',
+  first_name: 'First name',
+  last_name: 'Last name',
+  date_of_birth: 'Birth date',
+  gender: 'Gender',
+  national_id_number: 'Nid Number',
+  school_name: 'School name',
+  validate: 'Validate',
+  reject: 'Reject',loadingDemandDetails:'Loading demand details', getDemandDetailsFailed:'Something went wrong when trying to get demand details. Please try again'
 };
