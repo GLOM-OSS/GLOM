@@ -1,19 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-local';
 import { Request } from 'express';
+import { Strategy } from 'passport-local';
 import { AuthService } from '../auth.service';
-
-import { LogService } from '../../../services/log.service';
-import { CronJobNames, TasksService } from '@squoolr/tasks';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(
-    private authService: AuthService,
-    private logService: LogService,
-    private tasksService: TasksService
-  ) {
+  constructor(private authService: AuthService) {
     super({
       usernameField: 'email',
       passReqToCallback: true,
@@ -21,28 +14,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(request: Request, email: string, password: string) {
-    const origin = new URL(request.headers.origin).hostname;
-    const user = await this.authService.validateUser(origin, email, password);
-    const { log_id } = await this.logService.create({
-      Login: { connect: { login_id: user.login_id } },
-    });
-    const now = new Date();
-    const job_name = this.tasksService.addCronJob(
-      {
-        name: CronJobNames.AUTO_LOGOUT,
-        callback: async () => {
-          request.session.destroy(async (err) => {
-            if (!err) {
-              await this.logService.update({
-                data: { closed_at: new Date() },
-                where: { log_id },
-              });
-            }
-          });
-        },
-      },
-      new Date(now.setSeconds(now.getSeconds() + user.cookie_age))
-    );
-    return { log_id, ...user, job_name };
+    return this.authService.validateUser(request, email, password);
   }
 }

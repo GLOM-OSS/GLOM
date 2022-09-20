@@ -7,21 +7,16 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 import { createClient } from 'redis';
 
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
-import { AnnualConfiguratorService } from '../services/annual-configurator.service';
-import { LoginService } from '../services/login.service';
-import { StudentService } from '../services/student.service';
+import { TasksModule } from '@squoolr/tasks';
+import { PrismaModule } from '../prisma/prisma.module';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { PersonService } from '../services/person.service';
-import { AnnualStudentService } from '../services/annual-student.service';
 import { AppInterceptor } from './app.interceptor';
 import { AppMiddleware } from './app.middleware';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { TasksModule } from '@squoolr/tasks';
+import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { DemandModule } from './demand/demand.module';
-import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
   imports: [
@@ -37,11 +32,6 @@ import { PrismaModule } from '../prisma/prisma.module';
   controllers: [AppController],
   providers: [
     AppService,
-    LoginService,
-    PersonService,
-    StudentService,
-    AnnualStudentService,
-    AnnualConfiguratorService,
     {
       provide: APP_INTERCEPTOR,
       useClass: AppInterceptor,
