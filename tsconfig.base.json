@@ -20,6 +20,7 @@
       "@squoolr/axios": ["libs/axios/src/index.ts"],
       "@squoolr/dialogTransition": ["libs/dialog-transition/src/index.ts"],
       "@squoolr/encrypter": ["libs/encrypter/src/index.ts"],
+      "@squoolr/mailer": ["libs/mailer/src/index.ts"],
       "@squoolr/theme": ["libs/theme/src/index.ts"],
       "@squoolr/toast": ["libs/toast/src/index.ts"],
       "@squoolr/utils": ["libs/utils/src/index.ts"]

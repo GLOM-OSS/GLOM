@@ -14,6 +14,7 @@
     "encrypter": "libs/encrypter",
     "landing": "apps/landing",
     "landing-e2e": "apps/landing-e2e",
+    "mailer": "libs/mailer",
     "student": "apps/student",
     "student-e2e": "apps/student-e2e",
     "theme": "libs/theme",
