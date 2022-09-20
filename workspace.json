@@ -17,6 +17,7 @@
     "mailer": "libs/mailer",
     "student": "apps/student",
     "student-e2e": "apps/student-e2e",
+    "tasks": "libs/tasks",
     "theme": "libs/theme",
     "toast": "libs/toast",
     "utils": "libs/utils"
