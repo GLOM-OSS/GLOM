@@ -108,4 +108,11 @@ export const website = {
   rejectedDemand: 'Demand was successfully rejected',
   failedToReject:
     'Something went wrong during Demand rejection. Please try again!',
+  product: 'Product',
+  pricing: 'Pricing',
+  features: 'Features',
+  contactUs: 'Contact Us',
+  verifyDemandStatus: 'Verify demand status',
+  createSchool: 'Create School',
+  swapLanguage: 'Swap langauge',
 };

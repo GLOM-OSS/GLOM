@@ -82,7 +82,7 @@ export default function Navbar() {
               },
             }}
           >
-            <Link href={route}>{item}</Link>
+            <Link href={route}>{formatMessage({id:item})}</Link>
           </Typography>
         ))}
       </Box>
