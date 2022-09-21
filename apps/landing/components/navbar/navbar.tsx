@@ -67,7 +67,7 @@ export default function Navbar() {
                 position: 'absolute',
                 left: '0px',
                 bottom: '-5px',
-                height: '5px',
+                height: '3px',
                 content: '""',
                 width: pathname === route ? '100%' : 0,
                 backgroundColor: theme.palette.primary.main,
