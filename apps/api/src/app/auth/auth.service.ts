@@ -184,7 +184,27 @@ export class AuthService {
     })) as AcademicYearObject[];
     if (annualStudents.length > 0) {
       return annualStudents.map(
-        ({ AcademicYear: academicYear }) => academicYear
+        ({
+          AcademicYear: {
+            academic_year_id,
+            year_code,
+            ended_at,
+            ends_at,
+            started_at,
+            starts_at,
+            year_status,
+          },
+        }) => ({
+          year_code,
+          year_status,
+          academic_year_id,
+          starting_date:
+            year_status !== AcademicYearStatus.INACTIVE
+              ? started_at
+              : starts_at,
+          ending_date:
+            year_status !== AcademicYearStatus.FIINISHED ? ends_at : ended_at,
+        })
       );
     }
 
@@ -228,9 +248,11 @@ export class AuthService {
             year_status,
             academic_year_id,
             starting_date:
-              status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,
+              year_status !== AcademicYearStatus.INACTIVE
+                ? started_at
+                : starts_at,
             ending_date:
-              status !== AcademicYearStatus.FIINISHED ? ends_at : ended_at,
+              year_status !== AcademicYearStatus.FIINISHED ? ends_at : ended_at,
           });
         }
       }
@@ -257,9 +279,9 @@ export class AuthService {
         year_status,
         academic_year_id,
         starting_date:
-          status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,
+          year_status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,
         ending_date:
-          status !== AcademicYearStatus.FIINISHED ? ends_at : ended_at,
+          year_status !== AcademicYearStatus.FIINISHED ? ends_at : ended_at,
       },
     };
 
@@ -435,7 +457,10 @@ export class AuthService {
       where: { Logins: { some: { login_id } } },
     });
     if (!academic_year_id) {
-      return null;
+      const { school_id } = await this.loginService.findUnique({
+        where: { login_id },
+      });
+      return school_id ? null : { ...person, login_id };
     }
     const { started_at, ended_at, starts_at, ends_at, year_code, year_status } =
       await this.academicYearService.findFirst({
@@ -453,9 +478,9 @@ export class AuthService {
         year_status,
         academic_year_id,
         starting_date:
-          status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,
+          year_status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,
         ending_date:
-          status !== AcademicYearStatus.FIINISHED ? ends_at : ended_at,
+          year_status !== AcademicYearStatus.FIINISHED ? ends_at : ended_at,
       },
     };
     for (let i = 0; i < roles.length; i++) {

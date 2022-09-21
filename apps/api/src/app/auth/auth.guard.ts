@@ -30,7 +30,7 @@ export class AuthenticatedGuard implements CanActivate {
     return isPublic
       ? isPublic
       : request.isAuthenticated()
-      ? this.authenticateUser(request)
+      ? await this.authenticateUser(request)
       : false;
   }
 
@@ -56,7 +56,7 @@ export class AuthenticatedGuard implements CanActivate {
           job_name,
           new Date(now.setSeconds(now.getSeconds() + cookie_age))
         );
-        return true;
+        return isAuthenticated;
       } catch (error) {
         Logger.error(error.message, AuthenticatedGuard.name);
       }

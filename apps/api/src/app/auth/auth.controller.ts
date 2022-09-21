@@ -78,7 +78,7 @@ export class AuthController {
         (err) => {
           if (err)
             throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
-          resolve('Session saved');
+          resolve(1);
         }
       )
     );
