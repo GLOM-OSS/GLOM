@@ -4,6 +4,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { DemandPostData, ValidateDemandDto } from './dto';
 import { CodeGeneratorService } from '../../utils/code-generator';
 import { randomUUID } from 'crypto';
+import { SchoolDemandStatus } from '@prisma/client';
 
 @Injectable()
 export class DemandService {
@@ -23,19 +24,55 @@ export class DemandService {
     this.annualConfiguratorService = this.prismaService.annualConfigurator;
   }
 
-  async getDemands() {
-    const schools = await this.schoolService.findMany();
-    console.log(schools);
-    return [{ demad: 'AICS Demand' }];
+  async findOne(school_demand_id: string) {
+    const schoolData = await this.schoolService.findFirst({
+      select: {
+        school_name: true,
+        school_email: true,
+        school_phone_number: true,
+        Person: true,
+        SchoolDemand: { select: { demand_status: true } },
+      },
+      where: { SchoolDemand: { school_demand_id } },
+    });
+    if (schoolData) {
+      const {
+        Person: person,
+        SchoolDemand: { demand_status },
+        ...school
+      } = schoolData;
+      return { school: { ...school, demand_status }, person };
+    }
   }
 
-  async addSchoolDemand({ school, personnel }: DemandPostData) {
+  async findAll() {
+    const schools = await this.schoolService.findMany({
+      select: {
+        school_email: true,
+        school_code: true,
+        school_name: true,
+        school_phone_number: true,
+        SchoolDemand: {
+          select: { school_demand_id: true, demand_status: true },
+        },
+      },
+    });
+    return schools.map(
+      ({ SchoolDemand: { demand_status, school_demand_id }, ...school }) => ({
+        demand_status,
+        school_demand_id,
+        ...school,
+      })
+    );
+  }
+
+  async addDemand({ school, personnel }: DemandPostData) {
     const { password, phone: phone_number, ...person } = personnel;
     const {
-      email,
+      school_email,
       initial_year_ends_at,
       initial_year_starts_at,
-      phone,
+      school_phone_number,
       school_name,
       school_acronym,
     } = school;
@@ -71,10 +108,10 @@ export class DemandService {
               year_code,
               School: {
                 create: {
-                  email,
+                  school_email,
                   school_code,
                   school_acronym,
-                  phone_number: phone,
+                  school_phone_number,
                   school_name,
                   Person: {
                     connectOrCreate: {
@@ -105,12 +142,19 @@ export class DemandService {
         ? {
             rejection_reason,
             responsed_at: new Date(),
+            demand_status: SchoolDemandStatus.REJECTED,
             Login: { connect: { login_id: validated_by } },
           }
         : {
             responsed_at: new Date(),
+            demand_status: SchoolDemandStatus.VALIDATED,
             Login: { connect: { login_id: validated_by } },
-            School: { update: { subdomain, is_validated: true} },
+            School: {
+              update: {
+                subdomain: `${subdomain}.squoolr.com`,
+                is_validated: true,
+              },
+            },
           },
       where: { school_demand_id },
     });

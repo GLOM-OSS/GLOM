@@ -34,8 +34,8 @@ export class AppService {
           create: {
             school_acronym: 'AICS',
             school_code: 'generateUniqueCode()',
-            email: 'contact@iaicameroun.com',
-            phone_number: '67584986532',
+            school_email: 'contact@iaicameroun.com',
+            school_phone_number: '67584986532',
             school_name: 'IAI-CAMEROUN',
             subdomain: 'iai.squoolr.com',
             Person: {
@@ -53,7 +53,7 @@ export class AppService {
               year_code: 'Year-202120220001',
               starts_at: new Date(),
               ends_at: new Date(),
-              School: { connect: { email: 'contact@iaicameroun.com' } },
+              School: { connect: { school_email: 'contact@iaicameroun.com' } },
             },
           },
           Login: {
@@ -73,7 +73,7 @@ export class AppService {
             AnnualConfigurator: {
               connect: { annual_configurator_id },
             },
-            School: { connect: { email: 'contact@iaicameroun.com' } },
+            School: { connect: { school_email: 'contact@iaicameroun.com' } },
           },
         },
       },
@@ -102,7 +102,7 @@ export class AppService {
                         department_name: 'Informatique',
                         department_acronym: 'INF',
                         School: {
-                          connect: { email: 'contact@iaicameroun.com' },
+                          connect: { school_email: 'contact@iaicameroun.com' },
                         },
                         AnnualConfigurator: {
                           connect: { annual_configurator_id },
@@ -150,7 +150,9 @@ export class AppService {
                     phone_number: '6730564895',
                   },
                 },
-                School: { connect: { email: 'contact@iaicameroun.com' } },
+                School: {
+                  connect: { school_email: 'contact@iaicameroun.com' },
+                },
               },
             },
             matricule: randomUUID(),

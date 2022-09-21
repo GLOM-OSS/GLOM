@@ -71,8 +71,8 @@ model School {
     school_name            String   @db.VarChar(50)
     school_code            String   @db.VarChar(45)
     school_acronym         String   @db.VarChar(45)
-    email                  String   @unique @db.VarChar(50)
-    phone_number           String   @db.VarChar(15)
+    school_email           String   @unique @db.VarChar(50)
+    school_phone_number    String   @db.VarChar(15)
     description            String?  @db.Text
     logo_ref               String?  @db.VarChar(45)
     subdomain              String?  @db.VarChar(30)
@@ -90,15 +90,25 @@ model School {
     SchoolDemand SchoolDemand?
 }
 
+enum SchoolDemandStatus {
+    PENDING
+    PROGRESS
+    REJECTED
+    VALIDATED
+
+    @@map("school_demand_status_enum")
+}
+
 model SchoolDemand {
-    school_demand_id String    @id @default(uuid()) @db.VarChar(36)
-    demanded_at      DateTime  @default(now()) @db.DateTime(0)
-    responsed_at     DateTime? @db.DateTime(0)
-    rejection_reason String?   @db.Text
-    school_id        String    @unique
-    School           School    @relation(fields: [school_id], references: [school_id], onDelete: Cascade, onUpdate: Cascade)
-    validated_by     String?   @db.VarChar(36)
-    Login            Login?    @relation(fields: [validated_by], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+    school_demand_id String             @id @default(uuid()) @db.VarChar(36)
+    demanded_at      DateTime           @default(now()) @db.DateTime(0)
+    responsed_at     DateTime?          @db.DateTime(0)
+    rejection_reason String?            @db.Text
+    demand_status    SchoolDemandStatus @default(PENDING)
+    school_id        String             @unique
+    School           School             @relation(fields: [school_id], references: [school_id], onDelete: Cascade, onUpdate: Cascade)
+    validated_by     String?            @db.VarChar(36)
+    Login            Login?             @relation(fields: [validated_by], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 enum AcademicYearStatus {

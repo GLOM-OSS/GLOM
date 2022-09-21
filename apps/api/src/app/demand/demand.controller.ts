@@ -6,33 +6,39 @@ import {
   HttpStatus,
   Post,
   Put,
+  Query,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
-import { AuthenticatedGuard } from '../auth/auth.guard';
-import { DemandPostData, ValidateDemandDto } from './dto';
-import { DemandService } from './demand.service';
-import { CodeGeneratorService } from '../../utils/code-generator';
 import { Request } from 'express';
-import { DeserializeSessionData } from '../../utils/types';
 import { ERR01, ERR02 } from '../../errors';
+import { DeserializeSessionData } from '../../utils/types';
+import { AuthenticatedGuard } from '../auth/auth.guard';
+import { DemandService } from './demand.service';
+import { DemandPostData, DemandQueryDto, ValidateDemandDto } from './dto';
 
 @Controller('demands')
 export class DemandController {
-  constructor(
-    private demandService: DemandService,
-    private generator: CodeGeneratorService
-  ) {}
+  constructor(private demandService: DemandService) {}
 
-  @Get('')
+  @Get()
+  @UseGuards(AuthenticatedGuard)
+  async getDemandInfo(@Query() query: DemandQueryDto) {
+    const { school_demand_id } = query;
+    return {
+      school_demand: await this.demandService.findOne(school_demand_id),
+    };
+  }
+
+  @Get('all')
   @UseGuards(AuthenticatedGuard)
   async getAllDemands() {
-    return this.demandService.getDemands();
+    return this.demandService.findAll();
   }
 
   @Post('new')
   async addNewDemand(@Body() schoolDemand: DemandPostData) {
-    await this.demandService.addSchoolDemand(schoolDemand);
+    await this.demandService.addDemand(schoolDemand);
   }
 
   @Put('validate')
@@ -51,7 +57,10 @@ export class DemandController {
         request.user['login_id']
       );
     } catch (error) {
-      throw new HttpException(ERR02[preferred_lang], HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        ERR02[preferred_lang],
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 }

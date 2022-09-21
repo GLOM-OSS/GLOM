@@ -7,8 +7,9 @@ import {
   IsPhoneNumber,
   IsString,
   IsUUID,
-  registerDecorator, ValidateNested,
-  ValidationOptions
+  registerDecorator,
+  ValidateNested,
+  ValidationOptions,
 } from 'class-validator';
 import { PersonPostData } from '../class-vaditor';
 
@@ -20,10 +21,10 @@ export class SchoolPostData {
   school_acronym: string;
 
   @IsEmail()
-  email: string;
+  school_email: string;
 
   @IsPhoneNumber('CM')
-  phone: string;
+  school_phone_number: string;
 
   @IsDateString()
   initial_year_starts_at: Date;
@@ -54,7 +55,7 @@ export function IsValidSubdomain(validationOptions?: ValidationOptions) {
       options: validationOptions,
       validator: {
         validate(value) {
-          return typeof value === 'string' && value.endsWith('squoolr.com');
+          return typeof value === 'string' && !value.includes('squoolr.com');
         },
       },
     });
@@ -71,4 +72,9 @@ export class ValidateDemandDto {
   @IsOptional()
   @IsValidSubdomain()
   subdomain?: string;
+}
+
+export class DemandQueryDto {
+  @IsUUID()
+  school_demand_id: string;
 }
