@@ -1,12 +1,12 @@
 import { CacheProvider, EmotionCache } from '@emotion/react';
+import { SquoolrThemeProvider, useLanguage } from '@squoolr/theme';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useEffect } from 'react';
+import 'react-toastify/dist/ReactToastify.css';
+import LandingLayout from '../components/layout/layout';
 import createEmotionCache from '../config_mui/createEmotionCache';
 import './globalStyles.css';
-import 'react-toastify/dist/ReactToastify.css';
-import { SquoolrThemeProvider, useLanguage } from '@squoolr/theme';
-import { Box } from '@mui/material';
 
 const App = (props) => {
   const { Component, pageProps } = props;
@@ -22,8 +22,9 @@ const App = (props) => {
   }, []);
   return (
     <>
-      <Box>Hello world</Box>
-      <Component {...pageProps} />
+      <LandingLayout>
+        <Component {...pageProps} />
+      </LandingLayout>
     </>
   );
 };
