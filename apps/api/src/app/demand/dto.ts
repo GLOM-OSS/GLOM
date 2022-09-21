@@ -1,16 +1,23 @@
 import { Type } from 'class-transformer';
 import {
   IsDateString,
-  IsEmail, IsNotEmptyObject,
+  IsEmail,
+  IsNotEmptyObject,
+  IsOptional,
   IsPhoneNumber,
   IsString,
-  ValidateNested
+  IsUUID,
+  registerDecorator, ValidateNested,
+  ValidationOptions
 } from 'class-validator';
 import { PersonPostData } from '../class-vaditor';
 
 export class SchoolPostData {
   @IsString()
   school_name: string;
+
+  @IsString()
+  school_acronym: string;
 
   @IsEmail()
   email: string;
@@ -35,4 +42,33 @@ export class DemandPostData {
   @ValidateNested()
   @Type(() => SchoolPostData)
   school: SchoolPostData;
+}
+
+export function IsValidSubdomain(validationOptions?: ValidationOptions) {
+  return (subdomain, propertyName: string) => {
+    registerDecorator({
+      name: 'IsValidSubdomain',
+      target: subdomain.constructor,
+      propertyName,
+      constraints: [],
+      options: validationOptions,
+      validator: {
+        validate(value) {
+          return typeof value === 'string' && value.endsWith('squoolr.com');
+        },
+      },
+    });
+  };
+}
+
+export class ValidateDemandDto {
+  @IsUUID()
+  school_demand_id: string;
+
+  @IsOptional()
+  rejection_reason?: string;
+
+  @IsOptional()
+  @IsValidSubdomain()
+  subdomain?: string;
 }
