@@ -40,6 +40,7 @@ export default function Navbar() {
         padding: `${theme.spacing(1)} 7.1%`,
         backgroundColor: lighten(theme.palette.primary.main, 0.9),
         columnGap: theme.spacing(2),
+        color: theme.common.titleActive,
       }}
     >
       <Image src="/logo.png" alt="Squoolr icon" height="60%" width="60%" />
@@ -82,7 +83,7 @@ export default function Navbar() {
               },
             }}
           >
-            <Link href={route}>{formatMessage({id:item})}</Link>
+            <Link href={route}>{formatMessage({ id: item })}</Link>
           </Typography>
         ))}
       </Box>
