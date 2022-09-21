@@ -115,8 +115,8 @@ export class AuthService {
       where: {
         login_id,
         OR: {
-          logged_out_at: { not: { lte: new Date() } },
-          closed_at: { not: { lte: new Date() } },
+          logged_out_at: null,
+          closed_at: null
         },
       },
     });
