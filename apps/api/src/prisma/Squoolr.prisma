@@ -69,7 +69,7 @@ model School {
     longitude              Int?
     latitude               Int?
     school_name            String   @db.VarChar(50)
-    school_code            String   @db.VarChar(45)
+    school_code            String   @unique @db.VarChar(45)
     school_acronym         String   @db.VarChar(45)
     school_email           String   @unique @db.VarChar(50)
     school_phone_number    String   @db.VarChar(15)

@@ -8,14 +8,19 @@ import {
   Put,
   Query,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ERR01, ERR02 } from '../../errors';
 import { DeserializeSessionData } from '../../utils/types';
 import { AuthenticatedGuard } from '../auth/auth.guard';
 import { DemandService } from './demand.service';
-import { DemandPostData, DemandQueryDto, DemandValidateDto } from './dto';
+import {
+  DemandPostData,
+  DemandQueryDto,
+  DemandStatusQueryDto,
+  DemandValidateDto,
+} from './dto';
 
 @Controller('demands')
 export class DemandController {
@@ -62,5 +67,12 @@ export class DemandController {
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
+  }
+
+  @Get('status')
+  async getDemandStatus(@Body() { school_demand_id }: DemandStatusQueryDto) {
+    return {
+      demand_status: await this.demandService.getStatus(school_demand_id),
+    };
   }
 }

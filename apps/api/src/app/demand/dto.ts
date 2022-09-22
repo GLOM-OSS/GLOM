@@ -78,3 +78,8 @@ export class DemandQueryDto {
   @IsUUID()
   school_demand_id: string;
 }
+
+export class DemandStatusQueryDto {
+  @IsString()
+  school_demand_id: string;
+}

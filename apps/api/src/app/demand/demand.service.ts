@@ -159,4 +159,12 @@ export class DemandService {
       where: { school_demand_id },
     });
   }
+
+  async getStatus(school_demand_code: string) {
+    const school = await this.schoolService.findUnique({
+      select: { SchoolDemand: { select: { demand_status: true } } },
+      where: { school_code: school_demand_code },
+    });
+    return school ? school.SchoolDemand.demand_status : null;
+  }
 }
