@@ -10,7 +10,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { ERR01, ERR02 } from '../../errors';
 import { DeserializeSessionData } from '../../utils/types';
@@ -75,7 +75,9 @@ export class DemandController {
   }
 
   @Get('status')
-  async getDemandStatus(@Body() { school_demand_code }: DemandStatusQueryDto) {
+  @ApiOperation({ summary: 'Check your school demand status' })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  async getDemandStatus(@Query() { school_demand_code }: DemandStatusQueryDto) {
     return {
       demand_status: await this.demandService.getStatus(school_demand_code),
     };

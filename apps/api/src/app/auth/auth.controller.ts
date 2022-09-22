@@ -10,6 +10,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AUTH500 } from '../../errors';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -25,6 +26,9 @@ import { NewPasswordDto, ResetPasswordDto } from './dto';
 import { GoogleGuard } from './google/google.guard';
 import { LocalGuard } from './local/local.guard';
 
+
+@ApiBearerAuth()
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(

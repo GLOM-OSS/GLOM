@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsDateString,
@@ -14,31 +15,39 @@ import {
 import { PersonPostDto } from '../class-vaditor';
 
 export class SchoolPostDto {
+  @ApiProperty()
   @IsString()
   school_name: string;
 
+  @ApiProperty()
   @IsString()
   school_acronym: string;
 
+  @ApiProperty()
   @IsEmail()
   school_email: string;
 
+  @ApiProperty()
   @IsPhoneNumber('CM')
   school_phone_number: string;
 
+  @ApiProperty()
   @IsDateString()
   initial_year_starts_at: Date;
 
+  @ApiProperty()
   @IsDateString()
   initial_year_ends_at: Date;
 }
 
 export class DemandPostData {
+  @ApiProperty()
   @IsNotEmptyObject()
   @ValidateNested()
   @Type(() => PersonPostDto)
   personnel: PersonPostDto;
-
+  
+  @ApiProperty()
   @IsNotEmptyObject()
   @ValidateNested()
   @Type(() => SchoolPostDto)
@@ -63,23 +72,28 @@ export function IsValidSubdomain(validationOptions?: ValidationOptions) {
 }
 
 export class DemandValidateDto {
+  @ApiProperty()
   @IsUUID()
   school_demand_id: string;
 
+  @ApiProperty()
   @IsOptional()
   rejection_reason?: string;
 
+  @ApiProperty()
   @IsOptional()
   @IsValidSubdomain()
   subdomain?: string;
 }
 
 export class DemandQueryDto {
+  @ApiProperty()
   @IsUUID()
   school_demand_id: string;
 }
 
 export class DemandStatusQueryDto {
+  @ApiProperty()
   @IsString()
   school_demand_code: string;
 }
