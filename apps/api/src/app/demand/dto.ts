@@ -11,9 +11,9 @@ import {
   ValidateNested,
   ValidationOptions,
 } from 'class-validator';
-import { PersonPostData } from '../class-vaditor';
+import { PersonPostDto } from '../class-vaditor';
 
-export class SchoolPostData {
+export class SchoolPostDto {
   @IsString()
   school_name: string;
 
@@ -36,13 +36,13 @@ export class SchoolPostData {
 export class DemandPostData {
   @IsNotEmptyObject()
   @ValidateNested()
-  @Type(() => PersonPostData)
-  personnel: PersonPostData;
+  @Type(() => PersonPostDto)
+  personnel: PersonPostDto;
 
   @IsNotEmptyObject()
   @ValidateNested()
-  @Type(() => SchoolPostData)
-  school: SchoolPostData;
+  @Type(() => SchoolPostDto)
+  school: SchoolPostDto;
 }
 
 export function IsValidSubdomain(validationOptions?: ValidationOptions) {
@@ -62,7 +62,7 @@ export function IsValidSubdomain(validationOptions?: ValidationOptions) {
   };
 }
 
-export class ValidateDemandDto {
+export class DemandValidateDto {
   @IsUUID()
   school_demand_id: string;
 

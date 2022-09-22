@@ -8,7 +8,7 @@ import {
   Patch,
   Post,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { AUTH500 } from '../../errors';
@@ -16,11 +16,12 @@ import { PrismaService } from '../../prisma/prisma.service';
 import {
   DeserializeSessionData,
   DesirializeRoles,
-  PassportSession
+  PassportSession,
 } from '../../utils/types';
-import { NewPasswordDto } from '../class-vaditor';
+import { AcademicYearQueryDto } from '../class-vaditor';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
+import { NewPasswordDto, ResetPasswordDto } from './dto';
 import { GoogleGuard } from './google/google.guard';
 import { LocalGuard } from './local/local.guard';
 
@@ -42,10 +43,9 @@ export class AuthController {
       user.login_id
     );
     if (academic_years.length === 1) {
-      const selected_roles = await this.setActiveYear(
-        request,
-        academic_years[0].academic_year_id
-      );
+      const selected_roles = await this.setActiveYear(request, {
+        academic_year_id: academic_years[0].academic_year_id,
+      });
       return {
         user: {
           ...user,
@@ -60,7 +60,7 @@ export class AuthController {
   @UseGuards(AuthenticatedGuard)
   async setActiveYear(
     @Req() request: Request,
-    @Body('selected_academic_year_id') academic_year_id: string
+    @Body() { academic_year_id }: AcademicYearQueryDto
   ): Promise<DesirializeRoles> {
     const { login_id } = request.session.passport.user;
     const { availableRoles, userRoles } = await this.authService.getActiveRoles(
@@ -86,7 +86,10 @@ export class AuthController {
   }
 
   @Post('reset-password')
-  async resetPassword(@Req() request: Request, @Body('email') email: string) {
+  async resetPassword(
+    @Req() request: Request,
+    @Body() { email }: ResetPasswordDto
+  ) {
     const squoolr_client = new URL(request.headers.origin).hostname;
     const { reset_password_id } = await this.authService.resetPassword(
       email,

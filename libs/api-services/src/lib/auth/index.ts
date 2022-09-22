@@ -8,9 +8,9 @@ export async function signIn<T>(email: string, password: string) {
   return data;
 }
 
-export async function setActiveYear(selected_academic_year_id: string) {
+export async function setActiveYear(academic_year_id: string) {
   const { data } = await http.patch(`auth/active-year`, {
-    selected_academic_year_id,
+    academic_year_id,
   });
   return data;
 }

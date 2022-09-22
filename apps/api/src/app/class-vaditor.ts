@@ -1,15 +1,12 @@
 import { Gender } from '@prisma/client';
 import { IsDateString, IsEmail, IsEnum, IsString } from 'class-validator';
 
-export class NewPasswordDto {
+export class AcademicYearQueryDto {
   @IsString()
-  reset_password_id: string;
-
-  @IsString()
-  new_password: string;
+  academic_year_id: string
 }
 
-export class PersonPostData {
+export class PersonPostDto {
   @IsString()
   first_name: string;
 

@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { DemandPostData, ValidateDemandDto } from './dto';
+import { DemandPostData, DemandValidateDto } from './dto';
 import { CodeGeneratorService } from '../../utils/code-generator';
 import { randomUUID } from 'crypto';
 import { SchoolDemandStatus } from '@prisma/client';
@@ -134,7 +134,7 @@ export class DemandService {
   }
 
   async validateDemand(
-    { school_demand_id, rejection_reason, subdomain }: ValidateDemandDto,
+    { school_demand_id, rejection_reason, subdomain }: DemandValidateDto,
     validated_by: string
   ) {
     await this.schoolDemandService.update({
