@@ -12,7 +12,7 @@ import {
   ValidateNested,
   ValidationOptions,
 } from 'class-validator';
-import { PersonPostDto } from '../class-vaditor';
+import { PersonPostDto } from '../app.dto';
 
 export class SchoolPostDto {
   @ApiProperty()

@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { DemandPostData, DemandValidateDto } from './dto';
+import { DemandPostData, DemandValidateDto } from './demand.dto';
 import { CodeGeneratorService } from '../../utils/code-generator';
 import { randomUUID } from 'crypto';
 import { SchoolDemandStatus } from '@prisma/client';

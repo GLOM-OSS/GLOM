@@ -19,10 +19,10 @@ import {
   DesirializeRoles,
   PassportSession,
 } from '../../utils/types';
-import { AcademicYearQueryDto } from '../class-vaditor';
+import { AcademicYearQueryDto } from '../app.dto';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
-import { NewPasswordDto, ResetPasswordDto } from './dto';
+import { NewPasswordDto, ResetPasswordDto } from './auth.dto';
 import { GoogleGuard } from './google/google.guard';
 import { LocalGuard } from './local/local.guard';
 

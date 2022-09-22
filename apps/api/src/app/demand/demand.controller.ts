@@ -21,7 +21,7 @@ import {
   DemandQueryDto,
   DemandStatusQueryDto,
   DemandValidateDto,
-} from './dto';
+} from './demand.dto';
 
 @ApiBearerAuth()
 @ApiTags('demands')
