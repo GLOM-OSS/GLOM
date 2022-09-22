@@ -8,10 +8,7 @@ import { SchoolDemandStatus } from '@prisma/client';
 
 @Injectable()
 export class DemandService {
-  private loginService: typeof this.prismaService.login;
-  private personService: typeof this.prismaService.person;
   private schoolService: typeof this.prismaService.school;
-  private loginAuditService: typeof this.prismaService.loginAudit;
   private schoolDemandService: typeof this.prismaService.schoolDemand;
   private annualConfiguratorService: typeof this.prismaService.annualConfigurator;
 
