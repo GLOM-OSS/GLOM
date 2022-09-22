@@ -81,5 +81,5 @@ export class DemandQueryDto {
 
 export class DemandStatusQueryDto {
   @IsString()
-  school_demand_id: string;
+  school_demand_code: string;
 }

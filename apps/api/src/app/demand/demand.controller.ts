@@ -10,6 +10,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { ERR01, ERR02 } from '../../errors';
 import { DeserializeSessionData } from '../../utils/types';
@@ -22,6 +23,8 @@ import {
   DemandValidateDto,
 } from './dto';
 
+@ApiBearerAuth()
+@ApiTags('demands')
 @Controller('demands')
 export class DemandController {
   constructor(private demandService: DemandService) {}
@@ -38,12 +41,14 @@ export class DemandController {
   @Get('all')
   @UseGuards(AuthenticatedGuard)
   async getAllDemands() {
-    return this.demandService.findAll();
+    return { school_demands: await this.demandService.findAll() };
   }
 
   @Post('new')
   async addNewDemand(@Body() schoolDemand: DemandPostData) {
-    await this.demandService.addDemand(schoolDemand);
+    return {
+      school_demand_code: await this.demandService.addDemand(schoolDemand),
+    };
   }
 
   @Put('validate')
@@ -70,9 +75,9 @@ export class DemandController {
   }
 
   @Get('status')
-  async getDemandStatus(@Body() { school_demand_id }: DemandStatusQueryDto) {
+  async getDemandStatus(@Body() { school_demand_code }: DemandStatusQueryDto) {
     return {
-      demand_status: await this.demandService.getStatus(school_demand_id),
+      demand_status: await this.demandService.getStatus(school_demand_code),
     };
   }
 }

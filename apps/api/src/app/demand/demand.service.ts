@@ -85,7 +85,7 @@ export class DemandService {
     );
     const school_code = await this.codeGenerator.getSchoolCode(school_acronym);
     const annual_configurator_id = randomUUID();
-    return this.prismaService.$transaction([
+    await this.prismaService.$transaction([
       this.annualConfiguratorService.create({
         data: {
           is_sudo: true,
@@ -131,6 +131,7 @@ export class DemandService {
         where: { annual_configurator_id },
       }),
     ]);
+    return school_code;
   }
 
   async validateDemand(
