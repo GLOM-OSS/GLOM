@@ -17,6 +17,7 @@ import { AppMiddleware } from './app.middleware';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { DemandModule } from './demand/demand.module';
+import { ConfiguratorModule } from './configurator/configurator.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { DemandModule } from './demand/demand.module';
     TasksModule,
     AuthModule,
     DemandModule,
+    ConfiguratorModule
   ],
   controllers: [AppController],
   providers: [
