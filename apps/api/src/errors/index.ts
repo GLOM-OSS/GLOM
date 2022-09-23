@@ -14,6 +14,10 @@ export const AUTH03 = (message: string) => ({
   En: `Your login request failed with error: ${message}`,
   Fr: 'La demande de connexion a échoué avec une erreur :',
 });
+export const AUTH05 = {
+  En: `Your access or your Squoolr client is invalid`,
+  Fr: `Votre accès ou votre client Squoolr est non valide`,
+};
 export const AUTH04 = {
   En: `Oops, you've recently triggered this action. Please try later`,
   Fr: 'Oups, vous avez récemment déclenché cette action. Veuillez essayer plus tard',

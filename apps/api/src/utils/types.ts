@@ -9,6 +9,7 @@ export type RecordValue =
   | boolean
   | UserRole[];
 export enum Role {
+  ADMIN = 'ADMIN',
   STUDENT = 'STUDENT',
   TEACHER = 'TEACHER',
   REGISTRY = 'REGISTRY',
@@ -38,6 +39,7 @@ export type ActiveYear = {
 
 export type DesirializeRoles = {
   login_id: string;
+  school_id?: string;
   annualStudent?: {
     annual_student_id: string;
     student_id: string;

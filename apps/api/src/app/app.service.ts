@@ -95,20 +95,7 @@ export class AppService {
                   create: {
                     major_code: 'YEAR-INF1#GL202120220001',
                     major_name: 'Genie Logiciel',
-                    major_acronym: 'GL',
-                    Department: {
-                      create: {
-                        department_code: 'YEAR-INF#1L202120220001',
-                        department_name: 'Informatique',
-                        department_acronym: 'INF',
-                        School: {
-                          connect: { school_email: 'contact@iaicameroun.com' },
-                        },
-                        AnnualConfigurator: {
-                          connect: { annual_configurator_id },
-                        },
-                      },
-                    },
+                    major_acronym: 'GL', 
                     AnnualConfigurator: {
                       connect: { annual_configurator_id },
                     },

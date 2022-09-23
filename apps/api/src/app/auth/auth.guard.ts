@@ -9,8 +9,8 @@ import {
 import { Reflector } from '@nestjs/core';
 import { TasksService } from '@squoolr/tasks';
 import { Request } from 'express';
-import { sAUTH403 } from '../../errors';
-import { DeserializeSessionData } from '../../utils/types';
+import { AUTH05, sAUTH403 } from '../../errors';
+import { DeserializeSessionData, Role } from '../../utils/types';
 import { AuthService } from './auth.service';
 
 @Injectable()
@@ -27,39 +27,49 @@ export class AuthenticatedGuard implements CanActivate {
       'isPublic',
       context.getHandler()
     );
+    const roles = this.reflector.get<Role[]>('roles', context.getClass());
     return isPublic
       ? isPublic
       : request.isAuthenticated()
-      ? await this.authenticateUser(request)
+      ? await this.authenticateUser(request, roles)
       : false;
   }
 
-  async authenticateUser(request: Request) {
+  async authenticateUser(request: Request, metaRoles: Role[]) {
     const user = request.user as DeserializeSessionData;
     const squoolr_client = new URL(request.headers.origin).hostname;
+    const {
+      session: {
+        passport: {
+          user: { cookie_age, job_name, roles },
+        },
+      },
+    } = request;
 
-    const isAuthenticated = this.authservice.isClientCorrect(
+    let userHasTheAcess = true;
+    if (metaRoles) {
+      let hasRole = false;
+      roles.forEach(({ role }) => {
+        if (metaRoles.includes(role)) hasRole = true;
+      });
+      userHasTheAcess = hasRole
+    }
+
+    const userClientCorrect = this.authservice.isClientCorrect(
       user,
       squoolr_client
     );
-    if (isAuthenticated) {
-      const {
-        session: {
-          passport: {
-            user: { cookie_age, job_name },
-          },
-        },
-      } = request;
-      const now = new Date();
-      try {
-        this.tasksService.updateCronTime(
-          job_name,
-          new Date(now.setSeconds(now.getSeconds() + cookie_age))
-        );
-        return isAuthenticated;
-      } catch (error) {
-        Logger.error(error.message, AuthenticatedGuard.name);
-      }
+    if (!userHasTheAcess || !userClientCorrect)
+      throw new HttpException(AUTH05['Fr'], HttpStatus.FORBIDDEN);
+    const now = new Date();
+    try {
+      this.tasksService.updateCronTime(
+        job_name,
+        new Date(now.setSeconds(now.getSeconds() + cookie_age))
+      );
+      return userClientCorrect;
+    } catch (error) {
+      Logger.error(error.message, AuthenticatedGuard.name);
     }
     throw new HttpException(sAUTH403['Fr'], HttpStatus.FORBIDDEN);
   }

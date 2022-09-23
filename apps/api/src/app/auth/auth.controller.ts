@@ -26,7 +26,6 @@ import { NewPasswordDto, ResetPasswordDto } from './auth.dto';
 import { GoogleGuard } from './google/google.guard';
 import { LocalGuard } from './local/local.guard';
 
-
 @ApiBearerAuth()
 @ApiTags('auth')
 @Controller('auth')
@@ -40,9 +39,10 @@ export class AuthController {
   @UseGuards(LocalGuard)
   async userSignIn(@Req() request: Request) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { created_at, cookie_age, roles, job_name, ...user } =
+    const { created_at, cookie_age, roles, job_name, school_id, ...user } =
       request.user as DeserializeSessionData & PassportSession;
 
+    if (!school_id) return { user };
     const academic_years = await this.authService.getAcademicYears(
       user.login_id
     );

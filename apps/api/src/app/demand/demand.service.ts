@@ -8,6 +8,7 @@ import { SchoolDemandStatus } from '@prisma/client';
 
 @Injectable()
 export class DemandService {
+  private loginService: typeof this.prismaService.login;
   private schoolService: typeof this.prismaService.school;
   private schoolDemandService: typeof this.prismaService.schoolDemand;
   private annualConfiguratorService: typeof this.prismaService.annualConfigurator;
@@ -16,9 +17,10 @@ export class DemandService {
     private prismaService: PrismaService,
     private codeGenerator: CodeGeneratorService
   ) {
+    this.loginService = prismaService.login;
     this.schoolService = prismaService.school;
     this.schoolDemandService = prismaService.schoolDemand;
-    this.annualConfiguratorService = this.prismaService.annualConfigurator;
+    this.annualConfiguratorService = prismaService.annualConfigurator;
   }
 
   async findOne(school_demand_id: string) {
@@ -83,12 +85,29 @@ export class DemandService {
     const school_code = await this.codeGenerator.getSchoolCode(school_acronym);
     const annual_configurator_id = randomUUID();
     await this.prismaService.$transaction([
+      this.schoolService.create({
+        data: {
+          school_email,
+          school_code,
+          school_acronym,
+          school_phone_number,
+          school_name,
+          Person: {
+            connectOrCreate: {
+              create: { ...person, phone_number },
+              where: { email: person.email },
+            },
+          },
+          SchoolDemand: { create: {} },
+        },
+      }),
       this.annualConfiguratorService.create({
         data: {
           is_sudo: true,
           annual_configurator_id,
           Login: {
             create: {
+              is_personnel: true,
               password: bcrypt.hashSync(password, Number(process.env.SALT)),
               Person: {
                 connectOrCreate: {
@@ -96,6 +115,7 @@ export class DemandService {
                   where: { email: person.email },
                 },
               },
+              School: { connect: { school_code } },
             },
           },
           AcademicYear: {
@@ -103,22 +123,7 @@ export class DemandService {
               ends_at,
               starts_at,
               year_code,
-              School: {
-                create: {
-                  school_email,
-                  school_code,
-                  school_acronym,
-                  school_phone_number,
-                  school_name,
-                  Person: {
-                    connectOrCreate: {
-                      create: { ...person, phone_number },
-                      where: { email: person.email },
-                    },
-                  },
-                  SchoolDemand: { create: {} },
-                },
-              },
+              School: { connect: { school_code } },
             },
           },
         },

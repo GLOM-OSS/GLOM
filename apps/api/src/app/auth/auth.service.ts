@@ -62,13 +62,22 @@ export class AuthService {
       })) as Login[];
       for (let i = 0; i < userLogins.length; i++) {
         const login = userLogins[i];
-        if (bcrypt.compareSync(password, login?.password)) {
-          const user = await this.validateLogin(request, login);
-          return {
-            ...user,
-            ...person,
-            login_id: login.login_id,
-          };
+        if (bcrypt.compareSync(password, login.password)) {
+          try {
+            const user = await this.validateLogin(request, login);
+            return {
+              ...user,
+              ...person,
+              login_id: login.login_id,
+              school_id: login.school_id,
+            };
+          } catch (error) {
+            if (
+              i === userLogins.length - 1 &&
+              error?.statusCode === HttpStatus.UNAUTHORIZED
+            )
+              throw new HttpException(error?.message, error?.statusCode);
+          }
         }
       }
     }
@@ -106,7 +115,7 @@ export class AuthService {
     const origin = new URL(request.headers.origin).hostname;
     const { login_id, school_id, cookie_age } = login;
 
-    const user: Omit<PassportSession, 'log_id'> = {
+    let user: Omit<PassportSession, 'log_id'> = {
       login_id,
       cookie_age,
       roles: [],
@@ -116,7 +125,7 @@ export class AuthService {
         login_id,
         OR: {
           logged_out_at: null,
-          closed_at: null
+          closed_at: null,
         },
       },
     });
@@ -148,12 +157,23 @@ export class AuthService {
           error: 'Unauthorized access',
           message: AUTH401['Fr'],
         }); //someone attempting to be a personnel
-    } else if (origin !== process.env.SQUOOLR_URL)
-      throw new UnauthorizedException({
-        statusCode: HttpStatus.UNAUTHORIZED,
-        error: 'Unauthorized access',
-        message: AUTH401['Fr'],
-      }); //attempting to be an admin
+    } else {
+      if (origin !== process.env.SQUOOLR_URL)
+        throw new UnauthorizedException({
+          statusCode: HttpStatus.UNAUTHORIZED,
+          error: 'Unauthorized access',
+          message: AUTH401['Fr'],
+        }); //attempting to be an admin
+      user = {
+        ...user,
+        roles: [
+          {
+            role: Role.ADMIN,
+            user_id: login_id,
+          },
+        ],
+      };
+    }
 
     const { log_id, job_name } = await this.logIn(
       request,
@@ -261,9 +281,17 @@ export class AuthService {
     return academic_years;
   }
 
-  async getActiveRoles(login_id: string, academic_year_id: string) {
+  async getActiveRoles(
+    login_id: string,
+    academic_year_id: string
+  ): Promise<{ userRoles: UserRole[]; availableRoles: DesirializeRoles }> {
     const userRoles: UserRole[] = [];
+    const { school_id } = await this.loginService.findUnique({
+      where: { login_id },
+    });
 
+    if (!school_id)
+      return { userRoles: [], availableRoles: {} as DesirializeRoles };
     const { started_at, ended_at, starts_at, ends_at, year_code, year_status } =
       await this.academicYearService.findFirst({
         where: {
@@ -274,6 +302,7 @@ export class AuthService {
 
     let availableRoles: DesirializeRoles = {
       login_id,
+      school_id,
       activeYear: {
         year_code,
         year_status,
@@ -456,12 +485,15 @@ export class AuthService {
     const person = await this.personService.findFirst({
       where: { Logins: { some: { login_id } } },
     });
-    if (!academic_year_id) {
-      const { school_id } = await this.loginService.findUnique({
-        where: { login_id },
-      });
-      return school_id ? null : { ...person, login_id };
-    }
+    const login = await this.loginService.findUnique({
+      where: { login_id },
+    });
+    if (!login) return null;
+    
+    const { school_id } = login;
+    if (!academic_year_id)
+      return school_id ? null : { ...person, login_id, school_id };
+
     const { started_at, ended_at, starts_at, ends_at, year_code, year_status } =
       await this.academicYearService.findFirst({
         where: {
@@ -473,6 +505,7 @@ export class AuthService {
     let deserialedUser: DeserializeSessionData = {
       login_id,
       ...person,
+      school_id,
       activeYear: {
         year_code,
         year_status,
@@ -585,15 +618,16 @@ export class AuthService {
   }
 
   async isClientCorrect(
-    {
+    deserialedUser: DeserializeSessionData,
+    squoolr_client: string
+  ) {
+    const {
       login_id,
       annualConfigurator,
       annualRegistry,
       annualStudent,
       annualTeacher,
-    }: DeserializeSessionData,
-    squoolr_client: string
-  ) {
+    } = deserialedUser;
     const school = await this.schoolService.findFirst({
       where: {
         Logins: {
