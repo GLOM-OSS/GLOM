@@ -146,10 +146,22 @@ export const website = {
     'Something went wrong while creating your demand. Please try again',
   creationSuccess: 'Creation Success',
   creationSuccessMessage1: 'Your school has been created.',
-  creationSuccessMessage2: 'It enerally takes a maximum of 2 days for validation',
-  creationSuccessMessage3: 'In the mean time, you can verify the status of your demand using this code',
+  creationSuccessMessage2:
+    'It enerally takes a maximum of 2 days for validation',
+  creationSuccessMessage3:
+    'In the mean time, you can verify the status of your demand using this code',
   copy: 'Copy code',
-  verifyStatus:'Verify Status',
-  copyingCode:'Copying code',
-  codeCopied: 'Code copied to clipboard'
+  verifyStatus: 'Verify Status',
+  copyingCode: 'Copying code',
+  codeCopied: 'Code copied to clipboard',
+  demandStatus: 'Demand Status',
+  demandStatusSubtitle:
+    'Verify the status of your demand through your demand code!',
+    enterYourCode: 'Enter your code to get the status',
+    demandCode:'Demand code',
+    wereWorkingActively:"We're working actively, we'll get to your request. Please be patient",
+    demandValidated: 'Your demand has been validated. Access your school domain at ',
+    demandValidated2: 'and log in with the admin account details submitted during demand',
+    demandRejected: 'Your demand has been rejected with reason: ',
+    demandRejected2: 'You can contact us on info@squoolr.com for any inquiries!'
 };
