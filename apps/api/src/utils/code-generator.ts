@@ -42,7 +42,8 @@ export class CodeGeneratorService {
   }
 
   async getMajorCode(acronym: string, department_id: string) {
-    const numberOfMajors = await this.prismaService.major.count({
+    const numberOfMajors = await this.prismaService.annualMajor.count({
+      distinct: ['major_acronym'],
       where: { department_id },
     });
 
