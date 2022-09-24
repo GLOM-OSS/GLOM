@@ -129,9 +129,9 @@ export class AuthService {
         },
       },
     });
-    if (activeLogs === 3) {
+    if (activeLogs >= 3) {
       throw new UnauthorizedException({
-        statusCode: HttpStatus.UNAUTHORIZED,
+        statusCode: HttpStatus.TOO_MANY_REQUESTS,
         error: 'Unauthorized access',
         message: AUTH02['Fr'],
       });
