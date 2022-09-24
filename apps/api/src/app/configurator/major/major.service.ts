@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'apps/api/src/prisma/prisma.service';
-import { CodeGeneratorService } from 'apps/api/src/utils/code-generator';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { CodeGeneratorService } from '../../../utils/code-generator';
 import { MajorPostDto, MajorQueryDto } from '../configurator.dto';
 
 @Injectable()
