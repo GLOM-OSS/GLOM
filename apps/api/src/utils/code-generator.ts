@@ -41,18 +41,18 @@ export class CodeGeneratorService {
     )}`;
   }
 
-  async getMajorCode(acronym: string, department_id: string) {
-    const numberOfMajors = await this.prismaService.annualMajor.count({
+  async getMajorCode(acronym: string, department_code: string) {
+    const numberOfMajors = await this.prismaService.annualMajor.findMany({
       distinct: ['major_acronym'],
-      where: { department_id },
+      where: { Department: { department_code } },
     });
 
     const { department_acronym } =
       await this.prismaService.department.findUnique({
-        where: { department_id },
+        where: { department_code },
       });
     return `${department_acronym}${acronym}${this.getNumberString(
-      numberOfMajors + 1
+      numberOfMajors.length + 1
     )}`;
   }
 

@@ -37,11 +37,28 @@ export class MajorPostDto {
   @ApiProperty()
   major_acronym: string;
 
-  @IsUUID()
+  @IsString()
   @ApiProperty()
-  department_id: string;
+  department_code: string;
 
   @IsUUID()
   @ApiProperty()
-  cyle_id: string;
+  cycle_id: string;
+}
+
+export class MajorQueryDto {
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  department_id?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  academic_year_id?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  archived?: boolean;
 }
