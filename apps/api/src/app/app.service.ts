@@ -95,7 +95,7 @@ export class AppService {
                   create: {
                     major_code: 'YEAR-INF1#GL202120220001',
                     major_name: 'Genie Logiciel',
-                    major_acronym: 'GL', 
+                    major_acronym: 'GL',
                     AnnualConfigurator: {
                       connect: { annual_configurator_id },
                     },
@@ -169,10 +169,30 @@ export class AppService {
       },
     });
   }
+  //seed cycles
+  async seedCycles() {
+    await this.prismaService.cycle.createMany({
+      data: [
+        { cycle_name: 'Licence', cycle_type: 'LONG', number_of_years: 3 },
+        { cycle_name: 'BTS', cycle_type: 'LONG', number_of_years: 2 },
+        { cycle_name: 'DTS', cycle_type: 'LONG', number_of_years: 2 },
+        { cycle_name: 'DUT', cycle_type: 'LONG', number_of_years: 2 },
+        { cycle_name: 'Licence', cycle_type: 'SHORT', number_of_years: 1 },
+        { cycle_name: 'Master', cycle_type: 'SHORT', number_of_years: 2 },
+        { cycle_name: 'Master', cycle_type: 'LONG', number_of_years: 5 },
+        { cycle_name: 'Doctorat', cycle_type: 'LONG', number_of_years: 7 },
+        { cycle_name: 'Doctorat', cycle_type: 'SHORT', number_of_years: 2 },
+      ],
+    });
+  }
   async insertTestingData() {
     const count = await this.prismaService.person.count({});
     if (count === 0) {
       this.seedAdmin();
+    }
+    const cyleCount = await this.prismaService.cycle.count({});
+    if (cyleCount === 0) {
+      this.seedCycles();
     }
   }
 }
