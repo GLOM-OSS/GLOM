@@ -46,6 +46,20 @@ export class MajorPostDto {
   cycle_id: string;
 }
 
+export class AnnualMajorPutDto {
+  @IsString()
+  @ApiProperty()
+  major_name?: string;
+
+  @IsString()
+  @ApiProperty()
+  major_acronym?: string;
+
+  @IsString()
+  @ApiProperty()
+  department_code?: string;
+}
+
 export class MajorQueryDto {
   @IsString()
   @IsOptional()

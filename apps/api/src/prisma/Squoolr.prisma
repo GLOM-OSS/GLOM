@@ -464,6 +464,8 @@ model AnnualMajor {
     AnnualConfigurator AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualMajorAudits AnnualMajorAudit[]
+
+    @@unique([major_code, academic_year_id])
 }
 
 model AnnualMajorAudit {
