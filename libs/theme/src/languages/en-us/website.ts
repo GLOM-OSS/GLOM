@@ -157,11 +157,24 @@ export const website = {
   demandStatus: 'Demand Status',
   demandStatusSubtitle:
     'Verify the status of your demand through your demand code!',
-    enterYourCode: 'Enter your code to get the status',
-    demandCode:'Demand code',
-    wereWorkingActively:"We're working actively, we'll get to your request. Please be patient",
-    demandValidated: 'Your demand has been validated. Access your school domain at ',
-    demandValidated2: 'and log in with the admin account details submitted during demand',
-    demandRejected: 'Your demand has been rejected with reason: ',
-    demandRejected2: 'You can contact us on info@squoolr.com for any inquiries!'
+  enterYourCode: 'Enter your code to get the status',
+  demandCode: 'Demand code',
+  wereWorkingActively:
+    "We're working actively, we'll get to your request. Please be patient",
+  demandValidated:
+    'Your demand has been validated. Access your school domain at ',
+  demandValidated2:
+    'and log in with the admin account details submitted during demand',
+  demandRejected: 'Your demand has been rejected with reason: ',
+  demandRejected2: 'You can contact us on info@squoolr.com for any inquiries!',
+  settingState: 'Setting demand state to progress',
+  demandStatusChanged: 'Demand status changed successfully!',
+  failedToChangeDemandStatus:
+    'Something went wrong while change the status. please try again!',
+  confirmChangeDemandState: 'Confirm Change Status ?',
+  confirmChangeDemandStatusMessage:
+    'Are you sure you want to change status to progress? The client will be able to see this so do not change unless you genuinely are working on it. Do you still want to continue?',
+  confirm: 'Confirm',
+  changeStatus: 'Change Status',
+  school_status: 'Status',
 };
