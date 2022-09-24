@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
-import { DepartmentPostDto } from '../configurator.dto';
+import { DepartmentPostDto, DepartmentPutDto } from '../configurator.dto';
 
 @Injectable()
 export class DepartmentService {
@@ -67,6 +67,32 @@ export class DepartmentService {
         School: { connect: { school_id } },
         AnnualConfigurator: { connect: { annual_configurator_id } },
       },
+    });
+  }
+
+  async editDepartment(
+    department_code: string,
+    data: DepartmentPutDto,
+    annual_configurator_id: string
+  ) {
+    const departmentAudit = await this.departmentService.findUnique({
+      select: {
+        is_deleted: true,
+        department_name: true,
+      },
+      where: { department_code },
+    });
+    return this.departmentService.update({
+      data: {
+        ...data,
+        DepartmentAudits: {
+          create: {
+            ...departmentAudit,
+            audited_by: annual_configurator_id,
+          },
+        },
+      },
+      where: { department_code },
     });
   }
 }

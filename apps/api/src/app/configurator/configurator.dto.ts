@@ -10,14 +10,24 @@ export class DepartmentPostDto {
   @ApiProperty()
   department_acronym: string;
 }
+export class DepartmentPutDto {
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  department_name?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  is_deleted?: boolean;
+}
 
 export class DepartmentQueryDto {
   @IsBoolean()
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({ required: false })
   archived?: boolean;
 }
-
 export class MajorPostDto {
   @IsString()
   @ApiProperty()
