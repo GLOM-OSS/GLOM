@@ -177,4 +177,12 @@ export const website = {
   confirm: 'Confirm',
   changeStatus: 'Change Status',
   school_status: 'Status',
+  finished: 'Finished',
+  departments: 'Departments',
+  majors: 'Majors',
+  classes: 'Classes',
+  personnel: 'Personnel',
+  configurations: 'Configurations',
+  inactive: 'Inactive',
+  active: 'Active',
 };
