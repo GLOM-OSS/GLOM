@@ -167,7 +167,7 @@ export default function Departments() {
           >
             {areDepartmentsLoading &&
               [...new Array(10)].map((_, index) => (
-                <AcademicItemSkeleton key={index} hasChips />
+                <AcademicItemSkeleton key={index} />
               ))}
             {!areDepartmentsLoading && departments.length === 0 && (
               <Box
