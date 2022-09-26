@@ -149,6 +149,7 @@ export default function Departments() {
       </Box>
       <Box sx={{ height: '100%', position: 'relative' }}>
         <Fab
+          disabled={areDepartmentsLoading}
           color="primary"
           sx={{ position: 'absolute', bottom: 16, right: 24 }}
         >
