@@ -192,5 +192,7 @@ export const website = {
   edit: 'Edit',
   newDepartment: 'New department',
   addNewDepartment: 'Add new department',
-  archivedOn: 'Archived on'
+  archivedOn: 'Archived on',
+  loadingDepartments:'Loading departments',
+  getDepartmentsFailed:'Something went wrong while loading departments. Please try again!'
 };

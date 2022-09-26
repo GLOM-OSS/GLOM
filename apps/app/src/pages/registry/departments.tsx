@@ -1,4 +1,4 @@
-import { AddRounded, SearchRounded } from '@mui/icons-material';
+import { AddRounded, ReportRounded, SearchRounded } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -11,7 +11,9 @@ import {
   Typography,
 } from '@mui/material';
 import { theme } from '@squoolr/theme';
-import React, { useState } from 'react';
+import { ErrorMessage, useNotification } from '@squoolr/toast';
+import { random } from '@squoolr/utils';
+import React, { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import AcademicItem, { AcademicItemSkeleton } from '../../AcademicItem';
@@ -32,39 +34,78 @@ export default function Departments() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
   const [isArchiveDialogOpen, setIsArchiveDialogOpen] =
     useState<boolean>(false);
-  const [departments, setDepartments] = useState<DepartmentInterface[]>([
-    {
-      created_at: new Date(),
-      department_code: 'GRT0001',
-      department_name: 'Genie des reseaux et telecommunications',
-      is_archived: false,
-      department_id: 'sdh',
-    },
-    {
-      created_at: new Date(),
-      department_code: 'GRT0001',
-      department_name: 'Genie des reseaux et telecommunications',
-      is_archived: false,
-      department_id: 'sds',
-    },
-    {
-      created_at: new Date(),
-      department_code: 'GRT0001',
-      department_name: 'Genie des reseaux et telecommunications',
-      is_archived: false,
-      department_id: 'shs',
-    },
-    {
-      created_at: new Date(),
-      department_code: 'GRT0001',
-      department_name: 'Genie des reseaux et telecommunications',
-      is_archived: true,
-      department_id: 'shs',
-      deleted_at: new Date('12/12/2018'),
-    },
-  ]);
-  const [isDepartmentsLoading, setIsDepartmentsLoading] =
+  const [departments, setDepartments] = useState<DepartmentInterface[]>([]);
+  const [areDepartmentsLoading, setAreDepartmentsLoading] =
     useState<boolean>(true);
+
+  const [notifications, setNotifications] = useState<useNotification[]>();
+  const getDepartments = () => {
+    setAreDepartmentsLoading(true);
+    if (notifications)
+      notifications.forEach((notification) => notification.dismiss());
+    const notif = new useNotification();
+    if (notifications) setNotifications([...notifications, notif]);
+    else setNotifications([notif]);
+    setTimeout(() => {
+      //TODO: CALL API HERE TO GET departments
+      if (random() > 5) {
+        const newDepartments: DepartmentInterface[] = [
+          {
+            created_at: new Date(),
+            department_code: 'GRT0001',
+            department_name: 'Genie des reseaux et telecommunications',
+            is_archived: false,
+            department_id: 'sdh',
+          },
+          {
+            created_at: new Date(),
+            department_code: 'GRT0001',
+            department_name: 'Genie des reseaux et telecommunications',
+            is_archived: false,
+            department_id: 'sds',
+          },
+          {
+            created_at: new Date(),
+            department_code: 'GRT0001',
+            department_name: 'Genie des reseaux et telecommunications',
+            is_archived: false,
+            department_id: 'shs',
+          },
+          {
+            created_at: new Date(),
+            department_code: 'GRT0001',
+            department_name: 'Genie des reseaux et telecommunications',
+            is_archived: true,
+            department_id: 'shs',
+            deleted_at: new Date('12/12/2018'),
+          },
+        ];
+        setDepartments(newDepartments);
+        setAreDepartmentsLoading(false);
+        notif.dismiss();
+        setNotifications([]);
+      } else {
+        notif.notify({ render: formatMessage({ id: 'loadingDepartments' }) });
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={getDepartments}
+              notification={notif}
+              message={formatMessage({ id: 'getDepartmentsFailed' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
+
+  useEffect(() => {
+    getDepartments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <Box
       sx={{
@@ -124,11 +165,11 @@ export default function Departments() {
               gap: theme.spacing(2),
             }}
           >
-            {isDepartmentsLoading &&
+            {areDepartmentsLoading &&
               [...new Array(10)].map((_, index) => (
                 <AcademicItemSkeleton key={index} hasChips />
               ))}
-            {!isDepartmentsLoading && departments.length === 0 && (
+            {!areDepartmentsLoading && departments.length === 0 && (
               <Box
                 component={Button}
                 sx={{
@@ -154,7 +195,7 @@ export default function Departments() {
                 </Typography>
               </Box>
             )}
-            {!isDepartmentsLoading &&
+            {!areDepartmentsLoading &&
               departments.length > 0 &&
               departments.map((department, index) => {
                 const {
