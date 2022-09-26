@@ -202,5 +202,6 @@ export const website = {
   required: 'Required field',
   creatingDepartment:'Creating department...',
   departmentCreatedSuccessfully: 'Department created succesffully!',
-  failedToCreateDepartment:'Something went wrong while creating new department. Please try again!'
+  failedToCreateDepartment:'Something went wrong while creating new department. Please try again!',
+  unarchive:'Unarchive'
 };

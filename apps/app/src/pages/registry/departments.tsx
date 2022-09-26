@@ -35,6 +35,8 @@ export default function Departments() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
   const [isArchiveDialogOpen, setIsArchiveDialogOpen] =
     useState<boolean>(false);
+  const [isUnarchiveDialogOpen, setIsUnarchiveDialogOpen] =
+    useState<boolean>(false);
   const [departments, setDepartments] = useState<DepartmentInterface[]>([]);
   const [areDepartmentsLoading, setAreDepartmentsLoading] =
     useState<boolean>(true);
@@ -154,7 +156,7 @@ export default function Departments() {
     <>
       <NewDepartmentDialog
         closeDialog={() => setIsAddNewDepartmentDialogOpen(false)}
-        isDialogOpen={isAddNewDepartmentDialogOpen}
+        isDialogOpen={isAddNewDepartmentDialogOpen || isEditDialogOpen}
         handleSubmit={createNewDepartment}
       />
       <Box
@@ -273,6 +275,10 @@ export default function Departments() {
                       handleArchiveClick={() => {
                         setActiveDepartment(department);
                         setIsArchiveDialogOpen(true);
+                      }}
+                      handleUnarchiveClick={() => {
+                        setActiveDepartment(department);
+                        setIsUnarchiveDialogOpen(true);
                       }}
                       item={{
                         created_at,

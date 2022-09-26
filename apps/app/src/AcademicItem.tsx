@@ -95,11 +95,13 @@ interface AcadItemInterface {
 export default function AcademicItem({
   handleEditClick,
   handleArchiveClick,
+  handleUnarchiveClick,
   item: { created_at, item_code, item_name, is_archived, deleted_at },
   chipItems,
 }: {
   handleEditClick: () => void;
   handleArchiveClick: () => void;
+  handleUnarchiveClick: () => void;
   item: AcadItemInterface;
   chipItems?: string[];
 }) {
@@ -113,26 +115,26 @@ export default function AcademicItem({
         open={anchorEl !== null}
         onClose={() => setAnchorEl(null)}
       >
-        <MenuItem
-          onClick={() => {
-            handleEditClick();
-            setAnchorEl(null);
-          }}
-          sx={{ padding: theme.spacing(1), minHeight: 'fit-content' }}
-        >
-          {formatMessage({ id: 'edit' })}
-        </MenuItem>
         {!is_archived && (
           <MenuItem
             onClick={() => {
-              handleArchiveClick();
+              handleEditClick();
               setAnchorEl(null);
             }}
             sx={{ padding: theme.spacing(1), minHeight: 'fit-content' }}
           >
-            {formatMessage({ id: 'archive' })}
+            {formatMessage({ id: 'edit' })}
           </MenuItem>
         )}
+        <MenuItem
+          onClick={() => {
+            is_archived ? handleUnarchiveClick() : handleArchiveClick();
+            setAnchorEl(null);
+          }}
+          sx={{ padding: theme.spacing(1), minHeight: 'fit-content' }}
+        >
+          {formatMessage({ id: is_archived ? 'unarchive' : 'archive' })}
+        </MenuItem>
       </Menu>
       <Box
         sx={{
