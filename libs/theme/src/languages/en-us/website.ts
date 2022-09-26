@@ -200,8 +200,19 @@ export const website = {
   department_name: 'Department name',
   department_code: "Dep't code",
   required: 'Required field',
-  creatingDepartment:'Creating department...',
+  creatingDepartment: 'Creating department...',
   departmentCreatedSuccessfully: 'Department created succesffully!',
-  failedToCreateDepartment:'Something went wrong while creating new department. Please try again!',
-  unarchive:'Unarchive'
+  failedToCreateDepartment:
+    'Something went wrong while creating new department. Please try again!',
+  unarchive: 'Unarchive',
+  save: 'Save',
+  editDepartment: 'Edit department',
+  editingDepartment: 'Editing department...',
+  departmentEditedSuccessfully: 'Department edited successfully',
+  failedToEditDepartment:
+    'Something went wrong while editing departnemt. Please try again!',
+  caution: 'Caution',
+  continueEditing: 'Continue editing',
+  editDepartmentWarning:
+    'Not that this action will not change the code or any structural information appart from the name of the department. If you want to change department completely, rather create a new one. Do you still want to continue editing?',
 };

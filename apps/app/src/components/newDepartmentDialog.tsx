@@ -15,20 +15,24 @@ import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import * as Yup from 'yup';
 
+export interface newDepartmentInterface {
+  department_code: string;
+  department_name: string;
+}
+
 export default function NewDepartmentDialog({
   isDialogOpen,
   closeDialog,
   handleSubmit,
+  editableDepartment,
 }: {
   isDialogOpen: boolean;
   closeDialog: () => void;
-  handleSubmit: (department: {
-    department_name: string;
-    department_code: string;
-  }) => void;
+  handleSubmit: (department: newDepartmentInterface) => void;
+  editableDepartment?: newDepartmentInterface;
 }) {
   const { formatMessage } = useIntl();
-  const initialValues: { department_code: string; department_name: string } = {
+  const initialValues: newDepartmentInterface = editableDepartment ?? {
     department_code: '',
     department_name: '',
   };
@@ -40,6 +44,7 @@ export default function NewDepartmentDialog({
   const formik = useFormik({
     initialValues,
     validationSchema,
+    enableReinitialize: true,
     onSubmit: (values, { resetForm }) => {
       handleSubmit(values);
       resetForm();
@@ -47,7 +52,9 @@ export default function NewDepartmentDialog({
     },
   });
 
-  const [isCodeGenerated, setIsCodeGenerated] = useState<boolean>(true);
+  const [isCodeGenerated, setIsCodeGenerated] = useState<boolean>(
+    editableDepartment ? false : true
+  );
   const close = () => {
     closeDialog();
     formik.resetForm();
@@ -69,7 +76,11 @@ export default function NewDepartmentDialog({
             marginTop: theme.spacing(1),
           }}
         >
-          <DialogTitle>{formatMessage({ id: 'addNewDepartment' })}</DialogTitle>
+          <DialogTitle>
+            {formatMessage({
+              id: editableDepartment ? 'editDepartment' : 'addNewDepartment',
+            })}
+          </DialogTitle>
           <TextField
             placeholder={formatMessage({ id: 'department_code' })}
             sx={{ width: '120px', marginRight: theme.spacing(2) }}
@@ -79,6 +90,7 @@ export default function NewDepartmentDialog({
             id="department_code"
             onBlur={formik.handleBlur}
             value={formik.values.department_code}
+            disabled={Boolean(editableDepartment)}
             error={
               formik.touched.department_code &&
               Boolean(formik.errors.department_code)
@@ -128,14 +140,31 @@ export default function NewDepartmentDialog({
           >
             {formatMessage({ id: 'cancel' })}
           </Button>
-          <Button
-            sx={{ textTransform: 'none' }}
-            color="primary"
-            variant="contained"
-            type="submit"
-          >
-            {formatMessage({ id: 'create' })}
-          </Button>
+          {editableDepartment && (
+            <Button
+              sx={{ textTransform: 'none' }}
+              color="primary"
+              variant="contained"
+              type="submit"
+              disabled={
+                editableDepartment.department_name ===
+                formik.values.department_name
+              }
+            >
+              {formatMessage({ id: 'save' })}
+            </Button>
+          )}
+          {!editableDepartment && (
+            <Button
+              sx={{ textTransform: 'none' }}
+              color="primary"
+              variant="contained"
+              type="submit"
+              disabled={formik.values.department_name === ''}
+            >
+              {formatMessage({ id: 'create' })}
+            </Button>
+          )}
         </DialogActions>
       </form>
     </Dialog>

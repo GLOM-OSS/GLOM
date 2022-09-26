@@ -13,11 +13,14 @@ import {
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import AcademicItem, { AcademicItemSkeleton } from '../../AcademicItem';
-import NewDepartmentDialog from '../../components/newDepartmentDialog';
+import ConfirmEditDepartmentDialog from '../../components/confirmEditDepartmentDialog';
+import NewDepartmentDialog, {
+  newDepartmentInterface,
+} from '../../components/newDepartmentDialog';
 
 export interface DepartmentInterface {
   department_name: string;
@@ -113,51 +116,96 @@ export default function Departments() {
   const [isAddNewDepartmentDialogOpen, setIsAddNewDepartmentDialogOpen] =
     useState<boolean>(false);
 
-  const [isCreatingDepartment, setIsCreatingDepartment] =
+  const [isCreatingDepartment, setIsManagingDepartment] =
     useState<boolean>(false);
   const [deptNotifications, setDeptNotifications] = useState<useNotification[]>(
     []
   );
 
-  const createNewDepartment = (newDepartment: {
-    department_name: string;
-    department_code: string;
-  }) => {
-    setIsCreatingDepartment(true);
+  const createNewDepartment = (newDepartment: newDepartmentInterface) => {
+    setIsManagingDepartment(true);
     deptNotifications.forEach((_) => _.dismiss());
     const notif = new useNotification();
     setDeptNotifications([...deptNotifications, notif]);
-    notif.notify({ render: formatMessage({ id: 'creatingDepartment' }) });
+    notif.notify({
+      render: formatMessage({
+        id: activeDepartment ? 'editingDepartment' : 'creatingDepartment',
+      }),
+    });
     setTimeout(() => {
-      //TODO: CALL API HERE TO CREATE DEPARTMENT with data newDepartment
-      if (random() > 5) {
-        notif.update({
-          render: formatMessage({ id: 'departmentCreatedSuccessfully' }),
-        });
+      if (activeDepartment) {
+        //TODO: CALL API HERE TO EDIT DEPARTMENT with data newDepartment and department_id: activeDepartment.department_id
+        if (random() > 5) {
+          notif.update({
+            render: formatMessage({ id: 'departmentEditedSuccessfully' }),
+          });
+          setActiveDepartment(undefined);
+        } else {
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={() => createNewDepartment(newDepartment)}
+                notification={notif}
+                //TODO: MESSAGE SHOULD COME FROM BACKEND
+                message={formatMessage({ id: 'failedToEditDepartment' })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
       } else {
-        notif.update({
-          type: 'ERROR',
-          render: (
-            <ErrorMessage
-              retryFunction={() => createNewDepartment(newDepartment)}
-              notification={notif}
-              //TODO: MESSAGE SHOULD COME FROM BACKEND
-              message={formatMessage({ id: 'failedToCreateDepartment' })}
-            />
-          ),
-          autoClose: false,
-          icon: () => <ReportRounded fontSize="medium" color="error" />,
-        });
+        //TODO: CALL API HERE TO CREATE DEPARTMENT with data newDepartment
+        if (random() > 5) {
+          notif.update({
+            render: formatMessage({ id: 'departmentCreatedSuccessfully' }),
+          });
+        } else {
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={() => createNewDepartment(newDepartment)}
+                notification={notif}
+                //TODO: MESSAGE SHOULD COME FROM BACKEND
+                message={formatMessage({ id: 'failedToCreateDepartment' })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
       }
-      setIsCreatingDepartment(false);
+      setIsManagingDepartment(false);
     }, 3000);
   };
+
+  const [isWarningDialogOpen, setIsWarningDialogOpen] =
+    useState<boolean>(false);
+
   return (
     <>
       <NewDepartmentDialog
-        closeDialog={() => setIsAddNewDepartmentDialogOpen(false)}
+        closeDialog={() => {
+          if (isEditDialogOpen) {
+            setIsEditDialogOpen(false);
+          } else setIsAddNewDepartmentDialogOpen(false);
+        }}
         isDialogOpen={isAddNewDepartmentDialogOpen || isEditDialogOpen}
         handleSubmit={createNewDepartment}
+        editableDepartment={isEditDialogOpen ? activeDepartment : undefined}
+      />
+      <ConfirmEditDepartmentDialog
+        isDialogOpen={isWarningDialogOpen}
+        closeDialog={() => {
+          setIsWarningDialogOpen(false);
+        }}
+        confirmEdit={() => setIsEditDialogOpen(true)}
+        createNewDepartment={() => {
+          setActiveDepartment(undefined);
+          setIsAddNewDepartmentDialogOpen(true);
+        }}
       />
       <Box
         sx={{
@@ -270,7 +318,7 @@ export default function Departments() {
                       key={index}
                       handleEditClick={() => {
                         setActiveDepartment(department);
-                        setIsEditDialogOpen(true);
+                        setIsWarningDialogOpen(true);
                       }}
                       handleArchiveClick={() => {
                         setActiveDepartment(department);
