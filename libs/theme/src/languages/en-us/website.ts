@@ -185,4 +185,12 @@ export const website = {
   configurations: 'Configurations',
   inactive: 'Inactive',
   active: 'Active',
+  more: 'More',
+  createdOn: 'Created on',
+  showArchived: 'Show archived',
+  archive: 'Archive',
+  edit: 'Edit',
+  newDepartment: 'New department',
+  addNewDepartment: 'Add new department',
+  archivedOn: 'Archived on'
 };
