@@ -13,10 +13,11 @@ import {
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import AcademicItem, { AcademicItemSkeleton } from '../../AcademicItem';
+import NewDepartmentDialog from '../../components/newDepartmentDialog';
 
 export interface DepartmentInterface {
   department_name: string;
@@ -106,130 +107,187 @@ export default function Departments() {
     getDepartments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const [isAddNewDepartmentDialogOpen, setIsAddNewDepartmentDialogOpen] =
+    useState<boolean>(false);
+
+  const [isCreatingDepartment, setIsCreatingDepartment] =
+    useState<boolean>(false);
+  const [deptNotifications, setDeptNotifications] = useState<useNotification[]>(
+    []
+  );
+
+  const createNewDepartment = (newDepartment: {
+    department_name: string;
+    department_code: string;
+  }) => {
+    setIsCreatingDepartment(true);
+    deptNotifications.forEach((_) => _.dismiss());
+    const notif = new useNotification();
+    setDeptNotifications([...deptNotifications, notif]);
+    notif.notify({ render: formatMessage({ id: 'creatingDepartment' }) });
+    setTimeout(() => {
+      //TODO: CALL API HERE TO CREATE DEPARTMENT with data newDepartment
+      if (random() > 5) {
+        notif.update({
+          render: formatMessage({ id: 'departmentCreatedSuccessfully' }),
+        });
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => createNewDepartment(newDepartment)}
+              notification={notif}
+              //TODO: MESSAGE SHOULD COME FROM BACKEND
+              message={formatMessage({ id: 'failedToCreateDepartment' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+      setIsCreatingDepartment(false);
+    }, 3000);
+  };
   return (
-    <Box
-      sx={{
-        display: 'grid',
-        gridTemplateRows: 'auto 1fr',
-        rowGap: theme.spacing(3),
-        height: '100%',
-      }}
-    >
+    <>
+      <NewDepartmentDialog
+        closeDialog={() => setIsAddNewDepartmentDialogOpen(false)}
+        isDialogOpen={isAddNewDepartmentDialogOpen}
+        handleSubmit={createNewDepartment}
+      />
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: 'auto 1fr',
-          columnGap: theme.spacing(2),
-          alignItems: 'center',
+          gridTemplateRows: 'auto 1fr',
+          rowGap: theme.spacing(3),
+          height: '100%',
         }}
       >
-        <TextField
-          placeholder={formatMessage({ id: 'searchSomething' })}
-          variant="outlined"
-          size="small"
+        <Box
           sx={{
-            '& input': { ...theme.typography.caption },
-            backgroundColor: theme.common.inputBackground,
+            display: 'grid',
+            gridTemplateColumns: 'auto 1fr',
+            columnGap: theme.spacing(2),
+            alignItems: 'center',
           }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchRounded
-                  sx={{ fontSize: 25, color: theme.common.placeholder }}
-                />
-              </InputAdornment>
-            ),
-          }}
-        />
-        <FormControlLabel
-          control={<Checkbox color="primary" />}
-          label={formatMessage({ id: 'showArchived' })}
-          sx={{ '& .MuiTypography-root': { ...theme.typography.body2 } }}
-        />
-      </Box>
-      <Box sx={{ height: '100%', position: 'relative' }}>
-        <Fab
-          disabled={areDepartmentsLoading}
-          color="primary"
-          sx={{ position: 'absolute', bottom: 16, right: 24 }}
         >
-          <Tooltip arrow title={formatMessage({ id: 'newDepartment' })}>
-            <AddRounded />
-          </Tooltip>
-        </Fab>
-        <Scrollbars>
-          <Box
+          <TextField
+            placeholder={formatMessage({ id: 'searchSomething' })}
+            variant="outlined"
+            size="small"
             sx={{
-              display: 'grid',
-              justifyContent: 'center',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-              gap: theme.spacing(2),
+              '& input': { ...theme.typography.caption },
+              backgroundColor: theme.common.inputBackground,
             }}
-          >
-            {areDepartmentsLoading &&
-              [...new Array(10)].map((_, index) => (
-                <AcademicItemSkeleton key={index} />
-              ))}
-            {!areDepartmentsLoading && departments.length === 0 && (
-              <Box
-                component={Button}
-                sx={{
-                  display: 'grid',
-                  alignItems: 'center',
-                  justifyItems: 'center',
-                  border: `1px solid ${theme.common.placeholder}`,
-                  borderRadius: '10px',
-                  padding: theme.spacing(5),
-                }}
-              >
-                <AddRounded
-                  sx={{ fontSize: '45px', color: theme.common.placeholder }}
-                />
-                <Typography
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchRounded
+                    sx={{ fontSize: 25, color: theme.common.placeholder }}
+                  />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <FormControlLabel
+            control={<Checkbox color="primary" />}
+            label={formatMessage({ id: 'showArchived' })}
+            sx={{ '& .MuiTypography-root': { ...theme.typography.body2 } }}
+          />
+        </Box>
+        <Box sx={{ height: '100%', position: 'relative' }}>
+          {!areDepartmentsLoading && !isCreatingDepartment && (
+            <Fab
+              disabled={
+                areDepartmentsLoading ||
+                isAddNewDepartmentDialogOpen ||
+                isCreatingDepartment
+              }
+              onClick={() => setIsAddNewDepartmentDialogOpen(true)}
+              color="primary"
+              sx={{ position: 'absolute', bottom: 16, right: 24 }}
+            >
+              <Tooltip arrow title={formatMessage({ id: 'newDepartment' })}>
+                <AddRounded />
+              </Tooltip>
+            </Fab>
+          )}
+          <Scrollbars>
+            <Box
+              sx={{
+                display: 'grid',
+                justifyContent: 'center',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+                gap: theme.spacing(2),
+              }}
+            >
+              {areDepartmentsLoading &&
+                [...new Array(10)].map((_, index) => (
+                  <AcademicItemSkeleton key={index} />
+                ))}
+              {!areDepartmentsLoading && departments.length === 0 && (
+                <Box
+                  component={Button}
                   sx={{
-                    fontWeight: 300,
-                    color: theme.common.titleActive,
-                    marginTop: theme.spacing(1),
+                    display: 'grid',
+                    alignItems: 'center',
+                    justifyItems: 'center',
+                    border: `1px solid ${theme.common.placeholder}`,
+                    borderRadius: '10px',
+                    padding: theme.spacing(5),
                   }}
                 >
-                  {formatMessage({ id: 'addNewDepartment' })}
-                </Typography>
-              </Box>
-            )}
-            {!areDepartmentsLoading &&
-              departments.length > 0 &&
-              departments.map((department, index) => {
-                const {
-                  created_at,
-                  department_code: item_code,
-                  department_name: item_name,
-                  is_archived,
-                  deleted_at,
-                } = department;
-                return (
-                  <AcademicItem
-                    key={index}
-                    handleEditClick={() => {
-                      setActiveDepartment(department);
-                      setIsEditDialogOpen(true);
-                    }}
-                    handleArchiveClick={() => {
-                      setActiveDepartment(department);
-                      setIsArchiveDialogOpen(true);
-                    }}
-                    item={{
-                      created_at,
-                      item_code,
-                      item_name,
-                      is_archived,
-                      deleted_at,
-                    }}
+                  <AddRounded
+                    sx={{ fontSize: '45px', color: theme.common.placeholder }}
                   />
-                );
-              })}
-          </Box>
-        </Scrollbars>
+                  <Typography
+                    sx={{
+                      fontWeight: 300,
+                      color: theme.common.titleActive,
+                      marginTop: theme.spacing(1),
+                    }}
+                  >
+                    {formatMessage({ id: 'addNewDepartment' })}
+                  </Typography>
+                </Box>
+              )}
+              {!areDepartmentsLoading &&
+                departments.length > 0 &&
+                departments.map((department, index) => {
+                  const {
+                    created_at,
+                    department_code: item_code,
+                    department_name: item_name,
+                    is_archived,
+                    deleted_at,
+                  } = department;
+                  return (
+                    <AcademicItem
+                      key={index}
+                      handleEditClick={() => {
+                        setActiveDepartment(department);
+                        setIsEditDialogOpen(true);
+                      }}
+                      handleArchiveClick={() => {
+                        setActiveDepartment(department);
+                        setIsArchiveDialogOpen(true);
+                      }}
+                      item={{
+                        created_at,
+                        item_code,
+                        item_name,
+                        is_archived,
+                        deleted_at,
+                      }}
+                    />
+                  );
+                })}
+            </Box>
+          </Scrollbars>
+        </Box>
       </Box>
-    </Box>
+    </>
   );
 }

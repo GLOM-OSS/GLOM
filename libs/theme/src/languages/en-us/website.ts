@@ -193,6 +193,14 @@ export const website = {
   newDepartment: 'New department',
   addNewDepartment: 'Add new department',
   archivedOn: 'Archived on',
-  loadingDepartments:'Loading departments',
-  getDepartmentsFailed:'Something went wrong while loading departments. Please try again!'
+  loadingDepartments: 'Loading departments',
+  getDepartmentsFailed:
+    'Something went wrong while loading departments. Please try again!',
+  create: 'Create',
+  department_name: 'Department name',
+  department_code: "Dep't code",
+  required: 'Required field',
+  creatingDepartment:'Creating department...',
+  departmentCreatedSuccessfully: 'Department created succesffully!',
+  failedToCreateDepartment:'Something went wrong while creating new department. Please try again!'
 };
