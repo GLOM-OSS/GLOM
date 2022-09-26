@@ -1,6 +1,7 @@
 import { Typography } from '@mui/material';
 import { Navigate } from 'react-router';
 import AppLayout from '../pages/appLayout';
+import Departments from '../pages/registry/departments';
 import SigninPage from '../pages/signin';
 
 export const routes = [
@@ -20,7 +21,7 @@ export const routes = [
     children: [
       {
         path: 'departments',
-        element: <Typography variant="h1">Departments</Typography>,
+        element: <Departments />,
       },
       {
         path: 'majors',
