@@ -305,39 +305,43 @@ export default function Departments() {
               )}
               {!areDepartmentsLoading &&
                 departments.length > 0 &&
-                departments.map((department, index) => {
-                  const {
-                    created_at,
-                    department_code: item_code,
-                    department_name: item_name,
-                    is_archived,
-                    deleted_at,
-                  } = department;
-                  return (
-                    <AcademicItem
-                      key={index}
-                      handleEditClick={() => {
-                        setActiveDepartment(department);
-                        setIsWarningDialogOpen(true);
-                      }}
-                      handleArchiveClick={() => {
-                        setActiveDepartment(department);
-                        setIsArchiveDialogOpen(true);
-                      }}
-                      handleUnarchiveClick={() => {
-                        setActiveDepartment(department);
-                        setIsUnarchiveDialogOpen(true);
-                      }}
-                      item={{
-                        created_at,
-                        item_code,
-                        item_name,
-                        is_archived,
-                        deleted_at,
-                      }}
-                    />
-                  );
-                })}
+                departments
+                  .sort((a, b) =>
+                    new Date(a.created_at) > new Date(b.created_at) ? -1 : 1
+                  )
+                  .map((department, index) => {
+                    const {
+                      created_at,
+                      department_code: item_code,
+                      department_name: item_name,
+                      is_archived,
+                      deleted_at,
+                    } = department;
+                    return (
+                      <AcademicItem
+                        key={index}
+                        handleEditClick={() => {
+                          setActiveDepartment(department);
+                          setIsWarningDialogOpen(true);
+                        }}
+                        handleArchiveClick={() => {
+                          setActiveDepartment(department);
+                          setIsArchiveDialogOpen(true);
+                        }}
+                        handleUnarchiveClick={() => {
+                          setActiveDepartment(department);
+                          setIsUnarchiveDialogOpen(true);
+                        }}
+                        item={{
+                          created_at,
+                          item_code,
+                          item_name,
+                          is_archived,
+                          deleted_at,
+                        }}
+                      />
+                    );
+                  })}
             </Box>
           </Scrollbars>
         </Box>
