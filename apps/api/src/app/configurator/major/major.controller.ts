@@ -82,11 +82,13 @@ export class MajorController {
   ) {
     const {
       activeYear: { academic_year_id },
+      annualConfigurator: { annual_configurator_id },
     } = request.user as DeserializeSessionData;
     return {
       major: await this.majorService.toogleArchive(
         major_code,
-        academic_year_id
+        academic_year_id,
+        annual_configurator_id
       ),
     };
   }

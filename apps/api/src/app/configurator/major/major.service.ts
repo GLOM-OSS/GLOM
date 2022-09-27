@@ -60,7 +60,7 @@ export class MajorService {
       is_class_generated,
     }: MajorPostDto,
     academic_year_id: string,
-    annual_configurator_id: string
+    created_by: string
   ) {
     const major = await this.annualMajorService.findFirst({
       where: { major_acronym, Department: { department_code } },
@@ -91,7 +91,7 @@ export class MajorService {
             numberOfClassrooms + 1
           )}`,
           classroom_name: `${major_name} ${level}`,
-          created_by: annual_configurator_id,
+          created_by,
         });
       }
       return classrooms;
@@ -114,7 +114,7 @@ export class MajorService {
               major_code,
               major_name,
               Cycle: { connect: { cycle_id } },
-              AnnualConfigurator: { connect: { annual_configurator_id } },
+              AnnualConfigurator: { connect: { annual_configurator_id: created_by } },
               ...(is_class_generated
                 ? {
                     Classrooms: {
@@ -130,7 +130,7 @@ export class MajorService {
         },
         Department: { connect: { department_code } },
         AcademicYear: { connect: { academic_year_id } },
-        AnnualConfigurator: { connect: { annual_configurator_id } },
+        AnnualConfigurator: { connect: { annual_configurator_id: created_by } },
       },
     });
   }
@@ -139,7 +139,7 @@ export class MajorService {
     major_code: string,
     data: AnnualMajorPutDto,
     academic_year_id: string,
-    annual_configurator_id: string
+    audited_by: string
   ) {
     const { major_acronym, major_name, department_code } = data;
 
@@ -171,8 +171,8 @@ export class MajorService {
       major_name,
       AnnualMajorAudits: {
         create: {
+          audited_by,
           ...majorAudit,
-          audited_by: annual_configurator_id,
         },
       },
     };
@@ -198,7 +198,9 @@ export class MajorService {
               Cycle: {
                 connect: { cycle_id: Major.cycle_id },
               },
-              AnnualConfigurator: { connect: { annual_configurator_id } },
+              AnnualConfigurator: {
+                connect: { annual_configurator_id: audited_by },
+              },
             },
             where: { major_code: newMajorCode },
           },
@@ -211,9 +213,19 @@ export class MajorService {
     });
   }
 
-  async toogleArchive(major_code: string, academic_year_id: string) {
-    const annualMajor = await this.annualMajorService.findUnique({
-      select: { is_deleted: true },
+  async toogleArchive(
+    major_code: string,
+    academic_year_id: string,
+    audited_by: string
+  ) {
+    const annualMajorAudit = await this.annualMajorService.findUnique({
+      select: {
+        is_deleted: true,
+        major_name: true,
+        major_code: true,
+        major_acronym: true,
+        department_id: true,
+      },
       where: {
         major_code_academic_year_id: {
           academic_year_id,
@@ -221,7 +233,7 @@ export class MajorService {
         },
       },
     });
-    if (!annualMajor)
+    if (!annualMajorAudit)
       throw new HttpException(
         JSON.stringify(AUTH404('Major')),
         HttpStatus.NOT_FOUND
@@ -233,7 +245,13 @@ export class MajorService {
         academic_year_id: true,
       },
       data: {
-        is_deleted: !annualMajor.is_deleted,
+        is_deleted: !annualMajorAudit.is_deleted,
+        AnnualMajorAudits: {
+          create: {
+            audited_by,
+            ...annualMajorAudit,
+          },
+        },
       },
       where: {
         major_code_academic_year_id: {
