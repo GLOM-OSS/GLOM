@@ -76,3 +76,7 @@ export const ERR02 = {
   En: `Invalid school demand identifier`,
   Fr: `Identifiant de la demande non valide`,
 };
+export const ERR03 = (element: string) => ({
+  En: `This element(${element}) already exits`,
+  Fr: `Cette element(${element}) existe déjà`,
+});
