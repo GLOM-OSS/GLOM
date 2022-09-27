@@ -109,7 +109,6 @@ export default function Departments() {
   };
 
   useEffect(() => {
-    alert('hello')
     getDepartments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showArchived]);
