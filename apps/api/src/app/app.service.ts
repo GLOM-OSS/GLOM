@@ -5,7 +5,33 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AppService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private prismaService: PrismaService) {
+    this.prismaService.person.count({}).then((count) => {
+      if (count === 0) {
+        this.seedAdmin();
+      }
+    });
+    this.prismaService.cycle.count({}).then((cyleCount) => {
+      if (cyleCount === 0) {
+        this.seedCycles();
+      }
+    });
+    this.prismaService.level.count({}).then((levelCount) => {
+      if (levelCount === 0) {
+        this.seedLevels();
+      }
+    });
+    this.prismaService.teacherGrade.count({}).then((teacherGradeCount) => {
+      if (teacherGradeCount === 0) {
+        this.seedTeacherGrades();
+      }
+    });
+    this.prismaService.teacherType.count({}).then((teacherTypeCount) => {
+      if (teacherTypeCount === 0) {
+        this.seedTeacherTypes();
+      }
+    });
+  }
   getData(): { message: string } {
     return { message: 'Welcome to api!' };
   }
@@ -185,25 +211,46 @@ export class AppService {
     });
   }
   //seed levels
-  async seedLevel() {
+  async seedLevels() {
     await this.prismaService.level.createMany({
       data: [...new Array(7)].map((_, index) => ({
         level: index + 1,
       })),
     });
   }
-  async insertTestingData() {
-    const count = await this.prismaService.person.count({});
-    if (count === 0) {
-      this.seedAdmin();
-    }
-    const cyleCount = await this.prismaService.cycle.count({});
-    if (cyleCount === 0) {
-      this.seedCycles();
-    }
-    const levelCount = await this.prismaService.level.count({});
-    if (levelCount === 0) {
-      this.seedLevel();
-    }
+
+  async seedTeacherGrades() {
+    await this.prismaService.teacherGrade.createMany({
+      data: [
+        { teacher_grade: 'Professeur de classe C' },
+        { teacher_grade: 'Professeur de class D' },
+        { teacher_grade: 'Maitre des conferences' },
+        { teacher_grade: 'Charge de cours' },
+        { teacher_grade: 'Assistant' },
+      ],
+    });
+  }
+  async seedTeacherTypes() {
+    // vacataire, permanent, missionnaire
+    await this.prismaService.teacherType.createMany({
+      data: [
+        { teacher_type: 'VACATAIRE' },
+        { teacher_type: 'PERMANENT' },
+        { teacher_type: 'MISSIONNAIRE' },
+      ],
+    });
+  }
+
+  getCycles() {
+    return this.prismaService.cycle.findMany();
+  }
+  getLevels() {
+    return this.prismaService.level.findMany();
+  }
+  getTeacherGrades() {
+    return this.prismaService.teacherGrade.findMany();
+  }
+  getTeacherTypes() {
+    return this.prismaService.teacherType.findMany();
   }
 }
