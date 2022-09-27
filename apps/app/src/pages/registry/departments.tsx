@@ -32,7 +32,11 @@ export interface DepartmentInterface {
   department_id: string;
 }
 
-export default function Departments() {
+export default function Departments({
+  usage,
+}: {
+  usage: 'department' | 'major' | 'classroom';
+}) {
   const { formatMessage } = useIntl();
   const [activeDepartment, setActiveDepartment] =
     useState<DepartmentInterface>();

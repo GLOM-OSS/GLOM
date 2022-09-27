@@ -21,11 +21,11 @@ export const routes = [
     children: [
       {
         path: 'departments',
-        element: <Departments />,
+        element: <Departments usage='department' />,
       },
       {
         path: 'majors',
-        element: <Typography variant="h1">Majors</Typography>,
+        element: <Departments usage='major' />,
       },
       {
         path: 'classes',
