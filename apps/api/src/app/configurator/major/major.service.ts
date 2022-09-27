@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { AUTH404 } from '../../../errors';
+import { AUTH404, ERR03 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
 import {
@@ -11,14 +11,16 @@ import {
 
 @Injectable()
 export class MajorService {
+  private cycleService: typeof this.prismaService.cycle;
+  private levelService: typeof this.prismaService.level;
   private annualMajorService: typeof this.prismaService.annualMajor;
-  private departmentService: typeof this.prismaService.department;
 
   constructor(
     private prismaService: PrismaService,
     private codeGenerator: CodeGeneratorService
   ) {
-    this.departmentService = prismaService.department;
+    this.cycleService = prismaService.cycle;
+    this.levelService = prismaService.level;
     this.annualMajorService = prismaService.annualMajor;
   }
 
@@ -50,7 +52,13 @@ export class MajorService {
   }
 
   async addNewMajor(
-    { department_code, major_acronym, major_name, cycle_id }: MajorPostDto,
+    {
+      department_code,
+      major_acronym,
+      major_name,
+      cycle_id,
+      is_class_generated,
+    }: MajorPostDto,
     academic_year_id: string,
     annual_configurator_id: string
   ) {
@@ -61,8 +69,41 @@ export class MajorService {
       major?.major_code ??
       (await this.codeGenerator.getMajorCode(major_acronym, department_code));
 
-    return this.annualMajorService.upsert({
-      create: {
+    const generateClassrooms = async (major_code: string) => {
+      const classrooms: Prisma.Enumerable<Prisma.ClassroomCreateManyMajorInput> =
+        [];
+      const { number_of_years } = await this.cycleService.findUnique({
+        where: { cycle_id },
+      });
+      for (let i = 0; i < number_of_years; i++) {
+        const { level, level_id } = await this.levelService.findFirst({
+          select: { level: true, level_id: true },
+          where: { level: i + 1 },
+        });
+        const classroom_acronym = `${major_acronym}${level}`;
+        const numberOfClassrooms = await this.prismaService.classroom.count({
+          where: { Major: { major_code } },
+        });
+        classrooms.push({
+          level_id,
+          classroom_acronym,
+          classroom_code: `${classroom_acronym}${this.codeGenerator.getNumberString(
+            numberOfClassrooms + 1
+          )}`,
+          classroom_name: `${major_name} ${level}`,
+          created_by: annual_configurator_id,
+        });
+      }
+      return classrooms;
+    };
+
+    if (major)
+      throw new HttpException(
+        JSON.stringify(ERR03('Major')),
+        HttpStatus.AMBIGUOUS
+      );
+    return this.annualMajorService.create({
+      data: {
         major_name,
         major_acronym,
         major_code,
@@ -74,6 +115,15 @@ export class MajorService {
               major_name,
               Cycle: { connect: { cycle_id } },
               AnnualConfigurator: { connect: { annual_configurator_id } },
+              ...(is_class_generated
+                ? {
+                    Classrooms: {
+                      createMany: {
+                        data: await generateClassrooms(major_code),
+                      },
+                    },
+                  }
+                : {}),
             },
             where: { major_code },
           },
@@ -81,13 +131,6 @@ export class MajorService {
         Department: { connect: { department_code } },
         AcademicYear: { connect: { academic_year_id } },
         AnnualConfigurator: { connect: { annual_configurator_id } },
-      },
-      update: {},
-      where: {
-        major_code_academic_year_id: {
-          academic_year_id,
-          major_code,
-        },
       },
     });
   }
@@ -117,7 +160,10 @@ export class MajorService {
       },
     });
     if (!annualMajorAudit)
-      throw new HttpException(AUTH404('Major')['Fr'], HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        JSON.stringify(AUTH404('Major')),
+        HttpStatus.NOT_FOUND
+      );
 
     const { annual_major_id, Major, Department, ...majorAudit } =
       annualMajorAudit;

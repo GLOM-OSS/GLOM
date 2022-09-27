@@ -56,16 +56,15 @@ export class CodeGeneratorService {
     )}`;
   }
 
-  async getClassCode(acronym: string, major_id: string) {
+  async getClassCode(level: number, major_code: string) {
+    const { major_acronym } = await this.prismaService.major.findUnique({
+      where: { major_code },
+    });
+    const classroom_acronym = `${major_acronym}${level}`;
     const numberOfClassrooms = await this.prismaService.classroom.count({
-      where: { major_id },
+      where: { classroom_acronym },
     });
 
-    const { major_acronym } = await this.prismaService.major.findUnique({
-      where: { major_id },
-    });
-    return `${major_acronym}${acronym}${this.getNumberString(
-      numberOfClassrooms
-    )}`;
+    return `${classroom_acronym}${this.getNumberString(numberOfClassrooms)}`;
   }
 }

@@ -177,12 +177,19 @@ export class AppService {
         { cycle_name: 'BTS', cycle_type: 'LONG', number_of_years: 2 },
         { cycle_name: 'DTS', cycle_type: 'LONG', number_of_years: 2 },
         { cycle_name: 'DUT', cycle_type: 'LONG', number_of_years: 2 },
-        { cycle_name: 'Licence', cycle_type: 'SHORT', number_of_years: 1 },
         { cycle_name: 'Master', cycle_type: 'SHORT', number_of_years: 2 },
         { cycle_name: 'Master', cycle_type: 'LONG', number_of_years: 5 },
         { cycle_name: 'Doctorat', cycle_type: 'LONG', number_of_years: 7 },
         { cycle_name: 'Doctorat', cycle_type: 'SHORT', number_of_years: 2 },
       ],
+    });
+  }
+  //seed levels
+  async seedLevel() {
+    await this.prismaService.level.createMany({
+      data: [...new Array(7)].map((_, index) => ({
+        level: index + 1,
+      })),
     });
   }
   async insertTestingData() {
@@ -193,6 +200,10 @@ export class AppService {
     const cyleCount = await this.prismaService.cycle.count({});
     if (cyleCount === 0) {
       this.seedCycles();
+    }
+    const levelCount = await this.prismaService.level.count({});
+    if (levelCount === 0) {
+      this.seedLevel();
     }
   }
 }

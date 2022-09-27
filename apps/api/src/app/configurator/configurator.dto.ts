@@ -44,6 +44,11 @@ export class MajorPostDto {
   @IsUUID()
   @ApiProperty()
   cycle_id: string;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  is_class_generated: boolean
 }
 
 export class AnnualMajorPutDto {

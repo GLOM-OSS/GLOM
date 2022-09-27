@@ -24,7 +24,7 @@ import { MajorService } from './major.service';
 @Controller('majors')
 @Roles(Role.CONFIGURATOR)
 @UseGuards(AuthenticatedGuard)
-export class MajorCotroller {
+export class MajorController {
   constructor(private majorService: MajorService) {}
 
   @Get('all')

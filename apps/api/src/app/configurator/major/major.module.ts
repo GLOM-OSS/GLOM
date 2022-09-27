@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { CodeGeneratorService } from '../../../utils/code-generator';
-import { MajorCotroller } from './major.controller';
+import { MajorController } from './major.controller';
 import { MajorService } from './major.service';
 
 @Module({
   providers: [CodeGeneratorService, MajorService],
-  controllers: [MajorCotroller],
+  controllers: [MajorController],
 })
 export class MajorModule {}
