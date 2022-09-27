@@ -13,10 +13,11 @@ import {
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import AcademicItem, { AcademicItemSkeleton } from '../../AcademicItem';
+import ConfirmArchiveDialog from '../../components/confirmArchiveDialog';
 import ConfirmEditDepartmentDialog from '../../components/confirmEditDepartmentDialog';
 import NewDepartmentDialog, {
   newDepartmentInterface,
@@ -37,8 +38,6 @@ export default function Departments() {
     useState<DepartmentInterface>();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
   const [isArchiveDialogOpen, setIsArchiveDialogOpen] =
-    useState<boolean>(false);
-  const [isUnarchiveDialogOpen, setIsUnarchiveDialogOpen] =
     useState<boolean>(false);
   const [departments, setDepartments] = useState<DepartmentInterface[]>([]);
   const [areDepartmentsLoading, setAreDepartmentsLoading] =
@@ -116,7 +115,7 @@ export default function Departments() {
   const [isAddNewDepartmentDialogOpen, setIsAddNewDepartmentDialogOpen] =
     useState<boolean>(false);
 
-  const [isCreatingDepartment, setIsManagingDepartment] =
+  const [isManagingDepartment, setIsManagingDepartment] =
     useState<boolean>(false);
   const [deptNotifications, setDeptNotifications] = useState<useNotification[]>(
     []
@@ -183,9 +182,83 @@ export default function Departments() {
 
   const [isWarningDialogOpen, setIsWarningDialogOpen] =
     useState<boolean>(false);
+  const [isArchiving, setIsArchiving] = useState<boolean>(false);
+  const unArchiveItem = () => {
+    setIsArchiving(true);
+    deptNotifications.forEach((_) => _.dismiss());
+    const notif = new useNotification();
+    setDeptNotifications([...deptNotifications, notif]);
+    notif.notify({
+      render: formatMessage({
+        id: activeDepartment?.is_archived ? 'unarchiving' : 'archiving',
+      }),
+    });
+    setTimeout(() => {
+      setIsArchiving(false);
+      if (activeDepartment?.is_archived) {
+        //TODO: CALL API HERE TO UNARCHIVE ITEM with data activeDepartment
+        if (random() > 5) {
+          notif.update({
+            render: formatMessage({
+              id: 'unarchivingSuccessfull',
+            }),
+          });
+          setActiveDepartment(undefined);
+        } else {
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={unArchiveItem}
+                notification={notif}
+                //TODO: MESSAGE SHOULD COME FROM BACKEND
+                message={formatMessage({
+                  id: 'failedToUnarchive',
+                })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
+      } else {
+        //TODO: CALL API HERE TO ARCHIVE ITEM with data activeDepartment
+        if (random() > 5) {
+          notif.update({
+            render: formatMessage({
+              id: 'archivingSuccessfull',
+            }),
+          });
+          setActiveDepartment(undefined);
+        } else {
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={unArchiveItem}
+                notification={notif}
+                //TODO: MESSAGE SHOULD COME FROM BACKEND
+                message={formatMessage({
+                  id: 'failedToArchive',
+                })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
+      }
+    }, 3000);
+  };
 
   return (
     <>
+      <ConfirmArchiveDialog
+        isDialogOpen={isArchiveDialogOpen}
+        closeDialog={() => setIsArchiveDialogOpen(false)}
+        confirm={unArchiveItem}
+        context={activeDepartment?.is_archived ? 'unarchive' : 'archive'}
+      />
       <NewDepartmentDialog
         closeDialog={() => {
           if (isEditDialogOpen) {
@@ -248,13 +321,9 @@ export default function Departments() {
           />
         </Box>
         <Box sx={{ height: '100%', position: 'relative' }}>
-          {!areDepartmentsLoading && !isCreatingDepartment && (
+          {!areDepartmentsLoading && (
             <Fab
-              disabled={
-                areDepartmentsLoading ||
-                isAddNewDepartmentDialogOpen ||
-                isCreatingDepartment
-              }
+              disabled={areDepartmentsLoading || isAddNewDepartmentDialogOpen}
               onClick={() => setIsAddNewDepartmentDialogOpen(true)}
               color="primary"
               sx={{ position: 'absolute', bottom: 16, right: 24 }}
@@ -319,6 +388,7 @@ export default function Departments() {
                     } = department;
                     return (
                       <AcademicItem
+                        disableMenu={isManagingDepartment || isArchiving}
                         key={index}
                         handleEditClick={() => {
                           setActiveDepartment(department);
@@ -330,7 +400,7 @@ export default function Departments() {
                         }}
                         handleUnarchiveClick={() => {
                           setActiveDepartment(department);
-                          setIsUnarchiveDialogOpen(true);
+                          setIsArchiveDialogOpen(true);
                         }}
                         item={{
                           created_at,

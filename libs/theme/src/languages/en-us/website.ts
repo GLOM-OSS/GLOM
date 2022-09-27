@@ -214,5 +214,17 @@ export const website = {
   caution: 'Caution',
   continueEditing: 'Continue editing',
   editDepartmentWarning:
-    'Not that this action will not change the code or any structural information appart from the name of the department. If you want to change department completely, rather create a new one. Do you still want to continue editing?',
+    'Note that this action will not change the code or any structural information appart from the name of the department. If you want to change department completely, rather create a new one. Do you still want to continue editing?',
+  archiveItem:
+    'Note that this will remove the item from the flow of this academic year. You can unarchive it from the list of archives later on. Do you still want to continue?',
+  unarchiveItem:
+    'Your action will bring back item to this academic year. Are you sure you want to continue?',
+  archiving: 'Archiving item...',
+  archivingSuccessfull: 'Item archived successfully!',
+  failedToArchive:
+    'Something went wrong when archiving Item. Please try again!',
+  unarchiving: 'Unarchiving item...',
+  unarchivingSuccessfull: 'Unarchiving successfull!',
+  failedToUnarchive:
+    'Something went wrong while unarchiving item. Please try again!',
 };

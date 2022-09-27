@@ -98,12 +98,14 @@ export default function AcademicItem({
   handleUnarchiveClick,
   item: { created_at, item_code, item_name, is_archived, deleted_at },
   chipItems,
+  disableMenu,
 }: {
   handleEditClick: () => void;
   handleArchiveClick: () => void;
   handleUnarchiveClick: () => void;
   item: AcadItemInterface;
   chipItems?: string[];
+  disableMenu: boolean;
 }) {
   const { formatMessage, formatDate } = useIntl();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -182,9 +184,9 @@ export default function AcademicItem({
             </Typography>
           </Box>
           <IconButton
-            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-              setAnchorEl(event.currentTarget);
-            }}
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) =>
+              disableMenu ? null : setAnchorEl(event.currentTarget)
+            }
           >
             <Tooltip arrow title={formatMessage({ id: 'more' })}>
               <MoreVertRounded
