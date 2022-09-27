@@ -44,6 +44,7 @@ export default function Departments() {
     useState<boolean>(true);
 
   const [notifications, setNotifications] = useState<useNotification[]>();
+  const [showArchived, setShowArchived] = useState<boolean>(false);
   const getDepartments = () => {
     setAreDepartmentsLoading(true);
     if (notifications)
@@ -52,7 +53,7 @@ export default function Departments() {
     if (notifications) setNotifications([...notifications, notif]);
     else setNotifications([notif]);
     setTimeout(() => {
-      //TODO: CALL API HERE TO GET departments
+      //TODO: CALL API HERE TO GET departments with data showArchived
       if (random() > 5) {
         const newDepartments: DepartmentInterface[] = [
           {
@@ -108,9 +109,10 @@ export default function Departments() {
   };
 
   useEffect(() => {
+    alert('hello')
     getDepartments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [showArchived]);
 
   const [isAddNewDepartmentDialogOpen, setIsAddNewDepartmentDialogOpen] =
     useState<boolean>(false);
@@ -304,6 +306,7 @@ export default function Departments() {
               '& input': { ...theme.typography.caption },
               backgroundColor: theme.common.inputBackground,
             }}
+            disabled={areDepartmentsLoading}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -315,7 +318,16 @@ export default function Departments() {
             }}
           />
           <FormControlLabel
-            control={<Checkbox color="primary" />}
+            control={
+              <Checkbox
+                disabled={areDepartmentsLoading}
+                checked={showArchived}
+                color="primary"
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                  setShowArchived(event.target.checked)
+                }
+              />
+            }
             label={formatMessage({ id: 'showArchived' })}
             sx={{ '& .MuiTypography-root': { ...theme.typography.body2 } }}
           />
