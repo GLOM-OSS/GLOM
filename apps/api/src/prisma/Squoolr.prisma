@@ -515,6 +515,8 @@ model AnnualClassroom {
     AcademicYear        AcademicYear @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualClassroomAudits AnnualClassroomAudit[]
+
+    @@index([classroom_code, academic_year_id])
 }
 
 model AnnualClassroomAudit {

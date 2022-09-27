@@ -210,4 +210,37 @@ export class MajorService {
       where: { annual_major_id },
     });
   }
+
+  async toogleArchive(major_code: string, academic_year_id: string) {
+    const annualMajor = await this.annualMajorService.findUnique({
+      select: { is_deleted: true },
+      where: {
+        major_code_academic_year_id: {
+          academic_year_id,
+          major_code,
+        },
+      },
+    });
+    if (!annualMajor)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Major')),
+        HttpStatus.NOT_FOUND
+      );
+    return this.annualMajorService.update({
+      select: {
+        major_code: true,
+        is_deleted: true,
+        academic_year_id: true,
+      },
+      data: {
+        is_deleted: !annualMajor.is_deleted,
+      },
+      where: {
+        major_code_academic_year_id: {
+          academic_year_id,
+          major_code,
+        },
+      },
+    });
+  }
 }
