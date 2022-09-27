@@ -112,10 +112,14 @@ export default function Departments({
     }, 3000);
   };
 
+  //   useEffect(()=>{
+  //     alert('hello world')
+  //   },[usage])
+
   useEffect(() => {
     getDepartments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showArchived]);
+  }, [showArchived, usage]);
 
   const [isAddNewDepartmentDialogOpen, setIsAddNewDepartmentDialogOpen] =
     useState<boolean>(false);
@@ -359,7 +363,10 @@ export default function Departments({
             >
               {areDepartmentsLoading &&
                 [...new Array(10)].map((_, index) => (
-                  <AcademicItemSkeleton key={index} />
+                  <AcademicItemSkeleton
+                    key={index}
+                    hasChips={usage !== 'department'}
+                  />
                 ))}
               {!areDepartmentsLoading && departments.length === 0 && (
                 <Box
