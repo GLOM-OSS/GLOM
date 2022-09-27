@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { AUTH404 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
 import { DepartmentPostDto, DepartmentPutDto } from '../configurator.dto';
@@ -53,7 +54,7 @@ export class DepartmentService {
   async addNewDepartment(
     school_id: string,
     newDepartment: DepartmentPostDto,
-    annual_configurator_id: string
+    created_by: string
   ) {
     const { department_acronym, department_name } = newDepartment;
     return this.departmentService.create({
@@ -65,7 +66,7 @@ export class DepartmentService {
           school_id
         ),
         School: { connect: { school_id } },
-        AnnualConfigurator: { connect: { annual_configurator_id } },
+        AnnualConfigurator: { connect: { annual_configurator_id: created_by } },
       },
     });
   }
@@ -73,7 +74,7 @@ export class DepartmentService {
   async editDepartment(
     department_code: string,
     data: DepartmentPutDto,
-    annual_configurator_id: string
+    audited_by: string
   ) {
     const departmentAudit = await this.departmentService.findUnique({
       select: {
@@ -87,9 +88,38 @@ export class DepartmentService {
         ...data,
         DepartmentAudits: {
           create: {
+            audited_by,
             ...departmentAudit,
-            audited_by: annual_configurator_id,
           },
+        },
+      },
+      where: { department_code },
+    });
+  }
+
+  async toogleArchive(department_code: string, audited_by: string) {
+    const departmentAudit = await this.departmentService.findUnique({
+      select: {
+        is_deleted: true,
+        department_name: true,
+      },
+      where: { department_code },
+    });
+    if (!departmentAudit)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Department')),
+        HttpStatus.NOT_FOUND
+      );
+    return this.departmentService.update({
+      select: {
+        department_code: true,
+        is_deleted: true,
+        school_id: true,
+      },
+      data: {
+        is_deleted: !departmentAudit.is_deleted,
+        DepartmentAudits: {
+          create: { ...departmentAudit, audited_by },
         },
       },
       where: { department_code },
