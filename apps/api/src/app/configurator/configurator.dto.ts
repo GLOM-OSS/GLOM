@@ -33,7 +33,7 @@ export class DepartmentQueryDto {
   @IsBoolean()
   @IsOptional()
   @ApiProperty({ required: false })
-  archived?: boolean;
+  is_deleted?: boolean;
 }
 
 export class ClassroomPost {
@@ -100,15 +100,10 @@ export class MajorQueryDto {
   @ApiProperty({ required: false })
   department_id?: string;
 
-  @IsString()
-  @IsOptional()
-  @ApiProperty({ required: false })
-  academic_year_id?: string;
-
   @IsBoolean()
   @IsOptional()
   @ApiProperty({ required: false })
-  archived?: boolean;
+  is_deleted?: boolean;
 }
 
 export class ClassroomPutDto {

@@ -37,7 +37,7 @@ export class DepartmentService {
 
   async findAllDepartments(
     school_id: string,
-    { archived }: { archived?: boolean }
+    { is_deleted }: { is_deleted?: boolean }
   ) {
     return this.departmentService.findMany({
       select: {
@@ -47,7 +47,7 @@ export class DepartmentService {
         department_name: true,
         department_acronym: true,
       },
-      where: { is_deleted: archived, school_id },
+      where: { is_deleted, school_id },
     });
   }
 

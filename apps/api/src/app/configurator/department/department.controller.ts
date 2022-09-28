@@ -31,13 +31,14 @@ export class DepartmentController {
   @Get('all')
   async getAllDepartment(
     @Req() request: Request,
-    @Query() { archived }: DepartmentQueryDto
+    @Query() query: DepartmentQueryDto
   ) {
     const { school_id } = request.user as DeserializeSessionData;
     return {
-      departments: await this.departmentService.findAllDepartments(school_id, {
-        archived,
-      }),
+      departments: await this.departmentService.findAllDepartments(
+        school_id,
+        query
+      ),
     };
   }
 

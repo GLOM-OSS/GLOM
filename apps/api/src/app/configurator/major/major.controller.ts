@@ -28,8 +28,11 @@ export class MajorController {
   constructor(private majorService: MajorService) {}
 
   @Get('all')
-  async getAllMajors(@Param() where: MajorQueryDto) {
-    return { majors: await this.majorService.findAll(where) };
+  async getAllMajors(@Req() request: Request, @Param() where: MajorQueryDto) {
+    const {
+      activeYear: { academic_year_id },
+    } = request.user as DeserializeSessionData;
+    return { majors: await this.majorService.findAll(academic_year_id, where) };
   }
 
   @Post('new')

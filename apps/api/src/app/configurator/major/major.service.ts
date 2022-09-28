@@ -30,7 +30,7 @@ export class MajorService {
     this.annualClassroomService = prismaService.annualClassroom;
   }
 
-  async findAll({ archived, ...where }: MajorQueryDto) {
+  async findAll(academic_year_id: string, where: MajorQueryDto) {
     const annualMajors = await this.annualMajorService.findMany({
       select: {
         major_acronym: true,
@@ -44,7 +44,7 @@ export class MajorService {
           },
         },
       },
-      where: { ...where, is_deleted: archived },
+      where: { ...where, academic_year_id },
     });
 
     return annualMajors.map(
