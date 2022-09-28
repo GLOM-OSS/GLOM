@@ -1,10 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { AUTH404, ERR03 } from '../../../errors';
+import { randomUUID } from 'crypto';
+import { AUTH404, ERR03, ERR04 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
 import {
   AnnualMajorPutDto,
+  ClassroomPost,
   MajorPostDto,
   MajorQueryDto,
 } from '../configurator.dto';
@@ -13,7 +15,9 @@ import {
 export class MajorService {
   private cycleService: typeof this.prismaService.cycle;
   private levelService: typeof this.prismaService.level;
+  private classroomService: typeof this.prismaService.classroom;
   private annualMajorService: typeof this.prismaService.annualMajor;
+  private annualClassroomService: typeof this.prismaService.annualClassroom;
 
   constructor(
     private prismaService: PrismaService,
@@ -22,6 +26,8 @@ export class MajorService {
     this.cycleService = prismaService.cycle;
     this.levelService = prismaService.level;
     this.annualMajorService = prismaService.annualMajor;
+    this.classroomService = prismaService.classroom;
+    this.annualClassroomService = prismaService.annualClassroom;
   }
 
   async findAll({ archived, ...where }: MajorQueryDto) {
@@ -57,11 +63,19 @@ export class MajorService {
       major_acronym,
       major_name,
       cycle_id,
-      is_class_generated,
+      classrooms,
     }: MajorPostDto,
     academic_year_id: string,
     created_by: string
   ) {
+    const { number_of_years } = await this.cycleService.findUnique({
+      where: { cycle_id },
+    });
+    if (number_of_years !== classrooms.length)
+      throw new HttpException(
+        JSON.stringify(ERR04),
+        HttpStatus.PRECONDITION_FAILED
+      );
     const major = await this.annualMajorService.findFirst({
       where: { major_acronym, Department: { department_code } },
     });
@@ -69,70 +83,54 @@ export class MajorService {
       major?.major_code ??
       (await this.codeGenerator.getMajorCode(major_acronym, department_code));
 
-    const generateClassrooms = async (major_code: string) => {
-      const classrooms: Prisma.Enumerable<Prisma.ClassroomCreateManyMajorInput> =
-        [];
-      const { number_of_years } = await this.cycleService.findUnique({
-        where: { cycle_id },
-      });
-      for (let i = 0; i < number_of_years; i++) {
-        const { level, level_id } = await this.levelService.findFirst({
-          select: { level: true, level_id: true },
-          where: { level: i + 1 },
-        });
-        const classroom_acronym = `${major_acronym}${level}`;
-        const numberOfClassrooms = await this.prismaService.classroom.count({
-          where: { Major: { major_code } },
-        });
-        classrooms.push({
-          level_id,
-          classroom_acronym,
-          classroom_code: `${classroom_acronym}${this.codeGenerator.getNumberString(
-            numberOfClassrooms + 1
-          )}`,
-          classroom_name: `${major_name} ${level}`,
-          created_by,
-        });
-      }
-      return classrooms;
-    };
+    const { annualClassrooms, classrooms: classroomsData } =
+      await this.generateMajorClassrooms(
+        { major_code, major_name, major_acronym, classrooms },
+        academic_year_id,
+        created_by
+      );
 
     if (major)
       throw new HttpException(
         JSON.stringify(ERR03('Major')),
         HttpStatus.AMBIGUOUS
       );
-    return this.annualMajorService.create({
-      data: {
-        major_name,
-        major_acronym,
-        major_code,
-        Major: {
-          connectOrCreate: {
-            create: {
-              major_acronym,
-              major_code,
-              major_name,
-              Cycle: { connect: { cycle_id } },
-              AnnualConfigurator: { connect: { annual_configurator_id: created_by } },
-              ...(is_class_generated
-                ? {
-                    Classrooms: {
-                      createMany: {
-                        data: await generateClassrooms(major_code),
-                      },
-                    },
-                  }
-                : {}),
+    return this.prismaService.$transaction([
+      this.annualMajorService.create({
+        data: {
+          major_name,
+          major_acronym,
+          major_code,
+          Major: {
+            connectOrCreate: {
+              create: {
+                major_acronym,
+                major_code,
+                major_name,
+                Cycle: { connect: { cycle_id } },
+                AnnualConfigurator: {
+                  connect: { annual_configurator_id: created_by },
+                },
+                Classrooms: {
+                  createMany: {
+                    data: classroomsData,
+                  },
+                },
+              },
+              where: { major_code },
             },
-            where: { major_code },
+          },
+          Department: { connect: { department_code } },
+          AcademicYear: { connect: { academic_year_id } },
+          AnnualConfigurator: {
+            connect: { annual_configurator_id: created_by },
           },
         },
-        Department: { connect: { department_code } },
-        AcademicYear: { connect: { academic_year_id } },
-        AnnualConfigurator: { connect: { annual_configurator_id: created_by } },
-      },
-    });
+      }),
+      this.annualClassroomService.createMany({
+        data: annualClassrooms,
+      }),
+    ]);
   }
 
   async editMajor(
@@ -260,5 +258,54 @@ export class MajorService {
         },
       },
     });
+  }
+
+  async generateMajorClassrooms(
+    major: {
+      major_name: string;
+      major_code: string;
+      major_acronym: string;
+      classrooms: ClassroomPost[];
+    },
+    academic_year_id: string,
+    created_by: string
+  ) {
+    const { major_code, major_name, major_acronym, classrooms } = major;
+    const classroomsData: Prisma.Enumerable<Prisma.ClassroomCreateManyMajorInput> =
+      [];
+    const annualClassrooms: Prisma.Enumerable<Prisma.AnnualClassroomCreateManyInput> =
+      [];
+
+    for (let i = 0; i < classrooms.length; i++) {
+      const { level, registration_fee, total_fees_due } = classrooms[i];
+      const { level_id } = await this.levelService.findFirst({
+        select: { level: true, level_id: true },
+        where: { level },
+      });
+      const classroom_acronym = `${major_acronym}${level}`;
+      const numberOfClassrooms = await this.classroomService.count({
+        where: { Major: { major_code } },
+      });
+      const classroom = {
+        classroom_id: randomUUID(),
+        classroom_acronym,
+        classroom_code: `${classroom_acronym}${this.codeGenerator.getNumberString(
+          numberOfClassrooms + 1
+        )}`,
+        classroom_name: `${major_name} ${level}`,
+      };
+      classroomsData.push({
+        level_id,
+        created_by,
+        ...classroom,
+      });
+      annualClassrooms.push({
+        ...classroom,
+        total_fees_due,
+        academic_year_id,
+        registration_fee,
+      });
+    }
+    return { classrooms: classroomsData, annualClassrooms };
   }
 }

@@ -80,3 +80,7 @@ export const ERR03 = (element: string) => ({
   En: `This element(${element}) already exits`,
   Fr: `Cette element(${element}) existe déjà`,
 });
+export const ERR04 = {
+  En: `The number of classes in a specialty cannot differ from the number of years available in its curriculum.`,
+  Fr: `Le nombre de classes dans une spécialité ne peut différer du nombre d'années disponibles dans son cursus.`,
+};

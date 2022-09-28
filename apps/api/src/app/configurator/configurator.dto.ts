@@ -1,5 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsOptional, IsString, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  isArray, IsBoolean, IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID, registerDecorator,
+  registerSchema, ValidateNested,
+  validateSync,
+  ValidationOptions,
+  ValidationSchema
+} from 'class-validator';
 
 export class DepartmentPostDto {
   @IsString()
@@ -28,6 +38,20 @@ export class DepartmentQueryDto {
   @ApiProperty({ required: false })
   archived?: boolean;
 }
+
+export class ClassroomPost {
+  @IsNumber()
+  @ApiProperty()
+  level: number;
+
+  @IsNumber()
+  @ApiProperty()
+  total_fees_due: number;
+
+  @IsNumber()
+  @ApiProperty()
+  registration_fee: number;
+}
 export class MajorPostDto {
   @IsString()
   @ApiProperty()
@@ -45,10 +69,10 @@ export class MajorPostDto {
   @ApiProperty()
   cycle_id: string;
 
-  @IsBoolean()
-  @IsOptional()
-  @ApiProperty({ required: false })
-  is_class_generated: boolean
+  @ApiProperty()
+  @ValidateNested({ each: true })
+  @Type(() => ClassroomPost)
+  classrooms: ClassroomPost[];
 }
 
 export class AnnualMajorPutDto {
@@ -80,4 +104,33 @@ export class MajorQueryDto {
   @IsOptional()
   @ApiProperty({ required: false })
   archived?: boolean;
+}
+
+export function IsValidArray(
+  schema: ValidationSchema,
+  validationOptions?: ValidationOptions
+) {
+  registerSchema(schema);
+  return (array, propertyName: string) => {
+    registerDecorator({
+      name: 'IsValidArray',
+      target: array.constructor,
+      propertyName,
+      constraints: [],
+      options: validationOptions,
+      validator: {
+        validate(value) {
+          return (
+            typeof isArray(value) &&
+            value.length > 0 &&
+            value.reduce(
+              (prev, curValue) =>
+                prev && validateSync(schema.name, curValue).length === 0,
+              true
+            )
+          );
+        },
+      },
+    });
+  };
 }
