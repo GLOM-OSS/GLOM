@@ -74,22 +74,4 @@ export class MajorController {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
-  @Put(':major_code/delete')
-  async toogleArchive(
-    @Req() request: Request,
-    @Param('major_code') major_code: string
-  ) {
-    const {
-      activeYear: { academic_year_id },
-      annualConfigurator: { annual_configurator_id },
-    } = request.user as DeserializeSessionData;
-    return {
-      major: await this.majorService.toogleArchive(
-        major_code,
-        academic_year_id,
-        annual_configurator_id
-      ),
-    };
-  }
 }

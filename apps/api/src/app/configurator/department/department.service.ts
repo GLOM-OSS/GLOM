@@ -83,6 +83,11 @@ export class DepartmentService {
       },
       where: { department_code },
     });
+    if (!departmentAudit)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Department')),
+        HttpStatus.NOT_FOUND
+      );
     return this.departmentService.update({
       data: {
         ...data,
@@ -91,35 +96,6 @@ export class DepartmentService {
             audited_by,
             ...departmentAudit,
           },
-        },
-      },
-      where: { department_code },
-    });
-  }
-
-  async toogleArchive(department_code: string, audited_by: string) {
-    const departmentAudit = await this.departmentService.findUnique({
-      select: {
-        is_deleted: true,
-        department_name: true,
-      },
-      where: { department_code },
-    });
-    if (!departmentAudit)
-      throw new HttpException(
-        JSON.stringify(AUTH404('Department')),
-        HttpStatus.NOT_FOUND
-      );
-    return this.departmentService.update({
-      select: {
-        department_code: true,
-        is_deleted: true,
-        school_id: true,
-      },
-      data: {
-        is_deleted: !departmentAudit.is_deleted,
-        DepartmentAudits: {
-          create: { ...departmentAudit, audited_by },
         },
       },
       where: { department_code },

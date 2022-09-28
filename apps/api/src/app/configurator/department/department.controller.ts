@@ -80,20 +80,4 @@ export class DepartmentController {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
-  @Put(':department_code/delete')
-  async toogleArchive(
-    @Req() request: Request,
-    @Param('department_code') department_code: string
-  ) {
-    const {
-      annualConfigurator: { annual_configurator_id },
-    } = request.user as DeserializeSessionData;
-    return {
-      major: await this.departmentService.toogleArchive(
-        department_code,
-        annual_configurator_id
-      ),
-    };
-  }
 }

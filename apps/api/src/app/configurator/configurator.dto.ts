@@ -1,14 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  isArray, IsBoolean, IsNumber,
+  IsBoolean,
+  IsNumber,
   IsOptional,
   IsString,
-  IsUUID, registerDecorator,
-  registerSchema, ValidateNested,
-  validateSync,
-  ValidationOptions,
-  ValidationSchema
+  IsUUID, ValidateNested
 } from 'class-validator';
 
 export class DepartmentPostDto {
@@ -26,7 +23,7 @@ export class DepartmentPutDto {
   @ApiProperty({ required: false })
   department_name?: string;
 
-  @IsString()
+  @IsBoolean()
   @IsOptional()
   @ApiProperty({ required: false })
   is_deleted?: boolean;
@@ -77,16 +74,24 @@ export class MajorPostDto {
 
 export class AnnualMajorPutDto {
   @IsString()
+  @IsOptional()
   @ApiProperty()
   major_name?: string;
 
   @IsString()
+  @IsOptional()
   @ApiProperty()
   major_acronym?: string;
 
   @IsString()
+  @IsOptional()
   @ApiProperty()
   department_code?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  is_deleted?: boolean;
 }
 
 export class MajorQueryDto {
@@ -106,31 +111,19 @@ export class MajorQueryDto {
   archived?: boolean;
 }
 
-export function IsValidArray(
-  schema: ValidationSchema,
-  validationOptions?: ValidationOptions
-) {
-  registerSchema(schema);
-  return (array, propertyName: string) => {
-    registerDecorator({
-      name: 'IsValidArray',
-      target: array.constructor,
-      propertyName,
-      constraints: [],
-      options: validationOptions,
-      validator: {
-        validate(value) {
-          return (
-            typeof isArray(value) &&
-            value.length > 0 &&
-            value.reduce(
-              (prev, curValue) =>
-                prev && validateSync(schema.name, curValue).length === 0,
-              true
-            )
-          );
-        },
-      },
-    });
-  };
+export class ClassroomPutDto {
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  registration_fee: number;
+
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  total_fees_due: number;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  is_deleted?: boolean;
 }

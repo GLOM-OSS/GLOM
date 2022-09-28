@@ -135,11 +135,11 @@ export class MajorService {
 
   async editMajor(
     major_code: string,
-    data: AnnualMajorPutDto,
+    updateData: AnnualMajorPutDto,
     academic_year_id: string,
     audited_by: string
   ) {
-    const { major_acronym, major_name, department_code } = data;
+    const { major_acronym, major_name, department_code } = updateData;
 
     const annualMajorAudit = await this.annualMajorService.findFirst({
       select: {

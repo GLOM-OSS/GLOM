@@ -414,8 +414,7 @@ model Level {
     level      Int
     created_at DateTime @default(now()) @db.DateTime(0)
 
-    Classrooms           Classroom[]
-    AnnualClassroomAudit AnnualClassroomAudit[]
+    Classrooms Classroom[]
 }
 
 model Major {
@@ -504,11 +503,11 @@ model AnnualClassroom {
     annual_classroom_id String       @id @default(uuid()) @db.VarChar(36)
     total_fees_due      Int
     registration_fee    Int
-    created_at          DateTime     @default(now()) @db.DateTime(0)
     classroom_name      String       @db.VarChar(45)
     classroom_code      String       @db.VarChar(45)
     classroom_acronym   String       @db.VarChar(45)
     is_deleted          Boolean      @default(false) @db.TinyInt
+    created_at          DateTime     @default(now()) @db.DateTime(0)
     classroom_id        String
     Classroom           Classroom    @relation(fields: [classroom_id], references: [classroom_id], onDelete: Cascade, onUpdate: Cascade)
     academic_year_id    String       @db.VarChar(36)
@@ -516,20 +515,17 @@ model AnnualClassroom {
 
     AnnualClassroomAudits AnnualClassroomAudit[]
 
-    @@index([classroom_code, academic_year_id])
+    @@unique([classroom_code, academic_year_id])
 }
 
 model AnnualClassroomAudit {
     annual_classroom_audit_id String             @id @default(uuid()) @db.VarChar(36)
-    classroom_name            String             @db.VarChar(45)
-    classroom_code            String             @db.VarChar(45)
-    classroom_acronym         String             @db.VarChar(45)
-    created_at                DateTime           @default(now()) @db.DateTime(0)
+    total_fees_due            Int
+    registration_fee          Int
     is_deleted                Boolean            @db.TinyInt
+    created_at                DateTime           @default(now()) @db.DateTime(0)
     annual_classroom_id       String
     AnnualClassroom           AnnualClassroom    @relation(fields: [annual_classroom_id], references: [annual_classroom_id], onDelete: Cascade, onUpdate: Cascade)
-    level_id                  String
-    Level                     Level              @relation(fields: [level_id], references: [level_id], onDelete: Cascade, onUpdate: Cascade)
     audited_by                String
     AnnualConfigurator        AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
