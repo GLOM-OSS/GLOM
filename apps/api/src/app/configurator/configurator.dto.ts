@@ -5,7 +5,8 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsUUID, ValidateNested
+  IsUUID,
+  ValidateNested,
 } from 'class-validator';
 
 export class DepartmentPostDto {
@@ -98,7 +99,7 @@ export class MajorQueryDto {
   @IsString()
   @IsOptional()
   @ApiProperty({ required: false })
-  department_id?: string;
+  department_code?: string;
 
   @IsBoolean()
   @IsOptional()
@@ -116,6 +117,28 @@ export class ClassroomPutDto {
   @IsOptional()
   @ApiProperty({ required: false })
   total_fees_due: number;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  is_deleted?: boolean;
+}
+
+export class ClassroomQueryDto {
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  department_code?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  major_code?: string;
+
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  level?: number;
 
   @IsBoolean()
   @IsOptional()
