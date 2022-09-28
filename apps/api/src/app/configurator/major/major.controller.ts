@@ -7,17 +7,18 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
-import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Request } from 'express';
+import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import {
   AnnualMajorPutDto,
   MajorPostDto,
-  MajorQueryDto,
+  MajorQueryDto
 } from '../configurator.dto';
 import { MajorService } from './major.service';
 
@@ -28,11 +29,11 @@ export class MajorController {
   constructor(private majorService: MajorService) {}
 
   @Get('all')
-  async getAllMajors(@Req() request: Request, @Param() where: MajorQueryDto) {
+  async getAllMajors(@Req() request: Request, @Query() majorQuery: MajorQueryDto) {
     const {
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
-    return { majors: await this.majorService.findAll(academic_year_id, where) };
+    return { majors: await this.majorService.findAll(academic_year_id, majorQuery) };
   }
 
   @Post('new')
@@ -58,7 +59,7 @@ export class MajorController {
   async editMajor(
     @Req() request: Request,
     @Param('major_code') major_code: string,
-    @Body() data: AnnualMajorPutDto
+    @Body() majorData: AnnualMajorPutDto
   ) {
     try {
       const {
@@ -68,7 +69,7 @@ export class MajorController {
       return {
         major: await this.majorService.editMajor(
           major_code,
-          data,
+          majorData,
           academic_year_id,
           annual_configurator_id
         ),

@@ -31,13 +31,13 @@ export class DepartmentController {
   @Get('all')
   async getAllDepartment(
     @Req() request: Request,
-    @Query() query: DepartmentQueryDto
+    @Query() departmentQuery: DepartmentQueryDto
   ) {
     const { school_id } = request.user as DeserializeSessionData;
     return {
       departments: await this.departmentService.findAllDepartments(
         school_id,
-        query
+        departmentQuery
       ),
     };
   }
@@ -64,7 +64,7 @@ export class DepartmentController {
   async editDepartmentName(
     @Req() request: Request,
     @Param('department_code') department_code: string,
-    @Body() data: DepartmentPutDto
+    @Body() updateData: DepartmentPutDto
   ) {
     const {
       annualConfigurator: { annual_configurator_id },
@@ -73,7 +73,7 @@ export class DepartmentController {
       return {
         department: await this.departmentService.editDepartment(
           department_code,
-          data,
+          updateData,
           annual_configurator_id
         ),
       };

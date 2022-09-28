@@ -43,6 +43,12 @@ export class MajorService {
             },
           },
         },
+        Department: {
+          select: {
+            department_acronym: true,
+            department_code: true,
+          },
+        },
       },
       where: { ...where, academic_year_id },
     });
@@ -52,8 +58,9 @@ export class MajorService {
         Major: {
           Cycle: { cycle_name },
         },
+        Department: { department_acronym, department_code },
         ...major
-      }) => ({ cycle_name, ...major })
+      }) => ({ cycle_name, ...major, department_acronym, department_code })
     );
   }
 
@@ -208,55 +215,6 @@ export class MajorService {
     return this.annualMajorService.update({
       data: updateInput,
       where: { annual_major_id },
-    });
-  }
-
-  async toogleArchive(
-    major_code: string,
-    academic_year_id: string,
-    audited_by: string
-  ) {
-    const annualMajorAudit = await this.annualMajorService.findUnique({
-      select: {
-        is_deleted: true,
-        major_name: true,
-        major_code: true,
-        major_acronym: true,
-        department_id: true,
-      },
-      where: {
-        major_code_academic_year_id: {
-          academic_year_id,
-          major_code,
-        },
-      },
-    });
-    if (!annualMajorAudit)
-      throw new HttpException(
-        JSON.stringify(AUTH404('Major')),
-        HttpStatus.NOT_FOUND
-      );
-    return this.annualMajorService.update({
-      select: {
-        major_code: true,
-        is_deleted: true,
-        academic_year_id: true,
-      },
-      data: {
-        is_deleted: !annualMajorAudit.is_deleted,
-        AnnualMajorAudits: {
-          create: {
-            audited_by,
-            ...annualMajorAudit,
-          },
-        },
-      },
-      where: {
-        major_code_academic_year_id: {
-          academic_year_id,
-          major_code,
-        },
-      },
     });
   }
 
