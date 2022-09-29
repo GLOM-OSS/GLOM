@@ -6,33 +6,13 @@ import { DepartmentPostDto, DepartmentPutDto } from '../configurator.dto';
 
 @Injectable()
 export class DepartmentService {
-  private schoolService: typeof this.prismaService.school;
   private departmentService: typeof this.prismaService.department;
-  private majorService: typeof this.prismaService.major;
-  private annualMajorService: typeof this.prismaService.annualMajor;
-  private annualMajorAuditService: typeof this.prismaService.annualMajorAudit;
-  private classroomService: typeof this.prismaService.classroom;
-  private annualClassroomService: typeof this.prismaService.annualClassroom;
-  private annualClassroomAuditService: typeof this.prismaService.annualClassroomAudit;
-  private annualClassroomDivisionService: typeof this.prismaService.annualClassroomDivision;
-  private annualClassroomDivisionAuditService: typeof this.prismaService.annualClassroomDivisionAudit;
 
   constructor(
     private prismaService: PrismaService,
     private codeGenerator: CodeGeneratorService
   ) {
-    this.schoolService = this.prismaService.school;
-    this.departmentService = this.prismaService.department;
-    this.majorService = this.prismaService.major;
-    this.annualMajorService = this.prismaService.annualMajor;
-    this.annualMajorAuditService = this.prismaService.annualMajorAudit;
-    this.classroomService = this.prismaService.classroom;
-    this.annualClassroomService = this.prismaService.annualClassroom;
-    this.annualClassroomAuditService = this.prismaService.annualClassroomAudit;
-    this.annualClassroomDivisionService =
-      this.prismaService.annualClassroomDivision;
-    this.annualClassroomDivisionAuditService =
-      this.prismaService.annualClassroomDivisionAudit;
+    this.departmentService = prismaService.department;
   }
 
   async findAllDepartments(

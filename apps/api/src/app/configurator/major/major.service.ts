@@ -29,10 +29,10 @@ export class MajorService {
     this.levelService = prismaService.level;
     this.classroomService = prismaService.classroom;
     this.annualMajorService = prismaService.annualMajor;
-    this.departmentService = this.prismaService.department;
+    this.departmentService = prismaService.department;
     this.annualClassroomService = prismaService.annualClassroom;
     this.annualClassroomDivisionService =
-      this.prismaService.annualClassroomDivision;
+      prismaService.annualClassroomDivision;
   }
 
   async findAll(academic_year_id: string, where: MajorQueryDto) {
