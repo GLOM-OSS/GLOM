@@ -16,8 +16,10 @@ export class MajorService {
   private cycleService: typeof this.prismaService.cycle;
   private levelService: typeof this.prismaService.level;
   private classroomService: typeof this.prismaService.classroom;
+  private departmentService: typeof this.prismaService.department;
   private annualMajorService: typeof this.prismaService.annualMajor;
   private annualClassroomService: typeof this.prismaService.annualClassroom;
+  private annualClassroomDivisionService: typeof this.prismaService.annualClassroomDivision;
 
   constructor(
     private prismaService: PrismaService,
@@ -25,9 +27,12 @@ export class MajorService {
   ) {
     this.cycleService = prismaService.cycle;
     this.levelService = prismaService.level;
-    this.annualMajorService = prismaService.annualMajor;
     this.classroomService = prismaService.classroom;
+    this.annualMajorService = prismaService.annualMajor;
+    this.departmentService = this.prismaService.department;
     this.annualClassroomService = prismaService.annualClassroom;
+    this.annualClassroomDivisionService =
+      this.prismaService.annualClassroomDivision;
   }
 
   async findAll(academic_year_id: string, where: MajorQueryDto) {
@@ -75,13 +80,21 @@ export class MajorService {
     academic_year_id: string,
     created_by: string
   ) {
-    const { number_of_years } = await this.cycleService.findUnique({
+    const cycle = await this.cycleService.findUnique({
       where: { cycle_id },
     });
-    if (number_of_years !== classrooms.length)
+    if (cycle?.number_of_years !== classrooms.length)
       throw new HttpException(
         JSON.stringify(ERR04),
         HttpStatus.PRECONDITION_FAILED
+      );
+    const department = await this.departmentService.findUnique({
+      where: { department_code },
+    });
+    if (!department)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Department')),
+        HttpStatus.NOT_FOUND
       );
     const major = await this.annualMajorService.findFirst({
       where: { major_acronym, Department: { department_code } },
@@ -90,12 +103,15 @@ export class MajorService {
       major?.major_code ??
       (await this.codeGenerator.getMajorCode(major_acronym, department_code));
 
-    const { annualClassrooms, classrooms: classroomsData } =
-      await this.generateMajorClassrooms(
-        { major_code, major_name, major_acronym, classrooms },
-        academic_year_id,
-        created_by
-      );
+    const {
+      annualClassroomDivisions,
+      annualClassrooms,
+      classrooms: classroomsData,
+    } = await this.generateMajorClassrooms(
+      { major_code, major_name, major_acronym, classrooms },
+      academic_year_id,
+      created_by
+    );
 
     if (major)
       throw new HttpException(
@@ -136,6 +152,9 @@ export class MajorService {
       }),
       this.annualClassroomService.createMany({
         data: annualClassrooms,
+      }),
+      this.annualClassroomDivisionService.createMany({
+        data: annualClassroomDivisions,
       }),
     ]);
   }
@@ -233,6 +252,9 @@ export class MajorService {
       [];
     const annualClassrooms: Prisma.Enumerable<Prisma.AnnualClassroomCreateManyInput> =
       [];
+    const annualClassroomDivisions: Prisma.Enumerable<Prisma.AnnualClassroomDivisionCreateManyInput> =
+      [];
+    // const alphabet = ['A', 'B', 'C', 'D']
 
     for (let i = 0; i < classrooms.length; i++) {
       const { level, registration_fee, total_fees_due } = classrooms[i];
@@ -257,13 +279,24 @@ export class MajorService {
         created_by,
         ...classroom,
       });
+      const annual_classroom_id = randomUUID();
       annualClassrooms.push({
         ...classroom,
         total_fees_due,
         academic_year_id,
         registration_fee,
+        annual_classroom_id,
+      });
+      annualClassroomDivisions.push({
+        division_letter: 'A',
+        annual_classroom_id,
+        created_by,
       });
     }
-    return { classrooms: classroomsData, annualClassrooms };
+    return {
+      classrooms: classroomsData,
+      annualClassrooms,
+      annualClassroomDivisions,
+    };
   }
 }

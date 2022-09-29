@@ -43,8 +43,8 @@ export const AUTH401 = {
   Fr: 'Adresse mail ou mot de passe incorrect.',
 };
 export const AUTH404 = (search: string) => ({
-  En: `${search} not found.`,
-  Fr: `${search} introuvable`,
+  En: `"<${search}> not found.`,
+  Fr: `<${search}> introuvable`,
 });
 export const sAUTH404 = {
   En: `Your rest password request cannot be found or has expired.`,
@@ -60,8 +60,8 @@ export const AUTH500 = {
   Fr: `Désolé, nous avons pas pu deruire votre session`,
 };
 export const AUTH501 = (element: string) => ({
-  En: `Sorry, this ${element} is not yet implemented`,
-  Fr: `Désolé, cette ${element} n'est pas encore implémenté.`,
+  En: `Sorry, <${element}> is not yet implemented`,
+  Fr: `Désolé, <${element}> n'est pas encore implémenté.`,
 });
 export const AUTH503 = {
   En: `Sorry, this action cannot be processed now. Consider trying later or with another account`,
