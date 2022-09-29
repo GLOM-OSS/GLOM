@@ -127,7 +127,7 @@ export class AppService {
                     },
                     Cycle: {
                       create: {
-                        cycle_name: 'Licence',
+                        cycle_name: 'BACHELOR',
                         cycle_type: 'LONG',
                         number_of_years: 3,
                       },
@@ -199,14 +199,14 @@ export class AppService {
   async seedCycles() {
     await this.prismaService.cycle.createMany({
       data: [
-        { cycle_name: 'Licence', cycle_type: 'LONG', number_of_years: 3 },
+        { cycle_name: 'BACHELOR', cycle_type: 'LONG', number_of_years: 3 },
         { cycle_name: 'BTS', cycle_type: 'LONG', number_of_years: 2 },
         { cycle_name: 'DTS', cycle_type: 'LONG', number_of_years: 2 },
         { cycle_name: 'DUT', cycle_type: 'LONG', number_of_years: 2 },
-        { cycle_name: 'Master', cycle_type: 'SHORT', number_of_years: 2 },
-        { cycle_name: 'Master', cycle_type: 'LONG', number_of_years: 5 },
-        { cycle_name: 'Doctorat', cycle_type: 'LONG', number_of_years: 7 },
-        { cycle_name: 'Doctorat', cycle_type: 'SHORT', number_of_years: 2 },
+        { cycle_name: 'MASTER', cycle_type: 'SHORT', number_of_years: 2 },
+        { cycle_name: 'MASTER', cycle_type: 'LONG', number_of_years: 5 },
+        { cycle_name: 'DOCTORAT', cycle_type: 'LONG', number_of_years: 7 },
+        { cycle_name: 'DOCTORAT', cycle_type: 'SHORT', number_of_years: 2 },
       ],
     });
   }
@@ -222,11 +222,11 @@ export class AppService {
   async seedTeacherGrades() {
     await this.prismaService.teacherGrade.createMany({
       data: [
-        { teacher_grade: 'Professeur de classe C' },
-        { teacher_grade: 'Professeur de class D' },
-        { teacher_grade: 'Maitre des conferences' },
-        { teacher_grade: 'Charge de cours' },
-        { teacher_grade: 'Assistant' },
+        { teacher_grade: 'CLASS_C' },
+        { teacher_grade: 'CLASS_D' },
+        { teacher_grade: 'LECTURER' },
+        { teacher_grade: 'COURSE_INSTRUTOR' },
+        { teacher_grade: 'ASSISTANT' },
       ],
     });
   }
@@ -234,9 +234,9 @@ export class AppService {
     // vacataire, permanent, missionnaire
     await this.prismaService.teacherType.createMany({
       data: [
-        { teacher_type: 'VACATAIRE' },
-        { teacher_type: 'PERMANENT' },
-        { teacher_type: 'MISSIONNAIRE' },
+        { teacher_type: 'PART_TIME' },
+        { teacher_type: 'PERMAMENT' },
+        { teacher_type: 'MISSIONARY' },
       ],
     });
   }

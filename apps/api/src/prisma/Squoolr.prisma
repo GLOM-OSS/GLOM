@@ -263,17 +263,35 @@ model AnnualRegistry {
     Login              Login              @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
+enum TeacherTypeEnum {
+    PART_TIME
+    PERMAMENT
+    MISSIONARY
+
+    @@map("teacher_type_enum")
+}
+
 model TeacherType {
-    teacher_type_id String    @id @default(uuid()) @db.VarChar(36)
-    teacher_type    String    @db.VarChar(45) //vacataire, permanent, missionnaire
-    created_at      DateTime  @default(now()) @db.DateTime(0)
+    teacher_type_id String          @id @default(uuid()) @db.VarChar(36)
+    teacher_type    TeacherTypeEnum
+    created_at      DateTime        @default(now()) @db.DateTime(0)
     Teachers        Teacher[]
 }
 
+enum TeacherGradeEnum {
+    CLASS_C
+    CLASS_D
+    LECTURER
+    COURSE_INSTRUTOR
+    ASSISTANT
+
+    @@map("teacher_grade_enum")
+}
+
 model TeacherGrade {
-    teacher_grade_id String    @id @default(uuid()) @db.VarChar(36)
-    teacher_grade    String    @db.VarChar(45) //professeur de classe C, professeur de class D, Maitre des conferences, charge de cours, assistant
-    created_at       DateTime  @default(now()) @db.DateTime(0)
+    teacher_grade_id String           @id @default(uuid()) @db.VarChar(36)
+    teacher_grade    TeacherGradeEnum //professeur de classe C, professeur de class D, Maitre des conferences, charge de cours, assistant
+    created_at       DateTime         @default(now()) @db.DateTime(0)
     Teachers         Teacher[]
 }
 
@@ -398,9 +416,20 @@ enum CycleType {
     @@map("cycle_type_enum")
 }
 
+enum CycleName {
+    BTS
+    DUT
+    DTS
+    BACHELOR
+    MASTER
+    DOCTORAT
+
+    @@map("cycle_name_enum")
+}
+
 model Cycle {
     cycle_id        String    @id @default(uuid()) @db.VarChar(36)
-    cycle_name      String    @db.VarChar(45)
+    cycle_name      CycleName
     cycle_type      CycleType
     number_of_years Int
     created_at      DateTime  @default(now()) @db.DateTime(0)
@@ -531,22 +560,18 @@ model AnnualClassroomAudit {
 }
 
 model AnnualClassroomDivision {
-    annual_classroom_division_id      String             @id @default(uuid()) @db.VarChar(45)
-    annual_classroom_division_code    String             @db.VarChar(45)
-    annual_classroom_division_acronym String             @db.VarChar(45)
-    created_at                        DateTime           @default(now()) @db.DateTime(0)
-    is_deleted                        Boolean            @default(false) @db.TinyInt
-    created_by                        String
-    AnnualConfigurator                AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_classroom_division_id String             @id @default(uuid()) @db.VarChar(45)
+    division_letter              String             @db.Char(1)
+    created_at                   DateTime           @default(now()) @db.DateTime(0)
+    is_deleted                   Boolean            @default(false) @db.TinyInt
+    created_by                   String
+    AnnualConfigurator           AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualClassroomDivisionAudits AnnualClassroomDivisionAudit[]
 }
 
 model AnnualClassroomDivisionAudit {
     annual_classroom_division_audit_id String                  @id @default(uuid()) @db.VarChar(45)
-    annual_classroom_division_code     String                  @db.VarChar(45)
-    annual_classroom_division_acronym  String                  @db.VarChar(45)
-    created_at                         DateTime                @default(now()) @db.DateTime(0)
     is_deleted                         Boolean                 @db.TinyInt
     annual_classroom_division_id       String
     AnnualClassroomDivision            AnnualClassroomDivision @relation(fields: [annual_classroom_division_id], references: [annual_classroom_division_id], onDelete: Cascade, onUpdate: Cascade)
