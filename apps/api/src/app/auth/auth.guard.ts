@@ -4,7 +4,6 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { TasksService } from '@squoolr/tasks';
@@ -28,11 +27,14 @@ export class AuthenticatedGuard implements CanActivate {
       context.getHandler()
     );
     const roles = this.reflector.get<Role[]>('roles', context.getClass());
-    return isPublic
+    const isAuthenticated = isPublic
       ? isPublic
       : request.isAuthenticated()
       ? await this.authenticateUser(request, roles)
       : false;
+    if (!isAuthenticated)
+      throw new HttpException(sAUTH403['Fr'], HttpStatus.FORBIDDEN);
+    return isAuthenticated;
   }
 
   async authenticateUser(request: Request, metaRoles: Role[]) {
@@ -41,7 +43,7 @@ export class AuthenticatedGuard implements CanActivate {
     const {
       session: {
         passport: {
-          user: { cookie_age, job_name, roles },
+          user: { log_id, cookie_age, job_name, roles },
         },
       },
     } = request;
@@ -52,7 +54,7 @@ export class AuthenticatedGuard implements CanActivate {
       roles.forEach(({ role }) => {
         if (metaRoles.includes(role)) hasRole = true;
       });
-      userHasTheAcess = hasRole
+      userHasTheAcess = hasRole;
     }
 
     const userClientCorrect = this.authservice.isClientCorrect(
@@ -62,15 +64,15 @@ export class AuthenticatedGuard implements CanActivate {
     if (!userHasTheAcess || !userClientCorrect)
       throw new HttpException(AUTH05['Fr'], HttpStatus.FORBIDDEN);
     const now = new Date();
-    try {
-      this.tasksService.updateCronTime(
-        job_name,
-        new Date(now.setSeconds(now.getSeconds() + cookie_age))
-      );
-      return userClientCorrect;
-    } catch (error) {
-      Logger.error(error.message, AuthenticatedGuard.name);
-    }
-    throw new HttpException(sAUTH403['Fr'], HttpStatus.FORBIDDEN);
+    this.tasksService.upsertCronTime(
+      job_name,
+      new Date(now.setSeconds(now.getSeconds() + cookie_age)),
+        () => {
+        request.session.destroy(async (err) => {
+          if (!err) await this.authservice.closeSession(log_id);
+        });
+      }
+    );
+    return userClientCorrect;
   }
 }

@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AcademicYear, AcademicYearStatus, Login } from '@prisma/client';
-import { CronJobNames, TasksService } from '@squoolr/tasks';
+import { CronJobEvents, TasksService } from '@squoolr/tasks';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { AUTH02, AUTH04, AUTH401, AUTH404, sAUTH404 } from '../../errors';
@@ -489,7 +489,7 @@ export class AuthService {
       where: { login_id },
     });
     if (!login) return null;
-    
+
     const { school_id } = login;
     if (!academic_year_id)
       return school_id ? null : { ...person, login_id, school_id };
@@ -599,22 +599,22 @@ export class AuthService {
     });
     const now = new Date();
     const job_name = this.tasksService.addCronJob(
-      {
-        name: CronJobNames.AUTO_LOGOUT,
-        callback: async () => {
-          request.session.destroy(async (err) => {
-            if (!err) {
-              await this.logService.update({
-                data: { closed_at: new Date() },
-                where: { log_id },
-              });
-            }
-          });
-        },
-      },
-      new Date(now.setSeconds(now.getSeconds() + cookie_age))
+      CronJobEvents.AUTO_LOGOUT,
+      new Date(now.setSeconds(now.getSeconds() + cookie_age)),
+      () => {
+        request.session.destroy(async (err) => {
+          if (!err) await this.closeSession(log_id);
+        });
+      }
     );
     return { job_name, log_id };
+  }
+
+  async closeSession(log_id: string) {
+    await this.logService.update({
+      data: { closed_at: new Date() },
+      where: { log_id },
+    });
   }
 
   async isClientCorrect(
