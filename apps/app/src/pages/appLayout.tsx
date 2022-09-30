@@ -20,11 +20,6 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
           page_title: 'majors',
         },
         {
-          title: formatMessage({ id: 'classes' }),
-          route: 'classes',
-          page_title: 'classes',
-        },
-        {
           title: formatMessage({ id: 'personnel' }),
           route: 'personnel',
           page_title: 'personnel',

@@ -16,8 +16,8 @@ import { useIntl } from 'react-intl';
 import * as Yup from 'yup';
 
 export interface newDepartmentInterface {
-  department_code: string;
-  department_name: string;
+  item_acronym: string;
+  item_name: string;
 }
 
 export default function NewDepartmentDialog({
@@ -33,12 +33,12 @@ export default function NewDepartmentDialog({
 }) {
   const { formatMessage } = useIntl();
   const initialValues: newDepartmentInterface = editableDepartment ?? {
-    department_code: '',
-    department_name: '',
+    item_acronym: '',
+    item_name: '',
   };
   const validationSchema = Yup.object().shape({
-    department_code: Yup.string().required(formatMessage({ id: 'required' })),
-    department_name: Yup.string().required(formatMessage({ id: 'required' })),
+    item_acronym: Yup.string().required(formatMessage({ id: 'required' })),
+    item_name: Yup.string().required(formatMessage({ id: 'required' })),
   });
 
   const formik = useFormik({
@@ -83,24 +83,27 @@ export default function NewDepartmentDialog({
           </DialogTitle>
           <TextField
             placeholder={formatMessage({ id: 'department_code' })}
-            sx={{ width: '120px', marginRight: theme.spacing(2) }}
+            sx={{
+              width: '120px',
+              marginRight: theme.spacing(2),
+              justifySelf: 'end',
+            }}
             required
             color="primary"
             size="small"
-            id="department_code"
+            id="item_acronym"
             onBlur={formik.handleBlur}
-            value={formik.values.department_code}
+            value={formik.values.item_acronym}
             disabled={Boolean(editableDepartment)}
             error={
-              formik.touched.department_code &&
-              Boolean(formik.errors.department_code)
+              formik.touched.item_acronym && Boolean(formik.errors.item_acronym)
             }
             helperText={
-              formik.touched.department_code && formik.errors.department_code
+              formik.touched.item_acronym && formik.errors.item_acronym
             }
             onChange={(event) => {
               setIsCodeGenerated(event.target.value.length === 0);
-              formik.setFieldValue('department_code', event.target.value);
+              formik.setFieldValue('item_acronym', event.target.value);
             }}
           />
         </Box>
@@ -109,25 +112,20 @@ export default function NewDepartmentDialog({
             autoFocus
             placeholder={formatMessage({ id: 'department_name' })}
             fullWidth
-            value={formik.values.department_name}
-            id="department_name"
+            value={formik.values.item_name}
+            id="item_name"
             required
             color="primary"
             onChange={(event) => {
-              formik.setFieldValue('department_name', event.target.value);
+              formik.setFieldValue('item_name', event.target.value);
               if (isCodeGenerated)
                 formik.setFieldValue(
-                  'department_code',
+                  'item_acronym',
                   generateShort(event.target.value)
                 );
             }}
-            error={
-              formik.touched.department_name &&
-              Boolean(formik.errors.department_name)
-            }
-            helperText={
-              formik.touched.department_name && formik.errors.department_name
-            }
+            error={formik.touched.item_name && Boolean(formik.errors.item_name)}
+            helperText={formik.touched.item_name && formik.errors.item_name}
             onBlur={formik.handleBlur}
           />
         </DialogContent>
@@ -147,8 +145,7 @@ export default function NewDepartmentDialog({
               variant="contained"
               type="submit"
               disabled={
-                editableDepartment.department_name ===
-                formik.values.department_name
+                editableDepartment.item_name === formik.values.item_name
               }
             >
               {formatMessage({ id: 'save' })}
@@ -160,7 +157,7 @@ export default function NewDepartmentDialog({
               color="primary"
               variant="contained"
               type="submit"
-              disabled={formik.values.department_name === ''}
+              disabled={formik.values.item_name === ''}
             >
               {formatMessage({ id: 'create' })}
             </Button>

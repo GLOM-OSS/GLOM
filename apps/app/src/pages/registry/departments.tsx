@@ -18,136 +18,224 @@ import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import AcademicItem, { AcademicItemSkeleton } from '../../AcademicItem';
 import ConfirmArchiveDialog from '../../components/confirmArchiveDialog';
-import ConfirmEditDepartmentDialog from '../../components/confirmEditDepartmentDialog';
+import ConfirmEditDialog from '../../components/confirmEditDepartmentDialog';
+import MajorDialog, {
+  FeeSetting,
+  MajorInterface,
+} from '../../components/majorDialog';
 import NewDepartmentDialog, {
   newDepartmentInterface,
 } from '../../components/newDepartmentDialog';
 
 export interface DepartmentInterface {
-  department_name: string;
   created_at: Date;
   is_archived: boolean;
-  department_code: string;
   deleted_at?: Date;
-  department_id: string;
+  item_code: string;
+  item_name: string;
+  item_acronym: string;
+  department_acronym?: string;
+  cycle_name?: string;
 }
 
 export default function Departments({
   usage,
 }: {
-  usage: 'department' | 'major' | 'classroom';
+  usage: 'department' | 'major';
 }) {
   const { formatMessage } = useIntl();
-  const [activeDepartment, setActiveDepartment] =
-    useState<DepartmentInterface>();
+  const [activeAcademicItem, setActiveItem] = useState<DepartmentInterface>();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
   const [isArchiveDialogOpen, setIsArchiveDialogOpen] =
     useState<boolean>(false);
-  const [departments, setDepartments] = useState<DepartmentInterface[]>([]);
-  const [areDepartmentsLoading, setAreDepartmentsLoading] =
+  const [departments, setAcademicItems] = useState<DepartmentInterface[]>([]);
+  const [areDepartmentsLoading, setAreAcademicItemsLoading] =
     useState<boolean>(true);
 
   const [notifications, setNotifications] = useState<useNotification[]>();
   const [showArchived, setShowArchived] = useState<boolean>(false);
-  const getDepartments = () => {
-    setAreDepartmentsLoading(true);
+
+  const getAcademicItems = () => {
+    setAreAcademicItemsLoading(true);
     if (notifications)
       notifications.forEach((notification) => notification.dismiss());
     const notif = new useNotification();
     if (notifications) setNotifications([...notifications, notif]);
     else setNotifications([notif]);
     setTimeout(() => {
-      //TODO: CALL API HERE TO GET departments with data showArchived
-      if (random() > 5) {
-        const newDepartments: DepartmentInterface[] = [
-          {
-            created_at: new Date(),
-            department_code: 'GRT0001',
-            department_name: 'Genie des reseaux et telecommunications',
-            is_archived: false,
-            department_id: 'sdh',
-          },
-          {
-            created_at: new Date(),
-            department_code: 'GRT0001',
-            department_name: 'Genie des reseaux et telecommunications',
-            is_archived: false,
-            department_id: 'sds',
-          },
-          {
-            created_at: new Date(),
-            department_code: 'GRT0001',
-            department_name: 'Genie des reseaux et telecommunications',
-            is_archived: false,
-            department_id: 'shs',
-          },
-          {
-            created_at: new Date(),
-            department_code: 'GRT0001',
-            department_name: 'Genie des reseaux et telecommunications',
-            is_archived: true,
-            department_id: 'shs',
-            deleted_at: new Date('12/12/2018'),
-          },
-        ];
-        setDepartments(newDepartments);
-        setAreDepartmentsLoading(false);
-        notif.dismiss();
-        setNotifications([]);
-      } else {
-        notif.notify({ render: formatMessage({ id: 'loadingDepartments' }) });
-        notif.update({
-          type: 'ERROR',
-          render: (
-            <ErrorMessage
-              retryFunction={getDepartments}
-              notification={notif}
-              message={formatMessage({ id: 'getDepartmentsFailed' })}
-            />
-          ),
-          autoClose: false,
-          icon: () => <ReportRounded fontSize="medium" color="error" />,
-        });
+      switch (usage) {
+        case 'department': {
+          //TODO: CALL API HERE TO GET departments with data showArchived
+          if (random() > 5) {
+            const newDepartments: DepartmentInterface[] = [
+              {
+                created_at: new Date(),
+                item_acronym: 'GRT0001',
+                item_name: 'Genie des reseaux et telecommunications',
+                is_archived: false,
+                item_code: 'sdh',
+              },
+              {
+                created_at: new Date(),
+                item_acronym: 'GRT0001',
+                item_name: 'Genie des reseaux et telecommunications',
+                is_archived: false,
+                item_code: 'sds',
+              },
+              {
+                created_at: new Date(),
+                item_acronym: 'GRT0001',
+                item_name: 'Genie des reseaux et telecommunications',
+                is_archived: false,
+                item_code: 'shs',
+              },
+              {
+                created_at: new Date(),
+                item_acronym: 'GRT0001',
+                item_name: 'Genie des reseaux et telecommunications',
+                is_archived: true,
+                item_code: 'shs',
+                deleted_at: new Date('12/12/2018'),
+              },
+            ];
+            setAcademicItems(newDepartments);
+            setAreAcademicItemsLoading(false);
+            notif.dismiss();
+            setNotifications([]);
+          } else {
+            notif.notify({
+              render: formatMessage({
+                id: `loading${usage[0].toUpperCase()}${usage.slice(
+                  1,
+                  undefined
+                )}s`,
+              }),
+            });
+            notif.update({
+              type: 'ERROR',
+              render: (
+                <ErrorMessage
+                  retryFunction={getAcademicItems}
+                  notification={notif}
+                  message={formatMessage({ id: 'getDepartmentsFailed' })}
+                />
+              ),
+              autoClose: false,
+              icon: () => <ReportRounded fontSize="medium" color="error" />,
+            });
+          }
+          break;
+        }
+        case 'major': {
+          //TODO: CALL API HERE TO GET majors with data showArchived
+          if (random() > 5) {
+            const newMajors: DepartmentInterface[] = [
+              {
+                created_at: new Date(),
+                item_acronym: 'IRT',
+                item_name: 'Informatiques reseaux et telecommunications',
+                is_archived: false,
+                item_code: 'sdh',
+                cycle_name: 'licence',
+                department_acronym: 'GRT',
+              },
+              {
+                created_at: new Date(),
+                item_acronym: 'IRT',
+                item_name: 'Informatiques reseaux et telecommunications',
+                is_archived: false,
+                item_code: 'sdhk',
+                cycle_name: 'licence',
+                department_acronym: 'GRT',
+              },
+              {
+                created_at: new Date(),
+                item_acronym: 'IRT',
+                item_name: 'Informatiques reseaux et telecommunications',
+                is_archived: false,
+                item_code: 'sdha',
+                cycle_name: 'licence',
+                department_acronym: 'GRT',
+              },
+              {
+                created_at: new Date(),
+                item_acronym: 'IRT',
+                item_name: 'Informatiques reseaux et telecommunications',
+                is_archived: false,
+                item_code: 'sdhg',
+                cycle_name: 'licence',
+                department_acronym: 'GRT',
+              },
+            ];
+            setAcademicItems(newMajors);
+            setAreAcademicItemsLoading(false);
+            notif.dismiss();
+            setNotifications([]);
+          } else {
+            notif.notify({
+              render: formatMessage({
+                id: `loading${usage[0].toUpperCase()}${usage.slice(
+                  1,
+                  undefined
+                )}s`,
+              }),
+            });
+            notif.update({
+              type: 'ERROR',
+              render: (
+                <ErrorMessage
+                  retryFunction={getAcademicItems}
+                  notification={notif}
+                  message={formatMessage({
+                    id: `get${usage[0].toUpperCase()}${usage.slice(
+                      1,
+                      undefined
+                    )}sFailed`,
+                  })}
+                />
+              ),
+              autoClose: false,
+              icon: () => <ReportRounded fontSize="medium" color="error" />,
+            });
+          }
+          break;
+        }
       }
     }, 3000);
   };
 
-  //   useEffect(()=>{
-  //     alert('hello world')
-  //   },[usage])
-
   useEffect(() => {
-    getDepartments();
+    getAcademicItems();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showArchived, usage]);
+  }, [showArchived]);
 
-  const [isAddNewDepartmentDialogOpen, setIsAddNewDepartmentDialogOpen] =
+  const [isAddNewDepartmentDialogOpen, setIsAddNewAcademicItemDialogOpen] =
     useState<boolean>(false);
 
   const [isManagingDepartment, setIsManagingDepartment] =
     useState<boolean>(false);
-  const [deptNotifications, setDeptNotifications] = useState<useNotification[]>(
-    []
-  );
+  const [managementNotifications, setManagementNotifications] = useState<
+    useNotification[]
+  >([]);
 
   const createNewDepartment = (newDepartment: newDepartmentInterface) => {
     setIsManagingDepartment(true);
-    deptNotifications.forEach((_) => _.dismiss());
+    managementNotifications.forEach((_) => _.dismiss());
     const notif = new useNotification();
-    setDeptNotifications([...deptNotifications, notif]);
+    setManagementNotifications([...managementNotifications, notif]);
     notif.notify({
       render: formatMessage({
-        id: activeDepartment ? 'editingDepartment' : 'creatingDepartment',
+        id: activeAcademicItem ? 'editingDepartment' : 'creatingDepartment',
       }),
     });
     setTimeout(() => {
-      if (activeDepartment) {
+      if (activeAcademicItem) {
         //TODO: CALL API HERE TO EDIT DEPARTMENT with data newDepartment and department_id: activeDepartment.department_id
         if (random() > 5) {
           notif.update({
             render: formatMessage({ id: 'departmentEditedSuccessfully' }),
           });
-          setActiveDepartment(undefined);
+          setActiveItem(undefined);
         } else {
           notif.update({
             type: 'ERROR',
@@ -189,41 +277,36 @@ export default function Departments({
     }, 3000);
   };
 
-  const [isWarningDialogOpen, setIsWarningDialogOpen] =
-    useState<boolean>(false);
-  const [isArchiving, setIsArchiving] = useState<boolean>(false);
-  const unArchiveItem = () => {
-    setIsArchiving(true);
-    deptNotifications.forEach((_) => _.dismiss());
+  const manageMajor = (value: {
+    values: MajorInterface;
+    levelFees: FeeSetting[];
+  }) => {
+    managementNotifications.forEach((_) => _.dismiss());
     const notif = new useNotification();
-    setDeptNotifications([...deptNotifications, notif]);
+    setManagementNotifications([...managementNotifications, notif]);
     notif.notify({
       render: formatMessage({
-        id: activeDepartment?.is_archived ? 'unarchiving' : 'archiving',
+        id: activeAcademicItem ? 'editingMajor' : 'creatingMajor',
       }),
     });
+
     setTimeout(() => {
-      setIsArchiving(false);
-      if (activeDepartment?.is_archived) {
-        //TODO: CALL API HERE TO UNARCHIVE ITEM with data activeDepartment
+      if (activeAcademicItem) {
+        //TODO: CALL API HERE TO EDIT major with data value.values and major_id: activeDepartment.item_id
         if (random() > 5) {
           notif.update({
-            render: formatMessage({
-              id: 'unarchivingSuccessfull',
-            }),
+            render: formatMessage({ id: 'majorEditedSuccessfully' }),
           });
-          setActiveDepartment(undefined);
+          setActiveItem(undefined);
         } else {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
-                retryFunction={unArchiveItem}
+                retryFunction={() => manageMajor(value)}
                 notification={notif}
                 //TODO: MESSAGE SHOULD COME FROM BACKEND
-                message={formatMessage({
-                  id: 'failedToUnarchive',
-                })}
+                message={formatMessage({ id: 'failedToEditMajor' })}
               />
             ),
             autoClose: false,
@@ -231,25 +314,20 @@ export default function Departments({
           });
         }
       } else {
-        //TODO: CALL API HERE TO ARCHIVE ITEM with data activeDepartment
+        //TODO: CALL API HERE TO CREATE major with data value
         if (random() > 5) {
           notif.update({
-            render: formatMessage({
-              id: 'archivingSuccessfull',
-            }),
+            render: formatMessage({ id: 'majorCreatedSuccessfully' }),
           });
-          setActiveDepartment(undefined);
         } else {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
-                retryFunction={unArchiveItem}
+                retryFunction={() => manageMajor(value)}
                 notification={notif}
                 //TODO: MESSAGE SHOULD COME FROM BACKEND
-                message={formatMessage({
-                  id: 'failedToArchive',
-                })}
+                message={formatMessage({ id: 'failedToCreateMajor' })}
               />
             ),
             autoClose: false,
@@ -257,36 +335,207 @@ export default function Departments({
           });
         }
       }
+      setIsManagingDepartment(false);
     }, 3000);
   };
 
+  const [isWarningDialogOpen, setIsWarningDialogOpen] =
+    useState<boolean>(false);
+  const [isArchiving, setIsArchiving] = useState<boolean>(false);
+
+  const unArchiveItem = () => {
+    setIsArchiving(true);
+    managementNotifications.forEach((_) => _.dismiss());
+    const notif = new useNotification();
+    setManagementNotifications([...managementNotifications, notif]);
+    notif.notify({
+      render: formatMessage({
+        id: activeAcademicItem?.is_archived ? 'unarchiving' : 'archiving',
+      }),
+    });
+    setTimeout(() => {
+      setIsArchiving(false);
+      if (activeAcademicItem?.is_archived) {
+        switch (usage) {
+          case 'department': {
+            //TODO: CALL API HERE TO UNARCHIVE department with data activeAcademicItem
+            if (random() > 5) {
+              notif.update({
+                render: formatMessage({
+                  id: 'unarchivingSuccessfull',
+                }),
+              });
+              setActiveItem(undefined);
+            } else {
+              notif.update({
+                type: 'ERROR',
+                render: (
+                  <ErrorMessage
+                    retryFunction={unArchiveItem}
+                    notification={notif}
+                    //TODO: MESSAGE SHOULD COME FROM BACKEND
+                    message={formatMessage({
+                      id: 'failedToUnarchive',
+                    })}
+                  />
+                ),
+                autoClose: false,
+                icon: () => <ReportRounded fontSize="medium" color="error" />,
+              });
+            }
+            break;
+          }
+          case 'major': {
+            //TODO: CALL API HERE TO UNARCHIVE major with data activeAcademicItem
+            if (random() > 5) {
+              notif.update({
+                render: formatMessage({
+                  id: 'unarchivingSuccessfull',
+                }),
+              });
+              setActiveItem(undefined);
+            } else {
+              notif.update({
+                type: 'ERROR',
+                render: (
+                  <ErrorMessage
+                    retryFunction={unArchiveItem}
+                    notification={notif}
+                    //TODO: MESSAGE SHOULD COME FROM BACKEND
+                    message={formatMessage({
+                      id: 'failedToUnarchive',
+                    })}
+                  />
+                ),
+                autoClose: false,
+                icon: () => <ReportRounded fontSize="medium" color="error" />,
+              });
+            }
+            break;
+          }
+        }
+      } else {
+        switch (usage) {
+          case 'department': {
+            //TODO: CALL API HERE TO ARCHIVE major with data activeAcademicItem
+            if (random() > 5) {
+              notif.update({
+                render: formatMessage({
+                  id: 'archivingSuccessfull',
+                }),
+              });
+              setActiveItem(undefined);
+            } else {
+              notif.update({
+                type: 'ERROR',
+                render: (
+                  <ErrorMessage
+                    retryFunction={unArchiveItem}
+                    notification={notif}
+                    //TODO: MESSAGE SHOULD COME FROM BACKEND
+                    message={formatMessage({
+                      id: 'failedToArchive',
+                    })}
+                  />
+                ),
+                autoClose: false,
+                icon: () => <ReportRounded fontSize="medium" color="error" />,
+              });
+            }
+            break;
+          }
+          case 'major': {
+            //TODO: CALL API HERE TO ARCHIVE major with data activeAcademicItem
+            if (random() > 5) {
+              notif.update({
+                render: formatMessage({
+                  id: 'archivingSuccessfull',
+                }),
+              });
+              setActiveItem(undefined);
+            } else {
+              notif.update({
+                type: 'ERROR',
+                render: (
+                  <ErrorMessage
+                    retryFunction={unArchiveItem}
+                    notification={notif}
+                    //TODO: MESSAGE SHOULD COME FROM BACKEND
+                    message={formatMessage({
+                      id: 'failedToArchive',
+                    })}
+                  />
+                ),
+                autoClose: false,
+                icon: () => <ReportRounded fontSize="medium" color="error" />,
+              });
+            }
+            break;
+          }
+        }
+      }
+    }, 3000);
+  };
+
+  const addNewItem = () => {
+    switch (usage) {
+      case 'department': {
+        setIsAddNewAcademicItemDialogOpen(true);
+        break;
+      }
+      case 'major': {
+        setIsAddMajorDialogOpen(true);
+        break;
+      }
+    }
+  };
+
+  const [isAddMajorDialogOpen, setIsAddMajorDialogOpen] =
+    useState<boolean>(false);
+
   return (
     <>
+      <MajorDialog
+        closeDialog={() => {
+          if (isEditDialogOpen) setIsEditDialogOpen(false);
+          else setIsAddMajorDialogOpen(false);
+        }}
+        editableMajorCode={
+          isEditDialogOpen ? activeAcademicItem?.item_code : undefined
+        }
+        handleSubmit={manageMajor}
+        isDialogOpen={
+          (isAddMajorDialogOpen || isEditDialogOpen) && usage === 'major'
+        }
+      />
       <ConfirmArchiveDialog
         isDialogOpen={isArchiveDialogOpen}
         closeDialog={() => setIsArchiveDialogOpen(false)}
         confirm={unArchiveItem}
-        context={activeDepartment?.is_archived ? 'unarchive' : 'archive'}
+        context={activeAcademicItem?.is_archived ? 'unarchive' : 'archive'}
       />
       <NewDepartmentDialog
         closeDialog={() => {
-          if (isEditDialogOpen) {
-            setIsEditDialogOpen(false);
-          } else setIsAddNewDepartmentDialogOpen(false);
+          if (isEditDialogOpen) setIsEditDialogOpen(false);
+          else setIsAddNewAcademicItemDialogOpen(false);
         }}
-        isDialogOpen={isAddNewDepartmentDialogOpen || isEditDialogOpen}
+        isDialogOpen={
+          (isAddNewDepartmentDialogOpen || isEditDialogOpen) &&
+          usage === 'department'
+        }
         handleSubmit={createNewDepartment}
-        editableDepartment={isEditDialogOpen ? activeDepartment : undefined}
+        editableDepartment={isEditDialogOpen ? activeAcademicItem : undefined}
       />
-      <ConfirmEditDepartmentDialog
+      <ConfirmEditDialog
+        usage={usage}
         isDialogOpen={isWarningDialogOpen}
         closeDialog={() => {
           setIsWarningDialogOpen(false);
         }}
         confirmEdit={() => setIsEditDialogOpen(true)}
-        createNewDepartment={() => {
-          setActiveDepartment(undefined);
-          setIsAddNewDepartmentDialogOpen(true);
+        createNewAcademicItem={() => {
+          setActiveItem(undefined);
+          addNewItem();
         }}
       />
       <Box
@@ -343,11 +592,19 @@ export default function Departments({
           {!areDepartmentsLoading && (
             <Fab
               disabled={areDepartmentsLoading || isAddNewDepartmentDialogOpen}
-              onClick={() => setIsAddNewDepartmentDialogOpen(true)}
+              onClick={addNewItem}
               color="primary"
               sx={{ position: 'absolute', bottom: 16, right: 24 }}
             >
-              <Tooltip arrow title={formatMessage({ id: 'newDepartment' })}>
+              <Tooltip
+                arrow
+                title={formatMessage({
+                  id: `new${usage[0].toUpperCase()}${usage.slice(
+                    1,
+                    undefined
+                  )}`,
+                })}
+              >
                 <AddRounded />
               </Tooltip>
             </Fab>
@@ -371,6 +628,7 @@ export default function Departments({
               {!areDepartmentsLoading && departments.length === 0 && (
                 <Box
                   component={Button}
+                  onClick={addNewItem}
                   sx={{
                     display: 'grid',
                     alignItems: 'center',
@@ -390,7 +648,12 @@ export default function Departments({
                       marginTop: theme.spacing(1),
                     }}
                   >
-                    {formatMessage({ id: 'addNewDepartment' })}
+                    {formatMessage({
+                      id: `addNew${usage[0].toUpperCase()}${usage.slice(
+                        1,
+                        undefined
+                      )}`,
+                    })}
                   </Typography>
                 </Box>
               )}
@@ -400,37 +663,51 @@ export default function Departments({
                   .sort((a, b) =>
                     new Date(a.created_at) > new Date(b.created_at) ? -1 : 1
                   )
-                  .map((department, index) => {
+                  .map((item, index) => {
                     const {
                       created_at,
-                      department_code: item_code,
-                      department_name: item_name,
                       is_archived,
                       deleted_at,
-                    } = department;
+                      item_acronym,
+                      item_name,
+                      cycle_name,
+                      department_acronym,
+                      item_code,
+                    } = item;
+                    const displayItem = {
+                      created_at,
+                      is_archived,
+                      deleted_at,
+                      item_acronym,
+                      item_name,
+                      item_code,
+                    };
                     return (
                       <AcademicItem
+                        usage={usage}
                         disableMenu={isManagingDepartment || isArchiving}
+                        chipItems={
+                          usage === 'department'
+                            ? []
+                            : [
+                                department_acronym as string,
+                                formatMessage({ id: cycle_name }),
+                              ]
+                        }
                         key={index}
                         handleEditClick={() => {
-                          setActiveDepartment(department);
+                          setActiveItem(item);
                           setIsWarningDialogOpen(true);
                         }}
                         handleArchiveClick={() => {
-                          setActiveDepartment(department);
+                          setActiveItem(item);
                           setIsArchiveDialogOpen(true);
                         }}
                         handleUnarchiveClick={() => {
-                          setActiveDepartment(department);
+                          setActiveItem(item);
                           setIsArchiveDialogOpen(true);
                         }}
-                        item={{
-                          created_at,
-                          item_code,
-                          item_name,
-                          is_archived,
-                          deleted_at,
-                        }}
+                        item={displayItem}
                       />
                     );
                   })}

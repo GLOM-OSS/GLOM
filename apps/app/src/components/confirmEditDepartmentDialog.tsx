@@ -12,16 +12,18 @@ import { DialogTransition } from '@squoolr/dialogTransition';
 import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
 
-export default function ConfirmEditDepartmentDialog({
+export default function ConfirmEditDialog({
   isDialogOpen,
   closeDialog,
   confirmEdit,
-  createNewDepartment,
+  createNewAcademicItem,
+  usage,
 }: {
   isDialogOpen: boolean;
   closeDialog: () => void;
   confirmEdit: () => void;
-  createNewDepartment: () => void;
+  createNewAcademicItem: () => void;
+  usage: 'department' | 'major' | 'classroom';
 }) {
   const { formatMessage } = useIntl();
   return (
@@ -36,7 +38,8 @@ export default function ConfirmEditDepartmentDialog({
           sx={{
             display: 'grid',
             gridTemplateColumns: 'auto 1fr',
-            alignItems: 'center', columnGap: theme.spacing(0.5)
+            alignItems: 'center',
+            columnGap: theme.spacing(0.5),
           }}
         >
           <WarningAmberRounded color="warning" />
@@ -46,7 +49,11 @@ export default function ConfirmEditDepartmentDialog({
         </Box>
       </DialogTitle>
       <DialogContent>
-        <DialogContentText>{formatMessage({id:'editDepartmentWarning'})}</DialogContentText>
+        <DialogContentText>{`${formatMessage({
+          id: 'editAcademicItemWarning1',
+        })} ${formatMessage({ id: usage })} ${formatMessage({
+          id: 'editAcademicItemWarning2',
+        })}`}</DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button
@@ -73,11 +80,11 @@ export default function ConfirmEditDepartmentDialog({
           color="primary"
           variant="contained"
           onClick={() => {
-            createNewDepartment();
+            createNewAcademicItem();
             closeDialog();
           }}
         >
-          {formatMessage({ id: 'addNewDepartment' })}
+          {formatMessage({ id: `addNew${usage[0].toUpperCase()}${usage.slice(1,undefined)}` })}
         </Button>
       </DialogActions>
     </Dialog>

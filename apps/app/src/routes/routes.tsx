@@ -2,6 +2,7 @@ import { Typography } from '@mui/material';
 import { Navigate } from 'react-router';
 import AppLayout from '../pages/appLayout';
 import Departments from '../pages/registry/departments';
+import Majors from '../pages/registry/majors';
 import SigninPage from '../pages/signin';
 
 export const routes = [
@@ -21,15 +22,21 @@ export const routes = [
     children: [
       {
         path: 'departments',
-        element: <Departments usage='department' />,
+        element: <Departments usage="department" />,
       },
       {
         path: 'majors',
-        element: <Departments usage='major' />,
-      },
-      {
-        path: 'classes',
-        element: <Typography variant="h1">Classes</Typography>,
+        children: [
+          {
+            path: '',
+            element: <Majors />,
+          },
+          {
+            path: ':major_code',
+            element: <Typography>Manage major</Typography>,
+          },
+          { path: '*', element: <Navigate to="/" /> },
+        ],
       },
       {
         path: 'personnel',
@@ -37,5 +44,6 @@ export const routes = [
       },
     ],
   },
+  { path: '*', element: <Navigate to="/" /> },
   { path: '*', element: <Navigate to="/" /> },
 ];

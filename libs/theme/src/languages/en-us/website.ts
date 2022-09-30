@@ -213,8 +213,9 @@ export const website = {
     'Something went wrong while editing departnemt. Please try again!',
   caution: 'Caution',
   continueEditing: 'Continue editing',
-  editDepartmentWarning:
-    'Note that this action will not change the code or any structural information appart from the name of the department. If you want to change department completely, rather create a new one. Do you still want to continue editing?',
+  editAcademicItemWarning1:
+    'Note that this action will not change the code or any structural information appart from the name of the',
+    editAcademicItemWarning2:'. If you want to change it completely, rather create a new one. Do you still want to continue editing?',
   archiveItem:
     'Note that this will remove the item from the flow of this academic year. You can unarchive it from the list of archives later on. Do you still want to continue?',
   unarchiveItem:

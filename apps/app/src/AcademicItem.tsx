@@ -14,6 +14,7 @@ import { theme } from '@squoolr/theme';
 import { random } from '@squoolr/utils';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
+import { useNavigate } from 'react-router';
 
 export const AcademicItemSkeleton = ({ hasChips }: { hasChips?: boolean }) => {
   const { formatMessage } = useIntl();
@@ -86,19 +87,28 @@ export const AcademicItemSkeleton = ({ hasChips }: { hasChips?: boolean }) => {
 
 interface AcadItemInterface {
   created_at: Date;
-  item_code: string;
+  item_acronym: string;
   item_name: string;
   is_archived: boolean;
   deleted_at?: Date;
+  item_code: string;
 }
 
 export default function AcademicItem({
   handleEditClick,
   handleArchiveClick,
   handleUnarchiveClick,
-  item: { created_at, item_code, item_name, is_archived, deleted_at },
+  item: {
+    created_at,
+    item_acronym,
+    item_name,
+    is_archived,
+    deleted_at,
+    item_code,
+  },
   chipItems,
   disableMenu,
+  usage,
 }: {
   handleEditClick: () => void;
   handleArchiveClick: () => void;
@@ -106,9 +116,12 @@ export default function AcademicItem({
   item: AcadItemInterface;
   chipItems?: string[];
   disableMenu: boolean;
+  usage: 'department' | 'major';
 }) {
   const { formatMessage, formatDate } = useIntl();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const navigate = useNavigate();
+
   return (
     <>
       <Menu
@@ -137,6 +150,17 @@ export default function AcademicItem({
         >
           {formatMessage({ id: is_archived ? 'unarchive' : 'archive' })}
         </MenuItem>
+        {usage === 'major' && (
+          <MenuItem
+            onClick={() => {
+              navigate(item_code);
+              setAnchorEl(null);
+            }}
+            sx={{ padding: theme.spacing(1), minHeight: 'fit-content' }}
+          >
+            {formatMessage({ id: 'manage' })}
+          </MenuItem>
+        )}
       </Menu>
       <Box
         sx={{
@@ -196,7 +220,7 @@ export default function AcademicItem({
           </IconButton>
         </Box>
         <Typography sx={{ marginTop: theme.spacing(2) }}>
-          {`${item_name} (${item_code})`}
+          {`${item_name} (${item_acronym})`}
         </Typography>
         {chipItems && (
           <Box sx={{ marginTop: theme.spacing(2) }}>
