@@ -1,5 +1,6 @@
 import { Typography } from '@mui/material';
 import { Navigate } from 'react-router';
+import Classrooms from '../components/classrooms';
 import AppLayout from '../pages/appLayout';
 import Departments from '../pages/registry/departments';
 import Majors from '../pages/registry/majors';
@@ -33,7 +34,7 @@ export const routes = [
           },
           {
             path: ':major_code',
-            element: <Typography>Manage major</Typography>,
+            element: <Classrooms />,
           },
           { path: '*', element: <Navigate to="/" /> },
         ],
