@@ -135,7 +135,7 @@ model SchoolDemand {
 enum AcademicYearStatus {
     INACTIVE
     ACTIVE
-    FIINISHED
+    FINISHED
 
     @@map("academic_year_status_enum")
 }
