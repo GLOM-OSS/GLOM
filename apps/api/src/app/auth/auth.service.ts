@@ -223,7 +223,7 @@ export class AuthService {
               ? started_at
               : starts_at,
           ending_date:
-            year_status !== AcademicYearStatus.FIINISHED ? ends_at : ended_at,
+            year_status !== AcademicYearStatus.FINISHED ? ends_at : ended_at,
         })
       );
     }
@@ -272,7 +272,7 @@ export class AuthService {
                 ? started_at
                 : starts_at,
             ending_date:
-              year_status !== AcademicYearStatus.FIINISHED ? ends_at : ended_at,
+              year_status !== AcademicYearStatus.FINISHED ? ends_at : ended_at,
           });
         }
       }
@@ -310,7 +310,7 @@ export class AuthService {
         starting_date:
           year_status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,
         ending_date:
-          year_status !== AcademicYearStatus.FIINISHED ? ends_at : ended_at,
+          year_status !== AcademicYearStatus.FINISHED ? ends_at : ended_at,
       },
     };
 
@@ -513,7 +513,7 @@ export class AuthService {
         starting_date:
           year_status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,
         ending_date:
-          year_status !== AcademicYearStatus.FIINISHED ? ends_at : ended_at,
+          year_status !== AcademicYearStatus.FINISHED ? ends_at : ended_at,
       },
     };
     for (let i = 0; i < roles.length; i++) {

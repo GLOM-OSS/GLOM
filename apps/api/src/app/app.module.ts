@@ -1,5 +1,9 @@
 import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { PassportModule } from '@nestjs/passport';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { TasksModule } from '@squoolr/tasks';
 
 import * as connectRedis from 'connect-redis';
 import { randomUUID } from 'crypto';
@@ -7,20 +11,21 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 import { createClient } from 'redis';
 
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { PassportModule } from '@nestjs/passport';
-import { TasksModule } from '@squoolr/tasks';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AppController } from './app.controller';
 import { AppInterceptor } from './app.interceptor';
 import { AppMiddleware } from './app.middleware';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { DemandModule } from './demand/demand.module';
 import { ConfiguratorModule } from './configurator/configurator.module';
+import { DemandModule } from './demand/demand.module';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10,
+    }),
     ConfigModule.forRoot(),
     PassportModule.register({
       session: true,
@@ -29,7 +34,7 @@ import { ConfiguratorModule } from './configurator/configurator.module';
     TasksModule,
     AuthModule,
     DemandModule,
-    ConfiguratorModule
+    ConfiguratorModule,
   ],
   controllers: [AppController],
   providers: [
@@ -37,6 +42,10 @@ import { ConfiguratorModule } from './configurator/configurator.module';
     {
       provide: APP_INTERCEPTOR,
       useClass: AppInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })
