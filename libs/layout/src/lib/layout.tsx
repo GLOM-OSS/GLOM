@@ -103,7 +103,7 @@ export function Layout({
         );
       if (children.length > 0)
         navigate(
-          pathname.length > 2
+          pathname.length >= 2
             ? `/${pathname.join('/')}`
             : `${children[0].route}`
         );
