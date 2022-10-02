@@ -36,7 +36,7 @@ export interface DepartmentInterface {
   item_name: string;
   item_acronym: string;
   department_acronym?: string;
-  cycle_name?: string;
+  cycle_name?: 'BACHELORS' | 'MASTER' | 'DOCTORATE' | 'DUT' | 'BTS' | 'DTS';
 }
 
 export default function Departments({
@@ -139,7 +139,7 @@ export default function Departments({
                 item_name: 'Informatiques reseaux et telecommunications',
                 is_archived: false,
                 item_code: 'sdh',
-                cycle_name: 'licence',
+                cycle_name: 'BACHELORS',
                 department_acronym: 'GRT',
               },
               {
@@ -148,7 +148,7 @@ export default function Departments({
                 item_name: 'Informatiques reseaux et telecommunications',
                 is_archived: false,
                 item_code: 'sdhk',
-                cycle_name: 'licence',
+                cycle_name: 'MASTER',
                 department_acronym: 'GRT',
               },
               {
@@ -157,7 +157,7 @@ export default function Departments({
                 item_name: 'Informatiques reseaux et telecommunications',
                 is_archived: false,
                 item_code: 'sdha',
-                cycle_name: 'licence',
+                cycle_name: 'DOCTORATE',
                 department_acronym: 'GRT',
               },
               {
@@ -166,7 +166,7 @@ export default function Departments({
                 item_name: 'Informatiques reseaux et telecommunications',
                 is_archived: false,
                 item_code: 'sdhg',
-                cycle_name: 'licence',
+                cycle_name: 'BACHELORS',
                 department_acronym: 'GRT',
               },
             ];
