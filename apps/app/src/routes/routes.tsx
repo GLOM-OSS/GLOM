@@ -1,9 +1,9 @@
 import { Typography } from '@mui/material';
 import { Navigate } from 'react-router';
-import Classrooms from '../components/classrooms';
+import Classrooms from '../components/secretary/classrooms';
 import AppLayout from '../pages/appLayout';
-import Departments from '../pages/registry/departments';
-import Majors from '../pages/registry/majors';
+import Departments from '../pages/secretary/departments';
+import Majors from '../pages/secretary/majors';
 import SigninPage from '../pages/signin';
 
 export const routes = [

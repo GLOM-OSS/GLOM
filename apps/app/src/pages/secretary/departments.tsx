@@ -17,15 +17,15 @@ import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import AcademicItem, { AcademicItemSkeleton } from '../../AcademicItem';
-import ConfirmArchiveDialog from '../../components/confirmArchiveDialog';
-import ConfirmEditDialog from '../../components/confirmEditDepartmentDialog';
+import ConfirmArchiveDialog from '../../components/secretary/confirmArchiveDialog';
+import ConfirmEditDialog from '../../components/secretary/confirmEditDepartmentDialog';
 import MajorDialog, {
   FeeSetting,
   MajorInterface,
-} from '../../components/majorDialog';
+} from '../../components/secretary/majorDialog';
 import NewDepartmentDialog, {
   newDepartmentInterface,
-} from '../../components/newDepartmentDialog';
+} from '../../components/secretary/newDepartmentDialog';
 
 export interface DepartmentInterface {
   created_at: Date;
@@ -48,8 +48,8 @@ export default function Departments({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
   const [isArchiveDialogOpen, setIsArchiveDialogOpen] =
     useState<boolean>(false);
-  const [departments, setAcademicItems] = useState<DepartmentInterface[]>([]);
-  const [areDepartmentsLoading, setAreAcademicItemsLoading] =
+  const [academicItems, setAcademicItems] = useState<DepartmentInterface[]>([]);
+  const [areAcademicItemsLoading, setAreAcademicItemsLoading] =
     useState<boolean>(true);
 
   const [notifications, setNotifications] = useState<useNotification[]>();
@@ -209,7 +209,7 @@ export default function Departments({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showArchived]);
 
-  const [isAddNewDepartmentDialogOpen, setIsAddNewAcademicItemDialogOpen] =
+  const [isAddNewAcademicItemDialogOpen, setIsAddNewAcademicItemDialogOpen] =
     useState<boolean>(false);
 
   const [isManagingDepartment, setIsManagingDepartment] =
@@ -520,7 +520,7 @@ export default function Departments({
           else setIsAddNewAcademicItemDialogOpen(false);
         }}
         isDialogOpen={
-          (isAddNewDepartmentDialogOpen || isEditDialogOpen) &&
+          (isAddNewAcademicItemDialogOpen || isEditDialogOpen) &&
           usage === 'department'
         }
         handleSubmit={createNewDepartment}
@@ -555,14 +555,14 @@ export default function Departments({
           }}
         >
           <TextField
-            placeholder={formatMessage({ id: 'searchSomething' })}
+            placeholder={formatMessage({ id: `search${usage[0].toUpperCase()}${usage.slice(1,undefined)}Name` })}
             variant="outlined"
             size="small"
             sx={{
               '& input': { ...theme.typography.caption },
               backgroundColor: theme.common.inputBackground,
             }}
-            disabled={areDepartmentsLoading}
+            disabled={areAcademicItemsLoading}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -576,7 +576,7 @@ export default function Departments({
           <FormControlLabel
             control={
               <Checkbox
-                disabled={areDepartmentsLoading}
+                disabled={areAcademicItemsLoading}
                 checked={showArchived}
                 color="primary"
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -589,9 +589,9 @@ export default function Departments({
           />
         </Box>
         <Box sx={{ height: '100%', position: 'relative' }}>
-          {!areDepartmentsLoading && (
+          {!areAcademicItemsLoading && (
             <Fab
-              disabled={areDepartmentsLoading || isAddNewDepartmentDialogOpen}
+              disabled={areAcademicItemsLoading || isAddNewAcademicItemDialogOpen}
               onClick={addNewItem}
               color="primary"
               sx={{ position: 'absolute', bottom: 16, right: 24 }}
@@ -618,14 +618,14 @@ export default function Departments({
                 gap: theme.spacing(2),
               }}
             >
-              {areDepartmentsLoading &&
+              {areAcademicItemsLoading &&
                 [...new Array(10)].map((_, index) => (
                   <AcademicItemSkeleton
                     key={index}
                     hasChips={usage !== 'department'}
                   />
                 ))}
-              {!areDepartmentsLoading && departments.length === 0 && (
+              {!areAcademicItemsLoading && academicItems.length === 0 && (
                 <Box
                   component={Button}
                   onClick={addNewItem}
@@ -657,9 +657,9 @@ export default function Departments({
                   </Typography>
                 </Box>
               )}
-              {!areDepartmentsLoading &&
-                departments.length > 0 &&
-                departments
+              {!areAcademicItemsLoading &&
+                academicItems.length > 0 &&
+                academicItems
                   .sort((a, b) =>
                     new Date(a.created_at) > new Date(b.created_at) ? -1 : 1
                   )
