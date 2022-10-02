@@ -6,6 +6,7 @@ import {
   Fab,
   FormControlLabel,
   InputAdornment,
+  MenuItem,
   TextField,
   Tooltip,
   Typography,
@@ -54,6 +55,7 @@ export default function Departments({
 
   const [notifications, setNotifications] = useState<useNotification[]>();
   const [showArchived, setShowArchived] = useState<boolean>(false);
+  const [canSearch, setCanSearch] = useState<boolean>(false);
 
   const getAcademicItems = () => {
     setAreAcademicItemsLoading(true);
@@ -65,7 +67,7 @@ export default function Departments({
     setTimeout(() => {
       switch (usage) {
         case 'department': {
-          //TODO: CALL API HERE TO GET departments with data showArchived
+          //TODO: CALL API HERE TO GET departments with data showArchived, searchTerm
           if (random() > 5) {
             const newDepartments: DepartmentInterface[] = [
               {
@@ -102,6 +104,7 @@ export default function Departments({
             setAreAcademicItemsLoading(false);
             notif.dismiss();
             setNotifications([]);
+            setCanSearch(true);
           } else {
             notif.notify({
               render: formatMessage({
@@ -127,7 +130,7 @@ export default function Departments({
           break;
         }
         case 'major': {
-          //TODO: CALL API HERE TO GET majors with data showArchived
+          //TODO: CALL API HERE TO GET majors with data showArchived, searchTerm and selectedDepartmentCode
           if (random() > 5) {
             const newMajors: DepartmentInterface[] = [
               {
@@ -204,10 +207,16 @@ export default function Departments({
     }, 3000);
   };
 
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [selectedDepartmentCode, setSelectedDepartmentCode] = useState<
+    string | undefined
+  >(undefined);
+
   useEffect(() => {
     getAcademicItems();
+    // alert('make it rain');
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showArchived]);
+  }, [showArchived, searchTerm, selectedDepartmentCode]);
 
   const [isAddNewAcademicItemDialogOpen, setIsAddNewAcademicItemDialogOpen] =
     useState<boolean>(false);
@@ -493,6 +502,59 @@ export default function Departments({
   const [isAddMajorDialogOpen, setIsAddMajorDialogOpen] =
     useState<boolean>(false);
 
+  const [areDepartmentsLoading, setAreDepartmentsLoading] =
+    useState<boolean>(false);
+  const [departments, setDepartments] = useState<
+    {
+      department_code: string;
+      department_name: string;
+      department_acronym: string;
+    }[]
+  >([]);
+
+  const [departmentNotif, setDepartmentNotif] = useState<useNotification>();
+  const loadDepartments = () => {
+    if (usage === 'major') {
+      setAreDepartmentsLoading(true);
+      const notif = new useNotification();
+      if (departmentNotif) departmentNotif.dismiss();
+      setDepartmentNotif(notif);
+      setTimeout(() => {
+        //TODO: CALL API HERE TO LOAD DEPARTMENTS FOR ACADEMIC YEAR
+        if (random() > 5) {
+          const newDepartments: {
+            department_code: string;
+            department_name: string;
+            department_acronym: string;
+          }[] = [];
+          setDepartments(newDepartments);
+          setAreDepartmentsLoading(false);
+          notif.dismiss();
+          setDepartmentNotif(undefined);
+        } else {
+          notif.notify({ render: formatMessage({ id: 'loadingDepartments' }) });
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={loadDepartments}
+                notification={notif}
+                //TODO: ERROR MESSAGE SHOULD COME FROM BACKEND
+                message={formatMessage({ id: 'getDepartmentsFailed' })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
+      }, 3000);
+    }
+  };
+  useEffect(() => {
+    loadDepartments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [usage]);
+
   return (
     <>
       <MajorDialog
@@ -549,20 +611,28 @@ export default function Departments({
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: 'auto 1fr',
+            gridTemplateColumns:
+              usage === 'major' ? 'auto auto 1fr' : 'auto 1fr',
             columnGap: theme.spacing(2),
             alignItems: 'center',
           }}
         >
           <TextField
-            placeholder={formatMessage({ id: `search${usage[0].toUpperCase()}${usage.slice(1,undefined)}Name` })}
+            placeholder={formatMessage({
+              id: `search${usage[0].toUpperCase()}${usage.slice(
+                1,
+                undefined
+              )}Name`,
+            })}
             variant="outlined"
+            onChange={(event) => setSearchTerm(event.target.value)}
+            value={searchTerm}
             size="small"
             sx={{
               '& input': { ...theme.typography.caption },
               backgroundColor: theme.common.inputBackground,
             }}
-            disabled={areAcademicItemsLoading}
+            disabled={areAcademicItemsLoading && canSearch}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -573,10 +643,46 @@ export default function Departments({
               ),
             }}
           />
+          {usage === 'major' && (
+            <TextField
+              select
+              size="small"
+              placeholder={formatMessage({ id: 'department' })}
+              label={formatMessage({ id: 'selectDepartment' })}
+              value={selectedDepartmentCode}
+              onChange={(event) =>
+                setSelectedDepartmentCode(event.target.value)
+              }
+              sx={{
+                '& input': { ...theme.typography.caption },
+                backgroundColor: theme.common.inputBackground,
+                minWidth: '200px',
+              }}
+              color="primary"
+              disabled={
+                areDepartmentsLoading || (areAcademicItemsLoading && canSearch)
+              }
+            >
+              <MenuItem value={undefined}>
+                {formatMessage({ id: 'all' })}
+              </MenuItem>
+              {departments.map(
+                (
+                  { department_acronym, department_code, department_name },
+                  index
+                ) => (
+                  <MenuItem
+                    key={index}
+                    value={department_code}
+                  >{`${department_name}(${department_acronym})`}</MenuItem>
+                )
+              )}
+            </TextField>
+          )}
           <FormControlLabel
             control={
               <Checkbox
-                disabled={areAcademicItemsLoading}
+                disabled={areAcademicItemsLoading && canSearch}
                 checked={showArchived}
                 color="primary"
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -591,7 +697,9 @@ export default function Departments({
         <Box sx={{ height: '100%', position: 'relative' }}>
           {!areAcademicItemsLoading && (
             <Fab
-              disabled={areAcademicItemsLoading || isAddNewAcademicItemDialogOpen}
+              disabled={
+                areAcademicItemsLoading || isAddNewAcademicItemDialogOpen
+              }
               onClick={addNewItem}
               color="primary"
               sx={{ position: 'absolute', bottom: 16, right: 24 }}
