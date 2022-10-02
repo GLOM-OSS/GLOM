@@ -1,11 +1,19 @@
 import { ReportRounded } from '@mui/icons-material';
-import { Box, Button, Skeleton, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Chip,
+  lighten,
+  Skeleton,
+  Typography,
+} from '@mui/material';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';
+import ConfirmProgressDialog from './ConfirmProgressDialog';
 import RejectDemandDialog from './rejectDailog';
 import ValidateDemandDialog from './validateDialog';
 
@@ -24,6 +32,7 @@ interface School {
   email: string;
   phone: string;
   code: string;
+  school_status: 'validated' | 'progress' | 'rejected' | 'pending';
 }
 
 export interface DemandDetailsInterface {
@@ -39,6 +48,7 @@ export default function DemandValidation() {
       email: '',
       phone: '',
       code: '',
+      school_status: 'pending',
     },
     person: {
       first_name: '',
@@ -72,6 +82,7 @@ export default function DemandValidation() {
             email: 'info@iai-yde.com',
             phone: '00237657140183',
             code: '445937',
+            school_status: 'validated',
           },
           person: {
             first_name: 'Kouatchoua Tchakoumi',
@@ -178,9 +189,55 @@ export default function DemandValidation() {
   };
 
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState<boolean>(false);
+  const [isConfirmProgressDialogOpen, setIsConfirmProgressDialogOpen] =
+    useState<boolean>(false);
+
+  const changeDemandStatus = () => {
+    setIsValidating(true);
+    setIsConfirmProgressDialogOpen(false);
+    if (validateNotifications)
+      validateNotifications.forEach((notification) => notification.dismiss());
+    const notif = new useNotification();
+    if (validateNotifications)
+      setValidateNotifications([...validateNotifications, notif]);
+    else setValidateNotifications([notif]);
+    notif.notify({
+      render: formatMessage({
+        id: 'settingState',
+      }),
+    });
+    setTimeout(() => {
+      setIsValidating(false);
+      //TODO: CALL API HERE TO CHANGE DEMAND STATUS TO PROGRESS WITH DATA demand_code
+      if (random() > 5) {
+        notif.update({
+          render: formatMessage({ id: 'demandStatusChanged' }),
+        });
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={changeDemandStatus}
+              notification={notif}
+              //TODO: MESSAGE SHOULD COME FROM BACKEND
+              message={formatMessage({ id: 'failedToChangeDemandStatus' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
 
   return (
     <>
+      <ConfirmProgressDialog
+        isDialogOpen={isConfirmProgressDialogOpen}
+        handleConfirm={changeDemandStatus}
+        closeDialog={() => setIsConfirmProgressDialogOpen(false)}
+      />
       <ValidateDemandDialog
         closeDialog={() => setIsValidateDemandDialogOpen(false)}
         handleSubmit={(response: string) =>
@@ -254,61 +311,124 @@ export default function DemandValidation() {
                 >
                   <Typography
                     variant="body2"
-                    sx={{ color: theme.common.placeholder }}
+                    sx={{
+                      color: theme.common.placeholder,
+                      alignSelf: 'center',
+                    }}
                   >
                     {formatMessage({ id: key })}
                     {' :'}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: theme.common.body }}>
-                    {isDemandLoading ? (
+                  {'school_status' === key ? (
+                    isDemandLoading ? (
                       <Skeleton
                         animation="wave"
                         width={`${random() * 10 ?? 30}%`}
                       />
                     ) : (
-                      school[key as keyof School]
-                    )}
-                  </Typography>
+                      <Chip
+                        sx={{
+                          justifySelf: 'start',
+                          alignSelf: 'center',
+                          backgroundColor: lighten(
+                            theme.palette[
+                              demand.school.school_status === 'pending'
+                                ? 'info'
+                                : demand.school.school_status === 'progress'
+                                ? 'secondary'
+                                : demand.school.school_status === 'validated'
+                                ? 'success'
+                                : 'error'
+                            ].main,
+                            0.6
+                          ),
+                        }}
+                        label={formatMessage({
+                          id: demand.school.school_status,
+                        })}
+                      />
+                    )
+                  ) : (
+                    <Typography
+                      variant="body2"
+                      sx={{ color: theme.common.body }}
+                    >
+                      {isDemandLoading ? (
+                        <Skeleton
+                          animation="wave"
+                          width={`${random() * 10 ?? 30}%`}
+                        />
+                      ) : (
+                        school[key as keyof School]
+                      )}
+                    </Typography>
+                  )}
                 </Box>
               ))}
             </Box>
-            <Box
-              sx={{
-                justifySelf: 'start',
-                display: 'grid',
-                gridTemplateColumns: 'auto 1fr',
-                columnGap: theme.spacing(2),
-              }}
-            >
-              <Button
-                color="error"
-                sx={{ textTransform: 'none' }}
-                variant="contained"
-                disabled={
-                  isSubmitting ||
-                  isDemandLoading ||
-                  isRejectDialogOpen ||
-                  isValidateDemandDialogOpen
-                }
-                onClick={() => setIsRejectDialogOpen(true)}
-              >
-                {formatMessage({ id: 'reject' })}
-              </Button>
+            {demand.school.school_status === 'pending' ? (
               <Button
                 color="primary"
-                sx={{ textTransform: 'none' }}
+                sx={{ textTransform: 'none', justifySelf: 'end' }}
                 variant="contained"
-                onClick={() => setIsValidateDemandDialogOpen(true)}
                 disabled={
                   isSubmitting ||
                   isDemandLoading ||
                   isRejectDialogOpen ||
-                  isValidateDemandDialogOpen
+                  isValidateDemandDialogOpen ||
+                  isConfirmProgressDialogOpen
                 }
+                onClick={() => {
+                  if (validateNotifications)
+                    validateNotifications.forEach((notification) =>
+                      notification.dismiss()
+                    );
+                  setIsConfirmProgressDialogOpen(true);
+                }}
               >
-                {formatMessage({ id: 'validate' })}
+                {formatMessage({ id: 'changeStatus' })}
               </Button>
-            </Box>
+            ) : demand.school.school_status === 'progress' ? (
+              <Box
+                sx={{
+                  justifySelf: 'start',
+                  display: 'grid',
+                  gridTemplateColumns: 'auto 1fr',
+                  columnGap: theme.spacing(2),
+                }}
+              >
+                <Button
+                  color="error"
+                  sx={{ textTransform: 'none' }}
+                  variant="contained"
+                  disabled={
+                    isSubmitting ||
+                    isDemandLoading ||
+                    isRejectDialogOpen ||
+                    isValidateDemandDialogOpen ||
+                    isConfirmProgressDialogOpen
+                  }
+                  onClick={() => setIsRejectDialogOpen(true)}
+                >
+                  {formatMessage({ id: 'reject' })}
+                </Button>
+                <Button
+                  color="primary"
+                  sx={{ textTransform: 'none' }}
+                  variant="contained"
+                  onClick={() => setIsValidateDemandDialogOpen(true)}
+                  disabled={
+                    isSubmitting ||
+                    isDemandLoading ||
+                    isRejectDialogOpen ||
+                    isValidateDemandDialogOpen ||
+                    isConfirmProgressDialogOpen
+                  }
+                >
+                  {formatMessage({ id: 'validate' })}
+                </Button>
+              </Box>
+            ) : null}
           </Box>
         </Box>
       </Box>
