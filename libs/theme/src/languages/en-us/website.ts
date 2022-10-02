@@ -215,7 +215,8 @@ export const website = {
   continueEditing: 'Continue editing',
   editAcademicItemWarning1:
     'Note that this action will not change the code or any structural information appart from the name of the',
-    editAcademicItemWarning2:'. If you want to change it completely, rather create a new one. Do you still want to continue editing?',
+  editAcademicItemWarning2:
+    '. If you want to change it completely, rather create a new one. Do you still want to continue editing?',
   archiveItem:
     'Note that this will remove the item from the flow of this academic year. You can unarchive it from the list of archives later on. Do you still want to continue?',
   unarchiveItem:
@@ -228,4 +229,37 @@ export const website = {
   unarchivingSuccessfull: 'Unarchiving successfull!',
   failedToUnarchive:
     'Something went wrong while unarchiving item. Please try again!',
+  searchMajorName: 'Search major name',
+  department: 'Department',
+  selectDepartment: 'Select department',
+  all: 'All',
+  addNewMajor: 'Add new major',
+  major_acronym: 'Major acronym',
+  major_name: 'Major name',
+  cycle: 'Cycle',
+  selectCycle: 'Select cycle',
+  major: 'Major',
+  searchDepartmentName: 'Search department name',
+  loadingMajors: 'Loading majors...',
+  getMajorsFailed:
+    'Something went wrong while loading majors. Please try again!',
+  newMajor: 'New major',
+  manage: 'Manage',
+  loadDepartmentsFailed:
+    'Something went wrong while loading departments. please try again!',
+  loadingCycles: 'Loading cycles...',
+  loadCyclesFailed:
+    'Something went wrong while loading cycles. Please try again!',
+    BACHELORS: 'Bachelors',
+    years: 'years',
+    MASTER: 'Masters',
+    DOCTORATE: 'Doctorate',
+    classrooms: 'Classrooms',
+    classroom_name: 'Classroom name',
+    registration_fee: 'Registration fee',
+    total_fee_due: 'Total fee due',
+    noClassrooms: 'No Classrooms',
+    loadingClassrooms: 'Loading classrooms...',
+    loadingClassroomsFailed: 'Something went wrong while loading classrooms. Please try again!',
+    searchDepartment:'Search department'
 };
