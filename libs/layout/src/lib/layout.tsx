@@ -21,7 +21,7 @@ import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
-import { Outlet, useLocation, useNavigate } from 'react-router';
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router';
 import LogoutDialog from '../components/logoutDialog';
 import PrimaryNav from '../components/primaryNav';
 import SecondaryNavItem from '../components/SecondaryNavItem';
@@ -191,6 +191,7 @@ export function Layout({
       }
     }, 3000);
   };
+  const params = useParams()
 
   return (
     <>
@@ -393,6 +394,7 @@ export function Layout({
                     const pathnameArray = location.pathname
                       .split('/')
                       .filter((_) => _ !== '');
+                      const paramTexts = Object.keys(params).map((_item)=>params[_item])
                     return (
                       <Typography
                         key={index}
@@ -432,7 +434,7 @@ export function Layout({
                           },
                         }}
                       >
-                        {isNaN(Number(item))
+                        {isNaN(Number(item)) && !paramTexts.includes(item)
                           ? formatMessage({ id: item })
                           : item}
                       </Typography>
