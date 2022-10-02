@@ -67,6 +67,7 @@ export const AcademicItemSkeleton = ({ hasChips }: { hasChips?: boolean }) => {
           {[...new Array(2)].map((item, index) => (
             <Chip
               size="small"
+              key={index}
               sx={{
                 justifySelf: 'center',
                 marginRight: theme.spacing(1),
@@ -227,6 +228,7 @@ export default function AcademicItem({
             {chipItems.map((item, index) => (
               <Chip
                 size="small"
+                key={index}
                 sx={{
                   justifySelf: 'center',
                   marginRight: theme.spacing(1),
@@ -235,7 +237,7 @@ export default function AcademicItem({
                     0.6
                   ),
                 }}
-                label={formatMessage({ id: item })}
+                label={item}
               />
             ))}
           </Box>
