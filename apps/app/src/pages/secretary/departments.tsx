@@ -648,7 +648,7 @@ export default function Departments({
               select
               size="small"
               placeholder={formatMessage({ id: 'department' })}
-              label={formatMessage({ id: 'selectDepartment' })}
+              label={formatMessage({ id: 'searchDepartment' })}
               value={selectedDepartmentCode}
               onChange={(event) =>
                 setSelectedDepartmentCode(event.target.value)
