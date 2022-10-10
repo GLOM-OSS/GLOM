@@ -79,7 +79,9 @@ export default function PersonnelRow({
   openProfileDialog,
   openResetPasswordDialog,
   openResetCodeDialog,
+  isSubmitting,
 }: {
+  isSubmitting: boolean;
   personnel: PersonnelInterface;
   index: number;
   openEditDialog: (personnel: PersonnelInterface) => void;
@@ -213,6 +215,7 @@ export default function PersonnelRow({
         <TableCell>
           <IconButton
             size="small"
+            disabled={isSubmitting}
             onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
               setAnchorEl(event.currentTarget);
             }}

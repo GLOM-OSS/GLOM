@@ -145,6 +145,11 @@ export default function Personnel() {
   const [isResetCodeDialogOpen, setIsResetCodeDialogOpen] =
     useState<boolean>(false);
 
+    const[isSubmittingMenuAction, setIsSubmittingMenuAction] = useState<boolean>(false)
+    // const confirmReset = () =>{
+    //     const notif = new useNotification()
+    // }
+
   return (
     <>
       {activePersonnel && (
@@ -207,6 +212,7 @@ export default function Personnel() {
               {!arePersonnelLoading &&
                 personnels.map((personnel, index) => (
                   <PersonnelRow
+                  isSubmitting = {isSubmittingMenuAction}
                     index={index}
                     personnel={personnel}
                     key={index}
