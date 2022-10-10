@@ -62,7 +62,6 @@ const RowMenu = ({
 
 export default function PersonnelRow({
   personnel: {
-    personnel_id,
     first_name,
     last_name,
     email,
@@ -73,6 +72,7 @@ export default function PersonnelRow({
     is_secretariat,
     is_teacher,
   },
+  personnel,
   index,
   openEditDialog,
   openProfileDialog,
@@ -81,10 +81,10 @@ export default function PersonnelRow({
 }: {
   personnel: PersonnelInterface;
   index: number;
-  openEditDialog: (personnel_id: string) => void;
-  openProfileDialog: (personnel_id: string) => void;
-  openResetPasswordDialog: (personnel_id: string) => void;
-  openResetCodeDialog: (personnel_id: string) => void;
+  openEditDialog: (personnel: PersonnelInterface) => void;
+  openProfileDialog: (personnel: PersonnelInterface) => void;
+  openResetPasswordDialog: (personnel: PersonnelInterface) => void;
+  openResetCodeDialog: (personnel: PersonnelInterface) => void;
 }) {
   const { formatMessage, formatTime } = useIntl();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -99,44 +99,44 @@ export default function PersonnelRow({
             ? [
                 {
                   menu_title: 'edit',
-                  executeFunction: () => openEditDialog(personnel_id),
+                  executeFunction: () => openEditDialog(personnel),
                 },
                 {
                   menu_title: 'seeProfile',
-                  executeFunction: () => openProfileDialog(personnel_id),
+                  executeFunction: () => openProfileDialog(personnel),
                 },
               ]
             : is_secretariat && (is_academic_service || is_teacher)
             ? [
                 {
                   menu_title: 'edit',
-                  executeFunction: () => openEditDialog(personnel_id),
+                  executeFunction: () => openEditDialog(personnel),
                 },
                 {
                   menu_title: 'seeProfile',
-                  executeFunction: () => openProfileDialog(personnel_id),
+                  executeFunction: () => openProfileDialog(personnel),
                 },
                 {
                   menu_title: 'resetPrivateCode',
-                  executeFunction: () => openResetCodeDialog(personnel_id),
+                  executeFunction: () => openResetCodeDialog(personnel),
                 },
               ]
             : [
                 {
                   menu_title: 'edit',
-                  executeFunction: () => openEditDialog(personnel_id),
+                  executeFunction: () => openEditDialog(personnel),
                 },
                 {
                   menu_title: 'seeProfile',
-                  executeFunction: () => openProfileDialog(personnel_id),
+                  executeFunction: () => openProfileDialog(personnel),
                 },
                 {
                   menu_title: 'resetPassword',
-                  executeFunction: () => openResetPasswordDialog(personnel_id),
+                  executeFunction: () => openResetPasswordDialog(personnel),
                 },
                 {
                   menu_title: 'resetPrivateCode',
-                  executeFunction: () => openResetCodeDialog(personnel_id),
+                  executeFunction: () => openResetCodeDialog(personnel),
                 },
               ]
         }

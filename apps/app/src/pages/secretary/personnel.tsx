@@ -56,7 +56,7 @@ export default function Personnel() {
       if (random() > 5) {
         const newPersonnels: PersonnelInterface[] = [
           {
-            personnel_id: 'shess',
+            personnel_id: 'PersonnelInterfaceshess',
             first_name: 'Kouatchoua',
             last_name: 'Tchakoumi Lorrain',
             email: 'lorraintchakoumi@gmail.com',
@@ -68,7 +68,7 @@ export default function Personnel() {
             is_secretariat: true,
           },
           {
-            personnel_id: 'shses',
+            personnel_id: 'PersonnelInterfaceshses',
             first_name: 'Kouatchoua',
             last_name: 'Tchakoumi Lorrain',
             email: 'lorraintchakoumi@gmail.com',
@@ -80,7 +80,7 @@ export default function Personnel() {
             is_secretariat: true,
           },
           {
-            personnel_id: 'sshes',
+            personnel_id: 'PersonnelInterfacesshes',
             first_name: 'Kouatchoua',
             last_name: 'Tchakoumi Lorrain',
             email: 'lorraintchakoumi@gmail.com',
@@ -92,7 +92,7 @@ export default function Personnel() {
             is_secretariat: false,
           },
           {
-            personnel_id: 'sshess',
+            personnel_id: 'PersonnelInterfacesshess',
             first_name: 'Kouatchoua',
             last_name: 'Tchakoumi Lorrain',
             email: 'lorraintchakoumi@gmail.com',
@@ -130,6 +130,15 @@ export default function Personnel() {
     getPersonnels();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchValue, activeTabItem]);
+
+  const [activePersonnel, setActivePersonnel] = useState<PersonnelInterface>();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
+  const [isProfileDialogOpen, setIsProfileDialogOpen] =
+    useState<boolean>(false);
+  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] =
+    useState<boolean>(false);
+  const [isResetCodeDialogOpen, setIsResetCodeDialogOpen] =
+    useState<boolean>(false);
 
   return (
     <Box
@@ -183,10 +192,22 @@ export default function Personnel() {
                   index={index}
                   personnel={personnel}
                   key={index}
-                  openEditDialog={(personnel_id:string) => alert(personnel_id)}
-                  openProfileDialog={(personnel_id:string) => alert(personnel_id)}
-                  openResetPasswordDialog={(personnel_id:string) => alert(personnel_id)}
-                  openResetCodeDialog={(personnel_id:string) => alert(personnel_id)}
+                  openEditDialog={(personnel: PersonnelInterface) => {
+                    setActivePersonnel(personnel);
+                    setIsEditDialogOpen(true);
+                  }}
+                  openProfileDialog={(personnel: PersonnelInterface) => {
+                    setActivePersonnel(personnel);
+                    setIsProfileDialogOpen(true)
+                  }}
+                  openResetPasswordDialog={(personnel: PersonnelInterface) => {
+                    setActivePersonnel(personnel);
+                    setIsResetPasswordDialogOpen(true)
+                  }}
+                  openResetCodeDialog={(personnel: PersonnelInterface) => {
+                    setActivePersonnel(personnel);
+                    setIsResetCodeDialogOpen(true)
+                  }}
                 />
               ))}
           </TableBody>
