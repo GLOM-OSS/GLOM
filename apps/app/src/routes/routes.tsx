@@ -4,6 +4,7 @@ import Classrooms from '../components/secretary/classrooms';
 import AppLayout from '../pages/appLayout';
 import Departments from '../pages/secretary/departments';
 import Majors from '../pages/secretary/majors';
+import Personnel from '../pages/secretary/personnel';
 import SigninPage from '../pages/signin';
 
 export const routes = [
@@ -41,7 +42,7 @@ export const routes = [
       },
       {
         path: 'personnel',
-        element: <Typography variant="h1">Personnel</Typography>,
+        element: <Personnel />,
       },
     ],
   },
