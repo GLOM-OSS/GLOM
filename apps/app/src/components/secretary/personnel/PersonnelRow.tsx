@@ -13,7 +13,6 @@ import {
 import { theme } from '@squoolr/theme';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
-import { TabItem } from './personnelTabs';
 
 export interface PersonnelInterface {
   personnel_id: string;
@@ -44,11 +43,7 @@ const RowMenu = ({
 }) => {
   const { formatMessage } = useIntl();
   return (
-    <Menu
-      anchorEl={anchorEl}
-      open={anchorEl !== null}
-      onClose={closeMenu}
-    >
+    <Menu anchorEl={anchorEl} open={anchorEl !== null} onClose={closeMenu}>
       {menuItems.map(({ menu_title, executeFunction }, index) => (
         <MenuItem
           key={index}
@@ -79,11 +74,17 @@ export default function PersonnelRow({
     is_teacher,
   },
   index,
-  activeTabItem,
+  openEditDialog,
+  openProfileDialog,
+  openResetPasswordDialog,
+  openResetCodeDialog,
 }: {
   personnel: PersonnelInterface;
   index: number;
-  activeTabItem: TabItem;
+  openEditDialog: (personnel_id: string) => void;
+  openProfileDialog: (personnel_id: string) => void;
+  openResetPasswordDialog: (personnel_id: string) => void;
+  openResetCodeDialog: (personnel_id: string) => void;
 }) {
   const { formatMessage, formatTime } = useIntl();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -93,7 +94,52 @@ export default function PersonnelRow({
       <RowMenu
         anchorEl={anchorEl}
         closeMenu={() => setAnchorEl(null)}
-        menuItems={[]}
+        menuItems={
+          is_secretariat && !(is_academic_service || is_teacher)
+            ? [
+                {
+                  menu_title: 'edit',
+                  executeFunction: () => openEditDialog(personnel_id),
+                },
+                {
+                  menu_title: 'seeProfile',
+                  executeFunction: () => openProfileDialog(personnel_id),
+                },
+              ]
+            : is_secretariat && (is_academic_service || is_teacher)
+            ? [
+                {
+                  menu_title: 'edit',
+                  executeFunction: () => openEditDialog(personnel_id),
+                },
+                {
+                  menu_title: 'seeProfile',
+                  executeFunction: () => openProfileDialog(personnel_id),
+                },
+                {
+                  menu_title: 'resetPrivateCode',
+                  executeFunction: () => openResetCodeDialog(personnel_id),
+                },
+              ]
+            : [
+                {
+                  menu_title: 'edit',
+                  executeFunction: () => openEditDialog(personnel_id),
+                },
+                {
+                  menu_title: 'seeProfile',
+                  executeFunction: () => openProfileDialog(personnel_id),
+                },
+                {
+                  menu_title: 'resetPassword',
+                  executeFunction: () => openResetPasswordDialog(personnel_id),
+                },
+                {
+                  menu_title: 'resetPrivateCode',
+                  executeFunction: () => openResetCodeDialog(personnel_id),
+                },
+              ]
+        }
       />
       <TableRow
         sx={{
@@ -122,6 +168,7 @@ export default function PersonnelRow({
               display: 'grid',
               gridAutoFlow: 'column',
               gap: theme.spacing(0.5),
+              width: 'fit-content',
             }}
           >
             {is_academic_service && (
