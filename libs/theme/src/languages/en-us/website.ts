@@ -282,9 +282,21 @@ export const website = {
   failedToLoadPersonnel:
     'Something went wrong while loading personnel. Please try again!',
   seeProfile: 'See profile',
-  resetPassword2:'Reset password',
+  resetPassword2: 'Reset password',
   resetPrivateCode: 'Reset Private Code',
   resetPrivateCode2: 'Reset private code',
-  resetPrivateCodeMessage: "This action cannot be undone. This will reset this user's private code. They'll receive a new code by mail. Do you still want to continue?",
-  resetPasswordMessage: "This action cannot be undone. Th will reset this user's password. They'll receive a new password by mail. Do you still want to continue?",
+  resetPrivateCodeMessage:
+    "This action cannot be undone. This will reset this user's private code. They'll receive a new code by mail. Do you still want to continue?",
+  resetPasswordMessage:
+    "This action cannot be undone. Th will reset this user's password. They'll receive a new password by mail. Do you still want to continue?",
+  resettingPassword: 'Resetting password',
+  resetPasswordSuccessful:
+    'Password reset successfully. User will receive a mail with their new password.',
+  failedToResetPassword:
+    'Something went wrong while resetting password. Please try again',
+  resettingCode: 'Resetting code',
+  resetCodeSuccessful:
+    'Private code reset successfully. User will receive a mail with their new private code.',
+  failedToResetCode:
+    'Something went wrong while resetting code. Please try again',
 };

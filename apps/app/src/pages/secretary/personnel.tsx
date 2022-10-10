@@ -24,6 +24,8 @@ import PersonnelTabs, {
   TabItem,
 } from '../../components/secretary/personnel/personnelTabs';
 
+type PersonnelNotifType = 'load' | 'edit' | 'reset';
+
 export default function Personnel() {
   const { formatMessage } = useIntl();
   const [activeTabItem, setActiveTabItem] = useState<TabItem>('allPersonnel');
@@ -37,20 +39,27 @@ export default function Personnel() {
 
   const [notifications, setNotifications] = useState<
     {
-      usage: 'load' | 'edit' | 'password_reset' | 'code_reset';
+      usage: PersonnelNotifType;
       notif: useNotification;
     }[]
   >([]);
+
+  const filterNotificationUsage = (
+    usage: PersonnelNotifType,
+    notif: useNotification
+  ) => {
+    const newNotifs = notifications.filter(({ usage: usg, notif }) => {
+      if (usage === usg) notif.dismiss();
+      return usage !== usg;
+    });
+    setNotifications([...newNotifs, { usage, notif }]);
+  };
 
   const getPersonnels = () => {
     setArePersonnelLoading(true);
 
     const notif = new useNotification();
-    const newNotifs = notifications.filter(({ usage, notif }) => {
-      if (usage === 'load') notif.dismiss();
-      return usage !== 'load';
-    });
-    setNotifications([...newNotifs, { usage: 'load', notif }]);
+    filterNotificationUsage('load', notif);
 
     //TODO: call api here to load personnel with data activeTabItem or searchValue
     setTimeout(() => {
@@ -144,11 +153,71 @@ export default function Personnel() {
     useState<boolean>(false);
   const [isResetCodeDialogOpen, setIsResetCodeDialogOpen] =
     useState<boolean>(false);
+  const [isSubmittingMenuAction, setIsSubmittingMenuAction] =
+    useState<boolean>(false);
 
-    const[isSubmittingMenuAction, setIsSubmittingMenuAction] = useState<boolean>(false)
-    // const confirmReset = () =>{
-    //     const notif = new useNotification()
-    // }
+  const confirmReset = (usage: 'password' | 'code') => {
+    const notif = new useNotification();
+    setIsSubmittingMenuAction(true);
+    filterNotificationUsage('reset', notif);
+    switch (usage) {
+      case 'password': {
+        notif.notify({ render: formatMessage({ id: 'resettingPassword' }) });
+        //TODO: CALL API HERE TO RESET PERSONNEL PASSWORD WITH DATA personnel.personnel_id or personnel.personnel_code
+        setTimeout(() => {
+          setIsSubmittingMenuAction(false);
+          if (random() > 5) {
+            notif.update({
+              render: formatMessage({ id: 'resetPasswordSuccessful' }),
+            });
+            setActivePersonnel(undefined);
+          } else {
+            notif.update({
+              type: 'ERROR',
+              render: (
+                <ErrorMessage
+                  retryFunction={() => confirmReset(usage)}
+                  notification={notif}
+                  //TODO: MESSAGE SHOULD COME FROM BACKEND
+                  message={formatMessage({ id: 'failedToResetPassword' })}
+                />
+              ),
+              autoClose: false,
+              icon: () => <ReportRounded fontSize="medium" color="error" />,
+            });
+          }
+        }, 3000);
+        break;
+      }
+      case 'code': {
+        notif.notify({ render: formatMessage({ id: 'resettingCode' }) });
+        //TODO: CALL API HERE TO RESET PERSONNEL PRIVATE CODE WITH DATA personnel.personnel_id or personnel.personnel_code
+        setTimeout(() => {
+          setIsSubmittingMenuAction(false);
+          if (random() > 5) {
+            notif.update({
+              render: formatMessage({ id: 'resetCodeSuccessful' }),
+            });
+            setActivePersonnel(undefined);
+          } else {
+            notif.update({
+              type: 'ERROR',
+              render: (
+                <ErrorMessage
+                  retryFunction={() => confirmReset(usage)}
+                  notification={notif}
+                  //TODO: MESSAGE SHOULD COME FROM BACKEND
+                  message={formatMessage({ id: 'failedToResetCode' })}
+                />
+              ),
+              autoClose: false,
+              icon: () => <ReportRounded fontSize="medium" color="error" />,
+            });
+          }
+        }, 3000);
+      }
+    }
+  };
 
   return (
     <>
@@ -158,7 +227,9 @@ export default function Personnel() {
             setIsResetCodeDialogOpen(false);
             setIsResetPasswordDialogOpen(false);
           }}
-          handleConfirm={() => alert('confirmed')}
+          handleConfirm={() =>
+            confirmReset(isResetCodeDialogOpen ? 'code' : 'password')
+          }
           isResetCodeDialogOpen={isResetCodeDialogOpen}
           isResetPasswordDialogOpen={isResetPasswordDialogOpen}
           personnel_code={activePersonnel.personnel_code}
@@ -212,7 +283,7 @@ export default function Personnel() {
               {!arePersonnelLoading &&
                 personnels.map((personnel, index) => (
                   <PersonnelRow
-                  isSubmitting = {isSubmittingMenuAction}
+                    isSubmitting={isSubmittingMenuAction}
                     index={index}
                     personnel={personnel}
                     key={index}
