@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import ActionBar from '../../components/secretary/personnel/actionBar';
+import ConfirmResetDialog from '../../components/secretary/personnel/confirmResetDialog';
 import PersonnelRow, {
   PersonnelInterface,
 } from '../../components/secretary/personnel/PersonnelRow';
@@ -58,6 +59,7 @@ export default function Personnel() {
           {
             personnel_id: 'PersonnelInterfaceshess',
             first_name: 'Kouatchoua',
+            personnel_code: 'shgels',
             last_name: 'Tchakoumi Lorrain',
             email: 'lorraintchakoumi@gmail.com',
             phone: '657140183',
@@ -70,6 +72,7 @@ export default function Personnel() {
           {
             personnel_id: 'PersonnelInterfaceshses',
             first_name: 'Kouatchoua',
+            personnel_code: 'shelfs',
             last_name: 'Tchakoumi Lorrain',
             email: 'lorraintchakoumi@gmail.com',
             phone: '657140183',
@@ -82,6 +85,7 @@ export default function Personnel() {
           {
             personnel_id: 'PersonnelInterfacesshes',
             first_name: 'Kouatchoua',
+            personnel_code: 'sdhels',
             last_name: 'Tchakoumi Lorrain',
             email: 'lorraintchakoumi@gmail.com',
             phone: '657140183',
@@ -94,6 +98,7 @@ export default function Personnel() {
           {
             personnel_id: 'PersonnelInterfacesshess',
             first_name: 'Kouatchoua',
+            personnel_code: 'shelhs',
             last_name: 'Tchakoumi Lorrain',
             email: 'lorraintchakoumi@gmail.com',
             phone: '657140183',
@@ -141,78 +146,94 @@ export default function Personnel() {
     useState<boolean>(false);
 
   return (
-    <Box
-      sx={{
-        display: 'grid',
-        gridTemplateRows: 'auto auto 1fr',
-        height: '100%',
-        gap: theme.spacing(3),
-      }}
-    >
-      <PersonnelTabs setActiveTabItem={setActiveTabItem} />
-      <ActionBar
-        search={{ searchValue, setSearchValue }}
-        handleAddClick={() =>
-          isAddNewPersonnelDialogOpen
-            ? null
-            : setIsAddNewPersonnelDialogOPen(true)
-        }
-      />
-      <Scrollbars>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead
-            sx={{ backgroundColor: lighten(theme.palette.primary.main, 0.8) }}
-          >
-            <TableRow>
-              {['personnelName', 'email', 'phone', 'lastConnect', 'role'].map(
-                (value, index) => (
-                  <TableCell
+    <>
+      {activePersonnel && (
+        <ConfirmResetDialog
+          close={() => {
+            setIsResetCodeDialogOpen(false);
+            setIsResetPasswordDialogOpen(false);
+          }}
+          handleConfirm={() => alert('confirmed')}
+          isResetCodeDialogOpen={isResetCodeDialogOpen}
+          isResetPasswordDialogOpen={isResetPasswordDialogOpen}
+          personnel_code={activePersonnel.personnel_code}
+        />
+      )}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateRows: 'auto auto 1fr',
+          height: '100%',
+          gap: theme.spacing(3),
+        }}
+      >
+        <PersonnelTabs setActiveTabItem={setActiveTabItem} />
+        <ActionBar
+          search={{ searchValue, setSearchValue }}
+          handleAddClick={() =>
+            isAddNewPersonnelDialogOpen
+              ? null
+              : setIsAddNewPersonnelDialogOPen(true)
+          }
+        />
+        <Scrollbars>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead
+              sx={{ backgroundColor: lighten(theme.palette.primary.main, 0.8) }}
+            >
+              <TableRow>
+                {['personnelName', 'email', 'phone', 'lastConnect', 'role'].map(
+                  (value, index) => (
+                    <TableCell
+                      key={index}
+                      sx={{
+                        ...theme.typography.body1,
+                        color: theme.common.body,
+                        fontWeight: 300,
+                      }}
+                    >
+                      {formatMessage({ id: value })}
+                    </TableCell>
+                  )
+                )}
+                <TableCell />
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {arePersonnelLoading &&
+                [...new Array(10)].map((_, index) => (
+                  <PersonnelRowSkeleton index={index} key={index} />
+                ))}
+              {!arePersonnelLoading &&
+                personnels.map((personnel, index) => (
+                  <PersonnelRow
+                    index={index}
+                    personnel={personnel}
                     key={index}
-                    sx={{
-                      ...theme.typography.body1,
-                      color: theme.common.body,
-                      fontWeight: 300,
+                    openEditDialog={(personnel: PersonnelInterface) => {
+                      setActivePersonnel(personnel);
+                      setIsEditDialogOpen(true);
                     }}
-                  >
-                    {formatMessage({ id: value })}
-                  </TableCell>
-                )
-              )}
-              <TableCell />
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {arePersonnelLoading &&
-              [...new Array(10)].map((_, index) => (
-                <PersonnelRowSkeleton index={index} key={index} />
-              ))}
-            {!arePersonnelLoading &&
-              personnels.map((personnel, index) => (
-                <PersonnelRow
-                  index={index}
-                  personnel={personnel}
-                  key={index}
-                  openEditDialog={(personnel: PersonnelInterface) => {
-                    setActivePersonnel(personnel);
-                    setIsEditDialogOpen(true);
-                  }}
-                  openProfileDialog={(personnel: PersonnelInterface) => {
-                    setActivePersonnel(personnel);
-                    setIsProfileDialogOpen(true)
-                  }}
-                  openResetPasswordDialog={(personnel: PersonnelInterface) => {
-                    setActivePersonnel(personnel);
-                    setIsResetPasswordDialogOpen(true)
-                  }}
-                  openResetCodeDialog={(personnel: PersonnelInterface) => {
-                    setActivePersonnel(personnel);
-                    setIsResetCodeDialogOpen(true)
-                  }}
-                />
-              ))}
-          </TableBody>
-        </Table>
-      </Scrollbars>
-    </Box>
+                    openProfileDialog={(personnel: PersonnelInterface) => {
+                      setActivePersonnel(personnel);
+                      setIsProfileDialogOpen(true);
+                    }}
+                    openResetPasswordDialog={(
+                      personnel: PersonnelInterface
+                    ) => {
+                      setActivePersonnel(personnel);
+                      setIsResetPasswordDialogOpen(true);
+                    }}
+                    openResetCodeDialog={(personnel: PersonnelInterface) => {
+                      setActivePersonnel(personnel);
+                      setIsResetCodeDialogOpen(true);
+                    }}
+                  />
+                ))}
+            </TableBody>
+          </Table>
+        </Scrollbars>
+      </Box>
+    </>
   );
 }

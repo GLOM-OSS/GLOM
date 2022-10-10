@@ -16,6 +16,7 @@ import { useIntl } from 'react-intl';
 
 export interface PersonnelInterface {
   personnel_id: string;
+  personnel_code: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -117,7 +118,7 @@ export default function PersonnelRow({
                   executeFunction: () => openProfileDialog(personnel),
                 },
                 {
-                  menu_title: 'resetPrivateCode',
+                  menu_title: 'resetPrivateCode2',
                   executeFunction: () => openResetCodeDialog(personnel),
                 },
               ]
@@ -131,11 +132,11 @@ export default function PersonnelRow({
                   executeFunction: () => openProfileDialog(personnel),
                 },
                 {
-                  menu_title: 'resetPassword',
+                  menu_title: 'resetPassword2',
                   executeFunction: () => openResetPasswordDialog(personnel),
                 },
                 {
-                  menu_title: 'resetPrivateCode',
+                  menu_title: 'resetPrivateCode2',
                   executeFunction: () => openResetCodeDialog(personnel),
                 },
               ]
