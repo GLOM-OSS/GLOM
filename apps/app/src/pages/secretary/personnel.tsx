@@ -62,9 +62,9 @@ export default function Personnel() {
             email: 'lorraintchakoumi@gmail.com',
             phone: '657140183',
             last_connected: new Date(),
-            is_coordo: true,
-            is_academic_service: true,
-            is_teacher: true,
+            is_coordo: false,
+            is_academic_service: false,
+            is_teacher: false,
             is_secretariat: true,
           },
           {
@@ -74,8 +74,8 @@ export default function Personnel() {
             email: 'lorraintchakoumi@gmail.com',
             phone: '657140183',
             last_connected: new Date(),
-            is_coordo: true,
-            is_academic_service: true,
+            is_coordo: false,
+            is_academic_service: false,
             is_teacher: true,
             is_secretariat: true,
           },
@@ -89,7 +89,7 @@ export default function Personnel() {
             is_coordo: true,
             is_academic_service: true,
             is_teacher: true,
-            is_secretariat: true,
+            is_secretariat: false,
           },
           {
             personnel_id: 'sshess',
@@ -183,7 +183,10 @@ export default function Personnel() {
                   index={index}
                   personnel={personnel}
                   key={index}
-                  activeTabItem={activeTabItem}
+                  openEditDialog={(personnel_id:string) => alert(personnel_id)}
+                  openProfileDialog={(personnel_id:string) => alert(personnel_id)}
+                  openResetPasswordDialog={(personnel_id:string) => alert(personnel_id)}
+                  openResetCodeDialog={(personnel_id:string) => alert(personnel_id)}
                 />
               ))}
           </TableBody>
