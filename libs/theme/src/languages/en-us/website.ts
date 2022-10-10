@@ -267,4 +267,8 @@ export const website = {
   secretariat: 'Secretariat',
   academicService: 'Academic Service',
   coordinator: 'Coordinator',
+  search: 'Search',
+  add: 'Add',
+  import: 'Import',
+  export: 'Export',
 };
