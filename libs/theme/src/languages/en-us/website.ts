@@ -271,4 +271,13 @@ export const website = {
   add: 'Add',
   import: 'Import',
   export: 'Export',
+  personnelName: 'Personnel name',
+  lastConnect: 'Last Connected',
+  role: 'Role(s)',
+  sa: 'AS',
+  coordo: 'CM',
+  sec: 'Sec',
+  tea: 'Tea',
+  loadingPersonnel:'Loading Personnel...',
+failedToLoadPersonnel:'Something went wrong while loading personnel. Please try again!',
 };
