@@ -301,4 +301,7 @@ export const website = {
     'Private code reset successfully. User will receive a mail with their new private code.',
   failedToResetCode:
     'Something went wrong while resetting code. Please try again',
+    noSchoolPersonnel: "No personnel in this school yet. Click 'Add Staff' above to start!",
+    noTeacher: "No personnel of this category exists yet. Click 'Add Teacher' above to start!",
+    noCoordinator: "No personnel of this category exists yet. Click 'Add Coordinator' above to start!"
 };

@@ -286,6 +286,25 @@ export default function Personnel() {
                 [...new Array(10)].map((_, index) => (
                   <PersonnelRowSkeleton index={index} key={index} />
                 ))}
+              {!arePersonnelLoading && personnels.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    component="th"
+                    sx={{ textAlign: 'center' }}
+                    scope="row"
+                    colSpan={6}
+                  >
+                    {formatMessage({
+                      id:
+                        activeTabItem === 'coordinator'
+                          ? 'noCoordinator'
+                          : activeTabItem === 'teacher'
+                          ? 'noTeacher'
+                          : 'noSchoolPersonnel',
+                    })}
+                  </TableCell>
+                </TableRow>
+              )}
               {!arePersonnelLoading &&
                 personnels
                   .sort((a, b) => (a.is_archived < b.is_archived ? -1 : 1))
