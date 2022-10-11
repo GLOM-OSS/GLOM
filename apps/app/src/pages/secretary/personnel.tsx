@@ -36,6 +36,7 @@ export default function Personnel() {
   const [personnels, setPersonnels] = useState<PersonnelInterface[]>([]);
   const [arePersonnelLoading, setArePersonnelLoading] =
     useState<boolean>(false);
+  const [showArchived, setShowArchived] = useState<boolean>(false);
 
   const [notifications, setNotifications] = useState<
     {
@@ -61,7 +62,7 @@ export default function Personnel() {
     const notif = new useNotification();
     filterNotificationUsage('load', notif);
 
-    //TODO: call api here to load personnel with data activeTabItem or searchValue
+    //TODO: call api here to load personnel with data activeTabItem and searchValue and showArchived
     setTimeout(() => {
       if (random() > 5) {
         const newPersonnels: PersonnelInterface[] = [
@@ -143,10 +144,11 @@ export default function Personnel() {
   useEffect(() => {
     getPersonnels();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchValue, activeTabItem]);
+  }, [searchValue, activeTabItem, showArchived]);
 
   const [activePersonnel, setActivePersonnel] = useState<PersonnelInterface>();
-  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState<boolean>(false);
+  const [isProfileDialogOpen, setIsProfileDialogOpen] =
+    useState<boolean>(false);
   const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] =
     useState<boolean>(false);
   const [isResetCodeDialogOpen, setIsResetCodeDialogOpen] =
@@ -243,6 +245,8 @@ export default function Personnel() {
       >
         <PersonnelTabs setActiveTabItem={setActiveTabItem} />
         <ActionBar
+          archived={{ showArchived, setShowArchived }}
+          activeTabItem={activeTabItem}
           search={{ searchValue, setSearchValue }}
           handleAddClick={() =>
             isAddNewPersonnelDialogOpen
@@ -284,7 +288,11 @@ export default function Personnel() {
                     isSubmitting={isSubmittingMenuAction}
                     index={index}
                     personnel={personnel}
-                    isActive={isSubmittingMenuAction && activePersonnel?.personnel_code === personnel.personnel_code}
+                    isActive={
+                      isSubmittingMenuAction &&
+                      activePersonnel?.personnel_code ===
+                        personnel.personnel_code
+                    }
                     key={index}
                     openEditDialog={(personnel: PersonnelInterface) => {
                       setActivePersonnel(personnel);

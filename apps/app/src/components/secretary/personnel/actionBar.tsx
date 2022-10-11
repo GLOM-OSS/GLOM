@@ -1,14 +1,29 @@
 import { AddRounded, SearchRounded } from '@mui/icons-material';
-import { Box, Button, InputAdornment, TextField } from '@mui/material';
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  InputAdornment,
+  TextField,
+} from '@mui/material';
 import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
+import { TabItem } from './personnelTabs';
 
 export default function ActionBar({
   handleAddClick,
   search: { searchValue, setSearchValue },
+  activeTabItem,
+  archived: { showArchived, setShowArchived },
 }: {
   handleAddClick: () => void;
   search: { searchValue: string; setSearchValue: (value: string) => void };
+  activeTabItem: TabItem;
+  archived: {
+    showArchived: boolean;
+    setShowArchived: (isChecked: boolean) => void;
+  };
 }) {
   const { formatMessage } = useIntl();
   return (
@@ -40,8 +55,23 @@ export default function ActionBar({
           display: 'grid',
           gridAutoFlow: 'column',
           columnGap: theme.spacing(2),
+          //   alignItems:'center'
         }}
       >
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={showArchived}
+              color="primary"
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                setShowArchived(event.target.checked)
+              }
+            />
+          }
+          label={formatMessage({ id: 'showArchived' })}
+          sx={{ '& .MuiTypography-root': { ...theme.typography.body2 } }}
+        />
+
         <Button
           variant="contained"
           color="inherit"
@@ -50,7 +80,14 @@ export default function ActionBar({
           sx={{ textTransform: 'none' }}
           onClick={handleAddClick}
         >
-          {formatMessage({ id: 'add' })}
+          {formatMessage({
+            id:
+              activeTabItem === 'coordinator'
+                ? 'addCoordinator'
+                : activeTabItem === 'teacher'
+                ? 'addTeacher'
+                : 'addStaff',
+          })}
         </Button>
         <Button
           variant="contained"
