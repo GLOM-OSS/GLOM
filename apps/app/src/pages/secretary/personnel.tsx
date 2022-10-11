@@ -146,9 +146,7 @@ export default function Personnel() {
   }, [searchValue, activeTabItem]);
 
   const [activePersonnel, setActivePersonnel] = useState<PersonnelInterface>();
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
-  const [isProfileDialogOpen, setIsProfileDialogOpen] =
-    useState<boolean>(false);
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState<boolean>(false);
   const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] =
     useState<boolean>(false);
   const [isResetCodeDialogOpen, setIsResetCodeDialogOpen] =
@@ -290,7 +288,7 @@ export default function Personnel() {
                     key={index}
                     openEditDialog={(personnel: PersonnelInterface) => {
                       setActivePersonnel(personnel);
-                      setIsEditDialogOpen(true);
+                      setIsProfileDialogOpen(true);
                     }}
                     openProfileDialog={(personnel: PersonnelInterface) => {
                       setActivePersonnel(personnel);
