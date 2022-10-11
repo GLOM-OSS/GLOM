@@ -26,6 +26,7 @@ export interface PersonnelInterface {
   is_coordo: boolean;
   is_secretariat: boolean;
   is_teacher: boolean;
+  is_archived: boolean;
 }
 
 interface MenuItem {
@@ -72,6 +73,7 @@ export default function PersonnelRow({
     is_coordo,
     is_secretariat,
     is_teacher,
+    is_archived,
   },
   personnel,
   index,
@@ -100,7 +102,14 @@ export default function PersonnelRow({
         anchorEl={anchorEl}
         closeMenu={() => setAnchorEl(null)}
         menuItems={
-          is_secretariat && !(is_academic_service || is_teacher)
+          is_archived
+            ? [
+                {
+                  menu_title: 'seeProfile',
+                  executeFunction: () => openProfileDialog(personnel),
+                },
+              ]
+            : is_secretariat && !(is_academic_service || is_teacher)
             ? [
                 {
                   menu_title: 'edit',
@@ -150,6 +159,8 @@ export default function PersonnelRow({
         sx={{
           backgroundColor: isActive
             ? lighten(theme.palette.secondary.main, 0.8)
+            : is_archived
+            ? lighten(theme.palette.error.main, 0.9)
             : index % 2 === 1
             ? lighten(theme.palette.primary.main, 0.96)
             : 'none',

@@ -78,6 +78,7 @@ export default function Personnel() {
             is_academic_service: false,
             is_teacher: false,
             is_secretariat: true,
+            is_archived: true,
           },
           {
             personnel_id: 'PersonnelInterfaceshses',
@@ -91,6 +92,7 @@ export default function Personnel() {
             is_academic_service: false,
             is_teacher: true,
             is_secretariat: true,
+            is_archived: false,
           },
           {
             personnel_id: 'PersonnelInterfacesshes',
@@ -104,6 +106,7 @@ export default function Personnel() {
             is_academic_service: true,
             is_teacher: true,
             is_secretariat: false,
+            is_archived: false,
           },
           {
             personnel_id: 'PersonnelInterfacesshess',
@@ -117,6 +120,7 @@ export default function Personnel() {
             is_academic_service: true,
             is_teacher: true,
             is_secretariat: true,
+            is_archived: true,
           },
         ];
         setPersonnels(newPersonnels);
@@ -283,37 +287,39 @@ export default function Personnel() {
                   <PersonnelRowSkeleton index={index} key={index} />
                 ))}
               {!arePersonnelLoading &&
-                personnels.map((personnel, index) => (
-                  <PersonnelRow
-                    isSubmitting={isSubmittingMenuAction}
-                    index={index}
-                    personnel={personnel}
-                    isActive={
-                      isSubmittingMenuAction &&
-                      activePersonnel?.personnel_code ===
-                        personnel.personnel_code
-                    }
-                    key={index}
-                    openEditDialog={(personnel: PersonnelInterface) => {
-                      setActivePersonnel(personnel);
-                      setIsProfileDialogOpen(true);
-                    }}
-                    openProfileDialog={(personnel: PersonnelInterface) => {
-                      setActivePersonnel(personnel);
-                      setIsProfileDialogOpen(true);
-                    }}
-                    openResetPasswordDialog={(
-                      personnel: PersonnelInterface
-                    ) => {
-                      setActivePersonnel(personnel);
-                      setIsResetPasswordDialogOpen(true);
-                    }}
-                    openResetCodeDialog={(personnel: PersonnelInterface) => {
-                      setActivePersonnel(personnel);
-                      setIsResetCodeDialogOpen(true);
-                    }}
-                  />
-                ))}
+                personnels
+                  .sort((a, b) => (a.is_archived < b.is_archived ? -1 : 1))
+                  .map((personnel, index) => (
+                    <PersonnelRow
+                      isSubmitting={isSubmittingMenuAction}
+                      index={index}
+                      personnel={personnel}
+                      isActive={
+                        isSubmittingMenuAction &&
+                        activePersonnel?.personnel_code ===
+                          personnel.personnel_code
+                      }
+                      key={index}
+                      openEditDialog={(personnel: PersonnelInterface) => {
+                        setActivePersonnel(personnel);
+                        setIsProfileDialogOpen(true);
+                      }}
+                      openProfileDialog={(personnel: PersonnelInterface) => {
+                        setActivePersonnel(personnel);
+                        setIsProfileDialogOpen(true);
+                      }}
+                      openResetPasswordDialog={(
+                        personnel: PersonnelInterface
+                      ) => {
+                        setActivePersonnel(personnel);
+                        setIsResetPasswordDialogOpen(true);
+                      }}
+                      openResetCodeDialog={(personnel: PersonnelInterface) => {
+                        setActivePersonnel(personnel);
+                        setIsResetCodeDialogOpen(true);
+                      }}
+                    />
+                  ))}
             </TableBody>
           </Table>
         </Scrollbars>
