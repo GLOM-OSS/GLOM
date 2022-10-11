@@ -8,7 +8,7 @@ import Scrollbars from 'react-custom-scrollbars-2';
 import { FormattedNumberParts, useIntl } from 'react-intl';
 import { useParams } from 'react-router';
 
-interface ClassroomInterface {
+export interface ClassroomInterface {
   classroom_code: string;
   classroom_name: string;
   classroom_level: number;
