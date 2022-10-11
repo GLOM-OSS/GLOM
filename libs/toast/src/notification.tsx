@@ -114,3 +114,19 @@ export const ErrorMessage = ({
     </Box>
   );
 };
+
+export interface NotificationInterface {
+  notif: useNotification;
+  usage: string;
+}
+export const filterNotificationUsage = (
+  usage: string,
+  notif: useNotification,
+  notifications: NotificationInterface[]
+) => {
+  const newNotifs = notifications.filter(({ usage: usg, notif }) => {
+    if (usage === usg) notif.dismiss();
+    return usage !== usg;
+  });
+  return [...newNotifs, { usage, notif }];
+};
