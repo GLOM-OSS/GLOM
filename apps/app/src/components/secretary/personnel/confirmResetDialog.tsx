@@ -38,7 +38,6 @@ export default function ConfirmResetDialog({
     <Dialog
       open={isResetPasswordDialogOpen || isResetCodeDialogOpen}
       TransitionComponent={DialogTransition}
-      keepMounted
       onClose={closeDialog}
     >
       <DialogTitle>
