@@ -286,6 +286,7 @@ export default function Personnel() {
                     isSubmitting={isSubmittingMenuAction}
                     index={index}
                     personnel={personnel}
+                    isActive={isSubmittingMenuAction && activePersonnel?.personnel_code === personnel.personnel_code}
                     key={index}
                     openEditDialog={(personnel: PersonnelInterface) => {
                       setActivePersonnel(personnel);

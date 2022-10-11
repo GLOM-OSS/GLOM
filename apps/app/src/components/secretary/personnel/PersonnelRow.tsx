@@ -80,10 +80,12 @@ export default function PersonnelRow({
   openResetPasswordDialog,
   openResetCodeDialog,
   isSubmitting,
+  isActive,
 }: {
   isSubmitting: boolean;
   personnel: PersonnelInterface;
   index: number;
+  isActive: boolean;
   openEditDialog: (personnel: PersonnelInterface) => void;
   openProfileDialog: (personnel: PersonnelInterface) => void;
   openResetPasswordDialog: (personnel: PersonnelInterface) => void;
@@ -146,10 +148,11 @@ export default function PersonnelRow({
       />
       <TableRow
         sx={{
-          backgroundColor:
-            index % 2 === 1
-              ? lighten(theme.palette.primary.main, 0.96)
-              : 'none',
+          backgroundColor: isActive
+            ? lighten(theme.palette.secondary.main, 0.8)
+            : index % 2 === 1
+            ? lighten(theme.palette.primary.main, 0.96)
+            : 'none',
         }}
       >
         <TableCell component="th" scope="row">
