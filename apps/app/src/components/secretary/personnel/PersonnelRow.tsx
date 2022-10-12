@@ -27,6 +27,10 @@ export interface PersonnelInterface {
   is_secretariat: boolean;
   is_teacher: boolean;
   is_archived: boolean;
+  national_id_number?: string;
+  address?: string;
+  date_of_birth?: Date;
+  gender?: 'M' | 'F';
 }
 
 interface MenuItem {
