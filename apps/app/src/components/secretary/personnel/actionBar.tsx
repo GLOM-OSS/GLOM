@@ -15,11 +15,13 @@ export default function ActionBar({
   handleAddClick,
   search: { searchValue, setSearchValue },
   activeTabItem,
+  isSubmittingActionBarAction,
   archived: { showArchived, setShowArchived },
 }: {
   handleAddClick: () => void;
   search: { searchValue: string; setSearchValue: (value: string) => void };
   activeTabItem: TabItem;
+  isSubmittingActionBarAction: boolean;
   archived: {
     showArchived: boolean;
     setShowArchived: (isChecked: boolean) => void;
@@ -79,6 +81,7 @@ export default function ActionBar({
           size="small"
           sx={{ textTransform: 'none' }}
           onClick={handleAddClick}
+          disabled={isSubmittingActionBarAction}
         >
           {formatMessage({
             id:
@@ -94,6 +97,7 @@ export default function ActionBar({
           color="inherit"
           size="small"
           sx={{ textTransform: 'none' }}
+          disabled={isSubmittingActionBarAction}
         >
           {formatMessage({ id: 'import' })}
         </Button>
@@ -102,6 +106,7 @@ export default function ActionBar({
           color="inherit"
           size="small"
           sx={{ textTransform: 'none' }}
+          disabled={isSubmittingActionBarAction}
         >
           {formatMessage({ id: 'export' })}
         </Button>
