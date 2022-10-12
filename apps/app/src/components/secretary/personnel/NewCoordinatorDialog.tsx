@@ -35,7 +35,10 @@ export default function NewCoordinatorDialog({
   isDialogOpen,
 }: {
   close: () => void;
-  handleConfirm: (submitData: {selectedTeacherId:string; selectedClassrooms: ClassroomInterface[]}) => void;
+  handleConfirm: (submitData: {
+    selectedTeacherId: string;
+    selectedClassrooms: ClassroomInterface[];
+  }) => void;
   isDialogOpen: boolean;
 }) {
   const { formatMessage } = useIntl();
@@ -213,8 +216,10 @@ export default function NewCoordinatorDialog({
   };
 
   useEffect(() => {
-    getTeachers();
-    getClassrooms();
+    if (isDialogOpen) {
+      getTeachers();
+      getClassrooms();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDialogOpen]);
 
@@ -229,7 +234,7 @@ export default function NewCoordinatorDialog({
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          handleConfirm({selectedClassrooms, selectedTeacherId});
+          handleConfirm({ selectedClassrooms, selectedTeacherId });
           closeDialog();
         }}
       >
