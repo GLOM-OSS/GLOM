@@ -74,24 +74,26 @@ export default function ActionBar({
           sx={{ '& .MuiTypography-root': { ...theme.typography.body2 } }}
         />
 
-        <Button
-          variant="contained"
-          color="inherit"
-          startIcon={<AddRounded sx={{ fontSize: '24px' }} />}
-          size="small"
-          sx={{ textTransform: 'none' }}
-          onClick={handleAddClick}
-          disabled={isSubmittingActionBarAction}
-        >
-          {formatMessage({
-            id:
-              activeTabItem === 'coordinator'
-                ? 'addCoordinator'
-                : activeTabItem === 'teacher'
-                ? 'addTeacher'
-                : 'addStaff',
-          })}
-        </Button>
+        {activeTabItem !== 'allPersonnel' && (
+          <Button
+            variant="contained"
+            color="inherit"
+            startIcon={<AddRounded sx={{ fontSize: '24px' }} />}
+            size="small"
+            sx={{ textTransform: 'none' }}
+            onClick={handleAddClick}
+            disabled={isSubmittingActionBarAction}
+          >
+            {formatMessage({
+              id:
+                activeTabItem === 'coordinator'
+                  ? 'addCoordinator'
+                  : activeTabItem === 'teacher'
+                  ? 'addTeacher'
+                  : 'addStaff',
+            })}
+          </Button>
+        )}
         <Button
           variant="contained"
           color="inherit"
