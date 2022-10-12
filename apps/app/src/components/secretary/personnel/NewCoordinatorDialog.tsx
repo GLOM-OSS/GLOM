@@ -35,14 +35,14 @@ export default function NewCoordinatorDialog({
   isDialogOpen,
 }: {
   close: () => void;
-  handleConfirm: () => void;
+  handleConfirm: (submitData: {selectedTeacherId:string; selectedClassrooms: ClassroomInterface[]}) => void;
   isDialogOpen: boolean;
 }) {
   const { formatMessage } = useIntl();
-  const [entered_code, setEnteredCode] = useState<string>('');
+  const [selectedTeacherId, setSelectedTeacherId] = useState<string>('');
   const closeDialog = () => {
     close();
-    setEnteredCode('');
+    setSelectedTeacherId('');
   };
 
   //TODO: FETCH TEACHERS with is_archived as false
@@ -63,7 +63,9 @@ export default function NewCoordinatorDialog({
     setAreTeachersLoading(true);
 
     const notif = new useNotification();
-    setNotifications(filterNotificationUsage('loadTeachers', notif, notifications));
+    setNotifications(
+      filterNotificationUsage('loadTeachers', notif, notifications)
+    );
 
     //TODO: call api here to load teachers with data activeTabItem:teachers and showArchived:false
     setTimeout(() => {
@@ -148,54 +150,46 @@ export default function NewCoordinatorDialog({
     }, 3000);
   };
   const getClassrooms = () => {
-    /**
-     * setLoadingState
-     * notifyOnStart? //defaults to true
-     * newData
-     * setNewData
-     * loadingMessageId
-     * failureMessage
-     * successMessageId?
-     * notifUssage
-     */
     setAreClassroomsLoading(true);
 
     const notif = new useNotification();
-    setNotifications(filterNotificationUsage('loadClassrooms', notif, notifications));
+    setNotifications(
+      filterNotificationUsage('loadClassrooms', notif, notifications)
+    );
 
     //TODO: call api here to load classrooms with data showArchived:false
     setTimeout(() => {
       if (random() > 5) {
         const newClassrooms: ClassroomInterface[] = [
-            {
-              classroom_code: 'cmgr-993',
-              classroom_level: 2,
-              classroom_name: 'informatique reseaux et telecomes',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr-9g93',
-              classroom_level: 2,
-              classroom_name: 'informatique reseaux et telecomes',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr-g993',
-              classroom_level: 2,
-              classroom_name: 'informatique reseaux et telecomes',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmrg-993',
-              classroom_level: 2,
-              classroom_name: 'informatique reseaux et telecomes',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-          ];
+          {
+            classroom_code: 'cmgr-993',
+            classroom_level: 2,
+            classroom_name: 'informatique reseaux et telecomes',
+            registration_fee: 10000,
+            total_fee_due: 18000000,
+          },
+          {
+            classroom_code: 'cmr-9g93',
+            classroom_level: 2,
+            classroom_name: 'informatique reseaux et telecomes',
+            registration_fee: 10000,
+            total_fee_due: 18000000,
+          },
+          {
+            classroom_code: 'cmr-g993',
+            classroom_level: 2,
+            classroom_name: 'informatique reseaux et telecomes',
+            registration_fee: 10000,
+            total_fee_due: 18000000,
+          },
+          {
+            classroom_code: 'cmrg-993',
+            classroom_level: 2,
+            classroom_name: 'informatique reseaux et telecomes',
+            registration_fee: 10000,
+            total_fee_due: 18000000,
+          },
+        ];
         setClassrooms(newClassrooms);
         setAreClassroomsLoading(false);
         notif.dismiss();
@@ -221,6 +215,7 @@ export default function NewCoordinatorDialog({
   useEffect(() => {
     getTeachers();
     getClassrooms();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDialogOpen]);
 
   return (
@@ -234,7 +229,7 @@ export default function NewCoordinatorDialog({
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          handleConfirm();
+          handleConfirm({selectedClassrooms, selectedTeacherId});
           closeDialog();
         }}
       >
@@ -246,8 +241,8 @@ export default function NewCoordinatorDialog({
             fullWidth
             required
             disabled={areTeachersLoading}
-            value={entered_code}
-            onChange={(event) => setEnteredCode(event.target.value)}
+            value={selectedTeacherId}
+            onChange={(event) => setSelectedTeacherId(event.target.value)}
           >
             {teachers.map(
               ({ first_name, last_name, personnel_code }, index) => (
@@ -340,7 +335,7 @@ export default function NewCoordinatorDialog({
         <DialogActions>
           <Button
             sx={{ textTransform: 'none' }}
-            color="warning"
+            color="primary"
             variant="text"
             onClick={closeDialog}
           >
@@ -348,9 +343,12 @@ export default function NewCoordinatorDialog({
           </Button>
           <Button
             sx={{ textTransform: 'none' }}
-            color="error"
-            variant="outlined"
+            color="primary"
+            variant="contained"
             type="submit"
+            disabled={
+              selectedTeacherId === '' || selectedClassrooms.length === 0
+            }
           >
             {formatMessage({ id: 'confirm' })}
           </Button>

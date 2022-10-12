@@ -9,13 +9,19 @@ import {
   TableRow,
 } from '@mui/material';
 import { theme } from '@squoolr/theme';
-import { ErrorMessage, useNotification } from '@squoolr/toast';
+import {
+  ErrorMessage,
+  filterNotificationUsage,
+  useNotification,
+} from '@squoolr/toast';
 import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
+import { ClassroomInterface } from '../../components/secretary/classrooms';
 import ActionBar from '../../components/secretary/personnel/actionBar';
 import ConfirmResetDialog from '../../components/secretary/personnel/confirmResetDialog';
+import NewCoordinatorDialog from '../../components/secretary/personnel/NewCoordinatorDialog';
 import PersonnelRow, {
   PersonnelInterface,
 } from '../../components/secretary/personnel/PersonnelRow';
@@ -40,27 +46,16 @@ export default function Personnel() {
 
   const [notifications, setNotifications] = useState<
     {
-      usage: PersonnelNotifType;
+      usage: string;
       notif: useNotification;
     }[]
   >([]);
-
-  const filterNotificationUsage = (
-    usage: PersonnelNotifType,
-    notif: useNotification
-  ) => {
-    const newNotifs = notifications.filter(({ usage: usg, notif }) => {
-      if (usage === usg) notif.dismiss();
-      return usage !== usg;
-    });
-    setNotifications([...newNotifs, { usage, notif }]);
-  };
 
   const getPersonnels = () => {
     setArePersonnelLoading(true);
 
     const notif = new useNotification();
-    filterNotificationUsage('load', notif);
+    setNotifications(filterNotificationUsage('load', notif, notifications));
 
     //TODO: call api here to load personnel with data activeTabItem and searchValue and showArchived
     setTimeout(() => {
@@ -163,7 +158,7 @@ export default function Personnel() {
   const confirmReset = (usage: 'password' | 'code') => {
     const notif = new useNotification();
     setIsSubmittingMenuAction(true);
-    filterNotificationUsage('reset', notif);
+    setNotifications(filterNotificationUsage('reset', notif, notifications));
     switch (usage) {
       case 'password': {
         notif.notify({ render: formatMessage({ id: 'resettingPassword' }) });
@@ -223,8 +218,56 @@ export default function Personnel() {
     }
   };
 
+  const [isSubmittingActionBarAction, setIsSubmitActionBarAction] =
+    useState<boolean>(false);
+  const createCoordinator = (submitData: {
+    selectedTeacherId: string;
+    selectedClassrooms: ClassroomInterface[];
+  }) => {
+    const { selectedClassrooms, selectedTeacherId } = submitData;
+    const selectedClassroomCodes = selectedClassrooms.map(
+      ({ classroom_code }) => classroom_code
+    );
+    const notif = new useNotification();
+    notif.notify({render: formatMessage({id:'addingCoordinator'})})
+    setNotifications(
+      filterNotificationUsage('createCoordinator', notif, notifications)
+    );
+    setIsSubmitActionBarAction(true);
+    setTimeout(() => {
+      setIsSubmitActionBarAction(false);
+      //TODO: CALL API HERE TO CREATE COORDINATOR WITH DATA selectedClassroomCodes and selectedTeacherId
+      if (random() > 5) {
+        notif.update({ render: formatMessage({ id: 'addedCoordinator' }) });
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => createCoordinator(submitData)}
+              notification={notif}
+              //TODO: MESSAGE SHOULD COME FROM BACKEND
+              message={formatMessage({ id: 'failedToAddCoordinator' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
+
   return (
     <>
+      {isAddNewPersonnelDialogOpen && activeTabItem === 'coordinator' && (
+        <NewCoordinatorDialog
+          close={() => setIsAddNewPersonnelDialogOPen(false)}
+          handleConfirm={createCoordinator}
+          isDialogOpen={
+            isAddNewPersonnelDialogOpen && activeTabItem === 'coordinator'
+          }
+        />
+      )}
       {activePersonnel && (
         <ConfirmResetDialog
           close={() => {
@@ -252,6 +295,7 @@ export default function Personnel() {
           archived={{ showArchived, setShowArchived }}
           activeTabItem={activeTabItem}
           search={{ searchValue, setSearchValue }}
+          isSubmittingActionBarAction = {isSubmittingActionBarAction}
           handleAddClick={() =>
             isAddNewPersonnelDialogOpen
               ? null
