@@ -229,7 +229,7 @@ export default function Personnel() {
       ({ classroom_code }) => classroom_code
     );
     const notif = new useNotification();
-    notif.notify({render: formatMessage({id:'addingCoordinator'})})
+    notif.notify({ render: formatMessage({ id: 'addingCoordinator' }) });
     setNotifications(
       filterNotificationUsage('createCoordinator', notif, notifications)
     );
@@ -295,7 +295,7 @@ export default function Personnel() {
           archived={{ showArchived, setShowArchived }}
           activeTabItem={activeTabItem}
           search={{ searchValue, setSearchValue }}
-          isSubmittingActionBarAction = {isSubmittingActionBarAction}
+          isSubmittingActionBarAction={isSubmittingActionBarAction}
           handleAddClick={() =>
             isAddNewPersonnelDialogOpen
               ? null
