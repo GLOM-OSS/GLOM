@@ -216,10 +216,10 @@ export default function TeacherDialog({
         <DialogTitle>
           {formatMessage({
             id: isEditDialog
-              ? 'editStaff'
+              ? 'editTeacher'
               : activePersonnel !== undefined
-              ? 'staffProfile'
-              : 'addNewStaff',
+              ? 'teacherProfile'
+              : 'addNewTeacher',
           })}
         </DialogTitle>
         {activePersonnel !== undefined && (
