@@ -29,8 +29,9 @@ import { PersonnelRowSkeleton } from '../../components/secretary/personnel/perso
 import PersonnelTabs, {
   TabItem,
 } from '../../components/secretary/personnel/personnelTabs';
-
-type PersonnelNotifType = 'load' | 'edit' | 'reset';
+import StaffDialog, {
+  StaffInterface,
+} from '../../components/secretary/personnel/staffDialog';
 
 export default function Personnel() {
   const { formatMessage } = useIntl();
@@ -231,7 +232,7 @@ export default function Personnel() {
     const notif = new useNotification();
     notif.notify({ render: formatMessage({ id: 'addingCoordinator' }) });
     setNotifications(
-      filterNotificationUsage('createCoordinator', notif, notifications)
+      filterNotificationUsage('createStaff', notif, notifications)
     );
     setIsSubmitActionBarAction(true);
     setTimeout(() => {
@@ -257,6 +258,102 @@ export default function Personnel() {
     }, 3000);
   };
 
+  const createStaff = (values: StaffInterface, usage: 'edit' | 'create') => {
+    const notif = new useNotification();
+    switch (usage) {
+      case 'create': {
+        notif.notify({
+          render: formatMessage({
+            id: `adding${activeTabItem[0].toUpperCase()}${activeTabItem.slice(
+              1,
+              undefined
+            )}`,
+          }),
+        });
+        setNotifications(
+          filterNotificationUsage('addStaff', notif, notifications)
+        );
+        setIsSubmitActionBarAction(true);
+        setTimeout(() => {
+          setIsSubmitActionBarAction(false);
+          //TODO: CALL API HERE TO CREATE staff (secretariat or registry) WITH DATA activeTabItem and values. don't forget to generate code and add before storing
+          if (random() > 5) {
+            notif.update({
+              render: formatMessage({
+                id: `added${activeTabItem[0].toUpperCase()}${activeTabItem.slice(
+                  1,
+                  undefined
+                )}`,
+              }),
+            });
+          } else {
+            notif.update({
+              type: 'ERROR',
+              render: (
+                <ErrorMessage
+                  retryFunction={() => createStaff(values, usage)}
+                  notification={notif}
+                  //TODO: MESSAGE SHOULD COME FROM BACKEND
+                  message={formatMessage({ id: 'failedToAddStaff' })}
+                />
+              ),
+              autoClose: false,
+              icon: () => <ReportRounded fontSize="medium" color="error" />,
+            });
+          }
+        }, 3000);
+
+        break;
+      }
+      case 'edit': {
+        notif.notify({
+          render: formatMessage({
+            id: `saving${activeTabItem[0].toUpperCase()}${activeTabItem.slice(
+              1,
+              undefined
+            )}`,
+          }),
+        });
+        setNotifications(
+          filterNotificationUsage('saveStaff', notif, notifications)
+        );
+        setIsSubmitActionBarAction(true);
+        setTimeout(() => {
+          setIsSubmitActionBarAction(false);
+          //TODO: CALL API HERE TO edit staff (secretariat or registry) WITH DATA activeTabItem and values.personnel_code.
+          if (random() > 5) {
+            notif.update({
+              render: formatMessage({
+                id: `saved${activeTabItem[0].toUpperCase()}${activeTabItem.slice(
+                  1,
+                  undefined
+                )}`,
+              }),
+            });
+          } else {
+            notif.update({
+              type: 'ERROR',
+              render: (
+                <ErrorMessage
+                  retryFunction={() => createStaff(values, usage)}
+                  notification={notif}
+                  //TODO: MESSAGE SHOULD COME FROM BACKEND
+                  message={formatMessage({ id: 'failedToSaveStaff' })}
+                />
+              ),
+              autoClose: false,
+              icon: () => <ReportRounded fontSize="medium" color="error" />,
+            });
+          }
+        }, 3000);
+
+        break;
+      }
+    }
+  };
+
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+
   return (
     <>
       {isAddNewPersonnelDialogOpen && activeTabItem === 'coordinator' && (
@@ -265,6 +362,35 @@ export default function Personnel() {
           handleConfirm={createCoordinator}
           isDialogOpen={
             isAddNewPersonnelDialogOpen && activeTabItem === 'coordinator'
+          }
+        />
+      )}
+      {((isProfileDialogOpen &&
+        activePersonnel !== undefined &&
+        !activePersonnel.is_teacher) ||
+        (isAddNewPersonnelDialogOpen &&
+          ['allPersonnel', 'secretariat', 'academicService'].includes(
+            activeTabItem
+          ))) && (
+        <StaffDialog
+          close={() => {
+            setActivePersonnel(undefined);
+            setIsEditing(false);
+            setIsProfileDialogOpen(false);
+            setIsAddNewPersonnelDialogOPen(false);
+          }}
+          setIsEditing={setIsEditing}
+          handleConfirm={createStaff}
+          isEditDialog={isEditing}
+          activePersonnel={activePersonnel as StaffInterface | undefined}
+          isDialogOpen={
+            (isProfileDialogOpen &&
+              activePersonnel !== undefined &&
+              !activePersonnel.is_teacher) ||
+            (isAddNewPersonnelDialogOpen &&
+              ['allPersonnel', 'secretariat', 'academicService'].includes(
+                activeTabItem
+              ))
           }
         />
       )}
@@ -365,6 +491,7 @@ export default function Personnel() {
                       key={index}
                       openEditDialog={(personnel: PersonnelInterface) => {
                         setActivePersonnel(personnel);
+                        setIsEditing(true);
                         setIsProfileDialogOpen(true);
                       }}
                       openProfileDialog={(personnel: PersonnelInterface) => {
