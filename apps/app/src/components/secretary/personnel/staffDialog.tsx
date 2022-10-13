@@ -21,7 +21,7 @@ import * as Yup from 'yup';
 import LocationPicker from './LocationPicker';
 
 export interface StaffInterface {
-  personnel_code?: string;
+  personnel_code: string;
   first_name: string;
   last_name: string;
   email: string;
