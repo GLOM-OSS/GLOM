@@ -173,7 +173,18 @@ export default function TeacherDialog({
       .max(new Date(), formatMessage({ id: 'areYouATimeTraveler' }))
       .required(),
     gender: Yup.string().oneOf(['M', 'F']).required(),
-    is_archived: Yup.boolean(),
+    is_archived: Yup.boolean().required(),
+    teaching_grade: Yup.string()
+      .oneOf(['gradeC', 'gradeD', 'conferenceMaster', 'teacher', 'assistant'])
+      .required(),
+    teacher_type: Yup.string()
+      .oneOf(['partTime', 'fullTimme', 'missionary'])
+      .required(),
+    origin_school: Yup.string().required(),
+    hourly_rate: Yup.number().required(),
+    has_tax_payers_card: Yup.boolean().required(),
+    tax_payers_number: Yup.number(),
+    has_signed_convention: Yup.boolean().required(),
   });
 
   const formik = useFormik({
@@ -539,7 +550,6 @@ export default function TeacherDialog({
               placeholder={formatMessage({ id: 'tax_payers_number' })}
               label={formatMessage({ id: 'tax_payers_number' })}
               fullWidth
-              required
               error={Boolean(
                 formik.touched.tax_payers_number &&
                   formik.errors.tax_payers_number
