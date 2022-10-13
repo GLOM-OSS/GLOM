@@ -41,6 +41,7 @@ export default function LocationPicker({
   error,
   helperText,
   disabled,
+  initialValue,
 }: {
   handleBlur: () => void;
   label: string;
@@ -48,9 +49,10 @@ export default function LocationPicker({
   error: boolean;
   helperText: string | undefined;
   required: boolean;
+  initialValue: PlaceType;
   handleChange: (location: PlaceType | null) => void;
 }) {
-  const [value, setValue] = useState<PlaceType | null>(null);
+  const [value, setValue] = useState<PlaceType | null>(initialValue);
   const [inputValue, setInputValue] = useState<string>('');
   const [options, setOptions] = useState<readonly PlaceType[]>([]);
   const loaded = useRef(false);
@@ -124,7 +126,7 @@ export default function LocationPicker({
 
   return (
     <Autocomplete
-      //   defaultValue={'Douala'}
+      // defaultValue={initialValue}
       getOptionLabel={(option) =>
         typeof option === 'string' ? option : option.description
       }
@@ -143,6 +145,7 @@ export default function LocationPicker({
       onInputChange={(event, newInputValue) => {
         setInputValue(newInputValue);
       }}
+      disabled={disabled}
       renderInput={(params) => (
         <TextField
           {...params}
@@ -151,7 +154,6 @@ export default function LocationPicker({
           error={error}
           helperText={helperText}
           label={label}
-          disabled={disabled}
           required={required}
         />
       )}
