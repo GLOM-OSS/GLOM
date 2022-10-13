@@ -225,7 +225,7 @@ export default function TeacherDialog({
         {activePersonnel !== undefined && (
           <TextField
             size="small"
-            value={'hel-1'}
+            value={formik.values.personnel_code}
             disabled
             sx={{ width: '13ch', justifySelf: 'end' }}
           />
@@ -528,7 +528,11 @@ export default function TeacherDialog({
             sx={{ justifySelf: 'center' }}
             control={
               <Switch
-                disabled={isTeacherLoading|| !isEditDialog || activePersonnel?.is_archived}
+                disabled={
+                  isTeacherLoading ||
+                  !isEditDialog ||
+                  activePersonnel?.is_archived
+                }
                 defaultChecked={formik.values.has_tax_payers_card}
                 onChange={(event) =>
                   formik.setFieldValue(
@@ -576,7 +580,11 @@ export default function TeacherDialog({
               sx={{ justifySelf: 'center' }}
               control={
                 <Switch
-                  disabled={isTeacherLoading || !isEditDialog || activePersonnel?.is_archived}
+                  disabled={
+                    isTeacherLoading ||
+                    !isEditDialog ||
+                    activePersonnel?.is_archived
+                  }
                   defaultChecked={formik.values.has_signed_convention}
                   onChange={(event) =>
                     formik.setFieldValue(
