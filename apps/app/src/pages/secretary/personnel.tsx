@@ -32,6 +32,9 @@ import PersonnelTabs, {
 import StaffDialog, {
   StaffInterface,
 } from '../../components/secretary/personnel/staffDialog';
+import TeacherDialog, {
+  TeacherInterface,
+} from '../../components/secretary/personnel/teacherDialog';
 
 export default function Personnel() {
   const { formatMessage } = useIntl();
@@ -351,6 +354,102 @@ export default function Personnel() {
       }
     }
   };
+  const createTeacher = (
+    values: TeacherInterface,
+    usage: 'edit' | 'create'
+  ) => {
+    const notif = new useNotification();
+    switch (usage) {
+      case 'create': {
+        notif.notify({
+          render: formatMessage({
+            id: `adding${activeTabItem[0].toUpperCase()}${activeTabItem.slice(
+              1,
+              undefined
+            )}`,
+          }),
+        });
+        setNotifications(
+          filterNotificationUsage('addStaff', notif, notifications)
+        );
+        setIsSubmitActionBarAction(true);
+        setTimeout(() => {
+          setIsSubmitActionBarAction(false);
+          //TODO: CALL API HERE TO CREATE TEACHER WITH DATA  values. don't forget to generate code and add before storing
+          if (random() > 5) {
+            notif.update({
+              render: formatMessage({
+                id: `added${activeTabItem[0].toUpperCase()}${activeTabItem.slice(
+                  1,
+                  undefined
+                )}`,
+              }),
+            });
+          } else {
+            notif.update({
+              type: 'ERROR',
+              render: (
+                <ErrorMessage
+                  retryFunction={() => createTeacher(values, usage)}
+                  notification={notif}
+                  //TODO: MESSAGE SHOULD COME FROM BACKEND
+                  message={formatMessage({ id: 'failedToAddTeacher' })}
+                />
+              ),
+              autoClose: false,
+              icon: () => <ReportRounded fontSize="medium" color="error" />,
+            });
+          }
+        }, 3000);
+
+        break;
+      }
+      case 'edit': {
+        notif.notify({
+          render: formatMessage({
+            id: `saving${activeTabItem[0].toUpperCase()}${activeTabItem.slice(
+              1,
+              undefined
+            )}`,
+          }),
+        });
+        setNotifications(
+          filterNotificationUsage('saveStaff', notif, notifications)
+        );
+        setIsSubmitActionBarAction(true);
+        setTimeout(() => {
+          setIsSubmitActionBarAction(false);
+          //TODO: CALL API HERE TO edit TEACEHR WITH DATA values.personnel_code.
+          if (random() > 5) {
+            notif.update({
+              render: formatMessage({
+                id: `saved${activeTabItem[0].toUpperCase()}${activeTabItem.slice(
+                  1,
+                  undefined
+                )}`,
+              }),
+            });
+          } else {
+            notif.update({
+              type: 'ERROR',
+              render: (
+                <ErrorMessage
+                  retryFunction={() => createTeacher(values, usage)}
+                  notification={notif}
+                  //TODO: MESSAGE SHOULD COME FROM BACKEND
+                  message={formatMessage({ id: 'failedToSaveTeacher' })}
+                />
+              ),
+              autoClose: false,
+              icon: () => <ReportRounded fontSize="medium" color="error" />,
+            });
+          }
+        }, 3000);
+
+        break;
+      }
+    }
+  };
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
@@ -391,6 +490,29 @@ export default function Personnel() {
               ['allPersonnel', 'secretariat', 'academicService'].includes(
                 activeTabItem
               ))
+          }
+        />
+      )}
+      {((isProfileDialogOpen &&
+        activePersonnel !== undefined &&
+        activePersonnel.is_teacher) ||
+        (isAddNewPersonnelDialogOpen && activeTabItem === 'teacher')) && (
+        <TeacherDialog
+          close={() => {
+            setActivePersonnel(undefined);
+            setIsEditing(false);
+            setIsProfileDialogOpen(false);
+            setIsAddNewPersonnelDialogOPen(false);
+          }}
+          setIsEditing={setIsEditing}
+          handleConfirm={createTeacher}
+          isEditDialog={isEditing}
+          activePersonnel={activePersonnel as StaffInterface | undefined}
+          isDialogOpen={
+            (isProfileDialogOpen &&
+              activePersonnel !== undefined &&
+              activePersonnel.is_teacher) ||
+            (isAddNewPersonnelDialogOpen && activeTabItem === 'teacher')
           }
         />
       )}
