@@ -124,7 +124,7 @@ export default function StaffDialog({
         {activePersonnel !== undefined && (
           <TextField
             size="small"
-            value={'hel-1'}
+            value={formik.values.personnel_code}
             disabled
             sx={{ width: '13ch', justifySelf: 'end' }}
           />
