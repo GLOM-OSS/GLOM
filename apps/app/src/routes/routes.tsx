@@ -44,8 +44,12 @@ export const routes = [
         path: 'personnel',
         element: <Personnel />,
       },
+      {
+        path: 'new-academic-year',
+        element: <Typography>New academic year</Typography>,
+      },
+      { path: '*', element: <Navigate to="/" /> },
     ],
   },
-  { path: '*', element: <Navigate to="/" /> },
   { path: '*', element: <Navigate to="/" /> },
 ];
