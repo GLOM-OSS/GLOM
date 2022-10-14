@@ -191,7 +191,7 @@ export function Layout({
       }
     }, 3000);
   };
-  const params = useParams()
+  const params = useParams();
 
   return (
     <>
@@ -267,7 +267,8 @@ export function Layout({
           <Typography variant="body2" sx={{ color: theme.common.label }}>
             {activeNavItem ? formatMessage({ id: activeNavItem.title }) : null}
           </Typography>
-          <Scrollbars>
+          {/*TODO: ADD SCROLLBARS AGAIN. BUT NOTICE HOW IT PREVENTS THE FULLWIDTH CONCEPT. TRY TO SOLVE IT */}
+          {/* <Scrollbars> */}
             <Box
               sx={{
                 marginTop: theme.spacing(2.5),
@@ -285,7 +286,7 @@ export function Layout({
                   ))
                 : null}
             </Box>
-          </Scrollbars>
+          {/* </Scrollbars> */}
           {callingApp === 'personnel' && (
             <SwapAcademicYear callingApp={callingApp} activeYear={activeYear} />
           )}
@@ -394,7 +395,9 @@ export function Layout({
                     const pathnameArray = location.pathname
                       .split('/')
                       .filter((_) => _ !== '');
-                      const paramTexts = Object.keys(params).map((_item)=>params[_item])
+                    const paramTexts = Object.keys(params).map(
+                      (_item) => params[_item]
+                    );
                     return (
                       <Typography
                         key={index}
