@@ -4,6 +4,7 @@ import Classrooms from '../components/secretary/classrooms';
 import AppLayout from '../pages/appLayout';
 import Departments from '../pages/secretary/departments';
 import Majors from '../pages/secretary/majors';
+import NewAcademicYear from '../pages/secretary/newAcademicYear';
 import Personnel from '../pages/secretary/personnel';
 import SigninPage from '../pages/signin';
 
@@ -46,7 +47,7 @@ export const routes = [
       },
       {
         path: 'new-academic-year',
-        element: <Typography>New academic year</Typography>,
+        element: <NewAcademicYear />,
       },
       { path: '*', element: <Navigate to="/" /> },
     ],
