@@ -52,18 +52,20 @@ const TimelineItem = ({
         sx={{
           marginLeft: '15px',
           marginTop: theme.spacing(1),
-          borderLeft: `0.5px solid ${theme.common.line}`,
+          borderLeft: `0.5px solid ${
+            isActive ? theme.palette.primary.main : theme.common.line
+          }`,
         }}
       >
         <Box
           sx={{
             marginLeft: '35px',
             padding: `${theme.spacing(2)} 0`,
-            display: 'grid', 
-            gap: theme.spacing(2)
+            display: 'grid',
+            gap: theme.spacing(2),
           }}
         >
-          <Typography variant="body2" >
+          <Typography variant="body2">
             {formatMessage({ id: subtitleId })}
           </Typography>
           <Box sx={{ marginTop: theme.spacing(1) }}>{children}</Box>
