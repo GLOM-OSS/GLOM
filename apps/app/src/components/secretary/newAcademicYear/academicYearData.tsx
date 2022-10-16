@@ -17,12 +17,16 @@ export default function AcademicYearData({
   handleChange,
   isActive,
   initialAcademicYear,
+  hasSubmit,
+  submitDisabled,
   initialAcademicYear: { academic_year_end_date, academic_year_start_date },
 }: {
   handleSubmit: (academicYear: NewAcademicYearInterface) => void;
   handleChange: (academicYear: NewAcademicYearInterface) => void;
   isActive: boolean;
+  hasSubmit?: boolean;
   initialAcademicYear: NewAcademicYearInterface;
+  submitDisabled: boolean;
 }) {
   const { formatMessage, formatDate } = useIntl();
 
@@ -43,6 +47,7 @@ export default function AcademicYearData({
   const formik = useFormik({
     initialValues,
     validationSchema,
+    enableReinitialize: true,
     onSubmit: (values) => {
       handleSubmit(values);
     },
@@ -129,13 +134,16 @@ export default function AcademicYearData({
               />
             </LocalizationProvider>
           </Box>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => formik.handleSubmit()}
-          >
-            {formatMessage({ id: 'next' })}
-          </Button>
+          {hasSubmit && (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => formik.handleSubmit()}
+              disabled={submitDisabled}
+            >
+              {formatMessage({ id: 'createAcademicYear' })}
+            </Button>
+          )}
         </Box>
       )}
       {!isActive && (
