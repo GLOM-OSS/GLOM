@@ -51,7 +51,7 @@ export default function RegistryConfig({
           }}
         >
           <Typography sx={{ color: theme.common.placeholder }}>
-            {`${formatMessage({ id: 'academicServiceConfigs' })} : `}
+            {`${formatMessage({ id: 'registryConfigs' })} : `}
           </Typography>
           <Typography>
             {formatMessage({
