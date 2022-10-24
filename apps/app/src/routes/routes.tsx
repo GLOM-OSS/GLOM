@@ -20,7 +20,7 @@ export const routes = [
     ),
   },
   {
-    path: '/configurations',
+    path: '/registry/configurations',
     element: <AppLayout />,
     children: [
       {
@@ -48,6 +48,28 @@ export const routes = [
       {
         path: 'new-academic-year',
         element: <NewAcademicYear />,
+      },
+      { path: '*', element: <Navigate to="/" /> },
+    ],
+  },
+  {
+    path: '/coordinator/configurations',
+    element: <AppLayout />,
+    children: [
+      {
+        path: 'subjects-and-modules',
+        element: <Typography>Subjects and modules page</Typography>,
+      },
+      { path: '*', element: <Navigate to="/" /> },
+    ],
+  },
+  {
+    path: '/coordinator/marksManagement',
+    element: <AppLayout />,
+    children: [
+      {
+        path: 'module-follow-up',
+        element: <Typography>Module marks follow up</Typography>,
       },
       { path: '*', element: <Navigate to="/" /> },
     ],
