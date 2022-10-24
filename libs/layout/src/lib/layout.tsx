@@ -49,17 +49,27 @@ export function Layout({
     annualConfigurator ? 'secretary' : undefined,
     annualRegistry ? 'registry' : undefined,
     annualTeacher ? 'teacher' : undefined,
+    annualTeacher?.coordinates && annualTeacher.coordinates.length > 0
+      ? 'coordinator'
+      : undefined,
   ];
   const Roles: PersonnelRole[] = newRoles.filter(
     (_) => _ !== undefined
   ) as PersonnelRole[];
+  const x = localStorage.getItem('activeRole');
+  const storageActiveRole = x !== null ? x : '';
 
   const [activeRole, setActiveRole] = useState<PersonnelRole | 'administrator'>(
     callingApp === 'admin'
       ? 'administrator'
+      : Roles.includes(storageActiveRole as PersonnelRole)
+      ? (storageActiveRole as PersonnelRole | 'administrator')
       : Roles.sort((a, b) => (a > b ? 1 : -1))[0]
   );
-  const handleSwapRole = (newRole: PersonnelRole) => setActiveRole(newRole);
+  const handleSwapRole = (newRole: PersonnelRole) => {
+    setActiveRole(newRole);
+    localStorage.setItem('activeRole', newRole);
+  };
 
   const [roleNavigationItems, setRoleNavigationItems] = useState<NavItem[]>([]);
 
@@ -72,7 +82,7 @@ export function Layout({
   useEffect(() => {
     if (roleNavigationItems.length > 0) {
       let currentNavItem = roleNavigationItems.find(
-        ({ title }) => title === location.pathname.split('/')[1]
+        ({ title }) => title === location.pathname.split('/')[2]
       );
       if (!currentNavItem) currentNavItem = roleNavigationItems[0];
       setActiveNavItem(currentNavItem ?? roleNavigationItems[0]);
@@ -91,9 +101,9 @@ export function Layout({
     if (activeNavItem) {
       const { children } = activeNavItem;
       const pathname = location.pathname.split('/').filter((_) => _ !== '');
-      if (pathname.length === 2) {
+      if (pathname.length === 3) {
         setActiveSecondaryNavItem(
-          children.find(({ route }) => route === pathname[1]) ??
+          children.find(({ route }) => route === pathname[2]) ??
             (children.length > 0 ? children[0] : undefined)
         );
       } else
@@ -101,12 +111,18 @@ export function Layout({
           children.length > 0 ? children[0] : undefined
         );
       if (children.length > 0)
-        navigate(
-          pathname.length >= 2 &&
-            children.find(({ route }) => route === pathname[1])
-            ? `/${pathname.join('/')}`
-            : `${children[0].route}`
-        );
+        if (activeRole === pathname[0]) {
+          navigate(
+            pathname.length >= 3 &&
+              children.find(({ route }) => route === pathname[2])
+              ? `/${pathname.join('/')}`
+              : `${children[0].route}`
+          );
+        } else {
+          navigate(
+            `/${activeRole}/${activeNavItem.title}/${children[0].route}`
+          );
+        }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeNavItem]);
@@ -221,8 +237,9 @@ export function Layout({
               children.length > 0 ? navItem.children[0] : undefined
             );
             setIsSecondaryNavOpen(children.length > 0);
-            if (children.length > 0) navigate(`/${title}/${children[0].route}`);
-            else navigate(`/${title}`);
+            if (children.length > 0)
+              navigate(`/${activeRole}/${title}/${children[0].route}`);
+            else navigate(`/${activeRole}/${title}`);
           }}
           activeNavItem={activeNavItem}
         />
@@ -388,6 +405,7 @@ export function Layout({
                 {location.pathname
                   .split('/')
                   .filter((_) => _ !== '')
+                  .slice(1)
                   .map((item, index) => {
                     const pathnameArray = location.pathname
                       .split('/')
@@ -403,7 +421,7 @@ export function Layout({
                           index === 0
                             ? activeNavItem && activeNavItem.children.length > 0
                               ? navigate(
-                                  `/${pathnameArray[0]}/${activeNavItem.children[0].route}`
+                                  `/${pathnameArray[0]}/${pathnameArray[1]}/${activeNavItem.children[0].route}`
                                 )
                               : null
                             : navigate(
@@ -418,12 +436,12 @@ export function Layout({
                             index ===
                             location.pathname.split('/').filter((_) => _ !== '')
                               .length -
-                              1
+                              2
                               ? 400
                               : 200,
                           color:
                             location.pathname.split('/').filter((_) => _ !== '')
-                              .length - 1
+                              .length - 2
                               ? theme.common.titleActive
                               : 'inherit',
 
