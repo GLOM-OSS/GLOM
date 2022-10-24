@@ -23,7 +23,15 @@ export type Lang = 'En' | 'Fr';
 export type UserAction = { type: "LOAD_USER";   payload: { user: User; };
 } | { type: "CLEAR_USER" };
 
-export type PersonnelRole = 'secretary'|'teacher'|'registry'
+export type PersonnelRole = 'secretary'|'teacher'|'registry'|'coordinator'
+
+export interface ClassroomDivisionInterface {
+  annual_classroom_division_id: string;
+  annual_classroom_id: string;
+  classroom_name: string;
+  classroom_short_name: string;
+  classroom_code: string;
+}
 
 export interface User {
   person_id: string;
@@ -47,9 +55,10 @@ export interface User {
   annualTeacher?: {
     annual_teacher_id: string;
     hourly_rate: number;
-    origin_institute: string;
+    origin_institute?: string;
     has_signed_convention: boolean;
     teacher_id: string;
+    coordinates?:ClassroomDivisionInterface[]
   };
   annualRegistry?: {
     annual_registry_id: string;
