@@ -3,6 +3,32 @@ import { MainLayout, NavItem } from '@squoolr/layout';
 import { injectIntl, IntlShape } from 'react-intl';
 
 function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
+  const coordinatorNavItems: NavItem[] = [
+    {
+      id: 1,
+      Icon: LayersOutlined,
+      title: 'configurations',
+      children: [
+        {
+          title: formatMessage({ id: 'modulesAndSubjects' }),
+          route: 'subjects-and-modules',
+          page_title: 'managementOfModulesandSubjects',
+        },
+      ],
+    },
+    {
+      id: 2,
+      Icon: LayersOutlined,
+      title: 'marksManagement',
+      children: [
+        {
+          title: formatMessage({ id: 'marksFollowUp' }),
+          route: 'module-follow-up',
+          page_title: 'marksFollowUp',
+        },
+      ],
+    },
+  ];
   const navItems: NavItem[] = [
     {
       id: 1,
@@ -36,7 +62,10 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
   return (
     <MainLayout
       callingApp="personnel"
-      navItems={[{ role: 'registry', navItems: navItems }]}
+      navItems={[
+        { role: 'registry', navItems: navItems },
+        { role: 'coordinator', navItems: coordinatorNavItems },
+      ]}
     />
   );
 }
