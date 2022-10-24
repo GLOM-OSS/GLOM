@@ -36,6 +36,7 @@ export default function UserLayoutDisplay({
       annualConfigurator ? 'secretary' : undefined,
       annualRegistry ? 'registry' : undefined,
       annualTeacher ? 'teacher' : undefined,
+      (annualTeacher?.coordinates && annualTeacher.coordinates.length>0)?'coordinator':undefined
     ];
     setUserRoles(newRoles.filter((_) => _ !== undefined) as PersonnelRole[]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
