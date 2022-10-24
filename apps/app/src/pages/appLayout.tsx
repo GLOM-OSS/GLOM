@@ -1,4 +1,4 @@
-import { LayersOutlined } from '@mui/icons-material';
+import { GradingRounded, LayersOutlined } from '@mui/icons-material';
 import { MainLayout, NavItem } from '@squoolr/layout';
 import { injectIntl, IntlShape } from 'react-intl';
 
@@ -18,7 +18,7 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
     },
     {
       id: 2,
-      Icon: LayersOutlined,
+      Icon: GradingRounded,
       title: 'marksManagement',
       children: [
         {
