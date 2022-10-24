@@ -71,13 +71,12 @@ export function Layout({
 
   useEffect(() => {
     if (roleNavigationItems.length > 0) {
-      const currentNavItem = roleNavigationItems.find(
+      let currentNavItem = roleNavigationItems.find(
         ({ title }) => title === location.pathname.split('/')[1]
       );
+      if (!currentNavItem) currentNavItem = roleNavigationItems[0];
       setActiveNavItem(currentNavItem ?? roleNavigationItems[0]);
-      setIsSecondaryNavOpen(
-        currentNavItem ? currentNavItem.children.length > 0 : false
-      );
+      setIsSecondaryNavOpen(currentNavItem.children.length > 0);
     } else {
       setIsSecondaryNavOpen(false);
       setActiveNavItem(undefined);
@@ -89,7 +88,7 @@ export function Layout({
   }, [roleNavigationItems]);
 
   useEffect(() => {
-    if (activeNavItem && activeNavItem.children) {
+    if (activeNavItem) {
       const { children } = activeNavItem;
       const pathname = location.pathname.split('/').filter((_) => _ !== '');
       if (pathname.length === 2) {
@@ -103,7 +102,8 @@ export function Layout({
         );
       if (children.length > 0)
         navigate(
-          pathname.length >= 2
+          pathname.length >= 2 &&
+            children.find(({ route }) => route === pathname[1])
             ? `/${pathname.join('/')}`
             : `${children[0].route}`
         );
@@ -260,32 +260,30 @@ export function Layout({
 
           <UserLayoutDisplay
             activeRole={activeRole}
-            selectRole={(newRole: PersonnelRole) =>
-              handleSwapRole && handleSwapRole(newRole)
-            }
+            selectRole={(newRole: PersonnelRole) => handleSwapRole(newRole)}
           />
           <Typography variant="body2" sx={{ color: theme.common.label }}>
             {activeNavItem ? formatMessage({ id: activeNavItem.title }) : null}
           </Typography>
           {/*TODO: ADD SCROLLBARS AGAIN. BUT NOTICE HOW IT PREVENTS THE FULLWIDTH CONCEPT. TRY TO SOLVE IT */}
           {/* <Scrollbars> */}
-            <Box
-              sx={{
-                marginTop: theme.spacing(2.5),
-                display: 'grid',
-                rowGap: theme.spacing(1),
-              }}
-            >
-              {activeNavItem
-                ? activeNavItem.children.map((child, index) => (
-                    <SecondaryNavItem
-                      item={child}
-                      key={index}
-                      onClick={() => setActiveSecondaryNavItem(child)}
-                    />
-                  ))
-                : null}
-            </Box>
+          <Box
+            sx={{
+              marginTop: theme.spacing(2.5),
+              display: 'grid',
+              rowGap: theme.spacing(1),
+            }}
+          >
+            {activeNavItem
+              ? activeNavItem.children.map((child, index) => (
+                  <SecondaryNavItem
+                    item={child}
+                    key={index}
+                    onClick={() => setActiveSecondaryNavItem(child)}
+                  />
+                ))
+              : null}
+          </Box>
           {/* </Scrollbars> */}
           {callingApp === 'personnel' && (
             <SwapAcademicYear callingApp={callingApp} activeYear={activeYear} />
