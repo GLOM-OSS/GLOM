@@ -225,7 +225,6 @@ export function Layout({
             else navigate(`/${title}`);
           }}
           activeNavItem={activeNavItem}
-          openSecondaryNav={() => setIsSecondaryNavOpen(true)}
         />
         <Box
           component={Collapse}
