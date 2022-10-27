@@ -11,10 +11,11 @@ export default function LandingLayout({
       sx={{
         display: 'grid',
         gridTemplateRows: 'auto 1fr',
+        height:'100vh'
       }}
     >
       <Navbar />
-      <Box sx={{ padding: `0 7.1%` }}>{children}</Box>
+      <Box sx={{ padding: `0 7.1%`, height:'100%' }}>{children}</Box>
     </Box>
   );
 }
