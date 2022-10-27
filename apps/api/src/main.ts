@@ -7,8 +7,6 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as csurf from 'csurf';
-import helmet from 'helmet';
 
 import { AppModule } from './app/app.module';
 import { HttpExceptionFilter } from './errors/http-exception.filter';
@@ -20,8 +18,6 @@ async function bootstrap() {
       credentials: true,
     },
   });
-  app.use(csurf());
-  app.use(helmet());
   app.useStaticAssets('./assets');
   app.useGlobalPipes(
     new ValidationPipe({

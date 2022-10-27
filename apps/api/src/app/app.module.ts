@@ -10,6 +10,8 @@ import { randomUUID } from 'crypto';
 import * as session from 'express-session';
 import * as passport from 'passport';
 import { createClient } from 'redis';
+import * as csurf from 'csurf';
+import helmet from 'helmet';
 
 import { PrismaModule } from '../prisma/prisma.module';
 import { AppController } from './app.controller';
@@ -75,6 +77,8 @@ export class AppModule implements NestModule {
         }),
         passport.initialize(),
         passport.session(),
+        helmet(),
+        // csurf(),
         AppMiddleware
       )
       .forRoutes('*');

@@ -1,12 +1,18 @@
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
-import { DeserializeSessionData, Role } from '../../../utils/types';
-import { Request } from 'express';
-import { Roles } from '../../app.decorator';
-import { AuthenticatedGuard } from '../../auth/auth.guard';
 import {
-    PersonnelService,
-    PersonnelType
-} from './personnel.service';
+  Body,
+  Controller,
+  Get,
+  Param, Put,
+  Query,
+  Req,
+  UseGuards
+} from '@nestjs/common';
+import { Request } from 'express';
+import { DeserializeSessionData, Role } from '../../../utils/types';
+import { Roles } from '../../app.decorator';
+import { ResetPasswordDto } from '../../auth/auth.dto';
+import { AuthenticatedGuard } from '../../auth/auth.guard';
+import { PersonnelService, PersonnelType } from './personnel.service';
 
 @Controller('personnel')
 @Roles(Role.CONFIGURATOR)
@@ -76,5 +82,58 @@ export class PersonnelController {
       keyword
     );
     return { teachers };
+  }
+
+  @Put('teachers/:annual_teacher_id/reset-code')
+  async resetTeacherCode(
+    @Req() request: Request,
+    @Param('annual_teacher_id') annual_teacher_id: string
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user as DeserializeSessionData;
+    await this.personnelService.resetPrivateCode(
+      annual_teacher_id,
+      Role.TEACHER,
+      annual_configurator_id
+    );
+
+    return { is_code_reset: true };
+  }
+
+  @Put('registries/:annual_registry_id/reset-code')
+  async resetRegistryCode(
+    @Req() request: Request,
+    @Param('annual_registry_id') annual_registry_id: string
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user as DeserializeSessionData;
+    await this.personnelService.resetPrivateCode(
+      annual_registry_id,
+      Role.TEACHER,
+      annual_configurator_id
+    );
+
+    return { is_code_reset: true };
+  }
+
+  @Put('reset-password')
+  async resetPassword(
+    @Req() request: Request,
+    @Body() { email }: ResetPasswordDto
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user as DeserializeSessionData;
+    const squoolr_client = new URL(request.headers.origin).hostname;
+    const { reset_password_id } = await this.personnelService.resetPassword(
+      email,
+      squoolr_client,
+      annual_configurator_id
+    );
+    return {
+      reset_link: `${request.headers.origin}/forgot-password/${reset_password_id}/new-password`,
+    };
   }
 }
