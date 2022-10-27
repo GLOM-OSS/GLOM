@@ -4,12 +4,14 @@ import { CodeGeneratorService } from '../../utils/code-generator';
 import { ClassroomModule } from './classroom/classroom.module';
 import { DepartmentModule } from './department/department.module';
 import { MajorModule } from './major/major.module';
+import { PersonnelModule } from './personnel/personnel.module';
 
 @Module({
   imports: [
     MajorModule,
     ClassroomModule,
     DepartmentModule,
+    PersonnelModule,
     RouterModule.register([
       {
         path: 'configurator',
@@ -26,6 +28,10 @@ import { MajorModule } from './major/major.module';
           {
             path: '/',
             module: ClassroomModule,
+          },
+          {
+            path: '/',
+            module: PersonnelModule,
           },
         ],
       },
