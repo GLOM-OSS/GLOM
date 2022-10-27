@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AUTH501 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 
@@ -27,18 +27,18 @@ export interface Personnel extends Person {
   roles: RoleShort[];
 }
 
+@Injectable()
 export class PersonnelService {
-  private annualRegistryService: typeof this.prismaService.annualRegistry;
-  private annualTeacherService: typeof this.prismaService.annualTeacher;
-  private annualConfiguratorService: typeof this.prismaService.annualConfigurator;
-  private annualClassroomService: typeof this.prismaService.annualClassroom;
   private logService: typeof this.prismaService.log;
+  private annualTeacherService: typeof this.prismaService.annualTeacher;
+  private annualRegistryService: typeof this.prismaService.annualRegistry;
+  private annualConfiguratorService: typeof this.prismaService.annualConfigurator;
+  private annualClassroomDivisionService: typeof this.prismaService.annualClassroomDivision;
 
   constructor(private prismaService: PrismaService) {
     this.logService = prismaService.log;
     this.annualTeacherService = prismaService.annualTeacher;
     this.annualRegistryService = prismaService.annualRegistry;
-    this.annualClassroomService = prismaService.annualClassroom;
     this.annualConfiguratorService = prismaService.annualConfigurator;
   }
 
@@ -134,7 +134,7 @@ export class PersonnelService {
         break;
       }
       case PersonnelType.COORDINATOR: {
-        const coordinators = await this.annualClassroomService.findMany({
+        const coordinators = await this.annualClassroomDivisionService.findMany({
           distinct: ['annual_coordinator_id'],
           select: {
             AnnualTeacher: {
@@ -196,7 +196,7 @@ export class PersonnelService {
       where: { login_id },
     });
     if (registry) roles.push('S.A.');
-    const annualCordinator = await this.annualClassroomService.findFirst({
+    const annualCordinator = await this.annualClassroomDivisionService.findFirst({
       select: { AnnualTeacher: { select: { annual_teacher_id: true } } },
       where: { AnnualTeacher: { login_id } },
     });
