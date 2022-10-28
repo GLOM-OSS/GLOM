@@ -28,6 +28,6 @@ export class AppController {
 
   @Get('teacher-grades')
   async getTeacherGrades() {
-    return { teacher_grades: await this.appService.getTeacherTypes() };
+    return { teacher_grades: await this.appService.getTeacherGrades() };
   }
 }
