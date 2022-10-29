@@ -1,4 +1,4 @@
-import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
@@ -198,3 +198,6 @@ export class CoordinatorPostDto {
   @ArrayMinSize(1)
   classroom_division_ids: string[];
 }
+
+export class StaffPutDto extends PartialType(StaffPostData) {}
+export class TeacherPutDto extends PartialType(TeacherPostDto) {}

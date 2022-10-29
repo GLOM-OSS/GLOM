@@ -7,7 +7,10 @@ import { CodeGeneratorService } from '../../../utils/code-generator';
 import { Role } from '../../../utils/types';
 import {
   CoordinatorPostDto,
-  StaffPostData, TeacherPostDto
+  StaffPostData,
+  StaffPutDto,
+  TeacherPostDto,
+  TeacherPutDto,
 } from '../configurator.dto';
 
 export enum PersonnelType {
@@ -599,5 +602,148 @@ export class PersonnelService {
         },
       }),
     ]);
+  }
+
+  async editStaff(
+    login_id: string,
+    { phone: phone_number, ...staffData }: StaffPutDto,
+    audited_by: string
+  ) {
+    const login = await this.loginService.findUnique({
+      where: { login_id },
+      select: {
+        Person: true,
+      },
+    });
+    if (!login?.Person)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Personnel')),
+        HttpStatus.NOT_FOUND
+      );
+    const {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      Person: { created_at, person_id, ...person },
+    } = login;
+    await this.personService.update({
+      data: {
+        ...staffData,
+        phone_number,
+        PersonAudits: {
+          create: {
+            ...person,
+            AnnualConfigurator: {
+              connect: { annual_configurator_id: audited_by },
+            },
+          },
+        },
+      },
+      where: {
+        person_id: login.Person.person_id,
+      },
+    });
+  }
+
+  async editTeacher(
+    annual_teacher_id: string,
+    {
+      phone,
+      first_name,
+      birthdate,
+      email,
+      gender,
+      last_name,
+      national_id_number,
+      teacher_grade_id,
+      teacher_type_id,
+      tax_payer_card_number,
+      has_tax_payer_card,
+      origin_institute,
+      has_signed_convention,
+      hourly_rate,
+    }: TeacherPutDto,
+    audited_by: string
+  ) {
+    const annualTeacherData = await this.annualTeacherService.findUnique({
+      where: { annual_teacher_id },
+      select: {
+        hourly_rate: true,
+        origin_institute: true,
+        has_signed_convention: true,
+        Teacher: true,
+        Login: {
+          select: {
+            Person: true,
+          },
+        },
+      },
+    });
+    if (!annualTeacherData)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Personnel')),
+        HttpStatus.NOT_FOUND
+      );
+    const {
+      Login: {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        Person: { created_at, person_id, ...person },
+      },
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      Teacher: { teacher_id, ...teacher },
+      ...annualTeacher
+    } = annualTeacherData;
+
+    await this.annualTeacherService.update({
+      data: {
+        has_signed_convention,
+        origin_institute,
+        hourly_rate,
+        TeacherGrade: { update: { teacher_grade_id } },
+        AnnualTeacherAudits: {
+          create: {
+            ...annualTeacher,
+            audited_by,
+          },
+        },
+        Teacher: {
+          update: {
+            tax_payer_card_number,
+            has_tax_payer_card,
+            teacher_type_id,
+            TeacherAudits: {
+              create: {
+                ...teacher,
+                audited_by,
+              },
+            },
+          },
+        },
+        Login: {
+          update: {
+            Person: {
+              update: {
+                first_name,
+                birthdate,
+                email,
+                gender,
+                last_name,
+                national_id_number,
+                phone_number: phone,
+                PersonAudits: {
+                  create: {
+                    ...person,
+                    AnnualConfigurator: {
+                      connect: { annual_configurator_id: audited_by },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      where: {
+        annual_teacher_id,
+      },
+    });
   }
 }

@@ -3,7 +3,7 @@ import {
   Controller,
   Get,
   HttpException,
-  HttpStatus, Post,
+  HttpStatus, Param, Post,
   Put,
   Query,
   Req,
@@ -16,7 +16,7 @@ import { ResetPasswordDto } from '../../auth/auth.dto';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import {
   CoordinatorPostDto,
-  StaffPostData, TeacherPostDto
+  StaffPostData, StaffPutDto, TeacherPostDto, TeacherPutDto
 } from '../configurator.dto';
 import { PersonnelService, PersonnelType } from './personnel.service';
 
@@ -210,5 +210,45 @@ export class PersonnelController {
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @Put(['registries/:login_id/edit', 'configurators/:login_id/edit'])
+  async editStaff(
+    @Req() request: Request,
+    @Param('login_id') login_id: string,
+    @Body() staffData: StaffPutDto
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      await this.personnelService.editStaff(
+        login_id,
+        staffData,
+        annual_configurator_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Put('teachers/:annual_teacher_id/edit')
+  async editTeacher(
+    @Req() request: Request,
+    @Param('annual_teacher_id') annual_teacher_id: string,
+    @Body() staffData: TeacherPutDto
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user as DeserializeSessionData;
+    // try {
+      await this.personnelService.editTeacher(
+        annual_teacher_id,
+        staffData,
+        annual_configurator_id
+      );
+    // } catch (error) {
+    //   throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    // }
   }
 }
