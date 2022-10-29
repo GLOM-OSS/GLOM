@@ -3,11 +3,13 @@ import {
   Controller,
   Get,
   HttpException,
-  HttpStatus, Param, Post,
+  HttpStatus,
+  Param,
+  Post,
   Put,
   Query,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { DeserializeSessionData, Role } from '../../../utils/types';
@@ -16,78 +18,40 @@ import { ResetPasswordDto } from '../../auth/auth.dto';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import {
   CoordinatorPostDto,
-  StaffPostData, StaffPutDto, TeacherPostDto, TeacherPutDto
+  StaffPostData,
+  StaffPutDto,
 } from '../configurator.dto';
 import { PersonnelService, PersonnelType } from './personnel.service';
 
-@Controller('personnel')
+@Controller()
 @Roles(Role.CONFIGURATOR)
 @UseGuards(AuthenticatedGuard)
 export class PersonnelController {
   constructor(private personnelService: PersonnelService) {}
 
-  @Get('configurators')
-  async findConfigurators(
+  @Get(['configurators', 'registries', 'coordinators', 'teachers'])
+  async findPersonnel(
     @Req() request: Request,
     @Query('keyword') keyword: string
   ) {
     const {
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
+
+    const personnelType = request.url.includes('registries')
+      ? PersonnelType.REGISTRY
+      : request.url.includes('coordinators')
+      ? PersonnelType.COORDINATOR
+      : request.url.includes('teachers')
+      ? PersonnelType.TEACHER
+      : PersonnelType.CONFIGURATOR;
+
     const configurators = await this.personnelService.findAll(
-      PersonnelType.CONFIGURATOR,
+      personnelType,
       academic_year_id,
       keyword
     );
     return { configurators };
-  }
-
-  @Get('registries')
-  async findRegistries(
-    @Req() request: Request,
-    @Query('keyword') keyword: string
-  ) {
-    const {
-      activeYear: { academic_year_id },
-    } = request.user as DeserializeSessionData;
-    const registries = await this.personnelService.findAll(
-      PersonnelType.REGISTRY,
-      academic_year_id,
-      keyword
-    );
-    return { registries };
-  }
-
-  @Get('coordinators')
-  async findCoordinators(
-    @Req() request: Request,
-    @Query('keyword') keyword: string
-  ) {
-    const {
-      activeYear: { academic_year_id },
-    } = request.user as DeserializeSessionData;
-    const coordinators = await this.personnelService.findAll(
-      PersonnelType.CONFIGURATOR,
-      academic_year_id,
-      keyword
-    );
-    return { coordinators };
-  }
-
-  @Get('teachers')
-  async findTeachers(
-    @Req() request: Request,
-    @Query('keyword') keyword: string
-  ) {
-    const {
-      activeYear: { academic_year_id },
-    } = request.user as DeserializeSessionData;
-    const teachers = await this.personnelService.findAll(
-      PersonnelType.TEACHER,
-      academic_year_id,
-      keyword
-    );
-    return { teachers };
   }
 
   @Put([
@@ -169,31 +133,6 @@ export class PersonnelController {
     }
   }
 
-  @Post('teachers/new')
-  async addNewTeacher(
-    @Req() request: Request,
-    @Body() newTeacher: TeacherPostDto
-  ) {
-    const {
-      annualConfigurator: { annual_configurator_id },
-      school_id,
-      activeYear: { academic_year_id },
-    } = request.user as DeserializeSessionData;
-    try {
-      await this.personnelService.addNewTeacher(
-        newTeacher,
-        {
-          school_id,
-          academic_year_id,
-        },
-        annual_configurator_id
-      );
-      return;
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
   @Post('coordinators/new')
   async addNewCoordinator(
     @Req() request: Request,
@@ -230,25 +169,5 @@ export class PersonnelController {
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-  }
-
-  @Put('teachers/:annual_teacher_id/edit')
-  async editTeacher(
-    @Req() request: Request,
-    @Param('annual_teacher_id') annual_teacher_id: string,
-    @Body() staffData: TeacherPutDto
-  ) {
-    const {
-      annualConfigurator: { annual_configurator_id },
-    } = request.user as DeserializeSessionData;
-    // try {
-      await this.personnelService.editTeacher(
-        annual_teacher_id,
-        staffData,
-        annual_configurator_id
-      );
-    // } catch (error) {
-    //   throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    // }
   }
 }

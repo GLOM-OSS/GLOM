@@ -19,7 +19,7 @@ import {
 } from '../configurator.dto';
 import { ClassroomService } from './classroom.service';
 
-@Controller('classrooms')
+@Controller()
 @Roles(Role.CONFIGURATOR)
 @UseGuards(AuthenticatedGuard)
 export class ClassroomController {

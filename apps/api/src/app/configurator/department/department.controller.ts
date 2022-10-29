@@ -23,7 +23,7 @@ import {
 } from '../configurator.dto';
 
 @Roles(Role.CONFIGURATOR)
-@Controller('departments')
+@Controller()
 @UseGuards(AuthenticatedGuard)
 export class DepartmentController {
   constructor(private departmentService: DepartmentService) {}

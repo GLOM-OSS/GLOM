@@ -22,7 +22,7 @@ import {
 } from '../configurator.dto';
 import { MajorService } from './major.service';
 
-@Controller('majors')
+@Controller()
 @Roles(Role.CONFIGURATOR)
 @UseGuards(AuthenticatedGuard)
 export class MajorController {

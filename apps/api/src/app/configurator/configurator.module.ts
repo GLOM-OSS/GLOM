@@ -14,26 +14,20 @@ import { PersonnelModule } from './personnel/personnel.module';
     PersonnelModule,
     RouterModule.register([
       {
-        path: 'configurator',
-        module: ConfiguratorModule,
-        children: [
-          {
-            path: '/',
-            module: DepartmentModule,
-          },
-          {
-            path: '/',
-            module: MajorModule,
-          },
-          {
-            path: '/',
-            module: ClassroomModule,
-          },
-          {
-            path: '/',
-            module: PersonnelModule,
-          },
-        ],
+        path: '/departments',
+        module: DepartmentModule,
+      },
+      {
+        path: '/majors',
+        module: MajorModule,
+      },
+      {
+        path: '/classrooms',
+        module: ClassroomModule,
+      },
+      {
+        path: '/personnel',
+        module: PersonnelModule,
       },
     ]),
   ],
