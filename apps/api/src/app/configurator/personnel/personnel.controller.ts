@@ -1,8 +1,6 @@
 import {
   Body,
-  Controller,
-  Delete,
-  Get,
+  Controller, Get,
   HttpException,
   HttpStatus,
   Param,
@@ -10,7 +8,7 @@ import {
   Put,
   Query,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import { Request } from 'express';
 import { DeserializeSessionData, Role } from '../../../utils/types';
@@ -21,7 +19,7 @@ import {
   CoordinatorPostDto,
   PersonnelQueryDto,
   StaffPostData,
-  StaffPutDto,
+  StaffPutDto
 } from '../configurator.dto';
 import { PersonnelService } from './personnel.service';
 

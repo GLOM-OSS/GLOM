@@ -404,6 +404,7 @@ export class PersonnelService {
       });
     }
     //TODO NodeMailer send email to username
+    username;
   }
 
   async resetPassword(email: string, squoolr_client: string, reset_by: string) {
