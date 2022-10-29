@@ -1,6 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  ArrayMinSize,
+  IsArray,
   IsBoolean,
   IsNumber,
   IsOptional,
@@ -8,6 +10,7 @@ import {
   IsUUID,
   ValidateNested,
 } from 'class-validator';
+import { PersonPostDto } from '../app.dto';
 
 export class DepartmentPostDto {
   @IsString()
@@ -124,6 +127,12 @@ export class ClassroomPutDto {
   is_deleted?: boolean;
 }
 
+export class ClassroomDivisionQueryDto {
+  @IsString()
+  @ApiProperty({ required: false })
+  annual_classroom_id: string;
+}
+
 export class ClassroomQueryDto {
   @IsString()
   @IsOptional()
@@ -144,4 +153,48 @@ export class ClassroomQueryDto {
   @IsOptional()
   @ApiProperty({ required: false })
   is_deleted?: boolean;
+}
+
+export class StaffPostData extends OmitType(PersonPostDto, ['password']) {}
+
+export class TeacherPostDto extends StaffPostData {
+  @IsUUID()
+  @ApiProperty()
+  teacher_grade_id: string;
+
+  @IsUUID()
+  @ApiProperty()
+  teacher_type_id: string;
+
+  @IsString()
+  @ApiProperty()
+  origin_institute: string;
+
+  @IsNumber()
+  @ApiProperty()
+  hourly_rate: number;
+
+  @IsBoolean()
+  @ApiProperty()
+  has_signed_convention: boolean;
+
+  @IsBoolean()
+  @ApiProperty()
+  has_tax_payer_card: boolean;
+
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  tax_payer_card_number?: number;
+}
+
+export class CoordinatorPostDto {
+  @IsString()
+  @ApiProperty()
+  annual_teacher_id: string;
+
+  @ApiProperty()
+  @IsArray()
+  @ArrayMinSize(1)
+  classroom_division_ids: string[];
 }

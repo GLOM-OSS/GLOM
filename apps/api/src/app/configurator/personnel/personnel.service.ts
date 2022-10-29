@@ -1,9 +1,11 @@
-import { PrismaService } from '../../../prisma/prisma.service';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CodeGeneratorService } from '../../../utils/code-generator';
-import { AUTH04, AUTH404, AUTH501 } from '../../../errors';
 import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
+import { AUTH04, AUTH404, AUTH501, ERR03 } from '../../../errors';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { CodeGeneratorService } from '../../../utils/code-generator';
 import { Role } from '../../../utils/types';
+import { CoordinatorPostDto, StaffPostData, TeacherPostDto } from '../configurator.dto';
 
 export enum PersonnelType {
   REGISTRY,
@@ -39,6 +41,7 @@ export class PersonnelService {
   private annualRegistryService: typeof this.prismaService.annualRegistry;
   private annualConfiguratorService: typeof this.prismaService.annualConfigurator;
   private annualClassroomDivisionService: typeof this.prismaService.annualClassroomDivision;
+  private annualClassroomDivisionAuditService: typeof this.prismaService.annualClassroomDivisionAudit;
 
   constructor(
     private prismaService: PrismaService,
@@ -50,6 +53,9 @@ export class PersonnelService {
     this.resetPasswordService = prismaService.resetPassword;
     this.annualRegistryService = prismaService.annualRegistry;
     this.annualConfiguratorService = prismaService.annualConfigurator;
+    this.annualClassroomDivisionService = prismaService.annualClassroomDivision;
+    this.annualClassroomDivisionAuditService =
+      prismaService.annualClassroomDivisionAudit;
   }
 
   async findAll(
@@ -59,22 +65,27 @@ export class PersonnelService {
   ): Promise<Person[]> {
     const where = {
       academic_year_id,
-      Login: {
-        Person: {
-          OR: {
-            email: {
-              contains: keywords,
+      ...(keywords
+        ? {
+            Login: {
+              Person: {
+                OR: {
+                  email: {
+                    contains: keywords,
+                  },
+                  last_name: {
+                    contains: keywords,
+                  },
+                  first_name: {
+                    contains: keywords,
+                  },
+                },
+              },
             },
-            last_name: {
-              contains: keywords,
-            },
-            first_name: {
-              contains: keywords,
-            },
-          },
-        },
-      },
+          }
+        : {}),
     };
+
     const select = {
       Login: {
         select: {
@@ -183,10 +194,10 @@ export class PersonnelService {
 
     const personnel: Personnel[] = [];
     for (let i = 0; i < person.length; i++) {
-      const { login_id, ...person } = personnel[i];
+      const { login_id, ...personData } = person[i];
       personnel.push({
         login_id,
-        ...person,
+        ...personData,
         roles: await this.getRoles(login_id),
         last_log: await this.getLastLog(login_id),
       });
@@ -229,15 +240,12 @@ export class PersonnelService {
     return log?.logged_in_at;
   }
 
-  async resetPrivateCode(
-    personnel_id: string,
-    role: Role,
-    reset_by: string
-  ) {
+  async resetPrivateCode(personnel_id: string, role: Role, reset_by: string) {
     const private_code = bcrypt.hashSync(
       this.codeGenerator.getNumberString(Math.floor(Math.random() * 10000)),
       Number(process.env.SALT)
     );
+    let username: string;
 
     if (role === Role.TEACHER) {
       const annualTeacher = await this.annualTeacherService.findUnique({
@@ -245,15 +253,26 @@ export class PersonnelService {
           hourly_rate: true,
           has_signed_convention: true,
           origin_institute: true,
+          Login: { select: { Person: { select: { email: true } } } },
         },
         where: { annual_teacher_id: personnel_id },
       });
+      if (!annualTeacher)
+        throw new HttpException(
+          JSON.stringify(AUTH404('Teacher')),
+          HttpStatus.NOT_FOUND
+        );
+      const {
+        Login: { Person },
+        ...annualTeacherAudit
+      } = annualTeacher;
+      username = Person.email;
       await this.annualTeacherService.update({
         data: {
           private_code,
           AnnualTeacherAudits: {
             create: {
-              ...annualTeacher,
+              ...annualTeacherAudit,
               AnnualConfigurator: {
                 connect: { annual_configurator_id: reset_by },
               },
@@ -267,15 +286,21 @@ export class PersonnelService {
         select: {
           is_deleted: true,
           private_code: true,
+          Login: { select: { Person: { select: { email: true } } } },
         },
         where: { annual_registry_id: personnel_id },
       });
+      const {
+        Login: { Person },
+        ...annualRegistryAudit
+      } = annualRegistry;
+      username = Person.email;
       await this.annualRegistryService.update({
         data: {
           private_code,
           AnnualRegistryAudits: {
             create: {
-              ...annualRegistry,
+              ...annualRegistryAudit,
               AnnualConfigurator: {
                 connect: { annual_configurator_id: reset_by },
               },
@@ -285,6 +310,7 @@ export class PersonnelService {
         where: { annual_registry_id: personnel_id },
       });
     }
+    //TODO NodeMailer send email to username
   }
 
   async resetPassword(email: string, squoolr_client: string, reset_by: string) {
@@ -315,5 +341,233 @@ export class PersonnelService {
       return { reset_password_id };
     }
     throw new HttpException(AUTH404('Email')['Fr'], HttpStatus.NOT_FOUND);
+  }
+
+  async addNewStaff(
+    newStaff: StaffPostData,
+    { school_id, role }: { school_id: string; role: Role },
+    academic_year_id: string,
+    added_by: string
+  ) {
+    const private_code = bcrypt.hashSync(
+      this.codeGenerator.getNumberString(Math.floor(Math.random() * 10000)),
+      Number(process.env.SALT)
+    );
+
+    const { phone: phone_number, ...staffData } = newStaff;
+    const password = Math.random().toString(36).slice(2).toUpperCase();
+
+    const login = await this.loginService.findFirst({
+      where: {
+        Person: { email: newStaff.email },
+        school_id,
+      },
+    });
+    const login_id = login?.login_id ?? randomUUID();
+
+    const data = {
+      Login: {
+        connectOrCreate: {
+          create: {
+            login_id,
+            Person: {
+              connectOrCreate: {
+                create: { ...staffData, phone_number },
+                where: { email: newStaff.email },
+              },
+            },
+            password,
+          },
+          where: { login_id },
+        },
+      },
+      AcademicYear: { connect: { academic_year_id } },
+      AnnualConfigurator: {
+        connect: { annual_configurator_id: added_by },
+      },
+    };
+    if (role === Role.CONFIGURATOR) {
+      if (login?.login_id) {
+        const staff = await this.annualConfiguratorService.findUnique({
+          where: {
+            login_id_academic_year_id: {
+              academic_year_id,
+              login_id: login.login_id,
+            },
+          },
+        });
+        if (staff)
+          throw new HttpException(
+            JSON.stringify(ERR03('configurator')),
+            HttpStatus.AMBIGUOUS
+          );
+      }
+      await this.annualConfiguratorService.create({
+        data,
+      });
+    } else if (role === Role.REGISTRY) {
+      if (login?.login_id) {
+        const staff = await this.annualRegistryService.findUnique({
+          where: {
+            login_id_academic_year_id: {
+              academic_year_id,
+              login_id: login.login_id,
+            },
+          },
+        });
+        if (staff)
+          throw new HttpException(
+            JSON.stringify(ERR03('registry')),
+            HttpStatus.AMBIGUOUS
+          );
+      }
+      await this.annualRegistryService.create({
+        data: {
+          ...data,
+          private_code,
+        },
+      });
+    }
+  }
+
+  async addNewTeacher(
+    {
+      phone,
+      first_name,
+      birthdate,
+      email,
+      gender,
+      last_name,
+      national_id_number,
+      teacher_grade_id,
+      teacher_type_id,
+      tax_payer_card_number,
+      has_tax_payer_card,
+      origin_institute,
+      has_signed_convention,
+      hourly_rate,
+    }: TeacherPostDto,
+    {
+      academic_year_id,
+      school_id,
+    }: { academic_year_id: string; school_id: string },
+    added_by: string
+  ) {
+    const login = await this.loginService.findFirst({
+      where: {
+        school_id,
+        Person: { email },
+      },
+    });
+    if (login?.login_id) {
+      const staff = await this.annualTeacherService.findUnique({
+        where: {
+          login_id_academic_year_id: {
+            academic_year_id,
+            login_id: login.login_id,
+          },
+        },
+      });
+      if (staff)
+        throw new HttpException(
+          JSON.stringify(ERR03('teacher')),
+          HttpStatus.AMBIGUOUS
+        );
+    }
+
+    const login_id = login?.login_id ?? randomUUID();
+    const password = Math.random().toString(36).slice(2).toUpperCase();
+    const private_code = bcrypt.hashSync(
+      this.codeGenerator.getNumberString(Math.floor(Math.random() * 10000)),
+      Number(process.env.SALT)
+    );
+    await this.annualTeacherService.create({
+      data: {
+        hourly_rate,
+        private_code,
+        origin_institute,
+        has_signed_convention,
+        TeacherGrade: { connect: { teacher_grade_id } },
+        Teacher: {
+          create: {
+            tax_payer_card_number,
+            has_tax_payer_card,
+            TeacherType: { connect: { teacher_type_id } },
+          },
+        },
+        AcademicYear: { connect: { academic_year_id } },
+        AnnualConfigurator: { connect: { annual_configurator_id: added_by } },
+        Login: {
+          connectOrCreate: {
+            create: {
+              login_id,
+              password,
+              School: { connect: { school_id } },
+              Person: {
+                connectOrCreate: {
+                  create: {
+                    email,
+                    gender,
+                    last_name,
+                    birthdate,
+                    first_name,
+                    national_id_number,
+                    phone_number: phone,
+                  },
+                  where: { email },
+                },
+              },
+            },
+            where: { login_id },
+          },
+        },
+      },
+    });
+  }
+
+  async addNewCoordinator(
+   data: CoordinatorPostDto,
+    added_by: string
+  ) {
+    const { annual_teacher_id, classroom_division_ids } = data
+    const annualClassroomDivisions =
+      await this.annualClassroomDivisionService.findMany({
+        select: {
+          annual_classroom_division_id: true,
+          annual_coordinator_id: true,
+          is_deleted: true,
+        },
+        where: {
+          OR: [
+            ...classroom_division_ids.map((id) => ({
+              annual_classroom_division_id: id,
+            })),
+          ],
+        },
+      });
+    await this.prismaService.$transaction([
+      this.annualClassroomDivisionAuditService.createMany({
+        data: [
+          ...annualClassroomDivisions.map((data) => ({
+            ...data,
+            audited_by: added_by,
+          })),
+        ],
+      }),
+      this.annualClassroomDivisionService.updateMany({
+        data: {
+          annual_coordinator_id: annual_teacher_id,
+        },
+        where: {
+          OR: [
+            ...annualClassroomDivisions.map(
+              ({ annual_classroom_division_id }) => ({
+                annual_classroom_division_id,
+              })
+            ),
+          ],
+        },
+      }),
+    ]);
   }
 }

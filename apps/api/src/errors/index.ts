@@ -77,8 +77,8 @@ export const ERR02 = {
   Fr: `Identifiant de la demande non valide`,
 };
 export const ERR03 = (element: string) => ({
-  En: `This element(${element}) already exits`,
-  Fr: `Cette element(${element}) existe déjà`,
+  En: `Unique contraints: This element(${element}) already exits`,
+  Fr: `Contrainte d'unicité: Cette element(${element}) existe déjà`,
 });
 export const ERR04 = {
   En: `The number of classes in a specialty cannot differ from the number of years available in its curriculum.`,
