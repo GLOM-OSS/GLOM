@@ -85,6 +85,7 @@ export class PersonnelService {
             },
           }
         : {}),
+      is_deleted: false,
     };
 
     const select = {
@@ -220,12 +221,12 @@ export class PersonnelService {
         const {
           annual_registry_id,
           Login: { login_id, Person: person },
-        } = await this.annualRegistryService.findUnique({
+        } = await this.annualRegistryService.findFirst({
           select: {
             ...select,
             annual_registry_id: true,
           },
-          where: { annual_registry_id: annual_personnel_id },
+          where: { annual_registry_id: annual_personnel_id, is_deleted: false },
         });
         return {
           annual_registry_id,
@@ -239,7 +240,7 @@ export class PersonnelService {
           annual_teacher_id,
           Login: { login_id, Person: person },
           ...annual_teacher
-        } = await this.annualTeacherService.findUnique({
+        } = await this.annualTeacherService.findFirst({
           select: {
             ...select,
             has_signed_convention: true,
@@ -249,7 +250,7 @@ export class PersonnelService {
             Teacher: true,
             annual_teacher_id: true,
           },
-          where: { annual_teacher_id: annual_personnel_id },
+          where: { annual_teacher_id: annual_personnel_id, is_deleted: false },
         });
 
         return {
@@ -264,12 +265,15 @@ export class PersonnelService {
         const {
           annual_configurator_id,
           Login: { login_id, Person: person },
-        } = await this.annualConfiguratorService.findUnique({
+        } = await this.annualConfiguratorService.findFirst({
           select: {
             ...select,
             annual_configurator_id: true,
           },
-          where: { annual_configurator_id: annual_personnel_id },
+          where: {
+            annual_configurator_id: annual_personnel_id,
+            is_deleted: false,
+          },
         });
         return {
           annual_configurator_id,
@@ -320,7 +324,11 @@ export class PersonnelService {
     return log?.logged_in_at;
   }
 
-  async resetPrivateCode(personnel_id: string, role: Role, reset_by: string) {
+  async resetPrivateCode(
+    annual_personnel_id: string,
+    role: Role,
+    reset_by: string
+  ) {
     const private_code = bcrypt.hashSync(
       this.codeGenerator.getNumberString(Math.floor(Math.random() * 10000)),
       Number(process.env.SALT)
@@ -341,7 +349,7 @@ export class PersonnelService {
           },
           Login: { select: { Person: { select: { email: true } } } },
         },
-        where: { annual_teacher_id: personnel_id },
+        where: { annual_teacher_id: annual_personnel_id },
       });
       if (!annualTeacher)
         throw new HttpException(
@@ -372,7 +380,7 @@ export class PersonnelService {
           private_code: true,
           Login: { select: { Person: { select: { email: true } } } },
         },
-        where: { annual_registry_id: personnel_id },
+        where: { annual_registry_id: annual_personnel_id },
       });
       const {
         Login: { Person },
@@ -391,7 +399,7 @@ export class PersonnelService {
             },
           },
         },
-        where: { annual_registry_id: personnel_id },
+        where: { annual_registry_id: annual_personnel_id },
       });
     }
     //TODO NodeMailer send email to username
