@@ -5,8 +5,11 @@ import { ClassroomPutDto, ClassroomQueryDto } from '../configurator.dto';
 @Injectable()
 export class ClassroomService {
   private annualClassroomService: typeof this.prismaService.annualClassroom;
+  private annualClassroomDivisionService: typeof this.prismaService.annualClassroomDivision;
+
   constructor(private prismaService: PrismaService) {
     this.annualClassroomService = prismaService.annualClassroom;
+    this.annualClassroomDivisionService = prismaService.annualClassroomDivision;
   }
 
   async findAll(
@@ -20,6 +23,14 @@ export class ClassroomService {
           Level: { level },
         },
         academic_year_id,
+      },
+    });
+  }
+  
+  async findDivisions(annual_classroom_id: string) {
+    return this.annualClassroomDivisionService.findMany({
+      where: {
+        annual_classroom_id,
       },
     });
   }

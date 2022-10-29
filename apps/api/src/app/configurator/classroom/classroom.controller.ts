@@ -8,11 +8,15 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { DeserializeSessionData, Role } from 'apps/api/src/utils/types';
+import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Request } from 'express';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
-import { ClassroomPutDto, ClassroomQueryDto } from '../configurator.dto';
+import {
+  ClassroomDivisionQueryDto,
+  ClassroomPutDto,
+  ClassroomQueryDto,
+} from '../configurator.dto';
 import { ClassroomService } from './classroom.service';
 
 @Controller('classrooms')
@@ -34,6 +38,15 @@ export class ClassroomController {
         academic_year_id,
         classQuery
       ),
+    };
+  }
+
+  @Get('/divisions')
+  async getAllClassroomDvisions(
+    @Query() { annual_classroom_id }: ClassroomDivisionQueryDto
+  ) {
+    return {
+      classrooms: await this.classroomService.findDivisions(annual_classroom_id),
     };
   }
 
