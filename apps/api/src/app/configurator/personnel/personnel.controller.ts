@@ -3,12 +3,11 @@ import {
   Controller,
   Get,
   HttpException,
-  HttpStatus,
-  Post,
+  HttpStatus, Post,
   Put,
   Query,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import { Request } from 'express';
 import { DeserializeSessionData, Role } from '../../../utils/types';
@@ -17,8 +16,7 @@ import { ResetPasswordDto } from '../../auth/auth.dto';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import {
   CoordinatorPostDto,
-  StaffPostData,
-  TeacherPostDto,
+  StaffPostData, TeacherPostDto
 } from '../configurator.dto';
 import { PersonnelService, PersonnelType } from './personnel.service';
 

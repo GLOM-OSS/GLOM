@@ -5,7 +5,10 @@ import { AUTH04, AUTH404, AUTH501, ERR03 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
 import { Role } from '../../../utils/types';
-import { CoordinatorPostDto, StaffPostData, TeacherPostDto } from '../configurator.dto';
+import {
+  CoordinatorPostDto,
+  StaffPostData, TeacherPostDto
+} from '../configurator.dto';
 
 export enum PersonnelType {
   REGISTRY,
@@ -36,7 +39,9 @@ export interface Personnel extends Person {
 export class PersonnelService {
   private logService: typeof this.prismaService.log;
   private loginService: typeof this.prismaService.login;
+  private personService: typeof this.prismaService.person;
   private resetPasswordService: typeof this.prismaService.resetPassword;
+  private teacherService: typeof this.prismaService.teacher;
   private annualTeacherService: typeof this.prismaService.annualTeacher;
   private annualRegistryService: typeof this.prismaService.annualRegistry;
   private annualConfiguratorService: typeof this.prismaService.annualConfigurator;
@@ -49,6 +54,8 @@ export class PersonnelService {
   ) {
     this.logService = prismaService.log;
     this.loginService = prismaService.login;
+    this.personService = prismaService.person;
+    this.teacherService = prismaService.teacher;
     this.annualTeacherService = prismaService.annualTeacher;
     this.resetPasswordService = prismaService.resetPassword;
     this.annualRegistryService = prismaService.annualRegistry;
@@ -250,9 +257,15 @@ export class PersonnelService {
     if (role === Role.TEACHER) {
       const annualTeacher = await this.annualTeacherService.findUnique({
         select: {
-          hourly_rate: true,
-          has_signed_convention: true,
-          origin_institute: true,
+          Teacher: {
+            select: {
+              teacher_id: true,
+              private_code: true,
+              teacher_type_id: true,
+              has_tax_payer_card: true,
+              tax_payer_card_number: true,
+            },
+          },
           Login: { select: { Person: { select: { email: true } } } },
         },
         where: { annual_teacher_id: personnel_id },
@@ -264,22 +277,20 @@ export class PersonnelService {
         );
       const {
         Login: { Person },
-        ...annualTeacherAudit
+        Teacher: { teacher_id, ...teacher },
       } = annualTeacher;
       username = Person.email;
-      await this.annualTeacherService.update({
+      await this.teacherService.update({
         data: {
           private_code,
-          AnnualTeacherAudits: {
+          TeacherAudits: {
             create: {
-              ...annualTeacherAudit,
-              AnnualConfigurator: {
-                connect: { annual_configurator_id: reset_by },
-              },
+              ...teacher,
+              audited_by: reset_by,
             },
           },
         },
-        where: { annual_teacher_id: personnel_id },
+        where: { teacher_id },
       });
     } else if (role === Role.REGISTRY) {
       const annualRegistry = await this.annualRegistryService.findUnique({
@@ -357,7 +368,20 @@ export class PersonnelService {
     const { phone: phone_number, ...staffData } = newStaff;
     const password = Math.random().toString(36).slice(2).toUpperCase();
 
+    const person = await this.personService.findUnique({
+      where: { phone_number },
+    });
+    if (person?.phone_number)
+      throw new HttpException(
+        JSON.stringify(ERR03('phone')),
+        HttpStatus.AMBIGUOUS
+      );
+
     const login = await this.loginService.findFirst({
+      select: {
+        login_id: true,
+        Person: { select: { phone_number: true } },
+      },
       where: {
         Person: { email: newStaff.email },
         school_id,
@@ -453,6 +477,15 @@ export class PersonnelService {
     }: { academic_year_id: string; school_id: string },
     added_by: string
   ) {
+    const person = await this.personService.findUnique({
+      where: { phone_number: phone },
+    });
+    if (person?.phone_number)
+      throw new HttpException(
+        JSON.stringify(ERR03('phone')),
+        HttpStatus.AMBIGUOUS
+      );
+
     const login = await this.loginService.findFirst({
       where: {
         school_id,
@@ -484,12 +517,12 @@ export class PersonnelService {
     await this.annualTeacherService.create({
       data: {
         hourly_rate,
-        private_code,
         origin_institute,
         has_signed_convention,
         TeacherGrade: { connect: { teacher_grade_id } },
         Teacher: {
           create: {
+            private_code,
             tax_payer_card_number,
             has_tax_payer_card,
             TeacherType: { connect: { teacher_type_id } },
@@ -525,11 +558,8 @@ export class PersonnelService {
     });
   }
 
-  async addNewCoordinator(
-   data: CoordinatorPostDto,
-    added_by: string
-  ) {
-    const { annual_teacher_id, classroom_division_ids } = data
+  async addNewCoordinator(data: CoordinatorPostDto, added_by: string) {
+    const { annual_teacher_id, classroom_division_ids } = data;
     const annualClassroomDivisions =
       await this.annualClassroomDivisionService.findMany({
         select: {

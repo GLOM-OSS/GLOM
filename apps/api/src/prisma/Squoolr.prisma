@@ -25,7 +25,7 @@ model Person {
     person_id          String   @id @default(uuid()) @db.VarChar(36)
     first_name         String   @db.VarChar(50)
     last_name          String   @db.VarChar(50)
-    phone_number       String   @db.VarChar(15)
+    phone_number       String   @unique @db.VarChar(15)
     birthdate          DateTime @db.DateTime(0)
     gender             Gender
     national_id_number String   @db.VarChar(15)
@@ -44,7 +44,7 @@ model Person {
 
 model PersonAudit {
     person_audit_id    String              @id @default(uuid()) @db.VarChar(36)
-    fisrt_name         String              @db.VarChar(50)
+    first_name         String              @db.VarChar(50)
     last_name          String              @db.VarChar(50)
     phone_number       String              @db.VarChar(15)
     birthdate          DateTime            @db.DateTime(0)
@@ -219,6 +219,7 @@ model AnnualConfigurator {
     AnnualClassroomDivisions      AnnualClassroomDivision[]
     AnnualClassroomDivisionAudits AnnualClassroomDivisionAudit[]
     AnnualRegistryAudit           AnnualRegistryAudit[]
+    TeacherAudits                  TeacherAudit[]
 
     @@unique([login_id, academic_year_id])
 }
@@ -301,6 +302,7 @@ model Teacher {
     teacher_id            String      @id @default(uuid()) @db.VarChar(36)
     has_tax_payer_card    Boolean     @default(false)
     tax_payer_card_number Int?
+    private_code          String      @db.VarChar(75)
     teacher_type_id       String
     TeacherType           TeacherType @relation(fields: [teacher_type_id], references: [teacher_type_id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -309,20 +311,22 @@ model Teacher {
 }
 
 model TeacherAudit {
-    teacher_audit_id     String      @id @default(uuid()) @db.VarChar(36)
-    has_tax_payer_card   Boolean     @default(false)
-    tax_payer_car_number Int
-    teacher_type_id      String
-    TeacherType          TeacherType @relation(fields: [teacher_type_id], references: [teacher_type_id], onDelete: Cascade, onUpdate: Cascade)
-    teacher_id           String
-    Teacher              Teacher     @relation(fields: [teacher_id], references: [teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    teacher_audit_id      String             @id @default(uuid()) @db.VarChar(36)
+    has_tax_payer_card    Boolean            @default(false)
+    tax_payer_card_number Int
+    private_code          String             @db.VarChar(75)
+    teacher_type_id       String
+    TeacherType           TeacherType        @relation(fields: [teacher_type_id], references: [teacher_type_id], onDelete: Cascade, onUpdate: Cascade)
+    teacher_id            String
+    Teacher               Teacher            @relation(fields: [teacher_id], references: [teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by            String             @db.VarChar(36)
+    AnnualConfigurator    AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model AnnualTeacher {
     annual_teacher_id     String             @id @default(uuid()) @db.VarChar(36)
     hourly_rate           Int
     origin_institute      String             @db.VarChar(45)
-    private_code          String             @db.VarChar(75)
     has_signed_convention Boolean            @default(false) @db.TinyInt
     is_deleted            Boolean            @default(false) @db.TinyInt
     created_at            DateTime           @default(now()) @db.DateTime(0)
@@ -398,9 +402,9 @@ model Department {
     school_id          String             @db.VarChar(36)
     School             School             @relation(fields: [school_id], references: [school_id], onDelete: Cascade, onUpdate: Cascade)
 
-    DepartmentAudits         DepartmentAudit[]
-    AnnualMajors             AnnualMajor[]
-    AnnualMajorAudits        AnnualMajorAudit[]
+    DepartmentAudits  DepartmentAudit[]
+    AnnualMajors      AnnualMajor[]
+    AnnualMajorAudits AnnualMajorAudit[]
 }
 
 model DepartmentAudit {
