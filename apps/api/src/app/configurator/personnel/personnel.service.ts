@@ -7,8 +7,9 @@ import { CodeGeneratorService } from '../../../utils/code-generator';
 import { Role } from '../../../utils/types';
 import {
   CoordinatorPostDto,
+  PersonnelQueryDto,
   StaffPostData,
-  StaffPutDto
+  StaffPutDto,
 } from '../configurator.dto';
 
 export type RoleShort = 'Te' | 'Se' | 'S.A.' | 'Co';
@@ -62,7 +63,7 @@ export class PersonnelService {
   async findAll(
     type: Role,
     academic_year_id: string,
-    keywords?: string
+    { keywords, is_deleted }: PersonnelQueryDto
   ): Promise<Person[]> {
     const where = {
       academic_year_id,
@@ -85,7 +86,7 @@ export class PersonnelService {
             },
           }
         : {}),
-      is_deleted: false,
+      is_deleted,
     };
 
     const select = {
@@ -615,5 +616,61 @@ export class PersonnelService {
         person_id: login.Person.person_id,
       },
     });
+  }
+
+  async archivePersonnel(
+    annual_personnel_id: string,
+    role: Role,
+    audited_by: string
+  ) {
+    switch (role) {
+      case Role.CONFIGURATOR: {
+        await this.annualConfiguratorService.update({
+          data: { is_deleted: false, deleted_at: new Date() },
+          where: { annual_configurator_id: annual_personnel_id },
+        });
+        return;
+      }
+      case Role.REGISTRY: {
+        const registry = await this.annualRegistryService.findUnique({
+          where: { annual_registry_id: annual_personnel_id },
+        });
+        if (registry)
+          throw new HttpException(
+            JSON.stringify(AUTH404('Registry')),
+            HttpStatus.NOT_FOUND
+          );
+        await this.annualRegistryService.update({
+          data: {
+            is_deleted: !registry.is_deleted,
+            AnnualRegistryAudits: {
+              create: { ...registry, audited_by },
+            },
+          },
+          where: { annual_registry_id: annual_personnel_id },
+        });
+        return;
+      }
+      case Role.TEACHER: {
+        const teacher = await this.annualTeacherService.findUnique({
+          where: { annual_teacher_id: annual_personnel_id },
+        });
+        if (teacher)
+          throw new HttpException(
+            JSON.stringify(AUTH404('Teacher')),
+            HttpStatus.NOT_FOUND
+          );
+        await this.annualTeacherService.update({
+          data: {
+            is_deleted: !teacher.is_deleted,
+            AnnualTeacherAudits: {
+              create: { ...teacher, audited_by },
+            },
+          },
+          where: { annual_teacher_id: annual_personnel_id },
+        });
+        return;
+      }
+    }
   }
 }

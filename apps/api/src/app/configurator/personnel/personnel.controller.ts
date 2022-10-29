@@ -19,6 +19,7 @@ import { ResetPasswordDto } from '../../auth/auth.dto';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import {
   CoordinatorPostDto,
+  PersonnelQueryDto,
   StaffPostData,
   StaffPutDto,
 } from '../configurator.dto';
@@ -33,7 +34,7 @@ export class PersonnelController {
   @Get(['configurators', 'registries', 'coordinators', 'teachers'])
   async findAllPersonnel(
     @Req() request: Request,
-    @Query('keyword') keyword: string
+    @Query() query: PersonnelQueryDto
   ) {
     const {
       activeYear: { academic_year_id },
@@ -50,7 +51,7 @@ export class PersonnelController {
     const personnel = await this.personnelService.findAll(
       role,
       academic_year_id,
-      keyword
+      query
     );
     return { personnel };
   }
@@ -190,6 +191,36 @@ export class PersonnelController {
       await this.personnelService.editStaff(
         login_id,
         staffData,
+        annual_configurator_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Put([
+    'configurators/:annual_personnel_id/archive',
+    'registries/:annual_personnel_id/archive',
+    'coordinators/:annual_personnel_id/archive',
+    'teachers/:annual_personnel_id/archive',
+  ])
+  async archivePersonnel(
+    @Req() request: Request,
+    @Param('annual_personnel_id') annual_personnel_id: string
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user as DeserializeSessionData;
+
+    const role = request.url.includes('registries')
+      ? Role.REGISTRY
+      : request.url.includes('configurators')
+      ? Role.CONFIGURATOR
+      : Role.TEACHER;
+    try {
+      await this.personnelService.archivePersonnel(
+        annual_personnel_id,
+        role,
         annual_configurator_id
       );
     } catch (error) {

@@ -201,3 +201,15 @@ export class CoordinatorPostDto {
 
 export class StaffPutDto extends PartialType(StaffPostData) {}
 export class TeacherPutDto extends PartialType(TeacherPostDto) {}
+
+export class PersonnelQueryDto {
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  keywords?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  is_deleted?: boolean;
+}
