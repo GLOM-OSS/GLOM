@@ -12,10 +12,10 @@ import {
 } from '../configurator.dto';
 
 export enum PersonnelType {
-  REGISTRY,
-  TEACHER,
-  COORDINATOR,
-  CONFIGURATOR,
+  REGISTRY = 'REGISTRY',
+  TEACHER = 'TEACHER',
+  COORDINATOR = 'COORDINATOR',
+  CONFIGURATOR = 'CONFIGURATOR',
 }
 
 export type RoleShort = 'Te' | 'Se' | 'S.A.' | 'Co';
@@ -211,6 +211,85 @@ export class PersonnelService {
       });
     }
     return personnel;
+  }
+
+  async findOne(type: PersonnelType, annual_personnel_id: string) {
+    const select = {
+      Login: {
+        select: {
+          login_id: true,
+          Person: true,
+        },
+      },
+    };
+    switch (type) {
+      case PersonnelType.REGISTRY: {
+        const {
+          annual_registry_id,
+          Login: { login_id, Person: person },
+        } = await this.annualRegistryService.findUnique({
+          select: {
+            ...select,
+            annual_registry_id: true,
+          },
+          where: { annual_registry_id: annual_personnel_id },
+        });
+        return {
+          annual_registry_id,
+          ...person,
+          login_id,
+        };
+      }
+      case PersonnelType.TEACHER: {
+        const {
+          Teacher: teacher,
+          annual_teacher_id,
+          Login: { login_id, Person: person },
+          ...annual_teacher
+        } = await this.annualTeacherService.findUnique({
+          select: {
+            ...select,
+            has_signed_convention: true,
+            origin_institute: true,
+            teacher_grade_id: true,
+            hourly_rate: true,
+            Teacher: true,
+            annual_teacher_id: true,
+          },
+          where: { annual_teacher_id: annual_personnel_id },
+        });
+
+        return {
+          annual_teacher_id,
+          ...annual_teacher,
+          ...teacher,
+          ...person,
+          login_id,
+        };
+      }
+      case PersonnelType.CONFIGURATOR: {
+        const {
+          annual_configurator_id,
+          Login: { login_id, Person: person },
+        } = await this.annualConfiguratorService.findUnique({
+          select: {
+            ...select,
+            annual_configurator_id: true,
+          },
+          where: { annual_configurator_id: annual_personnel_id },
+        });
+        return {
+          annual_configurator_id,
+          login_id,
+          ...person,
+        };
+      }
+      default:
+        throw new HttpException(
+          JSON.stringify(AUTH501(type)),
+          HttpStatus.NOT_IMPLEMENTED
+        );
+    }
   }
 
   async getRoles(login_id: string) {

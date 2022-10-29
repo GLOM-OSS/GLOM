@@ -30,7 +30,7 @@ export class PersonnelController {
   constructor(private personnelService: PersonnelService) {}
 
   @Get(['configurators', 'registries', 'coordinators', 'teachers'])
-  async findPersonnel(
+  async findAllPersonnel(
     @Req() request: Request,
     @Query('keyword') keyword: string
   ) {
@@ -46,12 +46,37 @@ export class PersonnelController {
       ? PersonnelType.TEACHER
       : PersonnelType.CONFIGURATOR;
 
-    const configurators = await this.personnelService.findAll(
+    const personnel = await this.personnelService.findAll(
       personnelType,
       academic_year_id,
       keyword
     );
-    return { configurators };
+    return { personnel };
+  }
+
+  @Get([
+    'configurators/:annual_personnel_id',
+    'registries/:annual_personnel_id',
+    'coordinators/:annual_personnel_id',
+    'teachers/:annual_personnel_id',
+  ])
+  async findOnePersonnel(
+    @Req() request: Request,
+    @Param('annual_personnel_id') annual_personnel_id: string
+  ) {
+    const personnelType = request.url.includes('registries')
+      ? PersonnelType.REGISTRY
+      : request.url.includes('coordinators')
+      ? PersonnelType.COORDINATOR
+      : request.url.includes('teachers')
+      ? PersonnelType.TEACHER
+      : PersonnelType.CONFIGURATOR;
+
+    const personnel = await this.personnelService.findOne(
+      personnelType,
+      annual_personnel_id
+    );
+    return { personnel };
   }
 
   @Put([
