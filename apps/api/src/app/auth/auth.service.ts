@@ -35,6 +35,7 @@ export class AuthService {
   private annualTeacherService: typeof this.prismaService.annualTeacher;
   private annualRegistryService: typeof this.prismaService.annualRegistry;
   private AnnualConfiguratorService: typeof this.prismaService.annualConfigurator;
+  private AnnualClassroomDivisionService: typeof this.prismaService.annualClassroomDivision;
 
   constructor(
     private prismaService: PrismaService,
@@ -375,7 +376,7 @@ export class AuthService {
         });
       }
 
-      //check for annual registry
+      //check for annual teacher
       const annualTeacher = await this.annualTeacherService.findFirst({
         where: {
           academic_year_id,
@@ -391,9 +392,16 @@ export class AuthService {
           origin_institute,
           teacher_id,
         } = annualTeacher;
+        const classroomDivisions =
+          await this.AnnualClassroomDivisionService.findMany({
+            where: { annual_coordinator_id: annual_teacher_id },
+          });
         availableRoles = {
           ...availableRoles,
           annualTeacher: {
+            classroomDivisions: classroomDivisions.map(
+              ({ annual_classroom_division_id: id }) => id
+            ),
             annual_teacher_id,
             has_signed_convention,
             hourly_rate,
@@ -402,7 +410,7 @@ export class AuthService {
           },
         };
         userRoles.push({
-          user_id: annualTeacher.annual_teacher_id,
+          user_id: annual_teacher_id,
           role: Role.TEACHER,
         });
       }
@@ -572,13 +580,20 @@ export class AuthService {
                 is_deleted: false,
               },
             });
+            const classroomDivisions =
+              await this.AnnualClassroomDivisionService.findMany({
+                where: { annual_coordinator_id: user_id },
+              });
             deserialedUser = {
               ...deserialedUser,
               annualTeacher: {
-                annual_teacher_id,
+                classroomDivisions: classroomDivisions.map(
+                  ({ annual_classroom_division_id: id }) => id
+                ),
                 has_signed_convention,
-                hourly_rate,
+                annual_teacher_id,
                 origin_institute,
+                hourly_rate,
                 teacher_id,
               },
             };

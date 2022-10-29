@@ -11,13 +11,6 @@ import {
   StaffPutDto
 } from '../configurator.dto';
 
-export enum PersonnelType {
-  REGISTRY = 'REGISTRY',
-  TEACHER = 'TEACHER',
-  COORDINATOR = 'COORDINATOR',
-  CONFIGURATOR = 'CONFIGURATOR',
-}
-
 export type RoleShort = 'Te' | 'Se' | 'S.A.' | 'Co';
 
 export interface Person {
@@ -67,7 +60,7 @@ export class PersonnelService {
   }
 
   async findAll(
-    type: PersonnelType,
+    type: Role,
     academic_year_id: string,
     keywords?: string
   ): Promise<Person[]> {
@@ -111,7 +104,7 @@ export class PersonnelService {
     };
     let person: Person[];
     switch (type) {
-      case PersonnelType.REGISTRY: {
+      case Role.REGISTRY: {
         const registries = await this.annualRegistryService.findMany({
           select: {
             ...select,
@@ -128,7 +121,7 @@ export class PersonnelService {
         );
         break;
       }
-      case PersonnelType.TEACHER: {
+      case Role.TEACHER: {
         const teachers = await this.annualTeacherService.findMany({
           select: {
             ...select,
@@ -145,7 +138,7 @@ export class PersonnelService {
         );
         break;
       }
-      case PersonnelType.CONFIGURATOR: {
+      case Role.CONFIGURATOR: {
         const configurators = await this.annualConfiguratorService.findMany({
           select: {
             ...select,
@@ -162,7 +155,7 @@ export class PersonnelService {
         );
         break;
       }
-      case PersonnelType.COORDINATOR: {
+      case Role.COORDINATOR: {
         const coordinators = await this.annualClassroomDivisionService.findMany(
           {
             distinct: ['annual_coordinator_id'],
@@ -213,7 +206,7 @@ export class PersonnelService {
     return personnel;
   }
 
-  async findOne(type: PersonnelType, annual_personnel_id: string) {
+  async findOne(type: Role, annual_personnel_id: string) {
     const select = {
       Login: {
         select: {
@@ -223,7 +216,7 @@ export class PersonnelService {
       },
     };
     switch (type) {
-      case PersonnelType.REGISTRY: {
+      case Role.REGISTRY: {
         const {
           annual_registry_id,
           Login: { login_id, Person: person },
@@ -240,7 +233,7 @@ export class PersonnelService {
           login_id,
         };
       }
-      case PersonnelType.TEACHER: {
+      case Role.TEACHER: {
         const {
           Teacher: teacher,
           annual_teacher_id,
@@ -267,7 +260,7 @@ export class PersonnelService {
           login_id,
         };
       }
-      case PersonnelType.CONFIGURATOR: {
+      case Role.CONFIGURATOR: {
         const {
           annual_configurator_id,
           Login: { login_id, Person: person },

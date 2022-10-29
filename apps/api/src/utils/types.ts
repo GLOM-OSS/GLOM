@@ -13,6 +13,7 @@ export enum Role {
   STUDENT = 'STUDENT',
   TEACHER = 'TEACHER',
   REGISTRY = 'REGISTRY',
+  COORDINATOR = 'COORDINATOR',
   CONFIGURATOR = 'CONFIGURATOR',
 }
 export type UserRole = {
@@ -54,6 +55,7 @@ export type DesirializeRoles = {
     hourly_rate: number;
     origin_institute: string;
     has_signed_convention: boolean;
+    classroomDivisions: string[];
     teacher_id: string;
   };
   annualRegistry?: {

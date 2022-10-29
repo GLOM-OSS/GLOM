@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -21,7 +22,7 @@ import {
   StaffPostData,
   StaffPutDto,
 } from '../configurator.dto';
-import { PersonnelService, PersonnelType } from './personnel.service';
+import { PersonnelService } from './personnel.service';
 
 @Controller()
 @Roles(Role.CONFIGURATOR)
@@ -38,16 +39,16 @@ export class PersonnelController {
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
 
-    const personnelType = request.url.includes('registries')
-      ? PersonnelType.REGISTRY
+    const role = request.url.includes('registries')
+      ? Role.REGISTRY
       : request.url.includes('coordinators')
-      ? PersonnelType.COORDINATOR
+      ? Role.COORDINATOR
       : request.url.includes('teachers')
-      ? PersonnelType.TEACHER
-      : PersonnelType.CONFIGURATOR;
+      ? Role.TEACHER
+      : Role.CONFIGURATOR;
 
     const personnel = await this.personnelService.findAll(
-      personnelType,
+      role,
       academic_year_id,
       keyword
     );
@@ -64,16 +65,16 @@ export class PersonnelController {
     @Req() request: Request,
     @Param('annual_personnel_id') annual_personnel_id: string
   ) {
-    const personnelType = request.url.includes('registries')
-      ? PersonnelType.REGISTRY
+    const role = request.url.includes('registries')
+      ? Role.REGISTRY
       : request.url.includes('coordinators')
-      ? PersonnelType.COORDINATOR
+      ? Role.COORDINATOR
       : request.url.includes('teachers')
-      ? PersonnelType.TEACHER
-      : PersonnelType.CONFIGURATOR;
+      ? Role.TEACHER
+      : Role.CONFIGURATOR;
 
     const personnel = await this.personnelService.findOne(
-      personnelType,
+      role,
       annual_personnel_id
     );
     return { personnel };
