@@ -11,6 +11,7 @@ import {
   Req,
   UseGuards
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
@@ -23,6 +24,7 @@ import {
 import { MajorService } from './major.service';
 
 @Controller()
+@ApiTags('Majors')
 @Roles(Role.CONFIGURATOR)
 @UseGuards(AuthenticatedGuard)
 export class MajorController {

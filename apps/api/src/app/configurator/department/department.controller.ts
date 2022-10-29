@@ -21,9 +21,11 @@ import {
   DepartmentPutDto,
   DepartmentQueryDto,
 } from '../configurator.dto';
+import { ApiTags } from '@nestjs/swagger';
 
-@Roles(Role.CONFIGURATOR)
 @Controller()
+@ApiTags('Departments')
+@Roles(Role.CONFIGURATOR)
 @UseGuards(AuthenticatedGuard)
 export class DepartmentController {
   constructor(private departmentService: DepartmentService) {}

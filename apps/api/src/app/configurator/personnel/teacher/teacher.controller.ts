@@ -1,12 +1,14 @@
 import { Body, Controller, HttpException, HttpStatus, Param, Post, Put, Req, UseGuards } from "@nestjs/common";
-import { DeserializeSessionData, Role } from "apps/api/src/utils/types";
+import { DeserializeSessionData, Role } from "../../../../utils/types";
 import { Roles } from "../../../app.decorator";
 import { AuthenticatedGuard } from "../../../auth/auth.guard";
 import { TeacherPostDto, TeacherPutDto } from "../../configurator.dto";
 import { Request } from 'express';
 import { TeacherService } from "./teacher.service";
+import { ApiTags } from "@nestjs/swagger";
 
 @Controller()
+@ApiTags('Personnel/teachers')
 @Roles(Role.CONFIGURATOR)
 @UseGuards(AuthenticatedGuard)
 export class TeacherController {

@@ -27,7 +27,7 @@ import { GoogleGuard } from './google/google.guard';
 import { LocalGuard } from './local/local.guard';
 
 @ApiBearerAuth()
-@ApiTags('auth')
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(

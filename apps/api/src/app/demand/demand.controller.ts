@@ -30,7 +30,7 @@ import {
 import { IsPublic, Roles } from '../app.decorator';
 
 @ApiBearerAuth()
-@ApiTags('demands')
+@ApiTags('Demands')
 @Roles(Role.ADMIN)
 @Controller('demands')
 @UseGuards(AuthenticatedGuard)

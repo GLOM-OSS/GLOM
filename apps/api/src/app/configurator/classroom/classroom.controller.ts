@@ -18,8 +18,10 @@ import {
   ClassroomQueryDto,
 } from '../configurator.dto';
 import { ClassroomService } from './classroom.service';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller()
+@ApiTags('Classrooms')
 @Roles(Role.CONFIGURATOR)
 @UseGuards(AuthenticatedGuard)
 export class ClassroomController {
