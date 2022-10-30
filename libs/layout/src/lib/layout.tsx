@@ -44,6 +44,10 @@ export function Layout({
   const { activeYear } = useUser();
 
   const { annualConfigurator, annualRegistry, annualTeacher } = useUser();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const intl = useIntl();
+  const { formatMessage } = intl;
 
   const newRoles: (PersonnelRole | undefined)[] = [
     annualConfigurator ? 'secretary' : undefined,
@@ -58,10 +62,13 @@ export function Layout({
   ) as PersonnelRole[];
   const x = localStorage.getItem('activeRole');
   const storageActiveRole = x !== null ? x : '';
+  const routeRole = location.pathname.split('/')[1];
 
   const [activeRole, setActiveRole] = useState<PersonnelRole | 'administrator'>(
     callingApp === 'admin'
       ? 'administrator'
+      : Roles.includes(routeRole as PersonnelRole)
+      ? (routeRole as PersonnelRole | 'administrator')
       : Roles.includes(storageActiveRole as PersonnelRole)
       ? (storageActiveRole as PersonnelRole | 'administrator')
       : Roles.sort((a, b) => (a > b ? 1 : -1))[0]
@@ -75,7 +82,8 @@ export function Layout({
 
   useEffect(() => {
     const RoleNavItems = navItems.find(({ role }) => role === activeRole);
-    setRoleNavigationItems(RoleNavItems ? RoleNavItems.navItems : []);
+    if (RoleNavItems) setRoleNavigationItems(RoleNavItems.navItems);
+    else navigate('/');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRole]);
 
@@ -91,7 +99,6 @@ export function Layout({
       setIsSecondaryNavOpen(false);
       setActiveNavItem(undefined);
       setActiveSecondaryNavItem(undefined);
-      navigate('/');
       //TODO: call api here to NOTIFY ADMIN HERE that activeRole has no navItems then notify a 404
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -160,11 +167,6 @@ export function Layout({
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const navigate = useNavigate();
-  const location = useLocation();
-  const intl = useIntl();
-  const { formatMessage } = intl;
 
   const [notifications, setNotifications] = useState<useNotification[]>();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
