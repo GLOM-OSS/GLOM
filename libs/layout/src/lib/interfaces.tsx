@@ -5,7 +5,7 @@ import { AcademicYearInterface } from '@squoolr/auth';
 export interface NavChild {
   title: string;
   route: string;
-  page_title:string
+  page_title: string;
 }
 
 export interface NavItem {
@@ -20,10 +20,15 @@ export interface NavItem {
 export type Gender = 'Male' | 'Female';
 export type Lang = 'En' | 'Fr';
 
-export type UserAction = { type: "LOAD_USER";   payload: { user: User; };
-} | { type: "CLEAR_USER" };
+export type UserAction =
+  | { type: 'LOAD_USER'; payload: { user: User } }
+  | { type: 'CLEAR_USER' };
 
-export type PersonnelRole = 'secretary'|'teacher'|'registry'|'coordinator'
+export type PersonnelRole =
+  | 'secretary'
+  | 'teacher'
+  | 'registry'
+  | 'coordinator';
 
 export interface ClassroomDivisionInterface {
   annual_classroom_division_id: string;
@@ -58,10 +63,10 @@ export interface User {
     origin_institute?: string;
     has_signed_convention: boolean;
     teacher_id: string;
-    coordinates?:ClassroomDivisionInterface[]
+    coordinates?: ClassroomDivisionInterface[]; //TODO change type to string[] representing classroom_division_id, change coordinates to classroomDivisions
   };
   annualRegistry?: {
     annual_registry_id: string;
   };
-  activeYear: AcademicYearInterface
+  activeYear: AcademicYearInterface;
 }
