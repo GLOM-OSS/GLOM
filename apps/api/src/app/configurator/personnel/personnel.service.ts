@@ -672,6 +672,35 @@ export class PersonnelService {
         });
         return;
       }
+      case Role.COORDINATOR: {
+        const annualClassroomDivisions =
+          await this.annualClassroomDivisionService.findMany({
+            select: {
+              annual_classroom_division_id: true,
+              annual_coordinator_id: true,
+              is_deleted: true,
+            },
+            where: { annual_coordinator_id: annual_personnel_id },
+          });
+        await this.prismaService.$transaction([
+          this.annualClassroomDivisionService.updateMany({
+            data: { annual_coordinator_id: null },
+            where: { annual_coordinator_id: annual_personnel_id },
+          }),
+          this.annualClassroomDivisionAuditService.createMany({
+            data: annualClassroomDivisions.map((data) => ({
+              ...data,
+              audited_by,
+            })),
+          }),
+        ]);
+        return;
+      }
+      default:
+        throw new HttpException(
+          JSON.stringify(AUTH501(role)),
+          HttpStatus.NOT_IMPLEMENTED
+        );
     }
   }
 }
