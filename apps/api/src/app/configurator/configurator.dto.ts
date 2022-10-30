@@ -129,7 +129,7 @@ export class ClassroomPutDto {
 
 export class ClassroomDivisionQueryDto {
   @IsString()
-  @ApiProperty({ required: false })
+  @ApiProperty()
   annual_classroom_id: string;
 }
 

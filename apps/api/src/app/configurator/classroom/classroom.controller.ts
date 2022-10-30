@@ -48,7 +48,7 @@ export class ClassroomController {
     @Query() { annual_classroom_id }: ClassroomDivisionQueryDto
   ) {
     return {
-      classrooms: await this.classroomService.findDivisions(annual_classroom_id),
+      classroomDivisions: await this.classroomService.findDivisions(annual_classroom_id),
     };
   }
 
