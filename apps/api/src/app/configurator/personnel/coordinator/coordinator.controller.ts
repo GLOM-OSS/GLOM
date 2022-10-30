@@ -75,7 +75,7 @@ export class CoordinatorController {
     }
   }
 
-  @Post('coordinators/new')
+  @Post('new')
   async addNewCoordinator(
     @Req() request: Request,
     @Body() data: CoordinatorPostDto
