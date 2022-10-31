@@ -51,41 +51,53 @@ export default function Navbar() {
           columnGap: theme.spacing(4),
         }}
       >
-        {navItems.map(({ item, route }, index) => (
-          <Typography
-            key={index}
-            sx={{
-              position: 'relative',
-              transition: '0.2s',
-              '& a': {
-                textDecoration: 'none',
-                color: theme.common.titleActive,
-                ...theme.typography.body1,
-                fontWeight: 400,
-              },
-              '&::before': {
+        {navItems.map(({ item, route }, index) => {
+          return (
+            <Typography
+              key={index}
+              sx={{
+                position: 'relative',
                 transition: '0.2s',
-                position: 'absolute',
-                left: '0px',
-                bottom: '-5px',
-                height: '3px',
-                content: '""',
-                width: pathname === route ? '100%' : 0,
-                backgroundColor: theme.palette.primary.main,
-                borderRadius: '5px',
-              },
-              '&:hover::before': {
-                transition: '0.2s',
-                width: '100%',
-                backgroundColor:
-                  theme.palette[pathname === route ? 'primary' : 'secondary']
-                    .main,
-              },
-            }}
-          >
-            <Link href={route}>{formatMessage({ id: item })}</Link>
-          </Typography>
-        ))}
+                '& a': {
+                  textDecoration: 'none',
+                  color: theme.common.titleActive,
+                  ...theme.typography.body1,
+                  fontWeight: 400,
+                },
+                '&::before': {
+                  transition: '0.2s',
+                  position: 'absolute',
+                  left: '0px',
+                  bottom: '-5px',
+                  height: '3px',
+                  content: '""',
+                  width:
+                    pathname === route ||
+                    `/${pathname.split('/').filter((_) => _ !== '')[0]}` ===
+                      route
+                      ? '100%'
+                      : 0,
+                  backgroundColor: theme.palette.primary.main,
+                  borderRadius: '5px',
+                },
+                '&:hover::before': {
+                  transition: '0.2s',
+                  width: '100%',
+                  backgroundColor:
+                    theme.palette[
+                      pathname === route ||
+                      `/${pathname.split('/').filter((_) => _ !== '')[0]}` ===
+                        route
+                        ? 'primary'
+                        : 'secondary'
+                    ].main,
+                },
+              }}
+            >
+              <Link href={route}>{formatMessage({ id: item })}</Link>
+            </Typography>
+          );
+        })}
       </Box>
       <Box
         sx={{
