@@ -1,16 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { SchoolDemandStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsDateString,
   IsEmail,
+  IsEnum,
   IsNotEmptyObject,
   IsOptional,
   IsPhoneNumber,
-  IsString,
-  IsUUID,
-  registerDecorator,
+  IsString, registerDecorator,
   ValidateNested,
-  ValidationOptions,
+  ValidationOptions
 } from 'class-validator';
 import { PersonPostDto } from '../class-vaditor';
 
@@ -40,7 +40,7 @@ export class SchoolPostDto {
   initial_year_ends_at: Date;
 }
 
-export class DemandPostData {
+export class DemandPostDto {
   @ApiProperty()
   @IsNotEmptyObject()
   @ValidateNested()

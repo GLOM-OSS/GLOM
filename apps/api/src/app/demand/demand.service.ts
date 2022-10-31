@@ -1,11 +1,11 @@
-import * as bcrypt from 'bcrypt';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { DemandPostData, DemandValidateDto } from './dto';
-import { CodeGeneratorService } from '../../utils/code-generator';
-import { randomUUID } from 'crypto';
 import { SchoolDemandStatus } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
 import { AUTH404 } from '../../errors';
+import { PrismaService } from '../../prisma/prisma.service';
+import { CodeGeneratorService } from '../../utils/code-generator';
+import { DemandPostDto, DemandValidateDto } from './dto';
 
 @Injectable()
 export class DemandService {
@@ -64,7 +64,7 @@ export class DemandService {
     }));
   }
 
-  async addDemand({ school, personnel }: DemandPostData) {
+  async addDemand({ school, personnel }: DemandPostDto) {
     const { password, phone: phone_number, ...person } = personnel;
     const {
       school_email,
@@ -134,10 +134,14 @@ export class DemandService {
 
   async validateDemand(
     { school_code, rejection_reason, subdomain }: DemandValidateDto,
-    validated_by: string
+    audited_by: string
   ) {
     const schoolDemand = await this.schoolDemandService.findFirst({
-      select: { school_demand_id: true },
+      select: {
+        school_demand_id: true,
+        demand_status: true,
+        rejection_reason: true,
+      },
       where: {
         School: { school_code },
       },
@@ -149,24 +153,21 @@ export class DemandService {
       );
 
     await this.schoolDemandService.update({
-      data: rejection_reason
-        ? {
-            rejection_reason,
-            responsed_at: new Date(),
-            demand_status: SchoolDemandStatus.REJECTED,
-            Login: { connect: { login_id: validated_by } },
-          }
-        : {
-            responsed_at: new Date(),
-            demand_status: SchoolDemandStatus.VALIDATED,
-            Login: { connect: { login_id: validated_by } },
-            School: {
-              update: {
-                subdomain: `${subdomain}.squoolr.com`,
-                is_validated: true,
-              },
-            },
+      data: {
+        rejection_reason,
+        demand_status: rejection_reason
+          ? SchoolDemandStatus.REJECTED
+          : SchoolDemandStatus.VALIDATED,
+        School: {
+          update: { subdomain },
+        },
+        SchoolDemandAudits: {
+          create: {
+            ...schoolDemand,
+            audited_by,
           },
+        },
+      },
       where: { school_demand_id: schoolDemand.school_demand_id },
     });
   }
@@ -189,5 +190,34 @@ export class DemandService {
       return { subdomain, school_status, rejection_reason };
     }
     return null;
+  }
+
+  async editDemandStatus(school_code: string, audited_by: string) {
+    const demand = await this.schoolDemandService.findFirst({
+      select: {
+        school_demand_id: true,
+        demand_status: true,
+        rejection_reason: true,
+      },
+      where: { School: { school_code } },
+    });
+    if (!demand)
+      throw new HttpException(
+        JSON.stringify(AUTH404('School demand')),
+        HttpStatus.NOT_FOUND
+      );
+
+    await this.schoolDemandService.update({
+      data: {
+        demand_status: SchoolDemandStatus.PROGRESS,
+        SchoolDemandAudits: {
+          create: {
+            ...demand,
+            audited_by,
+          },
+        },
+      },
+      where: { school_demand_id: demand.school_demand_id },
+    });
   }
 }

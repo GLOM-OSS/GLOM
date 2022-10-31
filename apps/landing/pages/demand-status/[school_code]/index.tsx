@@ -6,13 +6,13 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { checkDemandStatus } from '@squoolr/api-services';
 import { theme } from '@squoolr/theme';
 import { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
-
 interface DemandStatus {
   school_status: 'validated' | 'progress' | 'rejected' | 'pending';
   subdomain?: string;
@@ -20,16 +20,8 @@ interface DemandStatus {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  //   const { school_code } = context.query;
-  //TODO: FETCH API HERE TO GET DEMAND STATUS with data school_code
-  //   const res = await fetch(`https://.../data`);
-  //   const data = await res.json();
-  const demandStatus: DemandStatus = {
-    school_status: 'validated',
-    subdomain: 'iai',
-    rejection_reason:
-      'You have submitted your demand too early for us to validate',
-  };
+  const { school_code } = context.query;
+  const demandStatus = await checkDemandStatus(school_code as string);
   if (!demandStatus) return { notFound: true };
   return { props: { demandStatus } };
 };

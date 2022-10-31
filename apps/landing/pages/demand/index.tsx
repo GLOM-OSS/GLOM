@@ -23,6 +23,7 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
 import { ContentCopyRounded, ReportRounded } from '@mui/icons-material';
 import { useRouter } from 'next/router';
+import { makeNewDemand } from '@squoolr/api-services';
 
 export default function Demand() {
   const { formatMessage, formatDate } = useIntl();
@@ -126,31 +127,46 @@ export default function Demand() {
     notif.notify({ render: formatMessage({ id: 'submittingDemand' }) });
     if (notifications) setNotifications([...notifications, notif]);
     else setNotifications([notif]);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO CREATE DEMAND WITH DATA {personInformation: adminFormik.values,schoolInformation: schoolFormik.values,}
-      setIsSubmitting(false);
-      if (random() > 5) {
-        const newSchoolCode = 'IAI0001';
-        notif.update({ render: 'demandSuccessfull' });
-        setSchoolCode(newSchoolCode);
-        schoolFormik.resetForm();
-        adminFormik.resetForm();
-      } else {
-        notif.update({
-          type: 'ERROR',
-          render: (
-            <ErrorMessage
-              retryFunction={submitDemand}
-              notification={notif}
-              //TODO: this messages comes from the backend
-              message={formatMessage({ id: 'createDemandFailed' })}
-            />
-          ),
-          autoClose: false,
-          icon: () => <ReportRounded fontSize="medium" color="error" />,
-        });
-      }
-    }, 3000);
+
+    const {
+      initial_academic_year_start_date: initial_year_starts_at,
+      initial_academic_year_end_date: initial_year_ends_at,
+      institute_email: school_email,
+      institute_name: school_name,
+      institute_phone: school_phone_number,
+      institute_short_name: school_acronym,
+    } = schoolFormik.values;
+    const { date_of_birth, ...person } = adminFormik.values;
+    makeNewDemand({
+      personnel: { birthdate: date_of_birth, ...person },
+      school: {
+        initial_year_starts_at,
+        initial_year_ends_at,
+        school_acronym,
+        school_email,
+        school_name,
+        school_phone_number,
+      },
+    }).then(() => {
+      const newSchoolCode = 'IAI0001';
+      notif.update({ render: 'demandSuccessfull' });
+      setSchoolCode(newSchoolCode);
+      schoolFormik.resetForm();
+      adminFormik.resetForm();
+    }).catch(error => {
+      notif.update({
+        type: 'ERROR',
+        render: (
+          <ErrorMessage
+            retryFunction={submitDemand}
+            notification={notif}
+            message={error?.message || formatMessage({ id: 'createDemandFailed' })}
+          />
+        ),
+        autoClose: false,
+        icon: () => <ReportRounded fontSize="medium" color="error" />,
+      });
+    }).finally(() => setIsSubmitting(false))
   };
 
   const { push } = useRouter();
