@@ -37,6 +37,13 @@ export async function getUser() {
   return user;
 }
 
+export async function getAcademicYears() {
+  const {
+    data: { academic_years },
+  } = await http.get(`auth/academic-years`);
+  return academic_years;
+}
+
 export async function googleSignIn() {
   const {
     data: { user },
