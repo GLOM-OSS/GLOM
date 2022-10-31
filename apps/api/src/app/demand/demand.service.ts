@@ -163,9 +163,21 @@ export class DemandService {
 
   async getStatus(school_demand_code: string) {
     const school = await this.schoolService.findUnique({
-      select: { SchoolDemand: { select: { demand_status: true } } },
+      select: {
+        subdomain: true,
+        SchoolDemand: {
+          select: { demand_status: true, rejection_reason: true },
+        },
+      },
       where: { school_code: school_demand_code },
     });
-    return school ? school.SchoolDemand.demand_status : null;
+    if (school) {
+      const {
+        subdomain,
+        SchoolDemand: { demand_status: school_status, rejection_reason },
+      } = school;
+      return { subdomain, school_status, rejection_reason };
+    }
+    return null;
   }
 }
