@@ -1,11 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { SchoolDemandStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsDateString,
-  IsEmail,
-  IsEnum,
-  IsNotEmptyObject,
+  IsEmail, IsNotEmptyObject,
   IsOptional,
   IsPhoneNumber,
   IsString, registerDecorator,

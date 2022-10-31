@@ -65,7 +65,7 @@ export class DemandService {
   }
 
   async addDemand({ school, personnel }: DemandPostDto) {
-    const { password, phone: phone_number, ...person } = personnel;
+    const { password, phone_number, ...person } = personnel;
     const {
       school_email,
       initial_year_ends_at,
@@ -148,7 +148,7 @@ export class DemandService {
     });
     if (!schoolDemand)
       throw new HttpException(
-        JSON.stringify(AUTH404('SchoolDemand')),
+        JSON.stringify(AUTH404('School demand')),
         HttpStatus.NOT_FOUND
       );
 
@@ -163,7 +163,8 @@ export class DemandService {
         },
         SchoolDemandAudits: {
           create: {
-            ...schoolDemand,
+            rejection_reason: schoolDemand.rejection_reason,
+            demand_status: schoolDemand.demand_status,
             audited_by,
           },
         },
@@ -207,12 +208,14 @@ export class DemandService {
         HttpStatus.NOT_FOUND
       );
 
+    const { demand_status, rejection_reason } = demand;
     await this.schoolDemandService.update({
       data: {
         demand_status: SchoolDemandStatus.PROGRESS,
         SchoolDemandAudits: {
           create: {
-            ...demand,
+            demand_status,
+            rejection_reason,
             audited_by,
           },
         },
