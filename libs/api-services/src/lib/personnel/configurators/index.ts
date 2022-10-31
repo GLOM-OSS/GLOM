@@ -20,6 +20,10 @@ export async function getConfigurator(annual_configurator_id: string) {
   return personnel;
 }
 
+export async function archiveConfigurators(annual_coordinator_id: string) {
+  await http.put(`/personnel/configurators/${annual_coordinator_id}/archive`);
+}
+
 export async function addNewConfigurator(newConfigurator: Person) {
   await http.post(`/personnel/configurators/new`, newConfigurator);
 }
