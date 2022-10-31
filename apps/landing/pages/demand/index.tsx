@@ -1,3 +1,4 @@
+import { ContentCopyRounded, ReportRounded } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -12,18 +13,16 @@ import {
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
+import { makeNewDemand } from '@squoolr/api-services';
 import { theme } from '@squoolr/theme';
+import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useFormik } from 'formik';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { Scrollbars } from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import * as Yup from 'yup';
-import { Scrollbars } from 'react-custom-scrollbars-2';
-import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
-import { ContentCopyRounded, ReportRounded } from '@mui/icons-material';
-import { useRouter } from 'next/router';
-import { makeNewDemand } from '@squoolr/api-services';
 
 export default function Demand() {
   const { formatMessage, formatDate } = useIntl();
@@ -136,9 +135,9 @@ export default function Demand() {
       institute_phone: school_phone_number,
       institute_short_name: school_acronym,
     } = schoolFormik.values;
-    const { date_of_birth, ...person } = adminFormik.values;
+    const { date_of_birth, confirm_password, phone, ...person } = adminFormik.values;
     makeNewDemand({
-      personnel: { birthdate: date_of_birth, ...person },
+      personnel: { birthdate: date_of_birth, phone_number: phone, ...person },
       school: {
         initial_year_starts_at,
         initial_year_ends_at,
@@ -147,26 +146,30 @@ export default function Demand() {
         school_name,
         school_phone_number,
       },
-    }).then(() => {
-      const newSchoolCode = 'IAI0001';
-      notif.update({ render: 'demandSuccessfull' });
-      setSchoolCode(newSchoolCode);
-      schoolFormik.resetForm();
-      adminFormik.resetForm();
-    }).catch(error => {
-      notif.update({
-        type: 'ERROR',
-        render: (
-          <ErrorMessage
-            retryFunction={submitDemand}
-            notification={notif}
-            message={error?.message || formatMessage({ id: 'createDemandFailed' })}
-          />
-        ),
-        autoClose: false,
-        icon: () => <ReportRounded fontSize="medium" color="error" />,
-      });
-    }).finally(() => setIsSubmitting(false))
+    })
+      .then((schoolCode) => {
+        notif.update({ render: 'demandSuccessfull' });
+        setSchoolCode(schoolCode);
+        schoolFormik.resetForm();
+        adminFormik.resetForm();
+      })
+      .catch((error) => {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={submitDemand}
+              notification={notif}
+              message={
+                error?.message || formatMessage({ id: 'createDemandFailed' })
+              }
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      })
+      .finally(() => setIsSubmitting(false));
   };
 
   const { push } = useRouter();

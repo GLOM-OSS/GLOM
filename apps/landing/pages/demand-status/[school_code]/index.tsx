@@ -21,9 +21,13 @@ interface DemandStatus {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { school_code } = context.query;
-  const demandStatus = await checkDemandStatus(school_code as string);
-  if (!demandStatus) return { notFound: true };
-  return { props: { demandStatus } };
+  try {
+    const demandStatus = await checkDemandStatus(school_code as string);
+    console.log(demandStatus)
+    return { props: { demandStatus } };
+  } catch (error) {
+    return { notFound: true };
+  }
 };
 
 export default function VerifyDemandStatus({
