@@ -32,9 +32,9 @@ export class DemandController {
   @Get()
   @UseGuards(AuthenticatedGuard)
   async getDemandInfo(@Query() query: DemandQueryDto) {
-    const { school_demand_id } = query;
+    const { school_code } = query;
     return {
-      school_demand: await this.demandService.findOne(school_demand_id),
+      school_demand: await this.demandService.findOne(school_code),
     };
   }
 

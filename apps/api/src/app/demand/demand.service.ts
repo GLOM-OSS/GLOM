@@ -1,10 +1,11 @@
 import * as bcrypt from 'bcrypt';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { DemandPostData, DemandValidateDto } from './dto';
 import { CodeGeneratorService } from '../../utils/code-generator';
 import { randomUUID } from 'crypto';
 import { SchoolDemandStatus } from '@prisma/client';
+import { AUTH404 } from '../../errors';
 
 @Injectable()
 export class DemandService {
@@ -24,7 +25,7 @@ export class DemandService {
     this.annualConfiguratorService = this.prismaService.annualConfigurator;
   }
 
-  async findOne(school_demand_id: string) {
+  async findOne(school_code: string) {
     const schoolData = await this.schoolService.findFirst({
       select: {
         school_name: true,
@@ -33,7 +34,7 @@ export class DemandService {
         Person: true,
         SchoolDemand: { select: { demand_status: true } },
       },
-      where: { SchoolDemand: { school_demand_id } },
+      where: { school_code },
     });
     if (schoolData) {
       const {
@@ -53,17 +54,14 @@ export class DemandService {
         school_name: true,
         school_phone_number: true,
         SchoolDemand: {
-          select: { school_demand_id: true, demand_status: true },
+          select: { demand_status: true },
         },
       },
     });
-    return schools.map(
-      ({ SchoolDemand: { demand_status, school_demand_id }, ...school }) => ({
-        demand_status,
-        school_demand_id,
-        ...school,
-      })
-    );
+    return schools.map(({ SchoolDemand: { demand_status }, ...school }) => ({
+      demand_status,
+      ...school,
+    }));
   }
 
   async addDemand({ school, personnel }: DemandPostData) {
@@ -135,9 +133,21 @@ export class DemandService {
   }
 
   async validateDemand(
-    { school_demand_id, rejection_reason, subdomain }: DemandValidateDto,
+    { school_code, rejection_reason, subdomain }: DemandValidateDto,
     validated_by: string
   ) {
+    const schoolDemand = await this.schoolDemandService.findFirst({
+      select: { school_demand_id: true },
+      where: {
+        School: { school_code },
+      },
+    });
+    if (!schoolDemand)
+      throw new HttpException(
+        JSON.stringify(AUTH404('SchoolDemand')),
+        HttpStatus.NOT_FOUND
+      );
+
     await this.schoolDemandService.update({
       data: rejection_reason
         ? {
@@ -157,7 +167,7 @@ export class DemandService {
               },
             },
           },
-      where: { school_demand_id },
+      where: { school_demand_id: schoolDemand.school_demand_id },
     });
   }
 

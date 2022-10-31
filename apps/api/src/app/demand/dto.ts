@@ -73,8 +73,8 @@ export function IsValidSubdomain(validationOptions?: ValidationOptions) {
 
 export class DemandValidateDto {
   @ApiProperty()
-  @IsUUID()
-  school_demand_id: string;
+  @IsString()
+  school_code: string;
 
   @ApiProperty()
   @IsOptional()
@@ -88,8 +88,8 @@ export class DemandValidateDto {
 
 export class DemandQueryDto {
   @ApiProperty()
-  @IsUUID()
-  school_demand_id: string;
+  @IsString()
+  school_code: string;
 }
 
 export class DemandStatusQueryDto {
