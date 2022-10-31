@@ -1,6 +1,6 @@
 import { Box, Button, Chip, lighten, Typography } from '@mui/material';
 import { theme } from '@squoolr/theme';
-import { IntlShape } from 'react-intl';
+import { useIntl } from 'react-intl';
 import { AcademicYearInterface } from '../lib/selectAcademicYear';
 
 export default function AcademicYear({
@@ -9,17 +9,18 @@ export default function AcademicYear({
     code,
     starting_date: startingDate,
     ending_date: endDate,
-    status: yearStatus,
+    year_status: yearStatus,
   },
-  intl: { formatMessage, formatDate },
   handleSelectAcademicYear,
   selectedAcademicYearId,
 }: {
   academicYear: AcademicYearInterface;
-  intl: IntlShape;
   handleSelectAcademicYear: (academic_year_id: string) => void;
   selectedAcademicYearId: string;
 }) {
+  const intl = useIntl()
+  const {formatMessage, formatDate} = intl
+
   return (
     <Box
       component={Button}

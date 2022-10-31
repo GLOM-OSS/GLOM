@@ -1,36 +1,47 @@
-import { Box, Dialog, lighten, Typography } from '@mui/material';
+import {
+  Box,
+  Dialog,
+  IconButton,
+  lighten,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { theme } from '@squoolr/theme';
-import { IntlShape } from 'react-intl';
+import { useIntl } from 'react-intl';
 import AcademicYear from '../components/AcademicYear';
 import favicon from './logo.png';
 import { Scrollbars } from 'react-custom-scrollbars-2';
-import { ReportRounded } from '@mui/icons-material';
+import { CloseRounded, ReportRounded } from '@mui/icons-material';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { setActiveYear } from '@squoolr/api-services';
+import { useUser } from '@squoolr/layout';
 
 export interface AcademicYearInterface {
   academic_year_id: string;
   code: string;
   starting_date: Date;
   ending_date: Date;
-  status: 'inactive' | 'finished' | 'active';
+  year_status: 'inactive' | 'finished' | 'active';
 }
 
 export function SelectAcademicYearDialog({
-  intl: { formatMessage },
-  intl,
   academicYears,
   closeDialog,
   isDialogOpen,
+  callingApp,
 }: {
-  intl: IntlShape;
   academicYears: AcademicYearInterface[];
   isDialogOpen: boolean;
   closeDialog: () => void;
+  callingApp?: 'admin' | 'personnel';
 }) {
+  const intl = useIntl();
+  const { formatMessage } = intl;
+  const { userDispatch, ...user } = useUser();
+
   const [notifications, setNotifications] = useState<useNotification[]>();
   const [selectedAcademicYearId, setSelectedAcademicYearId] =
     useState<string>('');
@@ -48,7 +59,10 @@ export function SelectAcademicYearDialog({
     setSelectedAcademicYearId(academic_year_id);
     setActiveYear(academic_year_id)
       .then((userRoles) => {
-        //TODO dispatch user roles to user context
+        userDispatch({
+          type: 'LOAD_USER',
+          payload: { user: { ...user, ...userRoles } },
+        });
         newNotification.update({
           render: formatMessage({ id: 'academicYearSet' }),
         });
@@ -66,7 +80,6 @@ export function SelectAcademicYearDialog({
                 error?.message ||
                 formatMessage({ id: 'failedToSetAcademicYear' })
               }
-              intl={intl}
             />
           ),
           autoClose: false,
@@ -83,7 +96,25 @@ export function SelectAcademicYearDialog({
       keepMounted
       onClose={closeDialog}
       fullScreen
+      // sx={{ position: 'relative' }}
     >
+      {callingApp === 'personnel' && (
+        <IconButton
+          sx={{
+            position: 'absolute',
+            top: 7,
+            right: 10,
+            border: `1px solid ${theme.common.placeholder}`,
+          }}
+          onClick={closeDialog}
+        >
+          <Tooltip arrow title={formatMessage({ id: 'close' })}>
+            <CloseRounded
+              sx={{ color: theme.common.placeholder, fontSize: 25 }}
+            />
+          </Tooltip>
+        </IconButton>
+      )}
       <Box
         sx={{
           height: '100%',
@@ -162,7 +193,6 @@ export function SelectAcademicYearDialog({
                 <Scrollbars>
                   {academicYears.map((academicYear, index) => (
                     <AcademicYear
-                      intl={intl}
                       key={index}
                       academicYear={academicYear}
                       handleSelectAcademicYear={handleSelectAcademicYear}

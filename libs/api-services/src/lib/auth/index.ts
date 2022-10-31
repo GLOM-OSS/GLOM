@@ -1,16 +1,16 @@
 import { http } from '@squoolr/axios';
 
-export async function signIn(email: string, password: string) {
-  const { data } = await http.post(`auth/signin`, {
+export async function signIn<T>(email: string, password: string) {
+  const { data } = await http.post<T>(`auth/signin`, {
     email,
     password,
   });
   return data;
 }
 
-export async function setActiveYear(selected_academic_year_id: string) {
+export async function setActiveYear(academic_year_id: string) {
   const { data } = await http.patch(`auth/active-year`, {
-    selected_academic_year_id,
+    academic_year_id,
   });
   return data;
 }
@@ -35,6 +35,13 @@ export async function getUser() {
     data: { user },
   } = await http.get(`auth/user`);
   return user;
+}
+
+export async function getAcademicYears() {
+  const {
+    data: { academic_years },
+  } = await http.get(`auth/academic-years`);
+  return academic_years;
 }
 
 export async function googleSignIn() {

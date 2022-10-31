@@ -23,9 +23,9 @@ enum Lang {
 
 model Person {
     person_id          String   @id @default(uuid()) @db.VarChar(36)
-    fisrt_name         String   @db.VarChar(50)
+    first_name         String   @db.VarChar(50)
     last_name          String   @db.VarChar(50)
-    phone_number       String   @db.VarChar(15)
+    phone_number       String   @unique @db.VarChar(15)
     birthdate          DateTime @db.DateTime(0)
     gender             Gender
     national_id_number String   @db.VarChar(15)
@@ -43,22 +43,24 @@ model Person {
 }
 
 model PersonAudit {
-    person_id          String   @id @default(uuid()) @db.VarChar(36)
-    fisrt_name         String   @db.VarChar(50)
-    last_name          String   @db.VarChar(50)
-    phone_number       String   @db.VarChar(15)
-    birthdate          DateTime @db.DateTime(0)
+    person_audit_id    String              @id @default(uuid()) @db.VarChar(36)
+    first_name         String              @db.VarChar(50)
+    last_name          String              @db.VarChar(50)
+    phone_number       String              @db.VarChar(15)
+    birthdate          DateTime            @db.DateTime(0)
     gender             Gender
-    national_id_number String   @db.VarChar(15)
-    address            String?  @db.VarChar(20)
+    national_id_number String              @db.VarChar(15)
+    address            String?             @db.VarChar(20)
     longitude          Int?
     latitude           Int?
-    email              String   @db.VarChar(50)
+    email              String              @db.VarChar(50)
     preferred_lang     Lang
-    image_ref          String?  @db.VarChar(50)
-    audited_at         DateTime @default(now()) @db.DateTime(0)
-    audited_by         String   @db.VarChar(36)
-    Person             Person   @relation(fields: [audited_by], references: [person_id], onDelete: Cascade, onUpdate: Cascade)
+    image_ref          String?             @db.VarChar(50)
+    audited_at         DateTime            @default(now()) @db.DateTime(0)
+    person_id          String              @db.VarChar(36)
+    Person             Person              @relation(fields: [person_id], references: [person_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by         String?             @db.VarChar(36)
+    AnnualConfigurator AnnualConfigurator? @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model School {
@@ -67,8 +69,10 @@ model School {
     longitude              Int?
     latitude               Int?
     school_name            String   @db.VarChar(50)
-    email                  String   @unique @db.VarChar(50)
-    phone_number           String   @db.VarChar(15)
+    school_code            String   @unique @db.VarChar(45)
+    school_acronym         String   @db.VarChar(45)
+    school_email           String   @unique @db.VarChar(50)
+    school_phone_number    String   @db.VarChar(15)
     description            String?  @db.Text
     logo_ref               String?  @db.VarChar(45)
     subdomain              String?  @db.VarChar(30)
@@ -79,27 +83,68 @@ model School {
     demanded_by            String   @db.VarChar(36)
     Person                 Person   @relation(fields: [demanded_by], references: [person_id], onDelete: Cascade, onUpdate: Cascade)
 
-    Logins        Login[]
-    SchoolDemands SchoolDemand[]
-    Departments   Department[]
+    Logins       Login[]
+    Departments  Department[]
+    AcademicYear AcademicYear[]
+
+    SchoolDemand SchoolDemand?
+}
+
+model SchoolAudit {
+    school_audit_id        String              @id @default(uuid()) @db.VarChar(36)
+    address                String?             @db.VarChar(20)
+    longitude              Int?
+    latitude               Int?
+    school_name            String              @db.VarChar(50)
+    school_code            String              @db.VarChar(45)
+    school_acronym         String              @db.VarChar(45)
+    school_email           String              @unique @db.VarChar(50)
+    school_phone_number    String              @db.VarChar(15)
+    description            String?             @db.Text
+    logo_ref               String?             @db.VarChar(45)
+    subdomain              String?             @db.VarChar(30)
+    creation_decree_number String?             @db.VarChar(45)
+    is_validated           Boolean             @db.TinyInt
+    is_deleted             Boolean             @db.TinyInt
+    audited_at             DateTime            @default(now()) @db.DateTime(0)
+    audited_by             String?             @db.VarChar(36)
+    AnnualConfigurator     AnnualConfigurator? @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+enum SchoolDemandStatus {
+    PENDING
+    PROGRESS
+    REJECTED
+    VALIDATED
+
+    @@map("school_demand_status_enum")
 }
 
 model SchoolDemand {
-    school_demand_id String   @id @default(uuid()) @db.VarChar(36)
-    demanded_at      DateTime @default(now()) @db.DateTime(0)
-    responsed_at     DateTime @db.DateTime(0)
-    rejection_reason String   @db.Text
-    school_id        String
-    School           School   @relation(fields: [school_id], references: [school_id], onDelete: Cascade, onUpdate: Cascade)
+    school_demand_id  String              @id @default(uuid()) @db.VarChar(36)
+    demand_status     SchoolDemandStatus  @default(PENDING)
+    demanded_at       DateTime            @default(now()) @db.DateTime(0)
+    rejection_reason  String?             @db.Text
+    school_id         String              @unique
+    School            School              @relation(fields: [school_id], references: [school_id], onDelete: Cascade, onUpdate: Cascade)
+    SchoolDemandAudits SchoolDemandAudit[]
+}
 
-    validated_by String @db.VarChar(36)
-    Login        Login  @relation(fields: [validated_by], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+model SchoolDemandAudit {
+    school_demand_audit_id String             @id @default(uuid()) @db.VarChar(36)
+    rejection_reason       String?            @db.Text
+    school_demand_id       String             @db.VarChar(36)
+    audited_at             DateTime           @default(now()) @db.DateTime(0)
+    demand_status          SchoolDemandStatus @default(PENDING)
+    SchoolDemand           SchoolDemand       @relation(fields: [school_demand_id], references: [school_demand_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by             String?            @db.VarChar(36)
+    Login                  Login?             @relation(fields: [audited_by], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 enum AcademicYearStatus {
     INACTIVE
     ACTIVE
-    FIINISHED
+    FINISHED
 
     @@map("academic_year_status_enum")
 }
@@ -110,20 +155,21 @@ model AcademicYear {
     ends_at            DateTime            @db.DateTime(0)
     started_at         DateTime?           @db.DateTime(0)
     ended_at           DateTime?           @db.DateTime(0)
-    status             AcademicYearStatus  @default(INACTIVE)
-    code               String              @unique @db.VarChar(36)
+    year_status        AcademicYearStatus  @default(INACTIVE)
+    year_code          String              @unique @db.VarChar(36)
     is_deleted         Boolean             @default(false) @db.TinyInt
     created_at         DateTime            @default(now()) @db.DateTime(0)
+    school_id          String
+    School             School              @relation(fields: [school_id], references: [school_id], onDelete: Cascade, onUpdate: Cascade)
     created_by         String?             @db.VarChar(36)
     AnnualConfigurator AnnualConfigurator? @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AnnualConfigurators         AnnualConfigurator[]         @relation(name: "Configurator_AcademiqueYear")
-    AnnualRegistries            AnnualRegistry[]
-    AnnualTeachers              AnnualTeacher[]
-    AnnualStudents              AnnualStudent[]
-    AnnualMajors                AnnualMajor[]
-    AnnualClassrooms            AnnualClassroom[]
-    AnnualClassroomCoordinators AnnualClassroomCoordinator[]
+    AnnualRegistries    AnnualRegistry[]
+    AnnualTeachers      AnnualTeacher[]
+    AnnualStudents      AnnualStudent[]
+    AnnualMajors        AnnualMajor[]
+    AnnualClassrooms    AnnualClassroom[]
+    AnnualConfigurators AnnualConfigurator[] @relation(name: "Configurator_AcademiqueYear")
 }
 
 model Login {
@@ -145,33 +191,46 @@ model Login {
     Logs                 Log[]
     Students             Student[]
     AnnualRegistries     AnnualRegistry[]
-    SchoolDemand         SchoolDemand[]
     AnnualTeachers       AnnualTeacher[]
+    SchoolDemandAudits   SchoolDemandAudit[]
+
+    @@unique([person_id, school_id])
 }
 
 model AnnualConfigurator {
-    annual_configurator_id String       @id @default(uuid()) @db.VarChar(36)
-    is_sudo                Boolean      @default(false) @db.TinyInt
-    deleted_at             DateTime?    @db.DateTime(0)
-    is_deleted             Boolean      @default(false) @db.TinyInt
-    login_id               String       @db.VarChar(36)
-    Login                  Login        @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
-    academic_year_id       String       @db.VarChar(36)
-    AcademicYear           AcademicYear @relation(name: "Configurator_AcademiqueYear", fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_configurator_id String              @id @default(uuid()) @db.VarChar(36)
+    is_sudo                Boolean             @default(false) @db.TinyInt
+    deleted_at             DateTime?           @db.DateTime(0)
+    is_deleted             Boolean             @default(false) @db.TinyInt
+    login_id               String              @db.VarChar(36)
+    Login                  Login               @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+    added_by               String?
+    AnnualConfigurator     AnnualConfigurator? @relation(name: "AddedBy_AnnualConfigurator", fields: [added_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+    academic_year_id       String              @db.VarChar(36)
+    AcademicYear           AcademicYear        @relation(name: "Configurator_AcademiqueYear", fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AcademicYears               AcademicYear[]
-    ResetPasswords              ResetPassword[]
-    AnnualRegistries            AnnualRegistry[]
-    AnnualTeachers              AnnualTeacher[]
-    Departments                 Department[]
-    DepartmentAudits            DepartmentAudit[]
-    Majors                      Major[]
-    MajorAudits                 MajorAudit[]
-    AnnualTeacherAudits         AnnualTeacherAudit[]
-    AnnualDepartmentTeachers    AnnualDepartmentTeacher[]
-    Classrooms                  Classroom[]
-    ClassroomAudits             ClassroomAudit[]
-    AnnualClassroomCoordinators AnnualClassroomCoordinator[]
+    Majors                        Major[]
+    Classrooms                    Classroom[]
+    Departments                   Department[]
+    MajorAudits                   MajorAudit[]
+    PersonAudits                  PersonAudit[]
+    AcademicYears                 AcademicYear[]
+    ResetPasswords                ResetPassword[]
+    AnnualTeachers                AnnualTeacher[]
+    AnnualRegistries              AnnualRegistry[]
+    DepartmentAudits              DepartmentAudit[]
+    AddedAnnualConfigurators      AnnualConfigurator[]           @relation(name: "AddedBy_AnnualConfigurator")
+    AnnualTeacherAudits           AnnualTeacherAudit[]
+    AnnualClassroomAudits         AnnualClassroomAudit[]
+    SchoolAudits                  SchoolAudit[]
+    AnnualMajors                  AnnualMajor[]
+    AnnualMajorAudits             AnnualMajorAudit[]
+    AnnualClassroomDivisions      AnnualClassroomDivision[]
+    AnnualClassroomDivisionAudits AnnualClassroomDivisionAudit[]
+    AnnualRegistryAudit           AnnualRegistryAudit[]
+    TeacherAudits                 TeacherAudit[]
+
+    @@unique([login_id, academic_year_id])
 }
 
 model LoginAudit {
@@ -187,7 +246,7 @@ model LoginAudit {
 
 model Student {
     student_id   String    @id @default(uuid()) @db.VarChar(36)
-    matricule    String    @db.VarChar(45)
+    matricule    String    @unique @db.VarChar(45)
     classroom_id String
     Classroom    Classroom @relation(fields: [classroom_id], references: [classroom_id], onDelete: Cascade, onUpdate: Cascade)
     login_id     String    @db.VarChar(36)
@@ -208,36 +267,69 @@ model AnnualStudent {
 model AnnualRegistry {
     annual_registry_id String             @id @default(uuid()) @db.VarChar(36)
     is_deleted         Boolean            @default(false) @db.TinyInt
+    private_code       String             @db.VarChar(75)
     academic_year_id   String
     AcademicYear       AcademicYear       @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
     added_by           String
     AnnualConfigurator AnnualConfigurator @relation(fields: [added_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
     login_id           String
     Login              Login              @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+
+    AnnualRegistryAudits AnnualRegistryAudit[]
+
+    @@unique([login_id, academic_year_id])
+}
+
+model AnnualRegistryAudit {
+    annual_registry_audit_id String             @id @default(uuid()) @db.VarChar(36)
+    private_code             String             @db.VarChar(75)
+    is_deleted               Boolean            @db.TinyInt
+    annual_registry_id       String
+    AnnualRegistry           AnnualRegistry     @relation(fields: [annual_registry_id], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by               String
+    AnnualConfigurator       AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model TeacherType {
-    teacher_type_id String    @id @default(uuid()) @db.VarChar(36)
-    teacher_type    String    @db.VarChar(45) //vacataire, permanent, missionnaire
-    created_at      DateTime  @db.DateTime(0)
-    Teachers        Teacher[]
+    teacher_type_id String   @id @default(uuid()) @db.VarChar(36)
+    teacher_type    String
+    created_at      DateTime @default(now()) @db.DateTime(0)
+
+    Teachers      Teacher[]
+    TeacherAudits TeacherAudit[]
 }
 
 model TeacherGrade {
-    teacher_grade_id String    @id @default(uuid()) @db.VarChar(36)
-    teacher_grade    String    @db.VarChar(45) //professeur de classe C, professeur de class D, Maitre des conferences, charge de cours, assistant
-    created_at       DateTime  @db.DateTime(0)
-    Teachers         Teacher[]
+    teacher_grade_id String   @id @default(uuid()) @db.VarChar(36)
+    teacher_grade    String //professeur de classe C, professeur de class D, Maitre des conferences, charge de cours, assistant
+    created_at       DateTime @default(now()) @db.DateTime(0)
+
+    AnnualTeachers AnnualTeacher[]
 }
 
 model Teacher {
-    teacher_id       String       @id @default(uuid()) @db.VarChar(36)
-    teacher_type_id  String
-    TeacherType      TeacherType  @relation(fields: [teacher_type_id], references: [teacher_type_id], onDelete: Cascade, onUpdate: Cascade)
-    teacher_grade_id String
-    TeacherGrade     TeacherGrade @relation(fields: [teacher_grade_id], references: [teacher_grade_id], onDelete: Cascade, onUpdate: Cascade)
+    teacher_id            String      @id @default(uuid()) @db.VarChar(36)
+    has_tax_payer_card    Boolean     @default(false)
+    tax_payer_card_number Int?
+    private_code          String      @db.VarChar(75)
+    teacher_type_id       String
+    TeacherType           TeacherType @relation(fields: [teacher_type_id], references: [teacher_type_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualTeachers AnnualTeacher[]
+    TeacherAudits  TeacherAudit[]
+}
+
+model TeacherAudit {
+    teacher_audit_id      String             @id @default(uuid()) @db.VarChar(36)
+    has_tax_payer_card    Boolean            @default(false)
+    tax_payer_card_number Int
+    private_code          String             @db.VarChar(75)
+    teacher_type_id       String
+    TeacherType           TeacherType        @relation(fields: [teacher_type_id], references: [teacher_type_id], onDelete: Cascade, onUpdate: Cascade)
+    teacher_id            String
+    Teacher               Teacher            @relation(fields: [teacher_id], references: [teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by            String             @db.VarChar(36)
+    AnnualConfigurator    AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model AnnualTeacher {
@@ -247,6 +339,8 @@ model AnnualTeacher {
     has_signed_convention Boolean            @default(false) @db.TinyInt
     is_deleted            Boolean            @default(false) @db.TinyInt
     created_at            DateTime           @default(now()) @db.DateTime(0)
+    teacher_grade_id      String
+    TeacherGrade          TeacherGrade       @relation(fields: [teacher_grade_id], references: [teacher_grade_id], onDelete: Cascade, onUpdate: Cascade)
     academic_year_id      String
     AcademicYear          AcademicYear       @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
     teacher_id            String
@@ -256,8 +350,11 @@ model AnnualTeacher {
     created_by            String             @db.VarChar(36)
     AnnualConfigurator    AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AnnualTeacherAudits      AnnualTeacherAudit[]
-    AnnualDepartmentTeachers AnnualDepartmentTeacher[]
+    AnnualTeacherAudits           AnnualTeacherAudit[]
+    AnnualClassroomDivision       AnnualClassroomDivision[]
+    AnnualClassroomDivisionAudits AnnualClassroomDivisionAudit[]
+
+    @@unique([login_id, academic_year_id])
 }
 
 model AnnualTeacherAudit {
@@ -273,19 +370,6 @@ model AnnualTeacherAudit {
     AnnualTeacher           AnnualTeacher      @relation(fields: [annual_teacher_id], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-model AnnualDepartmentTeacher {
-    annual_department_teacher_id String             @id @default(uuid()) @db.VarChar(36)
-    is_deleted                   Boolean            @default(false) @db.TinyInt
-    deleted_at                   DateTime?          @db.DateTime(0)
-    created_at                   DateTime           @db.DateTime(0)
-    annual_teacher_id            String
-    AnnualTeacher                AnnualTeacher      @relation(fields: [annual_teacher_id], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
-    department_id                String
-    Department                   Department         @relation(fields: [department_id], references: [department_id], onDelete: Cascade, onUpdate: Cascade)
-    added_by                     String             @db.VarChar(36)
-    AnnualConfigurator           AnnualConfigurator @relation(fields: [added_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
-}
-
 enum AuthMethod {
     LOCAL
     GOOGLE
@@ -297,8 +381,8 @@ model Log {
     log_id        String     @id @default(uuid()) @db.VarChar(36)
     auth_method   AuthMethod @default(LOCAL)
     logged_in_at  DateTime   @default(now()) @db.DateTime(0)
-    logged_out_at DateTime   @default(now()) @db.DateTime(0)
-    closed_at     DateTime   @default(now()) @db.DateTime(0)
+    logged_out_at DateTime?  @db.DateTime(0)
+    closed_at     DateTime?  @db.DateTime(0)
     login_id      String
     Login         Login      @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
 }
@@ -316,26 +400,25 @@ model ResetPassword {
 }
 
 model Department {
-    department_id         String             @id @default(uuid()) @db.VarChar(36)
-    department_name       String             @db.VarChar(45)
-    department_code       String             @unique @db.VarChar(45)
-    department_short_name String             @db.VarChar(45)
-    is_deleted            Boolean            @default(false) @db.TinyInt
-    created_at            DateTime           @default(now()) @db.DateTime(0)
-    created_by            String
-    AnnualConfigurator    AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
-    school_id             String             @db.VarChar(36)
-    School                School             @relation(fields: [school_id], references: [school_id], onDelete: Cascade, onUpdate: Cascade)
+    department_id      String             @id @default(uuid()) @db.VarChar(36)
+    department_name    String             @db.VarChar(45)
+    department_code    String             @unique @db.VarChar(45)
+    department_acronym String             @db.VarChar(45)
+    is_deleted         Boolean            @default(false) @db.TinyInt
+    created_at         DateTime           @default(now()) @db.DateTime(0)
+    created_by         String
+    AnnualConfigurator AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+    school_id          String             @db.VarChar(36)
+    School             School             @relation(fields: [school_id], references: [school_id], onDelete: Cascade, onUpdate: Cascade)
 
-    DepartmentAudits         DepartmentAudit[]
-    Majors                   Major[]
-    AnnualDepartmentTeachers AnnualDepartmentTeacher[]
+    DepartmentAudits  DepartmentAudit[]
+    AnnualMajors      AnnualMajor[]
+    AnnualMajorAudits AnnualMajorAudit[]
 }
 
 model DepartmentAudit {
     departement_audit_id String             @id @default(uuid()) @db.VarChar(36)
     department_name      String             @db.VarChar(45)
-    department_code      String             @db.VarChar(45)
     is_deleted           Boolean            @db.TinyInt
     audited_at           DateTime           @default(now()) @db.DateTime(0)
     department_id        String
@@ -351,9 +434,20 @@ enum CycleType {
     @@map("cycle_type_enum")
 }
 
+enum CycleName {
+    BTS
+    DUT
+    DTS
+    BACHELOR
+    MASTER
+    DOCTORAT
+
+    @@map("cycle_name_enum")
+}
+
 model Cycle {
     cycle_id        String    @id @default(uuid()) @db.VarChar(36)
-    cycle_name      String    @db.VarChar(45)
+    cycle_name      CycleName
     cycle_type      CycleType
     number_of_years Int
     created_at      DateTime  @default(now()) @db.DateTime(0)
@@ -367,19 +461,17 @@ model Level {
     level      Int
     created_at DateTime @default(now()) @db.DateTime(0)
 
-    Classrooms      Classroom[]
-    ClassroomAudits ClassroomAudit[]
+    Classrooms Classroom[]
 }
 
 model Major {
     major_id           String             @id @default(uuid()) @db.VarChar(36)
     major_name         String             @db.VarChar(45)
     major_code         String             @unique @db.VarChar(45)
+    major_acronym      String             @db.VarChar(45)
     created_at         DateTime           @default(now()) @db.DateTime(0)
     cycle_id           String
     Cycle              Cycle              @relation(fields: [cycle_id], references: [cycle_id], onDelete: Cascade, onUpdate: Cascade)
-    department_id      String
-    Department         Department         @relation(fields: [department_id], references: [department_id], onDelete: Cascade, onUpdate: Cascade)
     created_by         String
     AnnualConfigurator AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -391,7 +483,8 @@ model Major {
 model MajorAudit {
     major_audit_id     String             @id @default(uuid()) @db.VarChar(36)
     major_name         String             @db.VarChar(45)
-    major_short_name   String             @db.VarChar(45)
+    major_code         String             @unique @db.VarChar(45)
+    major_acronym      String             @db.VarChar(45)
     created_at         DateTime           @default(now()) @db.DateTime(0)
     major_id           String
     Major              Major              @relation(fields: [major_id], references: [major_id], onDelete: Cascade, onUpdate: Cascade)
@@ -402,65 +495,110 @@ model MajorAudit {
 }
 
 model AnnualMajor {
-    annual_major_id  String       @id @default(uuid()) @db.VarChar(36)
-    major_id         String
-    Major            Major        @relation(fields: [major_id], references: [major_id], onDelete: Cascade, onUpdate: Cascade)
-    academic_year_id String       @db.VarChar(36)
-    AcademicYear     AcademicYear @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_major_id    String             @id @default(uuid()) @db.VarChar(36)
+    major_name         String             @db.VarChar(45)
+    major_code         String             @db.VarChar(45)
+    major_acronym      String             @db.VarChar(45)
+    is_deleted         Boolean            @default(false) @db.TinyInt
+    major_id           String
+    Major              Major              @relation(fields: [major_id], references: [major_id], onDelete: Cascade, onUpdate: Cascade)
+    department_id      String
+    Department         Department         @relation(fields: [department_id], references: [department_id], onDelete: Cascade, onUpdate: Cascade)
+    academic_year_id   String             @db.VarChar(36)
+    AcademicYear       AcademicYear       @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    created_by         String
+    AnnualConfigurator AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+
+    AnnualMajorAudits AnnualMajorAudit[]
+
+    @@unique([major_code, academic_year_id])
+}
+
+model AnnualMajorAudit {
+    annual_major_audit_id String             @id @default(uuid()) @db.VarChar(36)
+    major_name            String             @db.VarChar(45)
+    major_code            String             @db.VarChar(45)
+    major_acronym         String             @db.VarChar(45)
+    is_deleted            Boolean            @db.TinyInt
+    annual_major_id       String             @db.VarChar(36)
+    AnnualMajor           AnnualMajor        @relation(fields: [annual_major_id], references: [annual_major_id], onDelete: Cascade, onUpdate: Cascade)
+    department_id         String
+    Department            Department         @relation(fields: [department_id], references: [department_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by            String
+    AnnualConfigurator    AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Classroom {
-    classroom_id         String             @id @default(uuid()) @db.VarChar(36)
-    classroom_name       String             @db.VarChar(45)
-    classroom_code       String             @unique @db.VarChar(45)
-    classroom_short_name String             @db.VarChar(45)
-    major_id             String
-    Major                Major              @relation(fields: [major_id], references: [major_id], onDelete: Cascade, onUpdate: Cascade)
-    created_at           DateTime           @default(now()) @db.DateTime(0)
-    level_id             String
-    Level                Level              @relation(fields: [level_id], references: [level_id], onDelete: Cascade, onUpdate: Cascade)
-    created_by           String
-    AnnualConfigurator   AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+    classroom_id       String             @id @default(uuid()) @db.VarChar(36)
+    classroom_name     String             @db.VarChar(45)
+    classroom_code     String             @unique @db.VarChar(45)
+    classroom_acronym  String             @db.VarChar(45)
+    major_id           String
+    Major              Major              @relation(fields: [major_id], references: [major_id], onDelete: Cascade, onUpdate: Cascade)
+    created_at         DateTime           @default(now()) @db.DateTime(0)
+    level_id           String
+    Level              Level              @relation(fields: [level_id], references: [level_id], onDelete: Cascade, onUpdate: Cascade)
+    created_by         String
+    AnnualConfigurator AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
-    Students                    Student[]
-    ClassroomAudits             ClassroomAudit[]
-    AnnualClassrooms            AnnualClassroom[]
-    AnnualClassroomCoordinators AnnualClassroomCoordinator[]
-}
-
-model ClassroomAudit {
-    classroom_audit_id   String             @id @default(uuid()) @db.VarChar(36)
-    classroom_name       String             @db.VarChar(45)
-    classroom_short_name String             @db.VarChar(45)
-    created_at           DateTime           @default(now()) @db.DateTime(0)
-    classroom_id         String
-    Classroom            Classroom          @relation(fields: [classroom_id], references: [classroom_id], onDelete: Cascade, onUpdate: Cascade)
-    level_id             String
-    Level                Level              @relation(fields: [level_id], references: [level_id], onDelete: Cascade, onUpdate: Cascade)
-    audited_by           String
-    AnnualConfigurator   AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+    Students         Student[]
+    AnnualClassrooms AnnualClassroom[]
 }
 
 model AnnualClassroom {
-    annual_classroom_id  String       @id @default(uuid()) @db.VarChar(36)
-    total_fee_payable    Int
-    registration_fee     Int
-    created_at           DateTime     @default(now()) @db.DateTime(0)
-    classroom_name       String       @db.VarChar(45)
-    classroom_short_name String       @db.VarChar(45)
-    classroom_id         String
-    Classroom            Classroom    @relation(fields: [classroom_id], references: [classroom_id], onDelete: Cascade, onUpdate: Cascade)
-    academic_year_id     String       @db.VarChar(36)
-    AcademicYear         AcademicYear @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_classroom_id String       @id @default(uuid()) @db.VarChar(36)
+    total_fees_due      Int
+    registration_fee    Int
+    classroom_name      String       @db.VarChar(45)
+    classroom_code      String       @db.VarChar(45)
+    classroom_acronym   String       @db.VarChar(45)
+    is_deleted          Boolean      @default(false) @db.TinyInt
+    created_at          DateTime     @default(now()) @db.DateTime(0)
+    classroom_id        String
+    Classroom           Classroom    @relation(fields: [classroom_id], references: [classroom_id], onDelete: Cascade, onUpdate: Cascade)
+    academic_year_id    String       @db.VarChar(36)
+    AcademicYear        AcademicYear @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+
+    AnnualClassroomAudits    AnnualClassroomAudit[]
+    AnnualClassroomDivisions AnnualClassroomDivision[]
+
+    @@unique([classroom_code, academic_year_id])
 }
 
-model AnnualClassroomCoordinator {
-    annual_classroom_coordinator_id String             @id @default(uuid()) @db.VarChar(36)
-    created_at                      DateTime           @default(now()) @db.DateTime(0)
-    academic_year_id                String             @db.VarChar(36)
-    AcademicYear                    AcademicYear       @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
-    classroom_id                    String
-    Classroom                       Classroom          @relation(fields: [classroom_id], references: [classroom_id], onDelete: Cascade, onUpdate: Cascade)
-    created_by                      String
-    AnnualConfigurator              AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+model AnnualClassroomAudit {
+    annual_classroom_audit_id String             @id @default(uuid()) @db.VarChar(36)
+    total_fees_due            Int
+    registration_fee          Int
+    is_deleted                Boolean            @db.TinyInt
+    created_at                DateTime           @default(now()) @db.DateTime(0)
+    annual_classroom_id       String
+    AnnualClassroom           AnnualClassroom    @relation(fields: [annual_classroom_id], references: [annual_classroom_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by                String
+    AnnualConfigurator        AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model AnnualClassroomDivision {
+    annual_classroom_division_id String             @id @default(uuid()) @db.VarChar(45)
+    division_letter              String             @db.Char(1)
+    created_at                   DateTime           @default(now()) @db.DateTime(0)
+    is_deleted                   Boolean            @default(false) @db.TinyInt
+    annual_classroom_id          String
+    AnnualClassroom              AnnualClassroom    @relation(fields: [annual_classroom_id], references: [annual_classroom_id], onDelete: Cascade, onUpdate: Cascade)
+    created_by                   String
+    AnnualConfigurator           AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_coordinator_id        String?
+    AnnualTeacher                AnnualTeacher?     @relation(fields: [annual_coordinator_id], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+
+    AnnualClassroomDivisionAudits AnnualClassroomDivisionAudit[]
+}
+
+model AnnualClassroomDivisionAudit {
+    annual_classroom_division_audit_id String                  @id @default(uuid()) @db.VarChar(45)
+    is_deleted                         Boolean                 @db.TinyInt
+    annual_coordinator_id              String?
+    AnnualTeacher                      AnnualTeacher?          @relation(fields: [annual_coordinator_id], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_classroom_division_id       String
+    AnnualClassroomDivision            AnnualClassroomDivision @relation(fields: [annual_classroom_division_id], references: [annual_classroom_division_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by                         String
+    AnnualConfigurator                 AnnualConfigurator      @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }

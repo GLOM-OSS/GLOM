@@ -13,7 +13,11 @@ import { AppModule } from './app/app.module';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: {
-      origin: ['http://localhost:4200'],
+      origin: [
+        'http://localhost:4200', //student
+        'http://localhost:4201', //admin
+        'http://localhost:4202', //personnel
+      ],
       credentials: true,
     },
   });
@@ -21,6 +25,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       forbidNonWhitelisted: true,
+      whitelist: true,
     })
   );
   const config = new DocumentBuilder()
@@ -31,7 +36,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  const port = process.env.APP_PORT || 3333;
+  const port = process.env.APP_PORT || 8080;
   await app.listen(port);
   Logger.log(`🚀 Application is running on: http://localhost:${port}`);
 }

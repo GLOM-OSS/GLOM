@@ -11,7 +11,7 @@ import {
   ReportRounded,
 } from '@mui/icons-material';
 import { theme } from '@squoolr/theme';
-import { IntlShape } from 'react-intl';
+import { useIntl } from 'react-intl';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useState } from 'react';
@@ -23,15 +23,17 @@ import {
   SelectAcademicYearDialog,
 } from './selectAcademicYear';
 import { signIn } from '@squoolr/api-services';
+import { User, useUser } from '@squoolr/layout';
 
 export function Signin({
-  intl: { formatMessage },
-  intl,
   callingApp,
 }: {
-  intl: IntlShape;
   callingApp: 'student' | 'admin' | 'personnel';
 }) {
+  const intl = useIntl()
+  const {formatMessage} = intl
+  const { userDispatch } = useUser()
+
   const initialValues: { email: string; password: string } = {
     email: '',
     password: '',
@@ -62,14 +64,14 @@ export function Signin({
       newNotification.notify({
         render: formatMessage({ id: 'signingUserIn' }),
       });
-      signIn(values.email, values.password)
+      signIn<{ user: User, academic_years: AcademicYearInterface[] }>(values.email, values.password)
         .then(({ user, academic_years }) => {
           newNotification.update({
             render: formatMessage({ id: 'signinSuccess' }),
           });
           if (callingApp === 'admin' || !academic_years) {
             navigate(localStorage.getItem('previousRoute') ?? '/dashboard');
-            //TODO: dispatch user context here with new data
+            userDispatch({ type: 'LOAD_USER', payload: { user } })
             resetForm();
           } else {
             setAcademicYears(academic_years);
@@ -86,7 +88,6 @@ export function Signin({
                 message={
                   error?.message || formatMessage({ id: 'signinFailed' })
                 }
-                intl={intl}
               />
             ),
             autoClose: false,
@@ -104,7 +105,6 @@ export function Signin({
           academicYears={academicYears}
           closeDialog={() => setIsAcademicYearDialogOpen(false)}
           isDialogOpen={isAcademicYearDialogOpen}
-          intl={intl}
         />
       )}
       <Box

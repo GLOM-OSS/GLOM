@@ -32,8 +32,8 @@ export type ActiveYear = {
   academic_year_id: string;
   starting_date: Date;
   ending_date: Date;
-  status: AcademicYearStatus;
-  code: string;
+  year_status: AcademicYearStatus;
+  year_code: string;
 };
 
 export type DesirializeRoles = {

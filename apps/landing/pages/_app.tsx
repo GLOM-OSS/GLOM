@@ -1,20 +1,16 @@
 import { CacheProvider, EmotionCache } from '@emotion/react';
+import { SquoolrThemeProvider, useLanguage } from '@squoolr/theme';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useEffect } from 'react';
-import createEmotionCache from '../config_mui/createEmotionCache';
-import LanguageContextProvider, {
-  useLanguage,
-} from '../contexts/language/LanguageContextProvider';
-import enMessages from '../languages/en-us';
-import frMessages from '../languages/fr';
-import './globalStyles.css';
 import 'react-toastify/dist/ReactToastify.css';
-import { SquoolrThemeProvider } from '@squoolr/theme';
+import LandingLayout from '../components/layout/layout';
+import createEmotionCache from '../config_mui/createEmotionCache';
+import './globalStyles.css';
 
 const App = (props) => {
-  const { Component, pageProps, emotionCache } = props;
-  const { activeLanguage, languageDispatch } = useLanguage();
+  const { Component, pageProps } = props;
+  const { languageDispatch } = useLanguage();
   useEffect(() => {
     languageDispatch({
       type:
@@ -24,17 +20,11 @@ const App = (props) => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   return (
     <>
-      <CacheProvider value={emotionCache}>
-        <SquoolrThemeProvider
-          activeMessages={activeLanguage === 'En' ? enMessages : frMessages}
-          activeLanguage={activeLanguage}
-        >
-          <Component {...pageProps} />
-        </SquoolrThemeProvider>
-      </CacheProvider>
+      <LandingLayout>
+        <Component {...pageProps} />
+      </LandingLayout>
     </>
   );
 };
@@ -54,9 +44,11 @@ function CustomApp(props: CustomAppProps) {
         <title>Squoolr</title>
         <link rel="icon" type="image/x-icon" href="/favicon.png" />
       </Head>
-      <LanguageContextProvider>
-        <App {...{ Component, pageProps, emotionCache }} />
-      </LanguageContextProvider>
+      <CacheProvider value={emotionCache}>
+        <SquoolrThemeProvider>
+          <App {...{ Component, pageProps, emotionCache }} />
+        </SquoolrThemeProvider>
+      </CacheProvider>
     </>
   );
 }

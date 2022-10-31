@@ -4,12 +4,11 @@ import {
   Delete,
   Get,
   HttpException,
-  HttpStatus,
-  Patch,
-  Post,
-  Req,
+  HttpStatus, Patch,
+  Post, Req,
   UseGuards
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AUTH500 } from '../../errors';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -18,12 +17,15 @@ import {
   DesirializeRoles,
   PassportSession
 } from '../../utils/types';
-import { NewPasswordDto } from '../class-vaditor';
+import { AcademicYearQueryDto } from '../class-vaditor';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
+import { NewPasswordDto, ResetPasswordDto } from './dto';
 import { GoogleGuard } from './google/google.guard';
 import { LocalGuard } from './local/local.guard';
 
+@ApiBearerAuth()
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -42,10 +44,9 @@ export class AuthController {
       user.login_id
     );
     if (academic_years.length === 1) {
-      const selected_roles = await this.setActiveYear(
-        request,
-        academic_years[0].academic_year_id
-      );
+      const selected_roles = await this.setActiveYear(request, {
+        academic_year_id: academic_years[0].academic_year_id,
+      });
       return {
         user: {
           ...user,
@@ -56,11 +57,20 @@ export class AuthController {
     return { user, academic_years };
   }
 
+  @Get('/academic-years')
+  @UseGuards(AuthenticatedGuard)
+  async getAcademicYears(@Req() request: Request) {
+    const { login_id } = request.session.passport.user;
+    return {
+      academic_years: await this.authService.getAcademicYears(login_id),
+    };
+  }
+
   @Patch('active-year')
   @UseGuards(AuthenticatedGuard)
   async setActiveYear(
     @Req() request: Request,
-    @Body('selected_academic_year_id') academic_year_id: string
+    @Body() { academic_year_id }: AcademicYearQueryDto
   ): Promise<DesirializeRoles> {
     const { login_id } = request.session.passport.user;
     const { availableRoles, userRoles } = await this.authService.getActiveRoles(
@@ -78,7 +88,7 @@ export class AuthController {
         (err) => {
           if (err)
             throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
-          resolve('Session saved');
+          resolve(1);
         }
       )
     );
@@ -86,7 +96,10 @@ export class AuthController {
   }
 
   @Post('reset-password')
-  async resetPassword(@Req() request: Request, @Body('email') email: string) {
+  async resetPassword(
+    @Req() request: Request,
+    @Body() { email }: ResetPasswordDto
+  ) {
     const squoolr_client = new URL(request.headers.origin).hostname;
     const { reset_password_id } = await this.authService.resetPassword(
       email,

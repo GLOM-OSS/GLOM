@@ -103,7 +103,7 @@ export class AuthService {
   }
 
   async validateLogin(request: Request, login: Omit<Login, 'password'>) {
-    const origin = new URL(request.headers.origin).hostname;
+    const origin = request.headers.origin // new URL(request.headers.origin).hostname;
     const { login_id, school_id, cookie_age } = login;
 
     const user: Omit<PassportSession, 'log_id'> = {
@@ -115,8 +115,8 @@ export class AuthService {
       where: {
         login_id,
         OR: {
-          logged_out_at: { not: { lte: new Date() } },
-          closed_at: { not: { lte: new Date() } },
+          logged_out_at: null,
+          closed_at: null
         },
       },
     });
@@ -132,7 +132,7 @@ export class AuthService {
       const school = await this.schoolService.findFirst({
         where: { school_id },
       });
-      if (origin === school?.subdomain) {
+      if (origin === 'http://localhost:4200') {//origin === `${school.subdomain}.squoolr.com`
         const student = await this.studentService.findFirst({
           where: { login_id },
         });
@@ -142,13 +142,13 @@ export class AuthService {
             error: 'Unauthorized access',
             message: AUTH401['Fr'],
           }); //someone attempting to be a student
-      } else if (!login.is_personnel || origin !== `admin.${school.subdomain}`)
+      } else if (!login.is_personnel || origin !== `http://localhost:4201`) //origin !== `admin.${school.subdomain}.squoolr.com`
         throw new UnauthorizedException({
           statusCode: HttpStatus.UNAUTHORIZED,
           error: 'Unauthorized access',
           message: AUTH401['Fr'],
         }); //someone attempting to be a personnel
-    } else if (origin !== process.env.SQUOOLR_URL)
+    } else if (origin !== 'http://localhost:4202') //process.env.SQUOOLR_URL
       throw new UnauthorizedException({
         statusCode: HttpStatus.UNAUTHORIZED,
         error: 'Unauthorized access',
@@ -167,10 +167,10 @@ export class AuthService {
     const select = {
       AcademicYear: {
         select: {
-          code: true,
+          year_code: true,
           started_at: true,
           ended_at: true,
-          status: true,
+          year_status: true,
           starts_at: true,
           ends_at: true,
           academic_year_id: true,
@@ -184,7 +184,27 @@ export class AuthService {
     })) as AcademicYearObject[];
     if (annualStudents.length > 0) {
       return annualStudents.map(
-        ({ AcademicYear: academicYear }) => academicYear
+        ({
+          AcademicYear: {
+            academic_year_id,
+            year_code,
+            ended_at,
+            ends_at,
+            started_at,
+            starts_at,
+            year_status,
+          },
+        }) => ({
+          year_code,
+          year_status,
+          academic_year_id,
+          starting_date:
+            year_status !== AcademicYearStatus.INACTIVE
+              ? started_at
+              : starts_at,
+          ending_date:
+            year_status !== AcademicYearStatus.FINISHED ? ends_at : ended_at,
+        })
       );
     }
 
@@ -212,25 +232,27 @@ export class AuthService {
       ({
         AcademicYear: {
           academic_year_id,
-          code,
+          year_code,
           ended_at,
           ends_at,
           started_at,
           starts_at,
-          status,
+          year_status,
         },
       }) => {
         if (
           !academic_years.find((_) => _.academic_year_id === academic_year_id)
         ) {
           academic_years.push({
-            code,
-            status,
+            year_code,
+            year_status,
             academic_year_id,
             starting_date:
-              status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,
+              year_status !== AcademicYearStatus.INACTIVE
+                ? started_at
+                : starts_at,
             ending_date:
-              status !== AcademicYearStatus.FIINISHED ? ends_at : ended_at,
+              year_status !== AcademicYearStatus.FINISHED ? ends_at : ended_at,
           });
         }
       }
@@ -242,7 +264,7 @@ export class AuthService {
   async getActiveRoles(login_id: string, academic_year_id: string) {
     const userRoles: UserRole[] = [];
 
-    const { started_at, ended_at, starts_at, ends_at, code, status } =
+    const { started_at, ended_at, starts_at, ends_at, year_code, year_status } =
       await this.academicYearService.findFirst({
         where: {
           academic_year_id,
@@ -253,13 +275,13 @@ export class AuthService {
     let availableRoles: DesirializeRoles = {
       login_id,
       activeYear: {
-        code,
-        status,
+        year_code,
+        year_status,
         academic_year_id,
         starting_date:
-          status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,
+          year_status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,
         ending_date:
-          status !== AcademicYearStatus.FIINISHED ? ends_at : ended_at,
+          year_status !== AcademicYearStatus.FINISHED ? ends_at : ended_at,
       },
     };
 
@@ -435,9 +457,12 @@ export class AuthService {
       where: { Logins: { some: { login_id } } },
     });
     if (!academic_year_id) {
-      return null;
+      const { school_id } = await this.loginService.findUnique({
+        where: { login_id },
+      });
+      return school_id ? null : { ...person, login_id };
     }
-    const { started_at, ended_at, starts_at, ends_at, code, status } =
+    const { started_at, ended_at, starts_at, ends_at, year_code, year_status } =
       await this.academicYearService.findFirst({
         where: {
           academic_year_id,
@@ -449,13 +474,13 @@ export class AuthService {
       login_id,
       ...person,
       activeYear: {
-        code,
-        status,
+        year_code,
+        year_status,
         academic_year_id,
         starting_date:
-          status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,
+          year_status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,
         ending_date:
-          status !== AcademicYearStatus.FIINISHED ? ends_at : ended_at,
+          year_status !== AcademicYearStatus.FINISHED ? ends_at : ended_at,
       },
     };
     for (let i = 0; i < roles.length; i++) {
@@ -577,10 +602,10 @@ export class AuthService {
       },
     });
     return (
-      (login_id && squoolr_client === process.env.SQUOOLR_URL) ||
-      (annualStudent && squoolr_client === school?.subdomain) ||
+      (login_id && squoolr_client === 'http://localhost:4202') ||//Admin -> process.env.SQUOOLR_URL
+      (annualStudent && squoolr_client === school?.subdomain) ||//Student -> `${school.subdomain}.squoolr.com`
       ((annualConfigurator || annualRegistry || annualTeacher) &&
-        squoolr_client === `admin.${school?.subdomain}`)
+        squoolr_client === `admin.${school?.subdomain}`)//Personnel -> `admin.${school.subdomain}.squoolr.com`
     );
   }
 }

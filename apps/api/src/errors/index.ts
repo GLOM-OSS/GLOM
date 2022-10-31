@@ -1,6 +1,6 @@
 export const sAUTH403 = {
-  En: `Your session has been invalidated. Please login!`,
-  Fr: 'Votre session a été invalidé. Veuillez vous connecter !',
+  En: `Your session is invalid. Please login!`,
+  Fr: 'Votre session est non valide. Veuillez vous connecter !',
 };
 export const AUTH01 = {
   En: `Your google access token or email has been invalidated`,
@@ -62,4 +62,13 @@ export const AUTH501 = (element: string) => ({
 export const AUTH503 = {
   En: `Sorry, this action cannot be processed now. Consider trying later or with another account`,
   Fr: 'Désolé, cette action ne peut être traitée maintenant. Essayez plus tard ou avec un autre compte',
+};
+
+export const ERR01 = {
+  En: `You most provide one and only one of the optional attributes`,
+  Fr: `Vous ne pouvez fournir qu'un et qu'un seul des attributs facultatifs`,
+};
+export const ERR02 = {
+  En: `Invalid school demand identifier`,
+  Fr: `Identifiant de la demande non valide`,
 };
