@@ -2,15 +2,12 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsDateString,
-  IsEmail,
-  IsNotEmptyObject,
+  IsEmail, IsNotEmptyObject,
   IsOptional,
   IsPhoneNumber,
-  IsString,
-  IsUUID,
-  registerDecorator,
+  IsString, registerDecorator,
   ValidateNested,
-  ValidationOptions,
+  ValidationOptions
 } from 'class-validator';
 import { PersonPostDto } from '../app.dto';
 
@@ -40,7 +37,7 @@ export class SchoolPostDto {
   initial_year_ends_at: Date;
 }
 
-export class DemandPostData {
+export class DemandPostDto {
   @ApiProperty()
   @IsNotEmptyObject()
   @ValidateNested()
@@ -73,8 +70,8 @@ export function IsValidSubdomain(validationOptions?: ValidationOptions) {
 
 export class DemandValidateDto {
   @ApiProperty()
-  @IsUUID()
-  school_demand_id: string;
+  @IsString()
+  school_code: string;
 
   @ApiProperty()
   @IsOptional()
@@ -88,8 +85,8 @@ export class DemandValidateDto {
 
 export class DemandQueryDto {
   @ApiProperty()
-  @IsUUID()
-  school_demand_id: string;
+  @IsString()
+  school_code: string;
 }
 
 export class DemandStatusQueryDto {

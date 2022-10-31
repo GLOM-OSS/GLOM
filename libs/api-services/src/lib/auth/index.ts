@@ -19,8 +19,8 @@ export async function signIn<T>(email: string, password: string) {
  * @param academic_year_id wanted academic yeear id
  * @returns the user context roles
  */
-export async function setActiveYear<T>(academic_year_id: string) {
-  const { data } = await http.patch<T>(`auth/active-year`, {
+export async function setActiveYear(academic_year_id: string) {
+  const { data } = await http.patch(`auth/active-year`, {
     academic_year_id,
   });
   return data;
@@ -62,6 +62,17 @@ export async function getUser() {
     data: { user },
   } = await http.get(`auth/user`);
   return user;
+}
+
+/**
+ * 
+ * @returns array of academic years where the connected user has been part
+ */
+export async function getAcademicYears() {
+  const {
+    data: { academic_years },
+  } = await http.get(`auth/academic-years`);
+  return academic_years;
 }
 
 /**

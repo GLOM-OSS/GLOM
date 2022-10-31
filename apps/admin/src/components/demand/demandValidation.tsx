@@ -7,6 +7,11 @@ import {
   Skeleton,
   Typography,
 } from '@mui/material';
+import {
+  editDemandStatus,
+  getDemandInfo,
+  validateDemand as validateSchoolDemand,
+} from '@squoolr/api-services';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
@@ -14,6 +19,7 @@ import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';
 import ConfirmProgressDialog from './ConfirmProgressDialog';
+import { Status } from './demands';
 import RejectDemandDialog from './rejectDailog';
 import ValidateDemandDialog from './validateDialog';
 
@@ -73,32 +79,37 @@ export default function DemandValidation() {
     const notif = new useNotification();
     if (notifications) setNotifications([...notifications, notif]);
     else setNotifications([notif]);
-    setTimeout(() => {
-      //TODO: call api here to get demand details with code demand_code
-      if (random() > 5) {
-        const demandDetails: DemandDetailsInterface = {
+    getDemandInfo(demand_code as string)
+      .then(
+        ({
+          person: { birthdate, phone_number, ...person },
           school: {
-            school_name: 'IAI - Yaounde, Cameroun',
-            email: 'info@iai-yde.com',
-            phone: '00237657140183',
-            code: '445937',
-            school_status: 'validated',
+            demand_status,
+            school_name,
+            school_email: email,
+            school_phone_number,
           },
-          person: {
-            first_name: 'Kouatchoua Tchakoumi',
-            last_name: 'Lorrain',
-            email: 'ltchakoumi@outlook.com',
-            phone: '00237693256789',
-            date_of_birth: '27/03/1999',
-            gender: 'Male',
-            national_id_number: '000316122',
-          },
-        };
-        setDemand(demandDetails);
-        setIsDemandLoading(false);
-        notif.dismiss();
-        setNotifications([]);
-      } else {
+        }) => {
+          setDemand({
+            person: {
+              date_of_birth: new Date(birthdate).toISOString(),
+              phone: phone_number,
+              ...person,
+            },
+            school: {
+              email,
+              school_name,
+              code: demand_code as string,
+              phone: school_phone_number,
+              school_status: demand_status as Status,
+            },
+          });
+          setIsDemandLoading(false);
+          notif.dismiss();
+          setNotifications([]);
+        }
+      )
+      .catch((error) => {
         notif.notify({ render: formatMessage({ id: 'loadingDemandDetails' }) });
         notif.update({
           type: 'ERROR',
@@ -106,14 +117,16 @@ export default function DemandValidation() {
             <ErrorMessage
               retryFunction={getDemandDetails}
               notification={notif}
-              message={formatMessage({ id: 'getDemandDetailsFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'getDemandDetailsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
   useEffect(() => {
     getDemandDetails();
@@ -139,53 +152,41 @@ export default function DemandValidation() {
         id: usage === 'validate' ? 'validating' : 'rejecting',
       }),
     });
-    setTimeout(() => {
-      console.log(response);
-      setIsValidating(false);
-      if (usage === 'validate') {
-        //TODO: CALL VALIDATE DEMAND API HERE WITH DATA reponse
-        if (random() > 5) {
-          notif.update({
-            render: formatMessage({ id: 'validatedDemand' }),
-          });
-        } else {
-          notif.update({
-            type: 'ERROR',
-            render: (
-              <ErrorMessage
-                retryFunction={() => validateDemand(response, usage)}
-                notification={notif}
-                //TODO: MESSAGE SHOULD COME FROM BACKEND
-                message={formatMessage({ id: 'failedToValidate' })}
-              />
-            ),
-            autoClose: false,
-            icon: () => <ReportRounded fontSize="medium" color="error" />,
-          });
-        }
-      } else {
-        //TODO CALL API TO REJECT DEMAND HERE WITH DATA response
-        if (random() > 5) {
-          notif.update({
-            render: formatMessage({ id: 'rejectedDemand' }),
-          });
-        } else {
-          notif.update({
-            type: 'ERROR',
-            render: (
-              <ErrorMessage
-                retryFunction={() => validateDemand(response, usage)}
-                notification={notif}
-                //TODO: MESSAGE SHOULD COME FROM BACKEND
-                message={formatMessage({ id: 'failedToReject' })}
-              />
-            ),
-            autoClose: false,
-            icon: () => <ReportRounded fontSize="medium" color="error" />,
-          });
-        }
-      }
-    }, 3000);
+    setIsValidating(false);
+    validateSchoolDemand(
+      demand_code as string,
+      usage === 'validate'
+        ? { subdomain: response }
+        : { rejection_reason: response }
+    )
+      .then(() => {
+        notif.update({
+          render:
+            usage === 'validate'
+              ? formatMessage({ id: 'validatedDemand' })
+              : formatMessage({ id: 'rejectedDemand' }),
+        });
+      })
+      .catch((error) => {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => validateDemand(response, usage)}
+              notification={notif}
+              message={
+                error?.message ||
+                (usage === 'validate'
+                  ? formatMessage({ id: 'failedToValidate' })
+                  : formatMessage({ id: 'failedToReject' }))
+              }
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      })
+      .finally(() => setIsValidating(false));
   };
 
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState<boolean>(false);
@@ -206,30 +207,32 @@ export default function DemandValidation() {
         id: 'settingState',
       }),
     });
-    setTimeout(() => {
-      setIsValidating(false);
-      //TODO: CALL API HERE TO CHANGE DEMAND STATUS TO PROGRESS WITH DATA demand_code
-      if (random() > 5) {
+    editDemandStatus(demand_code as string)
+      .then(() => {
         notif.update({
           render: formatMessage({ id: 'demandStatusChanged' }),
         });
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={changeDemandStatus}
               notification={notif}
-              //TODO: MESSAGE SHOULD COME FROM BACKEND
-              message={formatMessage({ id: 'failedToChangeDemandStatus' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'failedToChangeDemandStatus' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsValidating(false));
   };
+  const schoolDemandStatus = demand.school.school_status.toLocaleLowerCase()
 
   return (
     <>
@@ -332,11 +335,11 @@ export default function DemandValidation() {
                           alignSelf: 'center',
                           backgroundColor: lighten(
                             theme.palette[
-                              demand.school.school_status === 'pending'
+                              schoolDemandStatus === 'pending'
                                 ? 'info'
-                                : demand.school.school_status === 'progress'
+                                : schoolDemandStatus === 'progress'
                                 ? 'secondary'
-                                : demand.school.school_status === 'validated'
+                                : schoolDemandStatus === 'validated'
                                 ? 'success'
                                 : 'error'
                             ].main,
@@ -344,7 +347,7 @@ export default function DemandValidation() {
                           ),
                         }}
                         label={formatMessage({
-                          id: demand.school.school_status,
+                          id: schoolDemandStatus,
                         })}
                       />
                     )
@@ -366,7 +369,7 @@ export default function DemandValidation() {
                 </Box>
               ))}
             </Box>
-            {demand.school.school_status === 'pending' ? (
+            {schoolDemandStatus === 'pending' ? (
               <Button
                 color="primary"
                 sx={{ textTransform: 'none', justifySelf: 'end' }}
@@ -388,7 +391,7 @@ export default function DemandValidation() {
               >
                 {formatMessage({ id: 'changeStatus' })}
               </Button>
-            ) : demand.school.school_status === 'progress' ? (
+            ) : schoolDemandStatus === 'progress' ? (
               <Box
                 sx={{
                   justifySelf: 'start',

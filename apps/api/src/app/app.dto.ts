@@ -23,7 +23,7 @@ export class PersonPostDto {
 
   @ApiProperty()
   @IsString()
-  phone: string;
+  phone_number: string;
 
   @ApiProperty()
   @IsDateString()

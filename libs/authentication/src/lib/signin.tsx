@@ -23,7 +23,7 @@ import {
   SelectAcademicYearDialog,
 } from './selectAcademicYear';
 import { signIn } from '@squoolr/api-services';
-import { User } from '@squoolr/layout';
+import { User, useUser } from '@squoolr/layout';
 
 export function Signin({
   callingApp,
@@ -32,6 +32,7 @@ export function Signin({
 }) {
   const intl = useIntl()
   const {formatMessage} = intl
+  const { userDispatch } = useUser()
 
   const initialValues: { email: string; password: string } = {
     email: '',
@@ -70,7 +71,7 @@ export function Signin({
           });
           if (callingApp === 'admin' || !academic_years) {
             navigate(localStorage.getItem('previousRoute') ?? '/dashboard');
-            //TODO: dispatch user context here with new data
+            userDispatch({ type: 'LOAD_USER', payload: { user } })
             resetForm();
           } else {
             setAcademicYears(academic_years);

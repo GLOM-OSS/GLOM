@@ -17,6 +17,7 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { setActiveYear } from '@squoolr/api-services';
+import { useUser } from '@squoolr/layout';
 
 export interface AcademicYearInterface {
   academic_year_id: string;
@@ -37,8 +38,9 @@ export function SelectAcademicYearDialog({
   closeDialog: () => void;
   callingApp?: 'admin' | 'personnel';
 }) {
-  const intl = useIntl()
-  const {formatMessage} = intl
+  const intl = useIntl();
+  const { formatMessage } = intl;
+  const { userDispatch, ...user } = useUser();
 
   const [notifications, setNotifications] = useState<useNotification[]>();
   const [selectedAcademicYearId, setSelectedAcademicYearId] =
@@ -57,7 +59,10 @@ export function SelectAcademicYearDialog({
     setSelectedAcademicYearId(academic_year_id);
     setActiveYear(academic_year_id)
       .then((userRoles) => {
-        //TODO dispatch user roles to user context
+        userDispatch({
+          type: 'LOAD_USER',
+          payload: { user: { ...user, ...userRoles } },
+        });
         newNotification.update({
           render: formatMessage({ id: 'academicYearSet' }),
         });

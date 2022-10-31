@@ -23,7 +23,7 @@ export class TeacherService {
 
   async addNewTeacher(
     {
-      phone,
+      phone_number,
       first_name,
       birthdate,
       email,
@@ -45,7 +45,7 @@ export class TeacherService {
     added_by: string
   ) {
     const person = await this.personService.findUnique({
-      where: { phone_number: phone },
+      where: { phone_number },
     });
     if (person?.phone_number)
       throw new HttpException(
@@ -112,7 +112,7 @@ export class TeacherService {
                     birthdate,
                     first_name,
                     national_id_number,
-                    phone_number: phone,
+                    phone_number,
                   },
                   where: { email },
                 },
@@ -128,7 +128,7 @@ export class TeacherService {
   async editTeacher(
     annual_teacher_id: string,
     {
-      phone,
+      phone_number,
       first_name,
       birthdate,
       email,
@@ -209,7 +209,7 @@ export class TeacherService {
                 gender,
                 last_name,
                 national_id_number,
-                phone_number: phone,
+                phone_number,
                 PersonAudits: {
                   create: {
                     ...person,

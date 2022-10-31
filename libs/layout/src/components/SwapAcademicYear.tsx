@@ -1,9 +1,9 @@
 import { ReportRounded } from '@mui/icons-material';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
+import { getAcademicYears as fetchAcademicYears } from '@squoolr/api-services';
 import { AcademicYearInterface, SelectAcademicYearDialog } from '@squoolr/auth';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 
@@ -38,43 +38,11 @@ export default function SwapAcademicYear({
       newNotification.notify({
         render: formatMessage({ id: 'fetchingAcademicYears' }),
       });
-      //TODO: CALL getAcademicYears API HERE
-      setTimeout(() => {
-        setIsFetchingAcademicYears(false);
-        if (random() > 5) {
-          //TODO: SET DATA IN ACADEMIC YEAR STATE HERE
-          const newAcademicYears: AcademicYearInterface[] = [
-            {
-              academic_year_id: 'https:qwoeiofs/sldie',
-              code: 'YEAR-202100012022',
-              ending_date: new Date(),
-              starting_date: new Date(),
-              year_status: 'inactive',
-            },
-            {
-              academic_year_id: 'https:qwwoeios/sldie',
-              code: 'YEAR-1',
-              ending_date: new Date(),
-              starting_date: new Date(),
-              year_status: 'inactive',
-            },
-            {
-              academic_year_id: 'https:qwoerios/sldie',
-              code: 'YEAR-1',
-              ending_date: new Date(),
-              starting_date: new Date(),
-              year_status: 'active',
-            },
-            {
-              academic_year_id: 'https:qwoeios/sldige',
-              code: 'YEAR-1',
-              ending_date: new Date(),
-              starting_date: new Date(),
-              year_status: 'finished',
-            },
-          ];
-          if (newAcademicYears.length > 1) {
-            setAcademicYears(newAcademicYears);
+      setIsFetchingAcademicYears(false);
+      fetchAcademicYears()
+        .then((academicYears) => {
+          if (academicYears.length > 1) {
+            setAcademicYears(academicYears);
             newNotification.dismiss();
           } else {
             newNotification.update({
@@ -82,22 +50,25 @@ export default function SwapAcademicYear({
             });
             setIsAcademicYearDialogOpen(false);
           }
-        } else {
+        })
+        .catch((error) => {
           newNotification.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={getAcademicYears}
                 notification={newNotification}
-                message={formatMessage({ id: 'getAcademicYearsFailed' })}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'getAcademicYearsFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-        setIsFetchingAcademicYears(false);
-      }, 3000);
+        })
+        .finally(() => setIsFetchingAcademicYears(false));
     }
   };
 

@@ -122,14 +122,24 @@ enum SchoolDemandStatus {
 
 model SchoolDemand {
     school_demand_id String             @id @default(uuid()) @db.VarChar(36)
-    demanded_at      DateTime           @default(now()) @db.DateTime(0)
-    responsed_at     DateTime?          @db.DateTime(0)
-    rejection_reason String?            @db.Text
     demand_status    SchoolDemandStatus @default(PENDING)
+    demanded_at      DateTime           @default(now()) @db.DateTime(0)
+    rejection_reason String?            @db.Text
     school_id        String             @unique
     School           School             @relation(fields: [school_id], references: [school_id], onDelete: Cascade, onUpdate: Cascade)
-    validated_by     String?            @db.VarChar(36)
-    Login            Login?             @relation(fields: [validated_by], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+
+    SchoolDemandAudits SchoolDemandAudit[]
+}
+
+model SchoolDemandAudit {
+    school_demand_audit_id String             @id @default(uuid()) @db.VarChar(36)
+    rejection_reason       String?            @db.Text
+    school_demand_id       String             @db.VarChar(36)
+    audited_at             DateTime           @default(now()) @db.DateTime(0)
+    demand_status          SchoolDemandStatus @default(PENDING)
+    SchoolDemand           SchoolDemand       @relation(fields: [school_demand_id], references: [school_demand_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by             String             @db.VarChar(36)
+    Login                  Login              @relation(fields: [audited_by], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 enum AcademicYearStatus {
@@ -182,8 +192,8 @@ model Login {
     Logs                 Log[]
     Students             Student[]
     AnnualRegistries     AnnualRegistry[]
-    SchoolDemand         SchoolDemand[]
     AnnualTeachers       AnnualTeacher[]
+    SchoolDemandAudits   SchoolDemandAudit[]
 
     @@unique([person_id, school_id])
 }
@@ -219,7 +229,7 @@ model AnnualConfigurator {
     AnnualClassroomDivisions      AnnualClassroomDivision[]
     AnnualClassroomDivisionAudits AnnualClassroomDivisionAudit[]
     AnnualRegistryAudit           AnnualRegistryAudit[]
-    TeacherAudits                  TeacherAudit[]
+    TeacherAudits                 TeacherAudit[]
 
     @@unique([login_id, academic_year_id])
 }

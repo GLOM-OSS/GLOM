@@ -6,7 +6,6 @@ const userReducer: Reducer<User & DispatchInterface, UserAction> = (
   state: User & DispatchInterface,
   action: UserAction
 ) => {
-  alert('combi');
   switch (action.type) {
     case 'CLEAR_USER': {
       return {
@@ -30,7 +29,6 @@ const userReducer: Reducer<User & DispatchInterface, UserAction> = (
         preferred_lang: 'Fr',
       };
     }
-    //TODO: USE PAYLOAD TO LOAD DATA INTO STATE
     case 'LOAD_USER': {
       return { ...state, ...action.payload.user };
     }

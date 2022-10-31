@@ -448,7 +448,7 @@ export class PersonnelService {
       Number(process.env.SALT)
     );
 
-    const { phone: phone_number, ...staffData } = newStaff;
+    const { phone_number, ...staffData } = newStaff;
     const password = Math.random().toString(36).slice(2).toUpperCase();
 
     const person = await this.personService.findUnique({
@@ -582,7 +582,7 @@ export class PersonnelService {
 
   async editStaff(
     login_id: string,
-    { phone: phone_number, ...staffData }: StaffPutDto,
+    { phone_number, ...staffData }: StaffPutDto,
     audited_by: string
   ) {
     const login = await this.loginService.findUnique({

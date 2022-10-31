@@ -47,6 +47,7 @@ export class CodeGeneratorService {
       where: { major_acronym: acronym },
     });
 
+
     const { department_acronym } =
       await this.prismaService.department.findUnique({
         where: { department_code },

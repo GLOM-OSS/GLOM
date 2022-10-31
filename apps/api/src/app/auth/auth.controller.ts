@@ -4,11 +4,9 @@ import {
   Delete,
   Get,
   HttpException,
-  HttpStatus,
-  Patch,
-  Post,
-  Req,
-  UseGuards,
+  HttpStatus, Patch,
+  Post, Req,
+  UseGuards
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -17,7 +15,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import {
   DeserializeSessionData,
   DesirializeRoles,
-  PassportSession,
+  PassportSession
 } from '../../utils/types';
 import { AcademicYearQueryDto } from '../app.dto';
 import { AuthenticatedGuard } from './auth.guard';
@@ -58,6 +56,15 @@ export class AuthController {
       };
     }
     return { user, academic_years };
+  }
+
+  @Get('/academic-years')
+  @UseGuards(AuthenticatedGuard)
+  async getAcademicYears(@Req() request: Request) {
+    const { login_id } = request.session.passport.user;
+    return {
+      academic_years: await this.authService.getAcademicYears(login_id),
+    };
   }
 
   @Patch('active-year')

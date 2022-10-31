@@ -113,7 +113,7 @@ export class AuthService {
   }
 
   async validateLogin(request: Request, login: Omit<Login, 'password'>) {
-    const origin = new URL(request.headers.origin).hostname;
+    const origin = request.headers.origin; // new URL(request.headers.origin).hostname;
     const { login_id, school_id, cookie_age } = login;
 
     let user: Omit<PassportSession, 'log_id'> = {
@@ -142,7 +142,8 @@ export class AuthService {
       const school = await this.schoolService.findFirst({
         where: { school_id },
       });
-      if (origin === school?.subdomain) {
+      if (origin === 'http://localhost:4200') {
+        //origin === `${school.subdomain}.squoolr.com`
         const student = await this.studentService.findFirst({
           where: { login_id },
         });
@@ -152,14 +153,16 @@ export class AuthService {
             error: 'Unauthorized access',
             message: AUTH401['Fr'],
           }); //someone attempting to be a student
-      } else if (!login.is_personnel || origin !== `admin.${school.subdomain}`)
+      } else if (!login.is_personnel || origin !== `http://localhost:4201`)
+        //origin !== `admin.${school.subdomain}.squoolr.com`
         throw new UnauthorizedException({
           statusCode: HttpStatus.UNAUTHORIZED,
           error: 'Unauthorized access',
           message: AUTH401['Fr'],
         }); //someone attempting to be a personnel
     } else {
-      if (origin !== process.env.SQUOOLR_URL)
+      if (origin !== 'http://localhost:4202')
+        //process.env.SQUOOLR_URL
         throw new UnauthorizedException({
           statusCode: HttpStatus.UNAUTHORIZED,
           error: 'Unauthorized access',
@@ -175,7 +178,6 @@ export class AuthService {
         ],
       };
     }
-
     const { log_id, job_name } = await this.logIn(
       request,
       user.login_id,
@@ -651,10 +653,10 @@ export class AuthService {
       },
     });
     return (
-      (login_id && squoolr_client === process.env.SQUOOLR_URL) ||
-      (annualStudent && squoolr_client === school?.subdomain) ||
+      (login_id && squoolr_client === 'http://localhost:4202') || //Admin -> process.env.SQUOOLR_URL
+      (annualStudent && squoolr_client === school?.subdomain) || //Student -> `${school.subdomain}.squoolr.com`
       ((annualConfigurator || annualRegistry || annualTeacher) &&
-        squoolr_client === `admin.${school?.subdomain}`)
+        squoolr_client === `admin.${school?.subdomain}`) //Personnel -> `admin.${school.subdomain}.squoolr.com`
     );
   }
 }
