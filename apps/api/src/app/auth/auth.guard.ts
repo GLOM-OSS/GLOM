@@ -36,7 +36,7 @@ export class AuthenticatedGuard implements CanActivate {
 
   async authenticateUser(request: Request) {
     const user = request.user as DeserializeSessionData;
-    const squoolr_client = new URL(request.headers.origin).hostname;
+    const squoolr_client = request.headers.origin //new URL(request.headers.origin).hostname;
 
     const isAuthenticated = this.authservice.isClientCorrect(
       user,
