@@ -16,11 +16,6 @@ export class AppService {
         this.seedCycles();
       }
     });
-    this.prismaService.level.count({}).then((levelCount) => {
-      if (levelCount === 0) {
-        this.seedLevels();
-      }
-    });
     this.prismaService.teacherGrade.count({}).then((teacherGradeCount) => {
       if (teacherGradeCount === 0) {
         this.seedTeacherGrades();
@@ -134,11 +129,7 @@ export class AppService {
                     },
                   },
                 },
-                Level: {
-                  create: {
-                    level: 3,
-                  },
-                },
+                level: 3,
                 AnnualConfigurator: {
                   connect: {
                     annual_configurator_id,
@@ -210,14 +201,6 @@ export class AppService {
       ],
     });
   }
-  //seed levels
-  async seedLevels() {
-    await this.prismaService.level.createMany({
-      data: [...new Array(7)].map((_, index) => ({
-        level: index + 1,
-      })),
-    });
-  }
 
   async seedTeacherGrades() {
     await this.prismaService.teacherGrade.createMany({
@@ -243,9 +226,6 @@ export class AppService {
 
   getCycles() {
     return this.prismaService.cycle.findMany();
-  }
-  getLevels() {
-    return this.prismaService.level.findMany();
   }
   getTeacherGrades() {
     return this.prismaService.teacherGrade.findMany();

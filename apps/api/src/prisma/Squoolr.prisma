@@ -457,14 +457,6 @@ model Cycle {
     MajorAudits MajorAudit[]
 }
 
-model Level {
-    level_id   String   @id @default(uuid()) @db.VarChar(36)
-    level      Int
-    created_at DateTime @default(now()) @db.DateTime(0)
-
-    Classrooms Classroom[]
-}
-
 model Major {
     major_id           String             @id @default(uuid()) @db.VarChar(36)
     major_name         String             @db.VarChar(45)
@@ -537,8 +529,7 @@ model Classroom {
     major_id           String
     Major              Major              @relation(fields: [major_id], references: [major_id], onDelete: Cascade, onUpdate: Cascade)
     created_at         DateTime           @default(now()) @db.DateTime(0)
-    level_id           String
-    Level              Level              @relation(fields: [level_id], references: [level_id], onDelete: Cascade, onUpdate: Cascade)
+    level              Int
     created_by         String
     AnnualConfigurator AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -548,7 +539,7 @@ model Classroom {
 
 model AnnualClassroom {
     annual_classroom_id String       @id @default(uuid()) @db.VarChar(36)
-    total_fees_due      Int
+    total_fee_due       Int
     registration_fee    Int
     classroom_name      String       @db.VarChar(45)
     classroom_code      String       @db.VarChar(45)
@@ -568,7 +559,7 @@ model AnnualClassroom {
 
 model AnnualClassroomAudit {
     annual_classroom_audit_id String             @id @default(uuid()) @db.VarChar(36)
-    total_fees_due            Int
+    total_fee_due             Int
     registration_fee          Int
     is_deleted                Boolean            @db.TinyInt
     created_at                DateTime           @default(now()) @db.DateTime(0)
