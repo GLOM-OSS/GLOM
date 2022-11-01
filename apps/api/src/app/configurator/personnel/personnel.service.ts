@@ -477,6 +477,7 @@ export class PersonnelService {
         connectOrCreate: {
           create: {
             login_id,
+            is_personnel: true,
             Person: {
               connectOrCreate: {
                 create: { ...staffData, phone_number },

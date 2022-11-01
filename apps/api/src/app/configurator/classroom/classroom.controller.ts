@@ -36,10 +36,10 @@ export class ClassroomController {
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
     return {
-      classrooms: await this.classroomService.findAll(
+      classrooms: await this.classroomService.findAll({
         academic_year_id,
-        classQuery
-      ),
+        ...classQuery,
+      }),
     };
   }
 
@@ -48,7 +48,9 @@ export class ClassroomController {
     @Query() { annual_classroom_id }: ClassroomDivisionQueryDto
   ) {
     return {
-      classroomDivisions: await this.classroomService.findDivisions(annual_classroom_id),
+      classroomDivisions: await this.classroomService.findDivisions(
+        annual_classroom_id
+      ),
     };
   }
 

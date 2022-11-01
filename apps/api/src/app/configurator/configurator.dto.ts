@@ -38,6 +38,11 @@ export class DepartmentQueryDto {
   @IsOptional()
   @ApiProperty({ required: false })
   is_deleted?: boolean;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  keywords?: string;
 }
 
 export class ClassroomPost {
@@ -47,7 +52,7 @@ export class ClassroomPost {
 
   @IsNumber()
   @ApiProperty()
-  total_fees_due: number;
+  total_fee_due: number;
 
   @IsNumber()
   @ApiProperty()
@@ -70,6 +75,7 @@ export class MajorPostDto {
   @ApiProperty()
   cycle_id: string;
 
+  @IsArray()
   @ApiProperty()
   @ValidateNested({ each: true })
   @Type(() => ClassroomPost)
@@ -119,7 +125,7 @@ export class ClassroomPutDto {
   @IsNumber()
   @IsOptional()
   @ApiProperty({ required: false })
-  total_fees_due: number;
+  total_fee_due: number;
 
   @IsBoolean()
   @IsOptional()
@@ -134,6 +140,11 @@ export class ClassroomDivisionQueryDto {
 }
 
 export class ClassroomQueryDto {
+  @IsUUID()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  academic_year_id?: string;
+
   @IsString()
   @IsOptional()
   @ApiProperty({ required: false })
