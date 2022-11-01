@@ -11,6 +11,11 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import {
+  getCycles,
+  getDepartments,
+  getMajorDetails,
+} from '@squoolr/api-services';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -40,7 +45,7 @@ export interface FeeSetting {
 
 export interface MajorInterface {
   item_name: string;
-  department_id: string;
+  department_code: string;
   cycle_id: string;
   item_acronym: string;
 }
@@ -63,7 +68,7 @@ export default function MajorDialog({
   const { formatMessage } = useIntl();
   const [major, setMajor] = useState<MajorInterface>({
     item_name: '',
-    department_id: '',
+    department_code: '',
     cycle_id: '',
     item_acronym: '',
   });
@@ -71,12 +76,12 @@ export default function MajorDialog({
     ? major
     : {
         item_name: '',
-        department_id: '',
+        department_code: '',
         cycle_id: '',
         item_acronym: '',
       };
   const validationSchema = Yup.object().shape({
-    department_id: Yup.string().required(formatMessage({ id: 'required' })),
+    department_code: Yup.string().required(formatMessage({ id: 'required' })),
     item_name: Yup.string().required(formatMessage({ id: 'required' })),
     cycle_id: Yup.string().required(formatMessage({ id: 'required' })),
     item_acronym: Yup.string().required(formatMessage({ id: 'required' })),
@@ -103,7 +108,7 @@ export default function MajorDialog({
     setLevelFees([]);
     setMajor({
       item_name: '',
-      department_id: '',
+      department_code: '',
       cycle_id: '',
       item_acronym: '',
     });
@@ -129,35 +134,12 @@ export default function MajorDialog({
     });
     const notif = new useNotification();
     setNotifications([...notifs, { notif, usage: 'department' }]);
-
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD DEPARTMENTS OF SCHOOL FOR ACADEMIC YEAR
-      if (random() > 5) {
-        const newDepartments: DepartmentInterface[] = [
-          {
-            department_acronym: 'GRT0001',
-            department_name: 'Genie des reseaux et telecommunications',
-            department_code: 'sdh',
-          },
-          {
-            department_acronym: 'GRT0001',
-            department_name: 'Genie des reseaux et telecommunications',
-            department_code: 'sds',
-          },
-          {
-            department_acronym: 'GRT0001',
-            department_name: 'Genie des reseaux et telecommunications',
-            department_code: 'shs',
-          },
-          {
-            department_acronym: 'GRT0001',
-            department_name: 'Genie des reseaux et telecommunications',
-            department_code: 'shs',
-          },
-        ];
+    getDepartments()
+      .then((departments) => {
+        setDepartments(departments);
         setAreDepartmentsLoading(false);
-        setDepartments(newDepartments);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({ render: formatMessage({ id: 'loadingDepartments' }) });
         notif.update({
           type: 'ERROR',
@@ -165,14 +147,15 @@ export default function MajorDialog({
             <ErrorMessage
               retryFunction={loadDepartments}
               notification={notif}
-              message={formatMessage({ id: 'loadDepartmentsFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'loadDepartmentsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
   const loadCycles = () => {
     setAreCyclesLoading(true);
@@ -183,29 +166,12 @@ export default function MajorDialog({
     const notif = new useNotification();
     setNotifications([...notifs, { notif, usage: 'cycle' }]);
 
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD CYCLES
-      if (random() > 5) {
-        const newCycles: CycleInterface[] = [
-          {
-            cycle_id: 'skd',
-            cycle_name: 'BACHELORS',
-            number_of_years: 3,
-          },
-          {
-            cycle_id: 'skdw',
-            cycle_name: 'MASTER',
-            number_of_years: 2,
-          },
-          {
-            cycle_id: 'swkd',
-            cycle_name: 'DOCTORATE',
-            number_of_years: 2,
-          },
-        ];
+    getCycles()
+      .then((cycles) => {
         setAreCyclesLoading(false);
-        setCycles(newCycles);
-      } else {
+        setCycles(cycles);
+      })
+      .catch((error) => {
         notif.notify({ render: formatMessage({ id: 'loadingCycles' }) });
         notif.update({
           type: 'ERROR',
@@ -213,14 +179,15 @@ export default function MajorDialog({
             <ErrorMessage
               retryFunction={loadCycles}
               notification={notif}
-              message={formatMessage({ id: 'loadCyclesFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'loadCyclesFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
   const loadMajorData = () => {
     setIsMajorDataLoading(true);
@@ -230,27 +197,13 @@ export default function MajorDialog({
     });
     const notif = new useNotification();
     setNotifications([...notifs, { notif, usage: 'major' }]);
-
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD MAJOR here with data editableMajorId
-      if (random() > 5) {
-        const newMajor: { value: MajorInterface; levelFees: FeeSetting[] } = {
-          value: {
-            item_acronym: 'IRT',
-            item_name: 'Informatiques reseaux et telecommunications',
-            cycle_id: 'skd',
-            department_id: 'sdh',
-          },
-          levelFees: [
-            { registration_fee: 1000, total_fee_due: 2000, level: 1 },
-            { registration_fee: 1000, total_fee_due: 2000, level: 1 },
-            { registration_fee: 1000, total_fee_due: 2000, level: 1 },
-          ],
-        };
+    getMajorDetails(editableMajorCode as string)
+      .then(({ levelFees, ...major }) => {
         setIsMajorDataLoading(false);
-        setMajor(newMajor.value);
-        setLevelFees(newMajor.levelFees);
-      } else {
+        setMajor(major);
+        setLevelFees(levelFees);
+      })
+      .catch((error) => {
         notif.notify({ render: formatMessage({ id: 'loadingMajor' }) });
         notif.update({
           type: 'ERROR',
@@ -258,14 +211,15 @@ export default function MajorDialog({
             <ErrorMessage
               retryFunction={loadMajorData}
               notification={notif}
-              message={formatMessage({ id: 'loadMajorFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'loadMajorFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
@@ -399,13 +353,13 @@ export default function MajorDialog({
             required
             color="primary"
             disabled={areDepartmentsLoading || isMajorDataLoading}
-            {...formik.getFieldProps('department_id')}
+            {...formik.getFieldProps('department_code')}
             error={
-              formik.touched.department_id &&
-              Boolean(formik.errors.department_id)
+              formik.touched.department_code &&
+              Boolean(formik.errors.department_code)
             }
             helperText={
-              formik.touched.department_id && formik.errors.department_id
+              formik.touched.department_code && formik.errors.department_code
             }
           >
             {departments.map(
@@ -470,6 +424,7 @@ export default function MajorDialog({
                   <TextField
                     autoFocus
                     placeholder={formatMessage({ id: 'registration_fee' })}
+                    label={formatMessage({ id: 'registration_fee' })}
                     fullWidth
                     type="number"
                     size="small"
@@ -481,8 +436,8 @@ export default function MajorDialog({
                       )
                     }
                     value={
-                      levelFees.find(({ level }) => level === index + 1)
-                        ?.registration_fee
+                      Number(levelFees.find(({ level }) => level === index + 1)
+                        ?.registration_fee)
                     }
                     required
                     disabled={isMajorDataLoading}
@@ -498,6 +453,7 @@ export default function MajorDialog({
                   <TextField
                     autoFocus
                     placeholder={formatMessage({ id: 'total_fee_due' })}
+                    label={formatMessage({ id: 'total_fee_due' })}
                     fullWidth
                     type="number"
                     size="small"
@@ -560,7 +516,7 @@ export default function MajorDialog({
               disabled={
                 formik.values.item_name === '' ||
                 formik.values.cycle_id === '' ||
-                formik.values.department_id === ''
+                formik.values.department_code === ''
               }
             >
               {formatMessage({ id: 'create' })}
