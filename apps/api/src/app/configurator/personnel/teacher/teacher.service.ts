@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { AUTH404, ERR03 } from 'apps/api/src/errors';
-import { PrismaService } from 'apps/api/src/prisma/prisma.service';
-import { CodeGeneratorService } from 'apps/api/src/utils/code-generator';
+import { AUTH404, ERR03 } from '../../../../errors';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { CodeGeneratorService } from '../../../../utils/code-generator';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { TeacherPostDto, TeacherPutDto } from '../../configurator.dto';
@@ -102,6 +102,7 @@ export class TeacherService {
             create: {
               login_id,
               password,
+              is_personnel: true,
               School: { connect: { school_id } },
               Person: {
                 connectOrCreate: {
