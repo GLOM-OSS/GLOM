@@ -16,8 +16,8 @@ async function bootstrap() {
     cors: {
       origin: [
         'http://localhost:4200', //student
-        'http://localhost:4201', //admin
-        'http://localhost:4202', //personnel
+        'http://localhost:4201', //personnel
+        'http://localhost:4202', //admin
       ],
       credentials: true,
     },

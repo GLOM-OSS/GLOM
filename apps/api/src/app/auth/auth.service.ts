@@ -140,7 +140,7 @@ export class AuthService {
 
     if (school_id) {
       const school = await this.schoolService.findFirst({
-        where: { school_id },
+        where: { school_id, is_validated: true },
       });
       if (origin === 'http://localhost:4200') {
         //origin === `${school.subdomain}.squoolr.com`
@@ -654,9 +654,9 @@ export class AuthService {
     });
     return (
       (login_id && squoolr_client === 'http://localhost:4202') || //Admin -> process.env.SQUOOLR_URL
-      (annualStudent && squoolr_client === school?.subdomain) || //Student -> `${school.subdomain}.squoolr.com`
+      (annualStudent && squoolr_client === 'http://localhost:4200') || //Student -> `${school.subdomain}.squoolr.com`
       ((annualConfigurator || annualRegistry || annualTeacher) &&
-        squoolr_client === `admin.${school?.subdomain}`) //Personnel -> `admin.${school.subdomain}.squoolr.com`
+        squoolr_client === 'http://localhost:4201') //Personnel -> `admin.${school.subdomain}.squoolr.com`
     );
   }
 }
