@@ -1,6 +1,11 @@
 import { http } from '@squoolr/axios';
 import { Person } from '../interfaces';
 
+export * from './configurators';
+export * from './coordinators';
+export * from './registries';
+export * from './teachers';
+
 export async function resetPersonnelPassword(email: string) {
   await http.put(`/reset-password`, { email });
 }
