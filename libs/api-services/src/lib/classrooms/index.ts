@@ -1,14 +1,16 @@
 import { http } from '@squoolr/axios';
 
-export async function getClassrooms(params: {
-  department_code: string;
-  major_code: string;
-  level: number;
-  is_deleted: boolean;
+export async function getClassrooms(params?: {
+  academic_year_id?: string;
+  department_code?: string;
+  major_code?: string;
+  level?: number;
+  is_deleted?: boolean;
 }) {
-  await http.get(`classrooms/all`, {
+  const { data: { classrooms }} = await http.get(`classrooms/all`, {
     params,
   });
+  return classrooms;
 }
 
 export async function getClassroomDivisions(annual_classroom_id: string) {
@@ -24,7 +26,7 @@ export async function editClassroom(
   classroom_code: string,
   classroomData: {
     registration_fee: number;
-    total_fees_due: number;
+    total_fee_due: number;
     is_deleted: boolean;
   }
 ) {

@@ -36,3 +36,21 @@ export interface SchoolDemand {
   school_phone_number: string;
   demand_status: string;
 }
+
+export interface Department {
+  department_code: string;
+  department_name: string;
+  department_acronym: string;
+  created_at: Date;
+  is_deleted: boolean;
+}
+
+export interface Major {
+  major_name: string;
+  major_acronym: string;
+  major_code: string;
+  created_at: Date;
+  is_deleted: boolean;
+  cycle_name: "BACHELORS" | "MASTER" | "DOCTORATE" | "DUT" | "BTS" | "DTS";
+  department_acronym: string;
+}

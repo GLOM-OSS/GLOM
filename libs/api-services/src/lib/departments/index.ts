@@ -1,10 +1,14 @@
 import { http } from '@squoolr/axios';
+import { Department } from '../interfaces';
 
-export async function getDepartments(is_deleted?: boolean) {
+export async function getDepartments(params?: {
+  is_deleted?: boolean;
+  keywords?: string;
+}) {
   const {
     data: { departments },
-  } = await http.get(`/departments/all`, {
-    params: { is_deleted },
+  } = await http.get<{ departments: Department[] }>(`/departments/all`, {
+    params: params,
   });
   return departments;
 }
