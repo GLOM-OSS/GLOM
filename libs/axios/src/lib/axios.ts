@@ -41,7 +41,6 @@ function axiosInstance(): AxiosInstance {
       return response;
     },
     (error) => {
-      console.log(error);
       if (error.response?.status === 403 && location.pathname !== '/signin')
         location.href = '/signin';
       return Promise.reject(
