@@ -71,7 +71,7 @@ export const website = {
   configurators: 'Configurators',
   settings: 'Settings',
   schoolName: 'School name',
-  phone: 'Phone',
+  phone_number: 'Phone',
   noDemands: 'No demands to work on yet',
   loadingDemands: 'Loading demands',
   getDemandsFailed:
@@ -82,7 +82,7 @@ export const website = {
   rejected: 'Rejected',
   first_name: 'First name',
   last_name: 'Last name',
-  date_of_birth: 'Birth date',
+  birthdate: 'Birth date',
   gender: 'Gender',
   national_id_number: 'Nid Number',
   school_name: 'School name',

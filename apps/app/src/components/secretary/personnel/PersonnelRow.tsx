@@ -20,7 +20,8 @@ export interface PersonnelInterface {
   first_name: string;
   last_name: string;
   email: string;
-  phone: string;
+  phone_number: string;
+  login_id: string;
   last_connected: Date;
   is_academic_service: boolean;
   is_coordo: boolean;
@@ -29,7 +30,7 @@ export interface PersonnelInterface {
   is_archived: boolean;
   national_id_number?: string;
   address?: string;
-  date_of_birth?: Date;
+  birthdate?: Date;
   gender?: 'M' | 'F';
 }
 
@@ -71,7 +72,7 @@ export default function PersonnelRow({
     first_name,
     last_name,
     email,
-    phone,
+    phone_number,
     last_connected,
     is_academic_service,
     is_coordo,
@@ -174,7 +175,7 @@ export default function PersonnelRow({
           {`${first_name} ${last_name}`}
         </TableCell>
         <TableCell>{email}</TableCell>
-        <TableCell>{phone}</TableCell>
+        <TableCell>{phone_number}</TableCell>
         <TableCell>{` ${formatTime(last_connected, {
           year: 'numeric',
           month: 'long',

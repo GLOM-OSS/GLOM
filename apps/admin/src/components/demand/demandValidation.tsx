@@ -27,8 +27,8 @@ interface Person {
   first_name: string;
   last_name: string;
   email: string;
-  phone: string;
-  date_of_birth: string;
+  phone_number: string;
+  birthdate: string;
   gender: 'Male' | 'Female';
   national_id_number: string;
 }
@@ -36,7 +36,7 @@ interface Person {
 interface School {
   school_name: string;
   email: string;
-  phone: string;
+  phone_number: string;
   code: string;
   school_status: 'validated' | 'progress' | 'rejected' | 'pending';
 }
@@ -52,7 +52,7 @@ export default function DemandValidation() {
     school: {
       school_name: '',
       email: '',
-      phone: '',
+      phone_number: '',
       code: '',
       school_status: 'pending',
     },
@@ -60,8 +60,8 @@ export default function DemandValidation() {
       first_name: '',
       last_name: '',
       email: '',
-      phone: '',
-      date_of_birth: '',
+      phone_number: '',
+      birthdate: '',
       gender: 'Male',
       national_id_number: '',
     },
@@ -92,15 +92,15 @@ export default function DemandValidation() {
         }) => {
           setDemand({
             person: {
-              date_of_birth: new Date(birthdate).toISOString(),
-              phone: phone_number,
+              birthdate: new Date(birthdate).toISOString(),
+              phone_number: phone_number,
               ...person,
             },
             school: {
               email,
               school_name,
               code: demand_code as string,
-              phone: school_phone_number,
+              phone_number: school_phone_number,
               school_status: demand_status as Status,
             },
           });

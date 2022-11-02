@@ -1,6 +1,7 @@
 import { http } from '@squoolr/axios';
-import { Person } from '../interfaces';
+import { Person, Personnel } from '../interfaces';
 
+export * from '../interfaces';
 export * from './configurators';
 export * from './coordinators';
 export * from './registries';
@@ -15,4 +16,16 @@ export async function editPersonnel(
   personData: Partial<Person>
 ) {
   await http.put(`/personnel/${login_id}/edit`, personData);
+}
+
+export async function getPersonnel(params: {
+  keywords?: string;
+  is_deleted?: boolean;
+}) {
+  const {
+    data: { personnel },
+  } = await http.get<{ personnel: Personnel[] }>(`/personnel/all`, {
+    params,
+  });
+  return personnel;
 }

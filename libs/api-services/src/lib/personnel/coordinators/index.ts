@@ -1,15 +1,16 @@
 import { http } from '@squoolr/axios';
+import { Personnel } from '../../interfaces';
 
 export async function getCoordinators(params: {
   keywords?: string;
   is_deleted?: boolean;
 }) {
   const {
-    data: { personnel },
-  } = await http.get(`/personnel/coordinators/all`, {
+    data: { coordinators },
+  } = await http.get<{ coordinators: Personnel[] }>(`/personnel/coordinators/all`, {
     params,
   });
-  return personnel;
+  return coordinators;
 }
 
 export async function getCoordinator(annual_coordinator_id: string) {

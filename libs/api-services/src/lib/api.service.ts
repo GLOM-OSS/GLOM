@@ -23,9 +23,9 @@ export async function getTeacherTypes() {
 
 export async function getTeacherGrades() {
   const {
-    data: { teaccher_grades },
+    data: { teacher_grades },
   } = await http.get(`/teacher-grades`);
-  return teaccher_grades;
+  return teacher_grades;
 }
 export function apiServices(): string {
   return 'api-services';

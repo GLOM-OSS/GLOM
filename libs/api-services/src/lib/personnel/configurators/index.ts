@@ -1,16 +1,16 @@
 import { http } from '@squoolr/axios';
-import { Person } from '../../interfaces';
+import { Person, Personnel } from '../../interfaces';
 
 export async function getConfigurators(params: {
   keywords?: string;
   is_deleted?: boolean;
 }) {
   const {
-    data: { personnel },
-  } = await http.get(`/personnel/configurators/all`, {
+    data: { configurators },
+  } = await http.get<{ configurators: Personnel[] }>(`/personnel/configurators/all`, {
     params,
   });
-  return personnel;
+  return configurators;
 }
 
 export async function getConfigurator(annual_configurator_id: string) {

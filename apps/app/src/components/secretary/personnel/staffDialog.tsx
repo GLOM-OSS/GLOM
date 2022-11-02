@@ -25,11 +25,12 @@ export interface StaffInterface {
   first_name: string;
   last_name: string;
   email: string;
-  phone: string;
+  phone_number: string;
+  login_id: string;
   national_id_number: string;
   address: string;
-  date_of_birth: Date;
-  gender: 'M' | 'F';
+  birthdate: Date;
+  gender: 'Male' | 'Female';
   is_archived: boolean;
 }
 
@@ -42,7 +43,7 @@ export default function StaffDialog({
   setIsEditing,
 }: {
   close: () => void;
-  handleConfirm: (values: StaffInterface, usage: 'edit'|'create') => void;
+  handleConfirm: (values: StaffInterface, usage: 'edit' | 'create') => void;
   isDialogOpen: boolean;
   isEditDialog?: boolean;
   activePersonnel?: StaffInterface;
@@ -53,37 +54,31 @@ export default function StaffDialog({
     close();
   };
 
-  const initialValues: StaffInterface = activePersonnel
-    ? {
-        ...activePersonnel,
-        date_of_birth: new Date(),
-        gender: 'M',
-        national_id_number: '000316122',
-      }
-    : {
-        first_name: '',
-        last_name: '',
-        email: '',
-        phone: '',
-        national_id_number: '',
-        address: '',
-        date_of_birth: new Date(),
-        gender: 'M',
-        is_archived: false,
-        personnel_code: '...',
-      };
+  const initialValues: StaffInterface = activePersonnel ?? {
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone_number: '',
+    national_id_number: '',
+    address: '',
+    birthdate: new Date(),
+    gender: 'Male',
+    is_archived: false,
+    personnel_code: '...',
+    login_id: '',
+  };
 
   const validationSchema = Yup.object().shape({
     first_name: Yup.string().required(),
     last_name: Yup.string().required(),
     email: Yup.string().email().required(),
-    phone: Yup.number().required(),
+    phone_number: Yup.number().required(),
     national_id_number: Yup.string().required(),
     address: isEditDialog ? Yup.string() : Yup.string().required(),
-    date_of_birth: Yup.date()
+    birthdate: Yup.date()
       .max(new Date(), formatMessage({ id: 'areYouATimeTraveler' }))
       .required(),
-    gender: Yup.string().oneOf(['M', 'F']).required(),
+    gender: Yup.string().oneOf(['Male', 'Female']).required(),
     is_archived: Yup.boolean(),
   });
 
@@ -91,7 +86,7 @@ export default function StaffDialog({
     initialValues,
     validationSchema,
     onSubmit: (values, { resetForm }) => {
-      handleConfirm(values, isEditDialog?'edit':'create');
+      handleConfirm(values, isEditDialog ? 'edit' : 'create');
       resetForm();
       closeDialog();
     },
@@ -200,13 +195,17 @@ export default function StaffDialog({
                 (!isEditDialog && activePersonnel !== undefined) ||
                 (activePersonnel !== undefined && activePersonnel.is_archived)
               }
-              placeholder={formatMessage({ id: 'phone' })}
-              label={formatMessage({ id: 'phone' })}
+              placeholder={formatMessage({ id: 'phone_number' })}
+              label={formatMessage({ id: 'phone_number' })}
               fullWidth
               required
-              error={Boolean(formik.touched.phone && formik.errors.phone)}
-              helperText={formik.touched.phone && formik.errors.phone}
-              {...formik.getFieldProps('phone')}
+              error={Boolean(
+                formik.touched.phone_number && formik.errors.phone_number
+              )}
+              helperText={
+                formik.touched.phone_number && formik.errors.phone_number
+              }
+              {...formik.getFieldProps('phone_number')}
             />
             <TextField
               disabled={
@@ -265,9 +264,9 @@ export default function StaffDialog({
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <MobileDatePicker
                 label={formatMessage({ id: 'date_of_birth' })}
-                value={formik.values.date_of_birth}
+                value={formik.values.birthdate}
                 onChange={(newValue) => {
-                  formik.setFieldValue('date_of_birth', newValue);
+                  formik.setFieldValue('birthdate', newValue);
                 }}
                 disabled={
                   (!isEditDialog && activePersonnel !== undefined) ||
@@ -280,15 +279,15 @@ export default function StaffDialog({
                     size="medium"
                     fullWidth
                     error={
-                      formik.touched.date_of_birth &&
-                      Boolean(formik.errors.date_of_birth)
+                      formik.touched.birthdate &&
+                      Boolean(formik.errors.birthdate)
                     }
                     helperText={
-                      formik.touched.date_of_birth &&
-                      formik.errors.date_of_birth !== undefined &&
-                      String(formik.errors.date_of_birth)
+                      formik.touched.birthdate &&
+                      formik.errors.birthdate !== undefined &&
+                      String(formik.errors.birthdate)
                     }
-                    {...formik.getFieldProps('date_of_birth')}
+                    {...formik.getFieldProps('birthdate')}
                   />
                 )}
               />
@@ -314,8 +313,8 @@ export default function StaffDialog({
               {...formik.getFieldProps('gender')}
             >
               {[
-                { value: 'M', text: 'Male' },
-                { value: 'F', text: 'Female' },
+                { value: 'Male', text: 'Male' },
+                { value: 'Female', text: 'Female' },
               ].map(({ value, text }, index) => (
                 <MenuItem key={index} value={value}>
                   {formatMessage({ id: text })}

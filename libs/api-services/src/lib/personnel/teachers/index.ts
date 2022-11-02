@@ -1,23 +1,23 @@
 import { http } from '@squoolr/axios';
-import { Teacher } from '../../interfaces';
+import { Personnel, Teacher } from '../../interfaces';
 
 export async function getTeachers(params: {
   keywords?: string;
   is_deleted?: boolean;
 }) {
   const {
-    data: { personnel },
-  } = await http.get(`/personnel/teachers/all`, {
+    data: { teachers },
+  } = await http.get<{ teachers: Personnel[] }>(`/personnel/teachers/all`, {
     params,
   });
-  return personnel;
+  return teachers;
 }
 
 export async function getTeacher(annual_teacher_id: string) {
   const {
-    data: { personnel },
+    data: { teacher },
   } = await http.get(`/personnel/teachers/${annual_teacher_id}`);
-  return personnel;
+  return teacher;
 }
 
 export async function editTeacher(

@@ -1,16 +1,16 @@
 import { http } from '@squoolr/axios';
-import { Person } from '../../interfaces';
+import { Person, Personnel } from '../../interfaces';
 
-export async function getRegistries(params: {
+export async function getRegistries(params?: {
   keywords?: string;
   is_deleted?: boolean;
 }) {
   const {
-    data: { personnel },
-  } = await http.get(`/personnel/registries/all`, {
+    data: { registries },
+  } = await http.get<{ registries: Personnel[] }>(`/personnel/registries/all`, {
     params,
   });
-  return personnel;
+  return registries;
 }
 
 export async function getRegistry(annual_registry_id: string) {
