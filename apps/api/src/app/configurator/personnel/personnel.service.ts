@@ -650,19 +650,11 @@ export class PersonnelService {
   ) {
     switch (role) {
       case Role.CONFIGURATOR: {
-        const configrator = await this.annualConfiguratorService.findUnique({
-          select: { is_deleted: true, matricule: true },
-          where: { annual_configurator_id: annual_personnel_id },
-        });
         await this.annualConfiguratorService.update({
           data: {
             is_deleted: false,
-            AnnualConfiguratorAudits: {
-              create: {
-                ...configrator,
-                audited_by,
-              },
-            },
+            deleted_at: new Date(),
+            deleted_by: audited_by,
           },
           where: { annual_configurator_id: annual_personnel_id },
         });

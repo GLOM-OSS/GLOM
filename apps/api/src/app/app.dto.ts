@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Gender } from '@prisma/client';
-import { IsDateString, IsEmail, IsEnum, IsString } from 'class-validator';
+import { IsDateString, IsEmail, IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class AcademicYearQueryDto {
   @ApiProperty()
@@ -33,7 +33,8 @@ export class PersonPostDto {
   @IsEnum(Gender)
   gender: Gender;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
   address?: string;
 

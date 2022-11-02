@@ -82,27 +82,7 @@ export class MajorPostDto {
   classrooms: ClassroomPost[];
 }
 
-export class AnnualMajorPutDto {
-  @IsString()
-  @IsOptional()
-  @ApiProperty()
-  major_name?: string;
-
-  @IsString()
-  @IsOptional()
-  @ApiProperty()
-  major_acronym?: string;
-
-  @IsString()
-  @IsOptional()
-  @ApiProperty()
-  department_code?: string;
-
-  @IsBoolean()
-  @IsOptional()
-  @ApiProperty({ required: false })
-  is_deleted?: boolean;
-}
+export class MajorPutDto extends PartialType(MajorPostDto) {}
 
 export class MajorQueryDto {
   @IsString()

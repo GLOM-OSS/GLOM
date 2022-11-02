@@ -82,6 +82,9 @@ export class DemandService {
     );
     const school_code = await this.codeGenerator.getSchoolCode(school_acronym);
     const annual_configurator_id = randomUUID();
+    const matricule = `${school_acronym}${this.codeGenerator.getNumberString(
+      1
+    )}`;
     await this.prismaService.$transaction([
       this.schoolService.create({
         data: {
@@ -101,6 +104,7 @@ export class DemandService {
       }),
       this.annualConfiguratorService.create({
         data: {
+          matricule,
           is_sudo: true,
           annual_configurator_id,
           Login: {
