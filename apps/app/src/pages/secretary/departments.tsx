@@ -372,7 +372,7 @@ export default function Departments({
     switch (usage) {
       case 'department': {
         editDepartment(activeAcademicItem?.item_code as string, {
-          is_deleted: activeAcademicItem?.is_archived,
+          is_deleted: !activeAcademicItem?.is_archived,
         })
           .then(() => {
             notif.update({
@@ -412,7 +412,7 @@ export default function Departments({
       }
       case 'major': {
         editMajor(activeAcademicItem?.item_code as string, {
-          is_deleted: activeAcademicItem?.is_archived,
+          is_deleted: !activeAcademicItem?.is_archived,
         })
           .then(() => {
             notif.update({
