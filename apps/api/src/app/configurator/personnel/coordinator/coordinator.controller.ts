@@ -12,7 +12,7 @@ import {
     UseGuards
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { DeserializeSessionData, Role } from 'apps/api/src/utils/types';
+import { DeserializeSessionData, Role } from '../../../../utils/types';
 import { Request } from 'express';
 import { Roles } from '../../../app.decorator';
 import { AuthenticatedGuard } from '../../../auth/auth.guard';

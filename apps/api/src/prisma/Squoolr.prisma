@@ -199,16 +199,19 @@ model Login {
 }
 
 model AnnualConfigurator {
-    annual_configurator_id String              @id @default(uuid()) @db.VarChar(36)
-    is_sudo                Boolean             @default(false) @db.TinyInt
-    deleted_at             DateTime?           @db.DateTime(0)
-    is_deleted             Boolean             @default(false) @db.TinyInt
-    login_id               String              @db.VarChar(36)
-    Login                  Login               @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
-    added_by               String?
-    AnnualConfigurator     AnnualConfigurator? @relation(name: "AddedBy_AnnualConfigurator", fields: [added_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
-    academic_year_id       String              @db.VarChar(36)
-    AcademicYear           AcademicYear        @relation(name: "Configurator_AcademiqueYear", fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_configurator_id    String              @id @default(uuid()) @db.VarChar(36)
+    is_sudo                   Boolean             @default(false) @db.TinyInt
+    matricule                 String              @unique @db.VarChar(20)
+    is_deleted                Boolean             @default(false) @db.TinyInt
+    login_id                  String              @db.VarChar(36)
+    Login                     Login               @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+    deleted_at                DateTime?           @db.DateTime(0)
+    deleted_by                String?
+    AnnualConfiguratorAuditer AnnualConfigurator? @relation(name: "DeletedBy_AnnualConfigurator", fields: [deleted_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+    added_by                  String?
+    AnnualConfigurator        AnnualConfigurator? @relation(name: "AddedBy_AnnualConfigurator", fields: [added_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+    academic_year_id          String              @db.VarChar(36)
+    AcademicYear              AcademicYear        @relation(name: "Configurator_AcademiqueYear", fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
 
     Majors                        Major[]
     Classrooms                    Classroom[]
@@ -230,6 +233,7 @@ model AnnualConfigurator {
     AnnualClassroomDivisionAudits AnnualClassroomDivisionAudit[]
     AnnualRegistryAudit           AnnualRegistryAudit[]
     TeacherAudits                 TeacherAudit[]
+    AnnualConfiguratorAuditers    AnnualConfigurator[]           @relation(name: "DeletedBy_AnnualConfigurator")
 
     @@unique([login_id, academic_year_id])
 }
@@ -268,6 +272,7 @@ model AnnualStudent {
 model AnnualRegistry {
     annual_registry_id String             @id @default(uuid()) @db.VarChar(36)
     is_deleted         Boolean            @default(false) @db.TinyInt
+    matricule          String             @unique @db.VarChar(75)
     private_code       String             @db.VarChar(75)
     academic_year_id   String
     AcademicYear       AcademicYear       @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
@@ -312,6 +317,7 @@ model Teacher {
     teacher_id            String      @id @default(uuid()) @db.VarChar(36)
     has_tax_payers_card   Boolean     @default(false)
     tax_payer_card_number String?
+    matricule             String      @unique @db.VarChar(75)
     private_code          String      @db.VarChar(75)
     teacher_type_id       String
     TeacherType           TeacherType @relation(fields: [teacher_type_id], references: [teacher_type_id], onDelete: Cascade, onUpdate: Cascade)

@@ -20,6 +20,7 @@ export interface Person {
   email: string;
   phone_number: string;
   login_id: string;
+  personnel_code: string;
   annual_configurator_id?: string;
   annual_registry_id?: string;
   annual_teacher_id?: string;
@@ -110,15 +111,17 @@ export class PersonnelService {
         const registries = await this.annualRegistryService.findMany({
           select: {
             ...select,
+            matricule: true,
             annual_registry_id: true,
           },
           where,
         });
         person = registries.map(
-          ({ annual_registry_id, Login: { login_id, Person } }) => ({
+          ({ annual_registry_id, matricule, Login: { login_id, Person } }) => ({
             login_id,
             ...Person,
             annual_registry_id,
+            personnel_code: matricule,
           })
         );
         break;
@@ -127,15 +130,21 @@ export class PersonnelService {
         const teachers = await this.annualTeacherService.findMany({
           select: {
             ...select,
+            Teacher: { select: { matricule: true } },
             annual_teacher_id: true,
           },
           where,
         });
         person = teachers.map(
-          ({ annual_teacher_id, Login: { login_id, Person } }) => ({
+          ({
+            annual_teacher_id,
+            Teacher: { matricule },
+            Login: { login_id, Person },
+          }) => ({
             login_id,
             ...Person,
             annual_teacher_id,
+            personnel_code: matricule,
           })
         );
         break;
@@ -144,15 +153,21 @@ export class PersonnelService {
         const configurators = await this.annualConfiguratorService.findMany({
           select: {
             ...select,
+            matricule: true,
             annual_configurator_id: true,
           },
           where,
         });
         person = configurators.map(
-          ({ annual_configurator_id, Login: { login_id, Person } }) => ({
+          ({
+            annual_configurator_id,
+            matricule,
+            Login: { login_id, Person },
+          }) => ({
             login_id,
             ...Person,
             annual_configurator_id,
+            personnel_code: matricule,
           })
         );
         break;
@@ -165,6 +180,7 @@ export class PersonnelService {
               AnnualTeacher: {
                 select: {
                   ...select,
+                  Teacher: { select: { matricule: true } },
                   annual_teacher_id: true,
                 },
               },
@@ -178,12 +194,14 @@ export class PersonnelService {
           ({
             AnnualTeacher: {
               annual_teacher_id,
+              Teacher: { matricule },
               Login: { login_id, Person },
             },
           }) => ({
             login_id,
             ...Person,
             annual_teacher_id,
+            personnel_code: matricule,
           })
         );
         break;
@@ -471,8 +489,10 @@ export class PersonnelService {
       },
     });
     const login_id = login?.login_id ?? randomUUID();
+    const matricule = await this.codeGenerator.getPersonnel(school_id, role);
 
     const data = {
+      matricule,
       Login: {
         connectOrCreate: {
           create: {
@@ -550,11 +570,11 @@ export class PersonnelService {
         where: {
           OR: [
             ...classroom_division_ids.map((code) => ({
-              AnnualClassroom: {//TODO change this when handling classroom divisions
-                classroom_code: code
-              }
+              AnnualClassroom: {
+                //TODO change this when handling classroom divisions
+                classroom_code: code,
+              },
             })),
-            
           ],
         },
       });
@@ -630,8 +650,20 @@ export class PersonnelService {
   ) {
     switch (role) {
       case Role.CONFIGURATOR: {
+        const configrator = await this.annualConfiguratorService.findUnique({
+          select: { is_deleted: true, matricule: true },
+          where: { annual_configurator_id: annual_personnel_id },
+        });
         await this.annualConfiguratorService.update({
-          data: { is_deleted: false, deleted_at: new Date() },
+          data: {
+            is_deleted: false,
+            AnnualConfiguratorAudits: {
+              create: {
+                ...configrator,
+                audited_by,
+              },
+            },
+          },
           where: { annual_configurator_id: annual_personnel_id },
         });
         return;

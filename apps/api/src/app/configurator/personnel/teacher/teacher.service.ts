@@ -78,6 +78,7 @@ export class TeacherService {
 
     const login_id = login?.login_id ?? randomUUID();
     const password = Math.random().toString(36).slice(2).toUpperCase();
+    const matricule = await this.codeGenerator.getTeacherCode(school_id)
     const private_code = bcrypt.hashSync(
       this.codeGenerator.getNumberString(Math.floor(Math.random() * 10000)),
       Number(process.env.SALT)
@@ -90,6 +91,7 @@ export class TeacherService {
         TeachingGrade: { connect: { teaching_grade_id } },
         Teacher: {
           create: {
+            matricule,
             private_code,
             tax_payer_card_number,
             has_tax_payers_card,
