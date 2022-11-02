@@ -19,7 +19,7 @@ import {
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { generateShort, random } from '@squoolr/utils';
+import { generateShort } from '@squoolr/utils';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
@@ -198,11 +198,23 @@ export default function MajorDialog({
     const notif = new useNotification();
     setNotifications([...notifs, { notif, usage: 'major' }]);
     getMajorDetails(editableMajorCode as string)
-      .then(({ levelFees, ...major }) => {
-        setIsMajorDataLoading(false);
-        setMajor(major);
-        setLevelFees(levelFees);
-      })
+      .then(
+        ({
+          levelFees,
+          major_name: item_name,
+          major_acronym: item_acronym,
+          major_code: item_code,
+          ...major
+        }) => {
+          setIsMajorDataLoading(false);
+          setMajor({
+            item_name,
+            item_acronym,
+            ...major,
+          });
+          setLevelFees(levelFees);
+        }
+      )
       .catch((error) => {
         notif.notify({ render: formatMessage({ id: 'loadingMajor' }) });
         notif.update({
@@ -435,10 +447,10 @@ export default function MajorDialog({
                         index + 1
                       )
                     }
-                    value={
-                      Number(levelFees.find(({ level }) => level === index + 1)
-                        ?.registration_fee)
-                    }
+                    value={Number(
+                      levelFees.find(({ level }) => level === index + 1)
+                        ?.registration_fee
+                    )}
                     required
                     disabled={isMajorDataLoading}
                     color="primary"

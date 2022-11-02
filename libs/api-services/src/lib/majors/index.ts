@@ -47,6 +47,11 @@ export async function editMajor(
     major_acronym?: string;
     department_code?: string;
     is_deleted?: boolean;
+    classrooms?: {
+      level: number;
+      total_fee_due: number;
+      registration_fee: number;
+    }[];
   }
 ) {
   await http.put(`/majors/${major_code}/edit`, majorData);

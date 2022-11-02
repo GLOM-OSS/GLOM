@@ -9,7 +9,7 @@ import {
   MenuItem,
   TextField,
   Tooltip,
-  Typography,
+  Typography
 } from '@mui/material';
 import {
   createDepartment,
@@ -17,11 +17,10 @@ import {
   editDepartment,
   editMajor,
   getDepartments,
-  getMajors,
+  getMajors
 } from '@squoolr/api-services';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
@@ -30,10 +29,10 @@ import ConfirmArchiveDialog from '../../components/secretary/confirmArchiveDialo
 import ConfirmEditDialog from '../../components/secretary/confirmEditDepartmentDialog';
 import MajorDialog, {
   FeeSetting,
-  MajorInterface,
+  MajorInterface
 } from '../../components/secretary/majorDialog';
 import NewDepartmentDialog, {
-  newDepartmentInterface,
+  newDepartmentInterface
 } from '../../components/secretary/newDepartmentDialog';
 
 export interface DepartmentInterface {
@@ -292,13 +291,12 @@ export default function Departments({
         id: activeAcademicItem ? 'editingMajor' : 'creatingMajor',
       }),
     });
-
     if (activeAcademicItem) {
       editMajor(activeAcademicItem.item_code, {
-        major_name: activeAcademicItem.item_name,
-        department_code: activeAcademicItem.item_code,
-        is_deleted: activeAcademicItem.is_archived,
-        major_acronym: activeAcademicItem.item_acronym,
+        major_name: value.values.item_name,
+        department_code: value.values.department_code,
+        major_acronym: value.values.item_acronym,
+        classrooms: value.levelFees
       })
         .then(() => {
           notif.update({
