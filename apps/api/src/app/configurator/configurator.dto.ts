@@ -82,7 +82,14 @@ export class MajorPostDto {
   classrooms: ClassroomPost[];
 }
 
-export class MajorPutDto extends PartialType(MajorPostDto) {}
+export class MajorPutDto extends OmitType(PartialType(MajorPostDto), [
+  'cycle_id',
+]) {
+  @IsBoolean()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  is_deleted?: boolean;
+}
 
 export class MajorQueryDto {
   @IsString()

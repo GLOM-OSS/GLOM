@@ -224,8 +224,13 @@ export class MajorService {
     academic_year_id: string,
     audited_by: string
   ) {
-    const { major_acronym, major_name, department_code, classrooms } =
-      updateData;
+    const {
+      major_acronym,
+      major_name,
+      department_code,
+      classrooms,
+      is_deleted,
+    } = updateData;
 
     const annualMajorAudit = await this.annualMajorService.findFirst({
       select: {
@@ -259,6 +264,7 @@ export class MajorService {
     } = annualMajorAudit;
     let updateInput: Prisma.AnnualMajorUpdateInput = {
       major_name,
+      is_deleted,
       AnnualMajorAudits: {
         create: {
           audited_by,
@@ -267,8 +273,8 @@ export class MajorService {
       },
     };
     if (
-      major_acronym !== annualMajorAudit.major_acronym ||
-      department_code !== Department.department_code
+      (major_acronym && major_acronym !== annualMajorAudit.major_acronym) ||
+      (department_code && department_code !== Department.department_code)
     ) {
       const newMajorCode = await this.codeGenerator.getMajorCode(
         major_acronym,
@@ -297,7 +303,7 @@ export class MajorService {
         },
       };
     }
-    this.annualMajorService.update({
+    await this.annualMajorService.update({
       data: updateInput,
       where: { annual_major_id },
     });
