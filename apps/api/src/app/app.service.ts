@@ -16,7 +16,7 @@ export class AppService {
         this.seedCycles();
       }
     });
-    this.prismaService.teacherGrade.count({}).then((teacherGradeCount) => {
+    this.prismaService.teachingGrade.count({}).then((teacherGradeCount) => {
       if (teacherGradeCount === 0) {
         this.seedTeacherGrades();
       }
@@ -203,13 +203,13 @@ export class AppService {
   }
 
   async seedTeacherGrades() {
-    await this.prismaService.teacherGrade.createMany({
+    await this.prismaService.teachingGrade.createMany({
       data: [
-        { teacher_grade: 'CLASS_C' },
-        { teacher_grade: 'CLASS_D' },
-        { teacher_grade: 'LECTURER' },
-        { teacher_grade: 'COURSE_INSTRUTOR' },
-        { teacher_grade: 'ASSISTANT' },
+        { teaching_grade: 'CLASS_C' },
+        { teaching_grade: 'CLASS_D' },
+        { teaching_grade: 'LECTURER' },
+        { teaching_grade: 'COURSE_INSTRUTOR' },
+        { teaching_grade: 'ASSISTANT' },
       ],
     });
   }
@@ -228,7 +228,7 @@ export class AppService {
     return this.prismaService.cycle.findMany();
   }
   getTeacherGrades() {
-    return this.prismaService.teacherGrade.findMany();
+    return this.prismaService.teachingGrade.findMany();
   }
   getTeacherTypes() {
     return this.prismaService.teacherType.findMany();

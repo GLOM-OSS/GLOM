@@ -29,7 +29,7 @@ model Person {
     birthdate          DateTime @db.DateTime(0)
     gender             Gender
     national_id_number String   @db.VarChar(15)
-    address            String?  @db.VarChar(20)
+    address            String?  @db.VarChar(75)
     longitude          Int?
     latitude           Int?
     email              String   @unique @db.VarChar(50)
@@ -300,18 +300,18 @@ model TeacherType {
     TeacherAudits TeacherAudit[]
 }
 
-model TeacherGrade {
-    teacher_grade_id String   @id @default(uuid()) @db.VarChar(36)
-    teacher_grade    String //professeur de classe C, professeur de class D, Maitre des conferences, charge de cours, assistant
-    created_at       DateTime @default(now()) @db.DateTime(0)
+model TeachingGrade {
+    teaching_grade_id String   @id @default(uuid()) @db.VarChar(36)
+    teaching_grade    String //professeur de classe C, professeur de class D, Maitre des conferences, charge de cours, assistant
+    created_at        DateTime @default(now()) @db.DateTime(0)
 
     AnnualTeachers AnnualTeacher[]
 }
 
 model Teacher {
     teacher_id            String      @id @default(uuid()) @db.VarChar(36)
-    has_tax_payer_card    Boolean     @default(false)
-    tax_payer_card_number Int?
+    has_tax_payers_card   Boolean     @default(false)
+    tax_payer_card_number String?
     private_code          String      @db.VarChar(75)
     teacher_type_id       String
     TeacherType           TeacherType @relation(fields: [teacher_type_id], references: [teacher_type_id], onDelete: Cascade, onUpdate: Cascade)
@@ -322,8 +322,8 @@ model Teacher {
 
 model TeacherAudit {
     teacher_audit_id      String             @id @default(uuid()) @db.VarChar(36)
-    has_tax_payer_card    Boolean            @default(false)
-    tax_payer_card_number Int
+    has_tax_payers_card   Boolean            @default(false)
+    tax_payer_card_number String?
     private_code          String             @db.VarChar(75)
     teacher_type_id       String
     TeacherType           TeacherType        @relation(fields: [teacher_type_id], references: [teacher_type_id], onDelete: Cascade, onUpdate: Cascade)
@@ -340,8 +340,8 @@ model AnnualTeacher {
     has_signed_convention Boolean            @default(false) @db.TinyInt
     is_deleted            Boolean            @default(false) @db.TinyInt
     created_at            DateTime           @default(now()) @db.DateTime(0)
-    teacher_grade_id      String
-    TeacherGrade          TeacherGrade       @relation(fields: [teacher_grade_id], references: [teacher_grade_id], onDelete: Cascade, onUpdate: Cascade)
+    teaching_grade_id     String
+    TeachingGrade         TeachingGrade      @relation(fields: [teaching_grade_id], references: [teaching_grade_id], onDelete: Cascade, onUpdate: Cascade)
     academic_year_id      String
     AcademicYear          AcademicYear       @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
     teacher_id            String

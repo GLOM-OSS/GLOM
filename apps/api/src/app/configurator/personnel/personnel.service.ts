@@ -26,7 +26,7 @@ export interface Person {
 }
 
 export interface Personnel extends Person {
-  last_log: Date;
+  last_connected: Date;
   roles: RoleShort[];
 }
 
@@ -64,7 +64,7 @@ export class PersonnelService {
     type: Role,
     academic_year_id: string,
     { keywords, is_deleted }: PersonnelQueryDto
-  ): Promise<Person[]> {
+  ): Promise<Personnel[]> {
     const where = {
       academic_year_id,
       ...(keywords
@@ -202,7 +202,7 @@ export class PersonnelService {
         login_id,
         ...personData,
         roles: await this.getRoles(login_id),
-        last_log: await this.getLastLog(login_id),
+        last_connected: await this.getLastLog(login_id),
       });
     }
     return personnel;
@@ -246,7 +246,7 @@ export class PersonnelService {
             ...select,
             has_signed_convention: true,
             origin_institute: true,
-            teacher_grade_id: true,
+            teaching_grade_id: true,
             hourly_rate: true,
             Teacher: true,
             annual_teacher_id: true,
@@ -344,7 +344,7 @@ export class PersonnelService {
               teacher_id: true,
               private_code: true,
               teacher_type_id: true,
-              has_tax_payer_card: true,
+              has_tax_payers_card: true,
               tax_payer_card_number: true,
             },
           },
@@ -456,7 +456,7 @@ export class PersonnelService {
     });
     if (person?.phone_number)
       throw new HttpException(
-        JSON.stringify(ERR03('phone')),
+        JSON.stringify(ERR03('phone_number')),
         HttpStatus.AMBIGUOUS
       );
 
@@ -549,9 +549,12 @@ export class PersonnelService {
         },
         where: {
           OR: [
-            ...classroom_division_ids.map((id) => ({
-              annual_classroom_division_id: id,
+            ...classroom_division_ids.map((code) => ({
+              AnnualClassroom: {//TODO change this when handling classroom divisions
+                classroom_code: code
+              }
             })),
+            
           ],
         },
       });

@@ -29,11 +29,12 @@ export class TeacherService {
       email,
       gender,
       last_name,
+      address,
       national_id_number,
-      teacher_grade_id,
+      teaching_grade_id,
       teacher_type_id,
       tax_payer_card_number,
-      has_tax_payer_card,
+      has_tax_payers_card,
       origin_institute,
       has_signed_convention,
       hourly_rate,
@@ -49,7 +50,7 @@ export class TeacherService {
     });
     if (person?.phone_number)
       throw new HttpException(
-        JSON.stringify(ERR03('phone')),
+        JSON.stringify(ERR03('phone_number')),
         HttpStatus.AMBIGUOUS
       );
 
@@ -86,12 +87,12 @@ export class TeacherService {
         hourly_rate,
         origin_institute,
         has_signed_convention,
-        TeacherGrade: { connect: { teacher_grade_id } },
+        TeachingGrade: { connect: { teaching_grade_id } },
         Teacher: {
           create: {
             private_code,
             tax_payer_card_number,
-            has_tax_payer_card,
+            has_tax_payers_card,
             TeacherType: { connect: { teacher_type_id } },
           },
         },
@@ -109,6 +110,7 @@ export class TeacherService {
                   create: {
                     email,
                     gender,
+                    address,
                     last_name,
                     birthdate,
                     first_name,
@@ -136,10 +138,10 @@ export class TeacherService {
       gender,
       last_name,
       national_id_number,
-      teacher_grade_id,
+      teaching_grade_id,
       teacher_type_id,
       tax_payer_card_number,
-      has_tax_payer_card,
+      has_tax_payers_card,
       origin_institute,
       has_signed_convention,
       hourly_rate,
@@ -180,7 +182,7 @@ export class TeacherService {
         has_signed_convention,
         origin_institute,
         hourly_rate,
-        TeacherGrade: { update: { teacher_grade_id } },
+        TeachingGrade: { update: { teaching_grade_id } },
         AnnualTeacherAudits: {
           create: {
             ...annualTeacher,
@@ -190,7 +192,7 @@ export class TeacherService {
         Teacher: {
           update: {
             tax_payer_card_number,
-            has_tax_payer_card,
+            has_tax_payers_card,
             teacher_type_id,
             TeacherAudits: {
               create: {

@@ -5,7 +5,7 @@ import { IsDateString, IsEmail, IsEnum, IsString } from 'class-validator';
 export class AcademicYearQueryDto {
   @ApiProperty()
   @IsString()
-  academic_year_id: string
+  academic_year_id: string;
 }
 
 export class PersonPostDto {
@@ -32,6 +32,10 @@ export class PersonPostDto {
   @ApiProperty()
   @IsEnum(Gender)
   gender: Gender;
+
+  @ApiProperty()
+  @IsString()
+  address?: string;
 
   @ApiProperty()
   @IsString()

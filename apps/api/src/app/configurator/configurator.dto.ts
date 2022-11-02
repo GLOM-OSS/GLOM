@@ -171,7 +171,7 @@ export class StaffPostData extends OmitType(PersonPostDto, ['password']) {}
 export class TeacherPostDto extends StaffPostData {
   @IsUUID()
   @ApiProperty()
-  teacher_grade_id: string;
+  teaching_grade_id: string;
 
   @IsUUID()
   @ApiProperty()
@@ -191,12 +191,12 @@ export class TeacherPostDto extends StaffPostData {
 
   @IsBoolean()
   @ApiProperty()
-  has_tax_payer_card: boolean;
+  has_tax_payers_card: boolean;
 
-  @IsNumber()
+  @IsString()
   @IsOptional()
   @ApiProperty({ required: false })
-  tax_payer_card_number?: number;
+  tax_payer_card_number?: string;
 }
 
 export class CoordinatorPostDto {
