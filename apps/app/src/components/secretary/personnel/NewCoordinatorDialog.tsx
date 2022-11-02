@@ -13,17 +13,19 @@ import {
   MenuItem,
   OutlinedInput,
   Select,
-  TextField,
+  TextField
 } from '@mui/material';
+import {
+  getClassrooms as fetchClassrooms, getTeachers as fetchTeachers
+} from '@squoolr/api-services';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { theme } from '@squoolr/theme';
 import {
   ErrorMessage,
   filterNotificationUsage,
   NotificationInterface,
-  useNotification,
+  useNotification
 } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { ClassroomInterface } from '../classrooms';
@@ -48,7 +50,6 @@ export default function NewCoordinatorDialog({
     setSelectedTeacherId('');
   };
 
-  //TODO: FETCH TEACHERS with is_archived as false
   const [teachers, setTeachers] = useState<PersonnelInterface[]>([]);
   const [classrooms, setClassrooms] = useState<ClassroomInterface[]>([]);
   const [selectedClassrooms, setSelectedClassrooms] = useState<
@@ -70,71 +71,40 @@ export default function NewCoordinatorDialog({
       filterNotificationUsage('loadTeachers', notif, notifications)
     );
 
-    //TODO: call api here to load teachers with data activeTabItem:teachers and showArchived:false
-    setTimeout(() => {
-      if (random() > 5) {
-        const newTeachers: PersonnelInterface[] = [
-          {
-            personnel_id: 'PersonnelInterfaceshess',
-            first_name: 'Kouatchoua',
-            personnel_code: 'shgels',
-            last_name: 'Tchakoumi Lorrain',
-            email: 'lorraintchakoumi@gmail.com',
-            phone: '657140183',
-            last_connected: new Date(),
-            is_coordo: false,
-            is_academic_service: false,
-            is_teacher: false,
-            is_secretariat: true,
-            is_archived: true,
-          },
-          {
-            personnel_id: 'PersonnelInterfaceshses',
-            first_name: 'Kouatchoua',
-            personnel_code: 'shelfs',
-            last_name: 'Tchakoumi Lorrain',
-            email: 'lorraintchakoumi@gmail.com',
-            phone: '657140183',
-            last_connected: new Date(),
-            is_coordo: false,
-            is_academic_service: false,
-            is_teacher: true,
-            is_secretariat: true,
-            is_archived: false,
-          },
-          {
-            personnel_id: 'PersonnelInterfacesshes',
-            first_name: 'Kouatchoua',
-            personnel_code: 'sdhels',
-            last_name: 'Tchakoumi Lorrain',
-            email: 'lorraintchakoumi@gmail.com',
-            phone: '657140183',
-            last_connected: new Date(),
-            is_coordo: true,
-            is_academic_service: true,
-            is_teacher: true,
-            is_secretariat: false,
-            is_archived: false,
-          },
-          {
-            personnel_id: 'PersonnelInterfacesshess',
-            first_name: 'Kouatchoua',
-            personnel_code: 'shelhs',
-            last_name: 'Tchakoumi Lorrain',
-            email: 'lorraintchakoumi@gmail.com',
-            phone: '657140183',
-            last_connected: new Date(),
-            is_coordo: true,
-            is_academic_service: true,
-            is_teacher: true,
-            is_secretariat: true,
-            is_archived: true,
-          },
-        ];
-        setTeachers(newTeachers);
+    fetchTeachers({ is_deleted: false })
+      .then((teachers) => {
+        setTeachers(
+          teachers.map(
+            ({
+              annual_teacher_id,
+              phone_number,
+              first_name,
+              email,
+              last_connected,
+              last_name,
+              login_id,
+              roles,
+            }) => ({
+              personnel_id: annual_teacher_id as string,
+              personnel_code: annual_teacher_id as string,
+              first_name,
+              last_connected,
+              last_name,
+              email,
+              login_id,
+              is_academic_service: roles.includes('S.A.'),
+              is_coordo: roles.includes('Co'),
+              is_secretariat: roles.includes('Se'),
+              is_teacher: roles.includes('Te'),
+              phone_number: phone_number,
+              is_archived: false,
+            })
+          )
+        );
         setAreTeachersLoading(false);
         notif.dismiss();
-      } else {
+      })
+      .catch((error) => {
         notif.notify({ render: formatMessage({ id: 'loadingTeachers' }) });
         notif.update({
           type: 'ERROR',
@@ -142,15 +112,15 @@ export default function NewCoordinatorDialog({
             <ErrorMessage
               retryFunction={getTeachers}
               notification={notif}
-              //TODO: MESSAGE SHOULD COME FROM BACKEND
-              message={formatMessage({ id: 'failedToLoadTeachers' })}
+              message={
+                error?.message || formatMessage({ id: 'failedToLoadTeachers' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
   const getClassrooms = () => {
     setAreClassroomsLoading(true);
@@ -160,43 +130,13 @@ export default function NewCoordinatorDialog({
       filterNotificationUsage('loadClassrooms', notif, notifications)
     );
 
-    //TODO: call api here to load classrooms with data showArchived:false
-    setTimeout(() => {
-      if (random() > 5) {
-        const newClassrooms: ClassroomInterface[] = [
-          {
-            classroom_code: 'cmgr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-9g93',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-g993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmrg-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-        ];
-        setClassrooms(newClassrooms);
+    fetchClassrooms({ is_deleted: false })
+      .then((classrooms) => {
+        setClassrooms(classrooms);
         setAreClassroomsLoading(false);
         notif.dismiss();
-      } else {
+      })
+      .catch((error) => {
         notif.notify({ render: formatMessage({ id: 'loadingClassrooms' }) });
         notif.update({
           type: 'ERROR',
@@ -204,15 +144,16 @@ export default function NewCoordinatorDialog({
             <ErrorMessage
               retryFunction={getClassrooms}
               notification={notif}
-              //TODO: MESSAGE SHOULD COME FROM BACKEND
-              message={formatMessage({ id: 'failedToLoadClassrooms' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'failedToLoadClassrooms' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
