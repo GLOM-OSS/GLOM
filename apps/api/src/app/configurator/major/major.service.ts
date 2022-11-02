@@ -30,6 +30,7 @@ export class MajorService {
     this.annualMajorService = prismaService.annualMajor;
     this.departmentService = prismaService.department;
     this.annualClassroomService = prismaService.annualClassroom;
+    this.annualClassroomAuditService = prismaService.annualClassroomAudit;
     this.annualClassroomDivisionService = prismaService.annualClassroomDivision;
   }
 
@@ -309,9 +310,6 @@ export class MajorService {
               annual_classroom_id: true,
               registration_fee: true,
               total_fee_due: true,
-              classroom_acronym: true,
-              classroom_code: true,
-              classroom_name: true,
               is_deleted: true,
             },
             where: {
