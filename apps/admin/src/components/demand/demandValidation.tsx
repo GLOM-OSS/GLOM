@@ -17,7 +17,7 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import ConfirmProgressDialog from './ConfirmProgressDialog';
 import { Status } from './demands';
 import RejectDemandDialog from './rejectDailog';
@@ -72,6 +72,7 @@ export default function DemandValidation() {
 
   const [notifications, setNotifications] = useState<useNotification[]>();
   const { demand_code } = useParams();
+  const navigate = useNavigate();
   const getDemandDetails = () => {
     setIsDemandLoading(true);
     if (notifications)
@@ -80,8 +81,9 @@ export default function DemandValidation() {
     if (notifications) setNotifications([...notifications, notif]);
     else setNotifications([notif]);
     getDemandInfo(demand_code as string)
-      .then(
-        ({
+      .then((demandDetails) => {
+        if (!demandDetails) return navigate('/management/demands');
+        const {
           person: { birthdate, phone_number, ...person },
           school: {
             demand_status,
@@ -89,26 +91,25 @@ export default function DemandValidation() {
             school_email: email,
             school_phone_number,
           },
-        }) => {
-          setDemand({
-            person: {
-              birthdate: new Date(birthdate).toISOString(),
-              phone_number: phone_number,
-              ...person,
-            },
-            school: {
-              email,
-              school_name,
-              code: demand_code as string,
-              phone_number: school_phone_number,
-              school_status: demand_status as Status,
-            },
-          });
-          setIsDemandLoading(false);
-          notif.dismiss();
-          setNotifications([]);
-        }
-      )
+        } = demandDetails;
+        setDemand({
+          person: {
+            birthdate: new Date(birthdate).toISOString(),
+            phone_number: phone_number,
+            ...person,
+          },
+          school: {
+            email,
+            school_name,
+            code: demand_code as string,
+            phone_number: school_phone_number,
+            school_status: demand_status as Status,
+          },
+        });
+        setIsDemandLoading(false);
+        notif.dismiss();
+        setNotifications([]);
+      })
       .catch((error) => {
         notif.notify({ render: formatMessage({ id: 'loadingDemandDetails' }) });
         notif.update({
@@ -232,7 +233,7 @@ export default function DemandValidation() {
       })
       .finally(() => setIsValidating(false));
   };
-  const schoolDemandStatus = demand.school.school_status.toLocaleLowerCase()
+  const schoolDemandStatus = demand.school.school_status.toLocaleLowerCase();
 
   return (
     <>
