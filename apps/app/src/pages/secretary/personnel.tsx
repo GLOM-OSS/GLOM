@@ -91,6 +91,7 @@ export default function Personnel() {
               annual_teacher_id,
               annual_configurator_id,
               annual_registry_id,
+              personnel_code,
               phone_number,
               first_name,
               email,
@@ -102,9 +103,7 @@ export default function Personnel() {
               personnel_id: (annual_teacher_id ||
                 annual_configurator_id ||
                 annual_registry_id) as string,
-              personnel_code: (annual_teacher_id ||
-                annual_configurator_id ||
-                annual_registry_id) as string,
+              personnel_code,
               first_name,
               last_connected,
               last_name,

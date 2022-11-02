@@ -106,8 +106,8 @@ export default function TeacherDialog({
 
     const notif = new useNotification();
     setNotifications(filterNotificationUsage('load', notif, notifications));
-    if (activePersonnel?.personnel_code)
-      fetchTeacher(activePersonnel.personnel_code)
+    if (activePersonnel?.personnel_id)
+      fetchTeacher(activePersonnel.personnel_id)
         .then((teacher) => {
           setTeacher(teacher);
           formik.setValues(teacher)

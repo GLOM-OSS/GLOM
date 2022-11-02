@@ -63,6 +63,7 @@ export interface Personnel {
   email: string;
   phone_number: string;
   login_id: string;
+  personnel_code: string;
   annual_configurator_id?: string;
   annual_registry_id?: string;
   annual_teacher_id?: string;

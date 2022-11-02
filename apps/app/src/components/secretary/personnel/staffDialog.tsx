@@ -21,6 +21,7 @@ import * as Yup from 'yup';
 import LocationPicker from './LocationPicker';
 
 export interface StaffInterface {
+  personnel_id: string;
   personnel_code: string;
   first_name: string;
   last_name: string;
@@ -65,6 +66,7 @@ export default function StaffDialog({
     gender: 'Male',
     is_archived: false,
     personnel_code: '...',
+    personnel_id: '',
     login_id: '',
   };
 
