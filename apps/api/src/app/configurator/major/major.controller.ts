@@ -17,7 +17,7 @@ import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import {
-  AnnualMajorPutDto,
+  MajorPutDto,
   MajorPostDto,
   MajorQueryDto,
 } from '../configurator.dto';
@@ -49,7 +49,7 @@ export class MajorController {
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
     return {
-      majors: await this.majorService.findOne(
+      major: await this.majorService.findOne(
         request.params['major_code'],
         academic_year_id
       ),
@@ -79,7 +79,7 @@ export class MajorController {
   async editMajor(
     @Req() request: Request,
     @Param('major_code') major_code: string,
-    @Body() majorData: AnnualMajorPutDto
+    @Body() majorData: MajorPutDto
   ) {
     try {
       const {

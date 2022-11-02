@@ -5,7 +5,7 @@ import { AUTH404, ERR03, ERR04 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
 import {
-  AnnualMajorPutDto,
+  MajorPutDto,
   ClassroomPost,
   MajorPostDto,
   MajorQueryDto,
@@ -18,6 +18,7 @@ export class MajorService {
   private departmentService: typeof this.prismaService.department;
   private annualMajorService: typeof this.prismaService.annualMajor;
   private annualClassroomService: typeof this.prismaService.annualClassroom;
+  private annualClassroomAuditService: typeof this.prismaService.annualClassroomAudit;
   private annualClassroomDivisionService: typeof this.prismaService.annualClassroomDivision;
 
   constructor(
@@ -32,7 +33,10 @@ export class MajorService {
     this.annualClassroomDivisionService = prismaService.annualClassroomDivision;
   }
 
-  async findAll(academic_year_id: string, where: MajorQueryDto) {
+  async findAll(
+    academic_year_id: string,
+    { department_code, is_deleted }: MajorQueryDto
+  ) {
     const annualMajors = await this.annualMajorService.findMany({
       select: {
         major_acronym: true,
@@ -52,7 +56,9 @@ export class MajorService {
           },
         },
       },
-      where: { ...where, academic_year_id },
+      where: department_code
+        ? { is_deleted, academic_year_id, Department: { department_code } }
+        : { is_deleted, academic_year_id },
     });
 
     return annualMajors.map(
@@ -213,11 +219,12 @@ export class MajorService {
 
   async editMajor(
     major_code: string,
-    updateData: AnnualMajorPutDto,
+    updateData: MajorPutDto,
     academic_year_id: string,
     audited_by: string
   ) {
-    const { major_acronym, major_name, department_code } = updateData;
+    const { major_acronym, major_name, department_code, classrooms } =
+      updateData;
 
     const annualMajorAudit = await this.annualMajorService.findFirst({
       select: {
@@ -228,7 +235,9 @@ export class MajorService {
         is_deleted: true,
         department_id: true,
         Department: { select: { department_code: true } },
-        Major: { select: { cycle_id: true } },
+        Major: {
+          select: { cycle_id: true },
+        },
       },
       where: {
         academic_year_id,
@@ -241,8 +250,12 @@ export class MajorService {
         HttpStatus.NOT_FOUND
       );
 
-    const { annual_major_id, Major, Department, ...majorAudit } =
-      annualMajorAudit;
+    const {
+      annual_major_id,
+      Major: { cycle_id },
+      Department,
+      ...majorAudit
+    } = annualMajorAudit;
     let updateInput: Prisma.AnnualMajorUpdateInput = {
       major_name,
       AnnualMajorAudits: {
@@ -272,7 +285,7 @@ export class MajorService {
               major_name,
               major_code: newMajorCode,
               Cycle: {
-                connect: { cycle_id: Major.cycle_id },
+                connect: { cycle_id },
               },
               AnnualConfigurator: {
                 connect: { annual_configurator_id: audited_by },
@@ -283,10 +296,45 @@ export class MajorService {
         },
       };
     }
-    return this.annualMajorService.update({
+    this.annualMajorService.update({
       data: updateInput,
       where: { annual_major_id },
     });
+    if (classrooms)
+      for (let i = 0; i < classrooms.length; i++) {
+        const { level, ...classroom } = classrooms[i];
+        const annualClassroomAudits =
+          await this.annualClassroomService.findMany({
+            select: {
+              annual_classroom_id: true,
+              registration_fee: true,
+              total_fee_due: true,
+              classroom_acronym: true,
+              classroom_code: true,
+              classroom_name: true,
+              is_deleted: true,
+            },
+            where: {
+              Classroom: { level, Major: { major_code } },
+              academic_year_id,
+            },
+          });
+        await this.prismaService.$transaction([
+          this.annualClassroomAuditService.createMany({
+            data: annualClassroomAudits.map((data) => ({
+              ...data,
+              audited_by,
+            })),
+          }),
+          this.annualClassroomService.updateMany({
+            data: classroom,
+            where: {
+              Classroom: { level, Major: { major_code } },
+              academic_year_id,
+            },
+          }),
+        ]);
+      }
   }
 
   async generateMajorClassrooms(
