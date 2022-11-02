@@ -1,8 +1,13 @@
 import {
   Body,
-  Controller, HttpException,
+  Controller,
+  Get,
+  HttpException,
   HttpStatus,
-  Param, Put, Req,
+  Param,
+  Put,
+  Query,
+  Req,
   UseGuards
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -11,9 +16,7 @@ import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { ResetPasswordDto } from '../../auth/auth.dto';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
-import {
-  StaffPutDto
-} from '../configurator.dto';
+import { PersonnelQueryDto, StaffPutDto } from '../configurator.dto';
 import { PersonnelService } from './personnel.service';
 
 @Controller()
@@ -22,6 +25,60 @@ import { PersonnelService } from './personnel.service';
 @UseGuards(AuthenticatedGuard)
 export class PersonnelController {
   constructor(private personnelService: PersonnelService) {}
+
+  @Get('all')
+  async findAllPersonnel(
+    @Req() request: Request,
+    @Query() query: PersonnelQueryDto
+  ) {
+    const {
+      activeYear: { academic_year_id },
+    } = request.user as DeserializeSessionData;
+
+    const teachers = await this.personnelService.findAll(
+      Role.TEACHER,
+      academic_year_id,
+      query
+    );
+    const registries = await this.personnelService.findAll(
+      Role.REGISTRY,
+      academic_year_id,
+      query
+    );
+    const configurators = await this.personnelService.findAll(
+      Role.CONFIGURATOR,
+      academic_year_id,
+      query
+    );
+    const personnel = teachers.map(
+      ({
+        annual_teacher_id,
+        annual_configurator_id,
+        annual_registry_id,
+        ...personnelData
+      }) => ({
+        personnel_id:
+          annual_teacher_id || annual_configurator_id || annual_registry_id,
+        ...personnelData,
+      })
+    );
+    [...registries, ...configurators].map(
+      ({
+        annual_teacher_id,
+        annual_configurator_id,
+        annual_registry_id,
+        ...personnelData
+      }) => {
+        if (!personnel.find(({ email }) => email === personnelData.email))
+          personnel.push({
+            personnel_id:
+              annual_teacher_id || annual_configurator_id || annual_registry_id,
+            ...personnelData,
+          });
+      }
+    );
+    return { personnel };
+  }
 
   @Put('reset-password')
   async resetPassword(
