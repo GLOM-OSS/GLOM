@@ -201,8 +201,8 @@ export default function NewCoordinatorDialog({
             onChange={(event) => setSelectedTeacherId(event.target.value)}
           >
             {teachers.map(
-              ({ first_name, last_name, personnel_code }, index) => (
-                <MenuItem key={index} value={personnel_code}>
+              ({ first_name, last_name, personnel_id }, index) => (
+                <MenuItem key={index} value={personnel_id}>
                   {`${first_name} ${last_name}`}
                 </MenuItem>
               )
