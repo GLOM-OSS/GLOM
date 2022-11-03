@@ -2,24 +2,21 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  UnauthorizedException,
+  UnauthorizedException
 } from '@nestjs/common';
-import { AcademicYear, AcademicYearStatus, Login } from '@prisma/client';
+import { AcademicYearStatus, Login } from '@prisma/client';
 import { CronJobEvents, TasksService } from '@squoolr/tasks';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { AUTH02, AUTH04, AUTH401, AUTH404, sAUTH404 } from '../../errors';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
-  ActiveYear,
   DeserializeSessionData,
   DesirializeRoles,
   PassportSession,
   Role,
-  UserRole,
+  UserRole
 } from '../../utils/types';
-
-type AcademicYearObject = { AcademicYear: AcademicYear };
 
 @Injectable()
 export class AuthService {
@@ -184,104 +181,6 @@ export class AuthService {
       user.cookie_age
     );
     return { log_id, ...user, job_name };
-  }
-
-  async getAcademicYears(login_id: string) {
-    const select = {
-      AcademicYear: {
-        select: {
-          year_code: true,
-          started_at: true,
-          ended_at: true,
-          year_status: true,
-          starts_at: true,
-          ends_at: true,
-          academic_year_id: true,
-        },
-      },
-    };
-    //check for annual student
-    const annualStudents = (await this.annualStudentService.findMany({
-      select,
-      where: { Student: { login_id }, is_deleted: false },
-    })) as AcademicYearObject[];
-    if (annualStudents.length > 0) {
-      return annualStudents.map(
-        ({
-          AcademicYear: {
-            academic_year_id,
-            year_code,
-            ended_at,
-            ends_at,
-            started_at,
-            starts_at,
-            year_status,
-          },
-        }) => ({
-          year_code,
-          year_status,
-          academic_year_id,
-          starting_date:
-            year_status !== AcademicYearStatus.INACTIVE
-              ? started_at
-              : starts_at,
-          ending_date:
-            year_status !== AcademicYearStatus.FINISHED ? ends_at : ended_at,
-        })
-      );
-    }
-
-    //check for annual configurator
-    const annualConfigurators = (await this.AnnualConfiguratorService.findMany({
-      select,
-      where: { login_id, is_deleted: false },
-    })) as AcademicYearObject[];
-
-    //check for annual registry
-    const annualRegistries = (await this.annualRegistryService.findMany({
-      select,
-      where: { login_id, is_deleted: false },
-    })) as AcademicYearObject[];
-
-    //check for annual registry
-    const annualTeachers = (await this.annualTeacherService.findMany({
-      select,
-      where: { login_id, is_deleted: false },
-    })) as AcademicYearObject[];
-
-    const academic_years: ActiveYear[] = [];
-
-    [...annualConfigurators, ...annualRegistries, ...annualTeachers].forEach(
-      ({
-        AcademicYear: {
-          academic_year_id,
-          year_code,
-          ended_at,
-          ends_at,
-          started_at,
-          starts_at,
-          year_status,
-        },
-      }) => {
-        if (
-          !academic_years.find((_) => _.academic_year_id === academic_year_id)
-        ) {
-          academic_years.push({
-            year_code,
-            year_status,
-            academic_year_id,
-            starting_date:
-              year_status !== AcademicYearStatus.INACTIVE
-                ? started_at
-                : starts_at,
-            ending_date:
-              year_status !== AcademicYearStatus.FINISHED ? ends_at : ended_at,
-          });
-        }
-      }
-    );
-
-    return academic_years;
   }
 
   async getActiveRoles(

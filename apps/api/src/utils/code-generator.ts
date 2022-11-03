@@ -15,8 +15,14 @@ export class CodeGeneratorService {
       : `${number}`;
   }
 
-  async getYearCode(starting_year: number, ending_year: number) {
-    const numberOfAcademicYears = await this.prismaService.academicYear.count();
+  async getYearCode(
+    school_id: string,
+    starting_year: number,
+    ending_year: number
+  ) {
+    const numberOfAcademicYears = await this.prismaService.academicYear.count({
+      where: { school_id },
+    });
     return `YEAR-${starting_year}${ending_year}${this.getNumberString(
       numberOfAcademicYears + 1
     )}`;
@@ -99,13 +105,16 @@ export class CodeGeneratorService {
       numberOfPersonnel = await this.prismaService.annualRegistry.count({
         where: { Login: { school_id } },
       });
-      personnelCode = `${school_acronym}SA${this.getNumberString(numberOfPersonnel + 1)}`
-    }
-    else if (role === Role.CONFIGURATOR) {
+      personnelCode = `${school_acronym}SA${this.getNumberString(
+        numberOfPersonnel + 1
+      )}`;
+    } else if (role === Role.CONFIGURATOR) {
       numberOfPersonnel = await this.prismaService.annualConfigurator.count({
         where: { Login: { school_id } },
       });
-      personnelCode = `${school_acronym}SE${this.getNumberString(numberOfPersonnel + 1)}`
+      personnelCode = `${school_acronym}SE${this.getNumberString(
+        numberOfPersonnel + 1
+      )}`;
     }
     return personnelCode;
   }

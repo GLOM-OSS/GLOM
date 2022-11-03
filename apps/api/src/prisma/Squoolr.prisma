@@ -201,7 +201,7 @@ model Login {
 model AnnualConfigurator {
     annual_configurator_id    String              @id @default(uuid()) @db.VarChar(36)
     is_sudo                   Boolean             @default(false) @db.TinyInt
-    matricule                 String              @unique @db.VarChar(20)
+    matricule                 String              @db.VarChar(20)
     is_deleted                Boolean             @default(false) @db.TinyInt
     login_id                  String              @db.VarChar(36)
     Login                     Login               @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
@@ -236,6 +236,7 @@ model AnnualConfigurator {
     AnnualConfiguratorAuditers    AnnualConfigurator[]           @relation(name: "DeletedBy_AnnualConfigurator")
 
     @@unique([login_id, academic_year_id])
+    @@unique([login_id, matricule])
 }
 
 model LoginAudit {
@@ -272,7 +273,7 @@ model AnnualStudent {
 model AnnualRegistry {
     annual_registry_id String             @id @default(uuid()) @db.VarChar(36)
     is_deleted         Boolean            @default(false) @db.TinyInt
-    matricule          String             @unique @db.VarChar(75)
+    matricule          String             @db.VarChar(75)
     private_code       String             @db.VarChar(75)
     academic_year_id   String
     AcademicYear       AcademicYear       @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
@@ -283,6 +284,7 @@ model AnnualRegistry {
 
     AnnualRegistryAudits AnnualRegistryAudit[]
 
+    @@unique([login_id, matricule])
     @@unique([login_id, academic_year_id])
 }
 

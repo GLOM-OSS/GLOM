@@ -4,6 +4,7 @@ import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
+  IsDateString,
   IsNumber,
   IsOptional,
   IsString,
@@ -210,4 +211,51 @@ export class PersonnelQueryDto {
   @IsOptional()
   @ApiProperty({ required: false })
   is_deleted?: boolean;
+}
+
+export class PersonnelTemplate {
+  @IsBoolean()
+  @ApiProperty()
+  reuse_configurators?: boolean;
+
+  @IsBoolean()
+  @ApiProperty()
+  reuse_registries?: boolean;
+
+  @IsBoolean()
+  @ApiProperty()
+  reuse_coordinators?: boolean;
+
+  @IsBoolean()
+  @ApiProperty()
+  reuse_teachers?: boolean;
+}
+
+export class AcademicYearPostDto {
+  @ApiProperty()
+  @IsDateString()
+  starts_at: Date;
+
+  @ApiProperty()
+  @IsDateString()
+  ends_at: Date;
+}
+
+export class TemplateYearPostDto extends AcademicYearPostDto {
+  @ApiProperty()
+  @Type(() => PersonnelTemplate)
+  @ValidateNested({ each: true })
+  personnelConfig: PersonnelTemplate;
+
+  @IsArray()
+  @ApiProperty()
+  classroomCodes: string[];
+
+  @IsBoolean()
+  @ApiProperty()
+  reuse_coordinators_configs?: boolean;
+
+  @IsBoolean()
+  @ApiProperty()
+  reuse_registries_configs?: boolean;
 }

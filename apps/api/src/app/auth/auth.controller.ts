@@ -4,8 +4,9 @@ import {
   Delete,
   Get,
   HttpException,
-  HttpStatus, Patch,
-  Post, Req,
+  HttpStatus, Post,
+  Put,
+  Req,
   UseGuards
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -18,9 +19,10 @@ import {
   PassportSession
 } from '../../utils/types';
 import { AcademicYearQueryDto } from '../app.dto';
+import { AcademicYearService } from '../configurator/academic-year/academic-year.service';
+import { NewPasswordDto, ResetPasswordDto } from './auth.dto';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
-import { NewPasswordDto, ResetPasswordDto } from './auth.dto';
 import { GoogleGuard } from './google/google.guard';
 import { LocalGuard } from './local/local.guard';
 
@@ -30,7 +32,8 @@ import { LocalGuard } from './local/local.guard';
 export class AuthController {
   constructor(
     private prismaService: PrismaService,
-    private authService: AuthService
+    private authService: AuthService,
+    private academicYearService: AcademicYearService
   ) {}
 
   @Post('signin')
@@ -41,11 +44,11 @@ export class AuthController {
       request.user as DeserializeSessionData & PassportSession;
 
     if (!school_id) return { user };
-    const academic_years = await this.authService.getAcademicYears(
+    const academic_years = await this.academicYearService.getAcademicYears(
       user.login_id
     );
     if (academic_years.length === 1) {
-      const selected_roles = await this.setActiveYear(request, {
+      const selected_roles = await this.getActiveRoles(request, {
         academic_year_id: academic_years[0].academic_year_id,
       });
       return {
@@ -58,18 +61,9 @@ export class AuthController {
     return { user, academic_years };
   }
 
-  @Get('/academic-years')
+  @Put('active-roles')
   @UseGuards(AuthenticatedGuard)
-  async getAcademicYears(@Req() request: Request) {
-    const { login_id } = request.session.passport.user;
-    return {
-      academic_years: await this.authService.getAcademicYears(login_id),
-    };
-  }
-
-  @Patch('active-year')
-  @UseGuards(AuthenticatedGuard)
-  async setActiveYear(
+  async getActiveRoles(
     @Req() request: Request,
     @Body() { academic_year_id }: AcademicYearQueryDto
   ): Promise<DesirializeRoles> {

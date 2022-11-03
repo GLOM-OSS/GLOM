@@ -43,8 +43,8 @@ export const AUTH401 = {
   Fr: 'Adresse mail ou mot de passe incorrect.',
 };
 export const AUTH404 = (search: string) => ({
-  En: `"<${search}> not found.`,
-  Fr: `<${search}> introuvable`,
+  En: `"${search} not found.`,
+  Fr: `${search} introuvable`,
 });
 export const sAUTH404 = {
   En: `Your rest password request cannot be found or has expired.`,
@@ -83,4 +83,12 @@ export const ERR03 = (element: string) => ({
 export const ERR04 = {
   En: `The number of classes in a specialty cannot differ from the number of years available in its curriculum.`,
   Fr: `Le nombre de classes dans une spécialité ne peut différer du nombre d'années disponibles dans son cursus.`,
+};
+export const ERR05 = {
+  En: `The start date of an academic year cannot be later than the end date`,
+  Fr: `La date de début d'une année académique ne peut être postérieure à la date de fin.`,
+};
+export const ERR06 = {
+  En: `Sorry, there is an overlap of academic years`,
+  Fr: `Désolé, Il y a chevauchement des annees academiques`,
 };

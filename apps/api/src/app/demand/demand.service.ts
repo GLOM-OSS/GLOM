@@ -76,10 +76,9 @@ export class DemandService {
 
     const ends_at = new Date(initial_year_ends_at);
     const starts_at = new Date(initial_year_starts_at);
-    const year_code = await this.codeGenerator.getYearCode(
-      starts_at.getFullYear(),
-      ends_at.getFullYear()
-    );
+    const year_code = `YEAR-${ends_at}${starts_at}${this.codeGenerator.getNumberString(
+      1
+    )}`;
     const school_code = await this.codeGenerator.getSchoolCode(school_acronym);
     const annual_configurator_id = randomUUID();
     const matricule = `${school_acronym}${this.codeGenerator.getNumberString(
