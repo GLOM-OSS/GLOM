@@ -1,16 +1,17 @@
 import {
-    Body,
-    Controller,
-    Get,
-    HttpException,
-    HttpStatus,
-    Param,
-    Post, Req,
-    UseGuards
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  Post,
+  Req,
+  UseGuards
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { DeserializeSessionData, Role } from 'apps/api/src/utils/types';
 import { Request } from 'express';
+import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import { AcademicYearPostDto, TemplateYearPostDto } from '../configurator.dto';
@@ -42,11 +43,13 @@ export class AcademicYearController {
       annualConfigurator: { annual_configurator_id },
     } = request.user as DeserializeSessionData;
     try {
-      await this.academicYearService.addNewAcademicYear(
-        school_id,
-        newAcademicYear,
-        annual_configurator_id
-      );
+      return {
+        academic_year_id: await this.academicYearService.addNewAcademicYear(
+          school_id,
+          newAcademicYear,
+          annual_configurator_id
+        ),
+      };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -61,14 +64,16 @@ export class AcademicYearController {
     const {
       annualConfigurator: { annual_configurator_id },
     } = request.user as DeserializeSessionData;
-    try {
-      await this.academicYearService.templateAcademicYear(
-        template_year_id,
-        templateOptions,
-        annual_configurator_id
-      );
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    // try {
+      return {
+        academic_year_id: await this.academicYearService.templateAcademicYear(
+          template_year_id,
+          templateOptions,
+          annual_configurator_id
+        ),
+      };
+    // } catch (error) {
+    //   throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    // }
   }
 }

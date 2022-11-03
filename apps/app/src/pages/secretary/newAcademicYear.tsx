@@ -30,7 +30,15 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
 import { ReportRounded } from '@mui/icons-material';
 import moment from 'moment';
-import { getAcademicYears, getClassrooms } from '@squoolr/api-services';
+import {
+  createNewAcademicYear,
+  getAcademicYearRoles,
+  getAcademicYears,
+  getClassrooms,
+  templateAcademicYear,
+} from '@squoolr/api-services';
+import { useUser } from '@squoolr/layout';
+import { useNavigate } from 'react-router';
 
 export default function NewAcademicYear() {
   const [activeItem, setActiveItem] = useState<number>(0);
@@ -40,8 +48,8 @@ export default function NewAcademicYear() {
   });
   const [personnelConfig, setPersonnelConfig] = useState<NewPersonnelInterface>(
     {
-      reuse_secretariat: true,
-      reuse_registry: true,
+      reuse_configurators: true,
+      reuse_registries: true,
       reuse_coordinators: true,
       reuse_teachers: false,
     }
@@ -172,6 +180,8 @@ export default function NewAcademicYear() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateYearId]);
 
+  const { userDispatch, ...activeUser } = useUser();
+
   const [isCreatingAcademicYear, setIsCreatingAcademicYear] =
     useState<boolean>(false);
   const createAcademicYear = () => {
@@ -183,61 +193,106 @@ export default function NewAcademicYear() {
     });
     notif.notify({ render: formatMessage({ id: 'creatingAcademicYears' }) });
     setNotifications([...newNotifs, { usage: 'createAcademicYear', notif }]);
-    setTimeout(() => {
-      setIsCreatingAcademicYear(false);
-      switch (useTemplateYear) {
-        case false: {
-          //TODO: CREATE ACADEMIC YEAR HERE WITH DATA: academicYear.
-          //TODO: DON'T FORGET TO VERIFY THAT THERE IS NO CHAUVAUCHEMENT BETWEEN THE NEW DATA AND ANY EXISTING ACADEMIC YEAR
-          if (random() > 5) {
-            notif.update({
-              render: formatMessage({ id: 'academicYearCreatedSuccessfully' }),
-            });
-            //TODO: CHANGE ACTIVE ACADEMIC YEAR IN CONTEXT TO THE NEWLY CREATED ONE
-            //TODO: navigate('/configurations/departments')
-          } else {
-            notif.update({
-              type: 'ERROR',
-              render: (
-                <ErrorMessage
-                  retryFunction={createAcademicYear}
-                  notification={notif}
-                  message={formatMessage({ id: 'createAcademicYearFailed' })}
-                />
-              ),
-              autoClose: false,
-              icon: () => <ReportRounded fontSize="medium" color="error" />,
-            });
-          }
-          break;
-        }
-        case true: {
-          // TODO: CREATE ACADEMIC YEAR HERE WITH DATA: templateYearId, academicYear, selectedClassroomCodes, personnelConfig, reuseCoordinatorsConfig, reuseRegistryConfig
-          //TODO: DON'T FORGET TO VERIFY THAT THERE IS NO CHAUVAUCHEMENT BETWEEN THE NEW DATA AND ANY EXISTING ACADEMIC YEAR
-          if (random() > 5) {
-            notif.update({
-              render: formatMessage({ id: 'createAcademicYearSuccessfully' }),
-            });
-            //TODO: CHANGE ACTIVE ACADEMIC YEAR IN CONTEXT TO THE NEWLY CREATED ONE
-            //TODO: navigate('/configurations/departments')
-          } else {
-            notif.update({
-              type: 'ERROR',
-              render: (
-                <ErrorMessage
-                  retryFunction={createAcademicYear}
-                  notification={notif}
-                  message={formatMessage({ id: 'createAcademicYearFailed' })}
-                />
-              ),
-              autoClose: false,
-              icon: () => <ReportRounded fontSize="medium" color="error" />,
-            });
-          }
-          break;
-        }
-      }
-    }, 3000);
+    const {
+      academic_year_end_date: ends_at,
+      academic_year_start_date: starts_at,
+    } = academicYear;
+    if (useTemplateYear) {
+      templateAcademicYear(templateYearId as string, {
+        classroomCodes: selectedClassroomCodes,
+        ends_at,
+        starts_at,
+        personnelConfig,
+        reuse_registries_configs: reuseRegistryConfig,
+        reuse_coordinators_configs: reuseCoordinatorsConfig,
+      })
+        .then((academicYearId) => {
+          notif.update({
+            render: formatMessage({ id: 'createAcademicYearSuccessfully' }),
+          });
+          setActiveYear(academicYearId);
+        })
+        .catch((error) => {
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={createAcademicYear}
+                notification={notif}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'createAcademicYearFailed' })
+                }
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        })
+        .finally(() => setIsCreatingAcademicYear(false));
+    } else {
+      createNewAcademicYear(starts_at, ends_at)
+        .then((academicYearId) => {
+          notif.update({
+            render: formatMessage({ id: 'academicYearCreatedSuccessfully' }),
+          });
+          setActiveYear(academicYearId);
+        })
+        .catch((error) => {
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={createAcademicYear}
+                notification={notif}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'createAcademicYearFailed' })
+                }
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        })
+        .finally(() => setIsCreatingAcademicYear(false));
+    }
+  };
+
+  const navigate = useNavigate();
+  const setActiveYear = (academicYearId: string) => {
+    const notif = new useNotification();
+    notif.notify({
+      render: formatMessage({ id: 'gettingAcademicYear' }),
+    });
+    getAcademicYearRoles(academicYearId)
+      .then((userRoles) => {
+        userDispatch({
+          type: 'LOAD_USER',
+          payload: { user: { ...activeUser, ...userRoles } },
+        });
+        notif.update({
+          render: formatMessage({ id: 'academicYearSet' }),
+        });
+        navigate('/configurations/departments');
+      })
+      .catch((error) => {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => setActiveYear(academicYearId)}
+              notification={notif}
+              message={
+                error?.message ||
+                formatMessage({ id: 'failedToSetAcademicYear' })
+              }
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      });
   };
 
   return (

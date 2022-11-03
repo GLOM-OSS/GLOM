@@ -16,7 +16,7 @@ import { CloseRounded, ReportRounded } from '@mui/icons-material';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { setActiveYear } from '@squoolr/api-services';
+import { getAcademicYearRoles } from '@squoolr/api-services';
 import { useUser } from '@squoolr/layout';
 
 export interface AcademicYearInterface {
@@ -57,7 +57,7 @@ export function SelectAcademicYearDialog({
       render: formatMessage({ id: 'gettingAcademicYear' }),
     });
     setSelectedAcademicYearId(academic_year_id);
-    setActiveYear(academic_year_id)
+    getAcademicYearRoles(academic_year_id)
       .then((userRoles) => {
         userDispatch({
           type: 'LOAD_USER',

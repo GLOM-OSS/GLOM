@@ -12,16 +12,22 @@ export async function getAcademicYears() {
   return academic_years;
 }
 
-export async function createAcademicYear(starts_at: Date, ends_at: Date) {
-  await http.post(`/academic-years/new`, { starts_at, ends_at });
+export async function createNewAcademicYear(starts_at: Date, ends_at: Date) {
+  const {
+    data: { academic_year_id },
+  } = await http.post(`/academic-years/new`, { starts_at, ends_at });
+  return academic_year_id;
 }
 
 export async function templateAcademicYear(
   template_year_id: string,
   templateOptions: TemplateOptions
 ) {
-  await http.post(
+  const {
+    data: { academic_year_id },
+  } = await http.post(
     `/academic-years/${template_year_id}/template`,
     templateOptions
   );
+  return academic_year_id;
 }

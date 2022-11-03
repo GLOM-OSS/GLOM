@@ -1,15 +1,17 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AcademicYear, AcademicYearStatus, Prisma } from '@prisma/client';
-import { AUTH404, ERR05 } from 'apps/api/src/errors';
-import { PrismaService } from 'apps/api/src/prisma/prisma.service';
-import { CodeGeneratorService } from 'apps/api/src/utils/code-generator';
-import { ActiveYear } from 'apps/api/src/utils/types';
+import { randomUUID } from 'crypto';
+import { AUTH404, ERR05 } from '../../../errors';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { CodeGeneratorService } from '../../../utils/code-generator';
+import { ActiveYear } from '../../../utils/types';
 import { AcademicYearPostDto, TemplateYearPostDto } from '../configurator.dto';
 
 type AcademicYearObject = { AcademicYear: AcademicYear };
 
 @Injectable()
 export class AcademicYearService {
+  private annualMajorService: typeof this.prismaService.annualMajor;
   private academicYearService: typeof this.prismaService.academicYear;
   private annualTeacherService: typeof this.prismaService.annualTeacher;
   private annualStudentService: typeof this.prismaService.annualStudent;
@@ -22,6 +24,7 @@ export class AcademicYearService {
     private prismaService: PrismaService,
     private codeGenerator: CodeGeneratorService
   ) {
+    this.annualMajorService = prismaService.annualMajor;
     this.academicYearService = prismaService.academicYear;
     this.annualTeacherService = prismaService.annualTeacher;
     this.annualStudentService = prismaService.annualStudent;
@@ -43,10 +46,10 @@ export class AcademicYearService {
       where: {
         OR: {
           ends_at: {
-            lt: starts_at,
+            lt: new Date(starts_at),
           },
           starts_at: {
-            gt: ends_at,
+            gt: new Date(ends_at),
           },
         },
       },
@@ -60,10 +63,10 @@ export class AcademicYearService {
       });
     const year_code = await this.codeGenerator.getYearCode(
       school_id,
-      starts_at.getFullYear(),
-      ends_at.getFullYear()
+      new Date(starts_at).getFullYear(),
+      new Date(ends_at).getFullYear()
     );
-    await this.prismaService.$transaction([
+    const [{ academic_year_id }] = await this.prismaService.$transaction([
       this.academicYearService.create({
         data: {
           ends_at,
@@ -89,6 +92,7 @@ export class AcademicYearService {
         },
       }),
     ]);
+    return academic_year_id;
   }
 
   async templateAcademicYear(
@@ -114,7 +118,7 @@ export class AcademicYearService {
     let academicYear = await this.academicYearService.findUnique({
       where: { academic_year_id: template_year_id },
     });
-    if (academicYear)
+    if (!academicYear)
       throw new HttpException(
         JSON.stringify(AUTH404('Academic year')),
         HttpStatus.NOT_FOUND
@@ -126,16 +130,18 @@ export class AcademicYearService {
       where: {
         OR: {
           ends_at: {
-            lt: starts_at,
+            lt: new Date(starts_at),
           },
           starts_at: {
-            gt: ends_at,
+            gt: new Date(ends_at),
           },
         },
       },
     });
     if (academicYear)
       throw new HttpException(JSON.stringify(ERR05), HttpStatus.BAD_REQUEST);
+
+    const academicYearId = randomUUID();
 
     const newConfigurators: Prisma.AnnualConfiguratorCreateManyInput[] = [];
     if (reuse_configurators) {
@@ -147,7 +153,7 @@ export class AcademicYearService {
         ...configurators.map((configurator) => ({
           ...configurator,
           added_by,
-          academic_year_id: null,
+          academic_year_id: academicYearId,
         }))
       );
     }
@@ -162,7 +168,7 @@ export class AcademicYearService {
         ...registries.map((registry) => ({
           ...registry,
           added_by,
-          academic_year_id: null,
+          academic_year_id: academicYearId,
         }))
       );
     }
@@ -184,15 +190,42 @@ export class AcademicYearService {
         ...teachers.map((teacher) => ({
           ...teacher,
           created_by: added_by,
-          academic_year_id: null,
+          annual_teacher_id: randomUUID(),
+          academic_year_id: academicYearId,
         }))
       );
     }
 
+    const newMajors: Prisma.AnnualMajorCreateManyInput[] = [];
     const newClassrooms: Prisma.AnnualClassroomCreateManyInput[] = [];
     const newClassroomDivisions: Prisma.AnnualClassroomDivisionCreateManyInput[] =
       [];
     if (classroomCodes.length > 0) {
+      const majors = await this.annualMajorService.findMany({
+        select: {
+          major_acronym: true,
+          major_code: true,
+          major_name: true,
+          major_id: true,
+          department_id: true,
+        },
+        where: {
+          is_deleted: false,
+          academic_year_id: template_year_id,
+          OR: [
+            ...classroomCodes.map((code) => ({
+              Major: { Classrooms: { some: { classroom_code: code } } },
+            })),
+          ],
+        },
+      });
+      newMajors.push(
+        ...majors.map((data) => ({
+          ...data,
+          created_by: added_by,
+          academic_year_id: academicYearId,
+        }))
+      );
       const classrooms = await this.annualClassroomService.findMany({
         select: {
           classroom_acronym: true,
@@ -203,9 +236,17 @@ export class AcademicYearService {
           total_fee_due: true,
           AnnualClassroomDivisions: {
             select: {
-              annual_coordinator_id: true,
               annual_classroom_id: true,
               division_letter: true,
+              AnnualTeacher: {
+                select: {
+                  Teacher: {
+                    select: {
+                      teacher_id: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -219,16 +260,24 @@ export class AcademicYearService {
         ...classrooms.map(({ AnnualClassroomDivisions, ...classroom }) => {
           newClassroomDivisions.push(
             ...AnnualClassroomDivisions.map(
-              ({ annual_coordinator_id: id, ...data }) => ({
+              ({
+                AnnualTeacher: {
+                  Teacher: { teacher_id },
+                },
+                ...data
+              }) => ({
                 ...data,
                 created_by: added_by,
-                annual_coordinator_id: reuse_coordinators ? id : null,
+                annual_coordinator_id: reuse_coordinators
+                  ? newTeachers.find(({ teacher_id: id }) => id === teacher_id)
+                      .annual_teacher_id
+                  : null,
               })
             )
           );
           return {
             ...classroom,
-            academic_year_id: null,
+            academic_year_id: academicYearId,
           };
         })
       );
@@ -248,8 +297,8 @@ export class AcademicYearService {
       });
     const year_code = await this.codeGenerator.getYearCode(
       school_id,
-      starts_at.getFullYear(),
-      ends_at.getFullYear()
+      new Date(starts_at).getFullYear(),
+      new Date(ends_at).getFullYear()
     );
     await this.prismaService.$transaction([
       this.academicYearService.create({
@@ -257,6 +306,7 @@ export class AcademicYearService {
           ends_at,
           starts_at,
           year_code,
+          academic_year_id: academicYearId,
           AnnualConfigurator: {
             connect: { annual_configurator_id: added_by },
           },
@@ -287,6 +337,10 @@ export class AcademicYearService {
       this.annualTeacherService.createMany({
         data: newTeachers,
       }),
+      this.annualMajorService.createMany({
+        data: newMajors,
+        skipDuplicates: true,
+      }),
       this.annualClassroomService.createMany({
         data: newClassrooms,
         skipDuplicates: true,
@@ -295,7 +349,9 @@ export class AcademicYearService {
         data: newClassroomDivisions,
         skipDuplicates: true,
       }),
+      //TODO create academic year template information
     ]);
+    return academicYearId;
   }
 
   async getAcademicYears(login_id: string) {

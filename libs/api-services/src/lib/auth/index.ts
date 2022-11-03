@@ -19,7 +19,7 @@ export async function signIn<T>(email: string, password: string) {
  * @param academic_year_id wanted academic yeear id
  * @returns the user context roles
  */
-export async function setActiveYear(academic_year_id: string) {
+export async function getAcademicYearRoles(academic_year_id: string) {
   const { data } = await http.put(`auth/active-roles`, {
     academic_year_id,
   });
