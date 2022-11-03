@@ -1,3 +1,4 @@
+import { ReportRounded } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -9,36 +10,34 @@ import {
   Radio,
   RadioGroup,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
-import { theme } from '@squoolr/theme';
-import { useEffect, useState } from 'react';
-import { ClassroomInterface } from '../../components/secretary/classrooms';
-import RegistryConfig from '../../components/secretary/newAcademicYear/registry';
-import AcademicYearData, {
-  NewAcademicYearInterface,
-} from '../../components/secretary/newAcademicYear/academicYearData';
-import Classrooms from '../../components/secretary/newAcademicYear/classrooms';
-import CoordinatorsConfig from '../../components/secretary/newAcademicYear/coordinators';
-import PersonnelData, {
-  NewPersonnelInterface,
-} from '../../components/secretary/newAcademicYear/personnelData';
-import TimelineItem from '../../components/secretary/newAcademicYear/timelineItem';
-import { useIntl } from 'react-intl';
-import { AcademicYearInterface } from '@squoolr/auth';
-import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
-import { ReportRounded } from '@mui/icons-material';
-import moment from 'moment';
 import {
   createNewAcademicYear,
   getAcademicYearRoles,
   getAcademicYears,
   getClassrooms,
-  templateAcademicYear,
+  templateAcademicYear
 } from '@squoolr/api-services';
+import { AcademicYearInterface } from '@squoolr/auth';
 import { useUser } from '@squoolr/layout';
+import { theme } from '@squoolr/theme';
+import { ErrorMessage, useNotification } from '@squoolr/toast';
+import moment from 'moment';
+import { useEffect, useState } from 'react';
+import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router';
+import { ClassroomInterface } from '../../components/secretary/classrooms';
+import AcademicYearData, {
+  NewAcademicYearInterface
+} from '../../components/secretary/newAcademicYear/academicYearData';
+import Classrooms from '../../components/secretary/newAcademicYear/classrooms';
+import CoordinatorsConfig from '../../components/secretary/newAcademicYear/coordinators';
+import PersonnelData, {
+  NewPersonnelInterface
+} from '../../components/secretary/newAcademicYear/personnelData';
+import RegistryConfig from '../../components/secretary/newAcademicYear/registry';
+import TimelineItem from '../../components/secretary/newAcademicYear/timelineItem';
 
 export default function NewAcademicYear() {
   const [activeItem, setActiveItem] = useState<number>(0);

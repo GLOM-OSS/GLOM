@@ -43,6 +43,8 @@ export class MajorService {
         major_acronym: true,
         major_code: true,
         major_name: true,
+        is_deleted: true,
+        created_at: true,
         Major: {
           select: {
             Cycle: {

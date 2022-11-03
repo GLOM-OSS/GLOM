@@ -501,6 +501,7 @@ model AnnualMajor {
     major_code         String             @db.VarChar(45)
     major_acronym      String             @db.VarChar(45)
     is_deleted         Boolean            @default(false) @db.TinyInt
+    created_at         DateTime           @default(now()) @db.DateTime(0)
     major_id           String
     Major              Major              @relation(fields: [major_id], references: [major_id], onDelete: Cascade, onUpdate: Cascade)
     department_id      String
@@ -521,6 +522,7 @@ model AnnualMajorAudit {
     major_code            String             @db.VarChar(45)
     major_acronym         String             @db.VarChar(45)
     is_deleted            Boolean            @db.TinyInt
+    audited_at            DateTime           @default(now()) @db.DateTime(0)
     annual_major_id       String             @db.VarChar(36)
     AnnualMajor           AnnualMajor        @relation(fields: [annual_major_id], references: [annual_major_id], onDelete: Cascade, onUpdate: Cascade)
     department_id         String
@@ -570,7 +572,7 @@ model AnnualClassroomAudit {
     total_fee_due             Int
     registration_fee          Int
     is_deleted                Boolean            @db.TinyInt
-    created_at                DateTime           @default(now()) @db.DateTime(0)
+    audited_at                DateTime           @default(now()) @db.DateTime(0)
     annual_classroom_id       String
     AnnualClassroom           AnnualClassroom    @relation(fields: [annual_classroom_id], references: [annual_classroom_id], onDelete: Cascade, onUpdate: Cascade)
     audited_by                String
@@ -595,6 +597,7 @@ model AnnualClassroomDivision {
 model AnnualClassroomDivisionAudit {
     annual_classroom_division_audit_id String                  @id @default(uuid()) @db.VarChar(45)
     is_deleted                         Boolean                 @db.TinyInt
+    audited_at                         DateTime                @default(now()) @db.DateTime(0)
     annual_coordinator_id              String?
     AnnualTeacher                      AnnualTeacher?          @relation(fields: [annual_coordinator_id], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
     annual_classroom_division_id       String
