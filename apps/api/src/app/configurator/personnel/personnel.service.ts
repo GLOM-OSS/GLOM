@@ -498,6 +498,7 @@ export class PersonnelService {
 
     const { phone_number, ...staffData } = newStaff;
     const password = Math.random().toString(36).slice(2).toUpperCase();
+    //TODO NodeMailer send generated password and private code
 
     const person = await this.personService.findUnique({
       where: { phone_number },

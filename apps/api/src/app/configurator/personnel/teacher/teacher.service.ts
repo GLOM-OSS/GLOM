@@ -84,6 +84,7 @@ export class TeacherService {
       this.codeGenerator.getNumberString(Math.floor(Math.random() * 10000)),
       Number(process.env.SALT)
     );
+    //TODO NodeMailer send generated password and private code
     await this.annualTeacherService.create({
       data: {
         hourly_rate,
