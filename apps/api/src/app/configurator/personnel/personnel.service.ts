@@ -91,6 +91,7 @@ export class PersonnelService {
     };
 
     const select = {
+      is_deleted: true,
       Login: {
         select: {
           login_id: true,
@@ -100,6 +101,10 @@ export class PersonnelService {
               last_name: true,
               email: true,
               phone_number: true,
+              national_id_number: true,
+              gender: true,
+              address: true,
+              birthdate: true,
             },
           },
         },
@@ -120,7 +125,7 @@ export class PersonnelService {
           ({ annual_registry_id, matricule, Login: { login_id, Person } }) => ({
             login_id,
             ...Person,
-            annual_registry_id,
+            personnel_id: annual_registry_id,
             personnel_code: matricule,
           })
         );
@@ -143,7 +148,7 @@ export class PersonnelService {
           }) => ({
             login_id,
             ...Person,
-            annual_teacher_id,
+            personnel_id: annual_teacher_id,
             personnel_code: matricule,
           })
         );
@@ -166,7 +171,7 @@ export class PersonnelService {
           }) => ({
             login_id,
             ...Person,
-            annual_configurator_id,
+            personnel_id: annual_configurator_id,
             personnel_code: matricule,
           })
         );
@@ -200,7 +205,7 @@ export class PersonnelService {
           }) => ({
             login_id,
             ...Person,
-            annual_teacher_id,
+            personnel_id: annual_teacher_id,
             personnel_code: matricule,
           })
         );
@@ -231,7 +236,18 @@ export class PersonnelService {
       Login: {
         select: {
           login_id: true,
-          Person: true,
+          Person: {
+            select: {
+              first_name: true,
+              last_name: true,
+              email: true,
+              phone_number: true,
+              national_id_number: true,
+              gender: true,
+              address: true,
+              birthdate: true,
+            },
+          },
         },
       },
     };
@@ -239,23 +255,26 @@ export class PersonnelService {
       case Role.REGISTRY: {
         const {
           annual_registry_id,
+          matricule,
           Login: { login_id, Person: person },
         } = await this.annualRegistryService.findFirst({
           select: {
             ...select,
+            matricule: true,
             annual_registry_id: true,
           },
           where: { annual_registry_id: annual_personnel_id, is_deleted: false },
         });
         return {
-          annual_registry_id,
+          personnel_id: annual_registry_id,
+          personnel_code: matricule,
           ...person,
           login_id,
         };
       }
       case Role.TEACHER: {
         const {
-          Teacher: teacher,
+          Teacher: { matricule, ...teacher },
           annual_teacher_id,
           Login: { login_id, Person: person },
           ...annual_teacher
@@ -266,14 +285,22 @@ export class PersonnelService {
             origin_institute: true,
             teaching_grade_id: true,
             hourly_rate: true,
-            Teacher: true,
+            Teacher: {
+              select: {
+                matricule: true,
+                has_tax_payers_card: true,
+                tax_payer_card_number: true,
+                teacher_type_id: true,
+              },
+            },
             annual_teacher_id: true,
           },
           where: { annual_teacher_id: annual_personnel_id, is_deleted: false },
         });
 
         return {
-          annual_teacher_id,
+          personnel_id: annual_teacher_id,
+          personnel_code: matricule,
           ...annual_teacher,
           ...teacher,
           ...person,
@@ -283,10 +310,12 @@ export class PersonnelService {
       case Role.CONFIGURATOR: {
         const {
           annual_configurator_id,
+          matricule,
           Login: { login_id, Person: person },
         } = await this.annualConfiguratorService.findFirst({
           select: {
             ...select,
+            matricule: true,
             annual_configurator_id: true,
           },
           where: {
@@ -295,7 +324,8 @@ export class PersonnelService {
           },
         });
         return {
-          annual_configurator_id,
+          personnel_id: annual_configurator_id,
+          personnel_code: matricule,
           login_id,
           ...person,
         };
@@ -489,7 +519,10 @@ export class PersonnelService {
       },
     });
     const login_id = login?.login_id ?? randomUUID();
-    const matricule = await this.codeGenerator.getPersonnel(school_id, role);
+    const matricule = await this.codeGenerator.getPersonnelCode(
+      school_id,
+      role
+    );
 
     const data = {
       matricule,

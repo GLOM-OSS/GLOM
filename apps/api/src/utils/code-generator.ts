@@ -85,23 +85,28 @@ export class CodeGeneratorService {
         },
       },
     });
-    return `${school_acronym}${this.getNumberString(numberOfTeachers + 1)}`;
+    return `${school_acronym}TE${this.getNumberString(numberOfTeachers + 1)}`;
   }
 
-  async getPersonnel(school_id: string, role: Role) {
+  async getPersonnelCode(school_id: string, role: Role) {
     const { school_acronym } = await this.prismaService.school.findUnique({
       select: { school_acronym: true },
       where: { school_id },
     });
     let numberOfPersonnel = 0;
-    if (role === Role.REGISTRY)
+    let personnelCode: string;
+    if (role === Role.REGISTRY) {
       numberOfPersonnel = await this.prismaService.annualRegistry.count({
         where: { Login: { school_id } },
       });
-    else if (role === Role.CONFIGURATOR)
+      personnelCode = `${school_acronym}SA${this.getNumberString(numberOfPersonnel + 1)}`
+    }
+    else if (role === Role.CONFIGURATOR) {
       numberOfPersonnel = await this.prismaService.annualConfigurator.count({
         where: { Login: { school_id } },
       });
-    return `${school_acronym}${this.getNumberString(numberOfPersonnel + 1)}`;
+      personnelCode = `${school_acronym}SE${this.getNumberString(numberOfPersonnel + 1)}`
+    }
+    return personnelCode;
   }
 }

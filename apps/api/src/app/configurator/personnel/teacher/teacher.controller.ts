@@ -94,16 +94,16 @@ export class TeacherController {
     const {
       annualConfigurator: { annual_configurator_id },
     } = request.user as DeserializeSessionData;
-    try {
+    // try {
       await this.teacherService.editTeacher(
         annual_teacher_id,
         staffData,
         annual_configurator_id
       );
       return;
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    // } catch (error) {
+    //   throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    // }
   }
 
   @Put(':annual_teacher_id/reset-code')

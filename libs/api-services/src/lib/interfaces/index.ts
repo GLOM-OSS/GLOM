@@ -57,16 +57,10 @@ export interface Major {
 }
 
 export type RoleShort = 'Te' | 'Se' | 'S.A.' | 'Co';
-export interface Personnel {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string;
+export interface Personnel extends Omit<Person, 'password'> {
   login_id: string;
+  personnel_id: string;
   personnel_code: string;
-  annual_configurator_id?: string;
-  annual_registry_id?: string;
-  annual_teacher_id?: string;
   last_connected: Date;
   roles: RoleShort[];
 }

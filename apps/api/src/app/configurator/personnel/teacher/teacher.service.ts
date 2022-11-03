@@ -5,6 +5,7 @@ import { CodeGeneratorService } from '../../../../utils/code-generator';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { TeacherPostDto, TeacherPutDto } from '../../configurator.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TeacherService {
@@ -78,7 +79,7 @@ export class TeacherService {
 
     const login_id = login?.login_id ?? randomUUID();
     const password = Math.random().toString(36).slice(2).toUpperCase();
-    const matricule = await this.codeGenerator.getTeacherCode(school_id)
+    const matricule = await this.codeGenerator.getTeacherCode(school_id);
     const private_code = bcrypt.hashSync(
       this.codeGenerator.getNumberString(Math.floor(Math.random() * 10000)),
       Number(process.env.SALT)
@@ -133,13 +134,6 @@ export class TeacherService {
   async editTeacher(
     annual_teacher_id: string,
     {
-      phone_number,
-      first_name,
-      birthdate,
-      email,
-      gender,
-      last_name,
-      national_id_number,
       teaching_grade_id,
       teacher_type_id,
       tax_payer_card_number,
@@ -147,6 +141,7 @@ export class TeacherService {
       origin_institute,
       has_signed_convention,
       hourly_rate,
+      ...newPerson
     }: TeacherPutDto,
     audited_by: string
   ) {
@@ -156,7 +151,14 @@ export class TeacherService {
         hourly_rate: true,
         origin_institute: true,
         has_signed_convention: true,
-        Teacher: true,
+        Teacher: {
+          select: {
+            private_code: true,
+            tax_payer_card_number: true,
+            has_tax_payers_card: true,
+            teacher_type_id: true,
+          },
+        },
         Login: {
           select: {
             Person: true,
@@ -175,27 +177,46 @@ export class TeacherService {
         Person: { created_at, person_id, ...person },
       },
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      Teacher: { teacher_id, ...teacher },
+      Teacher: teacher,
       ...annualTeacher
     } = annualTeacherData;
+    let updateData: Prisma.AnnualTeacherUpdateInput = {
+      TeachingGrade: { update: { teaching_grade_id } },
+    };
 
-    await this.annualTeacherService.update({
-      data: {
-        has_signed_convention,
-        origin_institute,
-        hourly_rate,
-        TeachingGrade: { update: { teaching_grade_id } },
+    const newAnnualTeacher = {
+      has_signed_convention,
+      origin_institute,
+      hourly_rate,
+    };
+    const annualTeacherDataHasChanged = Object.keys(newAnnualTeacher)
+      .map((key) => newAnnualTeacher[key] === annualTeacher[key])
+      .includes(false);
+    if (annualTeacherDataHasChanged)
+      updateData = {
+        ...newAnnualTeacher,
         AnnualTeacherAudits: {
           create: {
             ...annualTeacher,
             audited_by,
           },
         },
+      };
+
+    const newTeacher = {
+      tax_payer_card_number,
+      has_tax_payers_card,
+      teacher_type_id,
+    };
+    const teacherDataHasChanged = Object.keys(newTeacher)
+      .map((key) => newTeacher[key] === teacher[key])
+      .includes(false);
+    if (teacherDataHasChanged)
+      updateData = {
+        ...updateData,
         Teacher: {
           update: {
-            tax_payer_card_number,
-            has_tax_payers_card,
-            teacher_type_id,
+            ...newTeacher,
             TeacherAudits: {
               create: {
                 ...teacher,
@@ -204,17 +225,19 @@ export class TeacherService {
             },
           },
         },
+      };
+
+    const personDataHasChanged = Object.keys(newPerson)
+      .map((key) => newPerson[key] === person[key])
+      .includes(false);
+    if (personDataHasChanged)
+      updateData = {
+        ...updateData,
         Login: {
           update: {
             Person: {
               update: {
-                first_name,
-                birthdate,
-                email,
-                gender,
-                last_name,
-                national_id_number,
-                phone_number,
+                ...newPerson,
                 PersonAudits: {
                   create: {
                     ...person,
@@ -227,7 +250,10 @@ export class TeacherService {
             },
           },
         },
-      },
+      };
+
+    await this.annualTeacherService.update({
+      data: updateData,
       where: {
         annual_teacher_id,
       },
