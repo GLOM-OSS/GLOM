@@ -459,7 +459,7 @@ export class PersonnelService {
     const login = await this.loginService.findFirst({
       where: {
         Person: { email },
-        School: { subdomain: `admin.${squoolr_client}` },
+        // School: { subdomain: `admin.${squoolr_client}.squoolr.com` }, //TODO uncomment this line on production
       },
     });
     if (login) {

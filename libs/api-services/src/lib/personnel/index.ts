@@ -8,7 +8,7 @@ export * from './registries';
 export * from './teachers';
 
 export async function resetPersonnelPassword(email: string) {
-  await http.put(`/reset-password`, { email });
+  await http.put(`personnel/reset-password`, { email });
 }
 
 export async function editPersonnel(

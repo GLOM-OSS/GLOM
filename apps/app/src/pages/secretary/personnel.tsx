@@ -6,7 +6,7 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TableRow,
+  TableRow
 } from '@mui/material';
 import {
   addNewConfigurator,
@@ -19,17 +19,15 @@ import {
   getCoordinators,
   getPersonnel as getAllPersonnel,
   getRegistries,
-  getTeachers,
-  resetPassword,
-  resetRegistryCode,
-  resetTeacherCode,
-  Personnel as PersonnelData,
+  getTeachers, Personnel as PersonnelData,
+  resetPersonnelPassword, resetRegistryCode,
+  resetTeacherCode
 } from '@squoolr/api-services';
 import { theme } from '@squoolr/theme';
 import {
   ErrorMessage,
   filterNotificationUsage,
-  useNotification,
+  useNotification
 } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
@@ -39,17 +37,17 @@ import ActionBar from '../../components/secretary/personnel/actionBar';
 import ConfirmResetDialog from '../../components/secretary/personnel/confirmResetDialog';
 import NewCoordinatorDialog from '../../components/secretary/personnel/NewCoordinatorDialog';
 import PersonnelRow, {
-  PersonnelInterface,
+  PersonnelInterface
 } from '../../components/secretary/personnel/PersonnelRow';
 import { PersonnelRowSkeleton } from '../../components/secretary/personnel/personnelRowSkeleton';
 import PersonnelTabs, {
-  TabItem,
+  TabItem
 } from '../../components/secretary/personnel/personnelTabs';
 import StaffDialog, {
-  StaffInterface,
+  StaffInterface
 } from '../../components/secretary/personnel/staffDialog';
 import TeacherDialog, {
-  TeacherInterface,
+  TeacherInterface
 } from '../../components/secretary/personnel/teacherDialog';
 
 export default function Personnel() {
@@ -165,7 +163,7 @@ export default function Personnel() {
     switch (usage) {
       case 'password': {
         notif.notify({ render: formatMessage({ id: 'resettingPassword' }) });
-        resetPassword(activePersonnel?.email as string)
+        resetPersonnelPassword(activePersonnel?.email as string)
           .then(() => {
             notif.update({
               render: formatMessage({ id: 'resetPasswordSuccessful' }),
@@ -527,6 +525,7 @@ export default function Personnel() {
     is_coordo,
     is_secretariat,
     is_teacher,
+    last_connected,
     ...staff
   }: PersonnelInterface) => {
     return {
