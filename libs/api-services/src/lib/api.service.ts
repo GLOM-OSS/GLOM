@@ -6,6 +6,7 @@ export * from './departments';
 export * from './majors';
 export * from './classrooms';
 export * from './personnel';
+export * from './academic-years';
 
 export async function getCycles() {
   const {

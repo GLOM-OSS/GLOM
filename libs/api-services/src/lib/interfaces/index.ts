@@ -64,3 +64,17 @@ export interface Personnel extends Omit<Person, 'password'> {
   last_connected: Date;
   roles: RoleShort[];
 }
+
+export interface TemplateOptions {
+  ends_at: Date;
+  starts_at: Date;
+  classroomCodes: string[];
+  reuse_coordinators_configs?: boolean;
+  reuse_registries_configs?: boolean;
+  personnelConfig: {
+    reuse_configurators?: boolean;
+    reuse_registries?: boolean;
+    reuse_coordinators?: boolean;
+    reuse_teachers?: boolean;
+  };
+}
