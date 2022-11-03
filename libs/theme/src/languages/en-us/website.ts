@@ -71,7 +71,7 @@ export const website = {
   configurators: 'Configurators',
   settings: 'Settings',
   schoolName: 'School name',
-  phone: 'Phone',
+  phone_number: 'Phone',
   noDemands: 'No demands to work on yet',
   loadingDemands: 'Loading demands',
   getDemandsFailed:
@@ -82,7 +82,7 @@ export const website = {
   rejected: 'Rejected',
   first_name: 'First name',
   last_name: 'Last name',
-  date_of_birth: 'Birth date',
+  birthdate: 'Birth date',
   gender: 'Gender',
   national_id_number: 'Nid Number',
   school_name: 'School name',
@@ -215,7 +215,8 @@ export const website = {
   continueEditing: 'Continue editing',
   editAcademicItemWarning1:
     'Note that this action will not change the code or any structural information appart from the name of the',
-    editAcademicItemWarning2:'. If you want to change it completely, rather create a new one. Do you still want to continue editing?',
+  editAcademicItemWarning2:
+    '. If you want to change it completely, rather create a new one. Do you still want to continue editing?',
   archiveItem:
     'Note that this will remove the item from the flow of this academic year. You can unarchive it from the list of archives later on. Do you still want to continue?',
   unarchiveItem:
@@ -228,4 +229,80 @@ export const website = {
   unarchivingSuccessfull: 'Unarchiving successfull!',
   failedToUnarchive:
     'Something went wrong while unarchiving item. Please try again!',
+  searchMajorName: 'Search major name',
+  department: 'Department',
+  selectDepartment: 'Select department',
+  all: 'All',
+  addNewMajor: 'Add new major',
+  major_acronym: 'Major acronym',
+  major_name: 'Major name',
+  cycle: 'Cycle',
+  selectCycle: 'Select cycle',
+  major: 'Major',
+  searchDepartmentName: 'Search department name',
+  loadingMajors: 'Loading majors...',
+  getMajorsFailed:
+    'Something went wrong while loading majors. Please try again!',
+  newMajor: 'New major',
+  manage: 'Manage',
+  loadDepartmentsFailed:
+    'Something went wrong while loading departments. please try again!',
+  loadingCycles: 'Loading cycles...',
+  loadCyclesFailed:
+    'Something went wrong while loading cycles. Please try again!',
+  BACHELORS: 'Bachelors',
+  years: 'years',
+  MASTER: 'Masters',
+  DOCTORATE: 'Doctorate',
+  classrooms: 'Classrooms',
+  classroom_name: 'Classroom name',
+  registration_fee: 'Registration fee',
+  total_fee_due: 'Total fee due',
+  noClassrooms: 'No Classrooms',
+  loadingClassrooms: 'Loading classrooms...',
+  loadingClassroomsFailed:
+    'Something went wrong while loading classrooms. Please try again!',
+  searchDepartment: 'Search department',
+  allPersonnel: 'All Personnel',
+  secretariat: 'Secretariat',
+  academicService: 'Academic Service',
+  coordinator: 'Coordinator',
+  search: 'Search',
+  addStaff: 'Add Staff',
+  addCoordinator: 'Add Coordinator',
+  addTeacher: 'Add Teacher',
+  import: 'Import',
+  export: 'Export',
+  personnelName: 'Personnel name',
+  lastConnect: 'Last Connected',
+  role: 'Role(s)',
+  sa: 'AS',
+  coordo: 'CM',
+  sec: 'Sec',
+  tea: 'Tea',
+  loadingPersonnel: 'Loading Personnel...',
+  failedToLoadPersonnel:
+    'Something went wrong while loading personnel. Please try again!',
+  seeProfile: 'See profile',
+  resetPassword2: 'Reset password',
+  resetPrivateCode: 'Reset Private Code',
+  resetPrivateCode2: 'Reset private code',
+  resetPrivateCodeMessage:
+    "This action cannot be undone. This will reset this user's private code. They'll receive a new code by mail. Do you still want to continue?",
+  resetPasswordMessage:
+    "This action cannot be undone. Th will reset this user's password. They'll receive a new password by mail. Do you still want to continue?",
+  resettingPassword: 'Resetting password',
+  resetPasswordSuccessful:
+    'Password reset successfully. User will receive a mail with their new password.',
+  failedToResetPassword:
+    'Something went wrong while resetting password. Please try again',
+  resettingCode: 'Resetting code',
+  resetCodeSuccessful:
+    'Private code reset successfully. User will receive a mail with their new private code.',
+  failedToResetCode:
+    'Something went wrong while resetting code. Please try again',
+    noSchoolPersonnel: "No personnel in this school yet. Click 'Add Staff' above to start!",
+    noTeacher: "No personnel of this category exists yet. Click 'Add Teacher' above to start!",
+    noCoordinator: "No personnel of this category exists yet. Click 'Add Coordinator' above to start!",
+    newAcademicYear: 'New academic year'
 };

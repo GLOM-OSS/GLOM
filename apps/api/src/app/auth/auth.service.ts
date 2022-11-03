@@ -2,24 +2,21 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  UnauthorizedException,
+  UnauthorizedException
 } from '@nestjs/common';
-import { AcademicYear, AcademicYearStatus, Login } from '@prisma/client';
-import { CronJobNames, TasksService } from '@squoolr/tasks';
+import { AcademicYearStatus, Login } from '@prisma/client';
+import { CronJobEvents, TasksService } from '@squoolr/tasks';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { AUTH02, AUTH04, AUTH401, AUTH404, sAUTH404 } from '../../errors';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
-  ActiveYear,
   DeserializeSessionData,
   DesirializeRoles,
   PassportSession,
   Role,
-  UserRole,
+  UserRole
 } from '../../utils/types';
-
-type AcademicYearObject = { AcademicYear: AcademicYear };
 
 @Injectable()
 export class AuthService {
@@ -35,6 +32,7 @@ export class AuthService {
   private annualTeacherService: typeof this.prismaService.annualTeacher;
   private annualRegistryService: typeof this.prismaService.annualRegistry;
   private AnnualConfiguratorService: typeof this.prismaService.annualConfigurator;
+  private AnnualClassroomDivisionService: typeof this.prismaService.annualClassroomDivision;
 
   constructor(
     private prismaService: PrismaService,
@@ -62,13 +60,22 @@ export class AuthService {
       })) as Login[];
       for (let i = 0; i < userLogins.length; i++) {
         const login = userLogins[i];
-        if (bcrypt.compareSync(password, login?.password)) {
-          const user = await this.validateLogin(request, login);
-          return {
-            ...user,
-            ...person,
-            login_id: login.login_id,
-          };
+        if (bcrypt.compareSync(password, login.password)) {
+          try {
+            const user = await this.validateLogin(request, login);
+            return {
+              ...user,
+              ...person,
+              login_id: login.login_id,
+              school_id: login.school_id,
+            };
+          } catch (error) {
+            if (
+              i === userLogins.length - 1 &&
+              error?.statusCode === HttpStatus.UNAUTHORIZED
+            )
+              throw new HttpException(error?.message, error?.statusCode);
+          }
         }
       }
     }
@@ -103,10 +110,10 @@ export class AuthService {
   }
 
   async validateLogin(request: Request, login: Omit<Login, 'password'>) {
-    const origin = request.headers.origin // new URL(request.headers.origin).hostname;
+    const origin = request.headers.origin; // new URL(request.headers.origin).hostname;
     const { login_id, school_id, cookie_age } = login;
 
-    const user: Omit<PassportSession, 'log_id'> = {
+    let user: Omit<PassportSession, 'log_id'> = {
       login_id,
       cookie_age,
       roles: [],
@@ -116,13 +123,13 @@ export class AuthService {
         login_id,
         OR: {
           logged_out_at: null,
-          closed_at: null
+          closed_at: null,
         },
       },
     });
-    if (activeLogs === 3) {
+    if (activeLogs >= 3) {
       throw new UnauthorizedException({
-        statusCode: HttpStatus.UNAUTHORIZED,
+        statusCode: HttpStatus.TOO_MANY_REQUESTS,
         error: 'Unauthorized access',
         message: AUTH02['Fr'],
       });
@@ -130,9 +137,10 @@ export class AuthService {
 
     if (school_id) {
       const school = await this.schoolService.findFirst({
-        where: { school_id },
+        where: { school_id, is_validated: true },
       });
-      if (origin === 'http://localhost:4200') {//origin === `${school.subdomain}.squoolr.com`
+      if (origin === 'http://localhost:4200') {
+        //origin === `${school.subdomain}.squoolr.com`
         const student = await this.studentService.findFirst({
           where: { login_id },
         });
@@ -142,19 +150,31 @@ export class AuthService {
             error: 'Unauthorized access',
             message: AUTH401['Fr'],
           }); //someone attempting to be a student
-      } else if (!login.is_personnel || origin !== `http://localhost:4201`) //origin !== `admin.${school.subdomain}.squoolr.com`
+      } else if (!login.is_personnel || origin !== `http://localhost:4201`)
+        //origin !== `admin.${school.subdomain}.squoolr.com`
         throw new UnauthorizedException({
           statusCode: HttpStatus.UNAUTHORIZED,
           error: 'Unauthorized access',
           message: AUTH401['Fr'],
         }); //someone attempting to be a personnel
-    } else if (origin !== 'http://localhost:4202') //process.env.SQUOOLR_URL
-      throw new UnauthorizedException({
-        statusCode: HttpStatus.UNAUTHORIZED,
-        error: 'Unauthorized access',
-        message: AUTH401['Fr'],
-      }); //attempting to be an admin
-
+    } else {
+      if (origin !== 'http://localhost:4202')
+        //process.env.SQUOOLR_URL
+        throw new UnauthorizedException({
+          statusCode: HttpStatus.UNAUTHORIZED,
+          error: 'Unauthorized access',
+          message: AUTH401['Fr'],
+        }); //attempting to be an admin
+      user = {
+        ...user,
+        roles: [
+          {
+            role: Role.ADMIN,
+            user_id: login_id,
+          },
+        ],
+      };
+    }
     const { log_id, job_name } = await this.logIn(
       request,
       user.login_id,
@@ -163,107 +183,17 @@ export class AuthService {
     return { log_id, ...user, job_name };
   }
 
-  async getAcademicYears(login_id: string) {
-    const select = {
-      AcademicYear: {
-        select: {
-          year_code: true,
-          started_at: true,
-          ended_at: true,
-          year_status: true,
-          starts_at: true,
-          ends_at: true,
-          academic_year_id: true,
-        },
-      },
-    };
-    //check for annual student
-    const annualStudents = (await this.annualStudentService.findMany({
-      select,
-      where: { Student: { login_id }, is_deleted: false },
-    })) as AcademicYearObject[];
-    if (annualStudents.length > 0) {
-      return annualStudents.map(
-        ({
-          AcademicYear: {
-            academic_year_id,
-            year_code,
-            ended_at,
-            ends_at,
-            started_at,
-            starts_at,
-            year_status,
-          },
-        }) => ({
-          year_code,
-          year_status,
-          academic_year_id,
-          starting_date:
-            year_status !== AcademicYearStatus.INACTIVE
-              ? started_at
-              : starts_at,
-          ending_date:
-            year_status !== AcademicYearStatus.FINISHED ? ends_at : ended_at,
-        })
-      );
-    }
-
-    //check for annual configurator
-    const annualConfigurators = (await this.AnnualConfiguratorService.findMany({
-      select,
-      where: { login_id, is_deleted: false },
-    })) as AcademicYearObject[];
-
-    //check for annual registry
-    const annualRegistries = (await this.annualRegistryService.findMany({
-      select,
-      where: { login_id, is_deleted: false },
-    })) as AcademicYearObject[];
-
-    //check for annual registry
-    const annualTeachers = (await this.annualTeacherService.findMany({
-      select,
-      where: { login_id, is_deleted: false },
-    })) as AcademicYearObject[];
-
-    const academic_years: ActiveYear[] = [];
-
-    [...annualConfigurators, ...annualRegistries, ...annualTeachers].forEach(
-      ({
-        AcademicYear: {
-          academic_year_id,
-          year_code,
-          ended_at,
-          ends_at,
-          started_at,
-          starts_at,
-          year_status,
-        },
-      }) => {
-        if (
-          !academic_years.find((_) => _.academic_year_id === academic_year_id)
-        ) {
-          academic_years.push({
-            year_code,
-            year_status,
-            academic_year_id,
-            starting_date:
-              year_status !== AcademicYearStatus.INACTIVE
-                ? started_at
-                : starts_at,
-            ending_date:
-              year_status !== AcademicYearStatus.FINISHED ? ends_at : ended_at,
-          });
-        }
-      }
-    );
-
-    return academic_years;
-  }
-
-  async getActiveRoles(login_id: string, academic_year_id: string) {
+  async getActiveRoles(
+    login_id: string,
+    academic_year_id: string
+  ): Promise<{ userRoles: UserRole[]; availableRoles: DesirializeRoles }> {
     const userRoles: UserRole[] = [];
+    const { school_id } = await this.loginService.findUnique({
+      where: { login_id },
+    });
 
+    if (!school_id)
+      return { userRoles: [], availableRoles: {} as DesirializeRoles };
     const { started_at, ended_at, starts_at, ends_at, year_code, year_status } =
       await this.academicYearService.findFirst({
         where: {
@@ -274,6 +204,7 @@ export class AuthService {
 
     let availableRoles: DesirializeRoles = {
       login_id,
+      school_id,
       activeYear: {
         year_code,
         year_status,
@@ -346,7 +277,7 @@ export class AuthService {
         });
       }
 
-      //check for annual registry
+      //check for annual teacher
       const annualTeacher = await this.annualTeacherService.findFirst({
         where: {
           academic_year_id,
@@ -362,9 +293,16 @@ export class AuthService {
           origin_institute,
           teacher_id,
         } = annualTeacher;
+        const classroomDivisions =
+          await this.AnnualClassroomDivisionService.findMany({
+            where: { annual_coordinator_id: annual_teacher_id },
+          });
         availableRoles = {
           ...availableRoles,
           annualTeacher: {
+            classroomDivisions: classroomDivisions.map(
+              ({ annual_classroom_division_id: id }) => id
+            ),
             annual_teacher_id,
             has_signed_convention,
             hourly_rate,
@@ -373,7 +311,7 @@ export class AuthService {
           },
         };
         userRoles.push({
-          user_id: annualTeacher.annual_teacher_id,
+          user_id: annual_teacher_id,
           role: Role.TEACHER,
         });
       }
@@ -456,12 +394,15 @@ export class AuthService {
     const person = await this.personService.findFirst({
       where: { Logins: { some: { login_id } } },
     });
-    if (!academic_year_id) {
-      const { school_id } = await this.loginService.findUnique({
-        where: { login_id },
-      });
-      return school_id ? null : { ...person, login_id };
-    }
+    const login = await this.loginService.findUnique({
+      where: { login_id },
+    });
+    if (!login) return null;
+
+    const { school_id } = login;
+    if (!academic_year_id)
+      return school_id ? null : { ...person, login_id, school_id };
+
     const { started_at, ended_at, starts_at, ends_at, year_code, year_status } =
       await this.academicYearService.findFirst({
         where: {
@@ -473,6 +414,7 @@ export class AuthService {
     let deserialedUser: DeserializeSessionData = {
       login_id,
       ...person,
+      school_id,
       activeYear: {
         year_code,
         year_status,
@@ -539,13 +481,20 @@ export class AuthService {
                 is_deleted: false,
               },
             });
+            const classroomDivisions =
+              await this.AnnualClassroomDivisionService.findMany({
+                where: { annual_coordinator_id: user_id },
+              });
             deserialedUser = {
               ...deserialedUser,
               annualTeacher: {
-                annual_teacher_id,
+                classroomDivisions: classroomDivisions.map(
+                  ({ annual_classroom_division_id: id }) => id
+                ),
                 has_signed_convention,
-                hourly_rate,
+                annual_teacher_id,
                 origin_institute,
+                hourly_rate,
                 teacher_id,
               },
             };
@@ -566,34 +515,35 @@ export class AuthService {
     });
     const now = new Date();
     const job_name = this.tasksService.addCronJob(
-      {
-        name: CronJobNames.AUTO_LOGOUT,
-        callback: async () => {
-          request.session.destroy(async (err) => {
-            if (!err) {
-              await this.logService.update({
-                data: { closed_at: new Date() },
-                where: { log_id },
-              });
-            }
-          });
-        },
-      },
-      new Date(now.setSeconds(now.getSeconds() + cookie_age))
+      CronJobEvents.AUTO_LOGOUT,
+      new Date(now.setSeconds(now.getSeconds() + cookie_age)),
+      () => {
+        request.session.destroy(async (err) => {
+          if (!err) await this.closeSession(log_id);
+        });
+      }
     );
     return { job_name, log_id };
   }
 
+  async closeSession(log_id: string) {
+    await this.logService.update({
+      data: { closed_at: new Date() },
+      where: { log_id },
+    });
+  }
+
   async isClientCorrect(
-    {
+    deserialedUser: DeserializeSessionData,
+    squoolr_client: string
+  ) {
+    const {
       login_id,
       annualConfigurator,
       annualRegistry,
       annualStudent,
       annualTeacher,
-    }: DeserializeSessionData,
-    squoolr_client: string
-  ) {
+    } = deserialedUser;
     const school = await this.schoolService.findFirst({
       where: {
         Logins: {
@@ -602,10 +552,10 @@ export class AuthService {
       },
     });
     return (
-      (login_id && squoolr_client === 'http://localhost:4202') ||//Admin -> process.env.SQUOOLR_URL
-      (annualStudent && squoolr_client === school?.subdomain) ||//Student -> `${school.subdomain}.squoolr.com`
+      (login_id && squoolr_client === 'http://localhost:4202') || //Admin -> process.env.SQUOOLR_URL
+      (annualStudent && squoolr_client === 'http://localhost:4200') || //Student -> `${school.subdomain}.squoolr.com`
       ((annualConfigurator || annualRegistry || annualTeacher) &&
-        squoolr_client === `admin.${school?.subdomain}`)//Personnel -> `admin.${school.subdomain}.squoolr.com`
+        squoolr_client === 'http://localhost:4201') //Personnel -> `admin.${school.subdomain}.squoolr.com`
     );
   }
 }

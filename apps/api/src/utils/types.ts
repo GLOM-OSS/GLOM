@@ -9,9 +9,11 @@ export type RecordValue =
   | boolean
   | UserRole[];
 export enum Role {
+  ADMIN = 'ADMIN',
   STUDENT = 'STUDENT',
   TEACHER = 'TEACHER',
   REGISTRY = 'REGISTRY',
+  COORDINATOR = 'COORDINATOR',
   CONFIGURATOR = 'CONFIGURATOR',
 }
 export type UserRole = {
@@ -38,6 +40,7 @@ export type ActiveYear = {
 
 export type DesirializeRoles = {
   login_id: string;
+  school_id?: string;
   annualStudent?: {
     annual_student_id: string;
     student_id: string;
@@ -52,6 +55,7 @@ export type DesirializeRoles = {
     hourly_rate: number;
     origin_institute: string;
     has_signed_convention: boolean;
+    classroomDivisions: string[];
     teacher_id: string;
   };
   annualRegistry?: {

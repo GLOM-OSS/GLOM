@@ -21,7 +21,7 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
-import { Outlet, useLocation, useNavigate } from 'react-router';
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router';
 import LogoutDialog from '../components/logoutDialog';
 import PrimaryNav from '../components/primaryNav';
 import SecondaryNavItem from '../components/SecondaryNavItem';
@@ -104,7 +104,7 @@ export function Layout({
         );
       if (children.length > 0)
         navigate(
-          pathname.length > 2
+          pathname.length >= 2
             ? `/${pathname.join('/')}`
             : `${children[0].route}`
         );
@@ -189,6 +189,7 @@ export function Layout({
       })
       .finally(() => setIsSubmitting(false));
   };
+  const params = useParams();
 
   return (
     <>
@@ -264,7 +265,8 @@ export function Layout({
           <Typography variant="body2" sx={{ color: theme.common.label }}>
             {activeNavItem ? formatMessage({ id: activeNavItem.title }) : null}
           </Typography>
-          <Scrollbars>
+          {/*TODO: ADD SCROLLBARS AGAIN. BUT NOTICE HOW IT PREVENTS THE FULLWIDTH CONCEPT. TRY TO SOLVE IT */}
+          {/* <Scrollbars> */}
             <Box
               sx={{
                 marginTop: theme.spacing(2.5),
@@ -282,7 +284,7 @@ export function Layout({
                   ))
                 : null}
             </Box>
-          </Scrollbars>
+          {/* </Scrollbars> */}
           {callingApp === 'personnel' && (
             <SwapAcademicYear callingApp={callingApp} activeYear={activeYear} />
           )}
@@ -391,6 +393,9 @@ export function Layout({
                     const pathnameArray = location.pathname
                       .split('/')
                       .filter((_) => _ !== '');
+                    const paramTexts = Object.keys(params).map(
+                      (_item) => params[_item]
+                    );
                     return (
                       <Typography
                         key={index}
@@ -430,7 +435,7 @@ export function Layout({
                           },
                         }}
                       >
-                        {isNaN(Number(item))
+                        {isNaN(Number(item)) && !paramTexts.includes(item)
                           ? formatMessage({ id: item })
                           : item}
                       </Typography>

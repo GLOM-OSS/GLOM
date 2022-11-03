@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Role } from './types';
 
 @Injectable()
 export class CodeGeneratorService {
@@ -14,8 +15,14 @@ export class CodeGeneratorService {
       : `${number}`;
   }
 
-  async getYearCode(starting_year: number, ending_year: number) {
-    const numberOfAcademicYears = await this.prismaService.academicYear.count();
+  async getYearCode(
+    school_id: string,
+    starting_year: number,
+    ending_year: number
+  ) {
+    const numberOfAcademicYears = await this.prismaService.academicYear.count({
+      where: { school_id },
+    });
     return `YEAR-${starting_year}${ending_year}${this.getNumberString(
       numberOfAcademicYears + 1
     )}`;
@@ -41,7 +48,7 @@ export class CodeGeneratorService {
     )}`;
   }
 
-  async getMajorCode(acronym: string, department_id: string) {
+  async getMajorCode(acronym: string, department_code: string) {
     const numberOfMajors = await this.prismaService.annualMajor.findMany({
       distinct: ['major_acronym'],
       where: { major_acronym: acronym },
@@ -50,23 +57,66 @@ export class CodeGeneratorService {
 
     const { department_acronym } =
       await this.prismaService.department.findUnique({
-        where: { department_id },
+        where: { department_code },
       });
     return `${department_acronym}${acronym}${this.getNumberString(
       numberOfMajors.length + 1
     )}`;
   }
 
-  async getClassCode(acronym: string, major_id: string) {
+  async getClassCode(level: number, major_code: string) {
+    const { major_acronym } = await this.prismaService.major.findUnique({
+      where: { major_code },
+    });
+    const classroom_acronym = `${major_acronym}${level}`;
     const numberOfClassrooms = await this.prismaService.classroom.count({
-      where: { major_id },
+      where: { classroom_acronym },
     });
 
-    const { major_acronym } = await this.prismaService.major.findUnique({
-      where: { major_id },
-    });
-    return `${major_acronym}${acronym}${this.getNumberString(
-      numberOfClassrooms
+    return `${classroom_acronym}${this.getNumberString(
+      numberOfClassrooms + 1
     )}`;
+  }
+
+  async getTeacherCode(school_id: string) {
+    const { school_acronym } = await this.prismaService.school.findUnique({
+      select: { school_acronym: true },
+      where: { school_id },
+    });
+    const numberOfTeachers = await this.prismaService.teacher.count({
+      where: {
+        AnnualTeachers: {
+          some: {
+            Login: { school_id },
+          },
+        },
+      },
+    });
+    return `${school_acronym}TE${this.getNumberString(numberOfTeachers + 1)}`;
+  }
+
+  async getPersonnelCode(school_id: string, role: Role) {
+    const { school_acronym } = await this.prismaService.school.findUnique({
+      select: { school_acronym: true },
+      where: { school_id },
+    });
+    let numberOfPersonnel = 0;
+    let personnelCode: string;
+    if (role === Role.REGISTRY) {
+      numberOfPersonnel = await this.prismaService.annualRegistry.count({
+        where: { Login: { school_id } },
+      });
+      personnelCode = `${school_acronym}SA${this.getNumberString(
+        numberOfPersonnel + 1
+      )}`;
+    } else if (role === Role.CONFIGURATOR) {
+      numberOfPersonnel = await this.prismaService.annualConfigurator.count({
+        where: { Login: { school_id } },
+      });
+      personnelCode = `${school_acronym}SE${this.getNumberString(
+        numberOfPersonnel + 1
+      )}`;
+    }
+    return personnelCode;
   }
 }

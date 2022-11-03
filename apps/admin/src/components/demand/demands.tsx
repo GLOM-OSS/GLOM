@@ -13,7 +13,7 @@ export interface DemandInterface {
   code: string;
   school_name: string;
   email: string;
-  phone: string;
+  phone_number: string;
   status: Status;
 }
 
@@ -41,11 +41,11 @@ export default function Demands() {
               school_email,
               demand_status,
               school_code: code,
-              school_phone_number: phone,
+              school_phone_number: phone_number,
             }) => ({
               code,
               email: school_email,
-              phone,
+              phone_number,
               school_name,
               status: demand_status as Status,
             })

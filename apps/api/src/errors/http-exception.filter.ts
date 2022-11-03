@@ -16,12 +16,19 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { statusCode, error, message } = exception.getResponse() as any;
-    // console.log(exception.message)
+    let errorMessage: string;
+    try {
+      errorMessage = JSON.parse(message ?? exception.message)[
+        request.user['preferred_lang']
+      ];
+    } catch (error) {
+      errorMessage = message ?? exception.message;
+    }
     response.status(statusCode ?? HttpStatus.INTERNAL_SERVER_ERROR).json({
       error,
       path: request.url,
       timestamp: new Date().toISOString(),
-      message: message ?? exception.message,
+      message: errorMessage,
       statusCode: statusCode ?? exception.getStatus(),
     });
   }

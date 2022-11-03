@@ -24,6 +24,11 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
           route: 'personnel',
           page_title: 'personnel',
         },
+        {
+          title: formatMessage({ id: 'newAcademicYear' }),
+          route: 'new-academic-year',
+          page_title: 'newAcademicYear',
+        },
       ],
     },
   ];

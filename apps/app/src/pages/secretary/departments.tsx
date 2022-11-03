@@ -6,26 +6,34 @@ import {
   Fab,
   FormControlLabel,
   InputAdornment,
+  MenuItem,
   TextField,
   Tooltip,
-  Typography,
+  Typography
 } from '@mui/material';
+import {
+  createDepartment,
+  createMajor,
+  editDepartment,
+  editMajor,
+  getDepartments,
+  getMajors
+} from '@squoolr/api-services';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import AcademicItem, { AcademicItemSkeleton } from '../../AcademicItem';
-import ConfirmArchiveDialog from '../../components/confirmArchiveDialog';
-import ConfirmEditDialog from '../../components/confirmEditDepartmentDialog';
+import ConfirmArchiveDialog from '../../components/secretary/confirmArchiveDialog';
+import ConfirmEditDialog from '../../components/secretary/confirmEditDepartmentDialog';
 import MajorDialog, {
   FeeSetting,
-  MajorInterface,
-} from '../../components/majorDialog';
+  MajorInterface
+} from '../../components/secretary/majorDialog';
 import NewDepartmentDialog, {
-  newDepartmentInterface,
-} from '../../components/newDepartmentDialog';
+  newDepartmentInterface
+} from '../../components/secretary/newDepartmentDialog';
 
 export interface DepartmentInterface {
   created_at: Date;
@@ -35,7 +43,7 @@ export interface DepartmentInterface {
   item_name: string;
   item_acronym: string;
   department_acronym?: string;
-  cycle_name?: string;
+  cycle_name?: 'BACHELORS' | 'MASTER' | 'DOCTORATE' | 'DUT' | 'BTS' | 'DTS';
 }
 
 export default function Departments({
@@ -48,12 +56,13 @@ export default function Departments({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
   const [isArchiveDialogOpen, setIsArchiveDialogOpen] =
     useState<boolean>(false);
-  const [departments, setAcademicItems] = useState<DepartmentInterface[]>([]);
-  const [areDepartmentsLoading, setAreAcademicItemsLoading] =
+  const [academicItems, setAcademicItems] = useState<DepartmentInterface[]>([]);
+  const [areAcademicItemsLoading, setAreAcademicItemsLoading] =
     useState<boolean>(true);
 
   const [notifications, setNotifications] = useState<useNotification[]>();
   const [showArchived, setShowArchived] = useState<boolean>(false);
+  const [canSearch, setCanSearch] = useState<boolean>(false);
 
   const getAcademicItems = () => {
     setAreAcademicItemsLoading(true);
@@ -62,47 +71,33 @@ export default function Departments({
     const notif = new useNotification();
     if (notifications) setNotifications([...notifications, notif]);
     else setNotifications([notif]);
-    setTimeout(() => {
-      switch (usage) {
-        case 'department': {
-          //TODO: CALL API HERE TO GET departments with data showArchived
-          if (random() > 5) {
-            const newDepartments: DepartmentInterface[] = [
-              {
-                created_at: new Date(),
-                item_acronym: 'GRT0001',
-                item_name: 'Genie des reseaux et telecommunications',
-                is_archived: false,
-                item_code: 'sdh',
-              },
-              {
-                created_at: new Date(),
-                item_acronym: 'GRT0001',
-                item_name: 'Genie des reseaux et telecommunications',
-                is_archived: false,
-                item_code: 'sds',
-              },
-              {
-                created_at: new Date(),
-                item_acronym: 'GRT0001',
-                item_name: 'Genie des reseaux et telecommunications',
-                is_archived: false,
-                item_code: 'shs',
-              },
-              {
-                created_at: new Date(),
-                item_acronym: 'GRT0001',
-                item_name: 'Genie des reseaux et telecommunications',
-                is_archived: true,
-                item_code: 'shs',
-                deleted_at: new Date('12/12/2018'),
-              },
-            ];
-            setAcademicItems(newDepartments);
+    switch (usage) {
+      case 'department': {
+        getDepartments({ is_deleted: showArchived, keywords: searchTerm })
+          .then((departments) => {
+            setAcademicItems(
+              departments.map(
+                ({
+                  department_name,
+                  department_acronym,
+                  department_code,
+                  created_at,
+                  is_deleted,
+                }) => ({
+                  created_at,
+                  item_acronym: department_acronym,
+                  item_name: department_name,
+                  is_archived: is_deleted,
+                  item_code: department_code,
+                })
+              )
+            );
             setAreAcademicItemsLoading(false);
             notif.dismiss();
             setNotifications([]);
-          } else {
+            setCanSearch(true);
+          })
+          .catch((error) => {
             notif.notify({
               render: formatMessage({
                 id: `loading${usage[0].toUpperCase()}${usage.slice(
@@ -117,99 +112,96 @@ export default function Departments({
                 <ErrorMessage
                   retryFunction={getAcademicItems}
                   notification={notif}
-                  message={formatMessage({ id: 'getDepartmentsFailed' })}
+                  message={
+                    error?.message ||
+                    formatMessage({ id: 'getDepartmentsFailed' })
+                  }
                 />
               ),
               autoClose: false,
               icon: () => <ReportRounded fontSize="medium" color="error" />,
             });
-          }
-          break;
-        }
-        case 'major': {
-          //TODO: CALL API HERE TO GET majors with data showArchived
-          if (random() > 5) {
-            const newMajors: DepartmentInterface[] = [
-              {
-                created_at: new Date(),
-                item_acronym: 'IRT',
-                item_name: 'Informatiques reseaux et telecommunications',
-                is_archived: false,
-                item_code: 'sdh',
-                cycle_name: 'licence',
-                department_acronym: 'GRT',
-              },
-              {
-                created_at: new Date(),
-                item_acronym: 'IRT',
-                item_name: 'Informatiques reseaux et telecommunications',
-                is_archived: false,
-                item_code: 'sdhk',
-                cycle_name: 'licence',
-                department_acronym: 'GRT',
-              },
-              {
-                created_at: new Date(),
-                item_acronym: 'IRT',
-                item_name: 'Informatiques reseaux et telecommunications',
-                is_archived: false,
-                item_code: 'sdha',
-                cycle_name: 'licence',
-                department_acronym: 'GRT',
-              },
-              {
-                created_at: new Date(),
-                item_acronym: 'IRT',
-                item_name: 'Informatiques reseaux et telecommunications',
-                is_archived: false,
-                item_code: 'sdhg',
-                cycle_name: 'licence',
-                department_acronym: 'GRT',
-              },
-            ];
-            setAcademicItems(newMajors);
-            setAreAcademicItemsLoading(false);
-            notif.dismiss();
-            setNotifications([]);
-          } else {
-            notif.notify({
-              render: formatMessage({
-                id: `loading${usage[0].toUpperCase()}${usage.slice(
-                  1,
-                  undefined
-                )}s`,
-              }),
-            });
-            notif.update({
-              type: 'ERROR',
-              render: (
-                <ErrorMessage
-                  retryFunction={getAcademicItems}
-                  notification={notif}
-                  message={formatMessage({
-                    id: `get${usage[0].toUpperCase()}${usage.slice(
-                      1,
-                      undefined
-                    )}sFailed`,
-                  })}
-                />
-              ),
-              autoClose: false,
-              icon: () => <ReportRounded fontSize="medium" color="error" />,
-            });
-          }
-          break;
-        }
+          });
+        break;
       }
-    }, 3000);
+      case 'major': {
+        getMajors({
+          department_code: selectedDepartmentCode as string,
+          is_deleted: showArchived,
+        })
+          .then((majors) => {
+            setAcademicItems(
+              majors.map(
+                ({
+                  major_name,
+                  major_acronym,
+                  major_code,
+                  created_at,
+                  is_deleted,
+                  cycle_name,
+                  department_acronym,
+                }) => ({
+                  created_at,
+                  cycle_name,
+                  department_acronym,
+                  item_name: major_name,
+                  item_code: major_code,
+                  is_archived: is_deleted,
+                  item_acronym: major_acronym,
+                })
+              )
+            );
+            setAreAcademicItemsLoading(false);
+            notif.dismiss();
+            setNotifications([]);
+          })
+          .catch((error) => {
+            notif.notify({
+              render: formatMessage({
+                id: `loading${usage[0].toUpperCase()}${usage.slice(
+                  1,
+                  undefined
+                )}s`,
+              }),
+            });
+            notif.update({
+              type: 'ERROR',
+              render: (
+                <ErrorMessage
+                  retryFunction={getAcademicItems}
+                  notification={notif}
+                  message={
+                    error?.message ||
+                    formatMessage({
+                      id: `get${usage[0].toUpperCase()}${usage.slice(
+                        1,
+                        undefined
+                      )}sFailed`,
+                    })
+                  }
+                />
+              ),
+              autoClose: false,
+              icon: () => <ReportRounded fontSize="medium" color="error" />,
+            });
+          });
+        break;
+      }
+    }
   };
+
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [selectedDepartmentCode, setSelectedDepartmentCode] = useState<
+    string | undefined
+  >(undefined);
 
   useEffect(() => {
     getAcademicItems();
+    // alert('make it rain');
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showArchived]);
+  }, [showArchived, searchTerm, selectedDepartmentCode]);
 
-  const [isAddNewDepartmentDialogOpen, setIsAddNewAcademicItemDialogOpen] =
+  const [isAddNewAcademicItemDialogOpen, setIsAddNewAcademicItemDialogOpen] =
     useState<boolean>(false);
 
   const [isManagingDepartment, setIsManagingDepartment] =
@@ -228,53 +220,63 @@ export default function Departments({
         id: activeAcademicItem ? 'editingDepartment' : 'creatingDepartment',
       }),
     });
-    setTimeout(() => {
-      if (activeAcademicItem) {
-        //TODO: CALL API HERE TO EDIT DEPARTMENT with data newDepartment and department_id: activeDepartment.department_id
-        if (random() > 5) {
+    if (activeAcademicItem) {
+      editDepartment(activeAcademicItem.item_code, {
+        department_name: newDepartment.item_name,
+      })
+        .then(() => {
           notif.update({
             render: formatMessage({ id: 'departmentEditedSuccessfully' }),
           });
           setActiveItem(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={() => createNewDepartment(newDepartment)}
                 notification={notif}
-                //TODO: MESSAGE SHOULD COME FROM BACKEND
-                message={formatMessage({ id: 'failedToEditDepartment' })}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'failedToEditDepartment' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      } else {
-        //TODO: CALL API HERE TO CREATE DEPARTMENT with data newDepartment
-        if (random() > 5) {
+        })
+        .finally(() => setIsManagingDepartment(false));
+    } else {
+      createDepartment({
+        department_acronym: newDepartment.item_acronym,
+        department_name: newDepartment.item_name,
+      })
+        .then(() => {
           notif.update({
             render: formatMessage({ id: 'departmentCreatedSuccessfully' }),
           });
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={() => createNewDepartment(newDepartment)}
                 notification={notif}
-                //TODO: MESSAGE SHOULD COME FROM BACKEND
-                message={formatMessage({ id: 'failedToCreateDepartment' })}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'failedToCreateDepartment' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }
-      setIsManagingDepartment(false);
-    }, 3000);
+        })
+        .finally(() => setIsManagingDepartment(false));
+    }
   };
 
   const manageMajor = (value: {
@@ -289,54 +291,67 @@ export default function Departments({
         id: activeAcademicItem ? 'editingMajor' : 'creatingMajor',
       }),
     });
-
-    setTimeout(() => {
-      if (activeAcademicItem) {
-        //TODO: CALL API HERE TO EDIT major with data value.values and major_id: activeDepartment.item_id
-        if (random() > 5) {
+    if (activeAcademicItem) {
+      editMajor(activeAcademicItem.item_code, {
+        major_name: value.values.item_name,
+        department_code: value.values.department_code,
+        major_acronym: value.values.item_acronym,
+        classrooms: value.levelFees
+      })
+        .then(() => {
           notif.update({
             render: formatMessage({ id: 'majorEditedSuccessfully' }),
           });
           setActiveItem(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={() => manageMajor(value)}
                 notification={notif}
-                //TODO: MESSAGE SHOULD COME FROM BACKEND
-                message={formatMessage({ id: 'failedToEditMajor' })}
+                message={
+                  error?.message || formatMessage({ id: 'failedToEditMajor' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      } else {
-        //TODO: CALL API HERE TO CREATE major with data value
-        if (random() > 5) {
+        });
+    } else {
+      const { values, levelFees } = value;
+      createMajor({
+        major_name: values.item_name,
+        cycle_id: values.cycle_id,
+        department_code: values.department_code,
+        major_acronym: values.item_acronym,
+        classrooms: levelFees,
+      })
+        .then(() => {
           notif.update({
             render: formatMessage({ id: 'majorCreatedSuccessfully' }),
           });
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={() => manageMajor(value)}
                 notification={notif}
-                //TODO: MESSAGE SHOULD COME FROM BACKEND
-                message={formatMessage({ id: 'failedToCreateMajor' })}
+                message={
+                  error?.message || formatMessage({ id: 'failedToCreateMajor' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }
-      setIsManagingDepartment(false);
-    }, 3000);
+        });
+    }
+    setIsManagingDepartment(false);
   };
 
   const [isWarningDialogOpen, setIsWarningDialogOpen] =
@@ -353,128 +368,89 @@ export default function Departments({
         id: activeAcademicItem?.is_archived ? 'unarchiving' : 'archiving',
       }),
     });
-    setTimeout(() => {
-      setIsArchiving(false);
-      if (activeAcademicItem?.is_archived) {
-        switch (usage) {
-          case 'department': {
-            //TODO: CALL API HERE TO UNARCHIVE department with data activeAcademicItem
-            if (random() > 5) {
-              notif.update({
-                render: formatMessage({
-                  id: 'unarchivingSuccessfull',
-                }),
-              });
-              setActiveItem(undefined);
-            } else {
-              notif.update({
-                type: 'ERROR',
-                render: (
-                  <ErrorMessage
-                    retryFunction={unArchiveItem}
-                    notification={notif}
-                    //TODO: MESSAGE SHOULD COME FROM BACKEND
-                    message={formatMessage({
-                      id: 'failedToUnarchive',
-                    })}
-                  />
-                ),
-                autoClose: false,
-                icon: () => <ReportRounded fontSize="medium" color="error" />,
-              });
-            }
-            break;
-          }
-          case 'major': {
-            //TODO: CALL API HERE TO UNARCHIVE major with data activeAcademicItem
-            if (random() > 5) {
-              notif.update({
-                render: formatMessage({
-                  id: 'unarchivingSuccessfull',
-                }),
-              });
-              setActiveItem(undefined);
-            } else {
-              notif.update({
-                type: 'ERROR',
-                render: (
-                  <ErrorMessage
-                    retryFunction={unArchiveItem}
-                    notification={notif}
-                    //TODO: MESSAGE SHOULD COME FROM BACKEND
-                    message={formatMessage({
-                      id: 'failedToUnarchive',
-                    })}
-                  />
-                ),
-                autoClose: false,
-                icon: () => <ReportRounded fontSize="medium" color="error" />,
-              });
-            }
-            break;
-          }
-        }
-      } else {
-        switch (usage) {
-          case 'department': {
-            //TODO: CALL API HERE TO ARCHIVE major with data activeAcademicItem
-            if (random() > 5) {
-              notif.update({
-                render: formatMessage({
-                  id: 'archivingSuccessfull',
-                }),
-              });
-              setActiveItem(undefined);
-            } else {
-              notif.update({
-                type: 'ERROR',
-                render: (
-                  <ErrorMessage
-                    retryFunction={unArchiveItem}
-                    notification={notif}
-                    //TODO: MESSAGE SHOULD COME FROM BACKEND
-                    message={formatMessage({
-                      id: 'failedToArchive',
-                    })}
-                  />
-                ),
-                autoClose: false,
-                icon: () => <ReportRounded fontSize="medium" color="error" />,
-              });
-            }
-            break;
-          }
-          case 'major': {
-            //TODO: CALL API HERE TO ARCHIVE major with data activeAcademicItem
-            if (random() > 5) {
-              notif.update({
-                render: formatMessage({
-                  id: 'archivingSuccessfull',
-                }),
-              });
-              setActiveItem(undefined);
-            } else {
-              notif.update({
-                type: 'ERROR',
-                render: (
-                  <ErrorMessage
-                    retryFunction={unArchiveItem}
-                    notification={notif}
-                    //TODO: MESSAGE SHOULD COME FROM BACKEND
-                    message={formatMessage({
-                      id: 'failedToArchive',
-                    })}
-                  />
-                ),
-                autoClose: false,
-                icon: () => <ReportRounded fontSize="medium" color="error" />,
-              });
-            }
-            break;
-          }
-        }
+    setIsArchiving(false);
+    switch (usage) {
+      case 'department': {
+        editDepartment(activeAcademicItem?.item_code as string, {
+          is_deleted: !activeAcademicItem?.is_archived,
+        })
+          .then(() => {
+            notif.update({
+              render: activeAcademicItem?.is_archived
+                ? formatMessage({
+                    id: 'unarchivingSuccessfull',
+                  })
+                : formatMessage({
+                    id: 'archivingSuccessfull',
+                  }),
+            });
+            setActiveItem(undefined);
+          })
+          .catch((error) => {
+            notif.update({
+              type: 'ERROR',
+              render: (
+                <ErrorMessage
+                  retryFunction={unArchiveItem}
+                  notification={notif}
+                  message={
+                    error?.message || activeAcademicItem?.is_archived
+                      ? formatMessage({
+                          id: 'failedToUnarchive',
+                        })
+                      : formatMessage({
+                          id: 'failedToArchive',
+                        })
+                  }
+                />
+              ),
+              autoClose: false,
+              icon: () => <ReportRounded fontSize="medium" color="error" />,
+            });
+          });
+        break;
       }
-    }, 3000);
+      case 'major': {
+        editMajor(activeAcademicItem?.item_code as string, {
+          is_deleted: !activeAcademicItem?.is_archived,
+        })
+          .then(() => {
+            notif.update({
+              render: activeAcademicItem?.is_archived
+                ? formatMessage({
+                    id: 'unarchivingSuccessfull',
+                  })
+                : formatMessage({
+                    id: 'archivingSuccessfull',
+                  }),
+            });
+            setActiveItem(undefined);
+          })
+          .catch((error) => {
+            notif.update({
+              type: 'ERROR',
+              render: (
+                <ErrorMessage
+                  retryFunction={unArchiveItem}
+                  notification={notif}
+                  message={
+                    error?.message || activeAcademicItem?.is_archived
+                      ? formatMessage({
+                          id: 'failedToUnarchive',
+                        })
+                      : formatMessage({
+                          id: 'failedToArchive',
+                        })
+                  }
+                />
+              ),
+              autoClose: false,
+              icon: () => <ReportRounded fontSize="medium" color="error" />,
+            });
+          });
+        break;
+      }
+    }
   };
 
   const addNewItem = () => {
@@ -492,6 +468,55 @@ export default function Departments({
 
   const [isAddMajorDialogOpen, setIsAddMajorDialogOpen] =
     useState<boolean>(false);
+
+  const [areDepartmentsLoading, setAreDepartmentsLoading] =
+    useState<boolean>(false);
+  const [departments, setDepartments] = useState<
+    {
+      department_code: string;
+      department_name: string;
+      department_acronym: string;
+    }[]
+  >([]);
+
+  const [departmentNotif, setDepartmentNotif] = useState<useNotification>();
+  const loadDepartments = () => {
+    if (usage === 'major') {
+      setAreDepartmentsLoading(true);
+      const notif = new useNotification();
+      if (departmentNotif) departmentNotif.dismiss();
+      setDepartmentNotif(notif);
+      getDepartments()
+        .then((newDepartments) => {
+          setDepartments(newDepartments);
+          setAreDepartmentsLoading(false);
+          notif.dismiss();
+          setDepartmentNotif(undefined);
+        })
+        .catch((error) => {
+          notif.notify({ render: formatMessage({ id: 'loadingDepartments' }) });
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={loadDepartments}
+                notification={notif}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'getDepartmentsFailed' })
+                }
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        });
+    }
+  };
+  useEffect(() => {
+    loadDepartments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [usage]);
 
   return (
     <>
@@ -520,7 +545,7 @@ export default function Departments({
           else setIsAddNewAcademicItemDialogOpen(false);
         }}
         isDialogOpen={
-          (isAddNewDepartmentDialogOpen || isEditDialogOpen) &&
+          (isAddNewAcademicItemDialogOpen || isEditDialogOpen) &&
           usage === 'department'
         }
         handleSubmit={createNewDepartment}
@@ -549,20 +574,28 @@ export default function Departments({
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: 'auto 1fr',
+            gridTemplateColumns:
+              usage === 'major' ? 'auto auto 1fr' : 'auto 1fr',
             columnGap: theme.spacing(2),
             alignItems: 'center',
           }}
         >
           <TextField
-            placeholder={formatMessage({ id: 'searchSomething' })}
+            placeholder={formatMessage({
+              id: `search${usage[0].toUpperCase()}${usage.slice(
+                1,
+                undefined
+              )}Name`,
+            })}
             variant="outlined"
+            onChange={(event) => setSearchTerm(event.target.value)}
+            value={searchTerm}
             size="small"
             sx={{
               '& input': { ...theme.typography.caption },
               backgroundColor: theme.common.inputBackground,
             }}
-            disabled={areDepartmentsLoading}
+            disabled={areAcademicItemsLoading && canSearch}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -573,10 +606,46 @@ export default function Departments({
               ),
             }}
           />
+          {usage === 'major' && (
+            <TextField
+              select
+              size="small"
+              placeholder={formatMessage({ id: 'department' })}
+              label={formatMessage({ id: 'searchDepartment' })}
+              value={selectedDepartmentCode}
+              onChange={(event) =>
+                setSelectedDepartmentCode(event.target.value)
+              }
+              sx={{
+                '& input': { ...theme.typography.caption },
+                backgroundColor: theme.common.inputBackground,
+                minWidth: '200px',
+              }}
+              color="primary"
+              disabled={
+                areDepartmentsLoading || (areAcademicItemsLoading && canSearch)
+              }
+            >
+              <MenuItem value={undefined}>
+                {formatMessage({ id: 'all' })}
+              </MenuItem>
+              {departments.map(
+                (
+                  { department_acronym, department_code, department_name },
+                  index
+                ) => (
+                  <MenuItem
+                    key={index}
+                    value={department_code}
+                  >{`${department_name}(${department_acronym})`}</MenuItem>
+                )
+              )}
+            </TextField>
+          )}
           <FormControlLabel
             control={
               <Checkbox
-                disabled={areDepartmentsLoading}
+                disabled={areAcademicItemsLoading && canSearch}
                 checked={showArchived}
                 color="primary"
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -589,9 +658,11 @@ export default function Departments({
           />
         </Box>
         <Box sx={{ height: '100%', position: 'relative' }}>
-          {!areDepartmentsLoading && (
+          {!areAcademicItemsLoading && (
             <Fab
-              disabled={areDepartmentsLoading || isAddNewDepartmentDialogOpen}
+              disabled={
+                areAcademicItemsLoading || isAddNewAcademicItemDialogOpen
+              }
               onClick={addNewItem}
               color="primary"
               sx={{ position: 'absolute', bottom: 16, right: 24 }}
@@ -618,14 +689,14 @@ export default function Departments({
                 gap: theme.spacing(2),
               }}
             >
-              {areDepartmentsLoading &&
+              {areAcademicItemsLoading &&
                 [...new Array(10)].map((_, index) => (
                   <AcademicItemSkeleton
                     key={index}
                     hasChips={usage !== 'department'}
                   />
                 ))}
-              {!areDepartmentsLoading && departments.length === 0 && (
+              {!areAcademicItemsLoading && academicItems.length === 0 && (
                 <Box
                   component={Button}
                   onClick={addNewItem}
@@ -657,9 +728,9 @@ export default function Departments({
                   </Typography>
                 </Box>
               )}
-              {!areDepartmentsLoading &&
-                departments.length > 0 &&
-                departments
+              {!areAcademicItemsLoading &&
+                academicItems.length > 0 &&
+                academicItems
                   .sort((a, b) =>
                     new Date(a.created_at) > new Date(b.created_at) ? -1 : 1
                   )

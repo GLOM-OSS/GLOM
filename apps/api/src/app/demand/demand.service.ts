@@ -5,14 +5,12 @@ import { randomUUID } from 'crypto';
 import { AUTH404 } from '../../errors';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../utils/code-generator';
-import { DemandPostDto, DemandValidateDto } from './dto';
+import { DemandPostDto, DemandValidateDto } from './demand.dto';
 
 @Injectable()
 export class DemandService {
   private loginService: typeof this.prismaService.login;
-  private personService: typeof this.prismaService.person;
   private schoolService: typeof this.prismaService.school;
-  private loginAuditService: typeof this.prismaService.loginAudit;
   private schoolDemandService: typeof this.prismaService.schoolDemand;
   private annualConfiguratorService: typeof this.prismaService.annualConfigurator;
 
@@ -20,9 +18,10 @@ export class DemandService {
     private prismaService: PrismaService,
     private codeGenerator: CodeGeneratorService
   ) {
+    this.loginService = prismaService.login;
     this.schoolService = prismaService.school;
     this.schoolDemandService = prismaService.schoolDemand;
-    this.annualConfiguratorService = this.prismaService.annualConfigurator;
+    this.annualConfiguratorService = prismaService.annualConfigurator;
   }
 
   async findOne(school_code: string) {
@@ -77,19 +76,39 @@ export class DemandService {
 
     const ends_at = new Date(initial_year_ends_at);
     const starts_at = new Date(initial_year_starts_at);
-    const year_code = await this.codeGenerator.getYearCode(
-      starts_at.getFullYear(),
-      ends_at.getFullYear()
-    );
+    const year_code = `YEAR-${ends_at}${starts_at}${this.codeGenerator.getNumberString(
+      1
+    )}`;
     const school_code = await this.codeGenerator.getSchoolCode(school_acronym);
     const annual_configurator_id = randomUUID();
+    const matricule = `${school_acronym}${this.codeGenerator.getNumberString(
+      1
+    )}`;
     await this.prismaService.$transaction([
+      this.schoolService.create({
+        data: {
+          school_email,
+          school_code,
+          school_acronym,
+          school_phone_number,
+          school_name,
+          Person: {
+            connectOrCreate: {
+              create: { ...person, phone_number },
+              where: { email: person.email },
+            },
+          },
+          SchoolDemand: { create: {} },
+        },
+      }),
       this.annualConfiguratorService.create({
         data: {
+          matricule,
           is_sudo: true,
           annual_configurator_id,
           Login: {
             create: {
+              is_personnel: true,
               password: bcrypt.hashSync(password, Number(process.env.SALT)),
               Person: {
                 connectOrCreate: {
@@ -97,6 +116,7 @@ export class DemandService {
                   where: { email: person.email },
                 },
               },
+              School: { connect: { school_code } },
             },
           },
           AcademicYear: {
@@ -104,22 +124,7 @@ export class DemandService {
               ends_at,
               starts_at,
               year_code,
-              School: {
-                create: {
-                  school_email,
-                  school_code,
-                  school_acronym,
-                  school_phone_number,
-                  school_name,
-                  Person: {
-                    connectOrCreate: {
-                      create: { ...person, phone_number },
-                      where: { email: person.email },
-                    },
-                  },
-                  SchoolDemand: { create: {} },
-                },
-              },
+              School: { connect: { school_code } },
             },
           },
         },

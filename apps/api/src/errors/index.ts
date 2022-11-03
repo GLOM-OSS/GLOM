@@ -14,6 +14,10 @@ export const AUTH03 = (message: string) => ({
   En: `Your login request failed with error: ${message}`,
   Fr: 'La demande de connexion a échoué avec une erreur :',
 });
+export const AUTH05 = {
+  En: `Your access or your Squoolr client is invalid`,
+  Fr: `Votre accès ou votre client Squoolr est non valide`,
+};
 export const AUTH04 = {
   En: `Oops, you've recently triggered this action. Please try later`,
   Fr: 'Oups, vous avez récemment déclenché cette action. Veuillez essayer plus tard',
@@ -39,7 +43,7 @@ export const AUTH401 = {
   Fr: 'Adresse mail ou mot de passe incorrect.',
 };
 export const AUTH404 = (search: string) => ({
-  En: `${search} not found.`,
+  En: `"${search} not found.`,
   Fr: `${search} introuvable`,
 });
 export const sAUTH404 = {
@@ -56,8 +60,8 @@ export const AUTH500 = {
   Fr: `Désolé, nous avons pas pu deruire votre session`,
 };
 export const AUTH501 = (element: string) => ({
-  En: `Sorry, this ${element} is not yet implemented`,
-  Fr: `Désolé, cette ${element} n'est pas encore implémenté.`,
+  En: `Sorry, <${element}> is not yet implemented`,
+  Fr: `Désolé, <${element}> n'est pas encore implémenté.`,
 });
 export const AUTH503 = {
   En: `Sorry, this action cannot be processed now. Consider trying later or with another account`,
@@ -71,4 +75,20 @@ export const ERR01 = {
 export const ERR02 = {
   En: `Invalid school demand identifier`,
   Fr: `Identifiant de la demande non valide`,
+};
+export const ERR03 = (element: string) => ({
+  En: `Unique contraints: This element(${element}) already exits`,
+  Fr: `Contrainte d'unicité: Cette element(${element}) existe déjà`,
+});
+export const ERR04 = {
+  En: `The number of classes in a specialty cannot differ from the number of years available in its curriculum.`,
+  Fr: `Le nombre de classes dans une spécialité ne peut différer du nombre d'années disponibles dans son cursus.`,
+};
+export const ERR05 = {
+  En: `The start date of an academic year cannot be later than the end date`,
+  Fr: `La date de début d'une année académique ne peut être postérieure à la date de fin.`,
+};
+export const ERR06 = {
+  En: `Sorry, there is an overlap of academic years`,
+  Fr: `Désolé, Il y a chevauchement des annees academiques`,
 };

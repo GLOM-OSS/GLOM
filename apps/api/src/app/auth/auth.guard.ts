@@ -4,13 +4,12 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { TasksService } from '@squoolr/tasks';
 import { Request } from 'express';
-import { sAUTH403 } from '../../errors';
-import { DeserializeSessionData } from '../../utils/types';
+import { AUTH05, sAUTH403 } from '../../errors';
+import { DeserializeSessionData, Role } from '../../utils/types';
 import { AuthService } from './auth.service';
 
 @Injectable()
@@ -27,40 +26,53 @@ export class AuthenticatedGuard implements CanActivate {
       'isPublic',
       context.getHandler()
     );
-    return isPublic
+    const roles = this.reflector.get<Role[]>('roles', context.getClass());
+    const isAuthenticated = isPublic
       ? isPublic
       : request.isAuthenticated()
-      ? await this.authenticateUser(request)
+      ? await this.authenticateUser(request, roles)
       : false;
+    if (!isAuthenticated)
+      throw new HttpException(sAUTH403['Fr'], HttpStatus.FORBIDDEN);
+    return isAuthenticated;
   }
 
-  async authenticateUser(request: Request) {
+  async authenticateUser(request: Request, metaRoles: Role[]) {
     const user = request.user as DeserializeSessionData;
-    const squoolr_client = request.headers.origin //new URL(request.headers.origin).hostname;
+    const squoolr_client = request.headers.origin; //new URL(request.headers.origin).hostname;
+    const {
+      session: {
+        passport: {
+          user: { log_id, cookie_age, job_name, roles },
+        },
+      },
+    } = request;
 
-    const isAuthenticated = this.authservice.isClientCorrect(
+    let userHasTheAcess = true;
+    if (metaRoles) {
+      let hasRole = false;
+      roles.forEach(({ role }) => {
+        if (metaRoles.includes(role)) hasRole = true;
+      });
+      userHasTheAcess = hasRole;
+    }
+
+    const userClientCorrect = this.authservice.isClientCorrect(
       user,
       squoolr_client
     );
-    if (isAuthenticated) {
-      const {
-        session: {
-          passport: {
-            user: { cookie_age, job_name },
-          },
-        },
-      } = request;
-      const now = new Date();
-      try {
-        this.tasksService.updateCronTime(
-          job_name,
-          new Date(now.setSeconds(now.getSeconds() + cookie_age))
-        );
-        return isAuthenticated;
-      } catch (error) {
-        Logger.error(error.message, AuthenticatedGuard.name);
+    if (!userHasTheAcess || !userClientCorrect)
+      throw new HttpException(AUTH05['Fr'], HttpStatus.FORBIDDEN);
+    const now = new Date();
+    this.tasksService.upsertCronTime(
+      job_name,
+      new Date(now.setSeconds(now.getSeconds() + cookie_age)),
+      () => {
+        request.session.destroy(async (err) => {
+          if (!err) await this.authservice.closeSession(log_id);
+        });
       }
-    }
-    throw new HttpException(sAUTH403['Fr'], HttpStatus.FORBIDDEN);
+    );
+    return userClientCorrect;
   }
 }

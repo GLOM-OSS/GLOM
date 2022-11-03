@@ -36,8 +36,8 @@ export default function Demand() {
     first_name: string;
     last_name: string;
     email: string;
-    phone: string;
-    date_of_birth: Date;
+    phone_number: string;
+    birthdate: Date;
     gender: 'Male' | 'Female';
     national_id_number: string;
     password: string;
@@ -46,8 +46,8 @@ export default function Demand() {
     first_name: '',
     last_name: '',
     email: '',
-    phone: '',
-    date_of_birth: new Date(),
+    phone_number: '',
+    birthdate: new Date(),
     gender: 'Male',
     national_id_number: '',
     password: '',
@@ -86,8 +86,8 @@ export default function Demand() {
     first_name: Yup.string().required(),
     last_name: Yup.string().required(),
     email: Yup.string().email().required(),
-    phone: Yup.string().required(),
-    date_of_birth: Yup.date()
+    phone_number: Yup.string().required(),
+    birthdate: Yup.date()
       .max(new Date(), formatMessage({ id: 'areYouTimeTraveller' }))
       .required(),
     gender: Yup.string().oneOf(['Male', 'Female']).required(),
@@ -135,9 +135,9 @@ export default function Demand() {
       institute_phone: school_phone_number,
       institute_short_name: school_acronym,
     } = schoolFormik.values;
-    const { date_of_birth, confirm_password, phone, ...person } = adminFormik.values;
+    const { birthdate, confirm_password, phone_number, ...person } = adminFormik.values;
     makeNewDemand({
-      personnel: { birthdate: date_of_birth, phone_number: phone, ...person },
+      personnel: { birthdate: birthdate, phone_number: phone_number, ...person },
       school: {
         initial_year_starts_at,
         initial_year_ends_at,
@@ -320,26 +320,26 @@ export default function Demand() {
               />
               <TextField
                 disabled={isSubmitting}
-                placeholder={formatMessage({ id: 'phone' })}
+                placeholder={formatMessage({ id: 'phone_number' })}
                 fullWidth
                 required
                 color="primary"
                 size="medium"
-                label={formatMessage({ id: 'phone' })}
+                label={formatMessage({ id: 'phone_number' })}
                 error={
-                  adminFormik.touched.phone && Boolean(adminFormik.errors.phone)
+                  adminFormik.touched.phone_number && Boolean(adminFormik.errors.phone_number)
                 }
                 helperText={
-                  adminFormik.touched.phone && adminFormik.errors.phone
+                  adminFormik.touched.phone_number && adminFormik.errors.phone_number
                 }
-                {...adminFormik.getFieldProps('phone')}
+                {...adminFormik.getFieldProps('phone_number')}
               />
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <MobileDatePicker
-                  label={formatMessage({ id: 'date_of_birth' })}
-                  value={adminFormik.values.date_of_birth}
+                  label={formatMessage({ id: 'birthdate' })}
+                  value={adminFormik.values.birthdate}
                   onChange={(newValue) => {
-                    adminFormik.setFieldValue('date_of_birth', newValue);
+                    adminFormik.setFieldValue('birthdate', newValue);
                   }}
                   renderInput={(params) => (
                     <TextField
@@ -349,15 +349,15 @@ export default function Demand() {
                       size="medium"
                       fullWidth
                       error={
-                        adminFormik.touched.date_of_birth &&
-                        Boolean(adminFormik.errors.date_of_birth)
+                        adminFormik.touched.birthdate &&
+                        Boolean(adminFormik.errors.birthdate)
                       }
                       helperText={
-                        adminFormik.touched.date_of_birth &&
-                        adminFormik.errors.date_of_birth !== undefined &&
-                        String(adminFormik.errors.date_of_birth)
+                        adminFormik.touched.birthdate &&
+                        adminFormik.errors.birthdate !== undefined &&
+                        String(adminFormik.errors.birthdate)
                       }
-                      {...adminFormik.getFieldProps('date_of_birth')}
+                      {...adminFormik.getFieldProps('birthdate')}
                     />
                   )}
                 />
@@ -778,14 +778,14 @@ export default function Demand() {
                               variant="body2"
                               // sx={{ color: theme.common.placeholder }}
                             >
-                              {key !== 'date_of_birth'
+                              {key !== 'birthdate'
                                 ? key === 'gender'
                                   ? formatMessage({
                                       id: adminFormik.values.gender,
                                     })
                                   : adminFormik.values[key]
                                 : formatDate(
-                                    new Date(adminFormik.values.date_of_birth),
+                                    new Date(adminFormik.values.birthdate),
                                     {
                                       year: 'numeric',
                                       month: 'long',
