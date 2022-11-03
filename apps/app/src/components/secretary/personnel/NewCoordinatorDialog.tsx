@@ -13,10 +13,11 @@ import {
   MenuItem,
   OutlinedInput,
   Select,
-  TextField
+  TextField,
 } from '@mui/material';
 import {
-  getClassrooms as fetchClassrooms, getTeachers as fetchTeachers
+  getClassrooms as fetchClassrooms,
+  getTeachers as fetchTeachers,
 } from '@squoolr/api-services';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { theme } from '@squoolr/theme';
@@ -24,7 +25,7 @@ import {
   ErrorMessage,
   filterNotificationUsage,
   NotificationInterface,
-  useNotification
+  useNotification,
 } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
@@ -76,7 +77,7 @@ export default function NewCoordinatorDialog({
         setTeachers(
           teachers.map(
             ({
-              annual_teacher_id,
+              personnel_id,
               personnel_code,
               phone_number,
               first_name,
@@ -84,15 +85,23 @@ export default function NewCoordinatorDialog({
               last_connected,
               last_name,
               login_id,
+              birthdate,
+              gender,
+              national_id_number,
+              address,
               roles,
             }) => ({
-              personnel_id: annual_teacher_id as string,
+              personnel_id,
               personnel_code,
               first_name,
               last_connected,
               last_name,
               email,
               login_id,
+              birthdate,
+              gender,
+              national_id_number,
+              address,
               is_academic_service: roles.includes('S.A.'),
               is_coordo: roles.includes('Co'),
               is_secretariat: roles.includes('Se'),

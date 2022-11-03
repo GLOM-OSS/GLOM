@@ -88,27 +88,31 @@ export default function Personnel() {
         setPersonnels(
           personnel.map(
             ({
-              annual_teacher_id,
-              annual_configurator_id,
-              annual_registry_id,
+              personnel_id,
               personnel_code,
               phone_number,
               first_name,
               email,
+              birthdate, 
+              gender, 
+              national_id_number, 
+              address,
               last_connected,
               last_name,
               login_id,
               roles,
             }) => ({
-              personnel_id: (annual_teacher_id ||
-                annual_configurator_id ||
-                annual_registry_id) as string,
+              personnel_id,
               personnel_code,
               first_name,
               last_connected,
               last_name,
               email,
               login_id,
+              birthdate, 
+              gender, 
+              national_id_number, 
+              address,
               is_academic_service: roles.includes('S.A.'),
               is_coordo: roles.includes('Co'),
               is_secretariat: roles.includes('Se'),
@@ -287,7 +291,13 @@ export default function Personnel() {
 
   const createStaff = (values: StaffInterface, usage: 'edit' | 'create') => {
     const notif = new useNotification();
-    const { personnel_code, is_archived, login_id, ...newValues } = values;
+    const {
+      personnel_code,
+      personnel_id,
+      is_archived,
+      login_id,
+      ...newValues
+    } = values;
     switch (usage) {
       case 'create': {
         notif.notify({
@@ -476,7 +486,7 @@ export default function Personnel() {
         );
         setIsSubmitActionBarAction(true);
 
-        editTeacher(values.personnel_code, newValues)
+        editTeacher(activePersonnel?.personnel_id as string, newValues)
           .then(() => {
             notif.update({
               render: formatMessage({
@@ -512,6 +522,18 @@ export default function Personnel() {
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
+  const getStaffData = ({
+    is_academic_service,
+    is_coordo,
+    is_secretariat,
+    is_teacher,
+    ...staff
+  }: PersonnelInterface) => {
+    return {
+      ...staff,
+    } as StaffInterface;
+  };
+
   return (
     <>
       {isAddNewPersonnelDialogOpen && activeTabItem === 'coordinator' && (
@@ -540,7 +562,9 @@ export default function Personnel() {
           setIsEditing={setIsEditing}
           handleConfirm={createStaff}
           isEditDialog={isEditing}
-          activePersonnel={activePersonnel as StaffInterface | undefined}
+          activePersonnel={
+            activePersonnel ? getStaffData(activePersonnel) : undefined
+          }
           isDialogOpen={
             (isProfileDialogOpen &&
               activePersonnel !== undefined &&
@@ -566,7 +590,9 @@ export default function Personnel() {
           setIsEditing={setIsEditing}
           handleConfirm={createTeacher}
           isEditDialog={isEditing}
-          activePersonnel={activePersonnel as StaffInterface | undefined}
+          activePersonnel={
+            activePersonnel ? getStaffData(activePersonnel) : undefined
+          }
           isDialogOpen={
             (isProfileDialogOpen &&
               activePersonnel !== undefined &&

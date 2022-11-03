@@ -31,7 +31,7 @@ export interface PersonnelInterface {
   national_id_number?: string;
   address?: string;
   birthdate?: Date;
-  gender?: 'M' | 'F';
+  gender?: 'Male' | 'Female';
 }
 
 interface MenuItem {

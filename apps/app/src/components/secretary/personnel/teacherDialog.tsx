@@ -108,12 +108,20 @@ export default function TeacherDialog({
     setNotifications(filterNotificationUsage('load', notif, notifications));
     if (activePersonnel?.personnel_id)
       fetchTeacher(activePersonnel.personnel_id)
-        .then((teacher) => {
-          setTeacher(teacher);
-          formik.setValues(teacher)
-          setIsTeacherLoading(false);
-          notif.dismiss();
-        })
+        .then(
+          ({
+            is_deleted: is_archived,
+            personnel_code,
+            personnel_id,
+            login_id,
+            ...teacher
+          }) => {
+            setTeacher({ ...teacher, is_archived });
+            formik.setValues({ ...teacher, is_archived });
+            setIsTeacherLoading(false);
+            notif.dismiss();
+          }
+        )
         .catch((error) => {
           notif.notify({ render: formatMessage({ id: 'loadingTeacher' }) });
           notif.update({
@@ -197,7 +205,15 @@ export default function TeacherDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDialogOpen, activePersonnel]);
 
-  const initialValues: TeacherInterface = teacher;
+  const initialValues: TeacherInterface = {
+    ...activePersonnel,
+    teacher_type_id: '',
+    origin_institute: '',
+    teaching_grade_id: '',
+    tax_payer_card_number: '',
+    has_signed_convention: false,
+    has_tax_payers_card: false,
+  } as TeacherInterface;
 
   const validationSchema = Yup.object().shape({
     first_name: Yup.string().required(),
@@ -210,13 +226,13 @@ export default function TeacherDialog({
       .max(new Date(), formatMessage({ id: 'areYouATimeTraveler' }))
       .required(),
     gender: Yup.string().oneOf(['Male', 'Female']).required(),
-    is_archived: Yup.boolean().required(),
+    is_archived: Yup.boolean(),
     teaching_grade_id: Yup.string().required(),
     teacher_type_id: Yup.string().required(),
     origin_institute: Yup.string().required(),
     hourly_rate: Yup.number().required(),
     has_tax_payers_card: Yup.boolean().required(),
-    tax_payers_number: Yup.number(),
+    tax_payer_card_number: Yup.number(),
     has_signed_convention: Yup.boolean().required(),
   });
 
@@ -586,8 +602,8 @@ export default function TeacherDialog({
                 (!isEditDialog && activePersonnel !== undefined) ||
                 (activePersonnel !== undefined && activePersonnel.is_archived)
               }
-              placeholder={formatMessage({ id: 'tax_payers_number' })}
-              label={formatMessage({ id: 'tax_payers_number' })}
+              placeholder={formatMessage({ id: 'tax_payer_card_number' })}
+              label={formatMessage({ id: 'tax_payer_card_number' })}
               fullWidth
               error={Boolean(
                 formik.touched.tax_payer_card_number &&
@@ -597,7 +613,7 @@ export default function TeacherDialog({
                 formik.touched.tax_payer_card_number &&
                 formik.errors.tax_payer_card_number
               }
-              {...formik.getFieldProps('tax_payers_number')}
+              {...formik.getFieldProps('tax_payer_card_number')}
             />
           </Collapse>
           <Box

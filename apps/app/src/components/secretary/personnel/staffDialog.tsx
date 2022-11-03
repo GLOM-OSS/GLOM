@@ -265,7 +265,7 @@ export default function StaffDialog({
             />
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <MobileDatePicker
-                label={formatMessage({ id: 'date_of_birth' })}
+                label={formatMessage({ id: 'birthdate' })}
                 value={formik.values.birthdate}
                 onChange={(newValue) => {
                   formik.setFieldValue('birthdate', newValue);
