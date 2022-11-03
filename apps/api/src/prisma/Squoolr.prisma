@@ -29,7 +29,7 @@ model Person {
     birthdate          DateTime @db.DateTime(0)
     gender             Gender
     national_id_number String   @db.VarChar(15)
-    address            String?  @db.VarChar(75)
+    address            String?  @db.VarChar(100)
     longitude          Int?
     latitude           Int?
     email              String   @unique @db.VarChar(50)
@@ -50,7 +50,7 @@ model PersonAudit {
     birthdate          DateTime            @db.DateTime(0)
     gender             Gender
     national_id_number String              @db.VarChar(15)
-    address            String?             @db.VarChar(20)
+    address            String?             @db.VarChar(100)
     longitude          Int?
     latitude           Int?
     email              String              @db.VarChar(50)
