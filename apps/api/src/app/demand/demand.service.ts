@@ -76,7 +76,7 @@ export class DemandService {
 
     const ends_at = new Date(initial_year_ends_at);
     const starts_at = new Date(initial_year_starts_at);
-    const year_code = `YEAR-${ends_at}${starts_at}${this.codeGenerator.getNumberString(
+    const year_code = `YEAR-${ends_at.getFullYear()}${starts_at.getFullYear()}${this.codeGenerator.getNumberString(
       1
     )}`;
     const school_code = await this.codeGenerator.getSchoolCode(school_acronym);
