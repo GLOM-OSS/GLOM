@@ -23,7 +23,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const { school_code } = context.query;
   try {
     const demandStatus = await checkDemandStatus(school_code as string);
-    console.log(demandStatus)
     return { props: { demandStatus } };
   } catch (error) {
     return { notFound: true };

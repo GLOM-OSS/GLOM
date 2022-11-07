@@ -19,7 +19,6 @@ export async function getDemandInfo(school_code: string) {
   }>(`/demands`, {
     params: { school_code },
   });
-  console.log(school_demand)
   return school_demand;
 }
 
@@ -43,7 +42,6 @@ export async function checkDemandStatus(school_demand_code: string) {
   } = await http.get(`/demands/status`, {
     params: { school_demand_code },
   });
-  console.log({ code: school_demand_code });
   return demand_status;
 }
 
