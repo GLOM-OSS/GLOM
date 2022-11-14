@@ -4,10 +4,11 @@ import {
   Delete,
   Get,
   HttpException,
-  HttpStatus, Post,
+  HttpStatus,
+  Post,
   Put,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -16,7 +17,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import {
   DeserializeSessionData,
   DesirializeRoles,
-  PassportSession
+  PassportSession,
 } from '../../utils/types';
 import { AcademicYearQueryDto } from '../app.dto';
 import { AcademicYearService } from '../configurator/academic-year/academic-year.service';
@@ -144,7 +145,7 @@ export class AuthController {
   @Get('user')
   @UseGuards(AuthenticatedGuard)
   async getUser(@Req() request) {
-    return request.user;
+    return { user: request.user };
   }
 
   @Get('google-signin')
