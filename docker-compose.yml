@@ -31,9 +31,9 @@ services:
       - CLIENT_BASE_URL=https://admin.squoolr.com
       - GOOGLE_CLIENT_ID='752561817920-8esi5105gks06dugi9l14h7dg23vdnff.apps.googleusercontent.com'
       - GOOGLE_SECRET='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'
-      - EMAIL_HOST = 'smtp.gmail.com'
-      - EMAIL_USER = 'glomexam@gmail.com'
-      - EMAIL_PASSWORD = '..........'
+      - EMAIL_HOST='smtp.gmail.com'
+      - EMAIL_USER='glomexam@gmail.com'
+      - EMAIL_PASSWORD='..........'
       - ADMIN_URL='admin.squoolr.com'
     ports:
       - "81:8080"
