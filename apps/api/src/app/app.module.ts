@@ -53,7 +53,10 @@ import { DemandModule } from './demand/demand.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    const redisClient = createClient({ legacyMode: true });
+    const redisClient = createClient({
+      legacyMode: true,
+      url: `redis://${process.env.REDIS_HOST}`,
+    });
     redisClient.connect().catch((message) => Logger.error(message));
     const RedisStore = connectRedis(session);
 
