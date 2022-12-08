@@ -511,6 +511,23 @@ export default function Departments({
                     id: 'archivingSuccessfull',
                   }),
             });
+            setAcademicItems(
+              showArchived
+                ? academicItems.map((academicItem) => {
+                    if (
+                      academicItem.item_code === activeAcademicItem?.item_code
+                    )
+                      return {
+                        ...academicItem,
+                        is_archived: !activeAcademicItem?.is_archived,
+                      };
+                    else return academicItem;
+                  })
+                : academicItems.filter(
+                    ({ item_code }) =>
+                      item_code !== activeAcademicItem?.item_code
+                  )
+            );
             setActiveItem(undefined);
           })
           .catch((error) => {
