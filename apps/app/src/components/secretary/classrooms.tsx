@@ -46,7 +46,7 @@ const Classroom = ({
       }}
     >
       <Typography sx={{ width: '17ch' }}>{classroom_code}</Typography>
-      <Typography>{`${classroom_name}-${classroom_level}`}</Typography>
+      <Typography>{classroom_name}</Typography>
       <Typography>
         <FormattedNumberParts
           value={registration_fee}
