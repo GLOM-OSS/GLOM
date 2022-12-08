@@ -1,0 +1,85 @@
+version: '3.3'
+
+services:
+  redis_container:
+    image: redis:alpine
+    ports:
+      - 6379:6379
+  mysql_container:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345678
+      - MYSQL_DATABASE=skeleton_db
+    command: mysqld --sql_mode=""
+  api:
+    build:
+      dockerfile: ./Dockerfile.api
+      context: .
+    restart: always
+    environment:
+      - REDIS_HOST=redis_container
+      - REDIS_PORT=redis_container
+      - PRISMA_SECRET=k1.aesgcm256.ztwF1a4stlVgXXJM9lH1ATgN_B-hYEfVcoSmVAFeWGA=
+      - DATABASE_URL=mysql://root:12345678@mysql_container:3306/skeleton_db
+      - NX_CRYPTJS_SECRET=skeleton-end-to-end-crypting
+      - SALT=12
+      - SECURE_PHRASE_LENGTH=5
+      - SESSION_SECRET=skeleton-session-secret
+      - SESSION_NAME=SKELETON_SESSION_ID
+      - APP_PORT=8080
+      - MAX_AGE=600
+      - CLIENT_BASE_URL=https://admin.squoolr.com
+    ports:
+      - "81:8080"
+    depends_on:
+      - mysql_container
+      - redis_container
+  landing:
+    build:
+      dockerfile: ./Dockerfile.landing
+      context: .
+    restart: always
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=https://api.squoolr.com
+      - NEXT_PUBLIC_WEB_SOCKET_URL=https://api.squoolr.com
+    ports:
+      - "82:3000"
+    depends_on:
+      - api
+  admin:
+    build:
+      dockerfile: ./Dockerfile.admin
+      context: .
+    restart: always
+    environment:
+      # - NEXT_PUBLIC_API_BASE_URL=https://api.squoolr.com
+      # - NEXT_PUBLIC_WEB_SOCKET_URL=https://api.squoolr.com
+    ports:
+      - "83:4200"
+    depends_on:
+      - api
+  personnel:
+    build:
+      dockerfile: ./Dockerfile.personnel
+      context: .
+    restart: always
+    environment:
+      # - NEXT_PUBLIC_API_BASE_URL=https://api.squoolr.com
+      # - NEXT_PUBLIC_WEB_SOCKET_URL=https://api.squoolr.com
+    ports:
+      - "84:4200"
+    depends_on:
+      - api
+  student:
+    build:
+      dockerfile: ./Dockerfile.student
+      context: .
+    restart: always
+    environment:
+      # - NEXT_PUBLIC_API_BASE_URL=https://api.squoolr.com
+      # - NEXT_PUBLIC_WEB_SOCKET_URL=https://api.squoolr.com
+    ports:
+      - "85:4200"
+    depends_on:
+      - api
+
