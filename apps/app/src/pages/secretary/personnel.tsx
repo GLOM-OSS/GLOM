@@ -226,10 +226,10 @@ export default function Personnel() {
   const [isSubmittingActionBarAction, setIsSubmitActionBarAction] =
     useState<boolean>(false);
   const createCoordinator = (submitData: {
-    selectedTeacherId: string;
+    selectedTeacher: PersonnelInterface;
     selectedClassrooms: ClassroomInterface[];
   }) => {
-    const { selectedClassrooms, selectedTeacherId } = submitData;
+    const { selectedClassrooms, selectedTeacher } = submitData;
     const selectedClassroomCodes = selectedClassrooms.map(
       ({ classroom_code }) => classroom_code
     );
@@ -239,9 +239,14 @@ export default function Personnel() {
       filterNotificationUsage('createStaff', notif, notifications)
     );
     setIsSubmitActionBarAction(true);
-    addNewCoordinator(selectedTeacherId, selectedClassroomCodes)
+    addNewCoordinator(selectedTeacher.personnel_id, selectedClassroomCodes)
       .then(() => {
         notif.update({ render: formatMessage({ id: 'addedCoordinator' }) });
+        setPersonnel(
+          personnel.find((_) => _.personnel_id === selectedTeacher.personnel_id)
+            ? personnel
+            : [...personnel, { ...selectedTeacher, is_coordo: true }]
+        );
       })
       .catch((error) => {
         notif.update({

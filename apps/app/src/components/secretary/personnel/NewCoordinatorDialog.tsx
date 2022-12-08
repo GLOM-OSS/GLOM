@@ -39,16 +39,16 @@ export default function NewCoordinatorDialog({
 }: {
   close: () => void;
   handleConfirm: (submitData: {
-    selectedTeacherId: string;
+    selectedTeacher: PersonnelInterface;
     selectedClassrooms: ClassroomInterface[];
   }) => void;
   isDialogOpen: boolean;
 }) {
   const { formatMessage } = useIntl();
-  const [selectedTeacherId, setSelectedTeacherId] = useState<string>('');
+  const [selectedTeacher, setSelectedTeacher] = useState<PersonnelInterface>();
   const closeDialog = () => {
     close();
-    setSelectedTeacherId('');
+    setSelectedTeacher(undefined);
   };
 
   const [teachers, setTeachers] = useState<PersonnelInterface[]>([]);
@@ -75,41 +75,14 @@ export default function NewCoordinatorDialog({
     fetchTeachers({ is_deleted: false })
       .then((teachers) => {
         setTeachers(
-          teachers.map(
-            ({
-              personnel_id,
-              personnel_code,
-              phone_number,
-              first_name,
-              email,
-              last_connected,
-              last_name,
-              login_id,
-              birthdate,
-              gender,
-              national_id_number,
-              address,
-              roles,
-            }) => ({
-              personnel_id,
-              personnel_code,
-              first_name,
-              last_connected,
-              last_name,
-              email,
-              login_id,
-              birthdate,
-              gender,
-              national_id_number,
-              address,
-              is_academic_service: roles.includes('S.A.'),
-              is_coordo: roles.includes('Co'),
-              is_secretariat: roles.includes('Se'),
-              is_teacher: roles.includes('Te'),
-              phone_number: phone_number,
-              is_archived: false,
-            })
-          )
+          teachers.map(({ roles, ...teacher }) => ({
+            ...teacher,
+            is_archived: false,
+            is_coordo: roles.includes('Co'),
+            is_teacher: roles.includes('Te'),
+            is_secretariat: roles.includes('Se'),
+            is_academic_service: roles.includes('S.A.'),
+          }))
         );
         setAreTeachersLoading(false);
         notif.dismiss();
@@ -185,7 +158,10 @@ export default function NewCoordinatorDialog({
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          handleConfirm({ selectedClassrooms, selectedTeacherId });
+          handleConfirm({
+            selectedClassrooms,
+            selectedTeacher: selectedTeacher as PersonnelInterface,
+          });
           closeDialog();
         }}
       >
@@ -197,16 +173,18 @@ export default function NewCoordinatorDialog({
             fullWidth
             required
             disabled={areTeachersLoading}
-            value={selectedTeacherId}
-            onChange={(event) => setSelectedTeacherId(event.target.value)}
-          >
-            {teachers.map(
-              ({ first_name, last_name, personnel_id }, index) => (
-                <MenuItem key={index} value={personnel_id}>
-                  {`${first_name} ${last_name}`}
-                </MenuItem>
+            value={selectedTeacher}
+            onChange={(event) =>
+              setSelectedTeacher(
+                teachers.find((_) => _.personnel_id === event.target.value)
               )
-            )}
+            }
+          >
+            {teachers.map(({ first_name, last_name, personnel_id }, index) => (
+              <MenuItem key={index} value={personnel_id}>
+                {`${first_name} ${last_name}`}
+              </MenuItem>
+            ))}
           </TextField>
           <FormControl sx={{ m: 1 }}>
             <InputLabel>{formatMessage({ id: 'majors' })}</InputLabel>
@@ -247,44 +225,34 @@ export default function NewCoordinatorDialog({
               input={<OutlinedInput label={formatMessage({ id: 'majors' })} />}
               renderValue={(selected) => (
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {selected.map(
-                    ({ classroom_name, classroom_level }, index) => (
-                      <Chip
-                        key={index}
-                        label={`${classroom_name} ${classroom_level}`}
-                      />
-                    )
-                  )}
+                  {selected.map(({ classroom_acronym }, index) => (
+                    <Chip key={index} label={classroom_acronym} />
+                  ))}
                 </Box>
               )}
             >
-              {classrooms.map(
-                (
-                  { classroom_code, classroom_name, classroom_level },
-                  index
-                ) => (
-                  <MenuItem
-                    sx={{
+              {classrooms.map(({ classroom_code, classroom_name }, index) => (
+                <MenuItem
+                  sx={{
+                    backgroundColor: selectedClassrooms.find(
+                      ({ classroom_code: cc }) => cc === classroom_code
+                    )
+                      ? lighten(theme.palette.primary.main, 0.9)
+                      : 'none',
+                    '&:hover': {
                       backgroundColor: selectedClassrooms.find(
                         ({ classroom_code: cc }) => cc === classroom_code
                       )
-                        ? lighten(theme.palette.primary.main, 0.9)
-                        : 'none',
-                      '&:hover': {
-                        backgroundColor: selectedClassrooms.find(
-                          ({ classroom_code: cc }) => cc === classroom_code
-                        )
-                          ? lighten(theme.palette.primary.main, 0.8)
-                          : lighten(theme.palette.primary.main, 0.96),
-                      },
-                    }}
-                    key={index}
-                    value={classroom_code}
-                  >
-                    {`${classroom_name}-${classroom_level}`}
-                  </MenuItem>
-                )
-              )}
+                        ? lighten(theme.palette.primary.main, 0.8)
+                        : lighten(theme.palette.primary.main, 0.96),
+                    },
+                  }}
+                  key={index}
+                  value={classroom_code}
+                >
+                  {classroom_name}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
         </DialogContent>
@@ -302,9 +270,7 @@ export default function NewCoordinatorDialog({
             color="primary"
             variant="contained"
             type="submit"
-            disabled={
-              selectedTeacherId === '' || selectedClassrooms.length === 0
-            }
+            disabled={!selectedTeacher || selectedClassrooms.length === 0}
           >
             {formatMessage({ id: 'confirm' })}
           </Button>
