@@ -11,6 +11,7 @@ export default function Demand({
 }) {
   const { formatMessage } = useIntl();
   const navigate = useNavigate();
+  const schoolDemandStatus = status.toLocaleLowerCase();
   return (
     <Box
       component={Button}
@@ -37,11 +38,11 @@ export default function Demand({
           justifySelf: 'center',
           backgroundColor: lighten(
             theme.palette[
-              status === 'pending'
+              schoolDemandStatus === 'pending'
                 ? 'info'
-                : status === 'progress'
+                : schoolDemandStatus === 'progress'
                 ? 'secondary'
-                : status === 'validated'
+                : schoolDemandStatus === 'validated'
                 ? 'success'
                 : 'error'
             ].main,

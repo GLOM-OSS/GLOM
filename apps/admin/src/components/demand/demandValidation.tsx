@@ -167,6 +167,13 @@ export default function DemandValidation() {
               ? formatMessage({ id: 'validatedDemand' })
               : formatMessage({ id: 'rejectedDemand' }),
         });
+        setDemand({
+          ...demand,
+          school: {
+            ...demand.school,
+            school_status: usage === 'validate' ? 'validated' : 'rejected',
+          },
+        });
       })
       .catch((error) => {
         notif.update({
@@ -212,6 +219,13 @@ export default function DemandValidation() {
       .then(() => {
         notif.update({
           render: formatMessage({ id: 'demandStatusChanged' }),
+        });
+        setDemand({
+          ...demand,
+          school: {
+            ...demand.school,
+            school_status: 'progress',
+          },
         });
       })
       .catch((error) => {
