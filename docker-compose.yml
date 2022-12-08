@@ -36,7 +36,7 @@ services:
       - EMAIL_PASSWORD='..........'
       - ADMIN_URL='admin.squoolr.com'
     ports:
-      - "81:8080"
+      - "83:8080"
     depends_on:
       - mysql_container
       - redis_container
@@ -48,7 +48,7 @@ services:
     environment:
       - NX_API_BASE_URL='https://api.squoolr.com'
     ports:
-      - "82:3000"
+      - "84:3000"
     depends_on:
       - api
   admin:
@@ -59,7 +59,7 @@ services:
     environment:
       - NX_API_BASE_URL='https://api.squoolr.com'
     ports:
-      - "83:4200"
+      - "85:4200"
     depends_on:
       - api
   personnel:
@@ -70,7 +70,7 @@ services:
     environment:
       - NX_API_BASE_URL='https://api.squoolr.com'
     ports:
-      - "84:4200"
+      - "86:4200"
     depends_on:
       - api
   student:
@@ -81,7 +81,7 @@ services:
     environment:
       - NX_API_BASE_URL='https://api.squoolr.com'
     ports:
-      - "85:4200"
+      - "87:4200"
     depends_on:
       - api
 
