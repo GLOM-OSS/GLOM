@@ -24,11 +24,17 @@ services:
       - NX_CRYPTJS_SECRET=skeleton-end-to-end-crypting
       - SALT=12
       - SECURE_PHRASE_LENGTH=5
-      - SESSION_SECRET=skeleton-session-secret
-      - SESSION_NAME=SKELETON_SESSION_ID
+      - SESSION_SECRET=squoolr-session-secret
+      - SESSION_NAME=SQUOOLR_SESSION_ID
       - APP_PORT=8080
       - MAX_AGE=600
       - CLIENT_BASE_URL=https://admin.squoolr.com
+      - GOOGLE_CLIENT_ID='752561817920-8esi5105gks06dugi9l14h7dg23vdnff.apps.googleusercontent.com'
+      - GOOGLE_SECRET='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'
+      - EMAIL_HOST = 'smtp.gmail.com'
+      - EMAIL_USER = 'glomexam@gmail.com'
+      - EMAIL_PASSWORD = '..........'
+      - ADMIN_URL='admin.squoolr.com'
     ports:
       - "81:8080"
     depends_on:
@@ -40,8 +46,7 @@ services:
       context: .
     restart: always
     environment:
-      - NEXT_PUBLIC_API_BASE_URL=https://api.squoolr.com
-      - NEXT_PUBLIC_WEB_SOCKET_URL=https://api.squoolr.com
+      - NX_API_BASE_URL='https://api.squoolr.com'
     ports:
       - "82:3000"
     depends_on:
@@ -52,8 +57,7 @@ services:
       context: .
     restart: always
     environment:
-      # - NEXT_PUBLIC_API_BASE_URL=https://api.squoolr.com
-      # - NEXT_PUBLIC_WEB_SOCKET_URL=https://api.squoolr.com
+      - NX_API_BASE_URL='https://api.squoolr.com'
     ports:
       - "83:4200"
     depends_on:
@@ -64,8 +68,7 @@ services:
       context: .
     restart: always
     environment:
-      # - NEXT_PUBLIC_API_BASE_URL=https://api.squoolr.com
-      # - NEXT_PUBLIC_WEB_SOCKET_URL=https://api.squoolr.com
+      - NX_API_BASE_URL='https://api.squoolr.com'
     ports:
       - "84:4200"
     depends_on:
@@ -76,8 +79,7 @@ services:
       context: .
     restart: always
     environment:
-      # - NEXT_PUBLIC_API_BASE_URL=https://api.squoolr.com
-      # - NEXT_PUBLIC_WEB_SOCKET_URL=https://api.squoolr.com
+      - NX_API_BASE_URL='https://api.squoolr.com'
     ports:
       - "85:4200"
     depends_on:
