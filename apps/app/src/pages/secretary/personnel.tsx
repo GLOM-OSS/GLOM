@@ -59,7 +59,7 @@ export default function Personnel() {
   const [isAddNewPersonnelDialogOpen, setIsAddNewPersonnelDialogOPen] =
     useState<boolean>(false);
 
-  const [personnels, setPersonnels] = useState<PersonnelInterface[]>([]);
+  const [personnel, setPersonnel] = useState<PersonnelInterface[]>([]);
   const [arePersonnelLoading, setArePersonnelLoading] =
     useState<boolean>(false);
   const [showArchived, setShowArchived] = useState<boolean>(false);
@@ -86,42 +86,15 @@ export default function Personnel() {
     };
     PERSONNEL_HANDLER[activeTabItem]()
       .then((personnel) => {
-        setPersonnels(
-          personnel.map(
-            ({
-              personnel_id,
-              personnel_code,
-              phone_number,
-              first_name,
-              email,
-              birthdate,
-              gender,
-              national_id_number,
-              address,
-              last_connected,
-              last_name,
-              login_id,
-              roles,
-            }) => ({
-              personnel_id,
-              personnel_code,
-              first_name,
-              last_connected,
-              last_name,
-              email,
-              login_id,
-              birthdate,
-              gender,
-              national_id_number,
-              address,
-              is_academic_service: roles.includes('S.A.'),
-              is_coordo: roles.includes('Co'),
-              is_secretariat: roles.includes('Se'),
-              is_teacher: roles.includes('Te'),
-              phone_number: phone_number,
-              is_archived: false,
-            })
-          )
+        setPersonnel(
+          personnel.map(({ roles, ...staff }) => ({
+            ...staff,
+            is_archived: false,
+            is_academic_service: roles.includes('S.A.'),
+            is_coordo: roles.includes('Co'),
+            is_secretariat: roles.includes('Se'),
+            is_teacher: roles.includes('Te'),
+          }))
         );
         setArePersonnelLoading(false);
       })
@@ -315,7 +288,7 @@ export default function Personnel() {
         setIsSubmitActionBarAction(true);
         if (activeTabItem === 'secretariat') {
           addNewConfigurator(newValues)
-            .then(() => {
+            .then(({ roles, ...staff }) => {
               notif.update({
                 render: formatMessage({
                   id: `added${activeTabItem[0].toUpperCase()}${activeTabItem.slice(
@@ -324,6 +297,17 @@ export default function Personnel() {
                   )}`,
                 }),
               });
+              setPersonnel([
+                ...personnel,
+                {
+                  ...staff,
+                  is_archived: false,
+                  is_academic_service: roles.includes('S.A.'),
+                  is_coordo: roles.includes('Co'),
+                  is_secretariat: roles.includes('Se'),
+                  is_teacher: roles.includes('Te'),
+                },
+              ]);
             })
             .catch((error) => {
               notif.update({
@@ -399,6 +383,14 @@ export default function Personnel() {
                 )}`,
               }),
             });
+
+            setPersonnel(
+              personnel.map((staff) =>
+                staff.personnel_id === activePersonnel?.personnel_id
+                  ? { ...staff, ...newValues }
+                  : staff
+              )
+            );
           })
           .catch((error) => {
             notif.update({
@@ -443,7 +435,7 @@ export default function Personnel() {
         );
         setIsSubmitActionBarAction(true);
         addNewTeacher(newValues)
-          .then(() => {
+          .then(({ roles, ...staff }) => {
             notif.update({
               render: formatMessage({
                 id: `added${activeTabItem[0].toUpperCase()}${activeTabItem.slice(
@@ -452,6 +444,17 @@ export default function Personnel() {
                 )}`,
               }),
             });
+            setPersonnel([
+              ...personnel,
+              {
+                ...staff,
+                is_archived: false,
+                is_academic_service: roles.includes('S.A.'),
+                is_coordo: roles.includes('Co'),
+                is_secretariat: roles.includes('Se'),
+                is_teacher: roles.includes('Te'),
+              },
+            ]);
           })
           .catch((error) => {
             notif.update({
@@ -497,6 +500,13 @@ export default function Personnel() {
                 )}`,
               }),
             });
+            setPersonnel(
+              personnel.map((staff) =>
+                staff.personnel_id === activePersonnel?.personnel_id
+                  ? { ...staff, ...newValues }
+                  : staff
+              )
+            );
           })
           .catch((error) => {
             notif.update({
@@ -669,7 +679,7 @@ export default function Personnel() {
                 [...new Array(10)].map((_, index) => (
                   <PersonnelRowSkeleton index={index} key={index} />
                 ))}
-              {!arePersonnelLoading && personnels.length === 0 && (
+              {!arePersonnelLoading && personnel.length === 0 && (
                 <TableRow>
                   <TableCell
                     component="th"
@@ -689,7 +699,7 @@ export default function Personnel() {
                 </TableRow>
               )}
               {!arePersonnelLoading &&
-                personnels
+                personnel
                   .sort((a, b) => (a.is_archived < b.is_archived ? -1 : 1))
                   .map((personnel, index) => (
                     <PersonnelRow

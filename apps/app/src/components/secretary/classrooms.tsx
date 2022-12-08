@@ -11,6 +11,7 @@ import { useParams } from 'react-router';
 
 export interface ClassroomInterface {
   classroom_code: string;
+  classroom_acronym: string;
   classroom_name: string;
   classroom_level: number;
   registration_fee: number;

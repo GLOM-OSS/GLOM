@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Person } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { AUTH04, AUTH404, AUTH501, ERR03 } from '../../../errors';
@@ -9,12 +10,12 @@ import {
   CoordinatorPostDto,
   PersonnelQueryDto,
   StaffPostData,
-  StaffPutDto,
+  StaffPutDto
 } from '../configurator.dto';
 
 export type RoleShort = 'Te' | 'Se' | 'S.A.' | 'Co';
 
-export interface Person {
+export interface Staff {
   first_name: string;
   last_name: string;
   email: string;
@@ -26,7 +27,7 @@ export interface Person {
   annual_teacher_id?: string;
 }
 
-export interface Personnel extends Person {
+export interface Personnel extends Staff {
   last_connected: Date;
   roles: RoleShort[];
 }
@@ -110,7 +111,7 @@ export class PersonnelService {
         },
       },
     };
-    let person: Person[];
+    let person: Staff[];
     switch (type) {
       case Role.REGISTRY: {
         const registries = await this.annualRegistryService.findMany({
@@ -548,6 +549,12 @@ export class PersonnelService {
         connect: { annual_configurator_id: added_by },
       },
     };
+    let staff: {
+      Login: { Person: Person };
+      annual_registry_id?: string;
+      annual_configurator_id?: string;
+      matricule: string;
+    };
     if (role === Role.CONFIGURATOR) {
       if (login?.login_id) {
         const staff = await this.annualConfiguratorService.findUnique({
@@ -564,7 +571,12 @@ export class PersonnelService {
             HttpStatus.AMBIGUOUS
           );
       }
-      await this.annualConfiguratorService.create({
+      staff = await this.annualConfiguratorService.create({
+        select: {
+          Login: { select: { Person: true } },
+          annual_configurator_id: true,
+          matricule: true,
+        },
         data,
       });
     } else if (role === Role.REGISTRY) {
@@ -583,13 +595,31 @@ export class PersonnelService {
             HttpStatus.AMBIGUOUS
           );
       }
-      await this.annualRegistryService.create({
+      staff = await this.annualRegistryService.create({
+        select: {
+          Login: { select: { Person: true } },
+          annual_registry_id: true,
+          matricule: true,
+        },
         data: {
           ...data,
           private_code,
         },
       });
     }
+    const {
+      Login: { Person },
+      matricule: personnel_code,
+      annual_configurator_id,
+      annual_registry_id,
+    } = staff;
+    return {
+      ...Person,
+      personnel_code,
+      roles: await this.getRoles(login_id),
+      last_connected: await this.getLastLog(login_id),
+      personnel_id: annual_configurator_id ?? annual_registry_id,
+    };
   }
 
   async addNewCoordinator(data: CoordinatorPostDto, added_by: string) {

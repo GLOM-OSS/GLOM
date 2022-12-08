@@ -7,9 +7,12 @@ export async function getConfigurators(params?: {
 }) {
   const {
     data: { configurators },
-  } = await http.get<{ configurators: Personnel[] }>(`/personnel/configurators/all`, {
-    params,
-  });
+  } = await http.get<{ configurators: Personnel[] }>(
+    `/personnel/configurators/all`,
+    {
+      params,
+    }
+  );
   return configurators;
 }
 
@@ -25,5 +28,9 @@ export async function archiveConfigurators(annual_coordinator_id: string) {
 }
 
 export async function addNewConfigurator(newConfigurator: Person) {
-  await http.post(`/personnel/configurators/new`, newConfigurator);
+  const { data } = await http.post<Personnel>(
+    `/personnel/configurators/new`,
+    newConfigurator
+  );
+  return data;
 }

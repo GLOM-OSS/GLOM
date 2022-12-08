@@ -71,7 +71,7 @@ export class TeacherController {
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
     try {
-      await this.teacherService.addNewTeacher(
+      return await this.teacherService.addNewTeacher(
         newTeacher,
         {
           school_id,
@@ -79,7 +79,6 @@ export class TeacherController {
         },
         annual_configurator_id
       );
-      return;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

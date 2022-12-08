@@ -32,7 +32,11 @@ export async function archiveTeacher(annual_teacher_id: string) {
 }
 
 export async function addNewTeacher(newTeacher: Teacher) {
-  await http.post(`/personnel/teachers/new`, newTeacher);
+  const { data } = await http.post<Personnel>(
+    `/personnel/teachers/new`,
+    newTeacher
+  );
+  return data;
 }
 
 export async function resetTeacherCode(annual_teacher_id: string) {

@@ -85,7 +85,15 @@ export class TeacherService {
       Number(process.env.SALT)
     );
     //TODO NodeMailer send generated password and private code
-    await this.annualTeacherService.create({
+    const {
+      annual_teacher_id,
+      Login: { Person },
+    } = await this.annualTeacherService.create({
+      select: {
+        annual_teacher_id: true,
+        Teacher: { select: { matricule: true } },
+        Login: { select: { Person: true } },
+      },
       data: {
         hourly_rate,
         origin_institute,
@@ -130,6 +138,13 @@ export class TeacherService {
         },
       },
     });
+    return {
+      ...Person,
+      roles: ['Te'],
+      personnel_code: matricule,
+      last_connected: new Date(),
+      personnel_id: annual_teacher_id,
+    };
   }
 
   async editTeacher(
