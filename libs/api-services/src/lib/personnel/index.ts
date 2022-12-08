@@ -18,7 +18,7 @@ export async function editPersonnel(
   await http.put(`/personnel/${login_id}/edit`, personData);
 }
 
-export async function getPersonnel(params: {
+export async function getPersonnel(params?: {
   keywords?: string;
   is_deleted?: boolean;
 }) {

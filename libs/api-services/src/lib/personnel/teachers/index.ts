@@ -1,7 +1,7 @@
 import { http } from '@squoolr/axios';
 import { Personnel, Teacher } from '../../interfaces';
 
-export async function getTeachers(params: {
+export async function getTeachers(params?: {
   keywords?: string;
   is_deleted?: boolean;
 }) {

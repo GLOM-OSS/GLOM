@@ -6,7 +6,7 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TableRow
+  TableRow,
 } from '@mui/material';
 import {
   addNewConfigurator,
@@ -19,15 +19,17 @@ import {
   getCoordinators,
   getPersonnel as getAllPersonnel,
   getRegistries,
-  getTeachers, Personnel as PersonnelData,
-  resetPersonnelPassword, resetRegistryCode,
-  resetTeacherCode
+  getTeachers,
+  Personnel as PersonnelData,
+  resetPersonnelPassword,
+  resetRegistryCode,
+  resetTeacherCode,
 } from '@squoolr/api-services';
 import { theme } from '@squoolr/theme';
 import {
   ErrorMessage,
   filterNotificationUsage,
-  useNotification
+  useNotification,
 } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
@@ -37,17 +39,17 @@ import ActionBar from '../../components/secretary/personnel/actionBar';
 import ConfirmResetDialog from '../../components/secretary/personnel/confirmResetDialog';
 import NewCoordinatorDialog from '../../components/secretary/personnel/NewCoordinatorDialog';
 import PersonnelRow, {
-  PersonnelInterface
+  PersonnelInterface,
 } from '../../components/secretary/personnel/PersonnelRow';
 import { PersonnelRowSkeleton } from '../../components/secretary/personnel/personnelRowSkeleton';
 import PersonnelTabs, {
-  TabItem
+  TabItem,
 } from '../../components/secretary/personnel/personnelTabs';
 import StaffDialog, {
-  StaffInterface
+  StaffInterface,
 } from '../../components/secretary/personnel/staffDialog';
 import TeacherDialog, {
-  TeacherInterface
+  TeacherInterface,
 } from '../../components/secretary/personnel/teacherDialog';
 
 export default function Personnel() {
@@ -74,14 +76,15 @@ export default function Personnel() {
 
     const notif = new useNotification();
     setNotifications(filterNotificationUsage('load', notif, notifications));
-    const personnelHandler: Record<TabItem, () => Promise<PersonnelData[]>> = {
-      allPersonnel: () => getAllPersonnel({ is_deleted: showArchived }),
-      academicService: () => getRegistries({ is_deleted: showArchived }),
-      coordinator: () => getCoordinators({ is_deleted: showArchived }),
-      secretariat: () => getConfigurators({ is_deleted: showArchived }),
-      teacher: () => getTeachers({ is_deleted: showArchived }),
+    const personnelQuery = showArchived ? undefined : { is_deleted: false };
+    const PERSONNEL_HANDLER: Record<TabItem, () => Promise<PersonnelData[]>> = {
+      allPersonnel: () => getAllPersonnel(personnelQuery),
+      academicService: () => getRegistries(personnelQuery),
+      coordinator: () => getCoordinators(personnelQuery),
+      secretariat: () => getConfigurators(personnelQuery),
+      teacher: () => getTeachers(personnelQuery),
     };
-    personnelHandler[activeTabItem]()
+    PERSONNEL_HANDLER[activeTabItem]()
       .then((personnel) => {
         setPersonnels(
           personnel.map(
@@ -91,9 +94,9 @@ export default function Personnel() {
               phone_number,
               first_name,
               email,
-              birthdate, 
-              gender, 
-              national_id_number, 
+              birthdate,
+              gender,
+              national_id_number,
               address,
               last_connected,
               last_name,
@@ -107,9 +110,9 @@ export default function Personnel() {
               last_name,
               email,
               login_id,
-              birthdate, 
-              gender, 
-              national_id_number, 
+              birthdate,
+              gender,
+              national_id_number,
               address,
               is_academic_service: roles.includes('S.A.'),
               is_coordo: roles.includes('Co'),

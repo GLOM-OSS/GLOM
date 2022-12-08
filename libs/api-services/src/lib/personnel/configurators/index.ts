@@ -1,7 +1,7 @@
 import { http } from '@squoolr/axios';
 import { Person, Personnel } from '../../interfaces';
 
-export async function getConfigurators(params: {
+export async function getConfigurators(params?: {
   keywords?: string;
   is_deleted?: boolean;
 }) {

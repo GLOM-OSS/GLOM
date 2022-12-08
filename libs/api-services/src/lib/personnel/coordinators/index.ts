@@ -1,7 +1,7 @@
 import { http } from '@squoolr/axios';
 import { Personnel } from '../../interfaces';
 
-export async function getCoordinators(params: {
+export async function getCoordinators(params?: {
   keywords?: string;
   is_deleted?: boolean;
 }) {
