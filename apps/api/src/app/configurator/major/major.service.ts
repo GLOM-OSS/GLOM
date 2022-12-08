@@ -80,6 +80,7 @@ export class MajorService {
       select: {
         major_name: true,
         major_acronym: true,
+        Department: { select: { department_code: true } },
         Major: {
           select: {
             cycle_id: true,
@@ -114,10 +115,12 @@ export class MajorService {
       );
     const {
       Major: { cycle_id, Classrooms },
+      Department: { department_code },
       major_acronym,
       major_name,
     } = major;
     return {
+      department_code,
       major_acronym,
       major_code,
       major_name,
