@@ -159,7 +159,7 @@ export class AuthService {
         }); //someone attempting to be a personnel
     } else {
       if (origin !== 'http://localhost:4202')
-        //process.env.SQUOOLR_URL
+        //process.env.ADMIN_URL
         throw new UnauthorizedException({
           statusCode: HttpStatus.UNAUTHORIZED,
           error: 'Unauthorized access',
@@ -324,7 +324,7 @@ export class AuthService {
       where: {
         Person: { email },
         School:
-          squoolr_client !== process.env.SQUOOLR_URL
+          squoolr_client !== process.env.ADMIN_URL
             ? { subdomain: squoolr_client }
             : undefined,
       },
@@ -357,7 +357,7 @@ export class AuthService {
     const login = await this.loginService.findFirst({
       where: {
         School:
-          squoolr_client !== process.env.SQUOOLR_URL
+          squoolr_client !== process.env.ADMIN_URL
             ? { subdomain: squoolr_client }
             : undefined,
         ResetPasswords: {
@@ -552,7 +552,7 @@ export class AuthService {
       },
     });
     return (
-      (login_id && squoolr_client === 'http://localhost:4202') || //Admin -> process.env.SQUOOLR_URL
+      (login_id && squoolr_client === 'http://localhost:4202') || //Admin -> process.env.ADMIN_URL
       (annualStudent && squoolr_client === 'http://localhost:4200') || //Student -> `${school.subdomain}.squoolr.com`
       ((annualConfigurator || annualRegistry || annualTeacher) &&
         squoolr_client === 'http://localhost:4201') //Personnel -> `admin.${school.subdomain}.squoolr.com`
