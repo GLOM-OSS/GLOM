@@ -23,7 +23,7 @@ export default function UserLayoutDisplay({
   const intl = useIntl();
   const { formatMessage } = intl;
   const {
-    fisrt_name,
+    first_name,
     image_ref,
     annualConfigurator,
     annualRegistry,
@@ -40,8 +40,6 @@ export default function UserLayoutDisplay({
     setUserRoles(newRoles.filter((_) => _ !== undefined) as PersonnelRole[]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // alert(preferred_lang)
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,7 +63,7 @@ export default function UserLayoutDisplay({
       <Avatar src={image_ref} alt="user profile" />
       <Box sx={{ display: 'grid', alignContent: 'center' }}>
         <Typography variant="body2" sx={{ fontWeight: 500 }}>
-          {fisrt_name}
+          {first_name}
         </Typography>
         <>
           <Box
