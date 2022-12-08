@@ -41,6 +41,7 @@ export default function VerifyDemandStatus({
   } = useRouter();
 
   const [code, setCode] = useState<string>(school_code as string);
+  const schoolDemandStatus = school_status.toLocaleLowerCase();
 
   return (
     <Box
@@ -97,11 +98,11 @@ export default function VerifyDemandStatus({
                 marginTop: theme.spacing(2.4),
                 backgroundColor: lighten(
                   theme.palette[
-                    school_status === 'pending'
+                    schoolDemandStatus === 'pending'
                       ? 'info'
-                      : school_status === 'progress'
+                      : schoolDemandStatus === 'progress'
                       ? 'secondary'
-                      : school_status === 'validated'
+                      : schoolDemandStatus === 'validated'
                       ? 'success'
                       : 'error'
                   ].main,
@@ -110,7 +111,7 @@ export default function VerifyDemandStatus({
               }}
               label={formatMessage({ id: school_status })}
             />
-            {school_status === 'validated' ? (
+            {schoolDemandStatus === 'validated' ? (
               <Box
                 sx={{
                   textAlign: 'center',
@@ -130,7 +131,7 @@ export default function VerifyDemandStatus({
                   {formatMessage({ id: 'demandValidated2' })}
                 </Typography>
               </Box>
-            ) : school_status === 'rejected' ? (
+            ) : schoolDemandStatus === 'rejected' ? (
               <Box
                 sx={{
                   textAlign: 'center',
