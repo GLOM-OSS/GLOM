@@ -6,7 +6,7 @@ export async function getMajors({
   is_deleted,
 }: {
   department_code: string;
-  is_deleted: boolean;
+  is_deleted?: boolean;
 }) {
   const {
     data: { majors },

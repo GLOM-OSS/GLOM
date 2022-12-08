@@ -74,7 +74,12 @@ export default function Departments({
     else setNotifications([notif]);
     switch (usage) {
       case 'department': {
-        getDepartments({ is_deleted: showArchived, keywords: searchTerm })
+        const departmentItemQuery = showArchived
+          ? {
+              keywords: searchTerm,
+            }
+          : { keywords: searchTerm, is_deleted: showArchived };
+        getDepartments(departmentItemQuery)
           .then((departments) => {
             setAcademicItems(
               departments.map(
@@ -126,10 +131,15 @@ export default function Departments({
         break;
       }
       case 'major': {
-        getMajors({
+        const majorItemQuery = showArchived
+        ? {
+            department_code: selectedDepartmentCode as string,
+          }
+        :{
           department_code: selectedDepartmentCode as string,
-          is_deleted: showArchived,
-        })
+          is_deleted: showArchived ?? undefined,
+        };
+        getMajors(majorItemQuery)
           .then((majors) => {
             setAcademicItems(
               majors.map(
