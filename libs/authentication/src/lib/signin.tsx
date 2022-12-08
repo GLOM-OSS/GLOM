@@ -72,13 +72,17 @@ export function Signin({
           newNotification.update({
             render: formatMessage({ id: 'signinSuccess' }),
           });
-          if (callingApp === 'admin' || !academic_years) {
-            navigate(localStorage.getItem('previousRoute') ?? '/management');
-            userDispatch({ type: 'LOAD_USER', payload: { user } });
-            resetForm();
-          } else {
+          if (academic_years) {
             setAcademicYears(academic_years);
             setIsAcademicYearDialogOpen(true);
+          } else {
+            navigate(
+              localStorage.getItem('previousRoute') ?? callingApp === 'admin'
+                ? '/management'
+                : '/configurations'
+            );
+            userDispatch({ type: 'LOAD_USER', payload: { user } });
+            resetForm();
           }
         })
         .catch((error) => {
