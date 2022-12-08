@@ -132,13 +132,13 @@ export default function Departments({
       }
       case 'major': {
         const majorItemQuery = showArchived
-        ? {
-            department_code: selectedDepartmentCode as string,
-          }
-        :{
-          department_code: selectedDepartmentCode as string,
-          is_deleted: showArchived ?? undefined,
-        };
+          ? {
+              department_code: selectedDepartmentCode as string,
+            }
+          : {
+              department_code: selectedDepartmentCode as string,
+              is_deleted: showArchived ?? undefined,
+            };
         getMajors(majorItemQuery)
           .then((majors) => {
             setAcademicItems(
@@ -315,7 +315,7 @@ export default function Departments({
     }
   };
 
-  const manageMajor = (value: {
+  const manageMajor = (majorValue: {
     values: MajorInterface;
     levelFees: FeeSetting[];
   }) => {
@@ -327,17 +327,29 @@ export default function Departments({
         id: activeAcademicItem ? 'editingMajor' : 'creatingMajor',
       }),
     });
+    const {
+      values: { item_acronym, cycle_id, department_code, item_name },
+      levelFees,
+    } = majorValue;
     if (activeAcademicItem) {
       editMajor(activeAcademicItem.item_code, {
-        major_name: value.values.item_name,
-        department_code: value.values.department_code,
-        major_acronym: value.values.item_acronym,
-        classrooms: value.levelFees,
+        major_name: item_name,
+        department_code: department_code,
+        major_acronym: item_acronym,
+        classrooms: levelFees,
       })
         .then(() => {
           notif.update({
             render: formatMessage({ id: 'majorEditedSuccessfully' }),
           });
+          setSelectedDepartmentCode(department_code);
+          setAcademicItems(
+            academicItems.map((academicItem) =>
+              academicItem.item_code === activeAcademicItem.item_code
+                ? { ...academicItem, ...majorValue.values }
+                : academicItem
+            )
+          );
           setActiveItem(undefined);
         })
         .catch((error) => {
@@ -345,7 +357,7 @@ export default function Departments({
             type: 'ERROR',
             render: (
               <ErrorMessage
-                retryFunction={() => manageMajor(value)}
+                retryFunction={() => manageMajor(majorValue)}
                 notification={notif}
                 message={
                   error?.message || formatMessage({ id: 'failedToEditMajor' })
@@ -357,25 +369,47 @@ export default function Departments({
           });
         });
     } else {
-      const { values, levelFees } = value;
       createMajor({
-        major_name: values.item_name,
-        cycle_id: values.cycle_id,
-        department_code: values.department_code,
-        major_acronym: values.item_acronym,
+        major_name: item_name,
+        cycle_id: cycle_id,
+        department_code: department_code,
+        major_acronym: item_acronym,
         classrooms: levelFees,
       })
-        .then(() => {
-          notif.update({
-            render: formatMessage({ id: 'majorCreatedSuccessfully' }),
-          });
-        })
+        .then(
+          ({
+            created_at,
+            cycle_name,
+            is_deleted,
+            major_code,
+            major_name,
+            major_acronym,
+            department_acronym,
+          }) => {
+            notif.update({
+              render: formatMessage({ id: 'majorCreatedSuccessfully' }),
+            });
+            setSelectedDepartmentCode(department_code);
+            setAcademicItems([
+              ...academicItems,
+              {
+                created_at,
+                cycle_name,
+                department_acronym,
+                item_name: major_name,
+                item_code: major_code,
+                is_archived: is_deleted,
+                item_acronym: major_acronym,
+              },
+            ]);
+          }
+        )
         .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
-                retryFunction={() => manageMajor(value)}
+                retryFunction={() => manageMajor(majorValue)}
                 notification={notif}
                 message={
                   error?.message || formatMessage({ id: 'failedToCreateMajor' })
@@ -660,9 +694,14 @@ export default function Departments({
               placeholder={formatMessage({ id: 'department' })}
               label={formatMessage({ id: 'searchDepartment' })}
               value={selectedDepartmentCode}
-              onChange={(event) =>
-                setSelectedDepartmentCode(event.target.value)
-              }
+              onChange={(event) => {
+                const selectedDepartmentCode = event.target.value;
+                setSelectedDepartmentCode(
+                  selectedDepartmentCode !== 'all'
+                    ? selectedDepartmentCode
+                    : undefined
+                );
+              }}
               sx={{
                 '& input': { ...theme.typography.caption },
                 backgroundColor: theme.common.inputBackground,
@@ -673,9 +712,7 @@ export default function Departments({
                 areDepartmentsLoading || (areAcademicItemsLoading && canSearch)
               }
             >
-              <MenuItem value={undefined}>
-                {formatMessage({ id: 'all' })}
-              </MenuItem>
+              <MenuItem value={'all'}>{formatMessage({ id: 'all' })}</MenuItem>
               {departments.map(
                 (
                   { department_acronym, department_code, department_name },

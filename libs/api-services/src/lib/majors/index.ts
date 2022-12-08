@@ -37,7 +37,10 @@ export async function createMajor(newMajor: {
     registration_fee: number;
   }[];
 }) {
-  await http.post(`/majors/new`, newMajor);
+  const {
+    data: { major },
+  } = await http.post<{ major: Major }>(`/majors/new`, newMajor);
+  return major;
 }
 
 export async function editMajor(

@@ -179,8 +179,18 @@ export class MajorService {
         JSON.stringify(ERR03('Major')),
         HttpStatus.AMBIGUOUS
       );
-    return this.prismaService.$transaction([
+    const [
+      {
+        Major: {
+          Cycle: { cycle_name },
+          ...newMajor
+        },
+      },
+    ] = await this.prismaService.$transaction([
       this.annualMajorService.create({
+        select: {
+          Major: { include: { Cycle: { select: { cycle_name: true } } } },
+        },
         data: {
           major_name,
           major_acronym,
@@ -218,6 +228,7 @@ export class MajorService {
         data: annualClassroomDivisions,
       }),
     ]);
+    return { ...newMajor, cycle_name };
   }
 
   async editMajor(
