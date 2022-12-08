@@ -4,7 +4,7 @@ services:
   redis_container:
     image: redis:alpine
     ports:
-      - 6379:6379
+      - 6380:6379
   mysql_container:
     image: mysql
     environment:
@@ -18,7 +18,7 @@ services:
     restart: always
     environment:
       - REDIS_HOST=redis_container
-      - REDIS_PORT=redis_container
+      - REDIS_PORT=6380
       - PRISMA_SECRET=k1.aesgcm256.ztwF1a4stlVgXXJM9lH1ATgN_B-hYEfVcoSmVAFeWGA=
       - DATABASE_URL=mysql://root:12345678@mysql_container:3306/skeleton_db
       - NX_CRYPTJS_SECRET=skeleton-end-to-end-crypting
