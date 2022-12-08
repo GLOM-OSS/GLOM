@@ -79,7 +79,7 @@ export default function UserLayoutDisplay({
             }
           >
             <Typography variant="caption">
-              {formatMessage({ id: activeRole })}
+              {formatMessage({ id: activeRole || 'loading' }) }
             </Typography>
             {userRoles &&
               userRoles.length > 0 &&

@@ -3,7 +3,7 @@ import {
   KeyboardDoubleArrowLeftRounded,
   NotificationsActiveOutlined,
   ReportRounded,
-  SearchRounded
+  SearchRounded,
 } from '@mui/icons-material';
 import {
   Box,
@@ -13,7 +13,7 @@ import {
   InputAdornment,
   TextField,
   Tooltip,
-  Typography
+  Typography,
 } from '@mui/material';
 import { getUser, logOut } from '@squoolr/api-services';
 import { theme, useLanguage } from '@squoolr/theme';
@@ -43,29 +43,18 @@ export function Layout({
     useState<NavChild>();
   const { activeYear } = useUser();
 
-  const { annualConfigurator, annualRegistry, annualTeacher, userDispatch } =
-    useUser();
+  const { userDispatch } = useUser();
 
-  const newRoles: (PersonnelRole | undefined)[] = [
-    annualConfigurator ? 'secretary' : undefined,
-    annualRegistry ? 'registry' : undefined,
-    annualTeacher ? 'teacher' : undefined,
-  ];
-  const Roles: PersonnelRole[] = newRoles.filter(
-    (_) => _ !== undefined
-  ) as PersonnelRole[];
-
-  const [activeRole, setActiveRole] = useState<PersonnelRole | 'administrator'>(
-    callingApp === 'admin'
-      ? 'administrator'
-      : Roles.sort((a, b) => (a > b ? 1 : -1))[0]
-  );
+  const [activeRole, setActiveRole] = useState<
+    PersonnelRole | 'administrator'
+  >();
   const handleSwapRole = (newRole: PersonnelRole) => setActiveRole(newRole);
 
   const [roleNavigationItems, setRoleNavigationItems] = useState<NavItem[]>([]);
 
   useEffect(() => {
     const RoleNavItems = navItems.find(({ role }) => role === activeRole);
+    alert(JSON.stringify(activeRole))
     setRoleNavigationItems(RoleNavItems ? RoleNavItems.navItems : []);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRole]);
@@ -83,7 +72,6 @@ export function Layout({
       setIsSecondaryNavOpen(false);
       setActiveNavItem(undefined);
       setActiveSecondaryNavItem(undefined);
-      navigate('/');
       //TODO: call api here to NOTIFY ADMIN HERE that activeRole has no navItems then notify a 404
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -114,9 +102,40 @@ export function Layout({
 
   useEffect(() => {
     getUser()
-      .then((userData) => {
-        userDispatch({ type: 'LOAD_USER', payload: { user: userData } });
-      })
+      .then(
+        ({
+          annualConfigurator,
+          annualRegistry,
+          annualTeacher,
+          ...userData
+        }) => {
+          userDispatch({
+            type: 'LOAD_USER',
+            payload: {
+              user: {
+                ...userData,
+                annualConfigurator,
+                annualTeacher,
+                annualRegistry,
+              },
+            },
+          });
+          const newRoles: (PersonnelRole | undefined)[] = [
+            annualConfigurator ? 'secretary' : undefined,
+            annualRegistry ? 'registry' : undefined,
+            annualTeacher ? 'teacher' : undefined,
+          ];
+          const Roles: PersonnelRole[] = newRoles.filter(
+            (_) => _ !== undefined
+          ) as PersonnelRole[];
+          if (Roles.length === 0) navigate('/');
+          setActiveRole(
+            callingApp === 'admin'
+              ? 'administrator'
+              : Roles.sort((a, b) => (a > b ? 1 : -1))[0]
+          );
+        }
+      )
       .catch(() => {
         const notif = new useNotification();
         notif.notify({ render: 'verifyingAuth' });
@@ -166,7 +185,7 @@ export function Layout({
     });
     logOut()
       .then(() => {
-        userDispatch({ type: 'CLEAR_USER' })
+        userDispatch({ type: 'CLEAR_USER' });
         newNotification.update({
           render: formatMessage({ id: 'signOutSuccess' }),
         });
@@ -267,23 +286,23 @@ export function Layout({
           </Typography>
           {/*TODO: ADD SCROLLBARS AGAIN. BUT NOTICE HOW IT PREVENTS THE FULLWIDTH CONCEPT. TRY TO SOLVE IT */}
           {/* <Scrollbars> */}
-            <Box
-              sx={{
-                marginTop: theme.spacing(2.5),
-                display: 'grid',
-                rowGap: theme.spacing(1),
-              }}
-            >
-              {activeNavItem
-                ? activeNavItem.children.map((child, index) => (
-                    <SecondaryNavItem
-                      item={child}
-                      key={index}
-                      onClick={() => setActiveSecondaryNavItem(child)}
-                    />
-                  ))
-                : null}
-            </Box>
+          <Box
+            sx={{
+              marginTop: theme.spacing(2.5),
+              display: 'grid',
+              rowGap: theme.spacing(1),
+            }}
+          >
+            {activeNavItem
+              ? activeNavItem.children.map((child, index) => (
+                  <SecondaryNavItem
+                    item={child}
+                    key={index}
+                    onClick={() => setActiveSecondaryNavItem(child)}
+                  />
+                ))
+              : null}
+          </Box>
           {/* </Scrollbars> */}
           {callingApp === 'personnel' && (
             <SwapAcademicYear callingApp={callingApp} activeYear={activeYear} />
