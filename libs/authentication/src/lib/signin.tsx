@@ -73,7 +73,7 @@ export function Signin({
             render: formatMessage({ id: 'signinSuccess' }),
           });
           if (callingApp === 'admin' || !academic_years) {
-            navigate(localStorage.getItem('previousRoute') ?? '/dashboard');
+            navigate(localStorage.getItem('previousRoute') ?? '/management');
             userDispatch({ type: 'LOAD_USER', payload: { user } });
             resetForm();
           } else {
