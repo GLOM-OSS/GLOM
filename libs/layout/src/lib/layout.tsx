@@ -428,7 +428,7 @@ export function Layout({
                               : null
                             : navigate(
                                 `/${pathnameArray
-                                  .slice(0, index + 1)
+                                  .slice(0, index + 2)
                                   .join('/')}`
                               )
                         }
