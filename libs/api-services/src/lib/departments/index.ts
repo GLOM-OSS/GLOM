@@ -17,7 +17,13 @@ export async function createDepartment(newDepartment: {
   department_name: string;
   department_acronym: string;
 }) {
-  await http.post(`/departments/new`, newDepartment);
+  const {
+    data: { department },
+  } = await http.post<{ department: Department }>(
+    `/departments/new`,
+    newDepartment
+  );
+  return department;
 }
 
 export async function editDepartment(

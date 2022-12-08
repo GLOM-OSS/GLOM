@@ -9,15 +9,16 @@ import {
   MenuItem,
   TextField,
   Tooltip,
-  Typography
+  Typography,
 } from '@mui/material';
 import {
   createDepartment,
   createMajor,
+  Department,
   editDepartment,
   editMajor,
   getDepartments,
-  getMajors
+  getMajors,
 } from '@squoolr/api-services';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -29,10 +30,10 @@ import ConfirmArchiveDialog from '../../components/secretary/confirmArchiveDialo
 import ConfirmEditDialog from '../../components/secretary/confirmEditDepartmentDialog';
 import MajorDialog, {
   FeeSetting,
-  MajorInterface
+  MajorInterface,
 } from '../../components/secretary/majorDialog';
 import NewDepartmentDialog, {
-  newDepartmentInterface
+  newDepartmentInterface,
 } from '../../components/secretary/newDepartmentDialog';
 
 export interface DepartmentInterface {
@@ -228,6 +229,13 @@ export default function Departments({
           notif.update({
             render: formatMessage({ id: 'departmentEditedSuccessfully' }),
           });
+          setAcademicItems(
+            academicItems.map((academicItem) =>
+              academicItem.item_code === activeAcademicItem.item_code
+                ? { ...academicItem, ...newDepartment }
+                : academicItem
+            )
+          );
           setActiveItem(undefined);
         })
         .catch((error) => {
@@ -253,11 +261,29 @@ export default function Departments({
         department_acronym: newDepartment.item_acronym,
         department_name: newDepartment.item_name,
       })
-        .then(() => {
-          notif.update({
-            render: formatMessage({ id: 'departmentCreatedSuccessfully' }),
-          });
-        })
+        .then(
+          ({
+            department_name,
+            department_acronym,
+            department_code,
+            created_at,
+            is_deleted,
+          }) => {
+            notif.update({
+              render: formatMessage({ id: 'departmentCreatedSuccessfully' }),
+            });
+            setAcademicItems([
+              ...academicItems,
+              {
+                created_at,
+                item_acronym: department_acronym,
+                item_name: department_name,
+                is_archived: is_deleted,
+                item_code: department_code,
+              },
+            ]);
+          }
+        )
         .catch((error) => {
           notif.update({
             type: 'ERROR',
@@ -296,7 +322,7 @@ export default function Departments({
         major_name: value.values.item_name,
         department_code: value.values.department_code,
         major_acronym: value.values.item_acronym,
-        classrooms: value.levelFees
+        classrooms: value.levelFees,
       })
         .then(() => {
           notif.update({
@@ -384,6 +410,23 @@ export default function Departments({
                     id: 'archivingSuccessfull',
                   }),
             });
+            setAcademicItems(
+              showArchived
+                ? academicItems.map((academicItem) => {
+                    if (
+                      academicItem.item_code === activeAcademicItem?.item_code
+                    )
+                      return {
+                        ...academicItem,
+                        is_archived: !activeAcademicItem?.is_archived,
+                      };
+                    else return academicItem;
+                  })
+                : academicItems.filter(
+                    ({ item_code }) =>
+                      item_code !== activeAcademicItem?.item_code
+                  )
+            );
             setActiveItem(undefined);
           })
           .catch((error) => {
@@ -471,13 +514,7 @@ export default function Departments({
 
   const [areDepartmentsLoading, setAreDepartmentsLoading] =
     useState<boolean>(false);
-  const [departments, setDepartments] = useState<
-    {
-      department_code: string;
-      department_name: string;
-      department_acronym: string;
-    }[]
-  >([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
 
   const [departmentNotif, setDepartmentNotif] = useState<useNotification>();
   const loadDepartments = () => {
