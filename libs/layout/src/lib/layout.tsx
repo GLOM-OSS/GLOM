@@ -54,7 +54,6 @@ export function Layout({
 
   useEffect(() => {
     const RoleNavItems = navItems.find(({ role }) => role === activeRole);
-    alert(JSON.stringify(activeRole))
     setRoleNavigationItems(RoleNavItems ? RoleNavItems.navItems : []);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRole]);
