@@ -22,7 +22,7 @@ EXPOSE 3000
 # EXPOSE 4200
 
 # # run app
-WORKDIR /app/dist/apps/app
+WORKDIR /app/dist/apps
 CMD ["npx", "serve", "-s", "app"]
 
 # # launch app in dev mode while learning to serve build
