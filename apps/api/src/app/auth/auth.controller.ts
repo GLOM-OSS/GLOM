@@ -144,8 +144,9 @@ export class AuthController {
 
   @Get('user')
   @UseGuards(AuthenticatedGuard)
-  async getUser(@Req() request) {
-    return { user: request.user };
+  async getUser(@Req() request: Request) {
+    const email = request.query.email as string;
+    return { user: email ? await this.authService.getUser(email) : request.user };
   }
 
   @Get('google-signin')

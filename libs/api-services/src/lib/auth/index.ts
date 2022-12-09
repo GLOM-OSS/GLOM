@@ -57,10 +57,10 @@ export async function logOut() {
  * Fetch a connected user data
  * @returns user data and roles: This should be your user context
  */
-export async function getUser() {
+export async function getUser(email?: string) {
   const {
     data: { user },
-  } = await http.get(`auth/user`);
+  } = await http.get(`auth/user`, { params: { email } });
   return user;
 }
 

@@ -13,6 +13,7 @@ import {
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
+import { getUser } from '@squoolr/api-services';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { theme } from '@squoolr/theme';
 import { useFormik } from 'formik';
@@ -156,6 +157,14 @@ export default function StaffDialog({
             error={Boolean(formik.touched.email && formik.errors.email)}
             helperText={formik.touched.email && formik.errors.email}
             {...formik.getFieldProps('email')}
+            onChange={(e) => {
+              const email = e.target.value;
+              if (email !== '')
+                getUser(e.target.value).then((person) => {
+                  if (person) formik.setValues(person);
+                });
+              formik.handleChange(e);
+            }}
           />
           <TextField
             disabled={

@@ -558,4 +558,8 @@ export class AuthService {
         squoolr_client === 'http://localhost:4201') //Personnel -> `admin.${school.subdomain}.squoolr.com`
     );
   }
+
+  async getUser(email: string) {
+    return this.personService.findUnique({ where: { email } });
+  }
 }
