@@ -115,7 +115,11 @@ export default function NewCoordinatorDialog({
 
     fetchClassrooms({ is_deleted: false })
       .then((classrooms) => {
-        setClassrooms(classrooms);
+        setClassrooms(
+          classrooms.filter(
+            ({ annual_coordinator_id }) => annual_coordinator_id === null
+          )
+        );
         setAreClassroomsLoading(false);
         notif.dismiss();
       })

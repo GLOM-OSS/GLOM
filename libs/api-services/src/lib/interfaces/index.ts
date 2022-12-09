@@ -56,6 +56,17 @@ export interface Major {
   department_acronym: string;
 }
 
+export  interface Classroom {
+  classroom_code: string;
+  classroom_acronym: string;
+  classroom_name: string;
+  classroom_level: number;
+  registration_fee: number;
+  total_fee_due: number;
+  annual_coordinator_id: string;
+}
+
+
 export type RoleShort = 'Te' | 'Se' | 'S.A.' | 'Co';
 export interface Personnel extends Omit<Person, 'password'> {
   login_id: string;

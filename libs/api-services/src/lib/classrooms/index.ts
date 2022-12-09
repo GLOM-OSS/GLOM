@@ -1,4 +1,5 @@
 import { http } from '@squoolr/axios';
+import { Classroom } from '../interfaces';
 
 export async function getClassrooms(params?: {
   academic_year_id?: string;
@@ -7,7 +8,9 @@ export async function getClassrooms(params?: {
   level?: number;
   is_deleted?: boolean;
 }) {
-  const { data: { classrooms }} = await http.get(`classrooms/all`, {
+  const {
+    data: { classrooms },
+  } = await http.get<{ classrooms: Classroom[] }>(`classrooms/all`, {
     params,
   });
   return classrooms;

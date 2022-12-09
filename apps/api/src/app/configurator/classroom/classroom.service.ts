@@ -25,6 +25,9 @@ export class ClassroomService {
         classroom_acronym: true,
         registration_fee: true,
         total_fee_due: true,
+        AnnualClassroomDivisions: {
+          select: { annual_coordinator_id: true },
+        },
         Classroom: {
           select: {
             level: true,
@@ -40,10 +43,14 @@ export class ClassroomService {
         academic_year_id,
       },
     });
-    return classrooms.map(({ Classroom: { level }, ...data }) => ({
-      classroom_level: level,
-      ...data,
-    }));
+    return classrooms.map(
+      ({ Classroom: { level }, AnnualClassroomDivisions, ...data }) => ({
+        classroom_level: level,
+        ...data,
+        annual_coordinator_id:
+          AnnualClassroomDivisions[0].annual_coordinator_id,
+      })
+    );
   }
 
   async findDivisions(annual_classroom_id: string) {
