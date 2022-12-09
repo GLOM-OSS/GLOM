@@ -16,14 +16,14 @@ COPY . /app
 # RUN npx nx run app:build:production
 
 # # expose port 3000 to outer environment
-# EXPOSE 3000
+EXPOSE 3000
 
 # # expose port 4200 as i am using dev environment
-EXPOSE 4200
+# EXPOSE 4200
 
 # # run app
-# WORKDIR /app/dist/apps/app
-# CMD ["npm", "start"]
+WORKDIR /app/dist/apps/app
+CMD ["npx", "serve", "-s", "app"]
 
 # # launch app in dev mode while learning to serve build
-CMD [ "npx", "nx", "serve", "app" ]
+# CMD [ "npx", "nx", "serve", "app" ]

@@ -70,7 +70,7 @@ services:
     environment:
       - NX_API_BASE_URL='https://api.squoolr.com'
     ports:
-      - "86:4200"
+      - "86:3000"
     # depends_on:
     #   - api
   student:
