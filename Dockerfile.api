@@ -22,5 +22,5 @@ RUN npx nx run api:build:production
 EXPOSE 8080
 
 # run app
-WORKDIR /app/dist/apps/skeleton-be
+WORKDIR /app/dist/apps/api
 CMD ["node", "main.js"]
