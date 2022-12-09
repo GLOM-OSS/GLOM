@@ -501,15 +501,6 @@ export class PersonnelService {
     const password = Math.random().toString(36).slice(2).toUpperCase();
     //TODO NodeMailer send generated password and private code
 
-    const person = await this.personService.findUnique({
-      where: { phone_number },
-    });
-    if (person?.phone_number)
-      throw new HttpException(
-        JSON.stringify(ERR03('phone_number')),
-        HttpStatus.AMBIGUOUS
-      );
-
     const login = await this.loginService.findFirst({
       select: {
         login_id: true,

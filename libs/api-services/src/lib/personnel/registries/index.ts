@@ -25,7 +25,11 @@ export async function archiveRegistry(annual_registry_id: string) {
 }
 
 export async function addNewRegistry(newRegistry: Person) {
-  await http.post(`/personnel/registries/new`, newRegistry);
+  const { data } = await http.post<Personnel>(
+    `/personnel/registries/new`,
+    newRegistry
+  );
+  return data;
 }
 
 export async function resetRegistryCode(annual_registry_id: string) {

@@ -334,7 +334,7 @@ export default function Personnel() {
             .finally(() => setIsSubmitActionBarAction(false));
         } else if (activeTabItem === 'academicService') {
           addNewRegistry(newValues)
-            .then(() => {
+            .then(({ roles, ...staff }) => {
               notif.update({
                 render: formatMessage({
                   id: `added${activeTabItem[0].toUpperCase()}${activeTabItem.slice(
@@ -343,6 +343,17 @@ export default function Personnel() {
                   )}`,
                 }),
               });
+              setPersonnel([
+                ...personnel,
+                {
+                  ...staff,
+                  is_archived: false,
+                  is_academic_service: roles.includes('S.A.'),
+                  is_coordo: roles.includes('Co'),
+                  is_secretariat: roles.includes('Se'),
+                  is_teacher: roles.includes('Te'),
+                },
+              ]);
             })
             .catch((error) => {
               notif.update({
