@@ -59,7 +59,7 @@ services:
     environment:
       - NX_API_BASE_URL='https://api.squoolr.com'
     ports:
-      - "85:4200"
+      - "85:3000"
     # depends_on:
     #   - api
   personnel:
@@ -81,7 +81,7 @@ services:
     environment:
       - NX_API_BASE_URL='https://api.squoolr.com'
     ports:
-      - "87:4200"
+      - "87:3000"
     # depends_on:
     #   - api
 

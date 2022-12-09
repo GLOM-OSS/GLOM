@@ -13,17 +13,11 @@ RUN npm install
 COPY . /app
 
 # # build admin app
-# RUN npx nx run admin:build:production
+RUN npx nx run admin:build:production
 
 # # expose port 3000 to outer environment
-# EXPOSE 3000
-
-# # expose port 4200 as i am using dev environment
-EXPOSE 4200
+EXPOSE 3000
 
 # # run app
-# WORKDIR /app/dist/apps/app
-# CMD ["npm", "start"]
-
-# # launch app in dev mode while learning to serve build
-CMD [ "npx", "nx", "serve", "admin" ]
+WORKDIR /app/dist/apps
+CMD ["npx", "serve", "-s", "admin"]
