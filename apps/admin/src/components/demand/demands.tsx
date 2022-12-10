@@ -1,19 +1,20 @@
 import { ReportRounded } from '@mui/icons-material';
 import { Box, lighten, Typography } from '@mui/material';
+import { getDemands as fetchDemands } from '@squoolr/api-services';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import Demand from './demand';
 import DemandSkeleton from './demandSkeleton';
 
+export type Status = 'progress' | 'pending' | 'validated' | 'rejected';
 export interface DemandInterface {
   code: string;
   school_name: string;
   email: string;
-  phone: string;
-  status: 'progress' | 'pending' | 'validated' | 'rejected';
+  phone_number: string;
+  status: Status;
 }
 
 export default function Demands() {
@@ -31,44 +32,30 @@ export default function Demands() {
     const notif = new useNotification();
     if (notifications) setNotifications([...notifications, notif]);
     else setNotifications([notif]);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO GET DEMANDS
-      if (random() > 5) {
-        const newDemands: DemandInterface[] = [
-          {
-            code: '45367',
-            email: 'lorraintchakoumi@gmail.com',
-            phone: '237657140183',
-            school_name: 'IAI-Cameroun',
-            status: 'pending',
-          },
-          {
-            code: '45377',
-            email: 'lorraintchakoumi@gmail.com',
-            phone: '237657140183',
-            school_name: 'IAI-Yaounde',
-            status: 'progress',
-          },
-          {
-            code: '45363',
-            email: 'lorraintchakoumi@gmail.com',
-            phone: '237657140183',
-            school_name: 'IAI-Douala',
-            status: 'rejected',
-          },
-          {
-            code: '455467',
-            email: 'lorraintchakoumi@gmail.com',
-            phone: '237657140183',
-            school_name: 'IAI-Bangangte',
-            status: 'validated',
-          },
-        ];
-        setDemands(newDemands);
+    fetchDemands()
+      .then((demands) => {
+        setDemands(
+          demands.map(
+            ({
+              school_name,
+              school_email,
+              demand_status,
+              school_code: code,
+              school_phone_number: phone_number,
+            }) => ({
+              code,
+              email: school_email,
+              phone_number,
+              school_name,
+              status: demand_status as Status,
+            })
+          )
+        );
         setAreDemandsLoading(false);
         notif.dismiss();
         setNotifications([]);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({ render: formatMessage({ id: 'loadingDemands' }) });
         notif.update({
           type: 'ERROR',
@@ -76,14 +63,15 @@ export default function Demands() {
             <ErrorMessage
               retryFunction={getDemands}
               notification={notif}
-              message={formatMessage({ id: 'getDemandsFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getDemandsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {

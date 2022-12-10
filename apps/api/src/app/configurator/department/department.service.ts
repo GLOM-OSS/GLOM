@@ -2,7 +2,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AUTH404 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
-import { DepartmentPostDto, DepartmentPutDto } from '../configurator.dto';
+import {
+  DepartmentPostDto,
+  DepartmentPutDto,
+  DepartmentQueryDto,
+} from '../configurator.dto';
 
 @Injectable()
 export class DepartmentService {
@@ -17,7 +21,7 @@ export class DepartmentService {
 
   async findAllDepartments(
     school_id: string,
-    { is_deleted }: { is_deleted?: boolean }
+    { is_deleted, keywords }: DepartmentQueryDto
   ) {
     return this.departmentService.findMany({
       select: {
@@ -27,7 +31,13 @@ export class DepartmentService {
         department_name: true,
         department_acronym: true,
       },
-      where: { is_deleted, school_id },
+      where: {
+        is_deleted,
+        school_id,
+        department_name: {
+          contains: keywords,
+        },
+      },
     });
   }
 

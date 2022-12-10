@@ -39,7 +39,7 @@ export class AuthenticatedGuard implements CanActivate {
 
   async authenticateUser(request: Request, metaRoles: Role[]) {
     const user = request.user as DeserializeSessionData;
-    const squoolr_client = new URL(request.headers.origin).hostname;
+    const squoolr_client = request.headers.origin; //new URL(request.headers.origin).hostname;
     const {
       session: {
         passport: {
@@ -67,7 +67,7 @@ export class AuthenticatedGuard implements CanActivate {
     this.tasksService.upsertCronTime(
       job_name,
       new Date(now.setSeconds(now.getSeconds() + cookie_age)),
-        () => {
+      () => {
         request.session.destroy(async (err) => {
           if (!err) await this.authservice.closeSession(log_id);
         });

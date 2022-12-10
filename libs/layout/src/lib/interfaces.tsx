@@ -35,7 +35,7 @@ export interface ClassroomDivisionInterface {
 
 export interface User {
   person_id: string;
-  fisrt_name: string;
+  first_name: string;
   last_name: string;
   phone_number: string;
   birthdate: Date;

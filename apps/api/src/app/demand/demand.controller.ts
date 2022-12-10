@@ -4,17 +4,18 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Param,
   Post,
   Put,
   Query,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
-  ApiTags,
+  ApiTags
 } from '@nestjs/swagger';
 import { Request } from 'express';
 import { ERR01, ERR02 } from '../../errors';
@@ -22,15 +23,14 @@ import { DeserializeSessionData, Role } from '../../utils/types';
 import { AuthenticatedGuard } from '../auth/auth.guard';
 import { DemandService } from './demand.service';
 import {
-  DemandPostData,
-  DemandQueryDto,
+  DemandPostDto, DemandQueryDto,
   DemandStatusQueryDto,
   DemandValidateDto,
 } from './demand.dto';
 import { IsPublic, Roles } from '../app.decorator';
 
 @ApiBearerAuth()
-@ApiTags('demands')
+@ApiTags('Demands')
 @Roles(Role.ADMIN)
 @Controller('demands')
 @UseGuards(AuthenticatedGuard)
@@ -39,9 +39,9 @@ export class DemandController {
 
   @Get()
   async getDemandInfo(@Query() query: DemandQueryDto) {
-    const { school_demand_id } = query;
+    const { school_code } = query;
     return {
-      school_demand: await this.demandService.findOne(school_demand_id),
+      school_demand: await this.demandService.findOne(school_code),
     };
   }
 
@@ -52,7 +52,7 @@ export class DemandController {
 
   @Post('new')
   @IsPublic()
-  async addNewDemand(@Body() schoolDemand: DemandPostData) {
+  async addNewDemand(@Body() schoolDemand: DemandPostDto) {
     return {
       school_demand_code: await this.demandService.addDemand(schoolDemand),
     };
@@ -72,6 +72,7 @@ export class DemandController {
         validatedDemand,
         request.user['login_id']
       );
+      return;
     } catch (error) {
       throw new HttpException(
         ERR02[preferred_lang],
@@ -88,5 +89,23 @@ export class DemandController {
     return {
       demand_status: await this.demandService.getStatus(school_demand_code),
     };
+  }
+
+  @Put(':school_code/status')
+  @UseGuards(AuthenticatedGuard)
+  async editDemandStatus(
+    @Req() request: Request,
+    @Param('school_code') school_code: string
+  ) {
+    const { preferred_lang, login_id } = request.user as DeserializeSessionData;
+    try {
+      await this.demandService.editDemandStatus(school_code, login_id);
+      return;
+    } catch (error) {
+      throw new HttpException(
+        ERR02[preferred_lang],
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
   }
 }

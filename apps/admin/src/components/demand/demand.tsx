@@ -5,12 +5,13 @@ import { useNavigate } from 'react-router';
 import { DemandInterface } from './demands';
 
 export default function Demand({
-  demand: { code, email, phone, school_name, status },
+  demand: { code, email, phone_number, school_name, status },
 }: {
   demand: DemandInterface;
 }) {
   const { formatMessage } = useIntl();
   const navigate = useNavigate();
+  const schoolDemandStatus = status.toLocaleLowerCase();
   return (
     <Box
       component={Button}
@@ -31,17 +32,17 @@ export default function Demand({
       <Typography sx={{...theme.typography.body2}}>{code}</Typography>
       <Typography sx={{...theme.typography.body2}}>{school_name}</Typography>
       <Typography sx={{...theme.typography.body2}}>{email}</Typography>
-      <Typography sx={{...theme.typography.body2}}>{phone}</Typography>
+      <Typography sx={{...theme.typography.body2}}>{phone_number}</Typography>
       <Chip
         sx={{
           justifySelf: 'center',
           backgroundColor: lighten(
             theme.palette[
-              status === 'pending'
+              schoolDemandStatus === 'pending'
                 ? 'info'
-                : status === 'progress'
+                : schoolDemandStatus === 'progress'
                 ? 'secondary'
-                : status === 'validated'
+                : schoolDemandStatus === 'validated'
                 ? 'success'
                 : 'error'
             ].main,

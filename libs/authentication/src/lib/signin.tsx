@@ -23,15 +23,16 @@ import {
   SelectAcademicYearDialog,
 } from './selectAcademicYear';
 import { signIn } from '@squoolr/api-services';
-import { User } from '@squoolr/layout';
+import { User, useUser } from '@squoolr/layout';
 
 export function Signin({
   callingApp,
 }: {
   callingApp: 'student' | 'admin' | 'personnel';
 }) {
-  const intl = useIntl()
-  const {formatMessage} = intl
+  const intl = useIntl();
+  const { formatMessage } = intl;
+  const { userDispatch } = useUser();
 
   const initialValues: { email: string; password: string } = {
     email: '',
@@ -63,18 +64,25 @@ export function Signin({
       newNotification.notify({
         render: formatMessage({ id: 'signingUserIn' }),
       });
-      signIn<{ user: User, academic_years: AcademicYearInterface[] }>(values.email, values.password)
+      signIn<{ user: User; academic_years: AcademicYearInterface[] }>(
+        values.email,
+        values.password
+      )
         .then(({ user, academic_years }) => {
           newNotification.update({
             render: formatMessage({ id: 'signinSuccess' }),
           });
-          if (callingApp === 'admin' || !academic_years) {
-            navigate(localStorage.getItem('previousRoute') ?? '/dashboard');
-            //TODO: dispatch user context here with new data
-            resetForm();
-          } else {
+          if (academic_years) {
+            console.log('Hello world 1');
             setAcademicYears(academic_years);
             setIsAcademicYearDialogOpen(true);
+          } else {
+            navigate(
+              localStorage.getItem('previousRoute') ??
+                (callingApp === 'admin' ? '/management' : '/configurations')
+            );
+            userDispatch({ type: 'LOAD_USER', payload: { user } });
+            resetForm();
           }
         })
         .catch((error) => {

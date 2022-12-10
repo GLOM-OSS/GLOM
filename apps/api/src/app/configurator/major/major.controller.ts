@@ -9,31 +9,51 @@ import {
   Put,
   Query,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import {
-  AnnualMajorPutDto,
+  MajorPutDto,
   MajorPostDto,
-  MajorQueryDto
+  MajorQueryDto,
 } from '../configurator.dto';
 import { MajorService } from './major.service';
 
-@Controller('majors')
+@Controller()
+@ApiTags('Majors')
 @Roles(Role.CONFIGURATOR)
 @UseGuards(AuthenticatedGuard)
 export class MajorController {
   constructor(private majorService: MajorService) {}
 
   @Get('all')
-  async getAllMajors(@Req() request: Request, @Query() majorQuery: MajorQueryDto) {
+  async getAllMajors(
+    @Req() request: Request,
+    @Query() majorQuery: MajorQueryDto
+  ) {
     const {
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
-    return { majors: await this.majorService.findAll(academic_year_id, majorQuery) };
+    return {
+      majors: await this.majorService.findAll(academic_year_id, majorQuery),
+    };
+  }
+
+  @Get(':major_code')
+  async getMajor(@Req() request: Request) {
+    const {
+      activeYear: { academic_year_id },
+    } = request.user as DeserializeSessionData;
+    return {
+      major: await this.majorService.findOne(
+        request.params['major_code'],
+        academic_year_id
+      ),
+    };
   }
 
   @Post('new')
@@ -59,7 +79,7 @@ export class MajorController {
   async editMajor(
     @Req() request: Request,
     @Param('major_code') major_code: string,
-    @Body() majorData: AnnualMajorPutDto
+    @Body() majorData: MajorPutDto
   ) {
     try {
       const {

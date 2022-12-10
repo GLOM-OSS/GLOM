@@ -1,3 +1,4 @@
+import { ContentCopyRounded, ReportRounded } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -12,17 +13,16 @@ import {
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
+import { makeNewDemand } from '@squoolr/api-services';
 import { theme } from '@squoolr/theme';
+import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useFormik } from 'formik';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { Scrollbars } from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import * as Yup from 'yup';
-import { Scrollbars } from 'react-custom-scrollbars-2';
-import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
-import { ContentCopyRounded, ReportRounded } from '@mui/icons-material';
-import { useRouter } from 'next/router';
 
 export default function Demand() {
   const { formatMessage, formatDate } = useIntl();
@@ -36,8 +36,8 @@ export default function Demand() {
     first_name: string;
     last_name: string;
     email: string;
-    phone: string;
-    date_of_birth: Date;
+    phone_number: string;
+    birthdate: Date;
     gender: 'Male' | 'Female';
     national_id_number: string;
     password: string;
@@ -46,8 +46,8 @@ export default function Demand() {
     first_name: '',
     last_name: '',
     email: '',
-    phone: '',
-    date_of_birth: new Date(),
+    phone_number: '',
+    birthdate: new Date(),
     gender: 'Male',
     national_id_number: '',
     password: '',
@@ -86,8 +86,8 @@ export default function Demand() {
     first_name: Yup.string().required(),
     last_name: Yup.string().required(),
     email: Yup.string().email().required(),
-    phone: Yup.string().required(),
-    date_of_birth: Yup.date()
+    phone_number: Yup.string().required(),
+    birthdate: Yup.date()
       .max(new Date(), formatMessage({ id: 'areYouTimeTraveller' }))
       .required(),
     gender: Yup.string().oneOf(['Male', 'Female']).required(),
@@ -126,31 +126,50 @@ export default function Demand() {
     notif.notify({ render: formatMessage({ id: 'submittingDemand' }) });
     if (notifications) setNotifications([...notifications, notif]);
     else setNotifications([notif]);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO CREATE DEMAND WITH DATA {personInformation: adminFormik.values,schoolInformation: schoolFormik.values,}
-      setIsSubmitting(false);
-      if (random() > 5) {
-        const newSchoolCode = 'IAI0001';
+
+    const {
+      initial_academic_year_start_date: initial_year_starts_at,
+      initial_academic_year_end_date: initial_year_ends_at,
+      institute_email: school_email,
+      institute_name: school_name,
+      institute_phone: school_phone_number,
+      institute_short_name: school_acronym,
+    } = schoolFormik.values;
+    const { birthdate, confirm_password, phone_number, ...person } = adminFormik.values;
+    makeNewDemand({
+      personnel: { birthdate: birthdate, phone_number: phone_number, ...person },
+      school: {
+        initial_year_starts_at,
+        initial_year_ends_at,
+        school_acronym,
+        school_email,
+        school_name,
+        school_phone_number,
+      },
+    })
+      .then((schoolCode) => {
         notif.update({ render: 'demandSuccessfull' });
-        setSchoolCode(newSchoolCode);
+        setSchoolCode(schoolCode);
         schoolFormik.resetForm();
         adminFormik.resetForm();
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={submitDemand}
               notification={notif}
-              //TODO: this messages comes from the backend
-              message={formatMessage({ id: 'createDemandFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'createDemandFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsSubmitting(false));
   };
 
   const { push } = useRouter();
@@ -301,26 +320,26 @@ export default function Demand() {
               />
               <TextField
                 disabled={isSubmitting}
-                placeholder={formatMessage({ id: 'phone' })}
+                placeholder={formatMessage({ id: 'phone_number' })}
                 fullWidth
                 required
                 color="primary"
                 size="medium"
-                label={formatMessage({ id: 'phone' })}
+                label={formatMessage({ id: 'phone_number' })}
                 error={
-                  adminFormik.touched.phone && Boolean(adminFormik.errors.phone)
+                  adminFormik.touched.phone_number && Boolean(adminFormik.errors.phone_number)
                 }
                 helperText={
-                  adminFormik.touched.phone && adminFormik.errors.phone
+                  adminFormik.touched.phone_number && adminFormik.errors.phone_number
                 }
-                {...adminFormik.getFieldProps('phone')}
+                {...adminFormik.getFieldProps('phone_number')}
               />
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <MobileDatePicker
-                  label={formatMessage({ id: 'date_of_birth' })}
-                  value={adminFormik.values.date_of_birth}
+                  label={formatMessage({ id: 'birthdate' })}
+                  value={adminFormik.values.birthdate}
                   onChange={(newValue) => {
-                    adminFormik.setFieldValue('date_of_birth', newValue);
+                    adminFormik.setFieldValue('birthdate', newValue);
                   }}
                   renderInput={(params) => (
                     <TextField
@@ -330,15 +349,15 @@ export default function Demand() {
                       size="medium"
                       fullWidth
                       error={
-                        adminFormik.touched.date_of_birth &&
-                        Boolean(adminFormik.errors.date_of_birth)
+                        adminFormik.touched.birthdate &&
+                        Boolean(adminFormik.errors.birthdate)
                       }
                       helperText={
-                        adminFormik.touched.date_of_birth &&
-                        adminFormik.errors.date_of_birth !== undefined &&
-                        String(adminFormik.errors.date_of_birth)
+                        adminFormik.touched.birthdate &&
+                        adminFormik.errors.birthdate !== undefined &&
+                        String(adminFormik.errors.birthdate)
                       }
-                      {...adminFormik.getFieldProps('date_of_birth')}
+                      {...adminFormik.getFieldProps('birthdate')}
                     />
                   )}
                 />
@@ -759,14 +778,14 @@ export default function Demand() {
                               variant="body2"
                               // sx={{ color: theme.common.placeholder }}
                             >
-                              {key !== 'date_of_birth'
+                              {key !== 'birthdate'
                                 ? key === 'gender'
                                   ? formatMessage({
                                       id: adminFormik.values.gender,
                                     })
                                   : adminFormik.values[key]
                                 : formatDate(
-                                    new Date(adminFormik.values.date_of_birth),
+                                    new Date(adminFormik.values.birthdate),
                                     {
                                       year: 'numeric',
                                       month: 'long',

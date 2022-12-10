@@ -1,5 +1,6 @@
 import { ReportRounded } from '@mui/icons-material';
 import { Box, lighten, Skeleton, Typography } from '@mui/material';
+import { getClassrooms } from '@squoolr/api-services';
 import { theme, useLanguage } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
@@ -10,6 +11,7 @@ import { useParams } from 'react-router';
 
 export interface ClassroomInterface {
   classroom_code: string;
+  classroom_acronym: string;
   classroom_name: string;
   classroom_level: number;
   registration_fee: number;
@@ -45,7 +47,7 @@ const Classroom = ({
       }}
     >
       <Typography sx={{ width: '17ch' }}>{classroom_code}</Typography>
-      <Typography>{`${classroom_name}-${classroom_level}`}</Typography>
+      <Typography>{classroom_name}</Typography>
       <Typography>
         <FormattedNumberParts
           value={registration_fee}
@@ -147,267 +149,12 @@ export default function Classrooms() {
     if (notification) notification.dismiss();
     const notif = new useNotification();
     setNotification(notif);
-
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD CLASSROOMS for major with code: major_code
-      if (random() > 5) {
-        const newClassrooms: ClassroomInterface[] = [
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-          {
-            classroom_code: 'cmr-993',
-            classroom_level: 2,
-            classroom_name: 'informatique reseaux et telecomes',
-            registration_fee: 10000,
-            total_fee_due: 18000000,
-          },
-        ];
-        setClassrooms(newClassrooms);
+    getClassrooms({ major_code })
+      .then((classrooms) => {
+        setClassrooms(classrooms);
         setAreClassroomsLoading(false);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({ render: formatMessage({ id: 'loadingClassrooms' }) });
         notif.update({
           type: 'ERROR',
@@ -415,14 +162,16 @@ export default function Classrooms() {
             <ErrorMessage
               retryFunction={loadClassrooms}
               notification={notif}
-              message={formatMessage({ id: 'loadingClassroomsFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'loadingClassroomsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {

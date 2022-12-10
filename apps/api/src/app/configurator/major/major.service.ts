@@ -5,7 +5,7 @@ import { AUTH404, ERR03, ERR04 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
 import {
-  AnnualMajorPutDto,
+  MajorPutDto,
   ClassroomPost,
   MajorPostDto,
   MajorQueryDto,
@@ -14,11 +14,11 @@ import {
 @Injectable()
 export class MajorService {
   private cycleService: typeof this.prismaService.cycle;
-  private levelService: typeof this.prismaService.level;
   private classroomService: typeof this.prismaService.classroom;
   private departmentService: typeof this.prismaService.department;
   private annualMajorService: typeof this.prismaService.annualMajor;
   private annualClassroomService: typeof this.prismaService.annualClassroom;
+  private annualClassroomAuditService: typeof this.prismaService.annualClassroomAudit;
   private annualClassroomDivisionService: typeof this.prismaService.annualClassroomDivision;
 
   constructor(
@@ -26,21 +26,25 @@ export class MajorService {
     private codeGenerator: CodeGeneratorService
   ) {
     this.cycleService = prismaService.cycle;
-    this.levelService = prismaService.level;
     this.classroomService = prismaService.classroom;
     this.annualMajorService = prismaService.annualMajor;
     this.departmentService = prismaService.department;
     this.annualClassroomService = prismaService.annualClassroom;
-    this.annualClassroomDivisionService =
-      prismaService.annualClassroomDivision;
+    this.annualClassroomAuditService = prismaService.annualClassroomAudit;
+    this.annualClassroomDivisionService = prismaService.annualClassroomDivision;
   }
 
-  async findAll(academic_year_id: string, where: MajorQueryDto) {
+  async findAll(
+    academic_year_id: string,
+    { department_code, is_deleted }: MajorQueryDto
+  ) {
     const annualMajors = await this.annualMajorService.findMany({
       select: {
         major_acronym: true,
         major_code: true,
         major_name: true,
+        is_deleted: true,
+        created_at: true,
         Major: {
           select: {
             Cycle: {
@@ -55,7 +59,9 @@ export class MajorService {
           },
         },
       },
-      where: { ...where, academic_year_id },
+      where: department_code
+        ? { is_deleted, academic_year_id, Department: { department_code } }
+        : { is_deleted, academic_year_id },
     });
 
     return annualMajors.map(
@@ -67,6 +73,64 @@ export class MajorService {
         ...major
       }) => ({ cycle_name, ...major, department_acronym, department_code })
     );
+  }
+
+  async findOne(major_code: string, academic_year_id: string) {
+    const major = await this.annualMajorService.findUnique({
+      select: {
+        major_name: true,
+        major_acronym: true,
+        Department: { select: { department_code: true } },
+        Major: {
+          select: {
+            cycle_id: true,
+            Classrooms: {
+              distinct: 'level',
+              select: {
+                level: true,
+                AnnualClassrooms: {
+                  take: 1,
+                  select: {
+                    registration_fee: true,
+                    total_fee_due: true,
+                  },
+                  where: { academic_year_id },
+                },
+              },
+            },
+          },
+        },
+      },
+      where: {
+        major_code_academic_year_id: {
+          major_code,
+          academic_year_id,
+        },
+      },
+    });
+    if (!major)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Major')),
+        HttpStatus.NOT_FOUND
+      );
+    const {
+      Major: { cycle_id, Classrooms },
+      Department: { department_code },
+      major_acronym,
+      major_name,
+    } = major;
+    return {
+      department_code,
+      major_acronym,
+      major_code,
+      major_name,
+      cycle_id,
+      levelFees: Classrooms.map(({ level, AnnualClassrooms }) => ({
+        level,
+        registration_fee: AnnualClassrooms[0].registration_fee,
+        total_fee_due: AnnualClassrooms[0].total_fee_due,
+      })),
+    };
   }
 
   async addNewMajor(
@@ -118,8 +182,18 @@ export class MajorService {
         JSON.stringify(ERR03('Major')),
         HttpStatus.AMBIGUOUS
       );
-    return this.prismaService.$transaction([
+    const [
+      {
+        Major: {
+          Cycle: { cycle_name },
+          ...newMajor
+        },
+      },
+    ] = await this.prismaService.$transaction([
       this.annualMajorService.create({
+        select: {
+          Major: { include: { Cycle: { select: { cycle_name: true } } } },
+        },
         data: {
           major_name,
           major_acronym,
@@ -157,15 +231,22 @@ export class MajorService {
         data: annualClassroomDivisions,
       }),
     ]);
+    return { ...newMajor, cycle_name };
   }
 
   async editMajor(
     major_code: string,
-    updateData: AnnualMajorPutDto,
+    updateData: MajorPutDto,
     academic_year_id: string,
     audited_by: string
   ) {
-    const { major_acronym, major_name, department_code } = updateData;
+    const {
+      major_acronym,
+      major_name,
+      department_code,
+      classrooms,
+      is_deleted,
+    } = updateData;
 
     const annualMajorAudit = await this.annualMajorService.findFirst({
       select: {
@@ -176,7 +257,9 @@ export class MajorService {
         is_deleted: true,
         department_id: true,
         Department: { select: { department_code: true } },
-        Major: { select: { cycle_id: true } },
+        Major: {
+          select: { cycle_id: true },
+        },
       },
       where: {
         academic_year_id,
@@ -189,10 +272,15 @@ export class MajorService {
         HttpStatus.NOT_FOUND
       );
 
-    const { annual_major_id, Major, Department, ...majorAudit } =
-      annualMajorAudit;
+    const {
+      annual_major_id,
+      Major: { cycle_id },
+      Department,
+      ...majorAudit
+    } = annualMajorAudit;
     let updateInput: Prisma.AnnualMajorUpdateInput = {
       major_name,
+      is_deleted,
       AnnualMajorAudits: {
         create: {
           audited_by,
@@ -201,8 +289,8 @@ export class MajorService {
       },
     };
     if (
-      major_acronym !== annualMajorAudit.major_acronym ||
-      department_code !== Department.department_code
+      (major_acronym && major_acronym !== annualMajorAudit.major_acronym) ||
+      (department_code && department_code !== Department.department_code)
     ) {
       const newMajorCode = await this.codeGenerator.getMajorCode(
         major_acronym,
@@ -220,7 +308,7 @@ export class MajorService {
               major_name,
               major_code: newMajorCode,
               Cycle: {
-                connect: { cycle_id: Major.cycle_id },
+                connect: { cycle_id },
               },
               AnnualConfigurator: {
                 connect: { annual_configurator_id: audited_by },
@@ -231,10 +319,42 @@ export class MajorService {
         },
       };
     }
-    return this.annualMajorService.update({
+    await this.annualMajorService.update({
       data: updateInput,
       where: { annual_major_id },
     });
+    if (classrooms)
+      for (let i = 0; i < classrooms.length; i++) {
+        const { level, ...classroom } = classrooms[i];
+        const annualClassroomAudits =
+          await this.annualClassroomService.findMany({
+            select: {
+              annual_classroom_id: true,
+              registration_fee: true,
+              total_fee_due: true,
+              is_deleted: true,
+            },
+            where: {
+              Classroom: { level, Major: { major_code } },
+              academic_year_id,
+            },
+          });
+        await this.prismaService.$transaction([
+          this.annualClassroomAuditService.createMany({
+            data: annualClassroomAudits.map((data) => ({
+              ...data,
+              audited_by,
+            })),
+          }),
+          this.annualClassroomService.updateMany({
+            data: classroom,
+            where: {
+              Classroom: { level, Major: { major_code } },
+              academic_year_id,
+            },
+          }),
+        ]);
+      }
   }
 
   async generateMajorClassrooms(
@@ -257,11 +377,7 @@ export class MajorService {
     // const alphabet = ['A', 'B', 'C', 'D']
 
     for (let i = 0; i < classrooms.length; i++) {
-      const { level, registration_fee, total_fees_due } = classrooms[i];
-      const { level_id } = await this.levelService.findFirst({
-        select: { level: true, level_id: true },
-        where: { level },
-      });
+      const { level, registration_fee, total_fee_due } = classrooms[i];
       const classroom_acronym = `${major_acronym}${level}`;
       const numberOfClassrooms = await this.classroomService.count({
         where: { Major: { major_code } },
@@ -275,14 +391,14 @@ export class MajorService {
         classroom_name: `${major_name} ${level}`,
       };
       classroomsData.push({
-        level_id,
+        level,
         created_by,
         ...classroom,
       });
       const annual_classroom_id = randomUUID();
       annualClassrooms.push({
         ...classroom,
-        total_fees_due,
+        total_fee_due,
         academic_year_id,
         registration_fee,
         annual_classroom_id,

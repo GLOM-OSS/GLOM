@@ -65,6 +65,7 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
       navItems={[
         { role: 'registry', navItems: navItems },
         { role: 'coordinator', navItems: coordinatorNavItems },
+        { role: 'secretary', navItems: navItems },
       ]}
     />
   );

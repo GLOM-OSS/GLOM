@@ -15,6 +15,12 @@ import {
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
+import {
+  getTeacher as fetchTeacher,
+  getTeacherGrades,
+  getTeacherTypes,
+  getUser,
+} from '@squoolr/api-services';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { theme } from '@squoolr/theme';
 import {
@@ -22,7 +28,6 @@ import {
   filterNotificationUsage,
   useNotification,
 } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
@@ -35,23 +40,18 @@ export interface TeacherInterface {
   first_name: string;
   last_name: string;
   email: string;
-  phone: string;
+  phone_number: string;
   national_id_number: string;
   address: string;
-  date_of_birth: Date;
-  gender: 'M' | 'F';
+  birthdate: Date;
+  gender: 'Male' | 'Female';
   is_archived: boolean;
-  teaching_grade:
-    | 'gradeC'
-    | 'gradeD'
-    | 'conferenceMaster'
-    | 'teacher'
-    | 'assistant';
-  teacher_type: 'partTime' | 'fullTime' | 'missionary';
-  origin_school: string;
+  teaching_grade_id: string;
+  teacher_type_id: string;
+  origin_institute: string;
   hourly_rate: number;
   has_tax_payers_card: boolean;
-  tax_payers_number: string;
+  tax_payer_card_number: string;
   has_signed_convention: boolean;
 }
 
@@ -79,19 +79,19 @@ export default function TeacherDialog({
     first_name: '',
     last_name: '',
     email: '',
-    phone: '',
+    phone_number: '',
     national_id_number: '',
     address: '',
-    date_of_birth: new Date(),
-    gender: 'M',
+    birthdate: new Date(),
+    gender: 'Male',
     is_archived: false,
     personnel_code: '...',
-    teaching_grade: 'teacher',
-    teacher_type: 'fullTime',
-    origin_school: '',
+    teaching_grade_id: '',
+    teacher_type_id: '',
+    origin_institute: '',
     hourly_rate: 0,
     has_tax_payers_card: false,
-    tax_payers_number: '',
+    tax_payer_card_number: '',
     has_signed_convention: false,
   });
 
@@ -107,83 +107,133 @@ export default function TeacherDialog({
 
     const notif = new useNotification();
     setNotifications(filterNotificationUsage('load', notif, notifications));
+    if (activePersonnel?.personnel_id)
+      fetchTeacher(activePersonnel.personnel_id)
+        .then(
+          ({
+            is_deleted: is_archived,
+            personnel_code,
+            personnel_id,
+            login_id,
+            ...teacher
+          }) => {
+            setTeacher({ ...teacher, is_archived });
+            formik.setValues({ ...teacher, is_archived });
+            setIsTeacherLoading(false);
+            notif.dismiss();
+          }
+        )
+        .catch((error) => {
+          notif.notify({ render: formatMessage({ id: 'loadingTeacher' }) });
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={getTeacher}
+                notification={notif}
+                message={
+                  error?.message || formatMessage({ id: 'failedToLoadTeacher' })
+                }
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        });
+  };
 
-    //TODO: CALL API TO FETCH TEACHER WITH CODE activePersonnel.personnel_code
-    setTimeout(() => {
-      if (random() > 5) {
-        const newTeacher: TeacherInterface = {
-          first_name: '',
-          last_name: '',
-          email: '',
-          phone: '',
-          national_id_number: '',
-          address: '',
-          date_of_birth: new Date(),
-          gender: 'M',
-          is_archived: false,
-          personnel_code: '...',
-          teaching_grade: 'teacher',
-          teacher_type: 'fullTime',
-          origin_school: '',
-          hourly_rate: 0,
-          has_tax_payers_card: false,
-          tax_payers_number: '',
-          has_signed_convention: false,
-        };
+  const [teacherGrades, setTeacherGrades] = useState<
+    { teaching_grade_id: string; teaching_grade: string }[]
+  >([]);
+  const [teacherTypes, setTeacherTypes] = useState<
+    { teacher_type_id: string; teacher_type: string }[]
+  >([]);
 
-        setTeacher(newTeacher);
-        setIsTeacherLoading(false);
-        notif.dismiss();
-      } else {
-        notif.notify({ render: formatMessage({ id: 'loadingTeacher' }) });
+  const fetchTeacherGrades = () => {
+    const notif = new useNotification();
+    getTeacherGrades()
+      .then((grades) => {
+        setTeacherGrades(grades);
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={getTeacher}
+              retryFunction={fetchTeacherGrades}
               notification={notif}
-              //TODO: MESSAGE SHOULD COME FROM BACKEND
-              message={formatMessage({ id: 'failedToLoadTeacher' })}
+              message={
+                error?.message || formatMessage({ id: 'failedToLoadTeacher' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
+  };
+
+  const fetchTeacherTypes = () => {
+    const notif = new useNotification();
+    getTeacherTypes()
+      .then((types) => {
+        setTeacherTypes(types);
+      })
+      .catch((error) => {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={fetchTeacherGrades}
+              notification={notif}
+              message={
+                error?.message || formatMessage({ id: 'failedToLoadTeacher' })
+              }
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      });
   };
 
   useEffect(() => {
-    if (isDialogOpen && activePersonnel !== undefined) {
+    if (isDialogOpen && activePersonnel) {
       getTeacher();
     }
+    fetchTeacherGrades();
+    fetchTeacherTypes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDialogOpen, activePersonnel]);
 
-  const initialValues: TeacherInterface = teacher;
+  const initialValues: TeacherInterface = {
+    ...activePersonnel,
+    teacher_type_id: '',
+    origin_institute: '',
+    teaching_grade_id: '',
+    tax_payer_card_number: '',
+    has_signed_convention: false,
+    has_tax_payers_card: false,
+  } as TeacherInterface;
 
   const validationSchema = Yup.object().shape({
     first_name: Yup.string().required(),
     last_name: Yup.string().required(),
     email: Yup.string().email().required(),
-    phone: Yup.number().required(),
+    phone_number: Yup.number().required(),
     national_id_number: Yup.string().required(),
     address: isEditDialog ? Yup.string() : Yup.string().required(),
-    date_of_birth: Yup.date()
+    birthdate: Yup.date()
       .max(new Date(), formatMessage({ id: 'areYouATimeTraveler' }))
       .required(),
-    gender: Yup.string().oneOf(['M', 'F']).required(),
-    is_archived: Yup.boolean().required(),
-    teaching_grade: Yup.string()
-      .oneOf(['gradeC', 'gradeD', 'conferenceMaster', 'teacher', 'assistant'])
-      .required(),
-    teacher_type: Yup.string()
-      .oneOf(['partTime', 'fullTimme', 'missionary'])
-      .required(),
-    origin_school: Yup.string().required(),
+    gender: Yup.string().oneOf(['Male', 'Female']).required(),
+    is_archived: Yup.boolean(),
+    teaching_grade_id: Yup.string().required(),
+    teacher_type_id: Yup.string().required(),
+    origin_institute: Yup.string().required(),
     hourly_rate: Yup.number().required(),
     has_tax_payers_card: Yup.boolean().required(),
-    tax_payers_number: Yup.number(),
+    tax_payer_card_number: Yup.number(),
     has_signed_convention: Yup.boolean().required(),
   });
 
@@ -234,7 +284,7 @@ export default function TeacherDialog({
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          if (!isEditDialog && activePersonnel !== undefined) {
+          if (!isEditDialog && activePersonnel) {
             setIsEditing(true);
           } else formik.handleSubmit();
         }}
@@ -261,6 +311,14 @@ export default function TeacherDialog({
             error={Boolean(formik.touched.email && formik.errors.email)}
             helperText={formik.touched.email && formik.errors.email}
             {...formik.getFieldProps('email')}
+            onChange={(e) => {
+              const email = e.target.value;
+              if (email !== '')
+                getUser(e.target.value).then((person) => {
+                  if (person) formik.setValues(person);
+                });
+              formik.handleChange(e);
+            }}
           />
           <TextField
             disabled={
@@ -305,13 +363,17 @@ export default function TeacherDialog({
                 (!isEditDialog && activePersonnel !== undefined) ||
                 (activePersonnel !== undefined && activePersonnel.is_archived)
               }
-              placeholder={formatMessage({ id: 'phone' })}
-              label={formatMessage({ id: 'phone' })}
+              placeholder={formatMessage({ id: 'phone_number' })}
+              label={formatMessage({ id: 'phone_number' })}
               fullWidth
               required
-              error={Boolean(formik.touched.phone && formik.errors.phone)}
-              helperText={formik.touched.phone && formik.errors.phone}
-              {...formik.getFieldProps('phone')}
+              error={Boolean(
+                formik.touched.phone_number && formik.errors.phone_number
+              )}
+              helperText={
+                formik.touched.phone_number && formik.errors.phone_number
+              }
+              {...formik.getFieldProps('phone_number')}
             />
             <TextField
               disabled={
@@ -371,10 +433,10 @@ export default function TeacherDialog({
             />
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <MobileDatePicker
-                label={formatMessage({ id: 'date_of_birth' })}
-                value={formik.values.date_of_birth}
+                label={formatMessage({ id: 'birthdate' })}
+                value={formik.values.birthdate}
                 onChange={(newValue) => {
-                  formik.setFieldValue('date_of_birth', newValue);
+                  formik.setFieldValue('birthdate', newValue);
                 }}
                 disabled={
                   isTeacherLoading ||
@@ -388,15 +450,15 @@ export default function TeacherDialog({
                     size="medium"
                     fullWidth
                     error={
-                      formik.touched.date_of_birth &&
-                      Boolean(formik.errors.date_of_birth)
+                      formik.touched.birthdate &&
+                      Boolean(formik.errors.birthdate)
                     }
                     helperText={
-                      formik.touched.date_of_birth &&
-                      formik.errors.date_of_birth !== undefined &&
-                      String(formik.errors.date_of_birth)
+                      formik.touched.birthdate &&
+                      formik.errors.birthdate !== undefined &&
+                      String(formik.errors.birthdate)
                     }
-                    {...formik.getFieldProps('date_of_birth')}
+                    {...formik.getFieldProps('birthdate')}
                   />
                 )}
               />
@@ -423,8 +485,8 @@ export default function TeacherDialog({
               {...formik.getFieldProps('gender')}
             >
               {[
-                { value: 'M', text: 'Male' },
-                { value: 'F', text: 'Female' },
+                { value: 'Male', text: 'Male' },
+                { value: 'Female', text: 'Female' },
               ].map(({ value, text }, index) => (
                 <MenuItem key={index} value={value}>
                   {formatMessage({ id: text })}
@@ -442,19 +504,15 @@ export default function TeacherDialog({
               placeholder={formatMessage({ id: 'teaching_grade' })}
               fullWidth
               required
-              {...formik.getFieldProps('teaching_grade')}
+              {...formik.getFieldProps('teaching_grade_id')}
             >
-              {[
-                'gradeC',
-                'gradeD',
-                'conferenceMaster',
-                'teacher',
-                'assistant',
-              ].map((text, index) => (
-                <MenuItem key={index} value={text}>
-                  {formatMessage({ id: text })}
-                </MenuItem>
-              ))}
+              {teacherGrades.map(
+                ({ teaching_grade, teaching_grade_id }, index) => (
+                  <MenuItem key={index} value={teaching_grade_id}>
+                    {formatMessage({ id: teaching_grade })}
+                  </MenuItem>
+                )
+              )}
             </TextField>
           </Box>
           <TextField
@@ -468,11 +526,11 @@ export default function TeacherDialog({
             placeholder={formatMessage({ id: 'teacher_type' })}
             fullWidth
             required
-            {...formik.getFieldProps('teacher_type')}
+            {...formik.getFieldProps('teacher_type_id')}
           >
-            {['partTime', 'fullTime', 'missionary'].map((text, index) => (
-              <MenuItem key={index} value={text}>
-                {formatMessage({ id: text })}
+            {teacherTypes.map(({ teacher_type, teacher_type_id }, index) => (
+              <MenuItem key={index} value={teacher_type_id}>
+                {formatMessage({ id: teacher_type })}
               </MenuItem>
             ))}
           </TextField>
@@ -489,17 +547,19 @@ export default function TeacherDialog({
                 (!isEditDialog && activePersonnel !== undefined) ||
                 (activePersonnel !== undefined && activePersonnel.is_archived)
               }
-              placeholder={formatMessage({ id: 'origin_school' })}
-              label={formatMessage({ id: 'origin_school' })}
+              placeholder={formatMessage({ id: 'origin_institute' })}
+              label={formatMessage({ id: 'origin_institute' })}
               fullWidth
               required
               error={Boolean(
-                formik.touched.origin_school && formik.errors.origin_school
+                formik.touched.origin_institute &&
+                  formik.errors.origin_institute
               )}
               helperText={
-                formik.touched.origin_school && formik.errors.origin_school
+                formik.touched.origin_institute &&
+                formik.errors.origin_institute
               }
-              {...formik.getFieldProps('origin_school')}
+              {...formik.getFieldProps('origin_institute')}
             />
             <TextField
               disabled={
@@ -551,18 +611,18 @@ export default function TeacherDialog({
                 (!isEditDialog && activePersonnel !== undefined) ||
                 (activePersonnel !== undefined && activePersonnel.is_archived)
               }
-              placeholder={formatMessage({ id: 'tax_payers_number' })}
-              label={formatMessage({ id: 'tax_payers_number' })}
+              placeholder={formatMessage({ id: 'tax_payer_card_number' })}
+              label={formatMessage({ id: 'tax_payer_card_number' })}
               fullWidth
               error={Boolean(
-                formik.touched.tax_payers_number &&
-                  formik.errors.tax_payers_number
+                formik.touched.tax_payer_card_number &&
+                  formik.errors.tax_payer_card_number
               )}
               helperText={
-                formik.touched.tax_payers_number &&
-                formik.errors.tax_payers_number
+                formik.touched.tax_payer_card_number &&
+                formik.errors.tax_payer_card_number
               }
-              {...formik.getFieldProps('tax_payers_number')}
+              {...formik.getFieldProps('tax_payer_card_number')}
             />
           </Collapse>
           <Box

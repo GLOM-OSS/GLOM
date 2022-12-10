@@ -6,13 +6,13 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { checkDemandStatus } from '@squoolr/api-services';
 import { theme } from '@squoolr/theme';
 import { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
-
 interface DemandStatus {
   school_status: 'validated' | 'progress' | 'rejected' | 'pending';
   subdomain?: string;
@@ -20,18 +20,13 @@ interface DemandStatus {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  //   const { school_code } = context.query;
-  //TODO: FETCH API HERE TO GET DEMAND STATUS with data school_code
-  //   const res = await fetch(`https://.../data`);
-  //   const data = await res.json();
-  const demandStatus: DemandStatus = {
-    school_status: 'validated',
-    subdomain: 'iai',
-    rejection_reason:
-      'You have submitted your demand too early for us to validate',
-  };
-  if (!demandStatus) return { notFound: true };
-  return { props: { demandStatus } };
+  const { school_code } = context.query;
+  try {
+    const demandStatus = await checkDemandStatus(school_code as string);
+    return { props: { demandStatus } };
+  } catch (error) {
+    return { notFound: true };
+  }
 };
 
 export default function VerifyDemandStatus({
@@ -46,6 +41,7 @@ export default function VerifyDemandStatus({
   } = useRouter();
 
   const [code, setCode] = useState<string>(school_code as string);
+  const schoolDemandStatus = school_status.toLocaleLowerCase();
 
   return (
     <Box
@@ -102,11 +98,11 @@ export default function VerifyDemandStatus({
                 marginTop: theme.spacing(2.4),
                 backgroundColor: lighten(
                   theme.palette[
-                    school_status === 'pending'
+                    schoolDemandStatus === 'pending'
                       ? 'info'
-                      : school_status === 'progress'
+                      : schoolDemandStatus === 'progress'
                       ? 'secondary'
-                      : school_status === 'validated'
+                      : schoolDemandStatus === 'validated'
                       ? 'success'
                       : 'error'
                   ].main,
@@ -115,7 +111,7 @@ export default function VerifyDemandStatus({
               }}
               label={formatMessage({ id: school_status })}
             />
-            {school_status === 'validated' ? (
+            {schoolDemandStatus === 'validated' ? (
               <Box
                 sx={{
                   textAlign: 'center',
@@ -135,7 +131,7 @@ export default function VerifyDemandStatus({
                   {formatMessage({ id: 'demandValidated2' })}
                 </Typography>
               </Box>
-            ) : school_status === 'rejected' ? (
+            ) : schoolDemandStatus === 'rejected' ? (
               <Box
                 sx={{
                   textAlign: 'center',

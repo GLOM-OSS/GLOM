@@ -8,13 +8,29 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
+import {
+  addNewConfigurator,
+  addNewCoordinator,
+  addNewRegistry,
+  addNewTeacher,
+  editPersonnel,
+  editTeacher,
+  getConfigurators,
+  getCoordinators,
+  getPersonnel as getAllPersonnel,
+  getRegistries,
+  getTeachers,
+  Personnel as PersonnelData,
+  resetPersonnelPassword,
+  resetRegistryCode,
+  resetTeacherCode,
+} from '@squoolr/api-services';
 import { theme } from '@squoolr/theme';
 import {
   ErrorMessage,
   filterNotificationUsage,
   useNotification,
 } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
@@ -43,7 +59,7 @@ export default function Personnel() {
   const [isAddNewPersonnelDialogOpen, setIsAddNewPersonnelDialogOPen] =
     useState<boolean>(false);
 
-  const [personnels, setPersonnels] = useState<PersonnelInterface[]>([]);
+  const [personnel, setPersonnel] = useState<PersonnelInterface[]>([]);
   const [arePersonnelLoading, setArePersonnelLoading] =
     useState<boolean>(false);
   const [showArchived, setShowArchived] = useState<boolean>(false);
@@ -60,72 +76,29 @@ export default function Personnel() {
 
     const notif = new useNotification();
     setNotifications(filterNotificationUsage('load', notif, notifications));
-
-    //TODO: call api here to load personnel with data activeTabItem and searchValue and showArchived
-    setTimeout(() => {
-      if (random() > 5) {
-        const newPersonnels: PersonnelInterface[] = [
-          {
-            personnel_id: 'PersonnelInterfaceshess',
-            first_name: 'Kouatchoua',
-            personnel_code: 'shgels',
-            last_name: 'Tchakoumi Lorrain',
-            email: 'lorraintchakoumi@gmail.com',
-            phone: '657140183',
-            last_connected: new Date(),
-            is_coordo: false,
-            is_academic_service: false,
-            is_teacher: false,
-            is_secretariat: true,
-            is_archived: true,
-          },
-          {
-            personnel_id: 'PersonnelInterfaceshses',
-            first_name: 'Kouatchoua',
-            personnel_code: 'shelfs',
-            last_name: 'Tchakoumi Lorrain',
-            email: 'lorraintchakoumi@gmail.com',
-            phone: '657140183',
-            last_connected: new Date(),
-            is_coordo: false,
-            is_academic_service: false,
-            is_teacher: true,
-            is_secretariat: true,
+    const personnelQuery = showArchived ? undefined : { is_deleted: false };
+    const PERSONNEL_HANDLER: Record<TabItem, () => Promise<PersonnelData[]>> = {
+      allPersonnel: () => getAllPersonnel(personnelQuery),
+      academicService: () => getRegistries(personnelQuery),
+      coordinator: () => getCoordinators(personnelQuery),
+      secretariat: () => getConfigurators(personnelQuery),
+      teacher: () => getTeachers(personnelQuery),
+    };
+    PERSONNEL_HANDLER[activeTabItem]()
+      .then((personnel) => {
+        setPersonnel(
+          personnel.map(({ roles, ...staff }) => ({
+            ...staff,
             is_archived: false,
-          },
-          {
-            personnel_id: 'PersonnelInterfacesshes',
-            first_name: 'Kouatchoua',
-            personnel_code: 'sdhels',
-            last_name: 'Tchakoumi Lorrain',
-            email: 'lorraintchakoumi@gmail.com',
-            phone: '657140183',
-            last_connected: new Date(),
-            is_coordo: true,
-            is_academic_service: true,
-            is_teacher: true,
-            is_secretariat: false,
-            is_archived: false,
-          },
-          {
-            personnel_id: 'PersonnelInterfacesshess',
-            first_name: 'Kouatchoua',
-            personnel_code: 'shelhs',
-            last_name: 'Tchakoumi Lorrain',
-            email: 'lorraintchakoumi@gmail.com',
-            phone: '657140183',
-            last_connected: new Date(),
-            is_coordo: true,
-            is_academic_service: true,
-            is_teacher: true,
-            is_secretariat: true,
-            is_archived: true,
-          },
-        ];
-        setPersonnels(newPersonnels);
+            is_academic_service: roles.includes('S.A.'),
+            is_coordo: roles.includes('Co'),
+            is_secretariat: roles.includes('Se'),
+            is_teacher: roles.includes('Te'),
+          }))
+        );
         setArePersonnelLoading(false);
-        notif.dismiss();
-      } else {
+      })
+      .catch((error) => {
         notif.notify({ render: formatMessage({ id: 'loadingPersonnel' }) });
         notif.update({
           type: 'ERROR',
@@ -133,15 +106,15 @@ export default function Personnel() {
             <ErrorMessage
               retryFunction={getPersonnels}
               notification={notif}
-              //TODO: MESSAGE SHOULD COME FROM BACKEND
-              message={formatMessage({ id: 'failedToLoadPersonnel' })}
+              message={
+                error?.message || formatMessage({ id: 'failedToLoadPersonnel' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
@@ -166,58 +139,86 @@ export default function Personnel() {
     switch (usage) {
       case 'password': {
         notif.notify({ render: formatMessage({ id: 'resettingPassword' }) });
-        //TODO: CALL API HERE TO RESET PERSONNEL PASSWORD WITH DATA personnel.personnel_id or personnel.personnel_code
-        setTimeout(() => {
-          setIsSubmittingMenuAction(false);
-          if (random() > 5) {
+        resetPersonnelPassword(activePersonnel?.email as string)
+          .then(() => {
             notif.update({
               render: formatMessage({ id: 'resetPasswordSuccessful' }),
             });
             setActivePersonnel(undefined);
-          } else {
+          })
+          .catch((error) => {
             notif.update({
               type: 'ERROR',
               render: (
                 <ErrorMessage
                   retryFunction={() => confirmReset(usage)}
                   notification={notif}
-                  //TODO: MESSAGE SHOULD COME FROM BACKEND
-                  message={formatMessage({ id: 'failedToResetPassword' })}
+                  message={
+                    error?.message ||
+                    formatMessage({ id: 'failedToResetPassword' })
+                  }
                 />
               ),
               autoClose: false,
               icon: () => <ReportRounded fontSize="medium" color="error" />,
             });
-          }
-        }, 3000);
+          })
+          .finally(() => setIsSubmittingMenuAction(false));
         break;
       }
       case 'code': {
         notif.notify({ render: formatMessage({ id: 'resettingCode' }) });
-        //TODO: CALL API HERE TO RESET PERSONNEL PRIVATE CODE WITH DATA personnel.personnel_id or personnel.personnel_code
-        setTimeout(() => {
-          setIsSubmittingMenuAction(false);
-          if (random() > 5) {
-            notif.update({
-              render: formatMessage({ id: 'resetCodeSuccessful' }),
-            });
-            setActivePersonnel(undefined);
-          } else {
-            notif.update({
-              type: 'ERROR',
-              render: (
-                <ErrorMessage
-                  retryFunction={() => confirmReset(usage)}
-                  notification={notif}
-                  //TODO: MESSAGE SHOULD COME FROM BACKEND
-                  message={formatMessage({ id: 'failedToResetCode' })}
-                />
-              ),
-              autoClose: false,
-              icon: () => <ReportRounded fontSize="medium" color="error" />,
-            });
-          }
-        }, 3000);
+        if (activePersonnel?.is_academic_service) {
+          resetRegistryCode(activePersonnel.personnel_id)
+            .then(() => {
+              notif.update({
+                render: formatMessage({ id: 'resetCodeSuccessful' }),
+              });
+            })
+            .catch((error) => {
+              notif.update({
+                type: 'ERROR',
+                render: (
+                  <ErrorMessage
+                    retryFunction={() => confirmReset(usage)}
+                    notification={notif}
+                    message={
+                      error?.message ||
+                      formatMessage({ id: 'failedToResetCode' })
+                    }
+                  />
+                ),
+                autoClose: false,
+                icon: () => <ReportRounded fontSize="medium" color="error" />,
+              });
+            })
+            .finally(() => setIsSubmittingMenuAction(false));
+        } else if (activePersonnel?.is_teacher || activePersonnel?.is_coordo) {
+          resetTeacherCode(activePersonnel.personnel_id)
+            .then(() => {
+              notif.update({
+                render: formatMessage({ id: 'resetCodeSuccessful' }),
+              });
+            })
+            .catch((error) => {
+              notif.update({
+                type: 'ERROR',
+                render: (
+                  <ErrorMessage
+                    retryFunction={() => confirmReset(usage)}
+                    notification={notif}
+                    message={
+                      error?.message ||
+                      formatMessage({ id: 'failedToResetCode' })
+                    }
+                  />
+                ),
+                autoClose: false,
+                icon: () => <ReportRounded fontSize="medium" color="error" />,
+              });
+            })
+            .finally(() => setIsSubmittingMenuAction(false));
+        }
       }
     }
   };
@@ -225,10 +226,10 @@ export default function Personnel() {
   const [isSubmittingActionBarAction, setIsSubmitActionBarAction] =
     useState<boolean>(false);
   const createCoordinator = (submitData: {
-    selectedTeacherId: string;
+    selectedTeacher: PersonnelInterface;
     selectedClassrooms: ClassroomInterface[];
   }) => {
-    const { selectedClassrooms, selectedTeacherId } = submitData;
+    const { selectedClassrooms, selectedTeacher } = submitData;
     const selectedClassroomCodes = selectedClassrooms.map(
       ({ classroom_code }) => classroom_code
     );
@@ -238,31 +239,44 @@ export default function Personnel() {
       filterNotificationUsage('createStaff', notif, notifications)
     );
     setIsSubmitActionBarAction(true);
-    setTimeout(() => {
-      setIsSubmitActionBarAction(false);
-      //TODO: CALL API HERE TO CREATE COORDINATOR WITH DATA selectedClassroomCodes and selectedTeacherId
-      if (random() > 5) {
+    addNewCoordinator(selectedTeacher.personnel_id, selectedClassroomCodes)
+      .then(() => {
         notif.update({ render: formatMessage({ id: 'addedCoordinator' }) });
-      } else {
+        setPersonnel(
+          personnel.find((_) => _.personnel_id === selectedTeacher.personnel_id)
+            ? personnel
+            : [...personnel, { ...selectedTeacher, is_coordo: true }]
+        );
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() => createCoordinator(submitData)}
               notification={notif}
-              //TODO: MESSAGE SHOULD COME FROM BACKEND
-              message={formatMessage({ id: 'failedToAddCoordinator' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'failedToAddCoordinator' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsSubmitActionBarAction(false));
   };
 
   const createStaff = (values: StaffInterface, usage: 'edit' | 'create') => {
     const notif = new useNotification();
+    const {
+      personnel_code,
+      personnel_id,
+      is_archived,
+      login_id,
+      ...newValues
+    } = values;
     switch (usage) {
       case 'create': {
         notif.notify({
@@ -277,35 +291,89 @@ export default function Personnel() {
           filterNotificationUsage('addStaff', notif, notifications)
         );
         setIsSubmitActionBarAction(true);
-        setTimeout(() => {
-          setIsSubmitActionBarAction(false);
-          //TODO: CALL API HERE TO CREATE staff (secretariat or registry) WITH DATA activeTabItem and values. don't forget to generate code and add before storing
-          if (random() > 5) {
-            notif.update({
-              render: formatMessage({
-                id: `added${activeTabItem[0].toUpperCase()}${activeTabItem.slice(
-                  1,
-                  undefined
-                )}`,
-              }),
-            });
-          } else {
-            notif.update({
-              type: 'ERROR',
-              render: (
-                <ErrorMessage
-                  retryFunction={() => createStaff(values, usage)}
-                  notification={notif}
-                  //TODO: MESSAGE SHOULD COME FROM BACKEND
-                  message={formatMessage({ id: 'failedToAddStaff' })}
-                />
-              ),
-              autoClose: false,
-              icon: () => <ReportRounded fontSize="medium" color="error" />,
-            });
-          }
-        }, 3000);
-
+        if (activeTabItem === 'secretariat') {
+          addNewConfigurator(newValues)
+            .then(({ roles, ...staff }) => {
+              notif.update({
+                render: formatMessage({
+                  id: `added${activeTabItem[0].toUpperCase()}${activeTabItem.slice(
+                    1,
+                    undefined
+                  )}`,
+                }),
+              });
+              setPersonnel([
+                ...personnel,
+                {
+                  ...staff,
+                  is_archived: false,
+                  is_academic_service: roles.includes('S.A.'),
+                  is_coordo: roles.includes('Co'),
+                  is_secretariat: roles.includes('Se'),
+                  is_teacher: roles.includes('Te'),
+                },
+              ]);
+            })
+            .catch((error) => {
+              notif.update({
+                type: 'ERROR',
+                render: (
+                  <ErrorMessage
+                    retryFunction={() => createStaff(values, usage)}
+                    notification={notif}
+                    message={
+                      error?.message ||
+                      formatMessage({ id: 'failedToAddStaff' })
+                    }
+                  />
+                ),
+                autoClose: false,
+                icon: () => <ReportRounded fontSize="medium" color="error" />,
+              });
+            })
+            .finally(() => setIsSubmitActionBarAction(false));
+        } else if (activeTabItem === 'academicService') {
+          addNewRegistry(newValues)
+            .then(({ roles, ...staff }) => {
+              notif.update({
+                render: formatMessage({
+                  id: `added${activeTabItem[0].toUpperCase()}${activeTabItem.slice(
+                    1,
+                    undefined
+                  )}`,
+                }),
+              });
+              setPersonnel([
+                ...personnel,
+                {
+                  ...staff,
+                  is_archived: false,
+                  is_academic_service: roles.includes('S.A.'),
+                  is_coordo: roles.includes('Co'),
+                  is_secretariat: roles.includes('Se'),
+                  is_teacher: roles.includes('Te'),
+                },
+              ]);
+            })
+            .catch((error) => {
+              notif.update({
+                type: 'ERROR',
+                render: (
+                  <ErrorMessage
+                    retryFunction={() => createStaff(values, usage)}
+                    notification={notif}
+                    message={
+                      error?.message ||
+                      formatMessage({ id: 'failedToAddStaff' })
+                    }
+                  />
+                ),
+                autoClose: false,
+                icon: () => <ReportRounded fontSize="medium" color="error" />,
+              });
+            })
+            .finally(() => setIsSubmitActionBarAction(false));
+        }
         break;
       }
       case 'edit': {
@@ -321,10 +389,8 @@ export default function Personnel() {
           filterNotificationUsage('saveStaff', notif, notifications)
         );
         setIsSubmitActionBarAction(true);
-        setTimeout(() => {
-          setIsSubmitActionBarAction(false);
-          //TODO: CALL API HERE TO edit staff (secretariat or registry) WITH DATA activeTabItem and values.personnel_code.
-          if (random() > 5) {
+        editPersonnel(values.login_id, newValues)
+          .then(() => {
             notif.update({
               render: formatMessage({
                 id: `saved${activeTabItem[0].toUpperCase()}${activeTabItem.slice(
@@ -333,23 +399,32 @@ export default function Personnel() {
                 )}`,
               }),
             });
-          } else {
+
+            setPersonnel(
+              personnel.map((staff) =>
+                staff.personnel_id === activePersonnel?.personnel_id
+                  ? { ...staff, ...newValues }
+                  : staff
+              )
+            );
+          })
+          .catch((error) => {
             notif.update({
               type: 'ERROR',
               render: (
                 <ErrorMessage
                   retryFunction={() => createStaff(values, usage)}
                   notification={notif}
-                  //TODO: MESSAGE SHOULD COME FROM BACKEND
-                  message={formatMessage({ id: 'failedToSaveStaff' })}
+                  message={
+                    error?.message || formatMessage({ id: 'failedToSaveStaff' })
+                  }
                 />
               ),
               autoClose: false,
               icon: () => <ReportRounded fontSize="medium" color="error" />,
             });
-          }
-        }, 3000);
-
+          })
+          .finally(() => setIsSubmitActionBarAction(false));
         break;
       }
     }
@@ -359,6 +434,8 @@ export default function Personnel() {
     usage: 'edit' | 'create'
   ) => {
     const notif = new useNotification();
+    const { personnel_code, is_archived, hourly_rate, ...person } = values;
+    const newValues = { hourly_rate: Number(hourly_rate), ...person };
     switch (usage) {
       case 'create': {
         notif.notify({
@@ -373,10 +450,8 @@ export default function Personnel() {
           filterNotificationUsage('addStaff', notif, notifications)
         );
         setIsSubmitActionBarAction(true);
-        setTimeout(() => {
-          setIsSubmitActionBarAction(false);
-          //TODO: CALL API HERE TO CREATE TEACHER WITH DATA  values. don't forget to generate code and add before storing
-          if (random() > 5) {
+        addNewTeacher(newValues)
+          .then(({ roles, ...staff }) => {
             notif.update({
               render: formatMessage({
                 id: `added${activeTabItem[0].toUpperCase()}${activeTabItem.slice(
@@ -385,23 +460,36 @@ export default function Personnel() {
                 )}`,
               }),
             });
-          } else {
+            setPersonnel([
+              ...personnel,
+              {
+                ...staff,
+                is_archived: false,
+                is_academic_service: roles.includes('S.A.'),
+                is_coordo: roles.includes('Co'),
+                is_secretariat: roles.includes('Se'),
+                is_teacher: roles.includes('Te'),
+              },
+            ]);
+          })
+          .catch((error) => {
             notif.update({
               type: 'ERROR',
               render: (
                 <ErrorMessage
                   retryFunction={() => createTeacher(values, usage)}
                   notification={notif}
-                  //TODO: MESSAGE SHOULD COME FROM BACKEND
-                  message={formatMessage({ id: 'failedToAddTeacher' })}
+                  message={
+                    error?.message ||
+                    formatMessage({ id: 'failedToAddTeacher' })
+                  }
                 />
               ),
               autoClose: false,
               icon: () => <ReportRounded fontSize="medium" color="error" />,
             });
-          }
-        }, 3000);
-
+          })
+          .finally(() => setIsSubmitActionBarAction(false));
         break;
       }
       case 'edit': {
@@ -417,10 +505,9 @@ export default function Personnel() {
           filterNotificationUsage('saveStaff', notif, notifications)
         );
         setIsSubmitActionBarAction(true);
-        setTimeout(() => {
-          setIsSubmitActionBarAction(false);
-          //TODO: CALL API HERE TO edit TEACEHR WITH DATA values.personnel_code.
-          if (random() > 5) {
+
+        editTeacher(activePersonnel?.personnel_id as string, newValues)
+          .then(() => {
             notif.update({
               render: formatMessage({
                 id: `saved${activeTabItem[0].toUpperCase()}${activeTabItem.slice(
@@ -429,29 +516,51 @@ export default function Personnel() {
                 )}`,
               }),
             });
-          } else {
+            setPersonnel(
+              personnel.map((staff) =>
+                staff.personnel_id === activePersonnel?.personnel_id
+                  ? { ...staff, ...newValues }
+                  : staff
+              )
+            );
+          })
+          .catch((error) => {
             notif.update({
               type: 'ERROR',
               render: (
                 <ErrorMessage
                   retryFunction={() => createTeacher(values, usage)}
                   notification={notif}
-                  //TODO: MESSAGE SHOULD COME FROM BACKEND
-                  message={formatMessage({ id: 'failedToSaveTeacher' })}
+                  message={
+                    error?.message ||
+                    formatMessage({ id: 'failedToSaveTeacher' })
+                  }
                 />
               ),
               autoClose: false,
               icon: () => <ReportRounded fontSize="medium" color="error" />,
             });
-          }
-        }, 3000);
-
+          })
+          .finally(() => setIsSubmitActionBarAction(false));
         break;
       }
     }
   };
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
+
+  const getStaffData = ({
+    is_academic_service,
+    is_coordo,
+    is_secretariat,
+    is_teacher,
+    last_connected,
+    ...staff
+  }: PersonnelInterface) => {
+    return {
+      ...staff,
+    } as StaffInterface;
+  };
 
   return (
     <>
@@ -481,7 +590,9 @@ export default function Personnel() {
           setIsEditing={setIsEditing}
           handleConfirm={createStaff}
           isEditDialog={isEditing}
-          activePersonnel={activePersonnel as StaffInterface | undefined}
+          activePersonnel={
+            activePersonnel ? getStaffData(activePersonnel) : undefined
+          }
           isDialogOpen={
             (isProfileDialogOpen &&
               activePersonnel !== undefined &&
@@ -507,7 +618,9 @@ export default function Personnel() {
           setIsEditing={setIsEditing}
           handleConfirm={createTeacher}
           isEditDialog={isEditing}
-          activePersonnel={activePersonnel as StaffInterface | undefined}
+          activePersonnel={
+            activePersonnel ? getStaffData(activePersonnel) : undefined
+          }
           isDialogOpen={
             (isProfileDialogOpen &&
               activePersonnel !== undefined &&
@@ -556,20 +669,24 @@ export default function Personnel() {
               sx={{ backgroundColor: lighten(theme.palette.primary.main, 0.8) }}
             >
               <TableRow>
-                {['personnelName', 'email', 'phone', 'lastConnect', 'role'].map(
-                  (value, index) => (
-                    <TableCell
-                      key={index}
-                      sx={{
-                        ...theme.typography.body1,
-                        color: theme.common.body,
-                        fontWeight: 300,
-                      }}
-                    >
-                      {formatMessage({ id: value })}
-                    </TableCell>
-                  )
-                )}
+                {[
+                  'personnelName',
+                  'email',
+                  'phone_number',
+                  'lastConnect',
+                  'role',
+                ].map((value, index) => (
+                  <TableCell
+                    key={index}
+                    sx={{
+                      ...theme.typography.body1,
+                      color: theme.common.body,
+                      fontWeight: 300,
+                    }}
+                  >
+                    {formatMessage({ id: value })}
+                  </TableCell>
+                ))}
                 <TableCell />
               </TableRow>
             </TableHead>
@@ -578,7 +695,7 @@ export default function Personnel() {
                 [...new Array(10)].map((_, index) => (
                   <PersonnelRowSkeleton index={index} key={index} />
                 ))}
-              {!arePersonnelLoading && personnels.length === 0 && (
+              {!arePersonnelLoading && personnel.length === 0 && (
                 <TableRow>
                   <TableCell
                     component="th"
@@ -598,7 +715,7 @@ export default function Personnel() {
                 </TableRow>
               )}
               {!arePersonnelLoading &&
-                personnels
+                personnel
                   .sort((a, b) => (a.is_archived < b.is_archived ? -1 : 1))
                   .map((personnel, index) => (
                     <PersonnelRow

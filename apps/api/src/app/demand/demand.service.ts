@@ -1,10 +1,11 @@
-import * as bcrypt from 'bcrypt';
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { DemandPostData, DemandValidateDto } from './demand.dto';
-import { CodeGeneratorService } from '../../utils/code-generator';
-import { randomUUID } from 'crypto';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { SchoolDemandStatus } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
+import { AUTH404 } from '../../errors';
+import { PrismaService } from '../../prisma/prisma.service';
+import { CodeGeneratorService } from '../../utils/code-generator';
+import { DemandPostDto, DemandValidateDto } from './demand.dto';
 
 @Injectable()
 export class DemandService {
@@ -23,7 +24,7 @@ export class DemandService {
     this.annualConfiguratorService = prismaService.annualConfigurator;
   }
 
-  async findOne(school_demand_id: string) {
+  async findOne(school_code: string) {
     const schoolData = await this.schoolService.findFirst({
       select: {
         school_name: true,
@@ -32,7 +33,7 @@ export class DemandService {
         Person: true,
         SchoolDemand: { select: { demand_status: true } },
       },
-      where: { SchoolDemand: { school_demand_id } },
+      where: { school_code },
     });
     if (schoolData) {
       const {
@@ -52,21 +53,18 @@ export class DemandService {
         school_name: true,
         school_phone_number: true,
         SchoolDemand: {
-          select: { school_demand_id: true, demand_status: true },
+          select: { demand_status: true },
         },
       },
     });
-    return schools.map(
-      ({ SchoolDemand: { demand_status, school_demand_id }, ...school }) => ({
-        demand_status,
-        school_demand_id,
-        ...school,
-      })
-    );
+    return schools.map(({ SchoolDemand: { demand_status }, ...school }) => ({
+      demand_status,
+      ...school,
+    }));
   }
 
-  async addDemand({ school, personnel }: DemandPostData) {
-    const { password, phone: phone_number, ...person } = personnel;
+  async addDemand({ school, personnel }: DemandPostDto) {
+    const { password, phone_number, ...person } = personnel;
     const {
       school_email,
       initial_year_ends_at,
@@ -78,12 +76,14 @@ export class DemandService {
 
     const ends_at = new Date(initial_year_ends_at);
     const starts_at = new Date(initial_year_starts_at);
-    const year_code = await this.codeGenerator.getYearCode(
-      starts_at.getFullYear(),
-      ends_at.getFullYear()
-    );
+    const year_code = `YEAR-${ends_at.getFullYear()}${starts_at.getFullYear()}${this.codeGenerator.getNumberString(
+      1
+    )}`;
     const school_code = await this.codeGenerator.getSchoolCode(school_acronym);
     const annual_configurator_id = randomUUID();
+    const matricule = `${school_acronym}${this.codeGenerator.getNumberString(
+      1
+    )}`;
     await this.prismaService.$transaction([
       this.schoolService.create({
         data: {
@@ -103,6 +103,7 @@ export class DemandService {
       }),
       this.annualConfiguratorService.create({
         data: {
+          matricule,
           is_sudo: true,
           annual_configurator_id,
           Login: {
@@ -137,37 +138,94 @@ export class DemandService {
   }
 
   async validateDemand(
-    { school_demand_id, rejection_reason, subdomain }: DemandValidateDto,
-    validated_by: string
+    { school_code, rejection_reason, subdomain }: DemandValidateDto,
+    audited_by: string
   ) {
+    const schoolDemand = await this.schoolDemandService.findFirst({
+      select: {
+        school_demand_id: true,
+        demand_status: true,
+        rejection_reason: true,
+      },
+      where: {
+        School: { school_code },
+      },
+    });
+    if (!schoolDemand)
+      throw new HttpException(
+        JSON.stringify(AUTH404('School demand')),
+        HttpStatus.NOT_FOUND
+      );
+
     await this.schoolDemandService.update({
-      data: rejection_reason
-        ? {
-            rejection_reason,
-            responsed_at: new Date(),
-            demand_status: SchoolDemandStatus.REJECTED,
-            Login: { connect: { login_id: validated_by } },
-          }
-        : {
-            responsed_at: new Date(),
-            demand_status: SchoolDemandStatus.VALIDATED,
-            Login: { connect: { login_id: validated_by } },
-            School: {
-              update: {
-                subdomain: `${subdomain}.squoolr.com`,
-                is_validated: true,
-              },
-            },
+      data: {
+        rejection_reason,
+        demand_status: rejection_reason
+          ? SchoolDemandStatus.REJECTED
+          : SchoolDemandStatus.VALIDATED,
+        School: {
+          update: { subdomain },
+        },
+        SchoolDemandAudits: {
+          create: {
+            rejection_reason: schoolDemand.rejection_reason,
+            demand_status: schoolDemand.demand_status,
+            audited_by,
           },
-      where: { school_demand_id },
+        },
+      },
+      where: { school_demand_id: schoolDemand.school_demand_id },
     });
   }
 
   async getStatus(school_demand_code: string) {
     const school = await this.schoolService.findUnique({
-      select: { SchoolDemand: { select: { demand_status: true } } },
+      select: {
+        subdomain: true,
+        SchoolDemand: {
+          select: { demand_status: true, rejection_reason: true },
+        },
+      },
       where: { school_code: school_demand_code },
     });
-    return school ? school.SchoolDemand.demand_status : null;
+    if (school) {
+      const {
+        subdomain,
+        SchoolDemand: { demand_status: school_status, rejection_reason },
+      } = school;
+      return { subdomain, school_status, rejection_reason };
+    }
+    return null;
+  }
+
+  async editDemandStatus(school_code: string, audited_by: string) {
+    const demand = await this.schoolDemandService.findFirst({
+      select: {
+        school_demand_id: true,
+        demand_status: true,
+        rejection_reason: true,
+      },
+      where: { School: { school_code } },
+    });
+    if (!demand)
+      throw new HttpException(
+        JSON.stringify(AUTH404('School demand')),
+        HttpStatus.NOT_FOUND
+      );
+
+    const { demand_status, rejection_reason } = demand;
+    await this.schoolDemandService.update({
+      data: {
+        demand_status: SchoolDemandStatus.PROGRESS,
+        SchoolDemandAudits: {
+          create: {
+            demand_status,
+            rejection_reason,
+            audited_by,
+          },
+        },
+      },
+      where: { school_demand_id: demand.school_demand_id },
+    });
   }
 }

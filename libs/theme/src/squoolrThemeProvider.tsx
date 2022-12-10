@@ -4,45 +4,48 @@ import { theme } from './theme';
 import { Flip, ToastContainer } from 'react-toastify';
 import { IntlProvider } from 'react-intl';
 import 'react-toastify/dist/ReactToastify.css';
-import LanguageContextProvider, { useLanguage } from './contexts/language/LanguageContextProvider';
+import LanguageContextProvider, {
+  useLanguage,
+} from './contexts/language/LanguageContextProvider';
 import frMessages from './languages/fr';
 import enMessages from './languages/en-us';
 
-export function SquoolrThemeProvider({
-  children,
-  // activeMessages,
-  // activeLanguage,
-}: {
-  children: React.ReactNode;
-  // activeMessages: Record<string, string>;
-  // activeLanguage: 'En' | 'Fr';
-}) {
+const App = ({ children }: { children: React.ReactNode }) => {
   const { activeLanguage } = useLanguage();
   const activeMessages = activeLanguage === 'Fr' ? frMessages : enMessages;
-
   return (
     <IntlProvider
       messages={activeMessages}
       locale={activeLanguage}
       defaultLocale="Fr"
     >
-      <LanguageContextProvider>
-        <ThemeProvider theme={theme}>
-          <ToastContainer
-            position="top-right"
-            autoClose={1000}
-            newestOnTop
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            transition={Flip}
-          />
-          <CssBaseline />
-          {children}
-        </ThemeProvider>
-      </LanguageContextProvider>
+      <ThemeProvider theme={theme}>
+        <ToastContainer
+          position="top-right"
+          autoClose={1000}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          transition={Flip}
+        />
+        <CssBaseline />
+        {children}
+      </ThemeProvider>
     </IntlProvider>
+  );
+};
+
+export function SquoolrThemeProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <LanguageContextProvider>
+      <App>{children}</App>
+    </LanguageContextProvider>
   );
 }
 

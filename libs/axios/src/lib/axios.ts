@@ -7,7 +7,7 @@ export async function getCurrentIp() {
 }
 
 function axiosInstance(): AxiosInstance {
-  const app_lang = 'skltn_lang';
+  const app_lang = 'squoolr_active_language';
 
   const axiosInstance = axios.create({
     baseURL: process.env['NX_API_BASE_URL'],
@@ -22,7 +22,7 @@ function axiosInstance(): AxiosInstance {
         ...request,
         headers: {
           ...request.headers,
-          lang: localStorage.getItem(app_lang) || 'Fr',
+          lang: 'Fr',
         },
         params: request.params ? { data: encrypt(request.params) } : undefined,
         data: request.data ? { data: encrypt(request.data) } : undefined,
@@ -36,14 +36,16 @@ function axiosInstance(): AxiosInstance {
     (response) => {
       response = {
         ...response,
-        data: decrypt(response.data),
+        data: response.data ? decrypt(response.data) : {},
       };
       return response;
     },
     (error) => {
-      if (error.response.status === 403 && location.pathname !== '/signin')
+      if (error.response?.statusCode === 403 && location.pathname !== '/signin')
         location.href = '/signin';
-      return Promise.reject(error.response.data);
+      return Promise.reject(
+        error.response?.data || 'Sorry, this error is not supposed to happen'
+      );
     }
   );
 

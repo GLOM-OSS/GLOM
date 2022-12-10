@@ -5,8 +5,8 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  Patch,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -20,19 +20,21 @@ import {
   PassportSession,
 } from '../../utils/types';
 import { AcademicYearQueryDto } from '../app.dto';
+import { AcademicYearService } from '../configurator/academic-year/academic-year.service';
+import { NewPasswordDto, ResetPasswordDto } from './auth.dto';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
-import { NewPasswordDto, ResetPasswordDto } from './auth.dto';
 import { GoogleGuard } from './google/google.guard';
 import { LocalGuard } from './local/local.guard';
 
 @ApiBearerAuth()
-@ApiTags('auth')
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
     private prismaService: PrismaService,
-    private authService: AuthService
+    private authService: AuthService,
+    private academicYearService: AcademicYearService
   ) {}
 
   @Post('signin')
@@ -43,11 +45,11 @@ export class AuthController {
       request.user as DeserializeSessionData & PassportSession;
 
     if (!school_id) return { user };
-    const academic_years = await this.authService.getAcademicYears(
+    const academic_years = await this.academicYearService.getAcademicYears(
       user.login_id
     );
     if (academic_years.length === 1) {
-      const selected_roles = await this.setActiveYear(request, {
+      const selected_roles = await this.getActiveRoles(request, {
         academic_year_id: academic_years[0].academic_year_id,
       });
       return {
@@ -60,9 +62,9 @@ export class AuthController {
     return { user, academic_years };
   }
 
-  @Patch('active-year')
+  @Put('active-roles')
   @UseGuards(AuthenticatedGuard)
-  async setActiveYear(
+  async getActiveRoles(
     @Req() request: Request,
     @Body() { academic_year_id }: AcademicYearQueryDto
   ): Promise<DesirializeRoles> {
@@ -142,8 +144,9 @@ export class AuthController {
 
   @Get('user')
   @UseGuards(AuthenticatedGuard)
-  async getUser(@Req() request) {
-    return request.user;
+  async getUser(@Req() request: Request) {
+    const email = request.query.email as string;
+    return { user: email ? await this.authService.getUser(email) : request.user };
   }
 
   @Get('google-signin')

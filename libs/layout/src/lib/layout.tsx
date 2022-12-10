@@ -15,9 +15,9 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { getUser, logOut } from '@squoolr/api-services';
 import { theme, useLanguage } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
@@ -43,33 +43,13 @@ export function Layout({
     useState<NavChild>();
   const { activeYear } = useUser();
 
-  const { annualConfigurator, annualRegistry, annualTeacher } = useUser();
+  const { userDispatch } = useUser();
 
-  const newRoles: (PersonnelRole | undefined)[] = [
-    annualConfigurator ? 'secretary' : undefined,
-    annualRegistry ? 'registry' : undefined,
-    annualTeacher ? 'teacher' : undefined,
-    annualTeacher?.coordinates && annualTeacher.coordinates.length > 0
-      ? 'coordinator'
-      : undefined,
-  ];
-  const Roles: PersonnelRole[] = newRoles.filter(
-    (_) => _ !== undefined
-  ) as PersonnelRole[];
-  const x = localStorage.getItem('activeRole');
-  const storageActiveRole = x !== null ? x : '';
-
-  const [activeRole, setActiveRole] = useState<PersonnelRole | 'administrator'>(
-    callingApp === 'admin'
-      ? 'administrator'
-      : Roles.includes(storageActiveRole as PersonnelRole)
-      ? (storageActiveRole as PersonnelRole | 'administrator')
-      : Roles.sort((a, b) => (a > b ? 1 : -1))[0]
-  );
-  const handleSwapRole = (newRole: PersonnelRole) => {
-    setActiveRole(newRole);
-    localStorage.setItem('activeRole', newRole);
-  };
+  const [userRoles, setUserRoles] = useState<PersonnelRole[]>([]);
+  const [activeRole, setActiveRole] = useState<
+    PersonnelRole | 'administrator'
+  >();
+  const handleSwapRole = (newRole: PersonnelRole) => setActiveRole(newRole);
 
   const [roleNavigationItems, setRoleNavigationItems] = useState<NavItem[]>([]);
 
@@ -91,7 +71,6 @@ export function Layout({
       setIsSecondaryNavOpen(false);
       setActiveNavItem(undefined);
       setActiveSecondaryNavItem(undefined);
-      navigate('/');
       //TODO: call api here to NOTIFY ADMIN HERE that activeRole has no navItems then notify a 404
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -127,27 +106,57 @@ export function Layout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeNavItem]);
 
-  //TODO UNCOMMENT THIS USE EFFECT WHEN DONE INTERGRATING
-  // useEffect(() => {
-  //   //TODO: call api here to Verify if user is authenticated here if user is not, then disconnect them and send them to sign in page
-  //   setTimeout(() => {
-  //     if (random() > 5) {
-  //       //TODO: write user data to context here
-  //     } else {
-  //       const notif = new useNotification();
-  //       notif.notify({ render: 'verifyingAuth' });
-  //       notif.update({
-  //         type: 'ERROR',
-  //         render: 'unauthenticatedUser',
-  //         autoClose: false,
-  //         icon: () => <ReportRounded fontSize="medium" color="error" />,
-  //       });
-  //       localStorage.setItem('previousRoute', location.pathname);
-  //       navigate('/');
-  //     }
-  //   }, 3000);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
+  useEffect(() => {
+    getUser()
+      .then(
+        ({
+          annualConfigurator,
+          annualRegistry,
+          annualTeacher,
+          ...userData
+        }) => {
+          userDispatch({
+            type: 'LOAD_USER',
+            payload: {
+              user: {
+                ...userData,
+                annualConfigurator,
+                annualTeacher,
+                annualRegistry,
+              },
+            },
+          });
+          const newRoles: (PersonnelRole | undefined)[] = [
+            annualConfigurator ? 'secretary' : undefined,
+            annualRegistry ? 'registry' : undefined,
+            annualTeacher ? 'teacher' : undefined,
+          ];
+          const Roles: PersonnelRole[] = newRoles.filter(
+            (_) => _ !== undefined
+          ) as PersonnelRole[];
+          if (Roles.length === 0) navigate('/');
+          setUserRoles(Roles)
+          setActiveRole(
+            callingApp === 'admin'
+              ? 'administrator'
+              : Roles.sort((a, b) => (a > b ? 1 : -1))[0]
+          );
+        }
+      )
+      .catch(() => {
+        const notif = new useNotification();
+        notif.notify({ render: 'verifyingAuth' });
+        notif.update({
+          type: 'ERROR',
+          render: 'unauthenticatedUser',
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+        localStorage.setItem('previousRoute', location.pathname);
+        navigate('/');
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const { languageDispatch } = useLanguage();
 
@@ -181,31 +190,30 @@ export function Layout({
     newNotification.notify({
       render: formatMessage({ id: 'signingUserOut' }),
     });
-    //TODO: CALL LOGOUT API HERE
-    setTimeout(() => {
-      setIsSubmitting(false);
-      if (random() > 5) {
+    logOut()
+      .then(() => {
+        userDispatch({ type: 'CLEAR_USER' });
         newNotification.update({
           render: formatMessage({ id: 'signOutSuccess' }),
         });
         localStorage.setItem('previousRoute', location.pathname);
         navigate('/');
-      } else {
+      })
+      .catch((error) => {
         newNotification.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={handleLogout}
               notification={newNotification}
-              //TODO: message comes from backend
-              message={formatMessage({ id: 'signOutFailed' })}
+              message={error?.message || formatMessage({ id: 'signOutFailed' })}
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsSubmitting(false));
   };
   const params = useParams();
 
@@ -275,6 +283,7 @@ export function Layout({
           </IconButton>
 
           <UserLayoutDisplay
+            userRoles={userRoles}
             activeRole={activeRole}
             selectRole={(newRole: PersonnelRole) => handleSwapRole(newRole)}
           />

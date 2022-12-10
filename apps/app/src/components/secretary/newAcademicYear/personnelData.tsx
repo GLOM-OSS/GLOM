@@ -11,8 +11,8 @@ import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
 
 export interface NewPersonnelInterface {
-  reuse_secretariat: boolean;
-  reuse_registry: boolean;
+  reuse_configurators: boolean;
+  reuse_registries: boolean;
   reuse_coordinators: boolean;
   reuse_teachers: boolean;
 }
@@ -20,9 +20,9 @@ export interface NewPersonnelInterface {
 export default function PersonnelData({
   personnelConfig,
   personnelConfig: {
-    reuse_registry,
+    reuse_registries: reuse_registry,
     reuse_coordinators,
-    reuse_secretariat,
+    reuse_configurators: reuse_secretariat,
     reuse_teachers,
   },
   setPersonnelConfig,
@@ -52,7 +52,7 @@ export default function PersonnelData({
                 onChange={(event) =>
                   setPersonnelConfig({
                     ...personnelConfig,
-                    reuse_secretariat: event.target.value === 'true',
+                    reuse_configurators: event.target.value === 'true',
                   })
                 }
               >
@@ -75,7 +75,7 @@ export default function PersonnelData({
                 onChange={(event) =>
                   setPersonnelConfig({
                     ...personnelConfig,
-                    reuse_registry: event.target.value === 'true',
+                    reuse_registries: event.target.value === 'true',
                   })
                 }
               >

@@ -1,3 +1,4 @@
+import { ReportRounded } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -9,27 +10,34 @@ import {
   Radio,
   RadioGroup,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
+import {
+  createNewAcademicYear,
+  getAcademicYearRoles,
+  getAcademicYears,
+  getClassrooms,
+  templateAcademicYear
+} from '@squoolr/api-services';
+import { AcademicYearInterface } from '@squoolr/auth';
+import { useUser } from '@squoolr/layout';
 import { theme } from '@squoolr/theme';
+import { ErrorMessage, useNotification } from '@squoolr/toast';
+import moment from 'moment';
 import { useEffect, useState } from 'react';
+import { useIntl } from 'react-intl';
+import { useNavigate } from 'react-router';
 import { ClassroomInterface } from '../../components/secretary/classrooms';
-import RegistryConfig from '../../components/secretary/newAcademicYear/registry';
 import AcademicYearData, {
-  NewAcademicYearInterface,
+  NewAcademicYearInterface
 } from '../../components/secretary/newAcademicYear/academicYearData';
 import Classrooms from '../../components/secretary/newAcademicYear/classrooms';
 import CoordinatorsConfig from '../../components/secretary/newAcademicYear/coordinators';
 import PersonnelData, {
-  NewPersonnelInterface,
+  NewPersonnelInterface
 } from '../../components/secretary/newAcademicYear/personnelData';
+import RegistryConfig from '../../components/secretary/newAcademicYear/registry';
 import TimelineItem from '../../components/secretary/newAcademicYear/timelineItem';
-import { useIntl } from 'react-intl';
-import { AcademicYearInterface } from '@squoolr/auth';
-import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
-import { ReportRounded } from '@mui/icons-material';
-import moment from 'moment';
 
 export default function NewAcademicYear() {
   const [activeItem, setActiveItem] = useState<number>(0);
@@ -39,8 +47,8 @@ export default function NewAcademicYear() {
   });
   const [personnelConfig, setPersonnelConfig] = useState<NewPersonnelInterface>(
     {
-      reuse_secretariat: true,
-      reuse_registry: true,
+      reuse_configurators: true,
+      reuse_registries: true,
       reuse_coordinators: true,
       reuse_teachers: false,
     }
@@ -102,178 +110,28 @@ export default function NewAcademicYear() {
       });
       notif.notify({ render: formatMessage({ id: 'loadingClassrooms' }) });
       setNotifications([...newNotifs, { usage: 'classrooms', notif }]);
-      setTimeout(() => {
-        //TODO: LOAD CLASSROOMS FOR ACADEMIC YEAR HERE WITH DATA: templateYearId
-        if (random() > 5) {
-          const newClassrooms: ClassroomInterface[] = [
-            {
-              classroom_code: 'cmr21-993',
-              classroom_level: 1,
-              classroom_name: 'Energies Renouvelables et genie climatique',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr20-993',
-              classroom_level: 2,
-              classroom_name: 'Energies Renouvelables et genie climatique',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr19-993',
-              classroom_level: 3,
-              classroom_name: 'Energies Renouvelables et genie climatique',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr16-993',
-              classroom_level: 1,
-              classroom_name: 'Informatique reseau et telecommunications',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr17-993',
-              classroom_level: 2,
-              classroom_name: 'Informatique reseau et telecommunications',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr18-993',
-              classroom_level: 3,
-              classroom_name: 'Informatique reseau et telecommunications',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr13-993',
-              classroom_level: 1,
-              classroom_name:
-                'Mathematiquest et informatique appliques a la finance',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr14-993',
-              classroom_level: 2,
-              classroom_name:
-                'Mathematiquest et informatique appliques a la finance',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr15-993',
-              classroom_level: 3,
-              classroom_name:
-                'Mathematiquest et informatique appliques a la finance',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr10-993',
-              classroom_level: 1,
-              classroom_name: 'Genie Civil',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr11-993',
-              classroom_level: 2,
-              classroom_name: 'Genie Civil',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr12-993',
-              classroom_level: 3,
-              classroom_name: 'Genie Civil',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr9-993',
-              classroom_level: 1,
-              classroom_name: 'Genie mecaniques',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr8-993',
-              classroom_level: 3,
-              classroom_name: 'Genie mecaniques',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr7-993',
-              classroom_level: 2,
-              classroom_name: 'Genie mecaniques',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr5-993',
-              classroom_level: 1,
-              classroom_name: 'Architecture et urbanisme',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr4-993',
-              classroom_level: 2,
-              classroom_name: 'Architecture et urbanisme',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr6-993',
-              classroom_level: 3,
-              classroom_name: 'Architecture et urbanisme',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr-993',
-              classroom_level: 1,
-              classroom_name: 'Ingenieurie Biomedical',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr2-993',
-              classroom_level: 2,
-              classroom_name: 'Ingenieurie Biomedical',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-            {
-              classroom_code: 'cmr3-993',
-              classroom_level: 3,
-              classroom_name: 'Ingenieurie Biomedical',
-              registration_fee: 10000,
-              total_fee_due: 18000000,
-            },
-          ];
+      getClassrooms({ academic_year_id: templateYearId })
+        .then((classrooms) => {
           notif.dismiss();
-          setClassrooms(newClassrooms);
-        } else {
+          setClassrooms(classrooms);
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={loadClassrooms}
                 notification={notif}
-                message={formatMessage({ id: 'loadClassroomsFailed' })}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'loadClassroomsFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        });
     }
   };
 
@@ -285,35 +143,28 @@ export default function NewAcademicYear() {
     });
     notif.notify({ render: formatMessage({ id: 'loadingAcademicYears' }) });
     setNotifications([...newNotifs, { usage: 'academicYears', notif }]);
-    setTimeout(() => {
-      //TODO: LOAD ACADEMIC YEARS FOR SCHOOL HERE
-      if (random() > 5) {
-        const newAcademicYears: AcademicYearInterface[] = [
-          {
-            academic_year_id: 'hske',
-            code: 'Year2015201700001',
-            ending_date: new Date(),
-            starting_date: new Date('12/12/2021'),
-            year_status: 'active',
-          },
-        ];
+    getAcademicYears()
+      .then((academicYears) => {
         notif.dismiss();
-        setAcademicYears(newAcademicYears);
-      } else {
+        setAcademicYears(academicYears);
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={loadAcademicYears}
               notification={notif}
-              message={formatMessage({ id: 'loadAcademicYearsFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'loadAcademicYearsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
@@ -328,6 +179,8 @@ export default function NewAcademicYear() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateYearId]);
 
+  const { userDispatch, ...activeUser } = useUser();
+
   const [isCreatingAcademicYear, setIsCreatingAcademicYear] =
     useState<boolean>(false);
   const createAcademicYear = () => {
@@ -339,61 +192,106 @@ export default function NewAcademicYear() {
     });
     notif.notify({ render: formatMessage({ id: 'creatingAcademicYears' }) });
     setNotifications([...newNotifs, { usage: 'createAcademicYear', notif }]);
-    setTimeout(() => {
-      setIsCreatingAcademicYear(false);
-      switch (useTemplateYear) {
-        case false: {
-          //TODO: CREATE ACADEMIC YEAR HERE WITH DATA: academicYear.
-          //TODO: DON'T FORGET TO VERIFY THAT THERE IS NO CHAUVAUCHEMENT BETWEEN THE NEW DATA AND ANY EXISTING ACADEMIC YEAR
-          if (random() > 5) {
-            notif.update({
-              render: formatMessage({ id: 'academicYearCreatedSuccessfully' }),
-            });
-            //TODO: CHANGE ACTIVE ACADEMIC YEAR IN CONTEXT TO THE NEWLY CREATED ONE
-            //TODO: navigate('/configurations/departments')
-          } else {
-            notif.update({
-              type: 'ERROR',
-              render: (
-                <ErrorMessage
-                  retryFunction={createAcademicYear}
-                  notification={notif}
-                  message={formatMessage({ id: 'createAcademicYearFailed' })}
-                />
-              ),
-              autoClose: false,
-              icon: () => <ReportRounded fontSize="medium" color="error" />,
-            });
-          }
-          break;
-        }
-        case true: {
-          // TODO: CREATE ACADEMIC YEAR HERE WITH DATA: templateYearId, academicYear, selectedClassroomCodes, personnelConfig, reuseCoordinatorsConfig, reuseRegistryConfig
-          //TODO: DON'T FORGET TO VERIFY THAT THERE IS NO CHAUVAUCHEMENT BETWEEN THE NEW DATA AND ANY EXISTING ACADEMIC YEAR
-          if (random() > 5) {
-            notif.update({
-              render: formatMessage({ id: 'createAcademicYearSuccessfully' }),
-            });
-            //TODO: CHANGE ACTIVE ACADEMIC YEAR IN CONTEXT TO THE NEWLY CREATED ONE
-            //TODO: navigate('/configurations/departments')
-          } else {
-            notif.update({
-              type: 'ERROR',
-              render: (
-                <ErrorMessage
-                  retryFunction={createAcademicYear}
-                  notification={notif}
-                  message={formatMessage({ id: 'createAcademicYearFailed' })}
-                />
-              ),
-              autoClose: false,
-              icon: () => <ReportRounded fontSize="medium" color="error" />,
-            });
-          }
-          break;
-        }
-      }
-    }, 3000);
+    const {
+      academic_year_end_date: ends_at,
+      academic_year_start_date: starts_at,
+    } = academicYear;
+    if (useTemplateYear) {
+      templateAcademicYear(templateYearId as string, {
+        classroomCodes: selectedClassroomCodes,
+        ends_at,
+        starts_at,
+        personnelConfig,
+        reuse_registries_configs: reuseRegistryConfig,
+        reuse_coordinators_configs: reuseCoordinatorsConfig,
+      })
+        .then((academicYearId) => {
+          notif.update({
+            render: formatMessage({ id: 'createAcademicYearSuccessfully' }),
+          });
+          setActiveYear(academicYearId);
+        })
+        .catch((error) => {
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={createAcademicYear}
+                notification={notif}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'createAcademicYearFailed' })
+                }
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        })
+        .finally(() => setIsCreatingAcademicYear(false));
+    } else {
+      createNewAcademicYear(starts_at, ends_at)
+        .then((academicYearId) => {
+          notif.update({
+            render: formatMessage({ id: 'academicYearCreatedSuccessfully' }),
+          });
+          setActiveYear(academicYearId);
+        })
+        .catch((error) => {
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={createAcademicYear}
+                notification={notif}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'createAcademicYearFailed' })
+                }
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        })
+        .finally(() => setIsCreatingAcademicYear(false));
+    }
+  };
+
+  const navigate = useNavigate();
+  const setActiveYear = (academicYearId: string) => {
+    const notif = new useNotification();
+    notif.notify({
+      render: formatMessage({ id: 'gettingAcademicYear' }),
+    });
+    getAcademicYearRoles(academicYearId)
+      .then((userRoles) => {
+        userDispatch({
+          type: 'LOAD_USER',
+          payload: { user: { ...activeUser, ...userRoles } },
+        });
+        notif.update({
+          render: formatMessage({ id: 'academicYearSet' }),
+        });
+        navigate('/configurations/departments');
+      })
+      .catch((error) => {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => setActiveYear(academicYearId)}
+              notification={notif}
+              message={
+                error?.message ||
+                formatMessage({ id: 'failedToSetAcademicYear' })
+              }
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      });
   };
 
   return (
@@ -632,8 +530,8 @@ export default function NewAcademicYear() {
             variant="contained"
             color="primary"
             sx={{ justifySelf: 'start' }}
-            onClick={()=>{
-              if(templateYearId!== undefined)createAcademicYear()
+            onClick={() => {
+              if (templateYearId !== undefined) createAcademicYear();
             }}
             disabled={templateYearId === undefined || isCreatingAcademicYear}
           >
