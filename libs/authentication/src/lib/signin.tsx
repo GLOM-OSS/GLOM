@@ -23,7 +23,7 @@ import {
   SelectAcademicYearDialog,
 } from './selectAcademicYear';
 import { signIn } from '@squoolr/api-services';
-import { User, useUser } from '@squoolr/layout';
+import { getUserRoles, User, useUser } from '@squoolr/layout';
 
 export function Signin({
   callingApp,
@@ -77,10 +77,11 @@ export function Signin({
             setAcademicYears(academic_years);
             setIsAcademicYearDialogOpen(true);
           } else {
-            navigate(
+            const activeRole = getUserRoles(user)[0]
+            const routeUrl =
               localStorage.getItem('previousRoute') ??
-                (callingApp === 'admin' ? '/management' : '/configurations')
-            );
+              (callingApp === 'admin' ? '/management' : `${activeRole}/configurations`);
+            navigate(routeUrl);
             userDispatch({ type: 'LOAD_USER', payload: { user } });
             resetForm();
           }

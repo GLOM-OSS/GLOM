@@ -70,3 +70,22 @@ export interface User {
   };
   activeYear: AcademicYearInterface;
 }
+
+export const getUserRoles = ({
+  annualConfigurator,
+  annualRegistry,
+  annualTeacher,
+}: User): PersonnelRole[] => {
+  const newRoles: (PersonnelRole | undefined)[] = [
+    annualConfigurator ? 'secretary' : undefined,
+    annualRegistry ? 'registry' : undefined,
+    annualTeacher ? 'teacher' : undefined,
+    annualTeacher?.coordinates && annualTeacher.coordinates.length > 0
+      ? 'coordinator'
+      : undefined,
+  ];
+  const Roles: PersonnelRole[] = newRoles.filter(
+    (_) => _ !== undefined
+  ) as PersonnelRole[];
+  return Roles.sort((a, b) => (a > b ? 1 : -1));
+};

@@ -28,7 +28,7 @@ import SecondaryNavItem from '../components/SecondaryNavItem';
 import SwapAcademicYear from '../components/SwapAcademicYear';
 import UserLayoutDisplay from '../components/UserLayoutDisplay';
 import { useUser } from '../contexts/UserContextProvider';
-import { NavChild, NavItem, PersonnelRole } from './interfaces';
+import { getUserRoles, NavChild, NavItem, PersonnelRole, User } from './interfaces';
 
 export function Layout({
   navItems,
@@ -119,37 +119,17 @@ export function Layout({
   useEffect(() => {
     getUser()
       .then(
-        ({
-          annualConfigurator,
-          annualRegistry,
-          annualTeacher,
-          ...userData
-        }) => {
+        (user) => {
           userDispatch({
             type: 'LOAD_USER',
             payload: {
-              user: {
-                ...userData,
-                annualConfigurator,
-                annualTeacher,
-                annualRegistry,
-              },
+              user
             },
           });
-          const newRoles: (PersonnelRole | undefined)[] = [
-            annualConfigurator ? 'secretary' : undefined,
-            annualRegistry ? 'registry' : undefined,
-            annualTeacher ? 'teacher' : undefined,
-            annualTeacher?.coordinates && annualTeacher.coordinates.length > 0
-              ? 'coordinator'
-              : undefined,
-          ];
-          const Roles: PersonnelRole[] = newRoles.filter(
-            (_) => _ !== undefined
-          ) as PersonnelRole[];
+          const Roles = getUserRoles(user as User);
           if (Roles.length === 0) navigate('/');
           setUserRoles(Roles);
-          
+
           const x = localStorage.getItem('activeRole');
           const storageActiveRole = x ?? '';
           const routeRole = location.pathname.split('/')[1];
@@ -161,7 +141,7 @@ export function Layout({
               ? (routeRole as PersonnelRole | 'administrator')
               : Roles.includes(storageActiveRole as PersonnelRole)
               ? (storageActiveRole as PersonnelRole | 'administrator')
-              : Roles.sort((a, b) => (a > b ? 1 : -1))[0]
+              : Roles[0]
           );
         }
       )
