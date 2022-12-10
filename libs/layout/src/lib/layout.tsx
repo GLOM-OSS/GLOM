@@ -28,7 +28,13 @@ import SecondaryNavItem from '../components/SecondaryNavItem';
 import SwapAcademicYear from '../components/SwapAcademicYear';
 import UserLayoutDisplay from '../components/UserLayoutDisplay';
 import { useUser } from '../contexts/UserContextProvider';
-import { getUserRoles, NavChild, NavItem, PersonnelRole, User } from './interfaces';
+import {
+  getUserRoles,
+  NavChild,
+  NavItem,
+  PersonnelRole,
+  User,
+} from './interfaces';
 
 export function Layout({
   navItems,
@@ -65,7 +71,6 @@ export function Layout({
   useEffect(() => {
     const RoleNavItems = navItems.find(({ role }) => role === activeRole);
     if (RoleNavItems) setRoleNavigationItems(RoleNavItems.navItems);
-    else navigate('/');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRole]);
 
@@ -118,33 +123,31 @@ export function Layout({
 
   useEffect(() => {
     getUser()
-      .then(
-        (user) => {
-          userDispatch({
-            type: 'LOAD_USER',
-            payload: {
-              user
-            },
-          });
-          const Roles = getUserRoles(user as User);
-          if (Roles.length === 0) navigate('/');
-          setUserRoles(Roles);
+      .then((user) => {
+        userDispatch({
+          type: 'LOAD_USER',
+          payload: {
+            user,
+          },
+        });
+        const Roles = getUserRoles(user as User);
+        if (Roles.length === 0) navigate('/');
+        setUserRoles(Roles);
 
-          const x = localStorage.getItem('activeRole');
-          const storageActiveRole = x ?? '';
-          const routeRole = location.pathname.split('/')[1];
+        const x = localStorage.getItem('activeRole');
+        const storageActiveRole = x ?? '';
+        const routeRole = location.pathname.split('/')[1];
 
-          setActiveRole(
-            callingApp === 'admin'
-              ? 'administrator'
-              : Roles.includes(routeRole as PersonnelRole)
-              ? (routeRole as PersonnelRole | 'administrator')
-              : Roles.includes(storageActiveRole as PersonnelRole)
-              ? (storageActiveRole as PersonnelRole | 'administrator')
-              : Roles[0]
-          );
-        }
-      )
+        setActiveRole(
+          callingApp === 'admin'
+            ? 'administrator'
+            : Roles.includes(routeRole as PersonnelRole)
+            ? (routeRole as PersonnelRole | 'administrator')
+            : Roles.includes(storageActiveRole as PersonnelRole)
+            ? (storageActiveRole as PersonnelRole | 'administrator')
+            : Roles[0]
+        );
+      })
       .catch(() => {
         const notif = new useNotification();
         notif.notify({ render: 'verifyingAuth' });
