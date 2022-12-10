@@ -1,0 +1,31 @@
+{
+        admin off
+}
+
+skeleton.squoolr.com, skeleton.social {
+        reverse_proxy localhost:82
+}
+
+skeleton.api.squoolr.com, api.skeleton.social {
+        reverse_proxy localhost:81
+}
+
+api.squoolr.com {
+        reverse_proxy localhost:83
+}
+
+admin.squoolr.com {
+        reverse_proxy localhost:85
+}
+
+squoolr.com {
+        reverse_proxy localhost:84
+}
+
+app.squoolr.com {
+        reverse_proxy localhost:86
+}
+
+student.squoolr.com {
+        reverse_proxy localhost:87
+}
