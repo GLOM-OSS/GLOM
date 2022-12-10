@@ -19,6 +19,7 @@ import {
   getTeacher as fetchTeacher,
   getTeacherGrades,
   getTeacherTypes,
+  getUser,
 } from '@squoolr/api-services';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { theme } from '@squoolr/theme';
@@ -310,6 +311,14 @@ export default function TeacherDialog({
             error={Boolean(formik.touched.email && formik.errors.email)}
             helperText={formik.touched.email && formik.errors.email}
             {...formik.getFieldProps('email')}
+            onChange={(e) => {
+              const email = e.target.value;
+              if (email !== '')
+                getUser(e.target.value).then((person) => {
+                  if (person) formik.setValues(person);
+                });
+              formik.handleChange(e);
+            }}
           />
           <TextField
             disabled={

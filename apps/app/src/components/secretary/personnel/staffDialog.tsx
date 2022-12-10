@@ -341,11 +341,7 @@ export default function StaffDialog({
               sx={{ justifySelf: 'center' }}
               control={
                 <Switch
-                  disabled={
-                    !isEditDialog ||
-                    (activePersonnel !== undefined &&
-                      !activePersonnel.is_archived)
-                  }
+                  disabled={!isEditDialog || !activePersonnel}
                   defaultChecked={!formik.values.is_archived}
                   onChange={(event) =>
                     formik.setFieldValue('is_archived', !event.target.checked)
