@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@mui/material';
 import { theme } from '@squoolr/theme';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useUser } from '../contexts/UserContextProvider';
 import { PersonnelRole } from '../lib/interfaces';
@@ -16,30 +16,15 @@ import { PersonnelRole } from '../lib/interfaces';
 export default function UserLayoutDisplay({
   selectRole,
   activeRole,
+  userRoles,
 }: {
   selectRole: (item: PersonnelRole) => void;
   activeRole?: PersonnelRole | 'administrator';
+  userRoles: PersonnelRole[];
 }) {
   const intl = useIntl();
   const { formatMessage } = intl;
-  const {
-    first_name,
-    image_ref,
-    annualConfigurator,
-    annualRegistry,
-    annualTeacher,
-  } = useUser();
-
-  const [userRoles, setUserRoles] = useState<PersonnelRole[]>([]);
-  useEffect(() => {
-    const newRoles: (PersonnelRole | undefined)[] = [
-      annualConfigurator ? 'secretary' : undefined,
-      annualRegistry ? 'registry' : undefined,
-      annualTeacher ? 'teacher' : undefined,
-    ];
-    setUserRoles(newRoles.filter((_) => _ !== undefined) as PersonnelRole[]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { first_name, image_ref } = useUser();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -79,7 +64,7 @@ export default function UserLayoutDisplay({
             }
           >
             <Typography variant="caption">
-              {formatMessage({ id: activeRole || 'loading' }) }
+              {formatMessage({ id: activeRole || 'loading' })}
             </Typography>
             {userRoles &&
               userRoles.length > 0 &&

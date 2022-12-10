@@ -45,6 +45,7 @@ export function Layout({
 
   const { userDispatch } = useUser();
 
+  const [userRoles, setUserRoles] = useState<PersonnelRole[]>([]);
   const [activeRole, setActiveRole] = useState<
     PersonnelRole | 'administrator'
   >();
@@ -128,6 +129,7 @@ export function Layout({
             (_) => _ !== undefined
           ) as PersonnelRole[];
           if (Roles.length === 0) navigate('/');
+          setUserRoles(Roles)
           setActiveRole(
             callingApp === 'admin'
               ? 'administrator'
@@ -275,6 +277,7 @@ export function Layout({
           </IconButton>
 
           <UserLayoutDisplay
+            userRoles={userRoles}
             activeRole={activeRole}
             selectRole={(newRole: PersonnelRole) =>
               handleSwapRole && handleSwapRole(newRole)

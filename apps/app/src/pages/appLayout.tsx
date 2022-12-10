@@ -36,7 +36,10 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
   return (
     <MainLayout
       callingApp="personnel"
-      navItems={[{ role: 'secretary', navItems: navItems }]}
+      navItems={[
+        { role: 'registry', navItems: navItems },
+        { role: 'secretary', navItems: navItems },
+      ]}
     />
   );
 }
