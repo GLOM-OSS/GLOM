@@ -2,6 +2,7 @@ import { Typography } from '@mui/material';
 import { Navigate } from 'react-router';
 import Classrooms from '../components/secretary/classrooms';
 import AppLayout from '../pages/appLayout';
+import ModulesManagement from '../pages/coordinator/modulesManagement';
 import Departments from '../pages/secretary/departments';
 import Majors from '../pages/secretary/majors';
 import NewAcademicYear from '../pages/secretary/newAcademicYear';
@@ -58,7 +59,7 @@ export const routes = [
     children: [
       {
         path: 'subjects-and-modules',
-        element: <Typography>Subjects and modules page</Typography>,
+        element: <ModulesManagement />,
       },
       { path: '*', element: <Navigate to="/" /> },
     ],

@@ -43,19 +43,29 @@ export function Layout({
     useState<NavChild>();
   const { activeYear } = useUser();
 
+  const navigate = useNavigate();
+  const location = useLocation();
+  const intl = useIntl();
+  const { formatMessage } = intl;
+
+  const handleSwapRole = (newRole: PersonnelRole) => {
+    setActiveRole(newRole);
+    localStorage.setItem('activeRole', newRole);
+  };
+
   const { userDispatch } = useUser();
 
   const [userRoles, setUserRoles] = useState<PersonnelRole[]>([]);
   const [activeRole, setActiveRole] = useState<
     PersonnelRole | 'administrator'
   >();
-  const handleSwapRole = (newRole: PersonnelRole) => setActiveRole(newRole);
 
   const [roleNavigationItems, setRoleNavigationItems] = useState<NavItem[]>([]);
 
   useEffect(() => {
     const RoleNavItems = navItems.find(({ role }) => role === activeRole);
-    setRoleNavigationItems(RoleNavItems ? RoleNavItems.navItems : []);
+    if (RoleNavItems) setRoleNavigationItems(RoleNavItems.navItems);
+    else navigate('/');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRole]);
 
@@ -130,15 +140,27 @@ export function Layout({
             annualConfigurator ? 'secretary' : undefined,
             annualRegistry ? 'registry' : undefined,
             annualTeacher ? 'teacher' : undefined,
+            annualTeacher?.coordinates && annualTeacher.coordinates.length > 0
+              ? 'coordinator'
+              : undefined,
           ];
           const Roles: PersonnelRole[] = newRoles.filter(
             (_) => _ !== undefined
           ) as PersonnelRole[];
           if (Roles.length === 0) navigate('/');
-          setUserRoles(Roles)
+          setUserRoles(Roles);
+          
+          const x = localStorage.getItem('activeRole');
+          const storageActiveRole = x ?? '';
+          const routeRole = location.pathname.split('/')[1];
+
           setActiveRole(
             callingApp === 'admin'
               ? 'administrator'
+              : Roles.includes(routeRole as PersonnelRole)
+              ? (routeRole as PersonnelRole | 'administrator')
+              : Roles.includes(storageActiveRole as PersonnelRole)
+              ? (storageActiveRole as PersonnelRole | 'administrator')
               : Roles.sort((a, b) => (a > b ? 1 : -1))[0]
           );
         }
@@ -169,11 +191,6 @@ export function Layout({
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const navigate = useNavigate();
-  const location = useLocation();
-  const intl = useIntl();
-  const { formatMessage } = intl;
 
   const [notifications, setNotifications] = useState<useNotification[]>();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -435,7 +452,7 @@ export function Layout({
                               : null
                             : navigate(
                                 `/${pathnameArray
-                                  .slice(0, index + 1)
+                                  .slice(0, index + 2)
                                   .join('/')}`
                               )
                         }
