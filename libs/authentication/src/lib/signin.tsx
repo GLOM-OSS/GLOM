@@ -73,13 +73,13 @@ export function Signin({
             render: formatMessage({ id: 'signinSuccess' }),
           });
           if (academic_years) {
+            console.log('Hello world 1');
             setAcademicYears(academic_years);
             setIsAcademicYearDialogOpen(true);
           } else {
             navigate(
-              localStorage.getItem('previousRoute') ?? callingApp === 'admin'
-                ? '/management'
-                : '/configurations'
+              localStorage.getItem('previousRoute') ??
+                (callingApp === 'admin' ? '/management' : '/configurations')
             );
             userDispatch({ type: 'LOAD_USER', payload: { user } });
             resetForm();
