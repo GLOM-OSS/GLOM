@@ -165,13 +165,16 @@ model AcademicYear {
     created_by         String?             @db.VarChar(36)
     AnnualConfigurator AnnualConfigurator? @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AnnualRegistries    AnnualRegistry[]
-    AnnualTeachers      AnnualTeacher[]
-    AnnualStudents      AnnualStudent[]
-    AnnualMajors        AnnualMajor[]
-    AnnualClassrooms    AnnualClassroom[]
-    AnnualConfigurators AnnualConfigurator[] @relation(name: "Configurator_AcademiqueYear")
-    AnnualCreditUnits   AnnualCreditUnit[]
+    AnnualRegistries               AnnualRegistry[]
+    AnnualTeachers                 AnnualTeacher[]
+    AnnualStudents                 AnnualStudent[]
+    AnnualMajors                   AnnualMajor[]
+    AnnualClassrooms               AnnualClassroom[]
+    AnnualConfigurators            AnnualConfigurator[]            @relation(name: "Configurator_AcademiqueYear")
+    AnnualCreditUnits              AnnualCreditUnit[]
+    AnnualCarryOverSytems          AnnualCarryOverSytem[]
+    AnnualMinimumModulationScores  AnnualMinimumModulationScore[]
+    AnnualEvaluationTypeWeightings AnnualEvaluationTypeWeighting[]
 }
 
 model Login {
@@ -283,7 +286,13 @@ model AnnualRegistry {
     login_id           String
     Login              Login              @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AnnualRegistryAudits AnnualRegistryAudit[]
+    AnnualRegistryAudits                AnnualRegistryAudit[]
+    AnnualCarryOverSytems               AnnualCarryOverSytem[]
+    AnnualCarryOverSytemAudits          AnnualCarryOverSytemAudit[]
+    AnnualMinimumModulationScore        AnnualMinimumModulationScore[]
+    AnnualMinimumModulationScoreAudits  AnnualMinimumModulationScoreAudit[]
+    AnnualEvaluationTypeWeightings      AnnualEvaluationTypeWeighting[]
+    AnnualEvaluationTypeWeightingAudits AnnualEvaluationTypeWeightingAudit[]
 
     @@unique([login_id, matricule])
     @@unique([login_id, academic_year_id])
@@ -466,8 +475,9 @@ model Cycle {
     number_of_years Int
     created_at      DateTime  @default(now()) @db.DateTime(0)
 
-    Majors      Major[]
-    MajorAudits MajorAudit[]
+    Majors                        Major[]
+    MajorAudits                   MajorAudit[]
+    AnnualMinimumModulationScores AnnualMinimumModulationScore[]
 }
 
 model Major {
@@ -613,19 +623,19 @@ model AnnualClassroomDivisionAudit {
 }
 
 model AnnualCreditUnit {
-    annual_credit_unit_id       String                       @id @default(uuid()) @db.VarChar(36)
-    credit_unit_code            String                       @db.VarChar(45)
-    ccredit_unit_name           String                       @db.VarChar(45)
-    credit_points               Int
-    semester_number             Int
-    is_deleted                  Boolean                      @default(false) @db.TinyInt
-    major_id                    String
-    Major                       Major                        @relation(fields: [major_id], references: [major_id], onDelete: Cascade, onUpdate: Cascade)
-    academic_year_id            String                       @db.VarChar(36)
-    AcademicYear                AcademicYear                 @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
-    created_by                  String
-    AnnualTeacher               AnnualTeacher                @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
-    
+    annual_credit_unit_id String        @id @default(uuid()) @db.VarChar(36)
+    credit_unit_code      String        @db.VarChar(45)
+    ccredit_unit_name     String        @db.VarChar(45)
+    credit_points         Int
+    semester_number       Int
+    is_deleted            Boolean       @default(false) @db.TinyInt
+    major_id              String
+    Major                 Major         @relation(fields: [major_id], references: [major_id], onDelete: Cascade, onUpdate: Cascade)
+    academic_year_id      String        @db.VarChar(36)
+    AcademicYear          AcademicYear  @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    created_by            String
+    AnnualTeacher         AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+
     AnnualCreditUnitAudits      AnnualCreditUnitAudit[]
     AnnualCreditUnitHasSubjects AnnualCreditUnitHasSubject[]
 }
@@ -653,28 +663,28 @@ model Subject {
 }
 
 model SubjectPart {
-    subject_part_id             String                       @id @default(uuid()) @db.VarChar(36)
-    subject_part_name           String                       @db.VarChar(45)
-    created_at                              DateTime                   @default(now()) @db.DateTime(0)
-    
+    subject_part_id   String   @id @default(uuid()) @db.VarChar(36)
+    subject_part_name String   @db.VarChar(45)
+    created_at        DateTime @default(now()) @db.DateTime(0)
+
     AnnualCreditUnitHasSubjects AnnualCreditUnitHasSubject[]
 }
 
 model AnnualCreditUnitHasSubject {
-    annual_credit_unit_has_subject_id String                            @id @default(uuid()) @db.VarChar(36)
-    objective                         String                            @db.MediumText
+    annual_credit_unit_has_subject_id String           @id @default(uuid()) @db.VarChar(36)
+    objective                         String           @db.MediumText
     weighting                         Int
     number_of_hours                   Int
-    is_deleted                        Boolean                           @db.TinyInt
-    created_at                        DateTime                          @default(now()) @db.DateTime(0)
-    annual_credit_unit_id             String                            @db.VarChar(36)
-    AnnualCreditUnit                  AnnualCreditUnit                  @relation(fields: [annual_credit_unit_id], references: [annual_credit_unit_id], onDelete: Cascade, onUpdate: Cascade)
+    is_deleted                        Boolean          @db.TinyInt
+    created_at                        DateTime         @default(now()) @db.DateTime(0)
+    annual_credit_unit_id             String           @db.VarChar(36)
+    AnnualCreditUnit                  AnnualCreditUnit @relation(fields: [annual_credit_unit_id], references: [annual_credit_unit_id], onDelete: Cascade, onUpdate: Cascade)
     created_by                        String
-    AnnualTeacher                     AnnualTeacher                     @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
-    subject_part_id                   String                            @db.VarChar(36)
-    SubjectPart                       SubjectPart                       @relation(fields: [subject_part_id], references: [subject_part_id], onDelete: Cascade, onUpdate: Cascade)
-    
-    AnnualCreditUnitHasSubjectAudits  AnnualCreditUnitHasSubjectAudit[]
+    AnnualTeacher                     AnnualTeacher    @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    subject_part_id                   String           @db.VarChar(36)
+    SubjectPart                       SubjectPart      @relation(fields: [subject_part_id], references: [subject_part_id], onDelete: Cascade, onUpdate: Cascade)
+
+    AnnualCreditUnitHasSubjectAudits AnnualCreditUnitHasSubjectAudit[]
 }
 
 model AnnualCreditUnitHasSubjectAudit {
@@ -688,4 +698,117 @@ model AnnualCreditUnitHasSubjectAudit {
     AnnualTeacher                           AnnualTeacher              @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
     annual_credit_unit_has_subject_id       String                     @db.VarChar(36)
     AnnualCreditUnit                        AnnualCreditUnitHasSubject @relation(fields: [annual_credit_unit_has_subject_id], references: [annual_credit_unit_has_subject_id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+enum CarryOverSystemEnum {
+    SUBJECT
+    CREDIT_UNIT
+
+    @@map("carry_over_system_enum")
+}
+
+model AnnualCarryOverSytem {
+    annual_carry_over_system_id String              @id @default(uuid()) @db.VarChar(36)
+    carry_over_system           CarryOverSystemEnum
+    created_at                  DateTime            @default(now()) @db.DateTime(0)
+    academic_year_id            String              @db.VarChar(36)
+    AcademicYear                AcademicYear        @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    created_by                  String
+    AnnualRegistry              AnnualRegistry      @relation(fields: [created_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
+
+    AnnualCarryOverSytemAudits AnnualCarryOverSytemAudit[]
+}
+
+model AnnualCarryOverSytemAudit {
+    annual_carry_over_system_audit_id String               @id @default(uuid()) @db.VarChar(36)
+    carry_over_system                 CarryOverSystemEnum
+    created_at                        DateTime             @default(now()) @db.DateTime(0)
+    annual_carry_over_system_id       String               @db.VarChar(36)
+    AnnualCarryOverSystem             AnnualCarryOverSytem @relation(fields: [annual_carry_over_system_id], references: [annual_carry_over_system_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by                        String
+    AnnualRegistry                    AnnualRegistry       @relation(fields: [audited_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model AnnualMinimumModulationScore {
+    annual_minimummodulation_score_id String         @id @default(uuid()) @db.VarChar(36)
+    score                             Int
+    configured_at                     DateTime       @default(now()) @db.DateTime(0)
+    cycle_id                          String
+    Cycle                             Cycle          @relation(fields: [cycle_id], references: [cycle_id], onDelete: Cascade, onUpdate: Cascade)
+    academic_year_id                  String         @db.VarChar(36)
+    AcademicYear                      AcademicYear   @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    configured_by                     String
+    AnnualRegistry                    AnnualRegistry @relation(fields: [configured_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
+
+    AnnualMinimumModulationScoreAudits AnnualMinimumModulationScoreAudit[]
+}
+
+model AnnualMinimumModulationScoreAudit {
+    annual_minimummodulation_score_audit_id String                       @id @default(uuid()) @db.VarChar(36)
+    score                                   Int
+    configured_at                           DateTime                     @default(now()) @db.DateTime(0)
+    annual_minimummodulation_score_id       String                       @db.VarChar(36)
+    AnnualMinimumModulationScore            AnnualMinimumModulationScore @relation(fields: [annual_minimummodulation_score_id], references: [annual_minimummodulation_score_id], onDelete: Cascade, onUpdate: Cascade)
+    configured_by                           String
+    AnnualRegistry                          AnnualRegistry               @relation(fields: [configured_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+enum EvaluationTypeEnum {
+    CA
+    EXAM
+
+    @@map("evaluation_type_enum")
+}
+
+model EvaluationType {
+    evaluation_type_id String             @id @default(uuid()) @db.VarChar(36)
+    evaluation_type    EvaluationTypeEnum
+    created_at         DateTime           @default(now()) @db.DateTime(0)
+
+    AnnualEvaluationTypeWeightings      AnnualEvaluationTypeWeighting[]
+    AnnualEvaluationSubTypes            AnnualEvaluationSubType[]
+    AnnualEvaluationTypeWeightingAudits AnnualEvaluationTypeWeightingAudit[]
+}
+
+model AnnualEvaluationTypeWeighting {
+    annual_evaluation_type_weighting_id String         @id @default(uuid()) @db.VarChar(36)
+    weight                              Int
+    created_at                          DateTime       @default(now()) @db.DateTime(0)
+    academic_year_id                    String         @db.VarChar(36)
+    AcademicYear                        AcademicYear   @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    evaluation_type_id                  String
+    EvaluationType                      EvaluationType @relation(fields: [evaluation_type_id], references: [evaluation_type_id], onDelete: Cascade, onUpdate: Cascade)
+    created_by                          String
+    AnnualRegistry                      AnnualRegistry @relation(fields: [created_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
+
+    AnnualEvaluationTypeWeightingAudits AnnualEvaluationTypeWeightingAudit[]
+}
+
+model AnnualEvaluationTypeWeightingAudit {
+    annual_evaluation_type_weighting_audit_id String                        @id @default(uuid()) @db.VarChar(36)
+    weight                                    Int
+    created_at                                DateTime                      @default(now()) @db.DateTime(0)
+    evaluation_type_id                        String
+    EvaluationType                            EvaluationType                @relation(fields: [evaluation_type_id], references: [evaluation_type_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_evaluation_type_weighting_id       String                        @db.VarChar(36)
+    AnnualEvaluationTypeWeighting             AnnualEvaluationTypeWeighting @relation(fields: [annual_evaluation_type_weighting_id], references: [annual_evaluation_type_weighting_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by                                String
+    AnnualRegistry                            AnnualRegistry                @relation(fields: [audited_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model AnnualEvaluationSubType {
+    annual_evaluation_sub_type_id String                         @id @default(uuid()) @db.VarChar(36)
+    evaluation_sub_type_name      String                         @db.VarChar(45)
+    evaluation_sub_type_weight    Int
+    evaluation_type_id            String
+    EvaluationType                EvaluationType                 @relation(fields: [evaluation_type_id], references: [evaluation_type_id], onDelete: Cascade, onUpdate: Cascade)
+    AnnualEvaluationSubTypeAudits AnnualEvaluationSubTypeAudit[]
+}
+
+model AnnualEvaluationSubTypeAudit {
+    annual_evaluation_sub_type_audit_id String                  @id @default(uuid()) @db.VarChar(36)
+    evaluation_sub_type_name            String                  @db.VarChar(45)
+    evaluation_sub_type_weight          Int
+    annual_evaluation_sub_type_id       String
+    AnnualEvaluationSubType             AnnualEvaluationSubType @relation(fields: [annual_evaluation_sub_type_id], references: [annual_evaluation_sub_type_id], onDelete: Cascade, onUpdate: Cascade)
 }
