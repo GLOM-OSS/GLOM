@@ -158,7 +158,7 @@ export function Layout({
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
         localStorage.setItem('previousRoute', location.pathname);
-        navigate('/');
+        // navigate('/'); //TODO ACTIVATE THIS FOR PRODUCTION environment
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
