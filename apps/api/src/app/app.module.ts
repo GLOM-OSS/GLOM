@@ -10,7 +10,7 @@ import { randomUUID } from 'crypto';
 import * as session from 'express-session';
 import * as passport from 'passport';
 import { createClient } from 'redis';
-import * as csurf from 'csurf';
+// import * as csurf from 'csurf';
 import helmet from 'helmet';
 
 import { PrismaModule } from '../prisma/prisma.module';
@@ -20,6 +20,7 @@ import { AppMiddleware } from './app.middleware';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ConfiguratorModule } from './configurator/configurator.module';
+import { CoordinatorModule } from './coordinator/coordinator.module';
 import { DemandModule } from './demand/demand.module';
 
 @Module({
@@ -37,6 +38,7 @@ import { DemandModule } from './demand/demand.module';
     AuthModule,
     DemandModule,
     ConfiguratorModule,
+    CoordinatorModule,
   ],
   controllers: [AppController],
   providers: [
