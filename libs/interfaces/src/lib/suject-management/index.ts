@@ -1,3 +1,9 @@
+export interface UEMajor {
+  major_id: string;
+  major_name: string;
+  number_of_years: string;
+}
+
 export interface CreateCreditUnit {
   major_id: string;
   credit_unit_code: string;
