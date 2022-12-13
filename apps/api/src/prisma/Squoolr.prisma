@@ -659,7 +659,7 @@ model AnnualCreditUnitAudit {
     credit_unit_name            String           @db.VarChar(45)
     credit_points               Int
     semester_number             Int
-    is_deleted                  Boolean          @default(false) @db.TinyInt
+    is_deleted                  Boolean          @db.TinyInt
     audited_at                  DateTime         @default(now()) @db.DateTime(0)
     annual_credit_unit_id       String           @db.VarChar(36)
     AnnualCreditUnit            AnnualCreditUnit @relation(fields: [annual_credit_unit_id], references: [annual_credit_unit_id], onDelete: Cascade, onUpdate: Cascade)
@@ -706,7 +706,7 @@ model AnnualCreditUnitHasSubjectAudit {
     objective                               String                     @db.MediumText
     weighting                               Int
     number_of_hours                         Int
-    is_deleted                              Boolean                    @default(false) @db.TinyInt
+    is_deleted                              Boolean                    @db.TinyInt
     audited_at                              DateTime                   @default(now()) @db.DateTime(0)
     audited_by                              String                     @db.VarChar(36)
     AnnualTeacher                           AnnualTeacher              @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
@@ -882,7 +882,7 @@ model AnnualGradeWeightingAudit {
     maximum                         Int
     point                           Int
     observation                     String               @db.MediumText
-    is_deleted                      Boolean              @default(false) @db.TinyInt
+    is_deleted                      Boolean              @db.TinyInt
     audited_at                      DateTime             @default(now()) @db.DateTime(0)
     annual_grade_weighting_id       String               @db.VarChar(36)
     AnnualGradeWeighting            AnnualGradeWeighting @relation(fields: [annual_grade_weighting_id], references: [annual_grade_weighting_id], onDelete: Cascade, onUpdate: Cascade)
@@ -911,7 +911,7 @@ model AnnualAcademicProfileAudit {
     minimum_score                    Int
     maximum_score                    Int
     comment                          String                @db.VarChar(25)
-    is_deleted                       Boolean               @default(false) @db.TinyInt
+    is_deleted                       Boolean               @db.TinyInt
     audited_at                       DateTime              @default(now()) @db.DateTime(0)
     annual_academic_profile_id       String                @db.VarChar(36)
     AnnualAcademicProfile            AnnualAcademicProfile @relation(fields: [annual_academic_profile_id], references: [annual_academic_profile_id], onDelete: Cascade, onUpdate: Cascade)
