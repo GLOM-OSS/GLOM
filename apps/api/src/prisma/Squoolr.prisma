@@ -668,12 +668,14 @@ model AnnualCreditUnitAudit {
 }
 
 model Subject {
-    subject_id    String    @id @default(uuid()) @db.VarChar(36)
-    subject_code  String    @db.VarChar(45)
-    subject_title String    @db.VarChar(45)
-    is_deleted    Boolean   @default(false) @db.TinyInt
-    created_at    DateTime  @default(now()) @db.DateTime(0)
-    deleted_at    DateTime? @db.DateTime(0)
+    subject_id                 String                       @id @default(uuid()) @db.VarChar(36)
+    subject_code               String                       @db.VarChar(45)
+    subject_title              String                       @db.VarChar(45)
+    is_deleted                 Boolean                      @default(false) @db.TinyInt
+    created_at                 DateTime                     @default(now()) @db.DateTime(0)
+    deleted_at                 DateTime?                    @db.DateTime(0)
+
+    AnnualCreditUnitHasSubjects AnnualCreditUnitHasSubject[]
 }
 
 model SubjectPart {
@@ -697,6 +699,8 @@ model AnnualCreditUnitHasSubject {
     AnnualTeacher                     AnnualTeacher    @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
     subject_part_id                   String           @db.VarChar(36)
     SubjectPart                       SubjectPart      @relation(fields: [subject_part_id], references: [subject_part_id], onDelete: Cascade, onUpdate: Cascade)
+    subject_id                        String           @db.VarChar(36)
+    Subject                           Subject          @relation(fields: [subject_id], references: [subject_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualCreditUnitHasSubjectAudits AnnualCreditUnitHasSubjectAudit[]
 }

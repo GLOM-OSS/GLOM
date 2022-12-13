@@ -22,6 +22,7 @@ import {
   CreditUnitPostDto,
   CreditUnitPutDto,
   CreditUnitQuery,
+  CreditUnitSubjectPostDto,
 } from '../coordinator.dto';
 import { ERR07, ERR08 } from '../../../errors';
 
@@ -126,6 +127,22 @@ export class CreditUnitController {
       annual_credit_unit_id,
       { is_deleted: true },
       annual_teacher_id
+    );
+  }
+
+  @Post('subjects/new')
+  async createCreditUnitSubject(
+    @Req() request: Request,
+    @Body() newCreditUnitSubject: CreditUnitSubjectPostDto
+  ) {
+    const {
+      school_id,
+      activeYear: { academic_year_id },
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    return this.creditUnitService.createCreditUnitSubject(
+      newCreditUnitSubject,
+      { school_id, academic_year_id, annual_teacher_id }
     );
   }
 }

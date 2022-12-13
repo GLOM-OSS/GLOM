@@ -1,5 +1,13 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  ArrayMinSize,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  ValidateNested,
+} from 'class-validator';
 
 export class CreditUnitQuery {
   @IsUUID()
@@ -36,3 +44,45 @@ export class CreditUnitPostDto {
 }
 
 export class CreditUnitPutDto extends PartialType(CreditUnitPostDto) {}
+
+export class SubjectPart {
+  @ApiProperty()
+  @IsString()
+  subject_part_id: string;
+
+  @ApiProperty()
+  @IsString()
+  number_of_hours: number;
+}
+
+export class CreditUnitSubjectPostDto {
+  @ApiProperty()
+  @IsNumber()
+  weighting: number;
+
+  @ApiProperty()
+  @IsNumber()
+  credit_points: number;
+
+  @ApiProperty()
+  @IsString()
+  annual_credit_unit_id: string;
+
+  @ApiProperty()
+  @IsString()
+  subject_title: string;
+
+  @ApiProperty()
+  @IsUUID()
+  subject_code: string;
+
+  @ApiProperty()
+  @IsString()
+  objective: string;
+
+  @ApiProperty()
+  @ArrayMinSize(2)
+  @Type(() => SubjectPart)
+  @ValidateNested({ each: true })
+  subjectParts: SubjectPart[];
+}
