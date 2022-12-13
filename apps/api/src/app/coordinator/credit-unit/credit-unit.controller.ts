@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -109,6 +110,21 @@ export class CreditUnitController {
     await this.creditUnitService.updateCreditUnit(
       annual_credit_unit_id,
       updateData,
+      annual_teacher_id
+    );
+  }
+
+  @Delete(':annual_credit_unit_id/delete')
+  async deleteCreditUnit(
+    @Req() request: Request,
+    @Param('annual_credit_unit_id') annual_credit_unit_id: string
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    await this.creditUnitService.updateCreditUnit(
+      annual_credit_unit_id,
+      { is_deleted: true },
       annual_teacher_id
     );
   }

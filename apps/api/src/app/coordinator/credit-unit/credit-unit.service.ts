@@ -1,12 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { UEMajor } from '@squoolr/interfaces';
 import { AUTH404 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
 import {
-  CreditUnitPostDto,
-  CreditUnitPutDto,
-  CreditUnitQuery,
+  CreditUnitPostDto, CreditUnitQuery
 } from '../coordinator.dto';
 
 export interface MajorId {
@@ -40,6 +39,7 @@ export class CreditUnitService {
         },
       },
       where: {
+        is_deleted: false,
         OR: classroomDivisions.map((annual_classroom_division_id) => ({
           annual_classroom_division_id,
         })),
@@ -69,6 +69,7 @@ export class CreditUnitService {
     return this.prismaService.annualCreditUnit.findMany({
       where: {
         ...query,
+        is_deleted: false,
         Major: { Classrooms: { some: { OR: majorIds } } },
       },
     });
@@ -100,7 +101,7 @@ export class CreditUnitService {
 
   async updateCreditUnit(
     annual_credit_unit_id: string,
-    updateData: CreditUnitPutDto,
+    updateData: Prisma.AnnualCreditUnitUpdateInput,
     annual_teacher_id: string
   ) {
     const creditUnit = await this.prismaService.annualCreditUnit.findUnique({
