@@ -1,8 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UEMajor } from '@squoolr/interfaces';
+import { AUTH404 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
-import { CreditUnitPostDto, CreditUnitQuery } from '../coordinator.dto';
+import {
+  CreditUnitPostDto,
+  CreditUnitPutDto,
+  CreditUnitQuery,
+} from '../coordinator.dto';
 
 export interface MajorId {
   major_id: string;
@@ -93,5 +98,37 @@ export class CreditUnitService {
     });
   }
 
-  //   async updateCreditUnit(annual_credit_unit_id: string, data: )
+  async updateCreditUnit(
+    annual_credit_unit_id: string,
+    updateData: CreditUnitPutDto,
+    annual_teacher_id: string
+  ) {
+    const creditUnit = await this.prismaService.annualCreditUnit.findUnique({
+      select: {
+        is_deleted: true,
+        credit_points: true,
+        semester_number: true,
+        credit_unit_code: true,
+        credit_unit_name: true,
+      },
+      where: { annual_credit_unit_id },
+    });
+    if (!creditUnit)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Credi Unit')),
+        HttpStatus.NOT_FOUND
+      );
+    return this.prismaService.annualCreditUnit.update({
+      data: {
+        ...updateData,
+        AnnualCreditUnitAudits: {
+          create: {
+            ...creditUnit,
+            AnnualTeacher: { connect: { annual_teacher_id } },
+          },
+        },
+      },
+      where: { annual_credit_unit_id },
+    });
+  }
 }

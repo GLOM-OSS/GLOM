@@ -43,7 +43,7 @@ export const AUTH401 = {
   Fr: 'Adresse mail ou mot de passe incorrect.',
 };
 export const AUTH404 = (search: string) => ({
-  En: `"${search} not found.`,
+  En: `${search} not found.`,
   Fr: `${search} introuvable`,
 });
 export const sAUTH404 = {

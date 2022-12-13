@@ -4,7 +4,9 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Param,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -15,7 +17,11 @@ import { Request } from 'express';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import { CreditUnitService } from './credit-unit.service';
-import { CreditUnitPostDto, CreditUnitQuery } from '../coordinator.dto';
+import {
+  CreditUnitPostDto,
+  CreditUnitPutDto,
+  CreditUnitQuery,
+} from '../coordinator.dto';
 import { ERR07, ERR08 } from '../../../errors';
 
 @Controller()
@@ -78,5 +84,32 @@ export class CreditUnitController {
       academic_year_id,
       annual_teacher_id,
     });
+  }
+
+  @Put(':annual_credit_unit_id/edit')
+  async updateCreditUnit(
+    @Req() request: Request,
+    @Param('annual_credit_unit_id') annual_credit_unit_id: string,
+    @Body() updateData: CreditUnitPutDto
+  ) {
+    const {
+      preferred_lang,
+      annualTeacher: { classroomDivisions, annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    const majorIds = await this.creditUnitService.getCoordinatorMajors(
+      classroomDivisions
+    );
+    const creditUnitMajor = majorIds.find(
+      (_) => _.major_id === updateData.major_id
+    );
+    if (!creditUnitMajor)
+      throw new HttpException(ERR07[preferred_lang], HttpStatus.FORBIDDEN);
+    if (updateData.semester_number > creditUnitMajor.number_of_years * 2)
+      throw new HttpException(ERR08[preferred_lang], HttpStatus.FORBIDDEN);
+    await this.creditUnitService.updateCreditUnit(
+      annual_credit_unit_id,
+      updateData,
+      annual_teacher_id
+    );
   }
 }
