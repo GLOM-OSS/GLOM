@@ -121,4 +121,30 @@ export class CodeGeneratorService {
         );
     }
   }
+
+  async getCreditUnitCode(school_id: string, acronym: string) {
+    const { school_acronym } = await this.prismaService.school.findUnique({
+      select: { school_acronym: true },
+      where: { school_id },
+    });
+    const startsWith = `UE${school_acronym}${acronym}`;
+    const numberOfUEs = await this.prismaService.annualCreditUnit.count({
+      where: { credit_unit_code: { startsWith } },
+    });
+
+    return `${startsWith}${this.getNumberString(numberOfUEs) + 1}`;
+  }
+
+  async getCreditUnitSubjectCode(school_id: string, acronym: string) {
+    const { school_acronym } = await this.prismaService.school.findUnique({
+      select: { school_acronym: true },
+      where: { school_id },
+    });
+    const startsWith = `UV${school_acronym}${acronym}`;
+    const numberOfUVs = await this.prismaService.subject.count({
+      where: { subject_code: { startsWith } },
+    });
+
+    return `${startsWith}${this.getNumberString(numberOfUVs) + 1}`;
+  }
 }
