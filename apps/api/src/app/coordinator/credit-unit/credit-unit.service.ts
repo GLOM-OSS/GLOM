@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UEMajor } from '@squoolr/interfaces';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
-import { CreditUnitQuery } from '../coordinator.dto';
+import { CreditUnitPostDto, CreditUnitQuery } from '../coordinator.dto';
 
 export interface MajorId {
   major_id: string;
@@ -68,4 +68,30 @@ export class CreditUnitService {
       },
     });
   }
+
+  async createCreditUnit(
+    { major_id, credit_unit_code, ...newCreditUnit }: CreditUnitPostDto,
+    metaData: {
+      school_id: string;
+      academic_year_id: string;
+      annual_teacher_id: string;
+    }
+  ) {
+    const { academic_year_id, annual_teacher_id, school_id } = metaData;
+
+    return this.prismaService.annualCreditUnit.create({
+      data: {
+        ...newCreditUnit,
+        Major: { connect: { major_id } },
+        AcademicYear: { connect: { academic_year_id } },
+        credit_unit_code: await this.codeGenerator.getCreditUnitCode(
+          school_id,
+          credit_unit_code
+        ),
+        AnnualTeacher: { connect: { annual_teacher_id } },
+      },
+    });
+  }
+
+  //   async updateCreditUnit(annual_credit_unit_id: string, data: )
 }

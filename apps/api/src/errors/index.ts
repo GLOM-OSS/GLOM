@@ -92,3 +92,11 @@ export const ERR06 = {
   En: `Sorry, there is an overlap of academic years`,
   Fr: `Désolé, Il y a chevauchement des annees academiques`,
 };
+export const ERR07 = {
+  En: `Sorry, you can only create UE or UV in the fields you belong to.`,
+  Fr: `Désolé, vous ne pouvez creer d'UE ou D'UV que dans les filières auxquelles vous appartenez`,
+};
+export const ERR08 = {
+  En: `Semester number cannot be greater than it cycle total number of semester.`,
+  Fr: `Le numéro de semestre ne peut etre plus superieur au nombre total de semestres de son cycle.`,
+};
