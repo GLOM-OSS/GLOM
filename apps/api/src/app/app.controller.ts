@@ -15,7 +15,7 @@ export class AppController {
   async getCycles() {
     return { cycles: await this.appService.getCycles() };
   }
-  
+
   @Get('teacher-types')
   async getTeacherTypes() {
     return { teacher_types: await this.appService.getTeacherTypes() };
@@ -24,5 +24,10 @@ export class AppController {
   @Get('teacher-grades')
   async getTeacherGrades() {
     return { teacher_grades: await this.appService.getTeacherGrades() };
+  }
+
+  @Get('evaluation-types')
+  async getEvalutaionTpes() {
+    return { evaluation_types: await this.appService.getEvaluationTypes() };
   }
 }
