@@ -2,7 +2,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  UnauthorizedException
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AcademicYearStatus, Login } from '@prisma/client';
 import { CronJobEvents, TasksService } from '@squoolr/tasks';
@@ -15,7 +15,7 @@ import {
   DesirializeRoles,
   PassportSession,
   Role,
-  UserRole
+  UserRole,
 } from '../../utils/types';
 
 @Injectable()
@@ -31,8 +31,8 @@ export class AuthService {
   private annualStudentService: typeof this.prismaService.annualStudent;
   private annualTeacherService: typeof this.prismaService.annualTeacher;
   private annualRegistryService: typeof this.prismaService.annualRegistry;
-  private AnnualConfiguratorService: typeof this.prismaService.annualConfigurator;
-  private AnnualClassroomDivisionService: typeof this.prismaService.annualClassroomDivision;
+  private annualConfiguratorService: typeof this.prismaService.annualConfigurator;
+  private annualClassroomDivisionService: typeof this.prismaService.annualClassroomDivision;
 
   constructor(
     private prismaService: PrismaService,
@@ -49,7 +49,8 @@ export class AuthService {
     this.annualStudentService = prismaService.annualStudent;
     this.annualTeacherService = prismaService.annualTeacher;
     this.annualRegistryService = prismaService.annualRegistry;
-    this.AnnualConfiguratorService = prismaService.annualConfigurator;
+    this.annualConfiguratorService = prismaService.annualConfigurator;
+    this.annualClassroomDivisionService = prismaService.annualClassroomDivision;
   }
 
   async validateUser(request: Request, email: string, password: string) {
@@ -236,7 +237,7 @@ export class AuthService {
       });
     } else {
       //check for annual configurator
-      const annualConfigurator = await this.AnnualConfiguratorService.findFirst(
+      const annualConfigurator = await this.annualConfiguratorService.findFirst(
         {
           where: {
             login_id,
@@ -293,9 +294,18 @@ export class AuthService {
           origin_institute,
           teacher_id,
         } = annualTeacher;
+        userRoles.push({
+          user_id: annual_teacher_id,
+          role: Role.TEACHER,
+        });
         const classroomDivisions =
-          await this.AnnualClassroomDivisionService.findMany({
+          await this.annualClassroomDivisionService.findMany({
             where: { annual_coordinator_id: annual_teacher_id },
+          });
+        if (classroomDivisions.length > 0)
+          userRoles.push({
+            user_id: annual_teacher_id,
+            role: Role.COORDINATOR,
           });
         availableRoles = {
           ...availableRoles,
@@ -310,10 +320,6 @@ export class AuthService {
             teacher_id,
           },
         };
-        userRoles.push({
-          user_id: annual_teacher_id,
-          role: Role.TEACHER,
-        });
       }
     }
     return { availableRoles, userRoles };
@@ -442,7 +448,7 @@ export class AuthService {
         switch (role) {
           case Role.CONFIGURATOR: {
             const { annual_configurator_id, is_sudo } =
-              await this.AnnualConfiguratorService.findFirst({
+              await this.annualConfiguratorService.findFirst({
                 where: {
                   annual_configurator_id: user_id,
                   is_deleted: false,
@@ -482,7 +488,7 @@ export class AuthService {
               },
             });
             const classroomDivisions =
-              await this.AnnualClassroomDivisionService.findMany({
+              await this.annualClassroomDivisionService.findMany({
                 where: { annual_coordinator_id: user_id },
               });
             deserialedUser = {
