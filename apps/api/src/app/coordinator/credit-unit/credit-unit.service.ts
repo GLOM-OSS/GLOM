@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UEMajor } from '@squoolr/interfaces';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
+import { CreditUnitQuery } from '../coordinator.dto';
 
 export interface MajorId {
   major_id: string;
@@ -57,5 +58,14 @@ export class CreditUnitService {
       }
     );
     return coordiantorMajors;
+  }
+
+  async getCreditUnits(majorIds: MajorId[], query: CreditUnitQuery) {
+    return this.prismaService.annualCreditUnit.findMany({
+      where: {
+        ...query,
+        Major: { Classrooms: { some: { OR: majorIds } } },
+      },
+    });
   }
 }
