@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Role } from './types';
 
@@ -49,18 +49,16 @@ export class CodeGeneratorService {
   }
 
   async getMajorCode(acronym: string, department_code: string) {
-    const numberOfMajors = await this.prismaService.annualMajor.findMany({
-      distinct: ['major_acronym'],
-      where: { major_acronym: acronym },
-    });
-
-
     const { department_acronym } =
       await this.prismaService.department.findUnique({
         where: { department_code },
       });
+    const major_acronym = `${department_acronym}${acronym}`;
+    const numberOfMajors = await this.prismaService.major.count({
+      where: { major_acronym },
+    });
     return `${department_acronym}${acronym}${this.getNumberString(
-      numberOfMajors.length + 1
+      numberOfMajors + 1
     )}`;
   }
 
@@ -78,45 +76,49 @@ export class CodeGeneratorService {
     )}`;
   }
 
-  async getTeacherCode(school_id: string) {
-    const { school_acronym } = await this.prismaService.school.findUnique({
-      select: { school_acronym: true },
-      where: { school_id },
-    });
-    const numberOfTeachers = await this.prismaService.teacher.count({
-      where: {
-        AnnualTeachers: {
-          some: {
-            Login: { school_id },
-          },
-        },
-      },
-    });
-    return `${school_acronym}TE${this.getNumberString(numberOfTeachers + 1)}`;
-  }
-
   async getPersonnelCode(school_id: string, role: Role) {
     const { school_acronym } = await this.prismaService.school.findUnique({
       select: { school_acronym: true },
       where: { school_id },
     });
-    let numberOfPersonnel = 0;
-    let personnelCode: string;
-    if (role === Role.REGISTRY) {
-      numberOfPersonnel = await this.prismaService.annualRegistry.count({
-        where: { Login: { school_id } },
-      });
-      personnelCode = `${school_acronym}SA${this.getNumberString(
-        numberOfPersonnel + 1
-      )}`;
-    } else if (role === Role.CONFIGURATOR) {
-      numberOfPersonnel = await this.prismaService.annualConfigurator.count({
-        where: { Login: { school_id } },
-      });
-      personnelCode = `${school_acronym}SE${this.getNumberString(
-        numberOfPersonnel + 1
-      )}`;
+    switch (role) {
+      case Role.REGISTRY: {
+        const numberOfRegistries =
+          await this.prismaService.annualRegistry.count({
+            where: { Login: { school_id } },
+          });
+        return `${school_acronym}SA${this.getNumberString(
+          numberOfRegistries + 1
+        )}`;
+      }
+      case Role.CONFIGURATOR: {
+        const numberOfConfigurators =
+          await this.prismaService.annualConfigurator.count({
+            where: { Login: { school_id } },
+          });
+        return `${school_acronym}SE${this.getNumberString(
+          numberOfConfigurators + 1
+        )}`;
+      }
+      case Role.TEACHER || Role.COORDINATOR: {
+        const numberOfTeachers = await this.prismaService.teacher.count({
+          where: {
+            AnnualTeachers: {
+              some: {
+                Login: { school_id },
+              },
+            },
+          },
+        });
+        return `${school_acronym}TE${this.getNumberString(
+          numberOfTeachers + 1
+        )}`;
+      }
+      default:
+        throw new HttpException(
+          `${role} is not handled yet. Please use only personnel role`,
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
-    return personnelCode;
   }
 }

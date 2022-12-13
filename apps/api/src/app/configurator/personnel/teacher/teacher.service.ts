@@ -1,11 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
 import { AUTH404, ERR03 } from '../../../../errors';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../../utils/code-generator';
-import * as bcrypt from 'bcrypt';
-import { randomUUID } from 'crypto';
+import { Role } from '../../../../utils/types';
 import { TeacherPostDto, TeacherPutDto } from '../../configurator.dto';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TeacherService {
@@ -79,7 +80,10 @@ export class TeacherService {
 
     const login_id = login?.login_id ?? randomUUID();
     const password = Math.random().toString(36).slice(2).toUpperCase();
-    const matricule = await this.codeGenerator.getTeacherCode(school_id);
+    const matricule = await this.codeGenerator.getPersonnelCode(
+      school_id,
+      Role.TEACHER
+    );
     const private_code = bcrypt.hashSync(
       this.codeGenerator.getNumberString(Math.floor(Math.random() * 10000)),
       Number(process.env.SALT)
