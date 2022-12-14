@@ -8,7 +8,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  TextField
+  TextField,
 } from '@mui/material';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import { CreditUnit, UEMajor } from '@squoolr/interfaces';
@@ -17,7 +17,7 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import CreditUnitLane, {
-  RowMenu
+  RowMenu,
 } from '../../components/coordinator/CreditUnitLane';
 
 export default function ModulesManagement() {
@@ -36,6 +36,7 @@ export default function ModulesManagement() {
     }
     setCreditUnitNotif(notif);
     setTimeout(() => {
+      //TODO: call api here to load creditUnits with data selectedMajor and selectedSemester
       if (6 > 5) {
         const newCreditUnits: CreditUnit[] = [
           {
@@ -81,6 +82,7 @@ export default function ModulesManagement() {
     }
     setMajorNotif(notif);
     setTimeout(() => {
+      //TODO: CALL API HERE TO LOAD MAJORS OF THE COORDINATOR
       if (6 > 5) {
         const newMajors: UEMajor[] = [
           { major_id: 'lsls', major_name: 'IRT', number_of_years: 2 },
