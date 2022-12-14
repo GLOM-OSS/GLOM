@@ -15,6 +15,7 @@ import { CreditUnit, UEMajor } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
+import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import CreditUnitLane, {
   RowMenu,
@@ -205,7 +206,9 @@ export default function ModulesManagement() {
         deleteMessage={formatMessage({ id: 'confirmDeleteCreditUnitMessage' })}
         isDialogOpen={isConfirmDeleteDialogOpen}
       />
-      <Box>
+      <Box
+        sx={{ display: 'grid', gridTemplateRows: 'auto 1fr', height: '100%' }}
+      >
         <Box
           sx={{
             display: 'grid',
@@ -276,7 +279,7 @@ export default function ModulesManagement() {
             ))}
           </TextField>
         </Box>
-        <Box>
+        <Scrollbars autoHide>
           <Table sx={{ minWidth: 650 }}>
             <TableHead
               sx={{
@@ -307,7 +310,7 @@ export default function ModulesManagement() {
                 ))}
             </TableBody>
           </Table>
-        </Box>
+        </Scrollbars>
       </Box>
     </>
   );
