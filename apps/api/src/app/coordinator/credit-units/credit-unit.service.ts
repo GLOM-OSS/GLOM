@@ -135,44 +135,4 @@ export class CreditUnitService {
       where: { annual_credit_unit_id },
     });
   }
-
-  async createCreditUnitSubject(
-    {
-      subjectParts,
-      subject_title,
-      subject_code,
-      ...newCreditUnitSubject
-    }: CreditUnitSubjectPostDto,
-    metaData: {
-      school_id: string;
-      annual_teacher_id: string;
-    }
-  ) {
-    const { school_id, annual_teacher_id } = metaData;
-    const newSubject: Prisma.SubjectCreateInput = {
-      subject_title,
-      subject_id: randomUUID(),
-      subject_code: await this.codeGenerator.getCreditUnitSubjectCode(
-        school_id,
-        subject_code
-      ),
-    };
-
-    const crediUnitHasSubjects: Prisma.AnnualCreditUnitHasSubjectCreateManyInput[] =
-      subjectParts.map(({ number_of_hours, subject_part_id }) => ({
-        number_of_hours,
-        subject_part_id,
-        ...newCreditUnitSubject,
-        created_by: annual_teacher_id,
-        subject_id: newSubject.subject_id,
-      }));
-
-    return this.prismaService.$transaction([
-      this.prismaService.subject.create({ data: newSubject }),
-      this.prismaService.annualCreditUnitHasSubject.createMany({
-        data: crediUnitHasSubjects,
-        skipDuplicates: true,
-      }),
-    ]);
-  }
 }

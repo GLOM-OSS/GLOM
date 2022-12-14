@@ -10,21 +10,20 @@ import {
   Put,
   Query,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Request } from 'express';
+import { ERR07, ERR08 } from '../../../errors';
+import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
-import { CreditUnitService } from './credit-unit.service';
 import {
   CreditUnitPostDto,
   CreditUnitPutDto,
-  CreditUnitQuery,
-  CreditUnitSubjectPostDto,
+  CreditUnitQuery
 } from '../coordinator.dto';
-import { ERR07, ERR08 } from '../../../errors';
+import { CreditUnitService } from './credit-unit.service';
 
 @Controller()
 @ApiTags('UEs')
@@ -127,21 +126,6 @@ export class CreditUnitController {
       annual_credit_unit_id,
       { is_deleted: true },
       annual_teacher_id
-    );
-  }
-
-  @Post('subjects/new')
-  async createCreditUnitSubject(
-    @Req() request: Request,
-    @Body() newCreditUnitSubject: CreditUnitSubjectPostDto
-  ) {
-    const {
-      school_id,
-      annualTeacher: { annual_teacher_id },
-    } = request.user as DeserializeSessionData;
-    return this.creditUnitService.createCreditUnitSubject(
-      newCreditUnitSubject,
-      { school_id, annual_teacher_id }
     );
   }
 }
