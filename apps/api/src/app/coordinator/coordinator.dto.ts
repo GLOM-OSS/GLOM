@@ -51,19 +51,11 @@ export class SubjectPart {
   subject_part_id: string;
 
   @ApiProperty()
-  @IsString()
+  @IsNumber()
   number_of_hours: number;
 }
 
 export class CreditUnitSubjectPostDto {
-  @ApiProperty()
-  @IsNumber()
-  weighting: number;
-
-  @ApiProperty()
-  @IsNumber()
-  credit_points: number;
-
   @ApiProperty()
   @IsString()
   annual_credit_unit_id: string;
@@ -73,7 +65,7 @@ export class CreditUnitSubjectPostDto {
   subject_title: string;
 
   @ApiProperty()
-  @IsUUID()
+  @IsString()
   subject_code: string;
 
   @ApiProperty()
@@ -81,7 +73,11 @@ export class CreditUnitSubjectPostDto {
   objective: string;
 
   @ApiProperty()
-  @ArrayMinSize(2)
+  @IsNumber()
+  weighting: number;
+
+  @ApiProperty()
+  @ArrayMinSize(1)
   @Type(() => SubjectPart)
   @ValidateNested({ each: true })
   subjectParts: SubjectPart[];

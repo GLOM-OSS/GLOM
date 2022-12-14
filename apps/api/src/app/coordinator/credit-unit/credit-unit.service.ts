@@ -145,11 +145,10 @@ export class CreditUnitService {
     }: CreditUnitSubjectPostDto,
     metaData: {
       school_id: string;
-      academic_year_id: string;
       annual_teacher_id: string;
     }
   ) {
-    const { school_id, academic_year_id, annual_teacher_id } = metaData;
+    const { school_id, annual_teacher_id } = metaData;
     const newSubject: Prisma.SubjectCreateInput = {
       subject_title,
       subject_id: randomUUID(),
@@ -163,7 +162,6 @@ export class CreditUnitService {
       subjectParts.map(({ number_of_hours, subject_part_id }) => ({
         number_of_hours,
         subject_part_id,
-        academic_year_id,
         ...newCreditUnitSubject,
         created_by: annual_teacher_id,
         subject_id: newSubject.subject_id,

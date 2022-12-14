@@ -137,12 +137,11 @@ export class CreditUnitController {
   ) {
     const {
       school_id,
-      activeYear: { academic_year_id },
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
     return this.creditUnitService.createCreditUnitSubject(
       newCreditUnitSubject,
-      { school_id, academic_year_id, annual_teacher_id }
+      { school_id, annual_teacher_id }
     );
   }
 }
