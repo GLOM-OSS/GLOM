@@ -6,29 +6,34 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class AppService {
   constructor(private prismaService: PrismaService) {
-    this.prismaService.person.count({}).then((count) => {
-      if (count === 0) {
-        this.seedAdmin();
-      }
+    this.prismaService.person.count().then((count) => {
+      if (count === 0) this.seedAdmin();
     });
-    this.prismaService.cycle.count({}).then((cyleCount) => {
-      if (cyleCount === 0) {
-        this.seedCycles();
-      }
+    this.prismaService.cycle.count().then((cyleCount) => {
+      if (cyleCount === 0) this.seedCycles();
     });
-    this.prismaService.teachingGrade.count({}).then((teacherGradeCount) => {
-      if (teacherGradeCount === 0) {
-        this.seedTeacherGrades();
-      }
+    this.prismaService.teachingGrade.count().then((teacherGradeCount) => {
+      if (teacherGradeCount === 0) this.seedTeacherGrades();
     });
-    this.prismaService.teacherType.count({}).then((teacherTypeCount) => {
-      if (teacherTypeCount === 0) {
-        this.seedTeacherTypes();
-      }
+    this.prismaService.teacherType.count().then((teacherTypeCount) => {
+      if (teacherTypeCount === 0) this.seedTeacherTypes();
+    });
+    this.prismaService.subjectPart.count().then((subjectParts) => {
+      if (subjectParts === 0) this.seedSubjectParts();
     });
   }
   getData(): { message: string } {
     return { message: 'Welcome to api!' };
+  }
+
+  private async seedSubjectParts() {
+    await this.prismaService.subjectPart.createMany({
+      data: [
+        { subject_part_name: 'CA' },
+        { subject_part_name: 'TP' },
+        { subject_part_name: 'TD' },
+      ],
+    });
   }
 
   //seed student
@@ -166,5 +171,8 @@ export class AppService {
   }
   getEvaluationTypes() {
     return this.prismaService.teachingGrade.findMany();
+  }
+  getSubjectParts() {
+    return this.prismaService.subjectPart.findMany();
   }
 }

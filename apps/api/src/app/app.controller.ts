@@ -30,4 +30,9 @@ export class AppController {
   async getEvalutaionTpes() {
     return { evaluation_types: await this.appService.getEvaluationTypes() };
   }
+
+  @Get('subject-parts')
+  async getSubjectParts() {
+    return { subjectParts: await this.appService.getSubjectParts() };
+  }
 }
