@@ -32,12 +32,14 @@ export interface CreateCreditUnitSubject {
 }
 
 export interface CreditUnitSubject {
-  fullname: string;
   weighting: number;
   subject_id: string;
   subject_code: string;
   subject_title: string;
   has_objective: boolean;
-  annual_credit_unit_id: string;
+  teacher_fullname: string;
+  annual_teacher_id: string;
   subjectParts: SubjectPart[];
+  annual_credit_unit_id: string;
+  annual_credit_unit_subject_id: string
 }
