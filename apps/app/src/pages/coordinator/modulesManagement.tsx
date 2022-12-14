@@ -8,17 +8,16 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  TextField,
+  TextField
 } from '@mui/material';
+import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import { CreditUnit, UEMajor } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { useQueryClient } from 'react-query';
 import CreditUnitLane, {
-  RowMenu,
+  RowMenu
 } from '../../components/coordinator/CreditUnitLane';
 
 export default function ModulesManagement() {
@@ -130,7 +129,6 @@ export default function ModulesManagement() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSemester, selectedMajor]);
 
-  const queryClient = useQueryClient();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const [actionnedCreditUnit, setActionnedCreditUnit] = useState<CreditUnit>();
@@ -227,7 +225,6 @@ export default function ModulesManagement() {
               setSelectedMajor(
                 majors?.find(({ major_id }) => major_id === selectedMajorId)
               );
-              queryClient.invalidateQueries('creditUnits');
             }}
             sx={{
               '& input': { ...theme.typography.caption },
@@ -258,7 +255,6 @@ export default function ModulesManagement() {
                   ? Number(selectedSemester)
                   : undefined
               );
-              queryClient.invalidateQueries('creditUnits');
             }}
             sx={{
               '& input': { ...theme.typography.caption },
