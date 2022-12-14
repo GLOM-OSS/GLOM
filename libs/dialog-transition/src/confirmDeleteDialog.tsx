@@ -9,7 +9,7 @@ import {
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { useIntl } from 'react-intl';
 
-export default function ConfirmDeleteDialog({
+export function ConfirmDeleteDialog({
   isDialogOpen,
   closeDialog,
   confirm,
