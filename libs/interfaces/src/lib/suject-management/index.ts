@@ -19,9 +19,8 @@ export interface CreditUnit extends CreateCreditUnit {
 export interface CreateCreditUnitSubject {
   weighting: number;
   objective: string;
-  credit_points: number;
+  subject_code: string;
   subject_title: string;
-  credit_unit_id: string;
   annual_teacher_id: string;
   annual_credit_unit_id: string;
   subjectParts: {
