@@ -53,6 +53,10 @@ export class SubjectPart {
   @ApiProperty()
   @IsNumber()
   number_of_hours: number;
+
+  @ApiProperty()
+  @IsString()
+  annual_teacher_id: string;
 }
 
 export class CreditUnitSubjectPostDto {
@@ -82,3 +86,5 @@ export class CreditUnitSubjectPostDto {
   @ValidateNested({ each: true })
   subjectParts: SubjectPart[];
 }
+
+export class CreditUnitSubjectPutDto extends PartialType(CreditUnitSubjectPostDto) {}

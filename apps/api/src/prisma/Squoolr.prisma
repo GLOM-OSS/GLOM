@@ -386,7 +386,8 @@ model AnnualTeacher {
     AnnualCreditUnitAudits                      AnnualCreditUnitAudit[]
     AnnualCreditUnitHasSubjects                 AnnualCreditUnitSubject[]
     AnnualCreditUnitHasSubjectAudits            AnnualCreditUnitSubjectAudit[]
-    AnnualCreditHasSubjectParts                 AnnualCreditUnitHasSubjectPart[]
+    AnnualCreditHasSubjectParts                 AnnualCreditUnitHasSubjectPart[]      @relation(name: "AnnualTeacher")
+    CreatedAnnualCreditUnitHasSubjectParts      AnnualCreditUnitHasSubjectPart[]      @relation(name: "CreatedBy_AnnualTeacher")
     AnnualCreditHasSubjectPartAudits            AnnualCreditUnitHasSubjectPartAudit[] @relation(name: "AnnualTeacher")
     AuditedAnnualCreditUnitHasSubjectPartAudits AnnualCreditUnitHasSubjectPartAudit[] @relation(name: "AuditedBy_AnnualTeacher")
 
@@ -717,8 +718,10 @@ model AnnualCreditUnitHasSubjectPart {
     SubjectPart                            SubjectPart             @relation(fields: [subject_part_id], references: [subject_part_id], onDelete: Cascade, onUpdate: Cascade)
     annual_credit_unit_subject_id          String                  @db.VarChar(36)
     AnnualCreditUnit                       AnnualCreditUnitSubject @relation(fields: [annual_credit_unit_subject_id], references: [annual_credit_unit_subject_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_teacher_id                      String                  @db.VarChar(36)
+    AnnualTeacher                          AnnualTeacher           @relation(name: "AnnualTeacher", fields: [annual_teacher_id], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
     created_by                             String                  @db.VarChar(36)
-    AnnualTeacher                          AnnualTeacher           @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    AnnualTeacherCreator                   AnnualTeacher           @relation(name: "CreatedBy_AnnualTeacher", fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualCreditHasSubjectPartAudits AnnualCreditUnitHasSubjectPartAudit[]
 }
