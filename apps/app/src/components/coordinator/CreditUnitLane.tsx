@@ -1,63 +1,109 @@
-import { KeyboardArrowDown } from '@mui/icons-material';
-import { Box, Button, Typography } from '@mui/material';
+import { MoreHorizRounded } from '@mui/icons-material';
+import {
+  IconButton,
+  Menu,
+  MenuItem,
+  TableCell,
+  TableRow,
+  Tooltip,
+} from '@mui/material';
+import { CreditUnit } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
 
-interface CreditUnitInterface {
-  credit_unit_code: string;
-  credit_unit_name: string;
-  credit_points: number;
-  semester_number: number;
-}
+export const RowMenu = ({
+  anchorEl,
+  closeMenu,
+  deleteCreditUnit: dcu,
+  editCreditUnit: ecu,
+}: {
+  anchorEl: null | HTMLElement;
+  closeMenu: () => void;
+  deleteCreditUnit: () => void;
+  editCreditUnit: () => void;
+}) => {
+  const { formatMessage } = useIntl();
+  const menuItems: { menu_title: string; executeFunction: () => void }[] = [
+    {
+      menu_title: 'edit',
+      executeFunction: ecu,
+    },
+    {
+      menu_title: 'delete',
+      executeFunction: dcu,
+    },
+  ];
+  return (
+    <Menu anchorEl={anchorEl} open={anchorEl !== null} onClose={closeMenu}>
+      {menuItems.map(({ menu_title, executeFunction }, index) => (
+        <MenuItem
+          key={index}
+          onClick={() => {
+            executeFunction();
+            closeMenu();
+          }}
+          sx={{ padding: theme.spacing(1), minHeight: 'fit-content' }}
+        >
+          {formatMessage({ id: menu_title })}
+        </MenuItem>
+      ))}
+    </Menu>
+  );
+};
 
 export default function CreditUnitLane({
   creditUnit: {
-    credit_points,
-    credit_unit_code,
-    credit_unit_name,
-    semester_number,
+    credit_points: cp,
+    credit_unit_name: cun,
+    semester_number: sn,
+    credit_unit_code: cuc,
   },
+  creditUnit: cu,
+  setAnchorEl,
+  getActionnedCreditUnit,
+  isSubmitting,
 }: {
-  creditUnit: CreditUnitInterface;
+  creditUnit: CreditUnit;
+  setAnchorEl: (el: null | HTMLElement) => void;
+  getActionnedCreditUnit: (creditUnit: CreditUnit) => void;
+  isSubmitting: boolean;
 }) {
   const { formatMessage } = useIntl();
   return (
-    <Box
+    <TableRow
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        color: theme.common.offWhite,
-        display: 'grid',
-        columnGap: theme.spacing(3),
-        gridTemplateColumns: 'auto 2fr 1fr 0.75fr 0.5fr auto',
-        borderRadius: theme.spacing(1.5),
-        padding: `${theme.spacing(2)} ${theme.spacing(3)}`,
-        width: '100%',
-        transition: '0.3s',
-        alignItems: 'center',
-        cursor: 'pointer',
-        '&:hover': {
-          backgroundColor: theme.palette.primary.dark,
-          transition: '0.3s',
-        },
+        borderBottom: `1px solid ${theme.common.line}`,
+        borderTop: `1px solid ${theme.common.line}`,
+        padding: `0 ${theme.spacing(4.625)}`,
+        // backgroundColor: theme.common.,
       }}
     >
-      <Typography>{credit_unit_code}</Typography>
-      <Typography>{credit_unit_name}</Typography>
-      <Typography>{`${formatMessage({
-        id: 'creditPoint',
-      })}: ${credit_points}`}</Typography>
-      <Typography>{`${formatMessage({
-        id: 'semester',
-      })}: ${semester_number}`}</Typography>
-      <Button
-        size="small"
-        color="inherit"
-        variant="contained"
-        sx={{ textTransform: 'none', color: theme.common.body }}
-      >
-        {formatMessage({ id: 'modify' })}
-      </Button>
-      <KeyboardArrowDown sx={{ fontSize: '24px', color: 'white' }} />
-    </Box>
+      <TableCell component="th" scope="row">
+        {cuc}
+      </TableCell>
+      <TableCell component="th" scope="row">
+        {cun}
+      </TableCell>
+      <TableCell component="th" scope="row">
+        {cp}
+      </TableCell>
+      <TableCell component="th" scope="row">
+        {sn}
+      </TableCell>
+      <TableCell align="right" component="th" scope="row">
+        <IconButton
+          size="small"
+          disabled={isSubmitting}
+          onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+            setAnchorEl(event.currentTarget);
+            getActionnedCreditUnit(cu);
+          }}
+        >
+          <Tooltip arrow title={formatMessage({ id: 'more' })}>
+            <MoreHorizRounded sx={{ fontSize: '24px' }} />
+          </Tooltip>
+        </IconButton>
+      </TableCell>
+    </TableRow>
   );
 }
