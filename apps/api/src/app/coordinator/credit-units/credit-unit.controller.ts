@@ -10,7 +10,7 @@ import {
   Put,
   Query,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -21,18 +21,18 @@ import { AuthenticatedGuard } from '../../auth/auth.guard';
 import {
   CreditUnitPostDto,
   CreditUnitPutDto,
-  CreditUnitQuery
+  CreditUnitQuery,
 } from '../coordinator.dto';
 import { CreditUnitService } from './credit-unit.service';
 
 @Controller()
 @ApiTags('UEs')
-@Roles(Role.COORDINATOR)
 @UseGuards(AuthenticatedGuard)
 export class CreditUnitController {
   constructor(private creditUnitService: CreditUnitService) {}
 
   @Get('majors')
+  @Roles(Role.COORDINATOR)
   async getCoordinatorMajors(@Req() request: Request) {
     const {
       annualTeacher: { classroomDivisions },
@@ -43,29 +43,17 @@ export class CreditUnitController {
   }
 
   @Get('all')
-  async getCrediUnits(
-    @Req() request: Request,
-    @Query() query: CreditUnitQuery
-  ) {
-    const {
-      annualTeacher: { classroomDivisions },
-    } = request.user as DeserializeSessionData;
-    const majors = await this.creditUnitService.getCoordinatorMajors(
-      classroomDivisions
-    );
-    return await this.creditUnitService.getCreditUnits(
-      majors.map(({ major_id }) => ({ major_id })),
-      query
-    );
+  async getCrediUnits(@Query() query: CreditUnitQuery) {
+    return await this.creditUnitService.getCreditUnits(query);
   }
 
   @Post('new')
+  @Roles(Role.COORDINATOR)
   async addNewCreditUnit(
     @Req() request: Request,
     @Body() newCreditUnit: CreditUnitPostDto
   ) {
     const {
-      school_id,
       preferred_lang,
       activeYear: { academic_year_id },
       annualTeacher: { classroomDivisions, annual_teacher_id },
@@ -81,13 +69,13 @@ export class CreditUnitController {
     if (newCreditUnit.semester_number > creditUnitMajor.number_of_years * 2)
       throw new HttpException(ERR08[preferred_lang], HttpStatus.FORBIDDEN);
     return await this.creditUnitService.createCreditUnit(newCreditUnit, {
-      school_id,
       academic_year_id,
       annual_teacher_id,
     });
   }
 
   @Put(':annual_credit_unit_id/edit')
+  @Roles(Role.COORDINATOR)
   async updateCreditUnit(
     @Req() request: Request,
     @Param('annual_credit_unit_id') annual_credit_unit_id: string,
@@ -115,6 +103,7 @@ export class CreditUnitController {
   }
 
   @Delete(':annual_credit_unit_id/delete')
+  @Roles(Role.COORDINATOR)
   async deleteCreditUnit(
     @Req() request: Request,
     @Param('annual_credit_unit_id') annual_credit_unit_id: string

@@ -1,25 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { UEMajor } from '@squoolr/interfaces';
-import { randomUUID } from 'crypto';
 import { AUTH404 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { CodeGeneratorService } from '../../../utils/code-generator';
-import {
-  CreditUnitPostDto,
-  CreditUnitQuery,
-  CreditUnitSubjectPostDto,
-} from '../coordinator.dto';
-
-export interface MajorId {
-  major_id: string;
-}
+import { CreditUnitPostDto, CreditUnitQuery } from '../coordinator.dto';
 
 @Injectable()
 export class CreditUnitService {
   constructor(
     private prismaService: PrismaService,
-    private codeGenerator: CodeGeneratorService
   ) {}
 
   async getCoordinatorMajors(classroomDivisions: string[]): Promise<UEMajor[]> {
@@ -68,10 +57,10 @@ export class CreditUnitService {
     return coordiantorMajors;
   }
 
-  async getCreditUnits(majorIds: MajorId[], query: CreditUnitQuery) {
+  async getCreditUnits({ majorIds, semester_number }: CreditUnitQuery) {
     return this.prismaService.annualCreditUnit.findMany({
       where: {
-        ...query,
+        semester_number,
         is_deleted: false,
         Major: { Classrooms: { some: { OR: majorIds } } },
       },
@@ -81,22 +70,18 @@ export class CreditUnitService {
   async createCreditUnit(
     { major_id, credit_unit_code, ...newCreditUnit }: CreditUnitPostDto,
     metaData: {
-      school_id: string;
       academic_year_id: string;
       annual_teacher_id: string;
     }
   ) {
-    const { academic_year_id, annual_teacher_id, school_id } = metaData;
+    const { academic_year_id, annual_teacher_id } = metaData;
 
     return this.prismaService.annualCreditUnit.create({
       data: {
         ...newCreditUnit,
+        credit_unit_code,
         Major: { connect: { major_id } },
         AcademicYear: { connect: { academic_year_id } },
-        credit_unit_code: await this.codeGenerator.getCreditUnitCode(
-          school_id,
-          credit_unit_code
-        ),
         AnnualTeacher: { connect: { annual_teacher_id } },
       },
     });

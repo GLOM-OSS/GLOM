@@ -1,6 +1,18 @@
-import { Body, Controller, Get, Param, Post, Put, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { DeserializeSessionData } from '../../../utils/types';
+import { DeserializeSessionData, Role } from '../../../utils/types';
+import { Roles } from '../../app.decorator';
+import { AuthenticatedGuard } from '../../auth/auth.guard';
 import {
   CreditUnitSubjectPostDto,
   CreditUnitSubjectPutDto,
@@ -8,6 +20,8 @@ import {
 import { CreditUnitSubjectService } from './credit-unit-subject.service';
 
 @Controller()
+@ApiTags('UVs')
+@UseGuards(AuthenticatedGuard)
 export class CreditUnitSubjectController {
   constructor(private creditUnitSubjectService: CreditUnitSubjectService) {}
 
@@ -19,26 +33,24 @@ export class CreditUnitSubjectController {
       annual_credit_unit_id
     );
   }
-  
+
   @Post('/new')
+  @Roles(Role.COORDINATOR)
   async createSubject(
     @Req() request: Request,
     @Body() newCreditUnitSubject: CreditUnitSubjectPostDto
   ) {
     const {
-      school_id,
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
     return this.creditUnitSubjectService.createCreditUnitSubject(
       newCreditUnitSubject,
-      {
-        school_id,
-        created_by: annual_teacher_id,
-      }
+      annual_teacher_id
     );
   }
 
   @Put('/:annual_credit_unit_subject_id/edit')
+  @Roles(Role.COORDINATOR)
   async updateSubject(
     @Req() request: Request,
     @Param('annual_credit_unit_subject_id')

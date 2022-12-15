@@ -1,18 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AUTH404 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { CodeGeneratorService } from '../../../utils/code-generator';
 import {
   CreditUnitSubjectPostDto,
-  CreditUnitSubjectPutDto,
+  CreditUnitSubjectPutDto
 } from '../coordinator.dto';
 
 @Injectable()
 export class CreditUnitSubjectService {
-  constructor(
-    private prismaService: PrismaService,
-    private codeGenerator: CodeGeneratorService
-  ) {}
+  constructor(private prismaService: PrismaService) {}
 
   async createCreditUnitSubject(
     {
@@ -23,13 +19,8 @@ export class CreditUnitSubjectService {
       subject_code,
       annual_credit_unit_id,
     }: CreditUnitSubjectPostDto,
-    metaData: {
-      school_id: string;
-      created_by: string;
-    }
+    created_by: string
   ) {
-    const { school_id, created_by } = metaData;
-
     const annualCreditUnit =
       await this.prismaService.annualCreditUnit.findUnique({
         where: { annual_credit_unit_id },
@@ -57,11 +48,8 @@ export class CreditUnitSubjectService {
       data: {
         objective,
         weighting,
+        subject_code,
         subject_title,
-        subject_code: await this.codeGenerator.getCreditUnitSubjectCode(
-          school_id,
-          subject_code
-        ),
         AnnualTeacher: { connect: { annual_teacher_id: created_by } },
         AnnualCreditUnit: { connect: { annual_credit_unit_id } },
         AnnualCreditUnitHasSubjectParts: {

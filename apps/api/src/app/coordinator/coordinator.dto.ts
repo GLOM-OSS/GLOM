@@ -9,11 +9,19 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-export class CreditUnitQuery {
+export class MajorId {
   @IsUUID()
+  @ApiProperty()
+  major_id: string;
+}
+
+export class CreditUnitQuery {
   @IsOptional()
+  @ArrayMinSize(1)
+  @Type(() => MajorId)
+  @ValidateNested({ each: true })
   @ApiProperty({ required: false })
-  major_id?: string;
+  majorIds?: MajorId[];
 
   @IsNumber()
   @IsOptional()
@@ -87,4 +95,6 @@ export class CreditUnitSubjectPostDto {
   subjectParts: SubjectPart[];
 }
 
-export class CreditUnitSubjectPutDto extends PartialType(CreditUnitSubjectPostDto) {}
+export class CreditUnitSubjectPutDto extends PartialType(
+  CreditUnitSubjectPostDto
+) {}
