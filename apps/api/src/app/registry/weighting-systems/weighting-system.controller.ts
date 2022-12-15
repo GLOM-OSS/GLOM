@@ -1,7 +1,16 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
-import { DeserializeSessionData } from '../../../utils/types';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { Request } from 'express';
+import { DeserializeSessionData } from '../../../utils/types';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
+import { WeightingPutDto } from '../registry.dto';
 import { WeightingSystemService } from './weighting-system.service';
 
 @Controller()
@@ -9,13 +18,33 @@ import { WeightingSystemService } from './weighting-system.service';
 export class WeightingSystemController {
   constructor(private weightingSystemService: WeightingSystemService) {}
 
-  @Get()
-  async getWeightingSystem(@Req() request: Request) {
+  @Get(':cycle_id')
+  async getWeightingSystem(
+    @Req() request: Request,
+    @Param('cycle_id') cycle_id: string
+  ) {
     const {
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
     return await this.weightingSystemService.getAnnualWeighting(
-      academic_year_id
+      academic_year_id,
+      cycle_id
+    );
+  }
+
+  @Put('upsert')
+  async upsertWeightingSystem(
+    @Req() request: Request,
+    @Body() updateWeightingSystem: WeightingPutDto
+  ) {
+    const {
+      activeYear: { academic_year_id },
+      annualRegistry: { annual_registry_id },
+    } = request.user as DeserializeSessionData;
+    await this.weightingSystemService.upsertAnnualWeighting(
+      updateWeightingSystem,
+      academic_year_id,
+      annual_registry_id
     );
   }
 }
