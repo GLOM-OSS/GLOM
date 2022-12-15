@@ -35,4 +35,9 @@ export class AppController {
   async getSubjectParts() {
     return { subjectParts: await this.appService.getSubjectParts() };
   }
+
+  @Get('grades')
+  async getGrades() {
+    return { grades: await this.appService.getGrades() };
+  }
 }

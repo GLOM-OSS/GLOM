@@ -9,21 +9,45 @@ export class AppService {
     this.prismaService.person.count().then((count) => {
       if (count === 0) this.seedAdmin();
     });
-    this.prismaService.cycle.count().then((cyleCount) => {
-      if (cyleCount === 0) this.seedCycles();
+    this.prismaService.cycle.count().then((numberOfCycles) => {
+      if (numberOfCycles === 0) this.seedCycles();
     });
-    this.prismaService.teachingGrade.count().then((teacherGradeCount) => {
-      if (teacherGradeCount === 0) this.seedTeacherGrades();
+    this.prismaService.teachingGrade.count().then((numberOfTeacherGrades) => {
+      if (numberOfTeacherGrades === 0) this.seedTeacherGrades();
     });
-    this.prismaService.teacherType.count().then((teacherTypeCount) => {
-      if (teacherTypeCount === 0) this.seedTeacherTypes();
+    this.prismaService.teacherType.count().then((numberOfTeacherTypes) => {
+      if (numberOfTeacherTypes === 0) this.seedTeacherTypes();
     });
-    this.prismaService.subjectPart.count().then((subjectParts) => {
-      if (subjectParts === 0) this.seedSubjectParts();
+    this.prismaService.subjectPart.count().then((numberOfSubjectParts) => {
+      if (numberOfSubjectParts === 0) this.seedSubjectParts();
+    });
+    this.prismaService.grade.count().then((numberOfGrades) => {
+      if (numberOfGrades === 0) this.seedGrades();
     });
   }
   getData(): { message: string } {
     return { message: 'Welcome to api!' };
+  }
+
+  private async seedGrades() {
+    await this.prismaService.grade.createMany({
+      data: [
+        { grade_value: 'A+' },
+        { grade_value: 'A' },
+        { grade_value: 'A-' },
+        { grade_value: 'B+' },
+        { grade_value: 'B' },
+        { grade_value: 'B-' },
+        { grade_value: 'C+' },
+        { grade_value: 'C' },
+        { grade_value: 'C-' },
+        { grade_value: 'D+' },
+        { grade_value: 'D' },
+        { grade_value: 'D-' },
+        { grade_value: 'F' },
+        { grade_value: 'E' },
+      ],
+    });
   }
 
   private async seedSubjectParts() {
@@ -174,5 +198,8 @@ export class AppService {
   }
   getSubjectParts() {
     return this.prismaService.subjectPart.findMany();
+  }
+  getGrades() {
+    return this.prismaService.grade.findMany();
   }
 }
