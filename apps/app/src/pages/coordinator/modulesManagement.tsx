@@ -268,7 +268,7 @@ export default function ModulesManagement() {
     } else {
       notif.notify({ render: formatMessage({ id: 'creatingCreditUnit' }) });
       setTimeout(() => {
-        //TODO: CALL API HERE TO create CREDIT UNIT WITH DATA creditUnit
+        //TODO: CALL API HERE TO create CREDIT UNIT WITH DATA creditUnit as CreateCreditUnit
         if (5 > 4) {
           notif.update({
             render: formatMessage({ id: 'createdSuccessfully' }),
