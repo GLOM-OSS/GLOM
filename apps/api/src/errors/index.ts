@@ -7,8 +7,8 @@ export const AUTH01 = {
   Fr: `Votre jeton d'accès à Google ou votre adresse électronique a été invalidée.`,
 };
 export const AUTH02 = {
-  En: `Sorry, your have more than two session open. Consider closing one.`,
-  Fr: `Désolé, vous avez plus de deux sessions ouvertes. Pensez à en fermer une.`,
+  En: `Sorry, your have more than two session open. Consider closing them all.`,
+  Fr: `Désolé, vous avez plus de deux sessions ouvertes. Pensez à tous les fermer.`,
 };
 export const AUTH03 = (message: string) => ({
   En: `Your login request failed with error: ${message}`,
