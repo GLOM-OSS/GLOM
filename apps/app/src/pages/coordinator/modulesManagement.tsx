@@ -1,6 +1,7 @@
-import { ReportRounded } from '@mui/icons-material';
+import { AddRounded, ReportRounded } from '@mui/icons-material';
 import {
   Box,
+  Fab,
   lighten,
   MenuItem,
   Table,
@@ -9,6 +10,7 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Tooltip,
 } from '@mui/material';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import { CreditUnit, UEMajor } from '@squoolr/interfaces';
@@ -280,61 +282,73 @@ export default function ModulesManagement() {
             ))}
           </TextField>
         </Box>
-        <Scrollbars autoHide>
-          <Table sx={{ minWidth: 650 }}>
-            <TableHead
-              sx={{
-                backgroundColor: lighten(theme.palette.primary.light, 0.6),
-              }}
-            >
-              <TableRow>
-                {['code', 'title', 'numberOfCredits', 'semester'].map(
-                  (val, index) => (
-                    <TableCell key={index}>
-                      {formatMessage({ id: val })}
-                    </TableCell>
-                  )
-                )}
-                <TableCell />
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {areCreditUnitsLoading ? (
-                [...new Array(10)].map((_, index) => (
-                  <CreditUnitSkeleton key={index} />
-                ))
-              ) : creditUnits.length === 0 ? (
-                <TableRow
-                  sx={{
-                    borderBottom: `1px solid ${theme.common.line}`,
-                    borderTop: `1px solid ${theme.common.line}`,
-                    padding: `0 ${theme.spacing(4.625)}`,
-                    // backgroundColor: theme.common.,
-                  }}
-                >
-                  <TableCell
-                    component="th"
-                    scope="row"
-                    rowSpan={5}
-                    align="center"
-                  >
-                    {formatMessage({ id: 'noCreditUnitsYet' })}
-                  </TableCell>
+        <Box sx={{ height: '100%', display: 'relative' }}>
+          <Scrollbars autoHide>
+            <Table sx={{ minWidth: 650 }}>
+              <TableHead
+                sx={{
+                  backgroundColor: lighten(theme.palette.primary.light, 0.6),
+                }}
+              >
+                <TableRow>
+                  {['code', 'title', 'numberOfCredits', 'semester'].map(
+                    (val, index) => (
+                      <TableCell key={index}>
+                        {formatMessage({ id: val })}
+                      </TableCell>
+                    )
+                  )}
+                  <TableCell />
                 </TableRow>
-              ) : (
-                creditUnits.map((creditUnit, index) => (
-                  <CreditUnitLane
-                    setAnchorEl={setAnchorEl}
-                    creditUnit={creditUnit}
-                    getActionnedCreditUnit={getActionnedCreditUnit}
-                    key={index}
-                    isSubmitting={isDeletingCreditUnit}
-                  />
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </Scrollbars>
+              </TableHead>
+              <TableBody>
+                {areCreditUnitsLoading ? (
+                  [...new Array(10)].map((_, index) => (
+                    <CreditUnitSkeleton key={index} />
+                  ))
+                ) : creditUnits.length === 0 ? (
+                  <TableRow
+                    sx={{
+                      borderBottom: `1px solid ${theme.common.line}`,
+                      borderTop: `1px solid ${theme.common.line}`,
+                      padding: `0 ${theme.spacing(4.625)}`,
+                      // backgroundColor: theme.common.,
+                    }}
+                  >
+                    <TableCell
+                      component="th"
+                      scope="row"
+                      rowSpan={5}
+                      align="center"
+                    >
+                      {formatMessage({ id: 'noCreditUnitsYet' })}
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  creditUnits.map((creditUnit, index) => (
+                    <CreditUnitLane
+                      setAnchorEl={setAnchorEl}
+                      creditUnit={creditUnit}
+                      getActionnedCreditUnit={getActionnedCreditUnit}
+                      key={index}
+                      isSubmitting={isDeletingCreditUnit}
+                    />
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </Scrollbars>
+          <Fab
+            disabled={areCreditUnitsLoading || isDeletingCreditUnit || isEditDialogOpen}
+            onClick={() => setIsEditDialogOpen(true)}
+            color="primary"
+            sx={{ position: 'absolute', bottom: 16, right: 24 }}
+          >
+            <Tooltip arrow title={formatMessage({ id: `newCreditUnit` })}>
+              <AddRounded />
+            </Tooltip>
+          </Fab>
+        </Box>
       </Box>
     </>
   );
