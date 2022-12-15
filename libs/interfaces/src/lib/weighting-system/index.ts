@@ -25,14 +25,15 @@ export interface CreateWeightingSystem {
 }
 
 export interface CreateGradeWeighting {
+  point: number;
   minimum: number;
   maximum: number;
   grade_id: string;
-  point: number;
+  cycle_id: string;
   observation: string;
 }
 
-export interface GradeWeighting extends Omit<CreateGradeWeighting, 'grade_id'> {
+export interface GradeWeighting extends CreateGradeWeighting {
   grade_value: string;
   annual_grade_weighting_id: string;
 }

@@ -177,7 +177,8 @@ model AcademicYear {
     AnnualEvaluationTypeWeightings AnnualEvaluationTypeWeighting[]
     AnnualAcademicProfiles         AnnualAcademicProfile[]
     AnnualSemesterExamAcess        AnnualSemesterExamAcess[]
-    AnnualWeightings                AnnualWeighting[]
+    AnnualWeightings               AnnualWeighting[]
+    AnnualGradeWeightings          AnnualGradeWeighting[]
 }
 
 model Login {
@@ -895,6 +896,8 @@ model AnnualGradeWeighting {
     observation               String         @db.MediumText
     is_deleted                Boolean        @default(false) @db.TinyInt
     created_at                DateTime       @default(now()) @db.DateTime(0)
+    academic_year_id          String         @db.VarChar(36)
+    AcademicYear              AcademicYear   @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
     cycle_id                  String         @db.VarChar(36)
     Cycle                     Cycle          @relation(fields: [cycle_id], references: [cycle_id], onDelete: Cascade, onUpdate: Cascade)
     grade_id                  String         @db.VarChar(36)

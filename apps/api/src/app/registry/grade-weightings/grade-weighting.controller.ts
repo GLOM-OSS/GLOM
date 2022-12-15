@@ -1,23 +1,58 @@
-import { Controller, Get, Param, UseGuards } from "@nestjs/common";
-import { AuthenticatedGuard } from "../../auth/auth.guard";
-import { GradeWeightingService } from "./grade-weighting.service";
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { DeserializeSessionData, Role } from 'apps/api/src/utils/types';
+import { Roles } from '../../app.decorator';
+import { Request } from 'express';
+import { AuthenticatedGuard } from '../../auth/auth.guard';
+import { GradeWeightingPostDto } from '../registry.dto';
+import { GradeWeightingService } from './grade-weighting.service';
 
 @Controller()
 @UseGuards(AuthenticatedGuard)
 export class GradeWeightingController {
-    constructor(private gradeWeightingService: GradeWeightingService) {}
+  constructor(private gradeWeightingService: GradeWeightingService) {}
 
-    @Get(':cylce_id/all')
-    async getGradeWeightings(@Param('cycle_id') cycle_id: string) {
-      return await this.gradeWeightingService.getAnnualGradeWeightings(cycle_id);
-    }
-  
-    @Get(':annnual_grade_weighting_id')
-    async getGradeWeighting(
-      @Param('annual_grade_weighting_id') annual_grade_weighting_id: string
-    ) {
-      return await this.gradeWeightingService.getAnnualWeightingGrade(
-        annual_grade_weighting_id
+  @Get(':cylce_id/all')
+  async getGradeWeightings(@Param('cycle_id') cycle_id: string) {
+    return await this.gradeWeightingService.getAnnualGradeWeightings(cycle_id);
+  }
+
+  @Get(':annnual_grade_weighting_id')
+  async getGradeWeighting(
+    @Param('annual_grade_weighting_id') annual_grade_weighting_id: string
+  ) {
+    return await this.gradeWeightingService.getAnnualGradeWeighting(
+      annual_grade_weighting_id
+    );
+  }
+
+  @Post('new')
+  @Roles(Role.REGISTRY)
+  async addNewGradeWeighting(
+    @Req() request: Request,
+    @Body() newGradeWeighting: GradeWeightingPostDto
+  ) {
+    const {
+      activeYear: { academic_year_id },
+      annualRegistry: { annual_registry_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      return await this.gradeWeightingService.addNewGradeWeighting(
+        newGradeWeighting,
+        academic_year_id,
+        annual_registry_id
       );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
 }
