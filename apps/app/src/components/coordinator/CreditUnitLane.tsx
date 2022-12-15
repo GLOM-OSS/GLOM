@@ -11,6 +11,7 @@ import {
 import { CreditUnit } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
+import { useNavigate } from 'react-router';
 
 export const RowMenu = ({
   anchorEl,
@@ -58,6 +59,7 @@ export default function CreditUnitLane({
     credit_unit_name: cun,
     semester_number: sn,
     credit_unit_code: cuc,
+    annual_credit_unit_id: acu_id,
   },
   creditUnit: cu,
   setAnchorEl,
@@ -70,27 +72,22 @@ export default function CreditUnitLane({
   isSubmitting: boolean;
 }) {
   const { formatMessage } = useIntl();
+  const navigate = useNavigate();
   return (
     <TableRow
       sx={{
         borderBottom: `1px solid ${theme.common.line}`,
         borderTop: `1px solid ${theme.common.line}`,
         padding: `0 ${theme.spacing(4.625)}`,
+        cursor: 'pointer',
       }}
+      hover
     >
-      <TableCell component="th" scope="row">
-        {cuc}
-      </TableCell>
-      <TableCell component="th" scope="row">
-        {cun}
-      </TableCell>
-      <TableCell component="th" scope="row">
-        {cp}
-      </TableCell>
-      <TableCell component="th" scope="row">
-        {sn}
-      </TableCell>
-      <TableCell align="right" component="th" scope="row">
+      <TableCell onClick={() => navigate(acu_id)}>{cuc}</TableCell>
+      <TableCell onClick={() => navigate(acu_id)}>{cun}</TableCell>
+      <TableCell onClick={() => navigate(acu_id)}>{cp}</TableCell>
+      <TableCell onClick={() => navigate(acu_id)}>{sn}</TableCell>
+      <TableCell align="right">
         <IconButton
           size="small"
           disabled={isSubmitting}

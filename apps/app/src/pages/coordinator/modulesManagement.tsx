@@ -45,7 +45,7 @@ export default function ModulesManagement() {
       if (6 > 5) {
         const newCreditUnits: CreditUnit[] = [
           {
-            annual_credit_unit_id: '',
+            annual_credit_unit_id: 'hhes',
             credit_points: 10,
             credit_unit_code: 'UCD0014',
             credit_unit_name: 'Informatique',
