@@ -3,7 +3,7 @@ import { AUTH404 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   CreditUnitSubjectPostDto,
-  CreditUnitSubjectPutDto
+  CreditUnitSubjectPutDto,
 } from '../coordinator.dto';
 
 @Injectable()
@@ -197,5 +197,54 @@ export class CreditUnitSubjectService {
         };
       }
     );
+  }
+
+  async getCreditUnitSubjectDetails(credit_unit_subject_id_or_code: string) {
+    const annualCreditUnitSubject =
+      await this.prismaService.annualCreditUnitSubject.findFirst({
+        include: {
+          AnnualCreditUnitHasSubjectParts: {
+            orderBy: { SubjectPart: { subject_part_name: 'asc' } },
+            include: {
+              SubjectPart: { select: { subject_part_name: true } },
+              AnnualTeacher: {
+                select: {
+                  Login: {
+                    select: {
+                      Person: { select: { first_name: true, last_name: true } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        where: {
+          OR: [
+            { subject_code: credit_unit_subject_id_or_code },
+            { annual_credit_unit_subject_id: credit_unit_subject_id_or_code },
+          ],
+          is_deleted: false,
+        },
+      });
+    if (!annualCreditUnitSubject)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Credit Unit Subject')),
+        HttpStatus.NOT_FOUND
+      );
+    const {
+      AnnualCreditUnitHasSubjectParts: subjectParts,
+      ...annualCreditUnitSubjectData
+    } = annualCreditUnitSubject;
+    return {
+      ...annualCreditUnitSubjectData,
+      subjectParts: subjectParts.map(
+        ({ annual_teacher_id, number_of_hours, subject_part_id }) => ({
+          annual_teacher_id,
+          number_of_hours,
+          subject_part_id,
+        })
+      ),
+    };
   }
 }

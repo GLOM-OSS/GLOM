@@ -7,9 +7,7 @@ import { CreditUnitPostDto, CreditUnitQuery } from '../coordinator.dto';
 
 @Injectable()
 export class CreditUnitService {
-  constructor(
-    private prismaService: PrismaService,
-  ) {}
+  constructor(private prismaService: PrismaService) {}
 
   async getCoordinatorMajors(classroomDivisions: string[]): Promise<UEMajor[]> {
     const majors = await this.prismaService.annualClassroomDivision.findMany({
@@ -62,7 +60,20 @@ export class CreditUnitService {
       where: {
         semester_number,
         is_deleted: false,
-        Major: { Classrooms: { some: { OR: majorIds } } },
+        ...(majorIds && majorIds.length > 0
+          ? { Major: { Classrooms: { some: { OR: majorIds } } } }
+          : {}),
+      },
+    });
+  }
+
+  async getCreditUnitDetails(credit_unit_id_or_code: string) {
+    return this.prismaService.annualCreditUnit.findFirst({
+      where: {
+        OR: [
+          { annual_credit_unit_id: credit_unit_id_or_code },
+          { credit_unit_code: credit_unit_id_or_code },
+        ],
       },
     });
   }

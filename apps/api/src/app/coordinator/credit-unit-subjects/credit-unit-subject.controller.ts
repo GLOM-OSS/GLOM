@@ -25,6 +25,16 @@ import { CreditUnitSubjectService } from './credit-unit-subject.service';
 export class CreditUnitSubjectController {
   constructor(private creditUnitSubjectService: CreditUnitSubjectService) {}
 
+  @Get(':credit_unit_subject_id_or_code')
+  async getCreditUnitDetails(
+    @Param('credit_unit_subject_id_or_code')
+    credit_unit_subject_id_or_code: string
+  ) {
+    return await this.creditUnitSubjectService.getCreditUnitSubjectDetails(
+      credit_unit_subject_id_or_code
+    );
+  }
+
   @Get(':annual_credit_unit_id/all')
   async getCreditUnitSubjects(
     @Param('annual_credit_unit_id') annual_credit_unit_id: string

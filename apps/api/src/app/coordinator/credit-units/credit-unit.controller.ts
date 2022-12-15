@@ -47,6 +47,15 @@ export class CreditUnitController {
     return await this.creditUnitService.getCreditUnits(query);
   }
 
+  @Get(':credit_unit_id_or_code')
+  async getCreditUnitDetails(
+    @Param('credit_unit_id_or_code') credit_unit_id_or_code: string
+  ) {
+    return await this.creditUnitService.getCreditUnitDetails(
+      credit_unit_id_or_code
+    );
+  }
+
   @Post('new')
   @Roles(Role.COORDINATOR)
   async addNewCreditUnit(
