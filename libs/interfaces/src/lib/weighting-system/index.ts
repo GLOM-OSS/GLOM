@@ -34,7 +34,7 @@ export interface CreateGradeWeighting {
 
 export interface GradeWeighting extends Omit<CreateGradeWeighting, 'grade_id'> {
   grade_value: string;
-  annual_grade_weighthing_id: string;
+  annual_grade_weighting_id: string;
 }
 
 export interface CreateAcademicProfile {
