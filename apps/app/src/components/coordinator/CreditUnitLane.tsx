@@ -3,6 +3,7 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Skeleton,
   TableCell,
   TableRow,
   Tooltip,
@@ -75,7 +76,6 @@ export default function CreditUnitLane({
         borderBottom: `1px solid ${theme.common.line}`,
         borderTop: `1px solid ${theme.common.line}`,
         padding: `0 ${theme.spacing(4.625)}`,
-        // backgroundColor: theme.common.,
       }}
     >
       <TableCell component="th" scope="row">
@@ -103,6 +103,34 @@ export default function CreditUnitLane({
             <MoreHorizRounded sx={{ fontSize: '24px' }} />
           </Tooltip>
         </IconButton>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+export function CreditUnitSkeleton() {
+  return (
+    <TableRow
+      sx={{
+        borderBottom: `1px solid ${theme.common.line}`,
+        borderTop: `1px solid ${theme.common.line}`,
+        padding: `0 ${theme.spacing(4.625)}`,
+      }}
+    >
+      <TableCell component="th" scope="row">
+        <Skeleton animation="wave" />
+      </TableCell>
+      <TableCell component="th" scope="row">
+        <Skeleton animation="wave" />
+      </TableCell>
+      <TableCell component="th" scope="row">
+        <Skeleton animation="wave" />
+      </TableCell>
+      <TableCell component="th" scope="row">
+        <Skeleton animation="wave" />
+      </TableCell>
+      <TableCell component="th" scope="row">
+        <Skeleton animation="wave" />
       </TableCell>
     </TableRow>
   );

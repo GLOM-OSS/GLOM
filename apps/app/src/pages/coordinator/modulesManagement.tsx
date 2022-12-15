@@ -18,6 +18,7 @@ import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import CreditUnitLane, {
+  CreditUnitSkeleton,
   RowMenu,
 } from '../../components/coordinator/CreditUnitLane';
 
@@ -299,7 +300,9 @@ export default function ModulesManagement() {
             </TableHead>
             <TableBody>
               {areCreditUnitsLoading ? (
-                'loading'
+                [...new Array(10)].map((_, index) => (
+                  <CreditUnitSkeleton key={index} />
+                ))
               ) : creditUnits.length === 0 ? (
                 <TableRow
                   sx={{
@@ -309,8 +312,13 @@ export default function ModulesManagement() {
                     // backgroundColor: theme.common.,
                   }}
                 >
-                  <TableCell component="th" scope="row" rowSpan={5} align='center'>
-                    {formatMessage({id:'noCreditUnitsYet'})}
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    rowSpan={5}
+                    align="center"
+                  >
+                    {formatMessage({ id: 'noCreditUnitsYet' })}
                   </TableCell>
                 </TableRow>
               ) : (
