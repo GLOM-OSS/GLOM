@@ -141,11 +141,10 @@ export class CodeGeneratorService {
       where: { school_id },
     });
     const startsWith = `UV${school_acronym}${acronym}`;
-    const numberOfUVs = await this.prismaService.annualCreditUnitSubject.count({
+    const numberOfUVs = await this.prismaService.annualCreditUnitSubject.findMany({
       distinct: ['subject_code'],
       where: { subject_code: { startsWith } },
     });
-
-    return `${startsWith}${this.getNumberString(numberOfUVs) + 1}`;
+    return `${startsWith}${this.getNumberString(numberOfUVs.length) + 1}`;
   }
 }
