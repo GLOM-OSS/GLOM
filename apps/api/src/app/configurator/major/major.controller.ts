@@ -25,7 +25,6 @@ import { MajorService } from './major.service';
 
 @Controller()
 @ApiTags('Majors')
-@Roles(Role.CONFIGURATOR)
 @UseGuards(AuthenticatedGuard)
 export class MajorController {
   constructor(private majorService: MajorService) {}
@@ -57,6 +56,7 @@ export class MajorController {
   }
 
   @Post('new')
+  @Roles(Role.CONFIGURATOR)
   async addNewMajors(@Req() request: Request, @Body() newMajor: MajorPostDto) {
     try {
       const {
@@ -76,6 +76,7 @@ export class MajorController {
   }
 
   @Put(':major_code/edit')
+  @Roles(Role.CONFIGURATOR)
   async editMajor(
     @Req() request: Request,
     @Param('major_code') major_code: string,

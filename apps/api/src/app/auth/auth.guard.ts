@@ -26,7 +26,10 @@ export class AuthenticatedGuard implements CanActivate {
       'isPublic',
       context.getHandler()
     );
-    const roles = this.reflector.get<Role[]>('roles', context.getClass());
+    const roles = this.reflector.getAllAndOverride<Role[]>('roles', [
+      context.getHandler(),
+      context.getClass(),
+    ]);
     const isAuthenticated = isPublic
       ? isPublic
       : request.isAuthenticated()

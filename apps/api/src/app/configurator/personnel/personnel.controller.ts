@@ -21,7 +21,6 @@ import { PersonnelService } from './personnel.service';
 
 @Controller()
 @ApiTags('Personnel')
-@Roles(Role.CONFIGURATOR)
 @UseGuards(AuthenticatedGuard)
 export class PersonnelController {
   constructor(private personnelService: PersonnelService) {}
@@ -81,6 +80,7 @@ export class PersonnelController {
   }
 
   @Put('reset-password')
+  @Roles(Role.CONFIGURATOR)
   async resetPassword(
     @Req() request: Request,
     @Body() { email }: ResetPasswordDto
@@ -105,6 +105,7 @@ export class PersonnelController {
   }
 
   @Put(':login_id/edit')
+  @Roles(Role.CONFIGURATOR)
   async editStaff(
     @Req() request: Request,
     @Param('login_id') login_id: string,
