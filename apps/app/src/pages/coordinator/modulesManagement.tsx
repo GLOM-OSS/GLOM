@@ -19,6 +19,7 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
+import CreditUnitDialog from '../../components/coordinator/creditUnitDialog';
 import CreditUnitLane, {
   CreditUnitSkeleton,
   RowMenu,
@@ -89,7 +90,7 @@ export default function ModulesManagement() {
       //TODO: CALL API HERE TO LOAD MAJORS OF THE COORDINATOR
       if (6 > 5) {
         const newMajors: UEMajor[] = [
-          { major_id: 'lsls', major_name: 'IRT', number_of_years: 2 },
+          { major_id: 'iwld', major_name: 'IRT', number_of_years: 2 },
           { major_id: 'slsls', major_name: 'IMB', number_of_years: 3 },
         ];
         setMajors(newMajors);
@@ -146,16 +147,16 @@ export default function ModulesManagement() {
     setActionnedCreditUnit(creditUnit);
   };
 
-  const [isDeletingCreditUnit, setIsDeletingCreditUnit] =
+  const [isDeletingCreditUnit, setIsManagingCreditUnit] =
     useState<boolean>(false);
-  const [deleteNotif, setDeleteNotif] = useState<useNotification>();
+  const [manageNotif, setManageNotif] = useState<useNotification>();
 
   const deleteCreditUnit = (creditUnit: CreditUnit) => {
     if (actionnedCreditUnit) {
-      setIsDeletingCreditUnit(true);
+      setIsManagingCreditUnit(true);
       const notif = new useNotification();
-      if (deleteNotif) deleteNotif.dismiss();
-      setDeleteNotif(notif);
+      if (manageNotif) manageNotif.dismiss();
+      setManageNotif(notif);
       notif.notify({ render: formatMessage({ id: 'deletingCreditUnit' }) });
       setTimeout(() => {
         //TODO: CALL API HERE TO DELETE CREDIT UNIT WITH DATA creditUnit.annual_credit_unit_id
@@ -163,7 +164,44 @@ export default function ModulesManagement() {
           notif.update({
             render: formatMessage({ id: 'deletedSuccessfully' }),
           });
-          setIsDeletingCreditUnit(false);
+          setIsManagingCreditUnit(false);
+          setCreditUnits(
+            creditUnits.filter(
+              ({ annual_credit_unit_id: acu }) =>
+                acu !== creditUnit.annual_credit_unit_id
+            )
+          );
+          setActionnedCreditUnit(undefined);
+          setIsConfirmDeleteDialogOpen(false);
+        } else {
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={() => deleteCreditUnit(creditUnit)}
+                notification={notif}
+                message={formatMessage({ id: 'deleteCreditUnitFailed' })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
+      }, 3000);
+    }
+    if (actionnedCreditUnit) {
+      setIsManagingCreditUnit(true);
+      const notif = new useNotification();
+      if (manageNotif) manageNotif.dismiss();
+      setManageNotif(notif);
+      notif.notify({ render: formatMessage({ id: 'deletingCreditUnit' }) });
+      setTimeout(() => {
+        //TODO: CALL API HERE TO DELETE CREDIT UNIT WITH DATA creditUnit.annual_credit_unit_id
+        if (5 > 4) {
+          notif.update({
+            render: formatMessage({ id: 'deletedSuccessfully' }),
+          });
+          setIsManagingCreditUnit(false);
           setCreditUnits(
             creditUnits.filter(
               ({ annual_credit_unit_id: acu }) =>
@@ -190,6 +228,77 @@ export default function ModulesManagement() {
     }
   };
 
+  const manageCreditUnit = (creditUnit: CreditUnit) => {
+    setIsManagingCreditUnit(true);
+    const notif = new useNotification();
+    if (manageNotif) manageNotif.dismiss();
+    setManageNotif(notif);
+    if (actionnedCreditUnit) {
+      notif.notify({ render: formatMessage({ id: 'editingCreditUnit' }) });
+      setTimeout(() => {
+        //TODO: CALL API HERE TO edit CREDIT UNIT WITH DATA creditUnit
+        if (5 > 4) {
+          notif.update({
+            render: formatMessage({ id: 'editedSuccessfully' }),
+          });
+          setIsManagingCreditUnit(false);
+          setCreditUnits([
+            ...creditUnits.filter(
+              ({ annual_credit_unit_id: acu }) =>
+                acu !== creditUnit.annual_credit_unit_id
+            ),
+            creditUnit,
+          ]);
+          setActionnedCreditUnit(undefined);
+        } else {
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={() => manageCreditUnit(creditUnit)}
+                notification={notif}
+                message={formatMessage({ id: 'editCreditUnitFailed' })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
+      }, 3000);
+    } else {
+      notif.notify({ render: formatMessage({ id: 'creatingCreditUnit' }) });
+      setTimeout(() => {
+        //TODO: CALL API HERE TO create CREDIT UNIT WITH DATA creditUnit
+        if (5 > 4) {
+          notif.update({
+            render: formatMessage({ id: 'createdSuccessfully' }),
+          });
+          setIsManagingCreditUnit(false);
+          //TODO: PUT NEW CREDIT UNIT IN HERE
+          const newCreditUnit: CreditUnit = {
+            ...creditUnit,
+            annual_credit_unit_id: 'eisl',
+          };
+          setCreditUnits([...creditUnits, newCreditUnit]);
+          setActionnedCreditUnit(undefined);
+        } else {
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={() => manageCreditUnit(creditUnit)}
+                notification={notif}
+                message={formatMessage({ id: 'createCreditUnitFailed' })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
+      }, 3000);
+    }
+  };
+
   return (
     <>
       <RowMenu
@@ -197,6 +306,16 @@ export default function ModulesManagement() {
         closeMenu={() => setAnchorEl(null)}
         deleteCreditUnit={() => setIsConfirmDeleteDialogOpen(true)}
         editCreditUnit={() => setIsEditDialogOpen(true)}
+      />
+      <CreditUnitDialog
+        handleSubmit={(values: CreditUnit) => manageCreditUnit(values)}
+        closeDialog={() => {
+          setActionnedCreditUnit(undefined);
+          setIsEditDialogOpen(false);
+        }}
+        majors={majors}
+        isDialogOpen={isEditDialogOpen}
+        editableCreditUnit={actionnedCreditUnit}
       />
       <ConfirmDeleteDialog
         closeDialog={() => {
@@ -312,14 +431,12 @@ export default function ModulesManagement() {
                       borderBottom: `1px solid ${theme.common.line}`,
                       borderTop: `1px solid ${theme.common.line}`,
                       padding: `0 ${theme.spacing(4.625)}`,
-                      // backgroundColor: theme.common.,
                     }}
                   >
                     <TableCell
-                      component="th"
-                      scope="row"
-                      rowSpan={5}
+                      colSpan={5}
                       align="center"
+                      sx={{ textAlign: 'center' }}
                     >
                       {formatMessage({ id: 'noCreditUnitsYet' })}
                     </TableCell>
@@ -339,7 +456,9 @@ export default function ModulesManagement() {
             </Table>
           </Scrollbars>
           <Fab
-            disabled={areCreditUnitsLoading || isDeletingCreditUnit || isEditDialogOpen}
+            disabled={
+              areCreditUnitsLoading || isDeletingCreditUnit || isEditDialogOpen
+            }
             onClick={() => setIsEditDialogOpen(true)}
             color="primary"
             sx={{ position: 'absolute', bottom: 16, right: 24 }}
