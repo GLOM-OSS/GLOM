@@ -45,12 +45,12 @@ export class CreditUnitSubjectService {
         const subjectPart = subjectParts.find(
           (_) => _.subject_part_id === subject_part_id
         );
-          return {
-            created_by,
-            subject_part_id,
-            number_of_hours: subjectPart?.number_of_hours ?? 0,
-            annual_teacher_id: subjectParts[0].annual_teacher_id,
-          };
+        return {
+          created_by,
+          subject_part_id,
+          number_of_hours: subjectPart?.number_of_hours ?? 0,
+          annual_teacher_id: subjectParts[0].annual_teacher_id,
+        };
       }
     );
     return this.prismaService.annualCreditUnitSubject.create({
@@ -165,24 +165,49 @@ export class CreditUnitSubjectService {
   async getCreditUnitSubjects(annual_credit_unit_id: string) {
     const annualCreditUnitSubjects =
       await this.prismaService.annualCreditUnitSubject.findMany({
-        include: { AnnualCreditUnitHasSubjectParts: true },
-        where: { annual_credit_unit_id },
+        include: {
+          AnnualCreditUnitHasSubjectParts: {
+            orderBy: { SubjectPart: { subject_part_name: 'asc' } },
+            include: {
+              SubjectPart: { select: { subject_part_name: true } },
+              AnnualTeacher: {
+                select: {
+                  Login: {
+                    select: {
+                      Person: { select: { first_name: true, last_name: true } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        where: { annual_credit_unit_id, is_deleted: false },
       });
-
     return annualCreditUnitSubjects.map(
       ({
         AnnualCreditUnitHasSubjectParts: subjectParts,
         ...annualCreditUnitSubject
-      }) => ({
-        ...annualCreditUnitSubject,
-        subjectParts: subjectParts.map(
-          ({ annual_teacher_id, number_of_hours, subject_part_id }) => ({
-            annual_teacher_id,
-            number_of_hours,
-            subject_part_id,
-          })
-        ),
-      })
+      }) => {
+        const {
+          AnnualTeacher: {
+            Login: {
+              Person: { first_name, last_name },
+            },
+          },
+        } = subjectParts[0];
+        return {
+          ...annualCreditUnitSubject,
+          main_teacher_fullname: `${first_name} ${last_name}`,
+          subjectParts: subjectParts.map(
+            ({ annual_teacher_id, number_of_hours, subject_part_id }) => ({
+              annual_teacher_id,
+              number_of_hours,
+              subject_part_id,
+            })
+          ),
+        };
+      }
     );
   }
 }

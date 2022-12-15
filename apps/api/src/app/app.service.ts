@@ -29,7 +29,7 @@ export class AppService {
   private async seedSubjectParts() {
     await this.prismaService.subjectPart.createMany({
       data: [
-        { subject_part_name: 'CA' },
+        { subject_part_name: 'CM' },
         { subject_part_name: 'TP' },
         { subject_part_name: 'TD' },
       ],
