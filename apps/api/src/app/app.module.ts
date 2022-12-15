@@ -22,6 +22,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfiguratorModule } from './configurator/configurator.module';
 import { CoordinatorModule } from './coordinator/coordinator.module';
 import { DemandModule } from './demand/demand.module';
+import { RegistryModule } from './registry/registry.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { DemandModule } from './demand/demand.module';
     DemandModule,
     ConfiguratorModule,
     CoordinatorModule,
+    RegistryModule,
   ],
   controllers: [AppController],
   providers: [
