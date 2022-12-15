@@ -61,6 +61,10 @@ export const routes = [
         path: 'subjects-and-modules',
         element: <ModulesManagement />,
       },
+      {
+        path: 'subjects-and-modules/:',
+        element: <ModulesManagement />,
+      },
       { path: '*', element: <Navigate to="/" /> },
     ],
   },
