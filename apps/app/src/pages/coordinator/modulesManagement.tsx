@@ -298,7 +298,22 @@ export default function ModulesManagement() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {creditUnits &&
+              {areCreditUnitsLoading ? (
+                'loading'
+              ) : creditUnits.length === 0 ? (
+                <TableRow
+                  sx={{
+                    borderBottom: `1px solid ${theme.common.line}`,
+                    borderTop: `1px solid ${theme.common.line}`,
+                    padding: `0 ${theme.spacing(4.625)}`,
+                    // backgroundColor: theme.common.,
+                  }}
+                >
+                  <TableCell component="th" scope="row" rowSpan={5} align='center'>
+                    {formatMessage({id:'noCreditUnitsYet'})}
+                  </TableCell>
+                </TableRow>
+              ) : (
                 creditUnits.map((creditUnit, index) => (
                   <CreditUnitLane
                     setAnchorEl={setAnchorEl}
@@ -307,7 +322,8 @@ export default function ModulesManagement() {
                     key={index}
                     isSubmitting={isDeletingCreditUnit}
                   />
-                ))}
+                ))
+              )}
             </TableBody>
           </Table>
         </Scrollbars>
