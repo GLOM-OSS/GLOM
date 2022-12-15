@@ -1,5 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { GradeWeighting } from '@squoolr/interfaces';
+import { AUTH404 } from 'apps/api/src/errors';
 import { PrismaService } from 'apps/api/src/prisma/prisma.service';
 import { GradeWeightingPostDto } from '../registry.dto';
 
@@ -50,6 +52,43 @@ export class GradeWeightingService {
         AcademicYear: { connect: { academic_year_id } },
         AnnualRegistry: { connect: { annual_registry_id } },
       },
+    });
+  }
+
+  async updateGradeWeighting(
+    annual_grade_weighting_id: string,
+    newGradeWeighting: Prisma.AnnualGradeWeightingUpdateInput,
+    annual_registry_id: string
+  ) {
+    const annualGradeWeighting =
+      await this.prismaService.annualGradeWeighting.findUnique({
+        select: {
+          grade_id: true,
+          minimum: true,
+          maximum: true,
+          point: true,
+          observation: true,
+          is_deleted: true,
+        },
+        where: { annual_grade_weighting_id },
+      });
+    if (!annualGradeWeighting)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Grade Weighting')),
+        HttpStatus.NOT_FOUND
+      );
+
+    return this.prismaService.annualGradeWeighting.update({
+      data: {
+        ...newGradeWeighting,
+        AnnualGradeWeightingAudits: {
+          create: {
+            ...annualGradeWeighting,
+            audited_by: annual_registry_id,
+          },
+        },
+      },
+      where: { annual_grade_weighting_id },
     });
   }
 }

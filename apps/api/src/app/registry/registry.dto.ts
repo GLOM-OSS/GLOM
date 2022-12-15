@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsNumber, IsString, IsUUID, Min } from 'class-validator';
 
 export class WeightingPutDto {
@@ -39,3 +39,5 @@ export class GradeWeightingPostDto {
   @ApiProperty()
   observation: string;
 }
+
+export class GradeWeightingPutDto extends PartialType(GradeWeightingPostDto) {}
