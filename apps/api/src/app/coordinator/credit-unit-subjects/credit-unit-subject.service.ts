@@ -2,7 +2,10 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AUTH404 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
-import { CreditUnitSubjectPostDto, CreditUnitSubjectPutDto } from '../coordinator.dto';
+import {
+  CreditUnitSubjectPostDto,
+  CreditUnitSubjectPutDto,
+} from '../coordinator.dto';
 
 @Injectable()
 export class CreditUnitSubjectService {
@@ -26,21 +29,28 @@ export class CreditUnitSubjectService {
     }
   ) {
     const { school_id, created_by } = metaData;
+
+    const annualCreditUnit =
+      await this.prismaService.annualCreditUnit.findUnique({
+        where: { annual_credit_unit_id },
+      });
+    if (!annualCreditUnit)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Credit Unit')),
+        HttpStatus.NOT_FOUND
+      );
     const allSubjectParts = await this.prismaService.subjectPart.findMany();
     const annualCreditUnitHasSubjectParts = allSubjectParts.map(
       ({ subject_part_id }) => {
         const subjectPart = subjectParts.find(
           (_) => _.subject_part_id === subject_part_id
         );
-        if (subjectPart) {
-          const { annual_teacher_id, number_of_hours } = subjectPart;
           return {
-            number_of_hours,
-            subject_part_id,
-            annual_teacher_id,
             created_by,
+            subject_part_id,
+            number_of_hours: subjectPart?.number_of_hours ?? 0,
+            annual_teacher_id: subjectParts[0].annual_teacher_id,
           };
-        }
       }
     );
     return this.prismaService.annualCreditUnitSubject.create({
@@ -150,5 +160,29 @@ export class CreditUnitSubjectService {
         skipDuplicates: true,
       }),
     ]);
+  }
+
+  async getCreditUnitSubjects(annual_credit_unit_id: string) {
+    const annualCreditUnitSubjects =
+      await this.prismaService.annualCreditUnitSubject.findMany({
+        include: { AnnualCreditUnitHasSubjectParts: true },
+        where: { annual_credit_unit_id },
+      });
+
+    return annualCreditUnitSubjects.map(
+      ({
+        AnnualCreditUnitHasSubjectParts: subjectParts,
+        ...annualCreditUnitSubject
+      }) => ({
+        ...annualCreditUnitSubject,
+        subjectParts: subjectParts.map(
+          ({ annual_teacher_id, number_of_hours, subject_part_id }) => ({
+            annual_teacher_id,
+            number_of_hours,
+            subject_part_id,
+          })
+        ),
+      })
+    );
   }
 }

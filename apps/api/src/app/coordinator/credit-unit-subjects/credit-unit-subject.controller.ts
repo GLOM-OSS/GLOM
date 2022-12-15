@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Put, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { DeserializeSessionData } from '../../../utils/types';
 import {
@@ -11,6 +11,15 @@ import { CreditUnitSubjectService } from './credit-unit-subject.service';
 export class CreditUnitSubjectController {
   constructor(private creditUnitSubjectService: CreditUnitSubjectService) {}
 
+  @Get(':annual_credit_unit_id/all')
+  async getCreditUnitSubjects(
+    @Param('annual_credit_unit_id') annual_credit_unit_id: string
+  ) {
+    return await this.creditUnitSubjectService.getCreditUnitSubjects(
+      annual_credit_unit_id
+    );
+  }
+  
   @Post('/new')
   async createSubject(
     @Req() request: Request,
@@ -20,10 +29,13 @@ export class CreditUnitSubjectController {
       school_id,
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
-    return this.creditUnitSubjectService.createCreditUnitSubject(newCreditUnitSubject, {
-      school_id,
-      created_by: annual_teacher_id,
-    });
+    return this.creditUnitSubjectService.createCreditUnitSubject(
+      newCreditUnitSubject,
+      {
+        school_id,
+        created_by: annual_teacher_id,
+      }
+    );
   }
 
   @Put('/:annual_credit_unit_subject_id/edit')
