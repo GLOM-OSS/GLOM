@@ -71,10 +71,7 @@ export class AuthService {
               school_id: login.school_id,
             };
           } catch (error) {
-            if (
-              i === userLogins.length - 1 &&
-              error?.statusCode === HttpStatus.UNAUTHORIZED
-            )
+            if (i === userLogins.length - 1)
               throw new HttpException(error?.message, error?.statusCode);
           }
         }
@@ -83,7 +80,7 @@ export class AuthService {
     throw new UnauthorizedException({
       statusCode: HttpStatus.UNAUTHORIZED,
       error: 'Unauthorized access',
-      message: AUTH401['Fr'],
+      message: JSON.stringify(AUTH401),
     });
   }
 
@@ -128,11 +125,11 @@ export class AuthService {
         },
       },
     });
-    if (activeLogs >= 3) {
+    if (activeLogs === 3) {
       throw new UnauthorizedException({
         statusCode: HttpStatus.TOO_MANY_REQUESTS,
         error: 'Unauthorized access',
-        message: AUTH02['Fr'],
+        message: JSON.stringify(AUTH02),
       });
     }
 

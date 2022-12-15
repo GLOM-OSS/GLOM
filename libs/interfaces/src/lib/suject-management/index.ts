@@ -16,19 +16,29 @@ export interface CreditUnit extends CreateCreditUnit {
   annual_credit_unit_id: string;
 }
 
-export interface CreateCreditUnitSubject {
-  weighting: number;
-  credit_points: number;
-  credit_unit_id: string;
+export interface SubjectPart {
   annual_teacher_id: string;
-  subject_title: string;
-  objective: string;
-  subjectParts: {
-    subject_part_id: string;
-    number_of_hours: number;
-  }[];
+  subject_part_id: string;
+  number_of_hours: number;
 }
 
-export interface CreditUnitSubject extends CreateCreditUnitSubject {
-  annual_credit_unit_has_subject_id: number;
+export interface CreateCreditUnitSubject {
+  weighting: number;
+  objective: string;
+  subject_code: string;
+  subject_title: string;
+  annual_credit_unit_id: string;
+  subjectParts: SubjectPart[];
+}
+
+export interface CreditUnitSubject {
+  objective: string;
+  weighting: number;
+  subject_id: string;
+  subject_code: string;
+  subject_title: string;
+  subjectParts: SubjectPart[];
+  main_teacher_fullname: string;
+  annual_credit_unit_id: string;
+  annual_credit_unit_subject_id: string
 }

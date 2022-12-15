@@ -21,16 +21,12 @@ import { PersonnelService } from '../personnel.service';
 
 @Controller()
 @ApiTags('Personnel/configurators')
-@Roles(Role.CONFIGURATOR)
 @UseGuards(AuthenticatedGuard)
 export class ConfiguratorController {
   constructor(private personnelService: PersonnelService) {}
 
   @Get('all')
-  async findAll(
-    @Req() request: Request,
-    @Query() query: PersonnelQueryDto
-  ) {
+  async findAll(@Req() request: Request, @Query() query: PersonnelQueryDto) {
     const {
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
@@ -55,6 +51,7 @@ export class ConfiguratorController {
   }
 
   @Put(':annual_configurator_id/archive')
+  @Roles(Role.CONFIGURATOR)
   async archive(
     @Req() request: Request,
     @Param('annual_configurator_id') annual_configurator_id: string
@@ -76,6 +73,7 @@ export class ConfiguratorController {
   }
 
   @Post('/new')
+  @Roles(Role.CONFIGURATOR)
   async create(@Req() request: Request, @Body() newStaff: StaffPostData) {
     const {
       annualConfigurator: { annual_configurator_id },
