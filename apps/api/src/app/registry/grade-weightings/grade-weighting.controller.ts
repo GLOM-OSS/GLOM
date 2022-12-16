@@ -9,11 +9,11 @@ import {
   Post,
   Put,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
-import { DeserializeSessionData, Role } from 'apps/api/src/utils/types';
-import { Roles } from '../../app.decorator';
 import { Request } from 'express';
+import { DeserializeSessionData, Role } from '../../../utils/types';
+import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import { GradeWeightingPostDto, GradeWeightingPutDto } from '../registry.dto';
 import { GradeWeightingService } from './grade-weighting.service';
