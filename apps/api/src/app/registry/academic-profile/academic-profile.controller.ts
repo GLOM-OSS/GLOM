@@ -1,11 +1,13 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
   Param,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -13,7 +15,7 @@ import { DeserializeSessionData } from '../../../utils/types';
 import { Request } from 'express';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import { AcademicProfileService } from './academic-profile.service';
-import { AcademicProfilePostDto } from '../registry.dto';
+import { AcademicProfilePostDto, AcademicProfilePutDto } from '../registry.dto';
 
 @Controller()
 @UseGuards(AuthenticatedGuard)
@@ -50,6 +52,45 @@ export class AcademicProfileController {
       return await this.academicProfileService.addNewAcademicProfile(
         newAcademicProfile,
         academic_year_id,
+        annual_registry_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Put(':annual_academic_profile_id/edit')
+  async updateAcademicProfile(
+    @Req() request: Request,
+    @Param('annual_academic_profile_id') annual_academic_profile_id: string,
+    @Body() updatedData: AcademicProfilePutDto
+  ) {
+    const {
+      annualRegistry: { annual_registry_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      await this.academicProfileService.updateAcademicProfile(
+        annual_academic_profile_id,
+        updatedData,
+        annual_registry_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Delete(':annual_academic_profile_id/delete')
+  async deleteAcademicProfile(
+    @Req() request: Request,
+    @Param('annual_academic_profile_id') annual_academic_profile_id: string
+  ) {
+    const {
+      annualRegistry: { annual_registry_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      await this.academicProfileService.updateAcademicProfile(
+        annual_academic_profile_id,
+        { is_deleted: true },
         annual_registry_id
       );
     } catch (error) {

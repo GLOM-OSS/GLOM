@@ -935,7 +935,8 @@ model AnnualAcademicProfile {
     AcademicYear               AcademicYear                 @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
     configured_by              String                       @db.VarChar(36)
     AnnualRegistry             AnnualRegistry               @relation(fields: [configured_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
-    AnnualAcademicProfileAudit AnnualAcademicProfileAudit[]
+    
+    AnnualAcademicProfileAudits AnnualAcademicProfileAudit[]
 }
 
 model AnnualAcademicProfileAudit {
