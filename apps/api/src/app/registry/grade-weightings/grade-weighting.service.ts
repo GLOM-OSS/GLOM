@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { GradeWeighting } from '@squoolr/interfaces';
-import { AUTH404 } from 'apps/api/src/errors';
-import { PrismaService } from 'apps/api/src/prisma/prisma.service';
+import { AUTH404 } from '../../../errors';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { GradeWeightingPostDto } from '../registry.dto';
 
 @Injectable()
