@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { RouterModule } from '@nestjs/core';
-import { AcademicProfileModule } from './academic-profile/academic-profile.module';
+import { AcademicProfileModule } from './academic-profiles/academic-profile.module';
 import { GradeWeightingModule } from './grade-weightings/grade-weighting.module';
 import { WeightingSystemModule } from './weighting-systems/weighting-system.module';
 
