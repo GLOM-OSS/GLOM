@@ -93,7 +93,7 @@ export class AcademicProfileService {
     }: Prisma.AnnualAcademicProfileUpdateInput,
     annual_registry_id: string
   ) {
-    const overlappedProfile =
+    const academicProfile =
       await this.prismaService.annualAcademicProfile.findUnique({
         select: {
           comment: true,
@@ -104,22 +104,22 @@ export class AcademicProfileService {
         },
         where: { annual_academic_profile_id },
       });
-    if (!overlappedProfile)
+    if (!academicProfile)
       throw new HttpException(
         JSON.stringify(AUTH404('Academic Profile')),
         HttpStatus.NOT_FOUND
       );
-    const { academic_year_id, ...overlappedProfileData } = overlappedProfile;
-    const academicProfile = await this.getOverlappingProfile(academic_year_id, {
+    const { academic_year_id, ...overlappedProfileData } = academicProfile;
+    const overlappedProfile = await this.getOverlappingProfile(academic_year_id, {
       exculed_profile_id: annual_academic_profile_id,
       maximum_score: maximum_score
         ? (maximum_score as number)
-        : overlappedProfile.maximum_score,
+        : academicProfile.maximum_score,
       minimum_score: minimum_score
         ? (minimum_score as number)
-        : overlappedProfile.minimum_score,
+        : academicProfile.minimum_score,
     });
-    if (academicProfile)
+    if (overlappedProfile)
       throw new HttpException(JSON.stringify(ERR09), HttpStatus.CONFLICT);
     return this.prismaService.annualAcademicProfile.update({
       data: {
