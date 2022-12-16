@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { GradeWeighting } from '@squoolr/interfaces';
-import { AUTH404 } from '../../../errors';
+import { AUTH404, ERR09 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { GradeWeightingPostDto } from '../registry.dto';
 
@@ -39,13 +39,68 @@ export class GradeWeightingService {
     });
   }
 
+  async getOverlappingWeighting(
+    academic_year_id: string,
+    cycle_id: string,
+    {
+      maximum,
+      minimum,
+      exculed_grade_weighting_id,
+    }: {
+      minimum: number;
+      maximum: number;
+      exculed_grade_weighting_id?: string;
+    }
+  ) {
+    return this.prismaService.annualGradeWeighting.findFirst({
+      where: {
+        cycle_id,
+        academic_year_id,
+        ...(exculed_grade_weighting_id
+          ? { annual_grade_weighting_id: { not: exculed_grade_weighting_id } }
+          : {}),
+        OR: [
+          { minimum },
+          { maximum },
+          {
+            minimum: { lt: minimum },
+            maximum: { gt: minimum },
+          },
+          {
+            minimum: { lt: maximum },
+            maximum: { gt: maximum },
+          },
+          {
+            minimum: { gt: minimum },
+            maximum: { lt: maximum },
+          },
+        ],
+      },
+    });
+  }
+
   async addNewGradeWeighting(
-    { grade_id, cycle_id, ...newGradeWeighting }: GradeWeightingPostDto,
+    {
+      grade_id,
+      cycle_id,
+      maximum,
+      minimum,
+      ...newGradeWeighting
+    }: GradeWeightingPostDto,
     academic_year_id: string,
     annual_registry_id: string
   ) {
+    const overlappedWieghting = await this.getOverlappingWeighting(
+      academic_year_id,
+      cycle_id,
+      { maximum, minimum }
+    );
+    if (overlappedWieghting)
+      throw new HttpException(JSON.stringify(ERR09), HttpStatus.CONFLICT);
     return this.prismaService.annualGradeWeighting.create({
       data: {
+        maximum,
+        minimum,
         ...newGradeWeighting,
         Cycle: { connect: { cycle_id } },
         Grade: { connect: { grade_id } },
@@ -57,18 +112,24 @@ export class GradeWeightingService {
 
   async updateGradeWeighting(
     annual_grade_weighting_id: string,
-    newGradeWeighting: Prisma.AnnualGradeWeightingUpdateInput,
+    {
+      minimum,
+      maximum,
+      ...newGradeWeighting
+    }: Prisma.AnnualGradeWeightingUpdateInput,
     annual_registry_id: string
   ) {
     const annualGradeWeighting =
       await this.prismaService.annualGradeWeighting.findUnique({
         select: {
-          grade_id: true,
+          point: true,
           minimum: true,
           maximum: true,
-          point: true,
-          observation: true,
+          grade_id: true,
+          cycle_id: true,
           is_deleted: true,
+          observation: true,
+          academic_year_id: true,
         },
         where: { annual_grade_weighting_id },
       });
@@ -77,13 +138,25 @@ export class GradeWeightingService {
         JSON.stringify(AUTH404('Grade Weighting')),
         HttpStatus.NOT_FOUND
       );
-
+    const { academic_year_id, cycle_id, ...annualGradeWeightingData } =
+      annualGradeWeighting;
+    const overlappedWieghting = await this.getOverlappingWeighting(
+      academic_year_id,
+      cycle_id,
+      {
+        exculed_grade_weighting_id: annual_grade_weighting_id,
+        maximum: maximum ? (maximum as number) : annualGradeWeighting.maximum,
+        minimum: minimum ? (minimum as number) : annualGradeWeighting.minimum,
+      }
+    );
+    if (overlappedWieghting)
+      throw new HttpException(JSON.stringify(ERR09), HttpStatus.CONFLICT);
     return this.prismaService.annualGradeWeighting.update({
       data: {
         ...newGradeWeighting,
         AnnualGradeWeightingAudits: {
           create: {
-            ...annualGradeWeighting,
+            ...annualGradeWeightingData,
             audited_by: annual_registry_id,
           },
         },
