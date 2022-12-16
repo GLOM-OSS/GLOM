@@ -100,3 +100,7 @@ export const ERR08 = {
   En: `Semester number cannot be greater than it cycle total number of semester.`,
   Fr: `Le numéro de semestre ne peut etre plus superieur au nombre total de semestres de son cycle.`,
 };
+export const ERR09 = {
+  En: `Sorry, overlapping values where detected.`,
+  Fr: `Désolé, des chauvechements de valeur ont été détecté.`,
+};
