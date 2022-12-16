@@ -7,7 +7,8 @@ import {
   UseGuards
 } from '@nestjs/common';
 import { Request } from 'express';
-import { DeserializeSessionData } from '../../../utils/types';
+import { DeserializeSessionData, Role } from '../../../utils/types';
+import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import { WeightingPutDto } from '../registry.dto';
 import { WeightingSystemService } from './weighting-system.service';
@@ -32,6 +33,7 @@ export class WeightingSystemController {
   }
 
   @Put('upsert')
+  @Roles(Role.REGISTRY)
   async upsertWeightingSystem(
     @Req() request: Request,
     @Body() updateWeightingSystem: WeightingPutDto

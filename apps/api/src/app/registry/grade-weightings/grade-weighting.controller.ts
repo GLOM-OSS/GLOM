@@ -59,6 +59,7 @@ export class GradeWeightingController {
   }
 
   @Put(':annual_grade_weighting_id/edit')
+  @Roles(Role.REGISTRY)
   async updateGradeWeighting(
     @Req() request: Request,
     @Param('annual_grade_weighting_id') annual_grade_weighting_id: string,
@@ -83,6 +84,7 @@ export class GradeWeightingController {
   }
 
   @Delete(':annual_grade_weighting_id/delete')
+  @Roles(Role.REGISTRY)
   async deleteGradeWeighting(
     @Req() request: Request,
     @Param('annual_grade_weighting_id') annual_grade_weighting_id: string
