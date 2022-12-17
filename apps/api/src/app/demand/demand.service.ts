@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { SchoolDemandStatus } from '@prisma/client';
+import { CarryOverSystemEnum, SchoolDemandStatus } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { AUTH404 } from '../../errors';
@@ -9,7 +9,6 @@ import { DemandPostDto, DemandValidateDto } from './demand.dto';
 
 @Injectable()
 export class DemandService {
-  private loginService: typeof this.prismaService.login;
   private schoolService: typeof this.prismaService.school;
   private schoolDemandService: typeof this.prismaService.schoolDemand;
   private annualConfiguratorService: typeof this.prismaService.annualConfigurator;
@@ -18,7 +17,6 @@ export class DemandService {
     private prismaService: PrismaService,
     private codeGenerator: CodeGeneratorService
   ) {
-    this.loginService = prismaService.login;
     this.schoolService = prismaService.school;
     this.schoolDemandService = prismaService.schoolDemand;
     this.annualConfiguratorService = prismaService.annualConfigurator;
@@ -80,6 +78,7 @@ export class DemandService {
       1
     )}`;
     const school_code = await this.codeGenerator.getSchoolCode(school_acronym);
+    const academic_year_id = randomUUID();
     const annual_configurator_id = randomUUID();
     const matricule = `${school_acronym}${this.codeGenerator.getNumberString(
       1
@@ -124,10 +123,36 @@ export class DemandService {
               ends_at,
               starts_at,
               year_code,
+              academic_year_id,
               School: { connect: { school_code } },
             },
           },
         },
+      }),
+      this.prismaService.annualCarryOverSytem.create({
+        data: {
+          carry_over_system: CarryOverSystemEnum.SUBJECT,
+          AcademicYear: { connect: { year_code } },
+          AnnualConfigurator: {
+            connect: { annual_configurator_id },
+          },
+        },
+      }),
+      this.prismaService.annualSemesterExamAcess.createMany({
+        data: [
+          {
+            academic_year_id,
+            payment_percentage: 0,
+            annual_semester_number: 1,
+            configured_by: annual_configurator_id,
+          },
+          {
+            academic_year_id,
+            payment_percentage: 0,
+            annual_semester_number: 2,
+            configured_by: annual_configurator_id,
+          },
+        ],
       }),
       this.annualConfiguratorService.update({
         data: { AnnualConfigurator: { connect: { annual_configurator_id } } },
