@@ -73,7 +73,7 @@ export class WeightingSystemController {
   }
 
   @Roles(Role.REGISTRY)
-  @Put('evaluation-type/:cycle_id/edit')
+  @Put('evaluation-type/:cycle_id/upsert')
   async upsertEvaluationTypeWeighting(
     @Req() request: Request,
     @Param('cycle_id') cycle_id: string,

@@ -123,8 +123,14 @@ export class WeightingSystemService {
           },
         });
       }),
-      this.prismaService.annualMinimumModulationScore.update({
-        data: {
+      this.prismaService.annualMinimumModulationScore.upsert({
+        create: {
+          score: minimum_modulation_score,
+          Cycle: { connect: { cycle_id } },
+          AcademicYear: { connect: { academic_year_id } },
+          AnnualRegistry: { connect: { annual_registry_id } },
+        },
+        update: {
           score: minimum_modulation_score,
           AnnualMinimumModulationScoreAudits: {
             create: {
