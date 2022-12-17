@@ -22,7 +22,7 @@ export const routes = [
     ),
   },
   {
-    path: '/registry/configurations',
+    path: '/secretary/configurations',
     element: <AppLayout />,
     children: [
       {
@@ -60,11 +60,25 @@ export const routes = [
     children: [
       {
         path: 'subjects-and-modules',
-        element: <ModulesManagement />,
+        children: [
+          { path: '', element: <ModulesManagement /> },
+          { path: ':annual_credit_unit_id', element: <SubjectManagement /> },
+        ],
+      },
+      { path: '*', element: <Navigate to="/" /> },
+    ],
+  },
+  {
+    path: '/registry/configurations',
+    element: <AppLayout />,
+    children: [
+      {
+        path: 'weighting-table',
+        element: <Typography>Weighting table is loading</Typography>
       },
       {
-        path: 'subjects-and-modules/:annual_credit_unit_id',
-        element: <SubjectManagement />,
+        path: 'academic-profile',
+        element: <Typography>Academic profile is loading</Typography>
       },
       { path: '*', element: <Navigate to="/" /> },
     ],
