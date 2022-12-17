@@ -48,4 +48,19 @@ export class WeightingSystemController {
       annual_registry_id
     );
   }
+
+  
+  @Get('evaluation-type/:cycle_id')
+  async getEvaluationTypeWeighting(
+    @Req() request: Request,
+    @Param('cycle_id') cycle_id: string
+  ) {
+    const {
+      activeYear: { academic_year_id },
+    } = request.user as DeserializeSessionData;
+    return this.weightingSystemService.getEvaluationTypeWeighting(
+      cycle_id,
+      academic_year_id
+    );
+  }
 }

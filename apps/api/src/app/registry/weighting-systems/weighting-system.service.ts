@@ -44,4 +44,37 @@ export class WeightingSystemService {
       where: { academic_year_id_cycle_id: { cycle_id, academic_year_id } },
     });
   }
+
+  
+  async getEvaluationTypeWeighting(cycle_id: string, academic_year_id: string) {
+    const evaluationWeighting =
+      await this.prismaService.annualEvaluationTypeWeighting.findMany({
+        take: 2,
+        select: {
+          weight: true,
+          EvaluationType: { select: { evaluation_type: true } },
+        },
+        where: { academic_year_id, cycle_id },
+      });
+
+    const minimumModulationScore =
+      await this.prismaService.annualMinimumModulationScore.findFirst({
+        select: { score: true },
+        where: { academic_year_id, cycle_id },
+      });
+
+    return {
+      minimum_modulation_score: minimumModulationScore?.score ?? 0,
+      evaluationTypeWeightings: evaluationWeighting.map(
+        ({ EvaluationType: { evaluation_type }, weight }) => ({
+          weight,
+          evaluation_type,
+        })
+      ),
+    };
+  }
+
+  // async upsertEvaluationTypeWeighting(newEvaluationTypeWeighting: EvaluationTypeWeightingPutDto, academic_year_id: string, ) {
+  //   const 
+  // }
 }

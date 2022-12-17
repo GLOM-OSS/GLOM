@@ -62,9 +62,9 @@ export enum EvaluationType {
   CA = 'CA',
   EXAM = 'EXAM',
 }
-export interface SaveEvaluationTypeWeighting {
+export interface EvaluationTypeWeighting {
   minimum_modulation_score: number;
-  evaluationTypeWeighting: {
+  evaluationTypeWeightings: {
     evaluation_type: EvaluationType;
     weight: number;
   }[];
