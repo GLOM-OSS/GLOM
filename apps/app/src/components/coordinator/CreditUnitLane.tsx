@@ -16,13 +16,13 @@ import { useNavigate } from 'react-router';
 export const RowMenu = ({
   anchorEl,
   closeMenu,
-  deleteCreditUnit: dcu,
-  editCreditUnit: ecu,
+  deleteItem: dcu,
+  editItem: ecu,
 }: {
   anchorEl: null | HTMLElement;
   closeMenu: () => void;
-  deleteCreditUnit: () => void;
-  editCreditUnit: () => void;
+  deleteItem: () => void;
+  editItem: () => void;
 }) => {
   const { formatMessage } = useIntl();
   const menuItems: { menu_title: string; executeFunction: () => void }[] = [
