@@ -71,6 +71,7 @@ export interface EvaluationTypeWeighting {
 }
 
 export interface SemesterExamAccess {
-    sesmeter_number: number;
-    payment_percentage: number;
+  annual_semester_exam_access_id: string;
+  annual_sesmeter_number: 1 | 2;
+  payment_percentage: number;
 }

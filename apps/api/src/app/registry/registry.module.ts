@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { RouterModule } from '@nestjs/core';
 import { AcademicProfileModule } from './academic-profiles/academic-profile.module';
+import { EvaluationModule } from './evaluations/evaluation.module';
 import { GradeWeightingModule } from './grade-weightings/grade-weighting.module';
 import { WeightingSystemModule } from './weighting-systems/weighting-system.module';
 
@@ -9,6 +10,7 @@ import { WeightingSystemModule } from './weighting-systems/weighting-system.modu
     WeightingSystemModule,
     GradeWeightingModule,
     AcademicProfileModule,
+    EvaluationModule,
     RouterModule.register([
       {
         path: 'weighting-system',
@@ -21,6 +23,10 @@ import { WeightingSystemModule } from './weighting-systems/weighting-system.modu
       {
         path: 'academic-profiles',
         module: AcademicProfileModule,
+      },
+      {
+        path: 'evaluations',
+        module: EvaluationModule,
       },
     ]),
   ],
