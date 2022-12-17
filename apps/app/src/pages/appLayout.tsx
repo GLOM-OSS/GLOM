@@ -59,11 +59,32 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
     },
   ];
 
+  const registryNavItems: NavItem[] = [
+    {
+      id: 1,
+      Icon: LayersOutlined,
+      title: 'configurations',
+      children: [
+        {
+          title: formatMessage({ id: 'weightingTable' }),
+          route: 'weighting-table',
+          page_title: 'weightingTable',
+        },
+        {
+          title: formatMessage({ id: 'academicProfile' }),
+          route: 'academic-profile',
+          page_title: 'academicProfile',
+        },
+      ],
+    },
+  ];
+
+
   return (
     <MainLayout
       callingApp="personnel"
       navItems={[
-        { role: 'registry', navItems: navItems },
+        { role: 'registry', navItems: registryNavItems },
         { role: 'coordinator', navItems: coordinatorNavItems },
         { role: 'secretary', navItems: navItems },
       ]}
