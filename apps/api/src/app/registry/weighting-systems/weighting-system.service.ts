@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { AUTH404 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   EvaluationTypeWeightingPutDto,
-  WeightingPutDto,
+  WeightingPutDto
 } from '../registry.dto';
 
 @Injectable()
@@ -85,31 +86,47 @@ export class WeightingSystemService {
     academic_year_id: string,
     annual_registry_id: string
   ) {
+    const cycle = await this.prismaService.cycle.findUnique({
+      where: { cycle_id },
+    });
+    if (!cycle)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Cycle')),
+        HttpStatus.NOT_FOUND
+      );
     const evaluationTypeWeightings =
       await this.prismaService.annualEvaluationTypeWeighting.findMany({
         select: { evaluation_type_id: true, weight: true },
         where: { academic_year_id, cycle_id },
       });
     const evaluationTypes = await this.prismaService.evaluationType.findMany();
-    const { score } =
+    const minimumModulationScore =
       await this.prismaService.annualMinimumModulationScore.findUnique({
         select: { score: true },
         where: { academic_year_id_cycle_id: { academic_year_id, cycle_id } },
       });
 
-    this.prismaService.$transaction([
+    return this.prismaService.$transaction([
       ...newEvaluationTypeWeightings.map((etw) => {
         const { evaluation_type_id } = evaluationTypes.find(
           (_) => _.evaluation_type === etw.evaluation_type
         );
-        return this.prismaService.annualEvaluationTypeWeighting.update({
-          data: {
+        return this.prismaService.annualEvaluationTypeWeighting.upsert({
+          create: {
+            weight: etw.weight,
+            Cycle: { connect: { cycle_id } },
+            AcademicYear: { connect: { academic_year_id } },
+            AnnualRegistry: { connect: { annual_registry_id } },
+            EvaluationType: { connect: { evaluation_type_id } },
+          },
+          update: {
             weight: etw.weight,
             AnnualEvaluationTypeWeightingAudits: {
               create: {
-                weight: evaluationTypeWeightings.find(
-                  (_) => _.evaluation_type_id === evaluation_type_id
-                ).weight,
+                weight:
+                  evaluationTypeWeightings.find(
+                    (_) => _.evaluation_type_id === evaluation_type_id
+                  )?.weight ?? 50,
                 audited_by: annual_registry_id,
               },
             },
@@ -134,7 +151,7 @@ export class WeightingSystemService {
           score: minimum_modulation_score,
           AnnualMinimumModulationScoreAudits: {
             create: {
-              score,
+              score: minimumModulationScore?.score ?? 10,
               configured_by: annual_registry_id,
             },
           },

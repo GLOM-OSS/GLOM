@@ -84,7 +84,7 @@ export class WeightingSystemController {
       annualRegistry: { annual_registry_id },
     } = request.user as DeserializeSessionData;
     try {
-      await this.weightingSystemService.upsertEvaluationTypeWeighting(
+      return await this.weightingSystemService.upsertEvaluationTypeWeighting(
         cycle_id,
         updatedData,
         academic_year_id,
