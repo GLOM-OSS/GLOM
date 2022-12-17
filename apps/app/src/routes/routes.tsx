@@ -3,6 +3,7 @@ import { Navigate } from 'react-router';
 import Classrooms from '../components/secretary/classrooms';
 import AppLayout from '../pages/appLayout';
 import ModulesManagement from '../pages/coordinator/modulesManagement';
+import SubjectManagement from '../pages/coordinator/subjectManagement';
 import Departments from '../pages/secretary/departments';
 import Majors from '../pages/secretary/majors';
 import NewAcademicYear from '../pages/secretary/newAcademicYear';
@@ -21,7 +22,7 @@ export const routes = [
     ),
   },
   {
-    path: '/registry/configurations',
+    path: '/secretary/configurations',
     element: <AppLayout />,
     children: [
       {
@@ -59,7 +60,25 @@ export const routes = [
     children: [
       {
         path: 'subjects-and-modules',
-        element: <ModulesManagement />,
+        children: [
+          { path: '', element: <ModulesManagement /> },
+          { path: ':annual_credit_unit_id', element: <SubjectManagement /> },
+        ],
+      },
+      { path: '*', element: <Navigate to="/" /> },
+    ],
+  },
+  {
+    path: '/registry/configurations',
+    element: <AppLayout />,
+    children: [
+      {
+        path: 'weighting-table',
+        element: <Typography>Weighting table is loading</Typography>
+      },
+      {
+        path: 'academic-profile',
+        element: <Typography>Academic profile is loading</Typography>
       },
       { path: '*', element: <Navigate to="/" /> },
     ],
