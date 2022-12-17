@@ -1,5 +1,5 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { EvaluationTypeEnum } from '@prisma/client';
+import { CarryOverSystemEnum, EvaluationTypeEnum } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -122,4 +122,10 @@ export class SemesterExamAccessPutDto {
   @ValidateNested({ each: true })
   @Type(() => SemesterExamAccess)
   semesterExamAccess: SemesterExamAccess[];
+}
+
+export class CarryOverSystemPutDto {
+  @ApiProperty()
+  @IsEnum(CarryOverSystemEnum)
+  carry_over_system: CarryOverSystemEnum;
 }
