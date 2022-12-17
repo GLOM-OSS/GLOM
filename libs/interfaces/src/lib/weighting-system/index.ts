@@ -25,14 +25,15 @@ export interface CreateWeightingSystem {
 }
 
 export interface CreateGradeWeighting {
+  point: number;
   minimum: number;
   maximum: number;
   grade_id: string;
-  point: number;
+  cycle_id: string;
   observation: string;
 }
 
-export interface GradeWeighting extends Omit<CreateGradeWeighting, 'grade_id'> {
+export interface GradeWeighting extends CreateGradeWeighting {
   grade_value: string;
   annual_grade_weighting_id: string;
 }
@@ -61,15 +62,16 @@ export enum EvaluationType {
   CA = 'CA',
   EXAM = 'EXAM',
 }
-export interface SaveEvaluationTypeWeighting {
+export interface EvaluationTypeWeighting {
   minimum_modulation_score: number;
-  evaluationTypeWeighting: {
+  evaluationTypeWeightings: {
     evaluation_type: EvaluationType;
     weight: number;
   }[];
 }
 
 export interface SemesterExamAccess {
-    sesmeter_number: number;
-    payment_percentage: number;
+  annual_semester_exam_access_id: string;
+  annual_sesmeter_number: 1 | 2;
+  payment_percentage: number;
 }

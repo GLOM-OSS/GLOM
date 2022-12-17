@@ -2,15 +2,20 @@ import {
   Body,
   Controller,
   Get,
-  Param,
-  Put,
+  HttpException,
+  HttpStatus,
+  Param, Put,
   Req,
   UseGuards
 } from '@nestjs/common';
 import { Request } from 'express';
-import { DeserializeSessionData } from '../../../utils/types';
+import { DeserializeSessionData, Role } from '../../../utils/types';
+import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
-import { WeightingPutDto } from '../registry.dto';
+import {
+  EvaluationTypeWeightingPutDto,
+  WeightingPutDto
+} from '../registry.dto';
 import { WeightingSystemService } from './weighting-system.service';
 
 @Controller()
@@ -33,6 +38,7 @@ export class WeightingSystemController {
   }
 
   @Put('upsert')
+  @Roles(Role.REGISTRY)
   async upsertWeightingSystem(
     @Req() request: Request,
     @Body() updateWeightingSystem: WeightingPutDto
@@ -41,24 +47,51 @@ export class WeightingSystemController {
       activeYear: { academic_year_id },
       annualRegistry: { annual_registry_id },
     } = request.user as DeserializeSessionData;
-    await this.weightingSystemService.upsertAnnualWeighting(
-      updateWeightingSystem,
-      academic_year_id,
-      annual_registry_id
-    );
+    try {
+      await this.weightingSystemService.upsertAnnualWeighting(
+        updateWeightingSystem,
+        academic_year_id,
+        annual_registry_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  @Get('grades/:cylce_id/all')
-  async getGradeWeightings(@Param('cycle_id') cycle_id: string) {
-    return await this.weightingSystemService.getAnnualGradeWeightings(cycle_id);
-  }
-
-  @Get('grades/:annnual_grade_weighting_id')
-  async getGradeWeighting(
-    @Param('annual_grade_weighting_id') annual_grade_weighting_id: string
+  @Get('evaluation-type/:cycle_id')
+  async getEvaluationTypeWeighting(
+    @Req() request: Request,
+    @Param('cycle_id') cycle_id: string
   ) {
-    return await this.weightingSystemService.getAnnualWeightingGrade(
-      annual_grade_weighting_id
+    const {
+      activeYear: { academic_year_id },
+    } = request.user as DeserializeSessionData;
+    return this.weightingSystemService.getEvaluationTypeWeighting(
+      cycle_id,
+      academic_year_id
     );
+  }
+
+  @Roles(Role.REGISTRY)
+  @Put('evaluation-type/:cycle_id/edit')
+  async upsertEvaluationTypeWeighting(
+    @Req() request: Request,
+    @Param('cycle_id') cycle_id: string,
+    @Body() updatedData: EvaluationTypeWeightingPutDto
+  ) {
+    const {
+      activeYear: { academic_year_id },
+      annualRegistry: { annual_registry_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      await this.weightingSystemService.upsertEvaluationTypeWeighting(
+        cycle_id,
+        updatedData,
+        academic_year_id,
+        annual_registry_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

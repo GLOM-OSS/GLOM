@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { GradeWeighting } from '@squoolr/interfaces';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { WeightingPutDto } from '../registry.dto';
+import {
+  EvaluationTypeWeightingPutDto,
+  WeightingPutDto,
+} from '../registry.dto';
 
 @Injectable()
 export class WeightingSystemService {
@@ -46,31 +48,93 @@ export class WeightingSystemService {
     });
   }
 
-  async getAnnualGradeWeightings(cycle_id: string): Promise<GradeWeighting[]> {
-    const annualGradeWeightings =
-      await this.prismaService.annualGradeWeighting.findMany({
+  async getEvaluationTypeWeighting(cycle_id: string, academic_year_id: string) {
+    const evaluationWeighting =
+      await this.prismaService.annualEvaluationTypeWeighting.findMany({
+        take: 2,
         select: {
-          point: true,
-          maximum: true,
-          minimum: true,
-          observation: true,
-          annual_grade_weighting_id: true,
-          Grade: { select: { grade_value: true } },
+          weight: true,
+          EvaluationType: { select: { evaluation_type: true } },
         },
-        where: { cycle_id, is_deleted: false },
+        where: { academic_year_id, cycle_id },
       });
 
-    return annualGradeWeightings.map(
-      ({ Grade: { grade_value }, ...annualGradeWeighting }) => ({
-        grade_value,
-        ...annualGradeWeighting,
-      })
-    );
+    const minimumModulationScore =
+      await this.prismaService.annualMinimumModulationScore.findFirst({
+        select: { score: true },
+        where: { academic_year_id, cycle_id },
+      });
+
+    return {
+      minimum_modulation_score: minimumModulationScore?.score ?? 0,
+      evaluationTypeWeightings: evaluationWeighting.map(
+        ({ EvaluationType: { evaluation_type }, weight }) => ({
+          weight,
+          evaluation_type,
+        })
+      ),
+    };
   }
 
-  async getAnnualWeightingGrade(annual_grade_weighting_id: string) {
-    return this.prismaService.annualGradeWeighting.findUnique({
-        where: { annual_grade_weighting_id },
+  async upsertEvaluationTypeWeighting(
+    cycle_id: string,
+    {
+      evaluationTypeWeightings: newEvaluationTypeWeightings,
+      minimum_modulation_score,
+    }: EvaluationTypeWeightingPutDto,
+    academic_year_id: string,
+    annual_registry_id: string
+  ) {
+    const evaluationTypeWeightings =
+      await this.prismaService.annualEvaluationTypeWeighting.findMany({
+        select: { evaluation_type_id: true, weight: true },
+        where: { academic_year_id, cycle_id },
       });
+    const evaluationTypes = await this.prismaService.evaluationType.findMany();
+    const { score } =
+      await this.prismaService.annualMinimumModulationScore.findUnique({
+        select: { score: true },
+        where: { academic_year_id_cycle_id: { academic_year_id, cycle_id } },
+      });
+
+    this.prismaService.$transaction([
+      ...newEvaluationTypeWeightings.map((etw) => {
+        const { evaluation_type_id } = evaluationTypes.find(
+          (_) => _.evaluation_type === etw.evaluation_type
+        );
+        return this.prismaService.annualEvaluationTypeWeighting.update({
+          data: {
+            weight: etw.weight,
+            AnnualEvaluationTypeWeightingAudits: {
+              create: {
+                weight: evaluationTypeWeightings.find(
+                  (_) => _.evaluation_type_id === evaluation_type_id
+                ).weight,
+                audited_by: annual_registry_id,
+              },
+            },
+          },
+          where: {
+            academic_year_id_evaluation_type_id_cycle_id: {
+              cycle_id,
+              academic_year_id,
+              evaluation_type_id,
+            },
+          },
+        });
+      }),
+      this.prismaService.annualMinimumModulationScore.update({
+        data: {
+          score: minimum_modulation_score,
+          AnnualMinimumModulationScoreAudits: {
+            create: {
+              score,
+              configured_by: annual_registry_id,
+            },
+          },
+        },
+        where: { academic_year_id_cycle_id: { cycle_id, academic_year_id } },
+      }),
+    ]);
   }
 }
