@@ -492,11 +492,11 @@ model Cycle {
     number_of_years Int
     created_at      DateTime  @default(now()) @db.DateTime(0)
 
-    Majors                        Major[]
-    MajorAudits                   MajorAudit[]
-    AnnualMinimumModulationScores AnnualMinimumModulationScore[]
-    AnnualWeightings              AnnualWeighting[]
-    AnnualGradeWeightings         AnnualGradeWeighting[]
+    Majors                         Major[]
+    MajorAudits                    MajorAudit[]
+    AnnualMinimumModulationScores  AnnualMinimumModulationScore[]
+    AnnualWeightings               AnnualWeighting[]
+    AnnualGradeWeightings          AnnualGradeWeighting[]
     AnnualEvaluationTypeWeightings AnnualEvaluationTypeWeighting[]
 }
 
@@ -783,6 +783,8 @@ model AnnualMinimumModulationScore {
     AnnualRegistry                    AnnualRegistry @relation(fields: [configured_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualMinimumModulationScoreAudits AnnualMinimumModulationScoreAudit[]
+
+    @@unique([academic_year_id, cycle_id])
 }
 
 model AnnualMinimumModulationScoreAudit {
@@ -807,9 +809,8 @@ model EvaluationType {
     evaluation_type    EvaluationTypeEnum
     created_at         DateTime           @default(now()) @db.DateTime(0)
 
-    AnnualEvaluationTypeWeightings      AnnualEvaluationTypeWeighting[]
-    AnnualEvaluationSubTypes            AnnualEvaluationSubType[]
-    AnnualEvaluationTypeWeightingAudits AnnualEvaluationTypeWeightingAudit[]
+    AnnualEvaluationTypeWeightings AnnualEvaluationTypeWeighting[]
+    AnnualEvaluationSubTypes       AnnualEvaluationSubType[]
 }
 
 model AnnualEvaluationTypeWeighting {
@@ -826,14 +827,14 @@ model AnnualEvaluationTypeWeighting {
     AnnualRegistry                      AnnualRegistry @relation(fields: [created_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualEvaluationTypeWeightingAudits AnnualEvaluationTypeWeightingAudit[]
+
+    @@unique([academic_year_id, evaluation_type_id, cycle_id])
 }
 
 model AnnualEvaluationTypeWeightingAudit {
     annual_evaluation_type_weighting_audit_id String                        @id @default(uuid()) @db.VarChar(36)
     weight                                    Int
     audited_at                                DateTime                      @default(now()) @db.DateTime(0)
-    evaluation_type_id                        String                        @db.VarChar(36)
-    EvaluationType                            EvaluationType                @relation(fields: [evaluation_type_id], references: [evaluation_type_id], onDelete: Cascade, onUpdate: Cascade)
     annual_evaluation_type_weighting_id       String                        @db.VarChar(36)
     AnnualEvaluationTypeWeighting             AnnualEvaluationTypeWeighting @relation(fields: [annual_evaluation_type_weighting_id], references: [annual_evaluation_type_weighting_id], onDelete: Cascade, onUpdate: Cascade)
     audited_by                                String                        @db.VarChar(36)

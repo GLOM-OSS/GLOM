@@ -4,16 +4,18 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  Param,
-  Put,
+  Param, Put,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import { Request } from 'express';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
-import { WeightingPutDto } from '../registry.dto';
+import {
+  EvaluationTypeWeightingPutDto,
+  WeightingPutDto
+} from '../registry.dto';
 import { WeightingSystemService } from './weighting-system.service';
 
 @Controller()
@@ -68,5 +70,28 @@ export class WeightingSystemController {
       cycle_id,
       academic_year_id
     );
+  }
+
+  @Roles(Role.REGISTRY)
+  @Put('evaluation-type/:cycle_id/edit')
+  async upsertEvaluationTypeWeighting(
+    @Req() request: Request,
+    @Param('cycle_id') cycle_id: string,
+    @Body() updatedData: EvaluationTypeWeightingPutDto
+  ) {
+    const {
+      activeYear: { academic_year_id },
+      annualRegistry: { annual_registry_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      await this.weightingSystemService.upsertEvaluationTypeWeighting(
+        cycle_id,
+        updatedData,
+        academic_year_id,
+        annual_registry_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
