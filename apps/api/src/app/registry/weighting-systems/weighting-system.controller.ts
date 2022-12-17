@@ -2,9 +2,12 @@ import {
   Body,
   Controller,
   Get,
-  Param, Put,
+  HttpException,
+  HttpStatus,
+  Param,
+  Put,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { DeserializeSessionData, Role } from '../../../utils/types';
@@ -42,14 +45,17 @@ export class WeightingSystemController {
       activeYear: { academic_year_id },
       annualRegistry: { annual_registry_id },
     } = request.user as DeserializeSessionData;
-    await this.weightingSystemService.upsertAnnualWeighting(
-      updateWeightingSystem,
-      academic_year_id,
-      annual_registry_id
-    );
+    try {
+      await this.weightingSystemService.upsertAnnualWeighting(
+        updateWeightingSystem,
+        academic_year_id,
+        annual_registry_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  
   @Get('evaluation-type/:cycle_id')
   async getEvaluationTypeWeighting(
     @Req() request: Request,
