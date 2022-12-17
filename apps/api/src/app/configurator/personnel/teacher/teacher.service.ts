@@ -84,6 +84,7 @@ export class TeacherService {
       school_id,
       Role.TEACHER
     );
+    const hashedPassword = bcrypt.hashSync(password, Number(process.env.SALT));
     const private_code = bcrypt.hashSync(
       this.codeGenerator.getNumberString(Math.floor(Math.random() * 10000)),
       Number(process.env.SALT)
@@ -118,8 +119,8 @@ export class TeacherService {
           connectOrCreate: {
             create: {
               login_id,
-              password,
               is_personnel: true,
+              password: hashedPassword,
               School: { connect: { school_id } },
               Person: {
                 connectOrCreate: {

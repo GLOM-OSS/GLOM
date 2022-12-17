@@ -10,7 +10,7 @@ import {
   CoordinatorPostDto,
   PersonnelQueryDto,
   StaffPostData,
-  StaffPutDto
+  StaffPutDto,
 } from '../configurator.dto';
 
 export type RoleShort = 'Te' | 'Se' | 'S.A.' | 'Co';
@@ -499,8 +499,10 @@ export class PersonnelService {
 
     const { phone_number, ...staffData } = newStaff;
     const password = Math.random().toString(36).slice(2).toUpperCase();
+    const hashedPassword = bcrypt.hashSync(password, Number(process.env.SALT));
     //TODO NodeMailer send generated password and private code
-
+    console.log({ password })
+    
     const login = await this.loginService.findFirst({
       select: {
         login_id: true,
@@ -524,13 +526,14 @@ export class PersonnelService {
           create: {
             login_id,
             is_personnel: true,
+            password: hashedPassword,
             Person: {
               connectOrCreate: {
                 create: { ...staffData, phone_number },
                 where: { email: newStaff.email },
               },
             },
-            password,
+            School: { connect: { school_id } },
           },
           where: { login_id },
         },

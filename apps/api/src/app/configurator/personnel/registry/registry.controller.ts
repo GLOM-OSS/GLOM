@@ -78,7 +78,7 @@ export class RegistryController {
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
     try {
-      await this.personnelService.addNewStaff(
+      return await this.personnelService.addNewStaff(
         newStaff,
         {
           school_id,
@@ -87,7 +87,6 @@ export class RegistryController {
         academic_year_id,
         annual_configurator_id
       );
-      return;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
