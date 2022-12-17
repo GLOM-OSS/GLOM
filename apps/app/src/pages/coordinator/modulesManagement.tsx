@@ -189,43 +189,6 @@ export default function ModulesManagement() {
         }
       }, 3000);
     }
-    if (actionnedCreditUnit) {
-      setIsManagingCreditUnit(true);
-      const notif = new useNotification();
-      if (manageNotif) manageNotif.dismiss();
-      setManageNotif(notif);
-      notif.notify({ render: formatMessage({ id: 'deletingCreditUnit' }) });
-      setTimeout(() => {
-        //TODO: CALL API HERE TO DELETE CREDIT UNIT WITH DATA creditUnit.annual_credit_unit_id
-        if (5 > 4) {
-          notif.update({
-            render: formatMessage({ id: 'deletedSuccessfully' }),
-          });
-          setIsManagingCreditUnit(false);
-          setCreditUnits(
-            creditUnits.filter(
-              ({ annual_credit_unit_id: acu }) =>
-                acu !== creditUnit.annual_credit_unit_id
-            )
-          );
-          setActionnedCreditUnit(undefined);
-          setIsConfirmDeleteDialogOpen(false);
-        } else {
-          notif.update({
-            type: 'ERROR',
-            render: (
-              <ErrorMessage
-                retryFunction={() => deleteCreditUnit(creditUnit)}
-                notification={notif}
-                message={formatMessage({ id: 'deleteCreditUnitFailed' })}
-              />
-            ),
-            autoClose: false,
-            icon: () => <ReportRounded fontSize="medium" color="error" />,
-          });
-        }
-      }, 3000);
-    }
   };
 
   const manageCreditUnit = (creditUnit: CreditUnit) => {
@@ -304,8 +267,8 @@ export default function ModulesManagement() {
       <RowMenu
         anchorEl={anchorEl}
         closeMenu={() => setAnchorEl(null)}
-        deleteCreditUnit={() => setIsConfirmDeleteDialogOpen(true)}
-        editCreditUnit={() => setIsEditDialogOpen(true)}
+        deleteItem={() => setIsConfirmDeleteDialogOpen(true)}
+        editItem={() => setIsEditDialogOpen(true)}
       />
       <CreditUnitDialog
         handleSubmit={(values: CreditUnit) => manageCreditUnit(values)}
