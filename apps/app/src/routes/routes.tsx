@@ -3,6 +3,7 @@ import { Navigate } from 'react-router';
 import Classrooms from '../components/secretary/classrooms';
 import AppLayout from '../pages/appLayout';
 import ModulesManagement from '../pages/coordinator/modulesManagement';
+import SubjectManagement from '../pages/coordinator/subjectManagement';
 import Departments from '../pages/secretary/departments';
 import Majors from '../pages/secretary/majors';
 import NewAcademicYear from '../pages/secretary/newAcademicYear';
@@ -60,6 +61,10 @@ export const routes = [
       {
         path: 'subjects-and-modules',
         element: <ModulesManagement />,
+      },
+      {
+        path: 'subjects-and-modules/:annual_credit_unit_id',
+        element: <SubjectManagement />,
       },
       { path: '*', element: <Navigate to="/" /> },
     ],

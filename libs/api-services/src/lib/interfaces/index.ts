@@ -18,6 +18,7 @@ export interface Teacher extends Person {
   has_signed_convention: boolean;
   has_tax_payers_card: boolean;
   tax_payer_card_number?: string;
+  annual_teacher_id?:string;
 }
 
 export interface School {
