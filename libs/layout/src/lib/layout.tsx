@@ -158,7 +158,7 @@ export function Layout({
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
         localStorage.setItem('previousRoute', location.pathname);
-        setActiveRole('coordinator') //TODO REMOVE THIS IN PRODUCTION ENVIRONMENT
+        setActiveRole('registry') //TODO REMOVE THIS IN PRODUCTION ENVIRONMENT
         // navigate('/'); //TODO ACTIVATE THIS FOR PRODUCTION environment
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
