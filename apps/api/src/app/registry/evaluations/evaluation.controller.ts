@@ -1,7 +1,17 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { DeserializeSessionData } from '../../../utils/types';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
+import { SemesterExamAccessPutDto } from '../registry.dto';
 import { EvaluationService } from './evaluation.service';
 
 @Controller()
@@ -15,5 +25,25 @@ export class EvaluationController {
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
     return this.evaluationService.getExamAccess(academic_year_id);
+  }
+
+  @Put('hall-access')
+  async updateExamHallAcess(
+    @Req() request: Request,
+    @Body() updatedData: SemesterExamAccessPutDto
+  ) {
+    const {
+      activeYear: { academic_year_id },
+      annualRegistry: { annual_registry_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      return await this.evaluationService.updateSemesterExamAccess(
+        updatedData,
+        academic_year_id,
+        annual_registry_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
   }
 }

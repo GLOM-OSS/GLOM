@@ -970,6 +970,8 @@ model AnnualSemesterExamAcess {
     AnnualConfigurator             AnnualConfigurator @relation(fields: [configured_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualSemesterExamAcessAudits AnnualSemesterExamAcessAudit[]
+
+    @@unique([academic_year_id, annual_semester_number])
 }
 
 model AnnualSemesterExamAcessAudit {
