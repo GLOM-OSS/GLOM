@@ -753,7 +753,7 @@ model AnnualCarryOverSytem {
     annual_carry_over_system_id String              @id @default(uuid()) @db.VarChar(36)
     carry_over_system           CarryOverSystemEnum
     created_at                  DateTime            @default(now()) @db.DateTime(0)
-    academic_year_id            String              @db.VarChar(36)
+    academic_year_id            String              @unique @db.VarChar(36)
     AcademicYear                AcademicYear        @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
     created_by                  String              @db.VarChar(36)
     AnnualConfigurator          AnnualConfigurator  @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
