@@ -9,7 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { DeserializeSessionData } from '../../../utils/types';
+import { DeserializeSessionData, Role } from '../../../utils/types';
+import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import { SemesterExamAccessPutDto } from '../registry.dto';
 import { EvaluationService } from './evaluation.service';
@@ -28,6 +29,7 @@ export class EvaluationController {
   }
 
   @Put('hall-access')
+  @Roles(Role.REGISTRY)
   async updateExamHallAcess(
     @Req() request: Request,
     @Body() updatedData: SemesterExamAccessPutDto

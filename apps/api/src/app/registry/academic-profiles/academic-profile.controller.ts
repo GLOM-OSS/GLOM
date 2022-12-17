@@ -11,11 +11,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { DeserializeSessionData } from '../../../utils/types';
+import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Request } from 'express';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import { AcademicProfileService } from './academic-profile.service';
 import { AcademicProfilePostDto, AcademicProfilePutDto } from '../registry.dto';
+import { Roles } from '../../app.decorator';
 
 @Controller()
 @UseGuards(AuthenticatedGuard)
@@ -39,6 +40,7 @@ export class AcademicProfileController {
     );
   }
 
+  @Roles(Role.REGISTRY)
   @Post('new')
   async addNewAcademicProfile(
     @Req() request: Request,
@@ -59,6 +61,7 @@ export class AcademicProfileController {
     }
   }
 
+  @Roles(Role.REGISTRY)
   @Put(':annual_academic_profile_id/edit')
   async updateAcademicProfile(
     @Req() request: Request,
@@ -79,6 +82,7 @@ export class AcademicProfileController {
     }
   }
 
+  @Roles(Role.REGISTRY)
   @Delete(':annual_academic_profile_id/delete')
   async deleteAcademicProfile(
     @Req() request: Request,
