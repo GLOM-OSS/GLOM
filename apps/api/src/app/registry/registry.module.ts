@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { RouterModule } from '@nestjs/core';
 import { AcademicProfileModule } from './academic-profiles/academic-profile.module';
+import { CarryOverSystemModule } from './carry-over-system/carry-over-system.module';
 import { EvaluationModule } from './evaluations/evaluation.module';
 import { GradeWeightingModule } from './grade-weightings/grade-weighting.module';
 import { WeightingSystemModule } from './weighting-systems/weighting-system.module';
@@ -8,6 +9,7 @@ import { WeightingSystemModule } from './weighting-systems/weighting-system.modu
 @Module({
   imports: [
     WeightingSystemModule,
+    CarryOverSystemModule,
     GradeWeightingModule,
     AcademicProfileModule,
     EvaluationModule,
@@ -15,6 +17,10 @@ import { WeightingSystemModule } from './weighting-systems/weighting-system.modu
       {
         path: 'weighting-system',
         module: WeightingSystemModule,
+      },
+      {
+        path: 'carry-over-system',
+        module: CarryOverSystemModule,
       },
       {
         path: 'grade-weightings',
