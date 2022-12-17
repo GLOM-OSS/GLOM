@@ -102,7 +102,6 @@ export default function CreditUnitDialog({
             required
             color="primary"
             {...formik.getFieldProps('credit_unit_code')}
-            disabled={Boolean(editableCreditUnit)}
             error={
               formik.touched.credit_unit_code &&
               Boolean(formik.errors.credit_unit_code)
