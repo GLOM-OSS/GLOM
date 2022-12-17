@@ -24,9 +24,18 @@ export class AppService {
     this.prismaService.grade.count().then((numberOfGrades) => {
       if (numberOfGrades === 0) this.seedGrades();
     });
+    this.prismaService.evaluationType.count().then((numberEvaluationTypes) => {
+      if (numberEvaluationTypes === 0) this.seedEvaluationTypes();
+    });
   }
   getData(): { message: string } {
     return { message: 'Welcome to api!' };
+  }
+
+  private async seedEvaluationTypes() {
+    await this.prismaService.evaluationType.createMany({
+      data: [{ evaluation_type: 'EXAM' }, { evaluation_type: 'CA' }],
+    });
   }
 
   private async seedGrades() {
