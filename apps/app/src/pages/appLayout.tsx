@@ -12,7 +12,7 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
         {
           title: formatMessage({ id: 'modulesAndSubjects' }),
           route: 'subjects-and-modules',
-          page_title: 'managementOfModulesandSubjects',
+          page_title: 'managementOfModulesAndSubjects',
         },
       ],
     },
