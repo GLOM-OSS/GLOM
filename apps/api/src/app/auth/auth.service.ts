@@ -375,7 +375,7 @@ export class AuthService {
     if (login) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { created_at, person_id, school_id, ...data } = login;
-      await this.prismaService.$transaction([
+      return await this.prismaService.$transaction([
         this.loginAuditService.create({ data }),
         this.loginService.update({
           data: {
