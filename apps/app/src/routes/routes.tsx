@@ -4,6 +4,7 @@ import Classrooms from '../components/secretary/classrooms';
 import AppLayout from '../pages/appLayout';
 import ModulesManagement from '../pages/coordinator/modulesManagement';
 import SubjectManagement from '../pages/coordinator/subjectManagement';
+import WeightingTable from '../pages/registry/weightingTable';
 import Departments from '../pages/secretary/departments';
 import Majors from '../pages/secretary/majors';
 import NewAcademicYear from '../pages/secretary/newAcademicYear';
@@ -74,11 +75,11 @@ export const routes = [
     children: [
       {
         path: 'weighting-table',
-        element: <Typography>Weighting table is loading</Typography>
+        element: <WeightingTable />,
       },
       {
         path: 'academic-profile',
-        element: <Typography>Academic profile is loading</Typography>
+        element: <Typography>Academic profile is loading</Typography>,
       },
       { path: '*', element: <Navigate to="/" /> },
     ],
