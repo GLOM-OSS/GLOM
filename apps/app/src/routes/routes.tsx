@@ -22,7 +22,7 @@ export const routes = [
     ),
   },
   {
-    path: '/registry/configurations',
+    path: '/secretary/configurations',
     element: <AppLayout />,
     children: [
       {

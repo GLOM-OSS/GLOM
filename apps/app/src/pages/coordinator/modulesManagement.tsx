@@ -12,6 +12,13 @@ import {
   TextField,
   Tooltip,
 } from '@mui/material';
+import {
+  addNewCreditUnit,
+  deleteCreditUnit,
+  getCoordinatorMajors,
+  getCreditUnits,
+  updateCreditUnit,
+} from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import { CreditUnit, UEMajor } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
@@ -40,39 +47,37 @@ export default function ModulesManagement() {
       creditUnitNotif.dismiss();
     }
     setCreditUnitNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load creditUnits with data selectedMajor and selectedSemester
-      if (6 > 5) {
-        const newCreditUnits: CreditUnit[] = [
-          {
-            annual_credit_unit_id: 'hhes',
-            credit_points: 10,
-            credit_unit_code: 'UCD0014',
-            credit_unit_name: 'Informatique',
-            major_id: 'iwld',
-            semester_number: 4,
-          },
-        ];
-        setCreditUnits(newCreditUnits);
-        setAreCreditUnitsLoading(false);
-        notif.dismiss();
-        setCreditUnitNotif(undefined);
-      } else {
-        notif.notify({ render: formatMessage({ id: 'loadingCreditUnits' }) });
-        notif.update({
-          type: 'ERROR',
-          render: (
-            <ErrorMessage
-              retryFunction={loadCreditUnits}
-              notification={notif}
-              message={formatMessage({ id: 'getCreditUnitsFailed' })}
-            />
-          ),
-          autoClose: false,
-          icon: () => <ReportRounded fontSize="medium" color="error" />,
+    if (majors.length > 0)
+      getCreditUnits({
+        majorIds: selectedMajor
+          ? [{ major_id: selectedMajor.major_id }]
+          : majors.map(({ major_id }) => ({ major_id })),
+        semester_number: selectedSemester,
+      })
+        .then((creditUnits) => {
+          setCreditUnits(creditUnits);
+          setAreCreditUnitsLoading(false);
+          notif.dismiss();
+          setCreditUnitNotif(undefined);
+        })
+        .catch((error) => {
+          notif.notify({ render: formatMessage({ id: 'loadingCreditUnits' }) });
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={loadCreditUnits}
+                notification={notif}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'getCreditUnitsFailed' })
+                }
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
         });
-      }
-    }, 3000);
   };
 
   const [majors, setMajors] = useState<UEMajor[]>([]);
@@ -86,18 +91,14 @@ export default function ModulesManagement() {
       majorNotif.dismiss();
     }
     setMajorNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD MAJORS OF THE COORDINATOR
-      if (6 > 5) {
-        const newMajors: UEMajor[] = [
-          { major_id: 'iwld', major_name: 'IRT', number_of_years: 2 },
-          { major_id: 'slsls', major_name: 'IMB', number_of_years: 3 },
-        ];
-        setMajors(newMajors);
+    getCoordinatorMajors()
+      .then((majors) => {
+        setMajors(majors);
         setAreMajorsLoading(false);
         notif.dismiss();
         setMajorNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({ render: formatMessage({ id: 'loadingMajors' }) });
         notif.update({
           type: 'ERROR',
@@ -105,16 +106,16 @@ export default function ModulesManagement() {
             <ErrorMessage
               retryFunction={loadMajors}
               notification={notif}
-              message={formatMessage({ id: 'getMajorsFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getMajorsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
-
   const [selectedMajor, setSelectedMajor] = useState<UEMajor>();
   const [selectedSemester, setSelectedSemester] = useState<number>();
 
@@ -134,7 +135,7 @@ export default function ModulesManagement() {
       console.log('cleanup previous axios fetch here by aborting it');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSemester, selectedMajor]);
+  }, [majors, selectedSemester, selectedMajor]);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -151,16 +152,15 @@ export default function ModulesManagement() {
     useState<boolean>(false);
   const [manageNotif, setManageNotif] = useState<useNotification>();
 
-  const deleteCreditUnit = (creditUnit: CreditUnit) => {
+  const deleteCreditUnitHandler = (creditUnit: CreditUnit) => {
     if (actionnedCreditUnit) {
       setIsManagingCreditUnit(true);
       const notif = new useNotification();
       if (manageNotif) manageNotif.dismiss();
       setManageNotif(notif);
       notif.notify({ render: formatMessage({ id: 'deletingCreditUnit' }) });
-      setTimeout(() => {
-        //TODO: CALL API HERE TO DELETE CREDIT UNIT WITH DATA creditUnit.annual_credit_unit_id
-        if (5 > 4) {
+      deleteCreditUnit(creditUnit.annual_credit_unit_id)
+        .then(() => {
           notif.update({
             render: formatMessage({ id: 'deletedSuccessfully' }),
           });
@@ -173,21 +173,24 @@ export default function ModulesManagement() {
           );
           setActionnedCreditUnit(undefined);
           setIsConfirmDeleteDialogOpen(false);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
-                retryFunction={() => deleteCreditUnit(creditUnit)}
+                retryFunction={() => deleteCreditUnitHandler(creditUnit)}
                 notification={notif}
-                message={formatMessage({ id: 'deleteCreditUnitFailed' })}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'deleteCreditUnitFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        });
     }
   };
 
@@ -198,13 +201,15 @@ export default function ModulesManagement() {
     setManageNotif(notif);
     if (actionnedCreditUnit) {
       notif.notify({ render: formatMessage({ id: 'editingCreditUnit' }) });
-      setTimeout(() => {
-        //TODO: CALL API HERE TO edit CREDIT UNIT WITH DATA creditUnit
-        if (5 > 4) {
+      const { annual_credit_unit_id, ...updatedCreditUnit } = creditUnit;
+      updateCreditUnit(
+        actionnedCreditUnit.annual_credit_unit_id,
+        updatedCreditUnit
+      )
+        .then(() => {
           notif.update({
             render: formatMessage({ id: 'editedSuccessfully' }),
           });
-          setIsManagingCreditUnit(false);
           setCreditUnits([
             ...creditUnits.filter(
               ({ annual_credit_unit_id: acu }) =>
@@ -213,52 +218,54 @@ export default function ModulesManagement() {
             creditUnit,
           ]);
           setActionnedCreditUnit(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={() => manageCreditUnit(creditUnit)}
                 notification={notif}
-                message={formatMessage({ id: 'editCreditUnitFailed' })}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'editCreditUnitFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        })
+        .finally(() => setIsManagingCreditUnit(false));
     } else {
       notif.notify({ render: formatMessage({ id: 'creatingCreditUnit' }) });
-      setTimeout(() => {
-        //TODO: CALL API HERE TO create CREDIT UNIT WITH DATA creditUnit as CreateCreditUnit
-        if (5 > 4) {
+      const { annual_credit_unit_id, ...newCreditUnit } = creditUnit;
+      addNewCreditUnit(newCreditUnit)
+        .then((newCreditUnit) => {
           notif.update({
             render: formatMessage({ id: 'createdSuccessfully' }),
           });
-          setIsManagingCreditUnit(false);
-          //TODO: PUT NEW CREDIT UNIT IN HERE
-          const newCreditUnit: CreditUnit = {
-            ...creditUnit,
-            annual_credit_unit_id: 'eisl',
-          };
           setCreditUnits([...creditUnits, newCreditUnit]);
           setActionnedCreditUnit(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={() => manageCreditUnit(creditUnit)}
                 notification={notif}
-                message={formatMessage({ id: 'createCreditUnitFailed' })}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'createCreditUnitFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        })
+        .finally(() => setIsManagingCreditUnit(false));
     }
   };
 
@@ -286,7 +293,9 @@ export default function ModulesManagement() {
           setActionnedCreditUnit(undefined);
         }}
         confirm={() =>
-          actionnedCreditUnit ? deleteCreditUnit(actionnedCreditUnit) : null
+          actionnedCreditUnit
+            ? deleteCreditUnitHandler(actionnedCreditUnit)
+            : null
         }
         deleteMessage={formatMessage({ id: 'confirmDeleteCreditUnitMessage' })}
         isDialogOpen={isConfirmDeleteDialogOpen}
