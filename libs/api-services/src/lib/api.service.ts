@@ -7,6 +7,8 @@ export * from './majors';
 export * from './classrooms';
 export * from './personnel';
 export * from './academic-years';
+export * from './credit-units';
+export * from './credit-unit-subjects';
 
 export async function getCycles() {
   const {
