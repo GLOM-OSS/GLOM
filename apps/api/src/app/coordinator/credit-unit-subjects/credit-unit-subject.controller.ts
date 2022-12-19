@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -73,6 +74,22 @@ export class CreditUnitSubjectController {
     await this.creditUnitSubjectService.updateCreditUnitSubject(
       annual_credit_unit_subject_id,
       newCreditUnitSubject,
+      annual_teacher_id
+    );
+  }
+
+  @Delete('/:annual_credit_unit_subject_id/delete')
+  @Roles(Role.COORDINATOR)
+  async deleteSubject(
+    @Req() request: Request,
+    @Param('annual_credit_unit_subject_id')
+    annual_credit_unit_subject_id: string
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    await this.creditUnitSubjectService.deleteCreditUnitSubject(
+      annual_credit_unit_subject_id,
       annual_teacher_id
     );
   }

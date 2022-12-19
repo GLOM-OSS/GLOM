@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { deleteCreditUnitSubject } from '@squoolr/api-services';
 import { AUTH404 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
@@ -73,7 +74,13 @@ export class CreditUnitSubjectService {
   ) {
     const annualCreditUnitSubject =
       await this.prismaService.annualCreditUnitSubject.findUnique({
-        include: {
+        select: {
+          annual_credit_unit_id: true,
+          is_deleted: true,
+          objective: true,
+          subject_code: true,
+          subject_title: true,
+          weighting: true,
           AnnualCreditUnitHasSubjectParts: {
             select: {
               number_of_hours: true,
@@ -246,5 +253,41 @@ export class CreditUnitSubjectService {
         })
       ),
     };
+  }
+
+  async deleteCreditUnitSubject(
+    annual_credit_unit_subject_id: string,
+    annual_teacher_id: string
+  ) {
+    const annualCreditUnitSubject =
+      await this.prismaService.annualCreditUnitSubject.findUnique({
+        select: {
+          annual_credit_unit_id: true,
+          is_deleted: true,
+          objective: true,
+          subject_code: true,
+          subject_title: true,
+          weighting: true,
+        },
+        where: { annual_credit_unit_subject_id },
+      });
+    if (!annualCreditUnitSubject)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Credit Unit Subject')),
+        HttpStatus.NOT_FOUND
+      );
+
+    return this.prismaService.annualCreditUnitSubject.update({
+      data: {
+        is_deleted: true,
+        AnnualCreditUnitSubjectAudits: {
+          create: {
+            ...annualCreditUnitSubject,
+            AnnualTeacher: { connect: { annual_teacher_id } },
+          },
+        },
+      },
+      where: { annual_credit_unit_subject_id },
+    });
   }
 }
