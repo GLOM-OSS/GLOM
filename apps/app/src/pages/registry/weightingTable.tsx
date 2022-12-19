@@ -8,7 +8,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
@@ -18,8 +18,9 @@ import {
   Cycle,
   CycleName,
   CycleType,
-  EvaluationTypeWeighting, GradeWeighting,
-  SemesterExamAccess
+  EvaluationTypeWeighting,
+  GradeWeighting,
+  SemesterExamAccess,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -36,7 +37,7 @@ import WeightingActionBar from '../../components/registry/weightingActionBar';
 import WeightingDialog from '../../components/registry/weightingDialog';
 import WeightingLane, {
   AbsenceWeighting,
-  WeightingSkeleton
+  WeightingSkeleton,
 } from '../../components/registry/weightingLane';
 
 export default function WeightingTable() {
@@ -464,7 +465,7 @@ export default function WeightingTable() {
       render: formatMessage({ id: 'savingEvaluationWeighting' }),
     });
     setTimeout(() => {
-      //TODO: CALL API HERE TO edit evaluationWeighting with data evaluationWeighting for cycle cycle_id
+      //TODO: CALL API HERE TO edit evaluationWeighting with data cycle_id
       if (5 > 4) {
         notif.update({
           render: formatMessage({ id: 'savedSuccessfully' }),
