@@ -343,7 +343,6 @@ export default function SubjectManagement() {
       notif.notify({ render: formatMessage({ id: 'creatingSubject' }) });
       const submitData =
         transformDisplaySubjectToCreateCreditUnitSubect(subject);
-      alert(JSON.stringify(submitData.annual_credit_unit_id));
       addNewCreditUnitSubject({
         ...submitData,
         annual_credit_unit_id: annual_credit_unit_id as string,
