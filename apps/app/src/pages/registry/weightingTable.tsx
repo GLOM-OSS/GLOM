@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
+  CarryOverSystem,
   CreateGradeWeighting,
   CreateWeightingSystem,
   Cycle,
@@ -27,6 +28,7 @@ import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import { RowMenu } from '../../components/coordinator/CreditUnitLane';
 import { SubjectSkeleton } from '../../components/coordinator/subjectLane';
+import CarryOverDialog from '../../components/registry/carryOverDialog';
 import NoCyclesAvailables from '../../components/registry/noCyclesAvailable';
 import SelectWeightingSystem from '../../components/registry/selectWeightingSystem';
 import WeightingActionBar from '../../components/registry/weightingActionBar';
@@ -342,12 +344,14 @@ export default function WeightingTable() {
         theNotif.update({
           type: 'ERROR',
           render: formatMessage({ id: 'cycleDoesNotExist' }),
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
       }
     }
   };
 
-  const [isDeletingWeighting, setIsDeletingWeighting] = useState<boolean>(false)
+  const [isDeletingWeighting, setIsDeletingWeighting] =
+    useState<boolean>(false);
   const deleteWeighting = (weighting: GradeWeighting) => {
     setIsDeletingWeighting(true);
     const notif = new useNotification();
@@ -361,7 +365,12 @@ export default function WeightingTable() {
           render: formatMessage({ id: 'deletedSuccessfully' }),
         });
         setIsDeletingWeighting(false);
-        setWeightingData(weightingData.filter(({annual_grade_weighting_id:agw_id})=>agw_id !== weighting.annual_grade_weighting_id));
+        setWeightingData(
+          weightingData.filter(
+            ({ annual_grade_weighting_id: agw_id }) =>
+              agw_id !== weighting.annual_grade_weighting_id
+          )
+        );
       } else {
         notif.update({
           type: 'ERROR',
@@ -378,7 +387,6 @@ export default function WeightingTable() {
       }
     }, 3000);
   };
-
 
   const [isCarryOverDialogOpen, setIsCarryOverDialogOpen] =
     useState<boolean>(false);
@@ -414,6 +422,11 @@ export default function WeightingTable() {
         deleteItem={() => setIsConfirmDeleteDialogOpen(true)}
         editItem={() => setIsEditDialogOpen(true)}
       />
+      <CarryOverDialog
+        closeDialog={() => setIsCarryOverDialogOpen(false)}
+        handleSubmit={(val: CarryOverSystem) => alert(JSON.stringify(val))}
+        isDialogOpen={isCarryOverDialogOpen}
+      />
       <WeightingDialog
         closeDialog={() => setIsEditDialogOpen(false)}
         handleSubmit={editWeightingData}
@@ -439,7 +452,12 @@ export default function WeightingTable() {
           activeCycleId={activeCycle ? activeCycle.cycle_id : ''}
           cycles={cycles}
           weightingSystem={weightingSystem}
-          isDataLoading={areWeightingDataLoading || isCreatingWeightingSystem || isEditingWeighting || isDeletingWeighting}
+          isDataLoading={
+            areWeightingDataLoading ||
+            isCreatingWeightingSystem ||
+            isEditingWeighting ||
+            isDeletingWeighting
+          }
           swapActiveCycle={(newCycleId: string) =>
             setActiveCycle(
               cycles.find(({ cycle_id: cid }) => cid === newCycleId)
@@ -460,7 +478,8 @@ export default function WeightingTable() {
               isWeightingSystemLoading ||
               areCyclesLoading ||
               isEditDialogOpen ||
-              isEditingWeighting || isDeletingWeighting
+              isEditingWeighting ||
+              isDeletingWeighting
             }
             onClick={() => setIsEditDialogOpen(true)}
             color="primary"
