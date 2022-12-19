@@ -29,9 +29,22 @@ export class AppService {
   private async seedSubjectParts() {
     await this.prismaService.subjectPart.createMany({
       data: [
-        { subject_part_name: 'CM' },
-        { subject_part_name: 'TP' },
-        { subject_part_name: 'TD' },
+        {
+          subject_part_id: process.env['NX_THEORY_SUBJECT_PART_ID'] as string,
+          subject_part_name: 'THEORY',
+        },
+        {
+          subject_part_id: process.env[
+            'NX_PRACTICAL_SUBJECT_PART_ID'
+          ] as string,
+          subject_part_name: 'PRACTICAL',
+        },
+        {
+          subject_part_id: process.env[
+            'NX_GUIDED_WORK_SUBJECT_PART_ID'
+          ] as string,
+          subject_part_name: 'GUIDED_WOR',
+        },
       ],
     });
   }
