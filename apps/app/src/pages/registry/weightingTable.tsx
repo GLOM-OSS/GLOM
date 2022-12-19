@@ -18,6 +18,7 @@ import {
   Cycle,
   CycleName,
   CycleType,
+  EvaluationTypeWeighting,
   Grade,
   GradeWeighting,
   SemesterExamAccess,
@@ -30,6 +31,7 @@ import { useIntl } from 'react-intl';
 import { RowMenu } from '../../components/coordinator/CreditUnitLane';
 import { SubjectSkeleton } from '../../components/coordinator/subjectLane';
 import CarryOverDialog from '../../components/registry/carryOverDialog';
+import EvaluationWeightingDialog from '../../components/registry/evaluationWeightingDialog';
 import ExamAccessDialog from '../../components/registry/examAccessDialog';
 import NoCyclesAvailables from '../../components/registry/noCyclesAvailable';
 import SelectWeightingSystem from '../../components/registry/selectWeightingSystem';
@@ -434,6 +436,16 @@ export default function WeightingTable() {
         isDialogOpen={isExamAccessDialogOpen}
         handleSubmit={(val: SemesterExamAccess[]) => alert(JSON.stringify(val))}
       />
+      <EvaluationWeightingDialog
+        closeDialog={() => setIsEvaluationWeightingDialogOpen(false)}
+        isDialogOpen={isEvaluationWeightingDialogOpen}
+        cycles={cycles}
+        activeCycle={activeCycle?.cycle_id}
+        handleSubmit={(val: {
+          evaluationWeighting: EvaluationTypeWeighting;
+          cycle_id: string;
+        }) => alert(JSON.stringify(val))}
+      />
       <WeightingDialog
         closeDialog={() => setIsEditDialogOpen(false)}
         handleSubmit={editWeightingData}
@@ -463,7 +475,9 @@ export default function WeightingTable() {
             areWeightingDataLoading ||
             isCreatingWeightingSystem ||
             isEditingWeighting ||
-            isDeletingWeighting
+            isDeletingWeighting ||
+            areCyclesLoading ||
+            isWeightingSystemLoading
           }
           swapActiveCycle={(newCycleId: string) =>
             setActiveCycle(
