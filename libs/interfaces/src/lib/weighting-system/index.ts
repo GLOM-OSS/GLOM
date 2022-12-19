@@ -38,6 +38,11 @@ export interface GradeWeighting extends CreateGradeWeighting {
   annual_grade_weighting_id: string;
 }
 
+export interface Grade {
+  grade_id: string;
+  grade_value: string;
+}
+
 export interface CreateAcademicProfile {
   minimum_score: number;
   maximum_score: number;
