@@ -6,7 +6,7 @@ import {
 
 export async function getCreditUnitSubjects(annual_credit_unit_id: string) {
   const { data } = await http.get<CreditUnitSubject[]>(
-    `/credit-unit-subjects/${annual_credit_unit_id}all`
+    `/credit-unit-subjects/${annual_credit_unit_id}/all`
   );
   return data;
 }
@@ -20,7 +20,7 @@ export async function getCreditUnitSubjectDetails(
   return data;
 }
 
-export async function addNewCreditUnitSubjects(newCreditUnit: CreateCreditUnitSubject) {
+export async function addNewCreditUnitSubject(newCreditUnit: CreateCreditUnitSubject) {
   const { data } = await http.post<CreditUnitSubject>(
     `/credit-unit-subjects/new`,
     newCreditUnit
@@ -28,7 +28,7 @@ export async function addNewCreditUnitSubjects(newCreditUnit: CreateCreditUnitSu
   return data;
 }
 
-export async function updateCreditUnitSubjects(
+export async function updateCreditUnitSubject(
   annual_credit_unit_subject_id: string,
   newCreditUnit: Partial<CreateCreditUnitSubject>
 ) {
@@ -38,7 +38,7 @@ export async function updateCreditUnitSubjects(
   );
 }
 
-export async function deleteCreditUnitSubjects(annual_credit_unit_subject_id: string) {
+export async function deleteCreditUnitSubject(annual_credit_unit_subject_id: string) {
   await http.delete(
     `/credit-unit-subjects/${annual_credit_unit_subject_id}/delete`
   );
