@@ -8,7 +8,7 @@ import {
   InputAdornment,
   MenuItem,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import { getTeachers, Personnel } from '@squoolr/api-services';
 import { DialogTransition } from '@squoolr/dialogTransition';
@@ -25,13 +25,13 @@ export default function SubjectDialog({
   handleSubmit,
   closeDialog,
   editableCreditUnit: editableSubject,
-  maxWeighting,
+  subjects,
 }: {
   isDialogOpen: boolean;
   handleSubmit: (value: DisplaySubject) => void;
   closeDialog: () => void;
   editableCreditUnit?: DisplaySubject;
-  maxWeighting: number;
+  subjects: DisplaySubject[];
 }) {
   const { formatMessage } = useIntl();
   const initialValues: DisplaySubject = editableSubject ?? {
@@ -95,6 +95,30 @@ export default function SubjectDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDialogOpen]);
 
+  const getMaxAllowedWeighting = () => {
+    let allowedValue: number;
+    if (editableSubject)
+      allowedValue =
+        1 -
+        subjects
+          .map((_) =>
+            _.annual_credit_unit_subject_id ===
+            editableSubject.annual_credit_unit_subject_id
+              ? { ..._, weighting: 0 }
+              : _
+          )
+          .reduce((total, { weighting }) => {
+            return weighting + total;
+          }, 0);
+    else
+      allowedValue =
+        1 -
+        subjects.reduce((total, { weighting }) => {
+          return weighting + total;
+        }, 0);
+    return allowedValue;
+  };
+
   const validationSchema = Yup.object().shape({
     annual_credit_unit_id: Yup.string(),
     annual_credit_unit_subject_id: Yup.string(),
@@ -110,7 +134,10 @@ export default function SubjectDialog({
     annual_teacher_id: Yup.string().required(formatMessage({ id: 'required' })),
     weighting: Yup.number()
       .required(formatMessage({ id: 'required' }))
-      .max(maxWeighting, formatMessage({ id: 'maxAllowedValue' }))
+      .max(
+        getMaxAllowedWeighting(),
+        formatMessage({ id: 'maxAllowedValue' })
+      )
       .min(0.1, formatMessage({ id: 'minAllowedValue0' })),
   });
 

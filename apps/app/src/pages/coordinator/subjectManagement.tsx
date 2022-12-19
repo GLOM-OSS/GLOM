@@ -353,7 +353,10 @@ export default function SubjectManagement() {
             render: formatMessage({ id: 'createdSuccessfully' }),
           });
           setSubjects([
-            transformCreditUnitSubjectToDisplaySubject(newSubject),
+            transformCreditUnitSubjectToDisplaySubject({
+              ...newSubject,
+              subjectParts: submitData.subjectParts,
+            }),
             ...subjects,
           ]);
           setActionnedSubject(undefined);
@@ -394,12 +397,7 @@ export default function SubjectManagement() {
         }}
         isDialogOpen={isEditDialogOpen}
         editableCreditUnit={actionnedSubject}
-        maxWeighting={
-          1 -
-          subjects.reduce((total, { weighting }) => {
-            return weighting + total;
-          }, 0)
-        }
+        subjects={subjects}
       />
       <ConfirmDeleteDialog
         closeDialog={() => {

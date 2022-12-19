@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Prisma, PrismaPromise } from '@prisma/client';
 import { AUTH404, ERR10 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
@@ -89,7 +90,6 @@ export class CreditUnitSubjectService {
     const annualCreditUnitSubject =
       await this.prismaService.annualCreditUnitSubject.findUnique({
         select: {
-          annual_credit_unit_id: true,
           is_deleted: true,
           objective: true,
           subject_code: true,
@@ -158,6 +158,18 @@ export class CreditUnitSubjectService {
       )
       .map((part) => ({ ...part, audited_by: audited_by }));
 
+    let updateTransactionInstruction: PrismaPromise<Prisma.BatchPayload>[] = [];
+    if (updatedSubjectParts.length > 0)
+      updateTransactionInstruction = [
+        this.prismaService.annualCreditUnitHasSubjectPart.updateMany({
+          data: updatedSubjectParts,
+          where: { annual_credit_unit_subject_id },
+        }),
+        this.prismaService.annualCreditUnitHasSubjectPartAudit.createMany({
+          data: annualCreditUnitHasSubjectPartAudits,
+          skipDuplicates: true,
+        }),
+      ];
     return this.prismaService.$transaction([
       this.prismaService.annualCreditUnitSubject.update({
         data: {
@@ -174,14 +186,7 @@ export class CreditUnitSubjectService {
         },
         where: { annual_credit_unit_subject_id },
       }),
-      this.prismaService.annualCreditUnitHasSubjectPart.updateMany({
-        data: updatedSubjectParts,
-        where: { annual_credit_unit_subject_id },
-      }),
-      this.prismaService.annualCreditUnitHasSubjectPartAudit.createMany({
-        data: annualCreditUnitHasSubjectPartAudits,
-        skipDuplicates: true,
-      }),
+      ...updateTransactionInstruction,
     ]);
   }
 
@@ -290,7 +295,6 @@ export class CreditUnitSubjectService {
     const annualCreditUnitSubject =
       await this.prismaService.annualCreditUnitSubject.findUnique({
         select: {
-          annual_credit_unit_id: true,
           is_deleted: true,
           objective: true,
           subject_code: true,
