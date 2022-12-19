@@ -20,6 +20,7 @@ import {
   CycleType,
   Grade,
   GradeWeighting,
+  SemesterExamAccess,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -29,6 +30,7 @@ import { useIntl } from 'react-intl';
 import { RowMenu } from '../../components/coordinator/CreditUnitLane';
 import { SubjectSkeleton } from '../../components/coordinator/subjectLane';
 import CarryOverDialog from '../../components/registry/carryOverDialog';
+import ExamAccessDialog from '../../components/registry/examAccessDialog';
 import NoCyclesAvailables from '../../components/registry/noCyclesAvailable';
 import SelectWeightingSystem from '../../components/registry/selectWeightingSystem';
 import WeightingActionBar from '../../components/registry/weightingActionBar';
@@ -426,6 +428,11 @@ export default function WeightingTable() {
         closeDialog={() => setIsCarryOverDialogOpen(false)}
         handleSubmit={(val: CarryOverSystem) => alert(JSON.stringify(val))}
         isDialogOpen={isCarryOverDialogOpen}
+      />
+      <ExamAccessDialog
+        closeDialog={() => setIsExamAccessDialogOpen(false)}
+        isDialogOpen={isExamAccessDialogOpen}
+        handleSubmit={(val: SemesterExamAccess[]) => alert(JSON.stringify(val))}
       />
       <WeightingDialog
         closeDialog={() => setIsEditDialogOpen(false)}
