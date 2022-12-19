@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { deleteCreditUnitSubject } from '@squoolr/api-services';
-import { AUTH404 } from '../../../errors';
+import { AUTH404, ERR10 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   CreditUnitSubjectPostDto,
@@ -31,6 +30,20 @@ export class CreditUnitSubjectService {
         JSON.stringify(AUTH404('Credit Unit')),
         HttpStatus.NOT_FOUND
       );
+    const subjects = await this.prismaService.annualCreditUnitSubject.findMany({
+      select: { weighting: true },
+      where: { annual_credit_unit_id },
+    });
+    const totalWeight = subjects.reduce(
+      (total, { weighting }) => total + weighting,
+      0
+    );
+    if (weighting <= 1 - totalWeight)
+      throw new HttpException(
+        JSON.stringify(ERR10),
+        HttpStatus.EXPECTATION_FAILED
+      );
+
     const allSubjectParts = await this.prismaService.subjectPart.findMany();
     const annualCreditUnitHasSubjectParts = allSubjectParts.map(
       ({ subject_part_id }) => {
@@ -66,6 +79,7 @@ export class CreditUnitSubjectService {
   async updateCreditUnitSubject(
     annual_credit_unit_subject_id: string,
     {
+      weighting,
       subjectParts,
       annual_credit_unit_id,
       ...newAnnualCreditUnitSubject
@@ -97,6 +111,19 @@ export class CreditUnitSubjectService {
       throw new HttpException(
         JSON.stringify(AUTH404('Credit Unit Subject')),
         HttpStatus.NOT_FOUND
+      );
+    const subjects = await this.prismaService.annualCreditUnitSubject.findMany({
+      select: { weighting: true },
+      where: { annual_credit_unit_id },
+    });
+    const totalWeight = subjects.reduce(
+      (total, { weighting }) => total + weighting,
+      0
+    );
+    if (weighting && weighting <= 1 - totalWeight)
+      throw new HttpException(
+        JSON.stringify(ERR10),
+        HttpStatus.EXPECTATION_FAILED
       );
     const {
       AnnualCreditUnitHasSubjectParts: oldSubjectParts,
@@ -134,6 +161,7 @@ export class CreditUnitSubjectService {
     return this.prismaService.$transaction([
       this.prismaService.annualCreditUnitSubject.update({
         data: {
+          weighting,
           ...newAnnualCreditUnitSubject,
           AnnualTeacher: { connect: { annual_teacher_id: audited_by } },
           AnnualCreditUnit: { connect: { annual_credit_unit_id } },
