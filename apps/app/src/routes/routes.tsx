@@ -4,6 +4,7 @@ import Classrooms from '../components/secretary/classrooms';
 import AppLayout from '../pages/appLayout';
 import ModulesManagement from '../pages/coordinator/modulesManagement';
 import SubjectManagement from '../pages/coordinator/subjectManagement';
+import AcademicProfileTable from '../pages/registry/academicProfile';
 import WeightingTable from '../pages/registry/weightingTable';
 import Departments from '../pages/secretary/departments';
 import Majors from '../pages/secretary/majors';
@@ -79,7 +80,7 @@ export const routes = [
       },
       {
         path: 'academic-profile',
-        element: <Typography>Academic profile is loading</Typography>,
+        element: <AcademicProfileTable />,
       },
       { path: '*', element: <Navigate to="/" /> },
     ],
