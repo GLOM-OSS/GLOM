@@ -15,7 +15,7 @@ import { useIntl } from 'react-intl';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Routes, useNavigate } from 'react-router';
 import favicon from './logo.png';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import {
@@ -23,7 +23,7 @@ import {
   SelectAcademicYearDialog,
 } from './selectAcademicYear';
 import { signIn } from '@squoolr/api-services';
-import { getUserRoles, User, useUser } from '@squoolr/layout';
+import { getUserRoles, PersonnelRole, User, useUser } from '@squoolr/layout';
 
 export function Signin({
   callingApp,
@@ -77,10 +77,18 @@ export function Signin({
             setAcademicYears(academic_years);
             setIsAcademicYearDialogOpen(true);
           } else {
-            const activeRole = getUserRoles(user)[0]
+            const userRoles =getUserRoles(user)
+            const activeRole = userRoles[0];
+
+            let storageActiveRole = localStorage.getItem('previousRoute');
+            storageActiveRole = storageActiveRole ?? null;
+            const routeRole = storageActiveRole? storageActiveRole.split('/')[1]:'';
+
             const routeUrl =
-              localStorage.getItem('previousRoute') ??
-              (callingApp === 'admin' ? '/management' : `${activeRole}/configurations`);
+              userRoles.includes(routeRole as PersonnelRole)? storageActiveRole as string:
+              (callingApp === 'admin'
+                ? '/management'
+                : `${activeRole}/configurations`);
             navigate(routeUrl);
             userDispatch({ type: 'LOAD_USER', payload: { user } });
             resetForm();
