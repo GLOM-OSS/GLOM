@@ -20,7 +20,6 @@ export interface Cycle {
 }
 
 export interface CreateWeightingSystem {
-  cycle_id: string;
   weighting_system: number;
 }
 
