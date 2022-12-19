@@ -8,7 +8,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Tooltip,
+  Tooltip
 } from '@mui/material';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
@@ -18,10 +18,8 @@ import {
   Cycle,
   CycleName,
   CycleType,
-  EvaluationTypeWeighting,
-  Grade,
-  GradeWeighting,
-  SemesterExamAccess,
+  EvaluationTypeWeighting, GradeWeighting,
+  SemesterExamAccess
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -29,7 +27,6 @@ import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import { RowMenu } from '../../components/coordinator/CreditUnitLane';
-import { SubjectSkeleton } from '../../components/coordinator/subjectLane';
 import CarryOverDialog from '../../components/registry/carryOverDialog';
 import EvaluationWeightingDialog from '../../components/registry/evaluationWeightingDialog';
 import ExamAccessDialog from '../../components/registry/examAccessDialog';
@@ -39,7 +36,7 @@ import WeightingActionBar from '../../components/registry/weightingActionBar';
 import WeightingDialog from '../../components/registry/weightingDialog';
 import WeightingLane, {
   AbsenceWeighting,
-  WeightingSkeleton,
+  WeightingSkeleton
 } from '../../components/registry/weightingLane';
 
 export default function WeightingTable() {
@@ -392,6 +389,104 @@ export default function WeightingTable() {
     }, 3000);
   };
 
+  const [isSubmittingDialogData, setIsSubmittingDialogData] =
+    useState<boolean>(false);
+  const [dialogNotif, setDialogNotif] = useState<useNotification>();
+  const submitCarryOverSystem = (carryOverSystem: CarryOverSystem) => {
+    setIsSubmittingDialogData(true);
+    const notif = new useNotification();
+    if (dialogNotif) dialogNotif.dismiss();
+    setDialogNotif(notif);
+    notif.notify({ render: formatMessage({ id: 'savingCarryOverSystem' }) });
+    setTimeout(() => {
+      //TODO: CALL API HERE TO edit carryOverSystem with data carryOverSystem
+      if (5 > 4) {
+        notif.update({
+          render: formatMessage({ id: 'savedSuccessfully' }),
+        });
+        setIsSubmittingDialogData(false);
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => submitCarryOverSystem(carryOverSystem)}
+              notification={notif}
+              message={formatMessage({ id: 'savingCarryOverSystemFailed' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
+
+  const submitExamAccesses = (examAccess: SemesterExamAccess[]) => {
+    setIsSubmittingDialogData(true);
+    const notif = new useNotification();
+    if (dialogNotif) dialogNotif.dismiss();
+    setDialogNotif(notif);
+    notif.notify({ render: formatMessage({ id: 'savingExamAccesses' }) });
+    setTimeout(() => {
+      //TODO: CALL API HERE TO edit examAccess with data examAccess
+      if (5 > 4) {
+        notif.update({
+          render: formatMessage({ id: 'savedSuccessfully' }),
+        });
+        setIsSubmittingDialogData(false);
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => submitExamAccesses(examAccess)}
+              notification={notif}
+              message={formatMessage({ id: 'savingExamAccessesFailed' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
+  const submitEvaluationWeighting = (examAccess: {
+    evaluationWeighting: EvaluationTypeWeighting;
+    cycle_id: string;
+  }) => {
+    const { cycle_id, evaluationWeighting } = examAccess;
+    setIsSubmittingDialogData(true);
+    const notif = new useNotification();
+    if (dialogNotif) dialogNotif.dismiss();
+    setDialogNotif(notif);
+    notif.notify({
+      render: formatMessage({ id: 'savingEvaluationWeighting' }),
+    });
+    setTimeout(() => {
+      //TODO: CALL API HERE TO edit evaluationWeighting with data evaluationWeighting for cycle cycle_id
+      if (5 > 4) {
+        notif.update({
+          render: formatMessage({ id: 'savedSuccessfully' }),
+        });
+        setIsSubmittingDialogData(false);
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => submitEvaluationWeighting(examAccess)}
+              notification={notif}
+              message={formatMessage({ id: 'savingEvaluationWeighting' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
+
   const [isCarryOverDialogOpen, setIsCarryOverDialogOpen] =
     useState<boolean>(false);
   const [isExamAccessDialogOpen, setIsExamAccessDialogOpen] =
@@ -428,23 +523,20 @@ export default function WeightingTable() {
       />
       <CarryOverDialog
         closeDialog={() => setIsCarryOverDialogOpen(false)}
-        handleSubmit={(val: CarryOverSystem) => alert(JSON.stringify(val))}
+        handleSubmit={submitCarryOverSystem}
         isDialogOpen={isCarryOverDialogOpen}
       />
       <ExamAccessDialog
         closeDialog={() => setIsExamAccessDialogOpen(false)}
         isDialogOpen={isExamAccessDialogOpen}
-        handleSubmit={(val: SemesterExamAccess[]) => alert(JSON.stringify(val))}
+        handleSubmit={submitExamAccesses}
       />
       <EvaluationWeightingDialog
         closeDialog={() => setIsEvaluationWeightingDialogOpen(false)}
         isDialogOpen={isEvaluationWeightingDialogOpen}
         cycles={cycles}
         activeCycle={activeCycle?.cycle_id}
-        handleSubmit={(val: {
-          evaluationWeighting: EvaluationTypeWeighting;
-          cycle_id: string;
-        }) => alert(JSON.stringify(val))}
+        handleSubmit={submitEvaluationWeighting}
       />
       <WeightingDialog
         closeDialog={() => setIsEditDialogOpen(false)}
@@ -455,7 +547,11 @@ export default function WeightingTable() {
       />
       <ConfirmDeleteDialog
         closeDialog={() => setIsConfirmDeleteDialogOpen(false)}
-        confirm={() => alert(JSON.stringify(actionnedWeighting))}
+        confirm={() =>
+          actionnedWeighting
+            ? deleteWeighting(actionnedWeighting)
+            : alert(formatMessage({ id: 'noActionnedWeightingPresent' }))
+        }
         deleteMessage={formatMessage({ id: 'confirmDeleteWeighting' })}
         isDialogOpen={isConfirmDeleteDialogOpen}
       />
@@ -477,7 +573,8 @@ export default function WeightingTable() {
             isEditingWeighting ||
             isDeletingWeighting ||
             areCyclesLoading ||
-            isWeightingSystemLoading
+            isWeightingSystemLoading ||
+            isSubmittingDialogData
           }
           swapActiveCycle={(newCycleId: string) =>
             setActiveCycle(
