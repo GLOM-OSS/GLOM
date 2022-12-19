@@ -685,7 +685,7 @@ model SubjectPart {
 
 model AnnualCreditUnitSubject {
     annual_credit_unit_subject_id String           @id @default(uuid()) @db.VarChar(36)
-    weighting                     Decimal
+    weighting                     Float
     objective                     String           @db.MediumText
     subject_code                  String           @db.VarChar(45)
     subject_title                 String           @db.VarChar(45)
@@ -702,7 +702,7 @@ model AnnualCreditUnitSubject {
 
 model AnnualCreditUnitSubjectAudit {
     annual_credit_unit_subject_audit_id String                  @id @default(uuid()) @db.VarChar(36)
-    weighting                           Decimal
+    weighting                           Float
     objective                           String                  @db.MediumText
     subject_code                        String                  @db.VarChar(45)
     subject_title                       String                  @db.VarChar(45)
@@ -889,7 +889,7 @@ model AnnualWeightingAudit {
 
 model Grade {
     grade_id                   String                      @id @default(uuid()) @db.VarChar(36)
-    grade_value                String                      @db.VarChar(5)
+    grade_value                String                      @db.VarChar(5) ///Grade E is used for absent mark and worth 0 points
     created_at                 DateTime                    @default(now()) @db.DateTime(0)
     AnnualGradeWeightings      AnnualGradeWeighting[]
     AnnualGradeWeightingAudits AnnualGradeWeightingAudit[]
@@ -899,7 +899,7 @@ model AnnualGradeWeighting {
     annual_grade_weighting_id String         @id @default(uuid()) @db.VarChar(36)
     minimum                   Int
     maximum                   Int
-    point                     Int
+    point                     Float
     observation               String         @db.MediumText
     is_deleted                Boolean        @default(false) @db.TinyInt
     created_at                DateTime       @default(now()) @db.DateTime(0)
@@ -919,7 +919,7 @@ model AnnualGradeWeightingAudit {
     annual_grade_weighting_audit_id String               @id @default(uuid()) @db.VarChar(36)
     minimum                         Int
     maximum                         Int
-    point                           Int
+    point                           Float
     observation                     String               @db.MediumText
     is_deleted                      Boolean              @db.TinyInt
     audited_at                      DateTime             @default(now()) @db.DateTime(0)
