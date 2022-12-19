@@ -54,7 +54,6 @@ export default function WeightingActionBar({
       <SwapWeightingSystemMenu
         editWeightingSystem={(newWeightingSystem: number) =>
           editWeightingSystem({
-            cycle_id: activeCycleId,
             weighting_system: newWeightingSystem,
           })
         }
