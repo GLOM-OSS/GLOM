@@ -315,11 +315,12 @@ export default function SubjectManagement() {
           });
           setIsManagingSubject(false);
           setSubjects([
-            ...subjects.filter(
-              ({ annual_credit_unit_id: acu }) =>
-                acu !== subject.annual_credit_unit_id
-            ),
-            subject,
+            ...subjects.map((_) =>
+              _.annual_credit_unit_subject_id ===
+              subject.annual_credit_unit_subject_id
+                ? subject
+                : _
+            )
           ]);
           setActionnedSubject(undefined);
         })
