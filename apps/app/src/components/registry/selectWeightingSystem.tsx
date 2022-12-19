@@ -5,11 +5,9 @@ import {
   InputLabel,
   MenuItem,
   OutlinedInput,
-  Select,
-  TextField,
-  Typography,
+  Select, Typography
 } from '@mui/material';
-import { CreateWeightingSystem, Cycle } from '@squoolr/interfaces';
+import { CreateWeightingSystem } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useFormik } from 'formik';
 import { useIntl } from 'react-intl';
@@ -17,23 +15,17 @@ import * as Yup from 'yup';
 
 export default function SelectWeightingSystem({
   isDataLoading,
-  activeCycleId: cycle_id,
   handleSubmit,
-  cycles,
 }: {
   isDataLoading: boolean;
-  activeCycleId: string;
-  cycles: Cycle[];
   handleSubmit: (values: CreateWeightingSystem) => void;
 }) {
   const { formatMessage } = useIntl();
 
-  const initialValues: { cycle_id: string; weighting_system?: number } = {
-    cycle_id,
+  const initialValues: { weighting_system?: number } = {
     weighting_system: undefined,
   };
   const validationSchema = Yup.object().shape({
-    cycle_id: Yup.string().required(formatMessage({ id: 'required' })),
     weighting_system: Yup.number()
       .required(formatMessage({ id: 'required' }))
       .max(10, formatMessage({ id: 'lowerOrEqual10' }))
@@ -68,27 +60,6 @@ export default function SelectWeightingSystem({
         onSubmit={formik.handleSubmit}
         sx={{ display: 'grid', rowGap: theme.spacing(2) }}
       >
-        <TextField
-          select
-          placeholder={formatMessage({ id: 'cycle' })}
-          label={formatMessage({ id: 'cycle' })}
-          fullWidth
-          required
-          color="primary"
-          disabled={isDataLoading}
-          {...formik.getFieldProps('cycle_id')}
-          error={formik.touched.cycle_id && Boolean(formik.errors.cycle_id)}
-          helperText={formik.touched.cycle_id && formik.errors.cycle_id}
-        >
-          {cycles.map(
-            ({ cycle_id, cycle_name, number_of_years: noy }, index) => (
-              <MenuItem key={index} value={cycle_id}>
-                {`${cycle_name}(${noy} ${formatMessage({ id: 'years' })})`}
-              </MenuItem>
-            )
-          )}
-        </TextField>
-
         <FormControl>
           <InputLabel id="weightingSystem">
             {formatMessage({ id: 'weightingSystem' })}
