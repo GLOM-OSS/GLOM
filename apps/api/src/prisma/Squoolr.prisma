@@ -685,7 +685,7 @@ model SubjectPart {
 
 model AnnualCreditUnitSubject {
     annual_credit_unit_subject_id String           @id @default(uuid()) @db.VarChar(36)
-    weighting                     Int
+    weighting                     Decimal
     objective                     String           @db.MediumText
     subject_code                  String           @db.VarChar(45)
     subject_title                 String           @db.VarChar(45)
@@ -702,7 +702,7 @@ model AnnualCreditUnitSubject {
 
 model AnnualCreditUnitSubjectAudit {
     annual_credit_unit_subject_audit_id String                  @id @default(uuid()) @db.VarChar(36)
-    weighting                           Int
+    weighting                           Decimal
     objective                           String                  @db.MediumText
     subject_code                        String                  @db.VarChar(45)
     subject_title                       String                  @db.VarChar(45)

@@ -63,7 +63,7 @@ export interface User {
     origin_institute?: string;
     has_signed_convention: boolean;
     teacher_id: string;
-    coordinates?: ClassroomDivisionInterface[]; //TODO change type to string[] representing classroom_division_id, change coordinates to classroomDivisions
+    classroomDivisions?: string[];
   };
   annualRegistry?: {
     annual_registry_id: string;
@@ -80,7 +80,7 @@ export const getUserRoles = ({
     annualConfigurator ? 'secretary' : undefined,
     annualRegistry ? 'registry' : undefined,
     annualTeacher ? 'teacher' : undefined,
-    annualTeacher?.coordinates && annualTeacher.coordinates.length > 0
+    annualTeacher?.classroomDivisions && annualTeacher.classroomDivisions.length > 0
       ? 'coordinator'
       : undefined,
   ];

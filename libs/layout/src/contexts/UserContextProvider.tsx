@@ -67,29 +67,7 @@ function UserContextProvider({
       hourly_rate: 10000,
       has_signed_convention: false,
       teacher_id: 'htsl',
-      coordinates: [
-        {
-          annual_classroom_division_id: 'heisl',
-          annual_classroom_id: 'heis',
-          classroom_code: 'IRT001',
-          classroom_name: 'Informatique Reseaux et Telecoms',
-          classroom_short_name: 'IRT',
-        },
-        {
-          annual_classroom_division_id: 'hsisl',
-          annual_classroom_id: 'heigs',
-          classroom_code: 'IMB001',
-          classroom_name: 'Ingenieurie Biomedical',
-          classroom_short_name: 'IMB',
-        },
-        {
-          annual_classroom_division_id: 'heisgl',
-          annual_classroom_id: 'heiss',
-          classroom_code: 'ERGC001',
-          classroom_name: 'Energie Renouvelables et Genie Climatique',
-          classroom_short_name: 'ERGC',
-        },
-      ],
+      classroomDivisions: ['Hello', 'Yes'],
     },
 
     userDispatch: () => null,
