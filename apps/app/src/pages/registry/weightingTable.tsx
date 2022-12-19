@@ -507,8 +507,6 @@ export default function WeightingTable() {
   if (!areCyclesLoading && !isWeightingSystemLoading && !weightingSystem)
     return (
       <SelectWeightingSystem
-        activeCycleId={activeCycle ? activeCycle.cycle_id : ''}
-        cycles={cycles}
         handleSubmit={createWeightingSystem}
         isDataLoading={isCreatingWeightingSystem}
       />
@@ -604,7 +602,7 @@ export default function WeightingTable() {
             color="primary"
             sx={{ position: 'absolute', bottom: 16, right: 24 }}
           >
-            <Tooltip arrow title={formatMessage({ id: `newSubject` })}>
+            <Tooltip arrow title={formatMessage({ id: `newWeighting` })}>
               <AddRounded />
             </Tooltip>
           </Fab>
