@@ -17,6 +17,7 @@ import {
   getMajorDetails,
 } from '@squoolr/api-services';
 import { DialogTransition } from '@squoolr/dialogTransition';
+import { CycleName } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { generateShort } from '@squoolr/utils';
@@ -33,7 +34,7 @@ export interface DepartmentInterface {
 
 export interface CycleInterface {
   cycle_id: string;
-  cycle_name: 'BACHELORS' | 'MASTER' | 'DOCTORATE' | 'DUT' | 'BTS' | 'DTS';
+  cycle_name: CycleName;
   number_of_years: number;
 }
 
