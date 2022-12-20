@@ -63,7 +63,7 @@ export class GradeWeightingController {
   async updateGradeWeighting(
     @Req() request: Request,
     @Param('annual_grade_weighting_id') annual_grade_weighting_id: string,
-    @Body() { cycle_id, grade_id, ...updatedData }: GradeWeightingPutDto
+    @Body() { grade_id, ...updatedData }: GradeWeightingPutDto
   ) {
     const {
       annualRegistry: { annual_registry_id },
@@ -73,7 +73,6 @@ export class GradeWeightingController {
         annual_grade_weighting_id,
         {
           ...updatedData,
-          ...(cycle_id ? { Cycle: { connect: { cycle_id } } } : {}),
           ...(grade_id ? { Grade: { connect: { grade_id } } } : {}),
         },
         annual_registry_id

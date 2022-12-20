@@ -49,11 +49,11 @@ export default function WeightingDialog({
     minimum: Yup.number()
       .required(formatMessage({ id: 'required' }))
       .min(0, formatMessage({ id: 'greaterOrEqual0' }))
-      .max(weightingSystem, formatMessage({ id: 'lesserOrEqualWeighting' })),
+      .max(100, formatMessage({ id: 'lesserOrEqualWeighting' })),
     maximum: Yup.number()
       .required(formatMessage({ id: 'required' }))
       .min(0, formatMessage({ id: 'greaterOrEqual0' }))
-      .max(weightingSystem, formatMessage({ id: 'lesserOrEqualWeighting' })),
+      .max(100, formatMessage({ id: 'lesserOrEqualWeighting' })),
     point: Yup.number()
       .required(formatMessage({ id: 'required' }))
       .min(0, formatMessage({ id: 'greaterOrEqual0' }))

@@ -56,6 +56,7 @@ export class GradeWeightingService {
         ...(exculed_grade_weighting_id
           ? { annual_grade_weighting_id: { not: exculed_grade_weighting_id } }
           : {}),
+        is_deleted: false,
         OR: [
           { minimum },
           { maximum },
@@ -87,7 +88,11 @@ export class GradeWeightingService {
     );
     if (overlappedWieghting)
       throw new HttpException(JSON.stringify(ERR09), HttpStatus.CONFLICT);
-    return this.prismaService.annualGradeWeighting.create({
+    const {
+      Grade: { grade_value },
+      ...newGrade
+    } = await this.prismaService.annualGradeWeighting.create({
+      include: { Grade: { select: { grade_value: true } } },
       data: {
         maximum,
         minimum,
@@ -97,6 +102,7 @@ export class GradeWeightingService {
         AnnualRegistry: { connect: { annual_registry_id } },
       },
     });
+    return { grade_value, ...newGrade };
   }
 
   async updateGradeWeighting(

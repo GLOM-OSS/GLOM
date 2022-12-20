@@ -8,7 +8,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
 import {
   addNewGradeWeighting,
@@ -19,14 +19,15 @@ import {
   updateEvaluationTypeWeighting,
   updateExamAcess,
   updateGradeWeighting,
-  updateWeightingSystem
+  updateWeightingSystem,
 } from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
-  CarryOverSystem, CreateWeightingSystem,
+  CarryOverSystem,
+  CreateWeightingSystem,
   EvaluationTypeWeighting,
   GradeWeighting,
-  SemesterExamAccess
+  SemesterExamAccess,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -42,7 +43,7 @@ import WeightingActionBar from '../../components/registry/weightingActionBar';
 import WeightingDialog from '../../components/registry/weightingDialog';
 import WeightingLane, {
   AbsenceWeighting,
-  WeightingSkeleton
+  WeightingSkeleton,
 } from '../../components/registry/weightingLane';
 
 export default function WeightingTable() {
@@ -200,10 +201,8 @@ export default function WeightingTable() {
     setWeightingNotif(notif);
     notif.notify({ render: formatMessage({ id: 'savingWeighting' }) });
     if (actionnedWeighting) {
-      updateGradeWeighting(
-        actionnedWeighting.annual_grade_weighting_id,
-        weighting
-      )
+      const { grade_value, annual_grade_weighting_id, ...data } = weighting;
+      updateGradeWeighting(actionnedWeighting.annual_grade_weighting_id, data)
         .then(() => {
           notif.update({
             render: formatMessage({ id: 'savedSuccessfully' }),
@@ -212,7 +211,7 @@ export default function WeightingTable() {
             weightingData.map((gradeWeighting) => {
               const { annual_grade_weighting_id: agw_id } = gradeWeighting;
               if (agw_id === actionnedWeighting.annual_grade_weighting_id)
-                return weighting;
+                return { ...weighting, grade_value, annual_grade_weighting_id };
               return gradeWeighting;
             })
           );
@@ -247,7 +246,15 @@ export default function WeightingTable() {
           notif.update({
             render: formatMessage({ id: 'savedSuccessfully' }),
           });
-          setWeightingData([newGradeWeighting, ...weightingData]);
+          setWeightingData([
+            {
+              ...weighting,
+              grade_value: newGradeWeighting.grade_value,
+              annual_grade_weighting_id:
+                newGradeWeighting.annual_grade_weighting_id,
+            },
+            ...weightingData,
+          ]);
           setActionnedWeighting(undefined);
         })
         .catch((error) => {
@@ -398,7 +405,10 @@ export default function WeightingTable() {
             <ErrorMessage
               retryFunction={() => submitEvaluationWeighting(examAccess)}
               notification={notif}
-              message={error?.message || formatMessage({ id: 'savingEvaluationWeighting' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'savingEvaluationWeighting' })
+              }
             />
           ),
           autoClose: false,
@@ -454,7 +464,10 @@ export default function WeightingTable() {
         handleSubmit={submitEvaluationWeighting}
       />
       <WeightingDialog
-        closeDialog={() => setIsEditDialogOpen(false)}
+        closeDialog={() => {
+          setIsEditDialogOpen(false);
+          setActionnedWeighting(undefined);
+        }}
         handleSubmit={editWeightingData}
         isDialogOpen={isEditDialogOpen}
         weightingSystem={weightingSystem ?? 0}
@@ -555,7 +568,7 @@ export default function WeightingTable() {
                   </TableRow>
                 ) : (
                   <>
-                    {weightingData.map((weighting, index) => (
+                    {weightingData.sort((a, b) => b.minimum - a.minimum).map((weighting, index) => (
                       <WeightingLane
                         setAnchorEl={setAnchorEl}
                         weighting={weighting}
