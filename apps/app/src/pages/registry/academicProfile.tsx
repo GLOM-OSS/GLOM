@@ -32,68 +32,6 @@ import SelectWeightingSystem from '../../components/registry/selectWeightingSyst
 export default function AcademicProfileTable() {
   const { formatMessage } = useIntl();
 
-//   const [cycles, setCycles] = useState<Cycle[]>([]);
-//   const [areCyclesLoading, setAreCyclesLoading] = useState<boolean>(false);
-//   const [cycleNotif, setCycleNotif] = useState<useNotification>();
-//   const [activeCycle, setActiveCycle] = useState<Cycle>();
-
-  //   const loadCycles = () => {
-  //     setAreCyclesLoading(true);
-  //     const notif = new useNotification();
-  //     if (cycleNotif) {
-  //       cycleNotif.dismiss();
-  //     }
-  //     setCycleNotif(notif);
-  //     setTimeout(() => {
-  //       //TODO: call api here to load school's offered cycle here
-  //       if (6 > 5) {
-  //         const newCycles: Cycle[] = [
-  //           {
-  //             cycle_id: 'weils',
-  //             cycle_name: CycleName.BACHELOR,
-  //             cycle_type: CycleType.LONG,
-  //             number_of_years: 3,
-  //           },
-  //           {
-  //             cycle_id: 'weisls',
-  //             cycle_name: CycleName.MASTER,
-  //             cycle_type: CycleType.SHORT,
-  //             number_of_years: 2,
-  //           },
-  //         ];
-
-  //         setCycles(newCycles);
-  //         if (newCycles.length > 0)
-  //           setActiveCycle(
-  //             newCycles.sort((a, b) =>
-  //               a.cycle_type < b.cycle_type
-  //                 ? 1
-  //                 : a.cycle_name > b.cycle_name
-  //                 ? 1
-  //                 : -1
-  //             )[0]
-  //           );
-  //         setAreCyclesLoading(false);
-  //         notif.dismiss();
-  //         setCycleNotif(undefined);
-  //       } else {
-  //         notif.notify({ render: formatMessage({ id: 'loadingCycles' }) });
-  //         notif.update({
-  //           type: 'ERROR',
-  //           render: (
-  //             <ErrorMessage
-  //               retryFunction={loadCycles}
-  //               notification={notif}
-  //               message={formatMessage({ id: 'getCyclesFailed' })}
-  //             />
-  //           ),
-  //           autoClose: false,
-  //           icon: () => <ReportRounded fontSize="medium" color="error" />,
-  //         });
-  //       }
-  //     }, 3000);
-  //   };
-
   const [weightingSystem, setWeightingSystem] = useState<number>();
   const [isWeightingSystemLoading, setIsWeightingSystemLoading] =
     useState<boolean>(false);
@@ -108,7 +46,7 @@ export default function AcademicProfileTable() {
     }
     setWeightingSystemNotif(notif);
     setTimeout(() => {
-      //TODO: call api here to load activeCycle's weighting system
+      //TODO: call api here to load weighting system
       if (6 > 5) {
         const newWeightingSystem = undefined;
         setWeightingSystem(newWeightingSystem);
