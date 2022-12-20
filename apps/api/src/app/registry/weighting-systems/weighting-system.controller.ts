@@ -4,9 +4,10 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  Param, Put,
+  Param,
+  Put,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { DeserializeSessionData, Role } from '../../../utils/types';
@@ -14,7 +15,7 @@ import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import {
   EvaluationTypeWeightingPutDto,
-  WeightingPutDto
+  WeightingPutDto,
 } from '../registry.dto';
 import { WeightingSystemService } from './weighting-system.service';
 
@@ -23,17 +24,15 @@ import { WeightingSystemService } from './weighting-system.service';
 export class WeightingSystemController {
   constructor(private weightingSystemService: WeightingSystemService) {}
 
-  @Get(':cycle_id')
+  @Get()
   async getWeightingSystem(
     @Req() request: Request,
-    @Param('cycle_id') cycle_id: string
   ) {
     const {
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
     return await this.weightingSystemService.getAnnualWeighting(
-      academic_year_id,
-      cycle_id
+      academic_year_id
     );
   }
 

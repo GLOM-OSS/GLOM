@@ -177,7 +177,7 @@ model AcademicYear {
     AnnualEvaluationTypeWeightings AnnualEvaluationTypeWeighting[]
     AnnualAcademicProfiles         AnnualAcademicProfile[]
     AnnualSemesterExamAcess        AnnualSemesterExamAcess[]
-    AnnualWeightings               AnnualWeighting[]
+    AnnualWeighting               AnnualWeighting?
     AnnualGradeWeightings          AnnualGradeWeighting[]
     AnnualEvaluationSubTypes       AnnualEvaluationSubType[]
 }
@@ -495,8 +495,6 @@ model Cycle {
     Majors                         Major[]
     MajorAudits                    MajorAudit[]
     AnnualMinimumModulationScores  AnnualMinimumModulationScore[]
-    AnnualWeightings               AnnualWeighting[]
-    AnnualGradeWeightings          AnnualGradeWeighting[]
     AnnualEvaluationTypeWeightings AnnualEvaluationTypeWeighting[]
 }
 
@@ -865,16 +863,12 @@ model AnnualWeighting {
     annual_weighting_id String         @id @default(uuid()) @db.VarChar(36)
     weighting_system    Int
     configured_at       DateTime       @default(now()) @db.DateTime(0)
-    academic_year_id    String         @db.VarChar(36)
+    academic_year_id    String         @unique @db.VarChar(36)
     AcademicYear        AcademicYear   @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
-    cycle_id            String         @db.VarChar(36)
-    Cycle               Cycle          @relation(fields: [cycle_id], references: [cycle_id], onDelete: Cascade, onUpdate: Cascade)
     configured_by       String         @db.VarChar(36)
     AnnualRegistry      AnnualRegistry @relation(fields: [configured_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualWeightingAudits AnnualWeightingAudit[]
-
-    @@unique([academic_year_id, cycle_id])
 }
 
 model AnnualWeightingAudit {
@@ -905,8 +899,6 @@ model AnnualGradeWeighting {
     created_at                DateTime       @default(now()) @db.DateTime(0)
     academic_year_id          String         @db.VarChar(36)
     AcademicYear              AcademicYear   @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
-    cycle_id                  String         @db.VarChar(36)
-    Cycle                     Cycle          @relation(fields: [cycle_id], references: [cycle_id], onDelete: Cascade, onUpdate: Cascade)
     grade_id                  String         @db.VarChar(36)
     Grade                     Grade          @relation(fields: [grade_id], references: [grade_id], onDelete: Cascade, onUpdate: Cascade)
     created_by                String         @db.VarChar(36)

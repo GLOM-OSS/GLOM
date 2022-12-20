@@ -14,10 +14,6 @@ import {
 } from 'class-validator';
 
 export class WeightingPutDto {
-  @IsUUID()
-  @ApiProperty()
-  cycle_id: string;
-
   @IsNumber()
   @Min(0)
   @Max(10)

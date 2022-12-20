@@ -23,9 +23,9 @@ import { GradeWeightingService } from './grade-weighting.service';
 export class GradeWeightingController {
   constructor(private gradeWeightingService: GradeWeightingService) {}
 
-  @Get(':cylce_id/all')
-  async getGradeWeightings(@Param('cycle_id') cycle_id: string) {
-    return await this.gradeWeightingService.getAnnualGradeWeightings(cycle_id);
+  @Get('all')
+  async getGradeWeightings() {
+    return await this.gradeWeightingService.getAnnualGradeWeightings();
   }
 
   @Get(':annnual_grade_weighting_id')

@@ -9,20 +9,19 @@ import { GradeWeightingPostDto } from '../registry.dto';
 export class GradeWeightingService {
   constructor(private prismaService: PrismaService) {}
 
-  async getAnnualGradeWeightings(cycle_id: string): Promise<GradeWeighting[]> {
+  async getAnnualGradeWeightings(): Promise<GradeWeighting[]> {
     const annualGradeWeightings =
       await this.prismaService.annualGradeWeighting.findMany({
         select: {
           point: true,
           maximum: true,
           minimum: true,
-          cycle_id: true,
           grade_id: true,
           observation: true,
           annual_grade_weighting_id: true,
           Grade: { select: { grade_value: true } },
         },
-        where: { cycle_id, is_deleted: false },
+        where: { is_deleted: false },
       });
 
     return annualGradeWeightings.map(
@@ -41,7 +40,6 @@ export class GradeWeightingService {
 
   async getOverlappingWeighting(
     academic_year_id: string,
-    cycle_id: string,
     {
       maximum,
       minimum,
@@ -54,7 +52,6 @@ export class GradeWeightingService {
   ) {
     return this.prismaService.annualGradeWeighting.findFirst({
       where: {
-        cycle_id,
         academic_year_id,
         ...(exculed_grade_weighting_id
           ? { annual_grade_weighting_id: { not: exculed_grade_weighting_id } }
@@ -80,19 +77,12 @@ export class GradeWeightingService {
   }
 
   async addNewGradeWeighting(
-    {
-      grade_id,
-      cycle_id,
-      maximum,
-      minimum,
-      ...newGradeWeighting
-    }: GradeWeightingPostDto,
+    { grade_id, maximum, minimum, ...newGradeWeighting }: GradeWeightingPostDto,
     academic_year_id: string,
     annual_registry_id: string
   ) {
     const overlappedWieghting = await this.getOverlappingWeighting(
       academic_year_id,
-      cycle_id,
       { maximum, minimum }
     );
     if (overlappedWieghting)
@@ -102,7 +92,6 @@ export class GradeWeightingService {
         maximum,
         minimum,
         ...newGradeWeighting,
-        Cycle: { connect: { cycle_id } },
         Grade: { connect: { grade_id } },
         AcademicYear: { connect: { academic_year_id } },
         AnnualRegistry: { connect: { annual_registry_id } },
@@ -126,7 +115,6 @@ export class GradeWeightingService {
           minimum: true,
           maximum: true,
           grade_id: true,
-          cycle_id: true,
           is_deleted: true,
           observation: true,
           academic_year_id: true,
@@ -138,11 +126,10 @@ export class GradeWeightingService {
         JSON.stringify(AUTH404('Grade Weighting')),
         HttpStatus.NOT_FOUND
       );
-    const { academic_year_id, cycle_id, ...annualGradeWeightingData } =
+    const { academic_year_id, ...annualGradeWeightingData } =
       annualGradeWeighting;
     const overlappedWieghting = await this.getOverlappingWeighting(
       academic_year_id,
-      cycle_id,
       {
         exculed_grade_weighting_id: annual_grade_weighting_id,
         maximum: maximum ? (maximum as number) : annualGradeWeighting.maximum,
