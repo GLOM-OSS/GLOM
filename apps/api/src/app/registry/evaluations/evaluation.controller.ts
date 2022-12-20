@@ -21,7 +21,7 @@ export class EvaluationController {
   constructor(private evaluationService: EvaluationService) {}
 
   @Get('hall-access')
-  async getEvaluationTypeWeighting(@Req() request: Request) {
+  async getExamAccess(@Req() request: Request) {
     const {
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
