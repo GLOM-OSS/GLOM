@@ -2,20 +2,8 @@ import {
   KeyboardArrowDownOutlined,
   MoreHorizOutlined,
 } from '@mui/icons-material';
-import {
-  Box,
-  Button,
-  Chip,
-  FormControl,
-  InputLabel,
-  lighten,
-  MenuItem,
-  OutlinedInput,
-  Select,
-  Skeleton,
-  Tooltip,
-} from '@mui/material';
-import { CreateWeightingSystem, Cycle } from '@squoolr/interfaces';
+import { Box, Button, Chip, lighten, Skeleton, Tooltip } from '@mui/material';
+import { CreateWeightingSystem } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
@@ -23,21 +11,15 @@ import MoreMenu from './moreMenu';
 import SwapWeightingSystemMenu from './swapWeightingSystemMenu';
 
 export default function WeightingActionBar({
-  cycles,
-  activeCycleId,
   weightingSystem,
   isDataLoading,
-  swapActiveCycle,
   editWeightingSystem,
   openCarryOverDialog,
   openEvaluationWeightingDialog,
   openExamAccessDialog,
 }: {
-  cycles: Cycle[];
-  activeCycleId: string;
   weightingSystem: number | undefined;
   isDataLoading: boolean;
-  swapActiveCycle: (newActiveCycleId: string) => void;
   editWeightingSystem: (newWeightingSystem: CreateWeightingSystem) => void;
   openCarryOverDialog: () => void;
   openEvaluationWeightingDialog: () => void;
@@ -73,36 +55,11 @@ export default function WeightingActionBar({
         sx={{
           marginTop: theme.spacing(1),
           display: 'grid',
-          gridTemplateColumns: 'auto 1fr',
+          justifyContent: 'end',
+          // gridTemplateColumns: 'auto 1fr',
           columnGap: theme.spacing(1),
         }}
       >
-        <FormControl>
-          <InputLabel id="cycle">{formatMessage({ id: 'cycle' })}</InputLabel>
-          <Select
-            size="small"
-            labelId="cycle"
-            disabled={isDataLoading}
-            onChange={(event) => swapActiveCycle(event.target.value)}
-            value={activeCycleId}
-            input={<OutlinedInput label={formatMessage({ id: 'cycle' })} />}
-            MenuProps={{
-              PaperProps: {
-                style: {
-                  maxHeight: 48 * 4.5 + 8,
-                },
-              },
-            }}
-          >
-            {cycles.map(
-              ({ cycle_id, cycle_name, number_of_years: noy }, index) => (
-                <MenuItem key={index} value={cycle_id}>
-                  {`${cycle_name}(${noy} ${formatMessage({ id: 'years' })})`}
-                </MenuItem>
-              )
-            )}
-          </Select>
-        </FormControl>
         <Box
           sx={{
             display: 'grid',

@@ -38,13 +38,11 @@ export default function WeightingDialog({
     minimum: 0,
     observation: 'Toutes les ue',
     point: 0,
-    cycle_id: '',
     grade_id: '',
   };
 
   const validationSchema = Yup.object().shape({
     annual_grade_weighting_id: Yup.string(),
-    cycle_id: Yup.string(),
     grade_value: Yup.string(),
     observation: Yup.string(),
     minimum: Yup.number()
@@ -148,6 +146,7 @@ export default function WeightingDialog({
             label={formatMessage({ id: 'minimum' })}
             required
             color="primary"
+            type="number"
             disabled={areGradesLoading}
             {...formik.getFieldProps('minimum')}
             error={formik.touched.minimum && Boolean(formik.errors.minimum)}
@@ -159,6 +158,7 @@ export default function WeightingDialog({
             label={formatMessage({ id: 'maximum' })}
             required
             color="primary"
+            type="number"
             disabled={areGradesLoading}
             {...formik.getFieldProps('maximum')}
             error={formik.touched.maximum && Boolean(formik.errors.maximum)}
@@ -188,6 +188,7 @@ export default function WeightingDialog({
             label={formatMessage({ id: 'point' })}
             required
             color="primary"
+            type="number"
             disabled={areGradesLoading}
             {...formik.getFieldProps('point')}
             error={formik.touched.point && Boolean(formik.errors.point)}

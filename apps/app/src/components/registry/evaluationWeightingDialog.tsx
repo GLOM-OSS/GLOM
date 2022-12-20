@@ -20,6 +20,8 @@ import { Box } from '@mui/system';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import {
   Cycle,
+  CycleName,
+  CycleType,
   EvaluationType,
   EvaluationTypeWeighting,
 } from '@squoolr/interfaces';
@@ -29,17 +31,14 @@ import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import * as Yup from 'yup';
+import NoCyclesAvailables from './noCyclesAvailable';
 
 export default function EvaluationWeightingDialog({
   isDialogOpen,
-  cycles,
-  activeCycle,
   handleSubmit,
   closeDialog,
 }: {
   isDialogOpen: boolean;
-  activeCycle: string | undefined;
-  cycles: Cycle[];
   handleSubmit: (value: {
     evaluationWeighting: EvaluationTypeWeighting;
     cycle_id: string;
@@ -47,6 +46,68 @@ export default function EvaluationWeightingDialog({
   closeDialog: () => void;
 }) {
   const { formatMessage } = useIntl();
+
+  const [cycles, setCycles] = useState<Cycle[]>([]);
+  const [areCyclesLoading, setAreCyclesLoading] = useState<boolean>(false);
+  const [cycleNotif, setCycleNotif] = useState<useNotification>();
+  const [activeCycle, setActiveCycle] = useState<Cycle>();
+
+  const loadCycles = () => {
+    setAreCyclesLoading(true);
+    const notif = new useNotification();
+    if (cycleNotif) {
+      cycleNotif.dismiss();
+    }
+    setCycleNotif(notif);
+    setTimeout(() => {
+      //TODO: call api here to load school's offered cycle here
+      if (6 > 5) {
+        const newCycles: Cycle[] = [
+          {
+            cycle_id: 'weils',
+            cycle_name: CycleName.BACHELOR,
+            cycle_type: CycleType.LONG,
+            number_of_years: 3,
+          },
+          {
+            cycle_id: 'weisls',
+            cycle_name: CycleName.MASTER,
+            cycle_type: CycleType.SHORT,
+            number_of_years: 2,
+          },
+        ];
+
+        setCycles(newCycles);
+        if (newCycles.length > 0)
+          setActiveCycle(
+            newCycles.sort((a, b) =>
+              a.cycle_type < b.cycle_type
+                ? 1
+                : a.cycle_name > b.cycle_name
+                ? 1
+                : -1
+            )[0]
+          );
+        setAreCyclesLoading(false);
+        notif.dismiss();
+        setCycleNotif(undefined);
+      } else {
+        notif.notify({ render: formatMessage({ id: 'loadingCycles' }) });
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={loadCycles}
+              notification={notif}
+              message={formatMessage({ id: 'getCyclesFailed' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
 
   const [isEvaluationWeightingLoading, setIsEvaluationWeightingLoading] =
     useState<boolean>(false);
@@ -176,9 +237,13 @@ export default function EvaluationWeightingDialog({
     }, 3000);
   };
 
-  const [activeCycleId, setActiveCycleId] = useState<string | undefined>(
-    activeCycle
-  );
+  const [activeCycleId, setActiveCycleId] = useState<string | undefined>();
+
+  useEffect(() => {
+    if (activeCycle) {
+      setActiveCycleId(activeCycle.cycle_id);
+    } else setActiveCycleId(undefined);
+  }, [activeCycle]);
 
   useEffect(() => {
     if (isDialogOpen && activeCycleId) {
@@ -190,6 +255,16 @@ export default function EvaluationWeightingDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDialogOpen, activeCycleId]);
 
+  useEffect(() => {
+    if (isDialogOpen) {
+      loadCycles();
+    }
+    return () => {
+      //TODO: CLEANUP ABOVE FETCH HERE
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDialogOpen]);
+
   return (
     <Dialog
       open={isDialogOpen}
@@ -197,161 +272,170 @@ export default function EvaluationWeightingDialog({
       keepMounted
       onClose={close}
     >
-      <form onSubmit={formik.handleSubmit}>
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: '1fr auto',
-            columnGap: theme.spacing(2),
-            alignItems: 'center',
-            paddingRight: theme.spacing(3),
-          }}
-        >
-          <DialogTitle>
-            {formatMessage({ id: 'evaluationWeighting' })}
-          </DialogTitle>
-          <FormControl>
-            <InputLabel id="cycle">{formatMessage({ id: 'cycle' })}</InputLabel>
-            <Select
-              size="small"
-              labelId="cycle"
-              disabled={isEvaluationWeightingLoading}
-              onChange={(event) => setActiveCycleId(event.target.value)}
-              value={activeCycleId}
-              input={<OutlinedInput label={formatMessage({ id: 'cycle' })} />}
-              MenuProps={{
-                PaperProps: {
-                  style: {
-                    maxHeight: 48 * 4.5 + 8,
-                  },
-                },
-              }}
-            >
-              {cycles.map(
-                ({ cycle_id, cycle_name, number_of_years: noy }, index) => (
-                  <MenuItem key={index} value={cycle_id}>
-                    {`${cycle_name}(${noy} ${formatMessage({ id: 'years' })})`}
-                  </MenuItem>
-                )
-              )}
-            </Select>
-          </FormControl>
-        </Box>
-        <DialogContent sx={{ display: 'grid', rowGap: theme.spacing(2) }}>
-          <DialogContentText>
-            {formatMessage({ id: 'evaluationWeightingDialogMessage' })}
-          </DialogContentText>
+      {!areCyclesLoading && cycles.length === 0 ? (
+        <NoCyclesAvailables />
+      ) : (
+        <form onSubmit={formik.handleSubmit}>
           <Box
             sx={{
               display: 'grid',
-              gridAutoFlow: 'column',
+              gridTemplateColumns: '1fr auto',
               columnGap: theme.spacing(2),
               alignItems: 'center',
+              paddingRight: theme.spacing(3),
             }}
           >
-            <TextField
-              placeholder={formatMessage({ id: 'ca' })}
-              label={formatMessage({ id: 'ca' })}
-              fullWidth
-              required
-              color="primary"
-              type="number"
-              disabled={isEvaluationWeightingLoading}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <Typography variant="body2">%</Typography>
-                  </InputAdornment>
-                ),
-              }}
-              {...formik.getFieldProps('ca')}
-              onChange={(event) => {
-                formik.setFieldValue('ca', event.target.value);
-                setFormikCa(Number(event.target.value));
-              }}
-              error={formik.touched.ca && Boolean(formik.errors.ca)}
-              helperText={formik.touched.ca && formik.errors.ca}
-            />
-            <TextField
-              placeholder={formatMessage({ id: 'exam' })}
-              label={formatMessage({ id: 'exam' })}
-              fullWidth
-              required
-              color="primary"
-              disabled={isEvaluationWeightingLoading}
-              type="number"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <Typography variant="body2">%</Typography>
-                  </InputAdornment>
-                ),
-              }}
-              {...formik.getFieldProps('exam')}
-              onChange={(event) => {
-                formik.setFieldValue('exam', event.target.value);
-                setFormikExam(Number(event.target.value));
-              }}
-              error={formik.touched.exam && Boolean(formik.errors.exam)}
-              helperText={formik.touched.exam && formik.errors.exam}
-            />
+            <DialogTitle>
+              {formatMessage({ id: 'evaluationWeighting' })}
+            </DialogTitle>
+            <FormControl>
+              <InputLabel id="cycle">
+                {formatMessage({ id: 'cycle' })}
+              </InputLabel>
+              <Select
+                size="small"
+                labelId="cycle"
+                disabled={isEvaluationWeightingLoading || areCyclesLoading}
+                onChange={(event) => setActiveCycleId(event.target.value)}
+                value={activeCycleId}
+                input={<OutlinedInput label={formatMessage({ id: 'cycle' })} />}
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 48 * 4.5 + 8,
+                    },
+                  },
+                }}
+              >
+                {cycles.map(
+                  ({ cycle_id, cycle_name, number_of_years: noy }, index) => (
+                    <MenuItem key={index} value={cycle_id}>
+                      {`${cycle_name}(${noy} ${formatMessage({
+                        id: 'years',
+                      })})`}
+                    </MenuItem>
+                  )
+                )}
+              </Select>
+            </FormControl>
           </Box>
-          <Divider />
-          <DialogContentText>
-            {formatMessage({ id: 'minimumModulationScoreMessage' })}
-          </DialogContentText>
-          <TextField
-            placeholder={formatMessage({ id: 'minimum_modulation_score' })}
-            label={formatMessage({ id: 'minimum_modulation_score' })}
-            fullWidth
-            required
-            color="primary"
-            disabled={isEvaluationWeightingLoading}
-            type="number"
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Typography variant="body2">%</Typography>
-                </InputAdornment>
-              ),
-            }}
-            {...formik.getFieldProps('minimum_modulation_score')}
-            error={
-              formik.touched.minimum_modulation_score &&
-              Boolean(formik.errors.minimum_modulation_score)
-            }
-            helperText={
-              formik.touched.minimum_modulation_score &&
-              formik.errors.minimum_modulation_score
-            }
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            sx={{ textTransform: 'none' }}
-            color="error"
-            variant="text"
-            onClick={close}
-          >
-            {formatMessage({ id: 'cancel' })}
-          </Button>
-          <Button
-            sx={{ textTransform: 'none' }}
-            color="primary"
-            variant="contained"
-            disabled={
-              isEvaluationWeightingLoading ||
-              (formik.values.ca === adjustedWeighting?.ca &&
-                formik.values.exam === adjustedWeighting?.exam &&
-                formik.values.minimum_modulation_score ===
-                  adjustedWeighting?.minimum_modulation_score)
-            }
-            type="submit"
-          >
-            {formatMessage({ id: 'save' })}
-          </Button>
-        </DialogActions>
-      </form>
+          <DialogContent sx={{ display: 'grid', rowGap: theme.spacing(2) }}>
+            <DialogContentText>
+              {formatMessage({ id: 'evaluationWeightingDialogMessage' })}
+            </DialogContentText>
+            <Box
+              sx={{
+                display: 'grid',
+                gridAutoFlow: 'column',
+                columnGap: theme.spacing(2),
+                alignItems: 'center',
+              }}
+            >
+              <TextField
+                placeholder={formatMessage({ id: 'ca' })}
+                label={formatMessage({ id: 'ca' })}
+                fullWidth
+                required
+                color="primary"
+                type="number"
+                disabled={isEvaluationWeightingLoading || areCyclesLoading}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Typography variant="body2">%</Typography>
+                    </InputAdornment>
+                  ),
+                }}
+                {...formik.getFieldProps('ca')}
+                onChange={(event) => {
+                  formik.setFieldValue('ca', event.target.value);
+                  setFormikCa(Number(event.target.value));
+                }}
+                error={formik.touched.ca && Boolean(formik.errors.ca)}
+                helperText={formik.touched.ca && formik.errors.ca}
+              />
+              <TextField
+                placeholder={formatMessage({ id: 'exam' })}
+                label={formatMessage({ id: 'exam' })}
+                fullWidth
+                required
+                color="primary"
+                disabled={isEvaluationWeightingLoading || areCyclesLoading}
+                type="number"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Typography variant="body2">%</Typography>
+                    </InputAdornment>
+                  ),
+                }}
+                {...formik.getFieldProps('exam')}
+                onChange={(event) => {
+                  formik.setFieldValue('exam', event.target.value);
+                  setFormikExam(Number(event.target.value));
+                }}
+                error={formik.touched.exam && Boolean(formik.errors.exam)}
+                helperText={formik.touched.exam && formik.errors.exam}
+              />
+            </Box>
+            <Divider />
+            <DialogContentText>
+              {formatMessage({ id: 'minimumModulationScoreMessage' })}
+            </DialogContentText>
+            <TextField
+              placeholder={formatMessage({ id: 'minimum_modulation_score' })}
+              label={formatMessage({ id: 'minimum_modulation_score' })}
+              fullWidth
+              required
+              color="primary"
+              disabled={isEvaluationWeightingLoading || areCyclesLoading}
+              type="number"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Typography variant="body2">%</Typography>
+                  </InputAdornment>
+                ),
+              }}
+              {...formik.getFieldProps('minimum_modulation_score')}
+              error={
+                formik.touched.minimum_modulation_score &&
+                Boolean(formik.errors.minimum_modulation_score)
+              }
+              helperText={
+                formik.touched.minimum_modulation_score &&
+                formik.errors.minimum_modulation_score
+              }
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button
+              sx={{ textTransform: 'none' }}
+              color="error"
+              variant="text"
+              onClick={close}
+            >
+              {formatMessage({ id: 'cancel' })}
+            </Button>
+            <Button
+              sx={{ textTransform: 'none' }}
+              color="primary"
+              variant="contained"
+              disabled={
+                isEvaluationWeightingLoading ||
+                areCyclesLoading ||
+                (formik.values.ca === adjustedWeighting?.ca &&
+                  formik.values.exam === adjustedWeighting?.exam &&
+                  formik.values.minimum_modulation_score ===
+                    adjustedWeighting?.minimum_modulation_score)
+              }
+              type="submit"
+            >
+              {formatMessage({ id: 'save' })}
+            </Button>
+          </DialogActions>
+        </form>
+      )}
     </Dialog>
   );
 }
