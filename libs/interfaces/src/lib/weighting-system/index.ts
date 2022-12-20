@@ -48,7 +48,7 @@ export interface CreateAcademicProfile {
 }
 
 export interface AcademicProfile extends CreateAcademicProfile {
-  academic_profile_id: string;
+  annual_academic_profile_id: string;
 }
 
 export enum CarryOver {

@@ -1,20 +1,26 @@
 import { AddRounded, ReportRounded } from '@mui/icons-material';
 import {
-    Box,
-    Fab,
-    lighten,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableRow,
-    Tooltip
+  Box,
+  Fab,
+  lighten,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Tooltip
 } from '@mui/material';
+import {
+  addNewAcademicProfile,
+  deleteAcademicProfile,
+  getAcademicProfiles,
+  getWeightingSystem,
+  updateAcademicProfile,
+  updateWeightingSystem
+} from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
-    AcademicProfile,
-    CreateAcademicProfile,
-    CreateWeightingSystem
+  AcademicProfile, CreateWeightingSystem
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -25,7 +31,7 @@ import { RowMenu } from '../../components/coordinator/CreditUnitLane';
 import ActionBar from '../../components/registry/academicProfile/actionBar';
 import ProfileDialog from '../../components/registry/academicProfile/profileDialog';
 import ProfileLane, {
-    ProfileSkeleton
+  ProfileSkeleton
 } from '../../components/registry/academicProfile/profileLane';
 import SelectWeightingSystem from '../../components/registry/selectWeightingSystem';
 
@@ -45,15 +51,14 @@ export default function AcademicProfileTable() {
       weightingSystemNotif.dismiss();
     }
     setWeightingSystemNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load weighting system
-      if (6 > 5) {
-        const newWeightingSystem = undefined;
-        setWeightingSystem(newWeightingSystem);
+    getWeightingSystem()
+      .then((weightingSystem) => {
+        setWeightingSystem(weightingSystem.weighting_system);
         setIsWeightingSystemLoading(false);
         notif.dismiss();
         setWeightingSystemNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingWeightingSystem' }),
         });
@@ -63,14 +68,15 @@ export default function AcademicProfileTable() {
             <ErrorMessage
               retryFunction={loadWeightingSystem}
               notification={notif}
-              message={formatMessage({ id: 'getWeightingSystem' })}
+              message={
+                error?.message || formatMessage({ id: 'getWeightingSystem' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [academicProfileData, setAcademicProfileData] = useState<
@@ -88,22 +94,14 @@ export default function AcademicProfileTable() {
       academicProfileNotif.dismiss();
     }
     setAcademicProfileNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load weightingData
-      if (6 > 5) {
-        const newAcademicProfileData: AcademicProfile[] = [
-          {
-            academic_profile_id: 'lsei',
-            comment: 'Avertissement',
-            maximum_score: 0,
-            minimum_score: 0,
-          },
-        ];
-        setAcademicProfileData(newAcademicProfileData);
+    getAcademicProfiles()
+      .then((academicProfiles) => {
+        setAcademicProfileData(academicProfiles);
         setAreAcademicProfileDataLoading(false);
         notif.dismiss();
         setAcademicProfileNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingAcademicProfileData' }),
         });
@@ -113,14 +111,16 @@ export default function AcademicProfileTable() {
             <ErrorMessage
               retryFunction={loadAcademicProfileData}
               notification={notif}
-              message={formatMessage({ id: 'getAcademicProfileDataFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'getAcademicProfileDataFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
@@ -150,29 +150,31 @@ export default function AcademicProfileTable() {
     if (weightingSystemNotif) weightingSystemNotif.dismiss();
     setWeightingSystemNotif(notif);
     notif.notify({ render: formatMessage({ id: 'savingWeightingSystem' }) });
-    setTimeout(() => {
-      //TODO: CALL API HERE TO createWeighting system with data newWeightingSystem
-      if (5 > 4) {
+    updateWeightingSystem(newWeightingSystem)
+      .then(() => {
         notif.update({
           render: formatMessage({ id: 'savedSuccessfully' }),
         });
-        setIsCreatingWeightingSystem(false);
         setWeightingSystem(newWeightingSystem.weighting_system);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() => createWeightingSystem(newWeightingSystem)}
               notification={notif}
-              message={formatMessage({ id: 'saveWeightingSystemFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'saveWeightingSystemFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsCreatingWeightingSystem(false));
   };
 
   const [isEditingAcademicProfile, setIsEditingAcademicProfile] =
@@ -185,23 +187,25 @@ export default function AcademicProfileTable() {
     setProfileNotif(notif);
     notif.notify({ render: formatMessage({ id: 'savingProfile' }) });
     if (actionnedProfile) {
-      setTimeout(() => {
-        //TODO: CALL API HERE TO edit academicProfile with data profile
-        if (5 > 4) {
+      updateAcademicProfile(
+        actionnedProfile.annual_academic_profile_id,
+        profile
+      )
+        .then(() => {
           notif.update({
             render: formatMessage({ id: 'savedSuccessfully' }),
           });
-          setIsEditingAcademicProfile(false);
           setAcademicProfileData(
             academicProfileData.map((academicProfile) => {
-              const { academic_profile_id: ap_id } = academicProfile;
-              if (ap_id === actionnedProfile.academic_profile_id)
+              const { annual_academic_profile_id: ap_id } = academicProfile;
+              if (ap_id === actionnedProfile.annual_academic_profile_id)
                 return profile;
               return academicProfile;
             })
           );
           setActionnedProfile(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
@@ -214,43 +218,39 @@ export default function AcademicProfileTable() {
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        })
+        .finally(() => setIsEditingAcademicProfile(false));
     } else {
-      setTimeout(() => {
-        const newProfile: CreateAcademicProfile = {
-          comment: profile.comment,
-          maximum_score: profile.maximum_score,
-          minimum_score: profile.minimum_score,
-        };
-        //TODO: CALL API HERE TO createProfile with data newProfile
-        if (5 > 4) {
+      addNewAcademicProfile({
+        comment: profile.comment,
+        maximum_score: profile.maximum_score,
+        minimum_score: profile.minimum_score,
+      })
+        .then((newProfile) => {
           notif.update({
             render: formatMessage({ id: 'savedSuccessfully' }),
           });
-          setIsEditingAcademicProfile(false);
-          //TODO: Put repsonse data after creation here
-          const responseProfile: AcademicProfile = {
-            ...newProfile,
-            academic_profile_id: 'lskei',
-          };
-          setAcademicProfileData([responseProfile, ...academicProfileData]);
+          setAcademicProfileData([newProfile, ...academicProfileData]);
           setActionnedProfile(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={() => editAcademicProfile(profile)}
                 notification={notif}
-                message={formatMessage({ id: 'saveAcademicProfileFailed' })}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'saveAcademicProfileFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        })
+        .finally(() => setIsEditingAcademicProfile(false));
     }
   };
 
@@ -261,34 +261,36 @@ export default function AcademicProfileTable() {
     if (profileNotif) profileNotif.dismiss();
     setProfileNotif(notif);
     notif.notify({ render: formatMessage({ id: 'deleingProfile' }) });
-    setTimeout(() => {
-      //TODO: CALL API HERE TO deleting profile with data profile
-      if (5 > 4) {
+    deleteAcademicProfile(profile.annual_academic_profile_id)
+      .then(() => {
         notif.update({
           render: formatMessage({ id: 'deletedSuccessfully' }),
         });
-        setIsDeletingProfile(false);
         setAcademicProfileData(
           academicProfileData.filter(
-            ({ academic_profile_id: ap_id }) =>
-              ap_id !== profile.academic_profile_id
+            ({ annual_academic_profile_id: ap_id }) =>
+              ap_id !== profile.annual_academic_profile_id
           )
         );
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() => deleteProfile(profile)}
               notification={notif}
-              message={formatMessage({ id: 'deleteAcademicProfileFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'deleteAcademicProfileFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsDeletingProfile(false));
   };
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
@@ -388,8 +390,7 @@ export default function AcademicProfileTable() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {areAcademicProfileDataLoading ||
-                isWeightingSystemLoading ? (
+                {areAcademicProfileDataLoading || isWeightingSystemLoading ? (
                   [...new Array(10)].map((_, index) => (
                     <ProfileSkeleton key={index} />
                   ))

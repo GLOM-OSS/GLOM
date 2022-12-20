@@ -1,6 +1,7 @@
 import { http } from '@squoolr/axios';
 import { Cycle, Grade } from '@squoolr/interfaces';
 
+export * from './academic-profiles';
 export * from './academic-years';
 export * from './auth';
 export * from './carry-over-system';

@@ -10,12 +10,24 @@ export class AcademicProfileService {
 
   async getAcademicProfiles(academic_year_id: string) {
     return this.prismaService.annualAcademicProfile.findMany({
+      select: {
+        annual_academic_profile_id: true,
+        minimum_score: true,
+        maximum_score: true,
+        comment: true,
+      },
       where: { academic_year_id, is_deleted: false },
     });
   }
 
   async getAcademicProfile(annual_academic_profile_id: string) {
     return this.prismaService.annualAcademicProfile.findUnique({
+      select: {
+        annual_academic_profile_id: true,
+        minimum_score: true,
+        maximum_score: true,
+        comment: true,
+      },
       where: { annual_academic_profile_id },
     });
   }
@@ -73,6 +85,12 @@ export class AcademicProfileService {
     if (overlappedProfile)
       throw new HttpException(JSON.stringify(ERR09), HttpStatus.CONFLICT);
     return this.prismaService.annualAcademicProfile.create({
+      select: {
+        annual_academic_profile_id: true,
+        minimum_score: true,
+        maximum_score: true,
+        comment: true,
+      },
       data: {
         comment,
         maximum_score,
@@ -110,15 +128,18 @@ export class AcademicProfileService {
         HttpStatus.NOT_FOUND
       );
     const { academic_year_id, ...overlappedProfileData } = academicProfile;
-    const overlappedProfile = await this.getOverlappingProfile(academic_year_id, {
-      exculed_profile_id: annual_academic_profile_id,
-      maximum_score: maximum_score
-        ? (maximum_score as number)
-        : academicProfile.maximum_score,
-      minimum_score: minimum_score
-        ? (minimum_score as number)
-        : academicProfile.minimum_score,
-    });
+    const overlappedProfile = await this.getOverlappingProfile(
+      academic_year_id,
+      {
+        exculed_profile_id: annual_academic_profile_id,
+        maximum_score: maximum_score
+          ? (maximum_score as number)
+          : academicProfile.maximum_score,
+        minimum_score: minimum_score
+          ? (minimum_score as number)
+          : academicProfile.minimum_score,
+      }
+    );
     if (overlappedProfile)
       throw new HttpException(JSON.stringify(ERR09), HttpStatus.CONFLICT);
     return this.prismaService.annualAcademicProfile.update({

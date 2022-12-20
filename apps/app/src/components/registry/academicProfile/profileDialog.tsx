@@ -31,7 +31,7 @@ export default function ProfileDialog({
 }) {
   const { formatMessage } = useIntl();
   const initialValues: AcademicProfile = editableProfile ?? {
-    academic_profile_id: 'lskd',
+    annual_academic_profile_id: 'lskd',
     comment: '',
     maximum_score: 0,
     minimum_score: 0,
