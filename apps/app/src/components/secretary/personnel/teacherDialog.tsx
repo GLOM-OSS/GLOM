@@ -17,7 +17,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 import {
   getTeacher as fetchTeacher,
-  getTeacherGrades,
+  getTeachingGrades,
   getTeacherTypes,
   getUser,
 } from '@squoolr/api-services';
@@ -151,7 +151,7 @@ export default function TeacherDialog({
 
   const fetchTeacherGrades = () => {
     const notif = new useNotification();
-    getTeacherGrades()
+    getTeachingGrades()
       .then((grades) => {
         setTeacherGrades(grades);
       })

@@ -18,17 +18,17 @@ export class AppController {
 
   @Get('teacher-types')
   async getTeacherTypes() {
-    return { teacher_types: await this.appService.getTeacherTypes() };
+    return { teacherTypes: await this.appService.getTeacherTypes() };
   }
 
-  @Get('teacher-grades')
+  @Get('teaching-grades')
   async getTeacherGrades() {
-    return { teacher_grades: await this.appService.getTeacherGrades() };
+    return { teachingGrades: await this.appService.getTeacherGrades() };
   }
 
   @Get('evaluation-types')
   async getEvalutaionTpes() {
-    return { evaluation_types: await this.appService.getEvaluationTypes() };
+    return { evaluationTypes: await this.appService.getEvaluationTypes() };
   }
 
   @Get('subject-parts')
@@ -36,8 +36,8 @@ export class AppController {
     return { subjectParts: await this.appService.getSubjectParts() };
   }
 
-  @Get('grades')
+  @Get('weighting-grades')
   async getGrades() {
-    return { grades: await this.appService.getGrades() };
+    return { weightingGrades: await this.appService.getGrades() };
   }
 }
