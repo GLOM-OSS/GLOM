@@ -18,7 +18,7 @@ export class EvaluationService {
   }
 
   async updateSemesterExamAccess(
-    { semesterExamAccess: newSemesterExamAcess }: SemesterExamAccessPutDto,
+    { semesterExamAccesses: newSemesterExamAcess }: SemesterExamAccessPutDto,
     academic_year_id: string,
     annual_registry_id: string
   ) {
@@ -29,7 +29,7 @@ export class EvaluationService {
         this.prismaService.annualSemesterExamAcess.update({
           data: {
             payment_percentage: newSemesterExamAcess.find(
-              (_) => _.annual_sesmeter_number === access.annual_semester_number
+              (_) => _.annual_semester_number === access.annual_semester_number
             ).payment_percentage,
             AnnualSemesterExamAcessAudits: {
               create: {

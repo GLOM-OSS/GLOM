@@ -103,7 +103,7 @@ export class SemesterExamAccess {
   @Max(2)
   @IsNumber()
   @ApiProperty()
-  annual_sesmeter_number: number;
+  annual_semester_number: number;
 
   @Min(0)
   @Max(100)
@@ -117,7 +117,7 @@ export class SemesterExamAccessPutDto {
   @ArrayMinSize(2)
   @ValidateNested({ each: true })
   @Type(() => SemesterExamAccess)
-  semesterExamAccess: SemesterExamAccess[];
+  semesterExamAccesses: SemesterExamAccess[];
 }
 
 export class CarryOverSystemPutDto {

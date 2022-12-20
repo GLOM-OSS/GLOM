@@ -175,7 +175,7 @@ export default function EvaluationWeightingDialog({
       evaluationWeightingNotif.dismiss();
     }
     setEvaluationWeightingNotif(notif);
-    getEvaluationTypeWeighting(activeCycle?.cycle_id as string)
+    getEvaluationTypeWeighting(activeCycleId as string)
       .then((evaluationWeighting) => {
         setEvaluationWeighting(evaluationWeighting);
         const caa = evaluationWeighting.evaluationTypeWeightings.find(
@@ -184,12 +184,14 @@ export default function EvaluationWeightingDialog({
         const exama = evaluationWeighting.evaluationTypeWeightings.find(
           ({ evaluation_type: et }) => et === EvaluationType.EXAM
         );
-        setAdjustedWeighting({
+        const formValues = {
           minimum_modulation_score:
             evaluationWeighting.minimum_modulation_score,
           ca: caa ? caa.weight : 39,
           exam: exama ? exama.weight : 61,
-        });
+        }
+        setAdjustedWeighting(formValues);
+        formik.setValues(formValues)
         setIsEvaluationWeightingLoading(false);
         notif.dismiss();
         setEvaluationWeightingNotif(undefined);

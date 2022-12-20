@@ -7,5 +7,7 @@ export async function getCarryOverSystem() {
 }
 
 export async function updateCarryOverSystem(updateData: CarryOverSystem) {
-  await http.put(`/carry-over-system/edit`, updateData);
+  await http.put(`/carry-over-system/edit`, {
+    carry_over_system: updateData.carry_over_system,
+  });
 }

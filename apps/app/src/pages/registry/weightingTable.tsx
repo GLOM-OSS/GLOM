@@ -63,7 +63,7 @@ export default function WeightingTable() {
     setWeightingSystemNotif(notif);
     getWeightingSystem()
       .then((weightingSystem) => {
-        setWeightingSystem(weightingSystem.weighting_system);
+        setWeightingSystem(weightingSystem?.weighting_system);
         setIsWeightingSystemLoading(false);
         notif.dismiss();
         setWeightingSystemNotif(undefined);

@@ -10,6 +10,6 @@ export async function getExamAccess() {
 
 export async function updateExamAcess(updateData: SemesterExamAccess[]) {
   await http.put(`/evaluations/hall-access`, {
-    semesterExamAccess: updateData,
+    semesterExamAccesses: updateData,
   });
 }

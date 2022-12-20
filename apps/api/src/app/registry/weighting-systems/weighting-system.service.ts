@@ -3,7 +3,7 @@ import { AUTH404 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   EvaluationTypeWeightingPutDto,
-  WeightingPutDto
+  WeightingPutDto,
 } from '../registry.dto';
 
 @Injectable()
@@ -37,7 +37,7 @@ export class WeightingSystemService {
         weighting_system,
         AnnualWeightingAudits: {
           create: {
-            ...annualWeighting,
+            weighting_system: annualWeighting?.weighting_system ?? 0,
             AnnualRegistry: { connect: { annual_registry_id } },
           },
         },
@@ -63,9 +63,8 @@ export class WeightingSystemService {
         select: { score: true },
         where: { academic_year_id, cycle_id },
       });
-
     return {
-      minimum_modulation_score: minimumModulationScore?.score ?? 0,
+      minimum_modulation_score: minimumModulationScore?.score ?? 8,
       evaluationTypeWeightings: evaluationWeighting.map(
         ({ EvaluationType: { evaluation_type }, weight }) => ({
           weight,
