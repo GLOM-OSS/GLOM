@@ -47,7 +47,7 @@ export const AUTH404 = (search: string) => ({
   Fr: `${search} introuvable`,
 });
 export const sAUTH404 = {
-  En: `Your rest password request cannot be found or has expired.`,
+  En: `Your reset password request cannot be found or has expired.`,
   Fr: `Votre demande de renouvellement de mot de passe est introuvable ou a expiré.`,
 };
 
@@ -103,4 +103,8 @@ export const ERR08 = {
 export const ERR09 = {
   En: `Sorry, overlapping values where detected.`,
   Fr: `Désolé, des chauvechements de valeur ont été détecté.`,
+};
+export const ERR10 = {
+  En: `Sorry, module total weight should equals 1.`,
+  Fr: `Désolé, le poids total d'un module doit être 1.`,
 };

@@ -8,9 +8,9 @@ import {
   InputAdornment,
   MenuItem,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
-import { Teacher } from '@squoolr/api-services';
+import { getTeachers, Personnel } from '@squoolr/api-services';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -25,13 +25,13 @@ export default function SubjectDialog({
   handleSubmit,
   closeDialog,
   editableCreditUnit: editableSubject,
-  maxWeighting,
+  subjects,
 }: {
   isDialogOpen: boolean;
   handleSubmit: (value: DisplaySubject) => void;
   closeDialog: () => void;
   editableCreditUnit?: DisplaySubject;
-  maxWeighting: number;
+  subjects: DisplaySubject[];
 }) {
   const { formatMessage } = useIntl();
   const initialValues: DisplaySubject = editableSubject ?? {
@@ -48,7 +48,7 @@ export default function SubjectDialog({
     annual_teacher_id: '',
   };
 
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [teachers, setTeachers] = useState<Personnel[]>([]);
   const [areTeachersLoading, setAreTeachersLoading] = useState<boolean>(false);
   const [teacherNotif, setSubjectNotif] = useState<useNotification>();
 
@@ -59,33 +59,14 @@ export default function SubjectDialog({
       teacherNotif.dismiss();
     }
     setSubjectNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load creditUnit's subjects with data annual_credit_unit_id
-      if (6 > 5) {
-        const newTeachers: Teacher[] = [
-          {
-            birthdate: new Date(),
-            email: 'lorraintchakoumi@gmail.com',
-            first_name: 'Tchakoumi Kouatchoua',
-            gender: 'Male',
-            has_signed_convention: false,
-            has_tax_payers_card: false,
-            hourly_rate: 0,
-            last_name: 'Lorrain',
-            national_id_number: '000316122',
-            origin_institute: 'null',
-            phone_number: '657140183',
-            teaching_grade_id: 'lskd',
-            teacher_type_id: 'lskdl',
-            annual_teacher_id: 'bostonLor',
-          },
-        ];
-
-        setTeachers(newTeachers);
+    getTeachers()
+      .then((teachers) => {
+        setTeachers(teachers);
         setAreTeachersLoading(false);
         notif.dismiss();
         setSubjectNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({ render: formatMessage({ id: 'loadingTeachers' }) });
         notif.update({
           type: 'ERROR',
@@ -93,14 +74,15 @@ export default function SubjectDialog({
             <ErrorMessage
               retryFunction={loadTeachers}
               notification={notif}
-              message={formatMessage({ id: 'getTeachersFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getTeachersFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
@@ -112,6 +94,30 @@ export default function SubjectDialog({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDialogOpen]);
+
+  const getMaxAllowedWeighting = () => {
+    let allowedValue: number;
+    if (editableSubject)
+      allowedValue =
+        1 -
+        subjects
+          .map((_) =>
+            _.annual_credit_unit_subject_id ===
+            editableSubject.annual_credit_unit_subject_id
+              ? { ..._, weighting: 0 }
+              : _
+          )
+          .reduce((total, { weighting }) => {
+            return weighting + total;
+          }, 0);
+    else
+      allowedValue =
+        1 -
+        subjects.reduce((total, { weighting }) => {
+          return weighting + total;
+        }, 0);
+    return allowedValue;
+  };
 
   const validationSchema = Yup.object().shape({
     annual_credit_unit_id: Yup.string(),
@@ -128,7 +134,10 @@ export default function SubjectDialog({
     annual_teacher_id: Yup.string().required(formatMessage({ id: 'required' })),
     weighting: Yup.number()
       .required(formatMessage({ id: 'required' }))
-      .max(maxWeighting, formatMessage({ id: 'maxAllowedValue' }))
+      .max(
+        getMaxAllowedWeighting(),
+        formatMessage({ id: 'maxAllowedValue' })
+      )
       .min(0.1, formatMessage({ id: 'minAllowedValue0' })),
   });
 
@@ -209,13 +218,11 @@ export default function SubjectDialog({
               formik.errors.annual_teacher_id
             }
           >
-            {teachers.map(
-              ({ first_name, last_name, annual_teacher_id }, index) => (
-                <MenuItem key={index} value={annual_teacher_id}>
-                  {`${first_name} ${last_name}`}
-                </MenuItem>
-              )
-            )}
+            {teachers.map(({ first_name, last_name, personnel_id }, index) => (
+              <MenuItem key={index} value={personnel_id}>
+                {`${first_name} ${last_name}`}
+              </MenuItem>
+            ))}
           </TextField>
           <TextField
             placeholder={formatMessage({ id: 'course_weighting' })}

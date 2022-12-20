@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  Max,
   ValidateNested,
 } from 'class-validator';
 
@@ -84,8 +85,9 @@ export class CreditUnitSubjectPostDto {
   @IsString()
   objective: string;
 
-  @ApiProperty()
+  @Max(1)
   @IsNumber()
+  @ApiProperty()
   weighting: number;
 
   @ApiProperty()

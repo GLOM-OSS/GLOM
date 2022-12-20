@@ -1,5 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { AcademicYear, AcademicYearStatus, Prisma } from '@prisma/client';
+import {
+  AcademicYear,
+  AcademicYearStatus,
+  CarryOverSystemEnum,
+  Prisma,
+} from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { AUTH404, ERR05 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
@@ -66,6 +71,8 @@ export class AcademicYearService {
       new Date(starts_at).getFullYear(),
       new Date(ends_at).getFullYear()
     );
+    const { AnnualCarryOverSytems, AnnualSemesterExamAcess } =
+      this.buildAcademicYearDefaultCreateInput(added_by);
     const [{ academic_year_id }] = await this.prismaService.$transaction([
       this.academicYearService.create({
         data: {
@@ -76,6 +83,8 @@ export class AcademicYearService {
             connect: { annual_configurator_id: added_by },
           },
           School: { connect: { school_id } },
+          AnnualCarryOverSytems,
+          AnnualSemesterExamAcess,
         },
       }),
       this.annualConfiguratorService.create({
@@ -300,6 +309,8 @@ export class AcademicYearService {
       new Date(starts_at).getFullYear(),
       new Date(ends_at).getFullYear()
     );
+    const { AnnualCarryOverSytems, AnnualSemesterExamAcess } =
+      this.buildAcademicYearDefaultCreateInput(added_by);
     await this.prismaService.$transaction([
       this.academicYearService.create({
         data: {
@@ -311,6 +322,8 @@ export class AcademicYearService {
             connect: { annual_configurator_id: added_by },
           },
           School: { connect: { school_id } },
+          AnnualCarryOverSytems,
+          AnnualSemesterExamAcess,
         },
       }),
       this.annualConfiguratorService.create({
@@ -450,5 +463,34 @@ export class AcademicYearService {
     );
 
     return academic_years;
+  }
+
+  private buildAcademicYearDefaultCreateInput(annual_configurator_id: string) {
+    return {
+      AnnualCarryOverSytems: {
+        create: {
+          carry_over_system: CarryOverSystemEnum.SUBJECT,
+          AnnualConfigurator: {
+            connect: { annual_configurator_id },
+          },
+        },
+      },
+      AnnualSemesterExamAcess: {
+        createMany: {
+          data: [
+            {
+              annual_semester_number: 1,
+              configured_by: annual_configurator_id,
+              payment_percentage: 0,
+            },
+            {
+              annual_semester_number: 2,
+              configured_by: annual_configurator_id,
+              payment_percentage: 0,
+            },
+          ],
+        },
+      },
+    };
   }
 }

@@ -13,6 +13,13 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import {
+  addNewCreditUnitSubject,
+  deleteCreditUnitSubject,
+  getCreditUnitDetails,
+  getCreditUnitSubjects,
+  updateCreditUnitSubject,
+} from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
   CreateCreditUnitSubject,
@@ -66,7 +73,10 @@ export default function SubjectManagement() {
       theory: theory ? theory.number_of_hours : 0,
       guided_work: gw ? gw.number_of_hours : 0,
       practical: p ? p.number_of_hours : 0,
-      annual_teacher_id: s.subjectParts.length===0?undefined: s.subjectParts[0].annual_teacher_id
+      annual_teacher_id:
+        s.subjectParts.length === 0
+          ? undefined
+          : s.subjectParts[0].annual_teacher_id,
     } as DisplaySubject;
   };
 
@@ -145,62 +155,35 @@ export default function SubjectManagement() {
       subjectNotif.dismiss();
     }
     setSubjectNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load creditUnit's subjects with data annual_credit_unit_id
-      if (6 > 5) {
-        const newSubjects: CreditUnitSubject[] = [
-          {
-            annual_credit_unit_id: '',
-            annual_credit_unit_subject_id: '',
-            main_teacher_fullname: 'Dr. Kuidja Marco Aristin',
-            objective: null,
-            subject_code: 'UV0015D',
-            subject_title: 'Algorithmes II',
-            weighting: 0.6,
-            subjectParts: [
-              {
-                annual_teacher_id: '',
-                number_of_hours: 32,
-                subject_part_id: 'b0e4bcf8-7ccb-11ed-a1eb-0242ac120002',
-              },
-              {
-                annual_teacher_id: '',
-                number_of_hours: 32,
-                subject_part_id: 'b0e4c298-7ccb-11ed-a1eb-0242ac120002',
-              },
-              {
-                annual_teacher_id: '',
-                number_of_hours: 32,
-                subject_part_id: 'b0e4c46e-7ccb-11ed-a1eb-0242ac120002',
-              },
-            ],
-          },
-        ];
-
-        setSubjects(
-          newSubjects.map((subject) =>
-            transformCreditUnitSubjectToDisplaySubject(subject)
-          )
-        );
-        setAreSubjectsLoading(false);
-        notif.dismiss();
-        setSubjectNotif(undefined);
-      } else {
-        notif.notify({ render: formatMessage({ id: 'loadingSubjects' }) });
-        notif.update({
-          type: 'ERROR',
-          render: (
-            <ErrorMessage
-              retryFunction={loadSubjects}
-              notification={notif}
-              message={formatMessage({ id: 'getSubjectsFailed' })}
-            />
-          ),
-          autoClose: false,
-          icon: () => <ReportRounded fontSize="medium" color="error" />,
+    if (annual_credit_unit_id)
+      getCreditUnitSubjects(annual_credit_unit_id)
+        .then((creditUnitSubjects) => {
+          setSubjects(
+            creditUnitSubjects.map((subject) =>
+              transformCreditUnitSubjectToDisplaySubject(subject)
+            )
+          );
+          setAreSubjectsLoading(false);
+          notif.dismiss();
+          setSubjectNotif(undefined);
+        })
+        .catch((error) => {
+          notif.notify({ render: formatMessage({ id: 'loadingSubjects' }) });
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={loadSubjects}
+                notification={notif}
+                message={
+                  error?.message || formatMessage({ id: 'getSubjectsFailed' })
+                }
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
         });
-      }
-    }, 3000);
   };
 
   const [creditUnit, setCreditUnit] = useState<CreditUnit>();
@@ -215,37 +198,32 @@ export default function SubjectManagement() {
       creditUnitNotif.dismiss();
     }
     setCreditUnitNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE to get creditUnit with data annual_credit_unit_id
-      if (6 > 5) {
-        const newCreditUnit: CreditUnit = {
-          annual_credit_unit_id: '',
-          credit_points: 8,
-          credit_unit_code: 'UE00125',
-          credit_unit_name: 'Informatique II',
-          major_id: '',
-          semester_number: 2,
-        };
-        setCreditUnit(newCreditUnit);
-        setIsCreditUnitLoading(false);
-        notif.dismiss();
-        setCreditUnitNotif(undefined);
-      } else {
-        notif.notify({ render: formatMessage({ id: 'loadingCreditUnit' }) });
-        notif.update({
-          type: 'ERROR',
-          render: (
-            <ErrorMessage
-              retryFunction={loadCreditUnitData}
-              notification={notif}
-              message={formatMessage({ id: 'getCreditUnitDataFailed' })}
-            />
-          ),
-          autoClose: false,
-          icon: () => <ReportRounded fontSize="medium" color="error" />,
+    if (annual_credit_unit_id)
+      getCreditUnitDetails(annual_credit_unit_id)
+        .then((creditUnit) => {
+          setCreditUnit(creditUnit);
+          setIsCreditUnitLoading(false);
+          notif.dismiss();
+          setCreditUnitNotif(undefined);
+        })
+        .catch((error) => {
+          notif.notify({ render: formatMessage({ id: 'loadingCreditUnit' }) });
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={loadCreditUnitData}
+                notification={notif}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'getCreditUnitDataFailed' })
+                }
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
         });
-      }
-    }, 3000);
   };
 
   useEffect(() => {
@@ -279,36 +257,37 @@ export default function SubjectManagement() {
       if (manageNotif) manageNotif.dismiss();
       setManageNotif(notif);
       notif.notify({ render: formatMessage({ id: 'deletingSubject' }) });
-      setTimeout(() => {
-        //TODO: CALL API HERE TO DELETE CREDIT UNIT WITH DATA subject.annual_credit_unit_id
-        if (5 > 4) {
+      deleteCreditUnitSubject(subject.annual_credit_unit_subject_id)
+        .then(() => {
           notif.update({
             render: formatMessage({ id: 'deletedSuccessfully' }),
           });
           setIsManagingSubject(false);
           setSubjects(
             subjects.filter(
-              ({ annual_credit_unit_id: acu }) =>
-                acu !== subject.annual_credit_unit_id
+              ({ annual_credit_unit_subject_id: acu }) =>
+                acu !== subject.annual_credit_unit_subject_id
             )
           );
           setActionnedSubject(undefined);
           setIsConfirmDeleteDialogOpen(false);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={() => deleteSubject(subject)}
                 notification={notif}
-                message={formatMessage({ id: 'deleteSubjectFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'deleteSubjectFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        });
     }
   };
 
@@ -319,74 +298,86 @@ export default function SubjectManagement() {
     setManageNotif(notif);
     if (actionnedSubject) {
       notif.notify({ render: formatMessage({ id: 'editingSubject' }) });
-      setTimeout(() => {
-        const submitData = transformDisplaySubjectToCreditUnitSubect(subject);
-        //TODO: CALL API HERE TO edit CREDIT UNIT WITH DATA submitData
-        if (5 > 4) {
+      const submitData = transformDisplaySubjectToCreditUnitSubect(subject);
+      const {
+        annual_credit_unit_subject_id,
+        main_teacher_fullname,
+        objective,
+        ...updatedSubject
+      } = submitData;
+      updateCreditUnitSubject(actionnedSubject.annual_credit_unit_subject_id, {
+        objective: objective as string,
+        ...updatedSubject,
+      })
+        .then(() => {
           notif.update({
             render: formatMessage({ id: 'editedSuccessfully' }),
           });
           setIsManagingSubject(false);
           setSubjects([
-            ...subjects.filter(
-              ({ annual_credit_unit_id: acu }) =>
-                acu !== subject.annual_credit_unit_id
-            ),
-            subject,
+            ...subjects.map((_) =>
+              _.annual_credit_unit_subject_id ===
+              subject.annual_credit_unit_subject_id
+                ? subject
+                : _
+            )
           ]);
           setActionnedSubject(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={() => manageSubject(subject)}
                 notification={notif}
-                message={formatMessage({ id: 'editSubjectFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'editSubjectFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        });
     } else {
       notif.notify({ render: formatMessage({ id: 'creatingSubject' }) });
-      setTimeout(() => {
-        const submitData =
-          transformDisplaySubjectToCreateCreditUnitSubect(subject);
-        //TODO: CALL API HERE TO create CREDIT UNIT WITH DATA submitData
-        if (5 > 4) {
+      const submitData =
+        transformDisplaySubjectToCreateCreditUnitSubect(subject);
+      addNewCreditUnitSubject({
+        ...submitData,
+        annual_credit_unit_id: annual_credit_unit_id as string,
+      })
+        .then((newSubject) => {
           notif.update({
             render: formatMessage({ id: 'createdSuccessfully' }),
           });
-          setIsManagingSubject(false);
-          //TODO: replace newSubject object with response from backend after creation
-          const newSubject: CreditUnitSubject = {
-            ...submitData,
-            annual_credit_unit_subject_id: 'lsie',
-            main_teacher_fullname: 'siels',
-          };
           setSubjects([
-            transformCreditUnitSubjectToDisplaySubject(newSubject),
+            transformCreditUnitSubjectToDisplaySubject({
+              ...newSubject,
+              subjectParts: submitData.subjectParts,
+            }),
             ...subjects,
           ]);
           setActionnedSubject(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={() => manageSubject(subject)}
                 notification={notif}
-                message={formatMessage({ id: 'createSubjectFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'createSubjectFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        })
+        .finally(() => setIsManagingSubject(false));
     }
   };
 
@@ -406,12 +397,7 @@ export default function SubjectManagement() {
         }}
         isDialogOpen={isEditDialogOpen}
         editableCreditUnit={actionnedSubject}
-        maxWeighting={
-          1 -
-          subjects.reduce((total, { weighting }) => {
-            return weighting + total;
-          }, 0)
-        }
+        subjects={subjects}
       />
       <ConfirmDeleteDialog
         closeDialog={() => {

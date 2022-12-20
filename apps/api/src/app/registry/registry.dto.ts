@@ -1,14 +1,16 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { EvaluationTypeEnum } from '@prisma/client';
+import { CarryOverSystemEnum, EvaluationTypeEnum } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
-  IsEnum, IsNumber,
+  ArrayMinSize,
+  IsEnum,
+  IsNumber,
   IsString,
   IsUUID,
   Max,
   Min,
-  ValidateNested
+  ValidateNested,
 } from 'class-validator';
 
 export class WeightingPutDto {
@@ -81,6 +83,8 @@ export class EvaluationTypeWeighting {
   @IsEnum(EvaluationTypeEnum)
   evaluation_type: EvaluationTypeEnum;
 
+  @Min(0)
+  @Max(100)
   @IsNumber()
   @ApiProperty()
   weight: number;
@@ -92,7 +96,36 @@ export class EvaluationTypeWeightingPutDto {
 
   @ApiProperty()
   @ArrayMaxSize(2)
+  @ArrayMinSize(2)
   @ValidateNested({ each: true })
   @Type(() => EvaluationTypeWeighting)
   evaluationTypeWeightings: EvaluationTypeWeighting[];
+}
+
+export class SemesterExamAccess {
+  @Min(1)
+  @Max(2)
+  @IsNumber()
+  @ApiProperty()
+  annual_sesmeter_number: number;
+
+  @Min(0)
+  @Max(100)
+  @IsNumber()
+  @ApiProperty()
+  payment_percentage: number;
+}
+export class SemesterExamAccessPutDto {
+  @ApiProperty()
+  @ArrayMaxSize(2)
+  @ArrayMinSize(2)
+  @ValidateNested({ each: true })
+  @Type(() => SemesterExamAccess)
+  semesterExamAccess: SemesterExamAccess[];
+}
+
+export class CarryOverSystemPutDto {
+  @ApiProperty()
+  @IsEnum(CarryOverSystemEnum)
+  carry_over_system: CarryOverSystemEnum;
 }

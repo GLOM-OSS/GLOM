@@ -8,44 +8,44 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { AuthenticatedGuard } from '../../auth/auth.guard';
+import { CarryOverSystemService } from './carry-over-system.service';
 import { Request } from 'express';
 import { DeserializeSessionData, Role } from '../../../utils/types';
+import { CarryOverSystemPutDto } from '../registry.dto';
 import { Roles } from '../../app.decorator';
-import { AuthenticatedGuard } from '../../auth/auth.guard';
-import { SemesterExamAccessPutDto } from '../registry.dto';
-import { EvaluationService } from './evaluation.service';
 
 @Controller()
 @UseGuards(AuthenticatedGuard)
-export class EvaluationController {
-  constructor(private evaluationService: EvaluationService) {}
+export class CarryOverSystemController {
+  constructor(private carryOverSystemService: CarryOverSystemService) {}
 
-  @Get('hall-access')
-  async getEvaluationTypeWeighting(@Req() request: Request) {
+  @Get()
+  async getCarryOverSystem(@Req() request: Request) {
     const {
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
-    return this.evaluationService.getExamAccess(academic_year_id);
+    return this.carryOverSystemService.getCarryOverSystem(academic_year_id);
   }
 
-  @Put('hall-access')
+  @Put('edit')
   @Roles(Role.REGISTRY)
-  async updateExamHallAcess(
+  async updateCarryOverSystem(
     @Req() request: Request,
-    @Body() updatedData: SemesterExamAccessPutDto
+    @Body() updatedData: CarryOverSystemPutDto
   ) {
     const {
       activeYear: { academic_year_id },
       annualRegistry: { annual_registry_id },
     } = request.user as DeserializeSessionData;
     try {
-      return await this.evaluationService.updateSemesterExamAccess(
+      return await this.carryOverSystemService.updateCarryOverSytem(
         updatedData,
         academic_year_id,
         annual_registry_id
       );
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

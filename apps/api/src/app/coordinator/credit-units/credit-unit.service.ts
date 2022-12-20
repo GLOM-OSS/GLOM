@@ -57,6 +57,13 @@ export class CreditUnitService {
 
   async getCreditUnits({ majorIds, semester_number }: CreditUnitQuery) {
     return this.prismaService.annualCreditUnit.findMany({
+      select: {
+        annual_credit_unit_id: true,
+        credit_unit_code: true,
+        credit_unit_name: true,
+        semester_number: true,
+        credit_points: true,
+      },
       where: {
         semester_number,
         is_deleted: false,

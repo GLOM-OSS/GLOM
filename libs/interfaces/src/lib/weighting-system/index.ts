@@ -57,8 +57,8 @@ export enum CarryOver {
 }
 
 export interface CarryOverSystem {
-  carry_over_system_id: string;
-  carry_over_system: CarryOver;
+  annual_carry_over_system_id: string;
+  carrry_over_system: CarryOver;
 }
 
 export enum EvaluationType {
@@ -74,7 +74,6 @@ export interface EvaluationTypeWeighting {
 }
 
 export interface SemesterExamAccess {
-  annual_semester_exam_access_id: string;
   annual_sesmeter_number: 1 | 2;
   payment_percentage: number;
 }

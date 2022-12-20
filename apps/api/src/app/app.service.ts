@@ -24,9 +24,18 @@ export class AppService {
     this.prismaService.grade.count().then((numberOfGrades) => {
       if (numberOfGrades === 0) this.seedGrades();
     });
+    this.prismaService.evaluationType.count().then((numberEvaluationTypes) => {
+      if (numberEvaluationTypes === 0) this.seedEvaluationTypes();
+    });
   }
   getData(): { message: string } {
     return { message: 'Welcome to api!' };
+  }
+
+  private async seedEvaluationTypes() {
+    await this.prismaService.evaluationType.createMany({
+      data: [{ evaluation_type: 'EXAM' }, { evaluation_type: 'CA' }],
+    });
   }
 
   private async seedGrades() {
@@ -53,9 +62,22 @@ export class AppService {
   private async seedSubjectParts() {
     await this.prismaService.subjectPart.createMany({
       data: [
-        { subject_part_name: 'CM' },
-        { subject_part_name: 'TP' },
-        { subject_part_name: 'TD' },
+        {
+          subject_part_id: process.env['NX_THEORY_SUBJECT_PART_ID'] as string,
+          subject_part_name: 'THEORY',
+        },
+        {
+          subject_part_id: process.env[
+            'NX_PRACTICAL_SUBJECT_PART_ID'
+          ] as string,
+          subject_part_name: 'PRACTICAL',
+        },
+        {
+          subject_part_id: process.env[
+            'NX_GUIDED_WORK_SUBJECT_PART_ID'
+          ] as string,
+          subject_part_name: 'GUIDED_WOR',
+        },
       ],
     });
   }

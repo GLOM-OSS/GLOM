@@ -86,7 +86,7 @@ export const routes = [
     ],
   },
   {
-    path: '/coordinator/marksManagement',
+    path: '/coordinator/marks-management',
     element: <AppLayout />,
     children: [
       {

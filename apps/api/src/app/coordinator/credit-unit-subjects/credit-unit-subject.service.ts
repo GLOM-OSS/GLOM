@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { AUTH404 } from '../../../errors';
+import { Prisma, PrismaPromise } from '@prisma/client';
+import { AUTH404, ERR10 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   CreditUnitSubjectPostDto,
@@ -30,6 +31,20 @@ export class CreditUnitSubjectService {
         JSON.stringify(AUTH404('Credit Unit')),
         HttpStatus.NOT_FOUND
       );
+    const subjects = await this.prismaService.annualCreditUnitSubject.findMany({
+      select: { weighting: true },
+      where: { annual_credit_unit_id },
+    });
+    const totalWeight = subjects.reduce(
+      (total, { weighting }) => total + weighting,
+      0
+    );
+    if (weighting <= 1 - totalWeight)
+      throw new HttpException(
+        JSON.stringify(ERR10),
+        HttpStatus.EXPECTATION_FAILED
+      );
+
     const allSubjectParts = await this.prismaService.subjectPart.findMany();
     const annualCreditUnitHasSubjectParts = allSubjectParts.map(
       ({ subject_part_id }) => {
@@ -65,6 +80,7 @@ export class CreditUnitSubjectService {
   async updateCreditUnitSubject(
     annual_credit_unit_subject_id: string,
     {
+      weighting,
       subjectParts,
       annual_credit_unit_id,
       ...newAnnualCreditUnitSubject
@@ -73,7 +89,12 @@ export class CreditUnitSubjectService {
   ) {
     const annualCreditUnitSubject =
       await this.prismaService.annualCreditUnitSubject.findUnique({
-        include: {
+        select: {
+          is_deleted: true,
+          objective: true,
+          subject_code: true,
+          subject_title: true,
+          weighting: true,
           AnnualCreditUnitHasSubjectParts: {
             select: {
               number_of_hours: true,
@@ -90,6 +111,19 @@ export class CreditUnitSubjectService {
       throw new HttpException(
         JSON.stringify(AUTH404('Credit Unit Subject')),
         HttpStatus.NOT_FOUND
+      );
+    const subjects = await this.prismaService.annualCreditUnitSubject.findMany({
+      select: { weighting: true },
+      where: { annual_credit_unit_id },
+    });
+    const totalWeight = subjects.reduce(
+      (total, { weighting }) => total + weighting,
+      0
+    );
+    if (weighting && weighting <= 1 - totalWeight)
+      throw new HttpException(
+        JSON.stringify(ERR10),
+        HttpStatus.EXPECTATION_FAILED
       );
     const {
       AnnualCreditUnitHasSubjectParts: oldSubjectParts,
@@ -124,9 +158,22 @@ export class CreditUnitSubjectService {
       )
       .map((part) => ({ ...part, audited_by: audited_by }));
 
+    let updateTransactionInstruction: PrismaPromise<Prisma.BatchPayload>[] = [];
+    if (updatedSubjectParts.length > 0)
+      updateTransactionInstruction = [
+        this.prismaService.annualCreditUnitHasSubjectPart.updateMany({
+          data: updatedSubjectParts,
+          where: { annual_credit_unit_subject_id },
+        }),
+        this.prismaService.annualCreditUnitHasSubjectPartAudit.createMany({
+          data: annualCreditUnitHasSubjectPartAudits,
+          skipDuplicates: true,
+        }),
+      ];
     return this.prismaService.$transaction([
       this.prismaService.annualCreditUnitSubject.update({
         data: {
+          weighting,
           ...newAnnualCreditUnitSubject,
           AnnualTeacher: { connect: { annual_teacher_id: audited_by } },
           AnnualCreditUnit: { connect: { annual_credit_unit_id } },
@@ -139,14 +186,7 @@ export class CreditUnitSubjectService {
         },
         where: { annual_credit_unit_subject_id },
       }),
-      this.prismaService.annualCreditUnitHasSubjectPart.updateMany({
-        data: updatedSubjectParts,
-        where: { annual_credit_unit_subject_id },
-      }),
-      this.prismaService.annualCreditUnitHasSubjectPartAudit.createMany({
-        data: annualCreditUnitHasSubjectPartAudits,
-        skipDuplicates: true,
-      }),
+      ...updateTransactionInstruction,
     ]);
   }
 
@@ -246,5 +286,40 @@ export class CreditUnitSubjectService {
         })
       ),
     };
+  }
+
+  async deleteCreditUnitSubject(
+    annual_credit_unit_subject_id: string,
+    annual_teacher_id: string
+  ) {
+    const annualCreditUnitSubject =
+      await this.prismaService.annualCreditUnitSubject.findUnique({
+        select: {
+          is_deleted: true,
+          objective: true,
+          subject_code: true,
+          subject_title: true,
+          weighting: true,
+        },
+        where: { annual_credit_unit_subject_id },
+      });
+    if (!annualCreditUnitSubject)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Credit Unit Subject')),
+        HttpStatus.NOT_FOUND
+      );
+
+    return this.prismaService.annualCreditUnitSubject.update({
+      data: {
+        is_deleted: true,
+        AnnualCreditUnitSubjectAudits: {
+          create: {
+            ...annualCreditUnitSubject,
+            AnnualTeacher: { connect: { annual_teacher_id } },
+          },
+        },
+      },
+      where: { annual_credit_unit_subject_id },
+    });
   }
 }
