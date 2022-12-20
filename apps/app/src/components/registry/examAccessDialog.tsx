@@ -7,16 +7,11 @@ import {
   DialogContentText,
   DialogTitle,
   InputAdornment,
-  MenuItem,
   TextField,
   Typography,
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/dialogTransition';
-import {
-  CarryOver,
-  CarryOverSystem,
-  SemesterExamAccess,
-} from '@squoolr/interfaces';
+import { SemesterExamAccess } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useFormik } from 'formik';
@@ -38,7 +33,6 @@ export default function ExamAccessDialog({
   const [isWeightingSystemLoading, setAreExamAccessesLoading] =
     useState<boolean>(false);
   const [examAccessNotif, setExamAccessNotif] = useState<useNotification>();
-  const [examAccesses, setExamAccesses] = useState<SemesterExamAccess[]>([]);
   const [examAccess, setExamAcces] = useState<{
     first_semester: number;
     second_semester: number;
@@ -66,22 +60,13 @@ export default function ExamAccessDialog({
     enableReinitialize: true,
     onSubmit: ({ first_semester, second_semester }, { resetForm }) => {
       if (examAccess) {
-        const fs = examAccesses.find(
-            ({ annual_sesmeter_number: asn }) => asn === 1
-          );
-          const ss = examAccesses.find(
-            ({ annual_sesmeter_number: asn }) => asn === 2
-          );
-  
         handleSubmit([
           {
-            annual_semester_exam_access_id: fs?.annual_semester_exam_access_id as string,
-            annual_sesmeter_number: 1,
+            annual_semester_number: 1,
             payment_percentage: first_semester,
           },
           {
-            annual_semester_exam_access_id: ss?.annual_semester_exam_access_id as string,
-            annual_sesmeter_number: 2,
+            annual_semester_number: 2,
             payment_percentage: second_semester,
           },
         ]);
@@ -116,27 +101,24 @@ export default function ExamAccessDialog({
       if (6 > 5) {
         const newExamAccesses: SemesterExamAccess[] = [
           {
-            annual_semester_exam_access_id: 'lsei',
-            annual_sesmeter_number: 1,
+            annual_semester_number: 1,
             payment_percentage: 49,
           },
           {
-            annual_semester_exam_access_id: 'lseis',
-            annual_sesmeter_number: 2,
+            annual_semester_number: 2,
             payment_percentage: 100,
           },
         ];
         const fs = newExamAccesses.find(
-          ({ annual_sesmeter_number: asn }) => asn === 1
+          ({ annual_semester_number: asn }) => asn === 1
         );
         const ss = newExamAccesses.find(
-          ({ annual_sesmeter_number: asn }) => asn === 2
+          ({ annual_semester_number: asn }) => asn === 2
         );
         setExamAcces({
           first_semester: fs ? fs.payment_percentage : 49,
           second_semester: ss ? ss.payment_percentage : 100,
         });
-        setExamAccesses(newExamAccesses);
         setAreExamAccessesLoading(false);
         notif.dismiss();
         setExamAccessNotif(undefined);
@@ -178,7 +160,9 @@ export default function ExamAccessDialog({
       onClose={close}
     >
       <form onSubmit={formik.handleSubmit}>
-        <DialogTitle>{formatMessage({ id: 'examHallAccessCondition' })}</DialogTitle>
+        <DialogTitle>
+          {formatMessage({ id: 'examHallAccessCondition' })}
+        </DialogTitle>
         <DialogContent sx={{ display: 'grid', rowGap: theme.spacing(2) }}>
           <DialogContentText>
             {formatMessage({ id: 'examHallAcessConditionMessage' })}
