@@ -14,16 +14,14 @@ import {
   OutlinedInput,
   Select,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
 import { Box } from '@mui/system';
+import { getCycles, getEvaluationTypeWeighting } from '@squoolr/api-services';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import {
-  Cycle,
-  CycleName,
-  CycleType,
-  EvaluationType,
-  EvaluationTypeWeighting,
+  Cycle, EvaluationType,
+  EvaluationTypeWeighting
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -59,28 +57,12 @@ export default function EvaluationWeightingDialog({
       cycleNotif.dismiss();
     }
     setCycleNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load school's offered cycle here
-      if (6 > 5) {
-        const newCycles: Cycle[] = [
-          {
-            cycle_id: 'weils',
-            cycle_name: CycleName.BACHELOR,
-            cycle_type: CycleType.LONG,
-            number_of_years: 3,
-          },
-          {
-            cycle_id: 'weisls',
-            cycle_name: CycleName.MASTER,
-            cycle_type: CycleType.SHORT,
-            number_of_years: 2,
-          },
-        ];
-
-        setCycles(newCycles);
-        if (newCycles.length > 0)
+    getCycles()
+      .then((cycles) => {
+        setCycles(cycles);
+        if (cycles.length > 0)
           setActiveCycle(
-            newCycles.sort((a, b) =>
+            cycles.sort((a, b) =>
               a.cycle_type < b.cycle_type
                 ? 1
                 : a.cycle_name > b.cycle_name
@@ -91,7 +73,8 @@ export default function EvaluationWeightingDialog({
         setAreCyclesLoading(false);
         notif.dismiss();
         setCycleNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({ render: formatMessage({ id: 'loadingCycles' }) });
         notif.update({
           type: 'ERROR',
@@ -99,14 +82,15 @@ export default function EvaluationWeightingDialog({
             <ErrorMessage
               retryFunction={loadCycles}
               notification={notif}
-              message={formatMessage({ id: 'getCyclesFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getCyclesFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [isEvaluationWeightingLoading, setIsEvaluationWeightingLoading] =
@@ -191,33 +175,26 @@ export default function EvaluationWeightingDialog({
       evaluationWeightingNotif.dismiss();
     }
     setEvaluationWeightingNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load evaluationWeighting with data activeCycle
-      if (6 > 5) {
-        const newEvaluationWeighting: EvaluationTypeWeighting = {
-          minimum_modulation_score: 8,
-          evaluationTypeWeightings: [
-            { evaluation_type: EvaluationType.CA, weight: 40 },
-            { evaluation_type: EvaluationType.EXAM, weight: 60 },
-          ],
-        };
-        setEvaluationWeighting(newEvaluationWeighting);
-        const caa = newEvaluationWeighting.evaluationTypeWeightings.find(
+    getEvaluationTypeWeighting(activeCycle?.cycle_id as string)
+      .then((evaluationWeighting) => {
+        setEvaluationWeighting(evaluationWeighting);
+        const caa = evaluationWeighting.evaluationTypeWeightings.find(
           ({ evaluation_type: et }) => et === EvaluationType.CA
         );
-        const exama = newEvaluationWeighting.evaluationTypeWeightings.find(
+        const exama = evaluationWeighting.evaluationTypeWeightings.find(
           ({ evaluation_type: et }) => et === EvaluationType.EXAM
         );
         setAdjustedWeighting({
           minimum_modulation_score:
-            newEvaluationWeighting.minimum_modulation_score,
+            evaluationWeighting.minimum_modulation_score,
           ca: caa ? caa.weight : 39,
           exam: exama ? exama.weight : 61,
         });
         setIsEvaluationWeightingLoading(false);
         notif.dismiss();
         setEvaluationWeightingNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingEvaluationWeighting' }),
         });
@@ -227,14 +204,16 @@ export default function EvaluationWeightingDialog({
             <ErrorMessage
               retryFunction={loadEvaluationWeighting}
               notification={notif}
-              message={formatMessage({ id: 'getEvaluationWeightingFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'getEvaluationWeightingFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [activeCycleId, setActiveCycleId] = useState<string | undefined>();

@@ -1,4 +1,5 @@
 import { http } from '@squoolr/axios';
+import { Cycle, Grade } from '@squoolr/interfaces';
 
 export * from './academic-years';
 export * from './auth';
@@ -17,7 +18,7 @@ export * from './weighting-system';
 export async function getCycles() {
   const {
     data: { cycles },
-  } = await http.get(`/cycles`);
+  } = await http.get<{ cycles: Cycle[] }>(`/cycles`);
   return cycles;
 }
 
@@ -38,7 +39,7 @@ export async function getTeachingGrades() {
 export async function getWeightingGrades() {
   const {
     data: { weightingGrades },
-  } = await http.get(`/weighting-grades`);
+  } = await http.get<{ weightingGrades: Grade[] }>(`/weighting-grades`);
   return weightingGrades;
 }
 

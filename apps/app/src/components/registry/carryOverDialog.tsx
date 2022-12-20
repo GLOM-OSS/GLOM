@@ -9,6 +9,7 @@ import {
   MenuItem,
   TextField,
 } from '@mui/material';
+import { getCarryOverSystem } from '@squoolr/api-services';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { CarryOver, CarryOverSystem } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
@@ -52,7 +53,8 @@ export default function CarryOverDialog({
       if (carryOverSystem) {
         handleSubmit({
           carry_over_system,
-          annual_carry_over_system_id: carryOverSystem.annual_carry_over_system_id,
+          annual_carry_over_system_id:
+            carryOverSystem.annual_carry_over_system_id,
         });
         resetForm();
         close();
@@ -80,18 +82,14 @@ export default function CarryOverDialog({
       carryOverSystemNotif.dismiss();
     }
     setCarryOverSystemNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load carryOverSystem
-      if (6 > 5) {
-        const newCarryOverSystem: CarryOverSystem = {
-          carry_over_system: CarryOver.SUBJECT,
-          annual_carry_over_system_id: 'kls',
-        };
-        setCarryOverSystem(newCarryOverSystem);
+    getCarryOverSystem()
+      .then((carryOverSystem) => {
+        setCarryOverSystem(carryOverSystem);
         setIsCarryOverSystemLoading(false);
         notif.dismiss();
         setCarryOverSystemNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingCarryOverSystem' }),
         });
@@ -101,14 +99,16 @@ export default function CarryOverDialog({
             <ErrorMessage
               retryFunction={loadCarryOverSystem}
               notification={notif}
-              message={formatMessage({ id: 'getCarryOverSystemFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'getCarryOverSystemFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {

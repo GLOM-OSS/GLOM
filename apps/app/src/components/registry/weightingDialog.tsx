@@ -8,6 +8,7 @@ import {
   MenuItem,
   TextField,
 } from '@mui/material';
+import { getWeightingGrades } from '@squoolr/api-services';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { Grade, GradeWeighting } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
@@ -86,34 +87,26 @@ export default function WeightingDialog({
       gradeNotif.dismiss();
     }
     setGradeNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load grades
-      if (6 > 5) {
-        const newGrades: Grade[] = [
-          { grade_id: 'weils', grade_value: 'A+' },
-          { grade_id: 'lsi', grade_value: 'A' },
-          { grade_id: 'lsis', grade_value: 'B+' },
-        ];
-        setGrades(newGrades);
-        setAreGradesLoading(false);
-        notif.dismiss();
-        setGradeNotif(undefined);
-      } else {
-        notif.notify({ render: formatMessage({ id: 'loadingGrades' }) });
-        notif.update({
-          type: 'ERROR',
-          render: (
-            <ErrorMessage
-              retryFunction={loadGrades}
-              notification={notif}
-              message={formatMessage({ id: 'getGradesFailed' })}
-            />
-          ),
-          autoClose: false,
-          icon: () => <ReportRounded fontSize="medium" color="error" />,
-        });
-      }
-    }, 3000);
+    getWeightingGrades().then(grades => {
+      setGrades(grades);
+      setAreGradesLoading(false);
+      notif.dismiss();
+      setGradeNotif(undefined);
+    }).catch(error => {
+      notif.notify({ render: formatMessage({ id: 'loadingGrades' }) });
+      notif.update({
+        type: 'ERROR',
+        render: (
+          <ErrorMessage
+            retryFunction={loadGrades}
+            notification={notif}
+            message={error?.message || formatMessage({ id: 'getGradesFailed' })}
+          />
+        ),
+        autoClose: false,
+        icon: () => <ReportRounded fontSize="medium" color="error" />,
+      });
+    })
   };
 
   useEffect(() => {

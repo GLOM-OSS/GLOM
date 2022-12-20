@@ -10,6 +10,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { getExamAccess } from '@squoolr/api-services';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { SemesterExamAccess } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
@@ -96,23 +97,12 @@ export default function ExamAccessDialog({
       examAccessNotif.dismiss();
     }
     setExamAccessNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load examAccesses
-      if (6 > 5) {
-        const newExamAccesses: SemesterExamAccess[] = [
-          {
-            annual_semester_number: 1,
-            payment_percentage: 49,
-          },
-          {
-            annual_semester_number: 2,
-            payment_percentage: 100,
-          },
-        ];
-        const fs = newExamAccesses.find(
+    getExamAccess()
+      .then((examAccesses) => {
+        const fs = examAccesses.find(
           ({ annual_semester_number: asn }) => asn === 1
         );
-        const ss = newExamAccesses.find(
+        const ss = examAccesses.find(
           ({ annual_semester_number: asn }) => asn === 2
         );
         setExamAcces({
@@ -122,7 +112,8 @@ export default function ExamAccessDialog({
         setAreExamAccessesLoading(false);
         notif.dismiss();
         setExamAccessNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingExamAccesses' }),
         });
@@ -132,14 +123,15 @@ export default function ExamAccessDialog({
             <ErrorMessage
               retryFunction={loadExamAccesses}
               notification={notif}
-              message={formatMessage({ id: 'getExamAccessesFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getExamAccessesFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
