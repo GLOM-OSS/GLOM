@@ -15,9 +15,6 @@ import {
   CarryOverSystem,
   CreateGradeWeighting,
   CreateWeightingSystem,
-  Cycle,
-  CycleName,
-  CycleType,
   EvaluationTypeWeighting,
   GradeWeighting,
   SemesterExamAccess,
@@ -31,7 +28,6 @@ import { RowMenu } from '../../components/coordinator/CreditUnitLane';
 import CarryOverDialog from '../../components/registry/carryOverDialog';
 import EvaluationWeightingDialog from '../../components/registry/evaluationWeightingDialog';
 import ExamAccessDialog from '../../components/registry/examAccessDialog';
-import NoCyclesAvailables from '../../components/registry/noCyclesAvailable';
 import SelectWeightingSystem from '../../components/registry/selectWeightingSystem';
 import WeightingActionBar from '../../components/registry/weightingActionBar';
 import WeightingDialog from '../../components/registry/weightingDialog';
@@ -42,68 +38,6 @@ import WeightingLane, {
 
 export default function WeightingTable() {
   const { formatMessage } = useIntl();
-
-  const [cycles, setCycles] = useState<Cycle[]>([]);
-  const [areCyclesLoading, setAreCyclesLoading] = useState<boolean>(false);
-  const [cycleNotif, setCycleNotif] = useState<useNotification>();
-  const [activeCycle, setActiveCycle] = useState<Cycle>();
-
-  const loadCycles = () => {
-    setAreCyclesLoading(true);
-    const notif = new useNotification();
-    if (cycleNotif) {
-      cycleNotif.dismiss();
-    }
-    setCycleNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load school's offered cycle here
-      if (6 > 5) {
-        const newCycles: Cycle[] = [
-          {
-            cycle_id: 'weils',
-            cycle_name: CycleName.BACHELOR,
-            cycle_type: CycleType.LONG,
-            number_of_years: 3,
-          },
-          {
-            cycle_id: 'weisls',
-            cycle_name: CycleName.MASTER,
-            cycle_type: CycleType.SHORT,
-            number_of_years: 2,
-          },
-        ];
-
-        setCycles(newCycles);
-        if (newCycles.length > 0)
-          setActiveCycle(
-            newCycles.sort((a, b) =>
-              a.cycle_type < b.cycle_type
-                ? 1
-                : a.cycle_name > b.cycle_name
-                ? 1
-                : -1
-            )[0]
-          );
-        setAreCyclesLoading(false);
-        notif.dismiss();
-        setCycleNotif(undefined);
-      } else {
-        notif.notify({ render: formatMessage({ id: 'loadingCycles' }) });
-        notif.update({
-          type: 'ERROR',
-          render: (
-            <ErrorMessage
-              retryFunction={loadCycles}
-              notification={notif}
-              message={formatMessage({ id: 'getCyclesFailed' })}
-            />
-          ),
-          autoClose: false,
-          icon: () => <ReportRounded fontSize="medium" color="error" />,
-        });
-      }
-    }, 3000);
-  };
 
   const [weightingSystem, setWeightingSystem] = useState<number>();
   const [isWeightingSystemLoading, setIsWeightingSystemLoading] =
@@ -117,9 +51,9 @@ export default function WeightingTable() {
     if (weightingSystemNotif) {
       weightingSystemNotif.dismiss();
     }
-    setCycleNotif(notif);
+    setWeightingSystemNotif(notif);
     setTimeout(() => {
-      //TODO: call api here to load activeCycle's weighting system
+      //TODO: call api here to load weighting system
       if (6 > 5) {
         const newWeightingSystem = 4;
         setWeightingSystem(newWeightingSystem);
@@ -170,7 +104,6 @@ export default function WeightingTable() {
             minimum: 1,
             observation: 'Toutes les ue',
             point: 4,
-            cycle_id: '',
             grade_id: 'lsi',
           },
         ];
@@ -196,23 +129,21 @@ export default function WeightingTable() {
     }, 3000);
   };
 
+  // useEffect(() => {
+  //   loadCycles();
+  //   return () => {
+  //     //TODO: cleanup axios fetch above
+  //   };
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
+
   useEffect(() => {
-    loadCycles();
+    loadWeightingSystem();
     return () => {
       //TODO: cleanup axios fetch above
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (activeCycle) {
-      loadWeightingSystem();
-    }
-    return () => {
-      //TODO: cleanup axios fetch above
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCycle]);
 
   useEffect(() => {
     if (weightingSystem) {
@@ -299,56 +230,43 @@ export default function WeightingTable() {
         }
       }, 3000);
     } else {
-      if (activeCycle) {
-        setTimeout(() => {
-          const newWeighting: CreateGradeWeighting = {
-            cycle_id: activeCycle.cycle_id,
-            grade_id: weighting.grade_id,
-            maximum: weighting.maximum,
-            minimum: weighting.minimum,
-            observation: weighting.observation,
-            point: weighting.point,
+      setTimeout(() => {
+        const newWeighting: CreateGradeWeighting = {
+          grade_id: weighting.grade_id,
+          maximum: weighting.maximum,
+          minimum: weighting.minimum,
+          observation: weighting.observation,
+          point: weighting.point,
+        };
+        //TODO: CALL API HERE TO createWeighting with data newWeighting
+        if (5 > 4) {
+          notif.update({
+            render: formatMessage({ id: 'savedSuccessfully' }),
+          });
+          setIsEditingWeighting(false);
+          //TODO: Put repsonse data after creation here
+          const responseWeighting: GradeWeighting = {
+            ...newWeighting,
+            annual_grade_weighting_id: 'lsi',
+            grade_value: 'A+',
           };
-          //TODO: CALL API HERE TO createWeighting with data newWeighting
-          if (5 > 4) {
-            notif.update({
-              render: formatMessage({ id: 'savedSuccessfully' }),
-            });
-            setIsEditingWeighting(false);
-            //TODO: Put repsonse data after creation here
-            const responseWeighting: GradeWeighting = {
-              ...newWeighting,
-              annual_grade_weighting_id: 'lsi',
-              grade_value: 'A+',
-            };
-            setWeightingData([responseWeighting, ...weightingData]);
-            setActionnedWeighting(undefined);
-          } else {
-            notif.update({
-              type: 'ERROR',
-              render: (
-                <ErrorMessage
-                  retryFunction={() => editWeightingData(weighting)}
-                  notification={notif}
-                  message={formatMessage({ id: 'saveWeightingFailed' })}
-                />
-              ),
-              autoClose: false,
-              icon: () => <ReportRounded fontSize="medium" color="error" />,
-            });
-          }
-        }, 3000);
-      } else {
-        const theNotif = new useNotification();
-        theNotif.notify({
-          render: formatMessage({ id: 'notifyingCycleAbsence' }),
-        });
-        theNotif.update({
-          type: 'ERROR',
-          render: formatMessage({ id: 'cycleDoesNotExist' }),
-          icon: () => <ReportRounded fontSize="medium" color="error" />,
-        });
-      }
+          setWeightingData([responseWeighting, ...weightingData]);
+          setActionnedWeighting(undefined);
+        } else {
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={() => editWeightingData(weighting)}
+                notification={notif}
+                message={formatMessage({ id: 'saveWeightingFailed' })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
+      }, 3000);
     }
   };
 
@@ -359,7 +277,7 @@ export default function WeightingTable() {
     const notif = new useNotification();
     if (weightingNotif) weightingNotif.dismiss();
     setWeightingNotif(notif);
-    notif.notify({ render: formatMessage({ id: 'deleingWeighting' }) });
+    notif.notify({ render: formatMessage({ id: 'deletingWeighting' }) });
     setTimeout(() => {
       //TODO: CALL API HERE TO deleting weighting with data weighting
       if (5 > 4) {
@@ -502,9 +420,7 @@ export default function WeightingTable() {
   const [actionnedWeighting, setActionnedWeighting] =
     useState<GradeWeighting>();
 
-  if (!areCyclesLoading && cycles.length === 0) return <NoCyclesAvailables />;
-
-  if (!areCyclesLoading && !isWeightingSystemLoading && !weightingSystem)
+  if (!isWeightingSystemLoading && !weightingSystem)
     return (
       <SelectWeightingSystem
         handleSubmit={createWeightingSystem}
@@ -533,8 +449,6 @@ export default function WeightingTable() {
       <EvaluationWeightingDialog
         closeDialog={() => setIsEvaluationWeightingDialogOpen(false)}
         isDialogOpen={isEvaluationWeightingDialogOpen}
-        cycles={cycles}
-        activeCycle={activeCycle?.cycle_id}
         handleSubmit={submitEvaluationWeighting}
       />
       <WeightingDialog
@@ -563,22 +477,14 @@ export default function WeightingTable() {
         }}
       >
         <WeightingActionBar
-          activeCycleId={activeCycle ? activeCycle.cycle_id : ''}
-          cycles={cycles}
           weightingSystem={weightingSystem}
           isDataLoading={
             areWeightingDataLoading ||
             isCreatingWeightingSystem ||
             isEditingWeighting ||
             isDeletingWeighting ||
-            areCyclesLoading ||
             isWeightingSystemLoading ||
             isSubmittingDialogData
-          }
-          swapActiveCycle={(newCycleId: string) =>
-            setActiveCycle(
-              cycles.find(({ cycle_id: cid }) => cid === newCycleId)
-            )
           }
           editWeightingSystem={createWeightingSystem}
           openCarryOverDialog={() => setIsCarryOverDialogOpen(true)}
@@ -593,7 +499,6 @@ export default function WeightingTable() {
               areWeightingDataLoading ||
               isCreatingWeightingSystem ||
               isWeightingSystemLoading ||
-              areCyclesLoading ||
               isEditDialogOpen ||
               isEditingWeighting ||
               isDeletingWeighting
@@ -626,9 +531,7 @@ export default function WeightingTable() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {areWeightingDataLoading ||
-                areCyclesLoading ||
-                isWeightingSystemLoading ? (
+                {areWeightingDataLoading || isWeightingSystemLoading ? (
                   [...new Array(10)].map((_, index) => (
                     <WeightingSkeleton key={index} />
                   ))
