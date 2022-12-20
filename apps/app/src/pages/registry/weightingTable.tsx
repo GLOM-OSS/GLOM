@@ -8,16 +8,25 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Tooltip,
+  Tooltip
 } from '@mui/material';
+import {
+  addNewGradeWeighting,
+  deleteGradeWeighting,
+  getGradeWeightings,
+  getWeightingSystem,
+  updateCarryOverSystem,
+  updateEvaluationTypeWeighting,
+  updateExamAcess,
+  updateGradeWeighting,
+  updateWeightingSystem
+} from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
-  CarryOverSystem,
-  CreateGradeWeighting,
-  CreateWeightingSystem,
+  CarryOverSystem, CreateWeightingSystem,
   EvaluationTypeWeighting,
   GradeWeighting,
-  SemesterExamAccess,
+  SemesterExamAccess
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -33,7 +42,7 @@ import WeightingActionBar from '../../components/registry/weightingActionBar';
 import WeightingDialog from '../../components/registry/weightingDialog';
 import WeightingLane, {
   AbsenceWeighting,
-  WeightingSkeleton,
+  WeightingSkeleton
 } from '../../components/registry/weightingLane';
 
 export default function WeightingTable() {
@@ -52,15 +61,14 @@ export default function WeightingTable() {
       weightingSystemNotif.dismiss();
     }
     setWeightingSystemNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load weighting system
-      if (6 > 5) {
-        const newWeightingSystem = 4;
-        setWeightingSystem(newWeightingSystem);
+    getWeightingSystem()
+      .then((weightingSystem) => {
+        setWeightingSystem(weightingSystem.weighting_system);
         setIsWeightingSystemLoading(false);
         notif.dismiss();
         setWeightingSystemNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingWeightingSystem' }),
         });
@@ -70,14 +78,15 @@ export default function WeightingTable() {
             <ErrorMessage
               retryFunction={loadWeightingSystem}
               notification={notif}
-              message={formatMessage({ id: 'getWeightingSystem' })}
+              message={
+                error?.message || formatMessage({ id: 'getWeightingSystem' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [weightingData, setWeightingData] = useState<GradeWeighting[]>([]);
@@ -93,25 +102,14 @@ export default function WeightingTable() {
       weightingDataNotif.dismiss();
     }
     setWeightingDataNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load weightingData with data activeCycle
-      if (6 > 5) {
-        const newWeightingData: GradeWeighting[] = [
-          {
-            annual_grade_weighting_id: 'weils',
-            grade_value: 'A+',
-            maximum: 4,
-            minimum: 1,
-            observation: 'Toutes les ue',
-            point: 4,
-            grade_id: 'lsi',
-          },
-        ];
-        setWeightingData(newWeightingData);
+    getGradeWeightings()
+      .then((weightingData) => {
+        setWeightingData(weightingData);
         setAreWeightingDataLoading(false);
         notif.dismiss();
         setWeightingDataNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({ render: formatMessage({ id: 'loadingWeightingData' }) });
         notif.update({
           type: 'ERROR',
@@ -119,14 +117,16 @@ export default function WeightingTable() {
             <ErrorMessage
               retryFunction={loadWeightingData}
               notification={notif}
-              message={formatMessage({ id: 'getWeightingDataFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'getWeightingDataFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   // useEffect(() => {
@@ -164,29 +164,31 @@ export default function WeightingTable() {
     if (weightingSystemNotif) weightingSystemNotif.dismiss();
     setWeightingSystemNotif(notif);
     notif.notify({ render: formatMessage({ id: 'savingWeightingSystem' }) });
-    setTimeout(() => {
-      //TODO: CALL API HERE TO createWeighting system with data newWeightingSystem
-      if (5 > 4) {
+    updateWeightingSystem(newWeightingSystem)
+      .then(() => {
         notif.update({
           render: formatMessage({ id: 'savedSuccessfully' }),
         });
-        setIsCreatingWeightingSystem(false);
         setWeightingSystem(newWeightingSystem.weighting_system);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() => createWeightingSystem(newWeightingSystem)}
               notification={notif}
-              message={formatMessage({ id: 'saveWeightingSystemFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'saveWeightingSystemFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsCreatingWeightingSystem(false));
   };
 
   const [isEditingWeighting, setIsEditingWeighting] = useState<boolean>(false);
@@ -198,13 +200,14 @@ export default function WeightingTable() {
     setWeightingNotif(notif);
     notif.notify({ render: formatMessage({ id: 'savingWeighting' }) });
     if (actionnedWeighting) {
-      setTimeout(() => {
-        //TODO: CALL API HERE TO edit createWeighting with data weighting
-        if (5 > 4) {
+      updateGradeWeighting(
+        actionnedWeighting.annual_grade_weighting_id,
+        weighting
+      )
+        .then(() => {
           notif.update({
             render: formatMessage({ id: 'savedSuccessfully' }),
           });
-          setIsEditingWeighting(false);
           setWeightingData(
             weightingData.map((gradeWeighting) => {
               const { annual_grade_weighting_id: agw_id } = gradeWeighting;
@@ -214,59 +217,56 @@ export default function WeightingTable() {
             })
           );
           setActionnedWeighting(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={() => editWeightingData(weighting)}
                 notification={notif}
-                message={formatMessage({ id: 'saveWeightingFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'saveWeightingFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        })
+        .finally(() => setIsEditingWeighting(false));
     } else {
-      setTimeout(() => {
-        const newWeighting: CreateGradeWeighting = {
-          grade_id: weighting.grade_id,
-          maximum: weighting.maximum,
-          minimum: weighting.minimum,
-          observation: weighting.observation,
-          point: weighting.point,
-        };
-        //TODO: CALL API HERE TO createWeighting with data newWeighting
-        if (5 > 4) {
+      addNewGradeWeighting({
+        grade_id: weighting.grade_id,
+        maximum: weighting.maximum,
+        minimum: weighting.minimum,
+        observation: weighting.observation,
+        point: weighting.point,
+      })
+        .then((newGradeWeighting) => {
           notif.update({
             render: formatMessage({ id: 'savedSuccessfully' }),
           });
-          setIsEditingWeighting(false);
-          //TODO: Put repsonse data after creation here
-          const responseWeighting: GradeWeighting = {
-            ...newWeighting,
-            annual_grade_weighting_id: 'lsi',
-            grade_value: 'A+',
-          };
-          setWeightingData([responseWeighting, ...weightingData]);
+          setWeightingData([newGradeWeighting, ...weightingData]);
           setActionnedWeighting(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={() => editWeightingData(weighting)}
                 notification={notif}
-                message={formatMessage({ id: 'saveWeightingFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'saveWeightingFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        })
+        .finally(() => setIsEditingWeighting(false));
     }
   };
 
@@ -278,9 +278,8 @@ export default function WeightingTable() {
     if (weightingNotif) weightingNotif.dismiss();
     setWeightingNotif(notif);
     notif.notify({ render: formatMessage({ id: 'deletingWeighting' }) });
-    setTimeout(() => {
-      //TODO: CALL API HERE TO deleting weighting with data weighting
-      if (5 > 4) {
+    deleteGradeWeighting(weighting.annual_grade_weighting_id)
+      .then(() => {
         notif.update({
           render: formatMessage({ id: 'deletedSuccessfully' }),
         });
@@ -291,7 +290,8 @@ export default function WeightingTable() {
               agw_id !== weighting.annual_grade_weighting_id
           )
         );
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
@@ -304,8 +304,7 @@ export default function WeightingTable() {
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [isSubmittingDialogData, setIsSubmittingDialogData] =
@@ -317,28 +316,30 @@ export default function WeightingTable() {
     if (dialogNotif) dialogNotif.dismiss();
     setDialogNotif(notif);
     notif.notify({ render: formatMessage({ id: 'savingCarryOverSystem' }) });
-    setTimeout(() => {
-      //TODO: CALL API HERE TO edit carryOverSystem with data carryOverSystem
-      if (5 > 4) {
+    updateCarryOverSystem(carryOverSystem)
+      .then(() => {
         notif.update({
           render: formatMessage({ id: 'savedSuccessfully' }),
         });
-        setIsSubmittingDialogData(false);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() => submitCarryOverSystem(carryOverSystem)}
               notification={notif}
-              message={formatMessage({ id: 'savingCarryOverSystemFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'savingCarryOverSystemFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsSubmittingDialogData(false));
   };
 
   const submitExamAccesses = (examAccess: SemesterExamAccess[]) => {
@@ -347,28 +348,30 @@ export default function WeightingTable() {
     if (dialogNotif) dialogNotif.dismiss();
     setDialogNotif(notif);
     notif.notify({ render: formatMessage({ id: 'savingExamAccesses' }) });
-    setTimeout(() => {
-      //TODO: CALL API HERE TO edit examAccess with data examAccess
-      if (5 > 4) {
+    updateExamAcess(examAccess)
+      .then(() => {
         notif.update({
           render: formatMessage({ id: 'savedSuccessfully' }),
         });
-        setIsSubmittingDialogData(false);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() => submitExamAccesses(examAccess)}
               notification={notif}
-              message={formatMessage({ id: 'savingExamAccessesFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'savingExamAccessesFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsSubmittingDialogData(false));
   };
   const submitEvaluationWeighting = (examAccess: {
     evaluationWeighting: EvaluationTypeWeighting;
@@ -382,28 +385,27 @@ export default function WeightingTable() {
     notif.notify({
       render: formatMessage({ id: 'savingEvaluationWeighting' }),
     });
-    setTimeout(() => {
-      //TODO: CALL API HERE TO edit evaluationWeighting with data cycle_id
-      if (5 > 4) {
+    updateEvaluationTypeWeighting(cycle_id, evaluationWeighting)
+      .then(() => {
         notif.update({
           render: formatMessage({ id: 'savedSuccessfully' }),
         });
-        setIsSubmittingDialogData(false);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() => submitEvaluationWeighting(examAccess)}
               notification={notif}
-              message={formatMessage({ id: 'savingEvaluationWeighting' })}
+              message={error?.message || formatMessage({ id: 'savingEvaluationWeighting' })}
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsSubmittingDialogData(false));
   };
 
   const [isCarryOverDialogOpen, setIsCarryOverDialogOpen] =
