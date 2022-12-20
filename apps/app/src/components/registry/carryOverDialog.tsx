@@ -52,7 +52,7 @@ export default function CarryOverDialog({
       if (carryOverSystem) {
         handleSubmit({
           carry_over_system,
-          carry_over_system_id: carryOverSystem.carry_over_system_id,
+          annual_carry_over_system_id: carryOverSystem.annual_carry_over_system_id,
         });
         resetForm();
         close();
@@ -85,7 +85,7 @@ export default function CarryOverDialog({
       if (6 > 5) {
         const newCarryOverSystem: CarryOverSystem = {
           carry_over_system: CarryOver.SUBJECT,
-          carry_over_system_id: 'kls',
+          annual_carry_over_system_id: 'kls',
         };
         setCarryOverSystem(newCarryOverSystem);
         setIsCarryOverSystemLoading(false);
