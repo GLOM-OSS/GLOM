@@ -28,7 +28,6 @@ export interface CreateGradeWeighting {
   minimum: number;
   maximum: number;
   grade_id: string;
-  cycle_id: string;
   observation: string;
 }
 
