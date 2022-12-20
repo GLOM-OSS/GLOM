@@ -1,14 +1,18 @@
 import { http } from '@squoolr/axios';
 
+export * from './academic-years';
 export * from './auth';
+export * from './carry-over-system';
+export * from './classrooms';
+export * from './credit-unit-subjects';
+export * from './credit-units';
 export * from './demand';
 export * from './departments';
+export * from './evaluations';
+export * from './grade-weightings';
 export * from './majors';
-export * from './classrooms';
 export * from './personnel';
-export * from './academic-years';
-export * from './credit-units';
-export * from './credit-unit-subjects';
+export * from './weighting-system';
 
 export async function getCycles() {
   const {
