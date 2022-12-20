@@ -58,7 +58,7 @@ export enum CarryOver {
 
 export interface CarryOverSystem {
   annual_carry_over_system_id: string;
-  carrry_over_system: CarryOver;
+  carry_over_system: CarryOver;
 }
 
 export enum EvaluationType {
