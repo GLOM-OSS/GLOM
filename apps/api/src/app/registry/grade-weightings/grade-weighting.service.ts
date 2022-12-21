@@ -9,7 +9,10 @@ import { GradeWeightingPostDto } from '../registry.dto';
 export class GradeWeightingService {
   constructor(private prismaService: PrismaService) {}
 
-  async getAnnualGradeWeightings(): Promise<GradeWeighting[]> {
+  async getAnnualGradeWeightings(
+    academic_year_id: string,
+    cycle_id: string
+  ): Promise<GradeWeighting[]> {
     const annualGradeWeightings =
       await this.prismaService.annualGradeWeighting.findMany({
         select: {
@@ -21,7 +24,7 @@ export class GradeWeightingService {
           annual_grade_weighting_id: true,
           Grade: { select: { grade_value: true } },
         },
-        where: { is_deleted: false },
+        where: { cycle_id, academic_year_id, is_deleted: false },
       });
 
     return annualGradeWeightings.map(
@@ -78,7 +81,7 @@ export class GradeWeightingService {
   }
 
   async addNewGradeWeighting(
-    { grade_id, maximum, minimum, ...newGradeWeighting }: GradeWeightingPostDto,
+    { grade_id, cycle_id, maximum, minimum, ...newGradeWeighting }: GradeWeightingPostDto,
     academic_year_id: string,
     annual_registry_id: string
   ) {
@@ -97,6 +100,7 @@ export class GradeWeightingService {
         maximum,
         minimum,
         ...newGradeWeighting,
+        Cycle: { connect: { cycle_id }},
         Grade: { connect: { grade_id } },
         AcademicYear: { connect: { academic_year_id } },
         AnnualRegistry: { connect: { annual_registry_id } },

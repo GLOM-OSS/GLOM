@@ -9,7 +9,7 @@ import {
   Post,
   Put,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { DeserializeSessionData, Role } from '../../../utils/types';
@@ -23,9 +23,18 @@ import { GradeWeightingService } from './grade-weighting.service';
 export class GradeWeightingController {
   constructor(private gradeWeightingService: GradeWeightingService) {}
 
-  @Get('all')
-  async getGradeWeightings() {
-    return await this.gradeWeightingService.getAnnualGradeWeightings();
+  @Get(':cyccle_id/all')
+  async getGradeWeightings(
+    @Req() request: Request,
+    @Param('cycle_id') cycle_id: string
+  ) {
+    const {
+      activeYear: { academic_year_id },
+    } = request.user as DeserializeSessionData;
+    return await this.gradeWeightingService.getAnnualGradeWeightings(
+      academic_year_id,
+      cycle_id
+    );
   }
 
   @Get(':annnual_grade_weighting_id')

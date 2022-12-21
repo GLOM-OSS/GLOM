@@ -40,6 +40,10 @@ export class GradeWeightingPostDto {
   @IsUUID()
   @ApiProperty()
   grade_id: string;
+ 
+  @IsUUID()
+  @ApiProperty()
+  cycle_id: string;
 
   @IsString()
   @ApiProperty()

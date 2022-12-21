@@ -1,8 +1,8 @@
 import { http } from '@squoolr/axios';
 import { CreateGradeWeighting, GradeWeighting } from '@squoolr/interfaces';
 
-export async function getGradeWeightings() {
-  const { data } = await http.get<GradeWeighting[]>(`grade-weightings/all`);
+export async function getGradeWeightings(cycle_id: string) {
+  const { data } = await http.get<GradeWeighting[]>(`grade-weightings/${cycle_id}/all`);
   return data;
 }
 

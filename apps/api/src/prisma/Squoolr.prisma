@@ -165,6 +165,8 @@ model AcademicYear {
     created_by         String?             @db.VarChar(36)
     AnnualConfigurator AnnualConfigurator? @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
+    AnnualWeighting AnnualWeighting?
+
     AnnualRegistries               AnnualRegistry[]
     AnnualTeachers                 AnnualTeacher[]
     AnnualStudents                 AnnualStudent[]
@@ -177,7 +179,6 @@ model AcademicYear {
     AnnualEvaluationTypeWeightings AnnualEvaluationTypeWeighting[]
     AnnualAcademicProfiles         AnnualAcademicProfile[]
     AnnualSemesterExamAcess        AnnualSemesterExamAcess[]
-    AnnualWeighting               AnnualWeighting?
     AnnualGradeWeightings          AnnualGradeWeighting[]
     AnnualEvaluationSubTypes       AnnualEvaluationSubType[]
 }
@@ -495,6 +496,7 @@ model Cycle {
     Majors                         Major[]
     MajorAudits                    MajorAudit[]
     AnnualMinimumModulationScores  AnnualMinimumModulationScore[]
+    AnnualGradeWeightings          AnnualGradeWeighting[]
     AnnualEvaluationTypeWeightings AnnualEvaluationTypeWeighting[]
 }
 
@@ -899,6 +901,8 @@ model AnnualGradeWeighting {
     created_at                DateTime       @default(now()) @db.DateTime(0)
     academic_year_id          String         @db.VarChar(36)
     AcademicYear              AcademicYear   @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    cycle_id                  String         @db.VarChar(36)
+    Cycle                     Cycle          @relation(fields: [cycle_id], references: [cycle_id], onDelete: Cascade, onUpdate: Cascade)
     grade_id                  String         @db.VarChar(36)
     Grade                     Grade          @relation(fields: [grade_id], references: [grade_id], onDelete: Cascade, onUpdate: Cascade)
     created_by                String         @db.VarChar(36)
@@ -925,8 +929,8 @@ model AnnualGradeWeightingAudit {
 
 model AnnualAcademicProfile {
     annual_academic_profile_id String         @id @default(uuid()) @db.VarChar(36)
-    minimum_score              Int
-    maximum_score              Int
+    minimum_score              Float
+    maximum_score              Float
     comment                    String         @db.VarChar(25)
     is_deleted                 Boolean        @default(false) @db.TinyInt
     configured_at              DateTime       @default(now()) @db.DateTime(0)
@@ -940,8 +944,8 @@ model AnnualAcademicProfile {
 
 model AnnualAcademicProfileAudit {
     annual_academic_profile_audit_id String                @id @default(uuid()) @db.VarChar(36)
-    minimum_score                    Int
-    maximum_score                    Int
+    minimum_score                    Float
+    maximum_score                    Float
     comment                          String                @db.VarChar(25)
     is_deleted                       Boolean               @db.TinyInt
     audited_at                       DateTime              @default(now()) @db.DateTime(0)

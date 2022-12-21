@@ -25,9 +25,7 @@ export class WeightingSystemController {
   constructor(private weightingSystemService: WeightingSystemService) {}
 
   @Get()
-  async getWeightingSystem(
-    @Req() request: Request,
-  ) {
+  async getWeightingSystem(@Req() request: Request) {
     const {
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
@@ -36,10 +34,11 @@ export class WeightingSystemController {
     );
   }
 
-  @Put('upsert')
+  @Put(':cycle_id/upsert')
   @Roles(Role.REGISTRY)
   async upsertWeightingSystem(
     @Req() request: Request,
+    @Param('cycle_id') cycle_id: string,
     @Body() updateWeightingSystem: WeightingPutDto
   ) {
     const {
