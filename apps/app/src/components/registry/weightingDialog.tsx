@@ -40,6 +40,7 @@ export default function WeightingDialog({
     observation: 'Toutes les ue',
     point: 0,
     grade_id: '',
+    cycle_id: 'weils'
   };
 
   const validationSchema = Yup.object().shape({
