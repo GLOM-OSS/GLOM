@@ -280,6 +280,8 @@ model AnnualStudent {
     Student           Student      @relation(fields: [student_id], references: [student_id], onDelete: Cascade, onUpdate: Cascade)
     academic_year_id  String       @db.VarChar(36)
     AcademicYear      AcademicYear @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+
+    EvaluationHasStudents EvaluationHasStudent[]
 }
 
 model AnnualRegistry {
@@ -307,6 +309,7 @@ model AnnualRegistry {
     AnnualAcademicProfileAudits         AnnualAcademicProfileAudit[]
     AnnualSemesterExamAcessAudits       AnnualSemesterExamAcessAudit[]
     AnnualEvaluationTypeWeightings      AnnualEvaluationTypeWeighting[]
+    Evaluations                         Evaluation[]
 
     @@unique([login_id, matricule])
     @@unique([login_id, academic_year_id])
@@ -394,6 +397,8 @@ model AnnualTeacher {
     CreatedAnnualCreditUnitHasSubjectParts      AnnualCreditUnitHasSubjectPart[]      @relation(name: "CreatedBy_AnnualTeacher")
     AnnualCreditHasSubjectPartAudits            AnnualCreditUnitHasSubjectPartAudit[] @relation(name: "AnnualTeacher")
     AuditedAnnualCreditUnitHasSubjectPartAudits AnnualCreditUnitHasSubjectPartAudit[] @relation(name: "AuditedBy_AnnualTeacher")
+    CreatedEvaluations                          Evaluation[]                          @relation(name: "CreatedBy_AnnualTeacher")
+    PublishedEvaluations                        Evaluation[]                          @relation(name: "PublishedBy_AnnualTeacher")
 
     @@unique([login_id, academic_year_id])
 }
@@ -667,6 +672,8 @@ model AnnualCreditUnitAudit {
     credit_unit_name            String           @db.VarChar(45)
     credit_points               Int
     semester_number             Int
+    is_exam_published           Boolean          @db.TinyInt
+    is_resit_published          Boolean          @db.TinyInt
     is_deleted                  Boolean          @db.TinyInt
     audited_at                  DateTime         @default(now()) @db.DateTime(0)
     annual_credit_unit_id       String           @db.VarChar(36)
@@ -698,6 +705,7 @@ model AnnualCreditUnitSubject {
 
     AnnualCreditUnitSubjectAudits   AnnualCreditUnitSubjectAudit[]
     AnnualCreditUnitHasSubjectParts AnnualCreditUnitHasSubjectPart[]
+    Evaluations                     Evaluation[]
 }
 
 model AnnualCreditUnitSubjectAudit {
@@ -851,6 +859,7 @@ model AnnualEvaluationSubType {
     EvaluationType                EvaluationType @relation(fields: [evaluation_type_id], references: [evaluation_type_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualEvaluationSubTypeAudits AnnualEvaluationSubTypeAudit[]
+    Evaluations                   Evaluation[]
 }
 
 model AnnualEvaluationSubTypeAudit {
@@ -979,4 +988,43 @@ model AnnualSemesterExamAcessAudit {
     AnnualSemesterExamAcess              AnnualSemesterExamAcess @relation(fields: [annual_semester_exam_access_id], references: [annual_semester_exam_access_id], onDelete: Cascade, onUpdate: Cascade)
     audited_by                           String                  @db.VarChar(36)
     AnnualRegistry                       AnnualRegistry          @relation(fields: [audited_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Evaluation {
+    evaluation_id                 String                  @id @default(uuid()) @db.VarChar(36)
+    examination_date              DateTime                @db.DateTime(0)
+    annual_evaluation_sub_type_id String                  @db.VarChar(36)
+    AnnualEvaluationSubType       AnnualEvaluationSubType @relation(fields: [annual_evaluation_sub_type_id], references: [annual_evaluation_sub_type_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_credit_unit_subject_id String                  @db.VarChar(36)
+    AnnualCreditUnitSubject       AnnualCreditUnitSubject @relation(fields: [annual_credit_unit_subject_id], references: [annual_credit_unit_subject_id], onDelete: Cascade, onUpdate: Cascade)
+
+    created_at             DateTime      @default(now()) @db.DateTime(0)
+    created_by             String        @db.VarChar(36)
+    CreatedByAnnualTeacher AnnualTeacher @relation(name: "CreatedBy_AnnualTeacher", fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+
+    published_at             DateTime?      @db.DateTime(0)
+    published_by             String?        @db.VarChar(36)
+    PublishedByAnnualTeacher AnnualTeacher? @relation(name: "PublishedBy_AnnualTeacher", fields: [published_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+
+    anonimated_at  DateTime?       @db.DateTime(0)
+    anonimated_by  String?         @db.VarChar(36)
+    AnnualRegistry AnnualRegistry? @relation(fields: [anonimated_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
+
+    EvaluationHasStudents EvaluationHasStudent[]
+}
+
+model EvaluationHasStudent {
+    evaluation_has_student_id     String                @id @default(uuid()) @db.VarChar(36)
+    mark                          Int
+    anonymity_code                String                @db.VarChar(20)
+    is_editable                   Boolean
+    edition_granted_at            DateTime?             @db.DateTime(0)
+    evaluation_id                 String                @db.VarChar(36)
+    Evaluation                    Evaluation            @relation(fields: [evaluation_id], references: [evaluation_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_student_id             String                @db.VarChar(36)
+    AnnualStudent                 AnnualStudent         @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)
+    ref_evaluation_has_student_id String?               @db.VarChar(36)
+    EvaluationHasStudent          EvaluationHasStudent? @relation(name: "Ref_EvaluationHasStudent", fields: [evaluation_has_student_id], references: [evaluation_has_student_id], onDelete: Cascade, onUpdate: Cascade)
+
+    EvaluationHasStudents EvaluationHasStudent[] @relation(name: "Ref_EvaluationHasStudent")
 }
