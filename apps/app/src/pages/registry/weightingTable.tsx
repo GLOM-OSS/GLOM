@@ -13,6 +13,7 @@ import {
 import {
   addNewGradeWeighting,
   deleteGradeWeighting,
+  getCycles,
   getGradeWeightings,
   getWeightingSystem,
   updateCarryOverSystem,
@@ -26,8 +27,6 @@ import {
   CarryOverSystem,
   CreateWeightingSystem,
   Cycle,
-  CycleName,
-  CycleType,
   EvaluationTypeWeighting,
   GradeWeighting,
   SemesterExamAccess,
@@ -65,54 +64,36 @@ export default function WeightingTable() {
       cycleNotif.dismiss();
     }
     setCycleNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load school's offered cycle here
-      if (6 > 5) {
-        const newCycles: Cycle[] = [
-          {
-            cycle_id: 'weils',
-            cycle_name: CycleName.BACHELOR,
-            cycle_type: CycleType.LONG,
-            number_of_years: 3,
-          },
-          {
-            cycle_id: 'weisls',
-            cycle_name: CycleName.MASTER,
-            cycle_type: CycleType.SHORT,
-            number_of_years: 2,
-          },
-        ];
-
-        setCycles(newCycles);
-        if (newCycles.length > 0)
-          setActiveCycle(
-            newCycles.sort((a, b) =>
-              a.cycle_type < b.cycle_type
-                ? 1
-                : a.cycle_name > b.cycle_name
-                ? 1
-                : -1
-            )[0]
-          );
-        setAreCyclesLoading(false);
-        notif.dismiss();
-        setCycleNotif(undefined);
-      } else {
-        notif.notify({ render: formatMessage({ id: 'loadingCycles' }) });
-        notif.update({
-          type: 'ERROR',
-          render: (
-            <ErrorMessage
-              retryFunction={loadCycles}
-              notification={notif}
-              message={formatMessage({ id: 'getCyclesFailed' })}
-            />
-          ),
-          autoClose: false,
-          icon: () => <ReportRounded fontSize="medium" color="error" />,
-        });
-      }
-    }, 3000);
+    getCycles().then(cycles => {
+      setCycles(cycles);
+      if (cycles.length > 0)
+        setActiveCycle(
+          cycles.sort((a, b) =>
+            a.cycle_type < b.cycle_type
+              ? 1
+              : a.cycle_name > b.cycle_name
+              ? 1
+              : -1
+          )[0]
+        );
+      setAreCyclesLoading(false);
+      notif.dismiss();
+      setCycleNotif(undefined);
+    }).catch(error => {
+      notif.notify({ render: formatMessage({ id: 'loadingCycles' }) });
+      notif.update({
+        type: 'ERROR',
+        render: (
+          <ErrorMessage
+            retryFunction={loadCycles}
+            notification={notif}
+            message={error?.message || formatMessage({ id: 'getCyclesFailed' })}
+          />
+        ),
+        autoClose: false,
+        icon: () => <ReportRounded fontSize="medium" color="error" />,
+      });
+    })
   };
 
   const [weightingSystem, setWeightingSystem] = useState<number>();
@@ -227,7 +208,7 @@ export default function WeightingTable() {
   }, [activeCycle]);
 
   useEffect(() => {
-    if (weightingSystem) {
+    if (weightingSystem && activeCycle) {
       loadWeightingData();
     }
     return () => {

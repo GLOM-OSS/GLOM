@@ -20,6 +20,7 @@ export class GradeWeightingService {
           maximum: true,
           minimum: true,
           grade_id: true,
+          cycle_id: true,
           observation: true,
           annual_grade_weighting_id: true,
           Grade: { select: { grade_value: true } },
