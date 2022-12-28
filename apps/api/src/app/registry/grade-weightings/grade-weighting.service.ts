@@ -27,7 +27,6 @@ export class GradeWeightingService {
         },
         where: { cycle_id, academic_year_id, is_deleted: false },
       });
-
     return annualGradeWeightings.map(
       ({ Grade: { grade_value }, ...annualGradeWeighting }) => ({
         grade_value,

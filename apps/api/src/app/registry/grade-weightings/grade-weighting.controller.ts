@@ -23,7 +23,7 @@ import { GradeWeightingService } from './grade-weighting.service';
 export class GradeWeightingController {
   constructor(private gradeWeightingService: GradeWeightingService) {}
 
-  @Get(':cyccle_id/all')
+  @Get(':cycle_id/all')
   async getGradeWeightings(
     @Req() request: Request,
     @Param('cycle_id') cycle_id: string

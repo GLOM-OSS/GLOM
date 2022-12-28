@@ -215,7 +215,7 @@ export default function WeightingTable() {
       //TODO: cleanup axios fetch above
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [weightingSystem]);
+  }, [weightingSystem, activeCycle]);
 
   const [isCreatingWeightingSystem, setIsCreatingWeightingSystem] =
     useState<boolean>(false);
