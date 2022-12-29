@@ -1024,7 +1024,7 @@ model EvaluationHasStudent {
     annual_student_id             String                @db.VarChar(36)
     AnnualStudent                 AnnualStudent         @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)
     ref_evaluation_has_student_id String?               @db.VarChar(36)
-    EvaluationHasStudent          EvaluationHasStudent? @relation(name: "Ref_EvaluationHasStudent", fields: [evaluation_has_student_id], references: [evaluation_has_student_id], onDelete: Cascade, onUpdate: Cascade)
+    EvaluationHasStudent          EvaluationHasStudent? @relation(name: "Ref_EvaluationHasStudent", fields: [ref_evaluation_has_student_id], references: [evaluation_has_student_id], onDelete: Cascade, onUpdate: Cascade)
 
     EvaluationHasStudents EvaluationHasStudent[] @relation(name: "Ref_EvaluationHasStudent")
 }
