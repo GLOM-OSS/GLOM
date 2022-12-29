@@ -1,9 +1,15 @@
-export interface Course {
-  annual_credit_unit_subject: string;
+interface UVMarkStatus {
+  is_ca_available: boolean;
+  is_exam_available: boolean;
+  is_resit_available: boolean;
+}
+
+export interface Course extends UVMarkStatus {
+  annual_credit_unit_subject_id: string;
   credit_unit_code: string;
   credit_unit_name: string;
   classroom_acronym: string;
-  is_planified: boolean;
+  has_course_plan: boolean;
 }
 
 export interface EvaluationHasStudent {
@@ -32,16 +38,9 @@ export interface Evaluation {
   evaluation_sub_type_name: string;
 }
 
-export interface UEMarkTraking {
+export interface UEMarkStatus {
   credit_points: number;
   credit_unit_code: string;
   credit_unit_name: string;
   availability_percentage: number;
-}
-
-export interface UVMarkTraking
-  extends Omit<Course, 'is_planified' | 'classroom_acronym'> {
-  is_ca_available: boolean;
-  is_exam_available: boolean;
-  is_receit_available: boolean;
 }
