@@ -117,6 +117,8 @@ export class CreditUnitService {
         semester_number: true,
         credit_unit_code: true,
         credit_unit_name: true,
+        is_exam_published: true,
+        is_resit_published: true,
       },
       where: { annual_credit_unit_id },
     });
@@ -131,7 +133,7 @@ export class CreditUnitService {
         AnnualCreditUnitAudits: {
           create: {
             ...creditUnit,
-            AnnualTeacher: { connect: { annual_teacher_id } },
+            audited_by: annual_teacher_id
           },
         },
       },

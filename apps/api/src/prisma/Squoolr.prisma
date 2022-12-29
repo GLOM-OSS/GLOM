@@ -653,6 +653,8 @@ model AnnualCreditUnit {
     credit_unit_name      String        @db.VarChar(45)
     credit_points         Int
     semester_number       Int
+    is_exam_published     Boolean       @default(false) @db.TinyInt
+    is_resit_published    Boolean       @default(false) @db.TinyInt
     is_deleted            Boolean       @default(false) @db.TinyInt
     created_at            DateTime      @default(now()) @db.DateTime(0)
     major_id              String        @db.VarChar(36)
@@ -859,14 +861,15 @@ enum EvaluationSubTypeEnum {
 
     @@map("evaluation_sub_type_enum")
 }
+
 model AnnualEvaluationSubType {
-    annual_evaluation_sub_type_id String         @id @default(uuid()) @db.VarChar(36)
+    annual_evaluation_sub_type_id String                @id @default(uuid()) @db.VarChar(36)
     evaluation_sub_type_name      EvaluationSubTypeEnum
     evaluation_sub_type_weight    Int
-    academic_year_id              String         @db.VarChar(36)
-    AcademicYear                  AcademicYear   @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
-    evaluation_type_id            String         @db.VarChar(36)
-    EvaluationType                EvaluationType @relation(fields: [evaluation_type_id], references: [evaluation_type_id], onDelete: Cascade, onUpdate: Cascade)
+    academic_year_id              String                @db.VarChar(36)
+    AcademicYear                  AcademicYear          @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    evaluation_type_id            String                @db.VarChar(36)
+    EvaluationType                EvaluationType        @relation(fields: [evaluation_type_id], references: [evaluation_type_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualEvaluationSubTypeAudits AnnualEvaluationSubTypeAudit[]
     Evaluations                   Evaluation[]
