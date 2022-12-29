@@ -708,6 +708,7 @@ model AnnualCreditUnitSubject {
     AnnualCreditUnitSubjectAudits   AnnualCreditUnitSubjectAudit[]
     AnnualCreditUnitHasSubjectParts AnnualCreditUnitHasSubjectPart[]
     Evaluations                     Evaluation[]
+    Chapters                        Chapter[]
 }
 
 model AnnualCreditUnitSubjectAudit {
@@ -1040,4 +1041,49 @@ model EvaluationHasStudent {
     EvaluationHasStudent          EvaluationHasStudent? @relation(name: "Ref_EvaluationHasStudent", fields: [ref_evaluation_has_student_id], references: [evaluation_has_student_id], onDelete: Cascade, onUpdate: Cascade)
 
     EvaluationHasStudents EvaluationHasStudent[] @relation(name: "Ref_EvaluationHasStudent")
+}
+
+model Chapter {
+    chapter_id                    String                  @id @default(uuid()) @db.VarChar(36)
+    chapter_title                 String                  @db.VarChar(45)
+    chapter_objective             String                  @db.MediumText
+    is_deleted                    Boolean                 @db.TinyInt
+    annual_credit_unit_subject_id String                  @db.VarChar(36)
+    AnnualCreditUnitSubject       AnnualCreditUnitSubject @relation(fields: [annual_credit_unit_subject_id], references: [annual_credit_unit_subject_id], onDelete: Cascade, onUpdate: Cascade)
+    chapter_parent_id             String?                 @db.VarChar(36)
+    ChapterParent                 Chapter?                @relation(name: "ChapterParent", fields: [chapter_parent_id], references: [chapter_id], onDelete: Cascade, onUpdate: Cascade)
+
+    Chapter       Chapter[]      @relation(name: "ChapterParent")
+    ChapterAudits ChapterAudit[]
+    Ressources    Ressource[]
+}
+
+model ChapterAudit {
+    chapter_audit_id  String  @id @default(uuid()) @db.VarChar(36)
+    chapter_title     String  @db.VarChar(45)
+    chapter_objective String  @db.MediumText
+    is_deleted        Boolean @db.TinyInt
+    chapter_id        String  @db.VarChar(36)
+    Chapter           Chapter @relation(fields: [chapter_id], references: [chapter_id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Ressource {
+    ressource_id        String           @id @default(uuid()) @db.VarChar(36)
+    ressource_extension String           @db.VarChar(5)
+    ressource_ref       String           @db.VarChar(90)
+    ressource_name      String           @db.VarChar(45)
+    is_deleted          Boolean          @default(false) @db.TinyInt
+    chapter_id          String?
+    Chapter             Chapter?         @relation(fields: [chapter_id], references: [chapter_id], onDelete: Cascade, onUpdate: Cascade)
+    RessourceAudits     RessourceAudit[]
+}
+
+model RessourceAudit {
+    ressource_audit_id  String    @id @default(uuid()) @db.VarChar(36)
+    ressource_extension String    @db.VarChar(5)
+    ressource_ref       String    @db.VarChar(90)
+    ressource_name      String    @db.VarChar(45)
+    is_deleted          Boolean   @default(false) @db.TinyInt
+    ressource_id        String
+    Ressource           Ressource @relation(fields: [ressource_id], references: [ressource_id], onDelete: Cascade, onUpdate: Cascade)
 }
