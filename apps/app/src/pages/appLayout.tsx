@@ -79,6 +79,25 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
     },
   ];
 
+  const teacherNavItems: NavItem[] = [
+    {
+      id: 1,
+      Icon: LayersOutlined,
+      title: 'configurations',
+      children: [
+        {
+          title: formatMessage({ id: 'courses' }),
+          route: 'courses',
+          page_title: 'courses',
+        },
+        // {
+        //   title: formatMessage({ id: 'timetable' }),
+        //   route: 'timetable',
+        //   page_title: 'timetable',
+        // },
+      ],
+    },
+  ];
 
   return (
     <MainLayout
@@ -87,6 +106,7 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
         { role: 'registry', navItems: registryNavItems },
         { role: 'coordinator', navItems: coordinatorNavItems },
         { role: 'secretary', navItems: navItems },
+        { role: 'teacher', navItems: teacherNavItems },
       ]}
     />
   );
