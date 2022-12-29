@@ -6,13 +6,14 @@ interface UVMarkStatus {
 
 export interface Course extends UVMarkStatus {
   annual_credit_unit_subject_id: string;
-  credit_unit_code: string;
-  credit_unit_name: string;
+  subject_code: string;
+  subject_title: string;
   classroom_acronyms: string[];
   has_course_plan: boolean;
 }
 
 export interface EvaluationHasStudent {
+  evaluation_has_student_id: string;
   matricule: string;
   fullname: string;
   mark: number;
@@ -20,7 +21,7 @@ export interface EvaluationHasStudent {
 }
 
 export interface AnonimatedEvaluationHasStudent
-  extends Omit<EvaluationHasStudent, 'fullname'> {
+  extends Omit<EvaluationHasStudent, 'fullname' | 'matricule'> {
   anonymity_code: string;
 }
 
