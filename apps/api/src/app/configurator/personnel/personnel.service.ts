@@ -501,8 +501,8 @@ export class PersonnelService {
     const password = Math.random().toString(36).slice(2).toUpperCase();
     const hashedPassword = bcrypt.hashSync(password, Number(process.env.SALT));
     //TODO NodeMailer send generated password and private code
-    console.log({ password })
-    
+    console.log({ password });
+
     const login = await this.loginService.findFirst({
       select: {
         login_id: true,
@@ -667,7 +667,7 @@ export class PersonnelService {
     { phone_number, ...staffData }: StaffPutDto,
     audited_by: string
   ) {
-    const login = await this.loginService.findUnique({
+    const login = await this.loginService.findFirst({
       where: { login_id },
       select: {
         Person: true,
@@ -678,6 +678,19 @@ export class PersonnelService {
         JSON.stringify(AUTH404('Personnel')),
         HttpStatus.NOT_FOUND
       );
+    if (phone_number) {
+      const person = await this.prismaService.person.findFirst({
+        where: {
+          person_id: { not: login.Person.person_id },
+          OR: [{ phone_number }, { email: staffData.email }],
+        },
+      });
+      if (person)
+        throw new HttpException(
+          JSON.stringify(ERR03('Phone number or email')),
+          HttpStatus.AMBIGUOUS
+        );
+    }
     const {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       Person: { created_at, person_id, ...person },

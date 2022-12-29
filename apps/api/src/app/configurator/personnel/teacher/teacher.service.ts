@@ -106,6 +106,8 @@ export class TeacherService {
       Number(process.env.SALT)
     );
     //TODO NodeMailer send generated password and private code
+    console.log({ password });
+    
     const {
       annual_teacher_id,
       Login: { Person },
