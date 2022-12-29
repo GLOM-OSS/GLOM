@@ -39,7 +39,7 @@ export class CreditUnitSubjectService {
       (total, { weighting }) => total + weighting,
       0
     );
-    if (weighting <= 1 - totalWeight)
+    if (weighting > 1 - totalWeight)
       throw new HttpException(
         JSON.stringify(ERR10),
         HttpStatus.EXPECTATION_FAILED
@@ -131,13 +131,16 @@ export class CreditUnitSubjectService {
       );
     const subjects = await this.prismaService.annualCreditUnitSubject.findMany({
       select: { weighting: true },
-      where: { annual_credit_unit_id },
+      where: {
+        annual_credit_unit_id,
+        annual_credit_unit_subject_id: { not: annual_credit_unit_subject_id },
+      },
     });
     const totalWeight = subjects.reduce(
       (total, { weighting }) => total + weighting,
       0
     );
-    if (weighting && weighting <= 1 - totalWeight)
+    if (weighting && weighting > 1 - totalWeight)
       throw new HttpException(
         JSON.stringify(ERR10),
         HttpStatus.EXPECTATION_FAILED
