@@ -103,7 +103,13 @@ export const routes = [
     children: [
       {
         path: 'courses',
-        element: <TeacherCourses />,
+        children: [
+          { path: '', element: <TeacherCourses /> },
+          {
+            path: ':annual_credit_unit_subject_id',
+            element: <Typography>Course Details</Typography>,
+          },
+        ],
       },
       { path: '*', element: <Navigate to="/" /> },
     ],
