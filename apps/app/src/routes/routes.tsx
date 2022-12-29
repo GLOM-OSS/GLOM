@@ -2,6 +2,10 @@ import { Typography } from '@mui/material';
 import { Navigate } from 'react-router';
 import Classrooms from '../components/secretary/classrooms';
 import AppLayout from '../pages/appLayout';
+import ModulesManagement from '../pages/coordinator/modulesManagement';
+import SubjectManagement from '../pages/coordinator/subjectManagement';
+import AcademicProfileTable from '../pages/registry/academicProfile';
+import WeightingTable from '../pages/registry/weightingTable';
 import Departments from '../pages/secretary/departments';
 import Majors from '../pages/secretary/majors';
 import NewAcademicYear from '../pages/secretary/newAcademicYear';
@@ -20,7 +24,7 @@ export const routes = [
     ),
   },
   {
-    path: '/configurations',
+    path: '/secretary/configurations',
     element: <AppLayout />,
     children: [
       {
@@ -48,6 +52,46 @@ export const routes = [
       {
         path: 'new-academic-year',
         element: <NewAcademicYear />,
+      },
+      { path: '*', element: <Navigate to="/" /> },
+    ],
+  },
+  {
+    path: '/coordinator/configurations',
+    element: <AppLayout />,
+    children: [
+      {
+        path: 'subjects-and-modules',
+        children: [
+          { path: '', element: <ModulesManagement /> },
+          { path: ':annual_credit_unit_id', element: <SubjectManagement /> },
+        ],
+      },
+      { path: '*', element: <Navigate to="/" /> },
+    ],
+  },
+  {
+    path: '/registry/configurations',
+    element: <AppLayout />,
+    children: [
+      {
+        path: 'weighting-table',
+        element: <WeightingTable />,
+      },
+      {
+        path: 'academic-profile',
+        element: <AcademicProfileTable />,
+      },
+      { path: '*', element: <Navigate to="/" /> },
+    ],
+  },
+  {
+    path: '/coordinator/marks-management',
+    element: <AppLayout />,
+    children: [
+      {
+        path: 'module-follow-up',
+        element: <Typography>Module marks follow up</Typography>,
       },
       { path: '*', element: <Navigate to="/" /> },
     ],

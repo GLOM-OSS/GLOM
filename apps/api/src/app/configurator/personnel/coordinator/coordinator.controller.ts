@@ -1,30 +1,26 @@
 import {
-    Body,
-    Controller,
-    Get,
-    HttpException,
-    HttpStatus,
-    Param,
-    Post,
-    Put,
-    Query,
-    Req,
-    UseGuards
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { DeserializeSessionData, Role } from '../../../../utils/types';
 import { Request } from 'express';
 import { Roles } from '../../../app.decorator';
 import { AuthenticatedGuard } from '../../../auth/auth.guard';
-import {
-    CoordinatorPostDto,
-    PersonnelQueryDto
-} from '../../configurator.dto';
+import { CoordinatorPostDto, PersonnelQueryDto } from '../../configurator.dto';
 import { PersonnelService } from '../personnel.service';
 
 @Controller()
 @ApiTags('Personnel/coordinators')
-@Roles(Role.CONFIGURATOR)
 @UseGuards(AuthenticatedGuard)
 export class CoordinatorController {
   constructor(private personnelService: PersonnelService) {}
@@ -44,9 +40,7 @@ export class CoordinatorController {
   }
 
   @Get(':annual_coordinator_id')
-  async findOne(
-    @Param('annual_coordinator_id') annual_coordinator_id: string
-  ) {
+  async findOne(@Param('annual_coordinator_id') annual_coordinator_id: string) {
     const configurator = await this.personnelService.findOne(
       Role.COORDINATOR,
       annual_coordinator_id
@@ -55,6 +49,7 @@ export class CoordinatorController {
   }
 
   @Put(':annual_coordinator_id/archive')
+  @Roles(Role.CONFIGURATOR)
   async archive(
     @Req() request: Request,
     @Param('annual_coordinator_id') annual_coordinator_id: string
@@ -76,6 +71,7 @@ export class CoordinatorController {
   }
 
   @Post('new')
+  @Roles(Role.CONFIGURATOR)
   async addNewCoordinator(
     @Req() request: Request,
     @Body() data: CoordinatorPostDto

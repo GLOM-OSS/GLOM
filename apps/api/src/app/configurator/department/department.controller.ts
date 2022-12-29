@@ -25,7 +25,6 @@ import { ApiTags } from '@nestjs/swagger';
 
 @Controller()
 @ApiTags('Departments')
-@Roles(Role.CONFIGURATOR)
 @UseGuards(AuthenticatedGuard)
 export class DepartmentController {
   constructor(private departmentService: DepartmentService) {}
@@ -45,6 +44,7 @@ export class DepartmentController {
   }
 
   @Post('new')
+  @Roles(Role.CONFIGURATOR)
   async addNewDepartment(
     @Req() request: Request,
     @Body() newDepartment: DepartmentPostDto
@@ -63,6 +63,7 @@ export class DepartmentController {
   }
 
   @Put(':department_code/edit')
+  @Roles(Role.CONFIGURATOR)
   async editDepartmentName(
     @Req() request: Request,
     @Param('department_code') department_code: string,

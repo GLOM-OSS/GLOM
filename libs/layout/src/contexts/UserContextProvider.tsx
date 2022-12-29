@@ -60,6 +60,15 @@ function UserContextProvider({
     person_id: '',
     phone_number: '',
     preferred_lang: 'En',
+    annualConfigurator: { annual_configurator_id: 'lsk', is_sudo: false },
+    annualRegistry: { annual_registry_id: 'lsk' },
+    annualTeacher: {
+      annual_teacher_id: 'hstl',
+      hourly_rate: 10000,
+      has_signed_convention: false,
+      teacher_id: 'htsl',
+      classroomDivisions: ['Hello', 'Yes'],
+    },
 
     userDispatch: () => null,
   };

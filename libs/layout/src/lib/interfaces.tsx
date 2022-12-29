@@ -5,7 +5,7 @@ import { AcademicYearInterface } from '@squoolr/auth';
 export interface NavChild {
   title: string;
   route: string;
-  page_title:string
+  page_title: string;
 }
 
 export interface NavItem {
@@ -20,10 +20,23 @@ export interface NavItem {
 export type Gender = 'Male' | 'Female';
 export type Lang = 'En' | 'Fr';
 
-export type UserAction = { type: "LOAD_USER";   payload: { user: User; };
-} | { type: "CLEAR_USER" };
+export type UserAction =
+  | { type: 'LOAD_USER'; payload: { user: User } }
+  | { type: 'CLEAR_USER' };
 
-export type PersonnelRole = 'secretary'|'teacher'|'registry'
+export type PersonnelRole =
+  | 'secretary'
+  | 'teacher'
+  | 'registry'
+  | 'coordinator';
+
+export interface ClassroomDivisionInterface {
+  annual_classroom_division_id: string;
+  annual_classroom_id: string;
+  classroom_name: string;
+  classroom_short_name: string;
+  classroom_code: string;
+}
 
 export interface User {
   person_id: string;
@@ -47,12 +60,32 @@ export interface User {
   annualTeacher?: {
     annual_teacher_id: string;
     hourly_rate: number;
-    origin_institute: string;
+    origin_institute?: string;
     has_signed_convention: boolean;
     teacher_id: string;
+    classroomDivisions?: string[];
   };
   annualRegistry?: {
     annual_registry_id: string;
   };
-  activeYear: AcademicYearInterface
+  activeYear: AcademicYearInterface;
 }
+
+export const getUserRoles = ({
+  annualConfigurator,
+  annualRegistry,
+  annualTeacher,
+}: User): PersonnelRole[] => {
+  const newRoles: (PersonnelRole | undefined)[] = [
+    annualConfigurator ? 'secretary' : undefined,
+    annualRegistry ? 'registry' : undefined,
+    annualTeacher ? 'teacher' : undefined,
+    annualTeacher?.classroomDivisions && annualTeacher.classroomDivisions.length > 0
+      ? 'coordinator'
+      : undefined,
+  ];
+  const Roles: PersonnelRole[] = newRoles.filter(
+    (_) => _ !== undefined
+  ) as PersonnelRole[];
+  return Roles.sort((a, b) => (a > b ? 1 : -1));
+};

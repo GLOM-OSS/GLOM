@@ -12,6 +12,7 @@
     "axios": "libs/axios",
     "dialog-transition": "libs/dialog-transition",
     "encrypter": "libs/encrypter",
+    "interfaces": "libs/interfaces",
     "landing": "apps/landing",
     "landing-e2e": "apps/landing-e2e",
     "layout": "libs/layout",

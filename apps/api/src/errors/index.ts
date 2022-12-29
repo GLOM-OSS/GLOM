@@ -7,8 +7,8 @@ export const AUTH01 = {
   Fr: `Votre jeton d'accès à Google ou votre adresse électronique a été invalidée.`,
 };
 export const AUTH02 = {
-  En: `Sorry, your have more than two session open. Consider closing one.`,
-  Fr: `Désolé, vous avez plus de deux sessions ouvertes. Pensez à en fermer une.`,
+  En: `Sorry, your have more than two session open. Consider closing them all.`,
+  Fr: `Désolé, vous avez plus de deux sessions ouvertes. Pensez à tous les fermer.`,
 };
 export const AUTH03 = (message: string) => ({
   En: `Your login request failed with error: ${message}`,
@@ -43,11 +43,11 @@ export const AUTH401 = {
   Fr: 'Adresse mail ou mot de passe incorrect.',
 };
 export const AUTH404 = (search: string) => ({
-  En: `"${search} not found.`,
+  En: `${search} not found.`,
   Fr: `${search} introuvable`,
 });
 export const sAUTH404 = {
-  En: `Your rest password request cannot be found or has expired.`,
+  En: `Your reset password request cannot be found or has expired.`,
   Fr: `Votre demande de renouvellement de mot de passe est introuvable ou a expiré.`,
 };
 
@@ -91,4 +91,20 @@ export const ERR05 = {
 export const ERR06 = {
   En: `Sorry, there is an overlap of academic years`,
   Fr: `Désolé, Il y a chevauchement des annees academiques`,
+};
+export const ERR07 = {
+  En: `Sorry, you can only create UE or UV in the fields you belong to.`,
+  Fr: `Désolé, vous ne pouvez creer d'UE ou D'UV que dans les filières auxquelles vous appartenez`,
+};
+export const ERR08 = {
+  En: `Semester number cannot be greater than it cycle total number of semester.`,
+  Fr: `Le numéro de semestre ne peut etre plus superieur au nombre total de semestres de son cycle.`,
+};
+export const ERR09 = {
+  En: `Sorry, overlapping values where detected.`,
+  Fr: `Désolé, des chauvechements de valeur ont été détecté.`,
+};
+export const ERR10 = {
+  En: `Sorry, module total weight should equals 1.`,
+  Fr: `Désolé, le poids total d'un module doit être 1.`,
 };

@@ -15,14 +15,29 @@ export class AppController {
   async getCycles() {
     return { cycles: await this.appService.getCycles() };
   }
-  
+
   @Get('teacher-types')
   async getTeacherTypes() {
-    return { teacher_types: await this.appService.getTeacherTypes() };
+    return { teacherTypes: await this.appService.getTeacherTypes() };
   }
 
-  @Get('teacher-grades')
+  @Get('teaching-grades')
   async getTeacherGrades() {
-    return { teacher_grades: await this.appService.getTeacherGrades() };
+    return { teachingGrades: await this.appService.getTeacherGrades() };
+  }
+
+  @Get('evaluation-types')
+  async getEvalutaionTpes() {
+    return { evaluationTypes: await this.appService.getEvaluationTypes() };
+  }
+
+  @Get('subject-parts')
+  async getSubjectParts() {
+    return { subjectParts: await this.appService.getSubjectParts() };
+  }
+
+  @Get('weighting-grades')
+  async getGrades() {
+    return { weightingGrades: await this.appService.getGrades() };
   }
 }

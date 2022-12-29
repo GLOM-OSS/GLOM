@@ -14,7 +14,6 @@ export default function PrimaryNav({
   setActiveNavItem,
   openLogoutDialog,
   activeNavItem,
-  openSecondaryNav,
 }: {
   isLoggingOut: boolean;
   isLogoutDialogOpen: boolean;
@@ -22,7 +21,6 @@ export default function PrimaryNav({
   setActiveNavItem: (navItem: NavItem) => void;
   openLogoutDialog: () => void;
   activeNavItem?: NavItem;
-  openSecondaryNav: () => void;
 }) {
   const navigate = useNavigate();
   const intl = useIntl();
@@ -66,7 +64,6 @@ export default function PrimaryNav({
             activeNavItem={activeNavItem}
             handleSelect={() => {
               setActiveNavItem(navItem);
-              // openSecondaryNav();
             }}
           />
         ))}

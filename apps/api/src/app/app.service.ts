@@ -6,33 +6,84 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class AppService {
   constructor(private prismaService: PrismaService) {
-    this.prismaService.person.count({}).then((count) => {
-      if (count === 0) {
-        this.seedAdmin();
-      }
+    this.prismaService.person.count().then((count) => {
+      if (count === 0) this.seedAdmin();
     });
-    this.prismaService.cycle.count({}).then((cyleCount) => {
-      if (cyleCount === 0) {
-        this.seedCycles();
-      }
+    this.prismaService.cycle.count().then((numberOfCycles) => {
+      if (numberOfCycles === 0) this.seedCycles();
     });
-    this.prismaService.teachingGrade.count({}).then((teacherGradeCount) => {
-      if (teacherGradeCount === 0) {
-        this.seedTeacherGrades();
-      }
+    this.prismaService.teachingGrade.count().then((numberOfTeacherGrades) => {
+      if (numberOfTeacherGrades === 0) this.seedTeacherGrades();
     });
-    this.prismaService.teacherType.count({}).then((teacherTypeCount) => {
-      if (teacherTypeCount === 0) {
-        this.seedTeacherTypes();
-      }
+    this.prismaService.teacherType.count().then((numberOfTeacherTypes) => {
+      if (numberOfTeacherTypes === 0) this.seedTeacherTypes();
+    });
+    this.prismaService.subjectPart.count().then((numberOfSubjectParts) => {
+      if (numberOfSubjectParts === 0) this.seedSubjectParts();
+    });
+    this.prismaService.grade.count().then((numberOfGrades) => {
+      if (numberOfGrades === 0) this.seedGrades();
+    });
+    this.prismaService.evaluationType.count().then((numberEvaluationTypes) => {
+      if (numberEvaluationTypes === 0) this.seedEvaluationTypes();
     });
   }
   getData(): { message: string } {
     return { message: 'Welcome to api!' };
   }
-  
+
+  private async seedEvaluationTypes() {
+    await this.prismaService.evaluationType.createMany({
+      data: [{ evaluation_type: 'EXAM' }, { evaluation_type: 'CA' }],
+    });
+  }
+
+  private async seedGrades() {
+    await this.prismaService.grade.createMany({
+      data: [
+        { grade_value: 'A+' },
+        { grade_value: 'A' },
+        { grade_value: 'A-' },
+        { grade_value: 'B+' },
+        { grade_value: 'B' },
+        { grade_value: 'B-' },
+        { grade_value: 'C+' },
+        { grade_value: 'C' },
+        { grade_value: 'C-' },
+        { grade_value: 'D+' },
+        { grade_value: 'D' },
+        { grade_value: 'D-' },
+        { grade_value: 'F' },
+        { grade_value: 'E' },
+      ],
+    });
+  }
+
+  private async seedSubjectParts() {
+    await this.prismaService.subjectPart.createMany({
+      data: [
+        {
+          subject_part_id: process.env['NX_THEORY_SUBJECT_PART_ID'] as string,
+          subject_part_name: 'THEORY',
+        },
+        {
+          subject_part_id: process.env[
+            'NX_PRACTICAL_SUBJECT_PART_ID'
+          ] as string,
+          subject_part_name: 'PRACTICAL',
+        },
+        {
+          subject_part_id: process.env[
+            'NX_GUIDED_WORK_SUBJECT_PART_ID'
+          ] as string,
+          subject_part_name: 'GUIDED_WOR',
+        },
+      ],
+    });
+  }
+
   //seed student
-  async seedStudent(annual_configurator_id: string) {
+  private async seedStudent(annual_configurator_id: string) {
     await this.prismaService.annualStudent.create({
       data: {
         Student: {
@@ -98,7 +149,7 @@ export class AppService {
   }
 
   //seed admin
-  async seedAdmin() {
+  private async seedAdmin() {
     await this.prismaService.login.create({
       data: {
         password: bcrypt.hashSync('123456789', Number(process.env.SALT)),
@@ -117,7 +168,7 @@ export class AppService {
     });
   }
   //seed cycles
-  async seedCycles() {
+  private async seedCycles() {
     await this.prismaService.cycle.createMany({
       data: [
         { cycle_name: 'BACHELOR', cycle_type: 'LONG', number_of_years: 3 },
@@ -132,7 +183,7 @@ export class AppService {
     });
   }
 
-  async seedTeacherGrades() {
+  private async seedTeacherGrades() {
     await this.prismaService.teachingGrade.createMany({
       data: [
         { teaching_grade: 'CLASS_C' },
@@ -143,7 +194,8 @@ export class AppService {
       ],
     });
   }
-  async seedTeacherTypes() {
+
+  private async seedTeacherTypes() {
     // vacataire, permanent, missionnaire
     await this.prismaService.teacherType.createMany({
       data: [
@@ -162,5 +214,14 @@ export class AppService {
   }
   getTeacherTypes() {
     return this.prismaService.teacherType.findMany();
+  }
+  getEvaluationTypes() {
+    return this.prismaService.teachingGrade.findMany();
+  }
+  getSubjectParts() {
+    return this.prismaService.subjectPart.findMany();
+  }
+  getGrades() {
+    return this.prismaService.grade.findMany();
   }
 }

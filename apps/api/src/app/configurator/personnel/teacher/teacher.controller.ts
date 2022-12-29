@@ -26,7 +26,6 @@ import { PersonnelService } from '../personnel.service';
 
 @Controller()
 @ApiTags('Personnel/teachers')
-@Roles(Role.CONFIGURATOR)
 @UseGuards(AuthenticatedGuard)
 export class TeacherController {
   constructor(
@@ -61,6 +60,7 @@ export class TeacherController {
   }
 
   @Post('new')
+  @Roles(Role.CONFIGURATOR)
   async addNewTeacher(
     @Req() request: Request,
     @Body() newTeacher: TeacherPostDto
@@ -85,6 +85,7 @@ export class TeacherController {
   }
 
   @Put(':annual_teacher_id/edit')
+  @Roles(Role.CONFIGURATOR)
   async editTeacher(
     @Req() request: Request,
     @Param('annual_teacher_id') annual_teacher_id: string,
@@ -93,19 +94,20 @@ export class TeacherController {
     const {
       annualConfigurator: { annual_configurator_id },
     } = request.user as DeserializeSessionData;
-    // try {
+    try {
       await this.teacherService.editTeacher(
         annual_teacher_id,
         staffData,
         annual_configurator_id
       );
       return;
-    // } catch (error) {
-    //   throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    // }
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Put(':annual_teacher_id/reset-code')
+  @Roles(Role.CONFIGURATOR)
   async resetStaffCode(
     @Req() request: Request,
     @Param('annual_teacher_id') annual_teacher_id: string
@@ -127,6 +129,7 @@ export class TeacherController {
   }
 
   @Put(':annual_teacher_id/archive')
+  @Roles(Role.CONFIGURATOR)
   async archivePersonnel(
     @Req() request: Request,
     @Param('annual_teacher_id') annual_teacher_id: string

@@ -7,7 +7,7 @@ import {
   Param,
   Post,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -18,14 +18,12 @@ import { AcademicYearPostDto, TemplateYearPostDto } from '../configurator.dto';
 import { AcademicYearService } from './academic-year.service';
 
 @Controller()
-@Roles(Role.CONFIGURATOR)
 @ApiTags('Academic Years')
 @UseGuards(AuthenticatedGuard)
 export class AcademicYearController {
   constructor(private academicYearService: AcademicYearService) {}
 
   @Get('/all')
-  @UseGuards(AuthenticatedGuard)
   async getAcademicYears(@Req() request: Request) {
     const { login_id } = request.session.passport.user;
     return {
@@ -34,6 +32,7 @@ export class AcademicYearController {
   }
 
   @Post('/new')
+  @Roles(Role.CONFIGURATOR)
   async addNewAcademicYear(
     @Req() request: Request,
     @Body() newAcademicYear: AcademicYearPostDto
@@ -56,6 +55,7 @@ export class AcademicYearController {
   }
 
   @Post(':template_year_id/template')
+  @Roles(Role.CONFIGURATOR)
   async templateAcademicYear(
     @Req() request: Request,
     @Body() templateOptions: TemplateYearPostDto,
@@ -65,13 +65,13 @@ export class AcademicYearController {
       annualConfigurator: { annual_configurator_id },
     } = request.user as DeserializeSessionData;
     // try {
-      return {
-        academic_year_id: await this.academicYearService.templateAcademicYear(
-          template_year_id,
-          templateOptions,
-          annual_configurator_id
-        ),
-      };
+    return {
+      academic_year_id: await this.academicYearService.templateAcademicYear(
+        template_year_id,
+        templateOptions,
+        annual_configurator_id
+      ),
+    };
     // } catch (error) {
     //   throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     // }

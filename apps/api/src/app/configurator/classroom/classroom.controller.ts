@@ -22,7 +22,6 @@ import { ApiTags } from '@nestjs/swagger';
 
 @Controller()
 @ApiTags('Classrooms')
-@Roles(Role.CONFIGURATOR)
 @UseGuards(AuthenticatedGuard)
 export class ClassroomController {
   constructor(private classroomService: ClassroomService) {}
@@ -55,6 +54,7 @@ export class ClassroomController {
   }
 
   @Put(':classroom_code/edit')
+  @Roles(Role.CONFIGURATOR)
   async editClassroom(
     @Req() request: Request,
     @Param('classroom_code') classroom_code: string,
