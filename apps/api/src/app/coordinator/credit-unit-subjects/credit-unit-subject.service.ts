@@ -59,6 +59,13 @@ export class CreditUnitSubjectService {
         };
       }
     );
+    const evaluationSubTypes =
+      await this.prismaService.annualEvaluationSubType.findMany({
+        where: {
+          evaluation_sub_type_name: { in: ['CA', 'EXAM'] },
+          academic_year_id: annualCreditUnit.academic_year_id,
+        },
+      });
     return this.prismaService.annualCreditUnitSubject.create({
       data: {
         objective,
@@ -71,6 +78,16 @@ export class CreditUnitSubjectService {
           createMany: {
             data: annualCreditUnitHasSubjectParts,
             skipDuplicates: true,
+          },
+        },
+        Evaluations: {
+          createMany: {
+            data: evaluationSubTypes.map(
+              ({ annual_evaluation_sub_type_id }) => ({
+                annual_evaluation_sub_type_id,
+                created_by,
+              })
+            ),
           },
         },
       },
