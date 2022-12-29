@@ -8,7 +8,7 @@ export interface Course extends UVMarkStatus {
   annual_credit_unit_subject_id: string;
   credit_unit_code: string;
   credit_unit_name: string;
-  classroom_acronym: string;
+  classroom_acronym: string[];
   has_course_plan: boolean;
 }
 
