@@ -26,8 +26,8 @@ export function CourseLane({
   course: {
     annual_credit_unit_subject_id: acus_id,
     classroom_acronyms: c_accr,
-    credit_unit_code: cu_code,
-    credit_unit_name: cu_name,
+    subject_code: sc,
+    subject_title: st,
     has_course_plan: hcp,
     is_ca_available: has_ca,
     is_exam_available: has_exam,
@@ -52,8 +52,8 @@ export function CourseLane({
       hover
     >
       <TableCell>{p}</TableCell>
-      <TableCell>{cu_code}</TableCell>
-      <TableCell>{cu_name}</TableCell>
+      <TableCell>{sc}</TableCell>
+      <TableCell>{st}</TableCell>
       <TableCell>{c_accr.join(', ')}</TableCell>
       <TableCell>
         <Chip

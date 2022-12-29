@@ -38,8 +38,8 @@ export default function TeacherCourses() {
           {
             annual_credit_unit_subject_id: 'lsei',
             classroom_acronyms: ['irt3', 'irt2', 'imb2'],
-            credit_unit_code: 'UE00353',
-            credit_unit_name: 'Biologie Medical',
+            subject_code: 'UE00353',
+            subject_title: 'Biologie Medical',
             has_course_plan: false,
             is_ca_available: true,
             is_exam_available: true,
