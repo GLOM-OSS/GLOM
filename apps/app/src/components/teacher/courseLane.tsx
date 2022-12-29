@@ -4,7 +4,7 @@ import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router';
 
-export function CourseSkeleton() {
+export function TableLaneSkeleton({cols=6}:{cols?:number}) {
   return (
     <TableRow
       sx={{
@@ -13,7 +13,7 @@ export function CourseSkeleton() {
         padding: `0 ${theme.spacing(4.625)}`,
       }}
     >
-      {[...new Array(6)].map((_, index) => (
+      {[...new Array(cols)].map((_, index) => (
         <TableCell component="th" scope="row" key={index}>
           <Skeleton animation="wave" />
         </TableCell>
