@@ -849,9 +849,19 @@ model AnnualEvaluationTypeWeightingAudit {
     AnnualRegistry                            AnnualRegistry                @relation(fields: [audited_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
+enum EvaluationSubTypeEnum {
+    CA
+    EXAM
+    RESIT
+    PRACTICAL
+    ASSIGNMENT
+    GUIDED_WORK
+
+    @@map("evaluation_sub_type_enum")
+}
 model AnnualEvaluationSubType {
     annual_evaluation_sub_type_id String         @id @default(uuid()) @db.VarChar(36)
-    evaluation_sub_type_name      String         @db.VarChar(45)
+    evaluation_sub_type_name      EvaluationSubTypeEnum
     evaluation_sub_type_weight    Int
     academic_year_id              String         @db.VarChar(36)
     AcademicYear                  AcademicYear   @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
@@ -992,7 +1002,7 @@ model AnnualSemesterExamAcessAudit {
 
 model Evaluation {
     evaluation_id                 String                  @id @default(uuid()) @db.VarChar(36)
-    examination_date              DateTime                @db.DateTime(0)
+    examination_date              DateTime?               @db.DateTime(0)
     annual_evaluation_sub_type_id String                  @db.VarChar(36)
     AnnualEvaluationSubType       AnnualEvaluationSubType @relation(fields: [annual_evaluation_sub_type_id], references: [annual_evaluation_sub_type_id], onDelete: Cascade, onUpdate: Cascade)
     annual_credit_unit_subject_id String                  @db.VarChar(36)
