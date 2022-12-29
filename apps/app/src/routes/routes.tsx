@@ -11,6 +11,7 @@ import Majors from '../pages/secretary/majors';
 import NewAcademicYear from '../pages/secretary/newAcademicYear';
 import Personnel from '../pages/secretary/personnel';
 import SigninPage from '../pages/signin';
+import TeacherCourses from '../pages/teacher';
 
 export const routes = [
   {
@@ -92,6 +93,23 @@ export const routes = [
       {
         path: 'module-follow-up',
         element: <Typography>Module marks follow up</Typography>,
+      },
+      { path: '*', element: <Navigate to="/" /> },
+    ],
+  },
+  {
+    path: '/teacher/configurations',
+    element: <AppLayout />,
+    children: [
+      {
+        path: 'courses',
+        children: [
+          { path: '', element: <TeacherCourses /> },
+          {
+            path: ':annual_credit_unit_subject_id',
+            element: <Typography>Course Details</Typography>,
+          },
+        ],
       },
       { path: '*', element: <Navigate to="/" /> },
     ],
