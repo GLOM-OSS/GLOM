@@ -23,6 +23,7 @@ import { ConfiguratorModule } from './configurator/configurator.module';
 import { CoordinatorModule } from './coordinator/coordinator.module';
 import { DemandModule } from './demand/demand.module';
 import { RegistryModule } from './registry/registry.module';
+import { TeacherModule } from './teacher/teacher.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { RegistryModule } from './registry/registry.module';
     ConfiguratorModule,
     CoordinatorModule,
     RegistryModule,
+    TeacherModule,
   ],
   controllers: [AppController],
   providers: [
