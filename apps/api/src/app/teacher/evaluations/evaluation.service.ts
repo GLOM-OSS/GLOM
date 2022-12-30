@@ -124,4 +124,48 @@ export class EvaluationService {
             }
     );
   }
+
+  async updateEvaluation(
+    evaluation_id: string,
+    {
+      anonimated_at,
+      examination_date,
+      published_at,
+    }: { anonimated_at?: Date; examination_date?: Date; published_at?: Date },
+    audited_by: string
+  ) {
+    const evaluation = await this.prismaService.evaluation.findUnique({
+      where: { evaluation_id },
+    });
+    if (!evaluation)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Evaluation')),
+        HttpStatus.NOT_FOUND
+      );
+    await this.prismaService.evaluation.update({
+      data: {
+        ...(anonimated_at
+          ? {
+              anonimated_at: new Date(anonimated_at),
+              anonimated_by: audited_by,
+            }
+          : {}),
+        ...(published_at
+          ? { published_at: new Date(published_at), published_by: audited_by }
+          : {}),
+        ...(examination_date
+          ? {
+              examination_date,
+              EvaluationAudits: {
+                create: {
+                  audited_by,
+                  examination_date: evaluation.examination_date,
+                },
+              },
+            }
+          : {}),
+      },
+      where: { evaluation_id },
+    });
+  }
 }

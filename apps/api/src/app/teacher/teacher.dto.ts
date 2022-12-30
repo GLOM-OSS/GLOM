@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID } from 'class-validator';
+import { IsDateString, IsUUID } from 'class-validator';
 
 export class EvaluationParamDto {
   @IsUUID()
@@ -9,4 +9,10 @@ export class EvaluationParamDto {
   @IsUUID()
   @ApiProperty()
   annual_credit_unit_subject_id: string;
+}
+
+export class ExamDatePutDto {
+  @ApiProperty()
+  @IsDateString()
+  examination_date: Date;
 }

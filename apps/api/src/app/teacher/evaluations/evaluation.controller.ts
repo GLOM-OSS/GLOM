@@ -1,7 +1,18 @@
-import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { DeserializeSessionData } from '../../../utils/types';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
+import { ExamDatePutDto } from '../teacher.dto';
 import { EvaluationService } from './evaluation.service';
 
 @Controller()
@@ -45,5 +56,25 @@ export class EvaluationController {
       annual_credit_unit_subject_id,
       annual_evaluation_sub_type_id,
     });
+  }
+
+  @Put(':evaluation_id/exam-date')
+  async updateEvaluation(
+    @Req() request: Request,
+    @Param('evaluation_id') evaluation_id: string,
+    @Body() { examination_date }: ExamDatePutDto
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      await this.evaluationService.updateEvaluation(
+        evaluation_id,
+        { examination_date: new Date(examination_date) },
+        annual_teacher_id
+      );
+    } catch (error) {
+      throw new HttpException(error?.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
