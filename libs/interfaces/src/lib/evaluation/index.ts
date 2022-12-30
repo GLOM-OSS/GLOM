@@ -17,7 +17,7 @@ export interface EvaluationHasStudent {
   matricule: string;
   fullname: string;
   mark: number|null;
-  last_updated: Date;
+  last_updated: Date|null;
 }
 
 export interface AnonimatedEvaluationHasStudent
