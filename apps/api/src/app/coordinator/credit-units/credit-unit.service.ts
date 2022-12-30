@@ -1,8 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { EvaluationSubTypeEnum, Prisma } from '@prisma/client';
 import { UEMajor } from '@squoolr/interfaces';
 import { AUTH404 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { EvaluationsQeuryDto } from '../../teacher/teacher.dto';
 import { CreditUnitPostDto, CreditUnitQuery } from '../coordinator.dto';
 
 @Injectable()
@@ -133,11 +134,106 @@ export class CreditUnitService {
         AnnualCreditUnitAudits: {
           create: {
             ...creditUnit,
-            audited_by: annual_teacher_id
+            audited_by: annual_teacher_id,
           },
         },
       },
       where: { annual_credit_unit_id },
     });
+  }
+
+  async getCreditUnitMarkStatus(
+    academic_year_id: string,
+    { annual_credit_unit_subject_id, ...evaluationQuery }: EvaluationsQeuryDto
+  ) {
+    const annualCreditUnits =
+      await this.prismaService.annualCreditUnit.findMany({
+        select: {
+          credit_points: true,
+          credit_unit_code: true,
+          credit_unit_name: true,
+          annual_credit_unit_id: true,
+          AnnualCreditUnitSubjects: {
+            select: {
+              subject_code: true,
+              subject_title: true,
+              annual_credit_unit_subject_id: true,
+              Evaluations: {
+                select: {
+                  published_at: true,
+                  examination_date: true,
+                  EvaluationHasStudents: {
+                    select: { evaluation_has_student_id: true },
+                  },
+                  AnnualEvaluationSubType: {
+                    select: { evaluation_sub_type_name: true },
+                  },
+                },
+              },
+            },
+          },
+        },
+        where: {
+          ...evaluationQuery,
+          AnnualCreditUnitSubjects: {
+            some: { annual_credit_unit_subject_id },
+          },
+        },
+      });
+    const activeYear = await this.prismaService.academicYear.findUnique({
+      where: { academic_year_id },
+    });
+    return annualCreditUnits.map(
+      ({ AnnualCreditUnitSubjects, ...creditUnit }) => {
+        const subjectMarkStatus = AnnualCreditUnitSubjects.map(
+          ({ Evaluations, ...subject }) => {
+            const resitEvaluation = Evaluations.find(
+              ({ AnnualEvaluationSubType: { evaluation_sub_type_name } }) =>
+                evaluation_sub_type_name === EvaluationSubTypeEnum.RESIT
+            );
+            return {
+              ...subject,
+              is_ca_available: Boolean(
+                Evaluations.find(
+                  ({ AnnualEvaluationSubType: { evaluation_sub_type_name } }) =>
+                    evaluation_sub_type_name === EvaluationSubTypeEnum.CA
+                )?.published_at
+              ),
+              is_exam_available: Boolean(
+                Evaluations.find(
+                  ({ AnnualEvaluationSubType: { evaluation_sub_type_name } }) =>
+                    evaluation_sub_type_name === EvaluationSubTypeEnum.EXAM
+                )?.published_at
+              ),
+              is_resit_available: Boolean(
+                activeYear.ended_at ?? resitEvaluation
+                  ? (new Date(resitEvaluation.examination_date) < new Date() &&
+                      resitEvaluation.EvaluationHasStudents.length === 0) ??
+                      resitEvaluation.published_at
+                  : false
+              ),
+            };
+          }
+        );
+        const totalAvailableMarks = subjectMarkStatus.reduce(
+          (
+            total,
+            { is_resit_available, is_exam_available, is_ca_available }
+          ) => {
+            if (is_ca_available) total++;
+            if (is_resit_available) total++;
+            if (is_exam_available) total++;
+            return total;
+          },
+          0
+        );
+        return {
+          ...creditUnit,
+          subjectMarkStatus,
+          availability_percentage:
+            (totalAvailableMarks * 100) / (subjectMarkStatus.length * 3),
+        };
+      }
+    );
   }
 }

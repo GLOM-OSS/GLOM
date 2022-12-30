@@ -48,7 +48,7 @@ export class CourseService {
                 major_id: true,
                 AnnualCreditUnits: {
                   select: {
-                    AnnualCreditUnitHasSubjects: {
+                    AnnualCreditUnitSubjects: {
                       select: { subject_code: true },
                     },
                   },
@@ -94,8 +94,8 @@ export class CourseService {
                 Major: { AnnualCreditUnits },
               },
             }) =>
-              AnnualCreditUnits.find(({ AnnualCreditUnitHasSubjects }) =>
-                AnnualCreditUnitHasSubjects.find(
+              AnnualCreditUnits.find(({ AnnualCreditUnitSubjects }) =>
+                AnnualCreditUnitSubjects.find(
                   (_) => _.subject_code === subject_code
                 )
               )

@@ -18,6 +18,7 @@ import { ERR07, ERR08 } from '../../../errors';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
+import { EvaluationsQeuryDto } from '../../teacher/teacher.dto';
 import {
   CreditUnitPostDto,
   CreditUnitPutDto,
@@ -45,6 +46,21 @@ export class CreditUnitController {
   @Get('all')
   async getCrediUnits(@Query() query: CreditUnitQuery) {
     return await this.creditUnitService.getCreditUnits(query);
+  }
+
+  @Get('mark-status')
+  @Roles(Role.COORDINATOR)
+  async getCreditUnitMarkStatus(
+    @Req() request: Request,
+    @Query() query: EvaluationsQeuryDto
+  ) {
+    const {
+      activeYear: { academic_year_id },
+    } = request.user as DeserializeSessionData;
+    return this.creditUnitService.getCreditUnitMarkStatus(
+      academic_year_id,
+      query
+    );
   }
 
   @Get(':credit_unit_id_or_code')

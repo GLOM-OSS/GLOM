@@ -391,8 +391,8 @@ model AnnualTeacher {
     AnnualClassroomDivisionAudits               AnnualClassroomDivisionAudit[]
     AnnualCreditUnits                           AnnualCreditUnit[]
     AnnualCreditUnitAudits                      AnnualCreditUnitAudit[]
-    AnnualCreditUnitHasSubjects                 AnnualCreditUnitSubject[]
-    AnnualCreditUnitHasSubjectAudits            AnnualCreditUnitSubjectAudit[]
+    AnnualCreditUnitSubjects                    AnnualCreditUnitSubject[]
+    AnnualCreditUnitSubjectAudits               AnnualCreditUnitSubjectAudit[]
     AnnualCreditHasSubjectParts                 AnnualCreditUnitHasSubjectPart[]      @relation(name: "AnnualTeacher")
     CreatedAnnualCreditUnitHasSubjectParts      AnnualCreditUnitHasSubjectPart[]      @relation(name: "CreatedBy_AnnualTeacher")
     AnnualCreditHasSubjectPartAudits            AnnualCreditUnitHasSubjectPartAudit[] @relation(name: "AnnualTeacher")
@@ -670,8 +670,8 @@ model AnnualCreditUnit {
     created_by            String        @db.VarChar(36)
     AnnualTeacher         AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AnnualCreditUnitAudits      AnnualCreditUnitAudit[]
-    AnnualCreditUnitHasSubjects AnnualCreditUnitSubject[]
+    AnnualCreditUnitAudits   AnnualCreditUnitAudit[]
+    AnnualCreditUnitSubjects AnnualCreditUnitSubject[]
 }
 
 model AnnualCreditUnitAudit {
@@ -728,7 +728,7 @@ model AnnualCreditUnitSubjectAudit {
     audited_by                          String                  @db.VarChar(36)
     AnnualTeacher                       AnnualTeacher           @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
     annual_credit_unit_subject_id       String                  @db.VarChar(36)
-    AnnualCreditUnit                    AnnualCreditUnitSubject @relation(fields: [annual_credit_unit_subject_id], references: [annual_credit_unit_subject_id], onDelete: Cascade, onUpdate: Cascade)
+    AnnualCreditUnitSubject             AnnualCreditUnitSubject @relation(fields: [annual_credit_unit_subject_id], references: [annual_credit_unit_subject_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model AnnualCreditUnitHasSubjectPart {
@@ -738,7 +738,7 @@ model AnnualCreditUnitHasSubjectPart {
     subject_part_id                        String                  @db.VarChar(36)
     SubjectPart                            SubjectPart             @relation(fields: [subject_part_id], references: [subject_part_id], onDelete: Cascade, onUpdate: Cascade)
     annual_credit_unit_subject_id          String                  @db.VarChar(36)
-    AnnualCreditUnit                       AnnualCreditUnitSubject @relation(fields: [annual_credit_unit_subject_id], references: [annual_credit_unit_subject_id], onDelete: Cascade, onUpdate: Cascade)
+    AnnualCreditUnitSubject                AnnualCreditUnitSubject @relation(fields: [annual_credit_unit_subject_id], references: [annual_credit_unit_subject_id], onDelete: Cascade, onUpdate: Cascade)
     annual_teacher_id                      String                  @db.VarChar(36)
     AnnualTeacher                          AnnualTeacher           @relation(name: "AnnualTeacher", fields: [annual_teacher_id], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
     created_by                             String                  @db.VarChar(36)
