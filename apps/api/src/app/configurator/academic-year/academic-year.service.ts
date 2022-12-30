@@ -3,6 +3,8 @@ import {
   AcademicYear,
   AcademicYearStatus,
   CarryOverSystemEnum,
+  EvaluationSubTypeEnum,
+  EvaluationTypeEnum,
   Prisma,
 } from '@prisma/client';
 import { randomUUID } from 'crypto';
@@ -71,8 +73,11 @@ export class AcademicYearService {
       new Date(starts_at).getFullYear(),
       new Date(ends_at).getFullYear()
     );
-    const { AnnualCarryOverSytems, AnnualSemesterExamAcess } =
-      this.buildAcademicYearDefaultCreateInput(added_by);
+    const {
+      AnnualCarryOverSytems,
+      AnnualSemesterExamAcess,
+      AnnualEvaluationSubTypes,
+    } = await this.buildAcademicYearDefaultCreateInput(added_by);
     const [{ academic_year_id }] = await this.prismaService.$transaction([
       this.academicYearService.create({
         data: {
@@ -85,6 +90,7 @@ export class AcademicYearService {
           School: { connect: { school_id } },
           AnnualCarryOverSytems,
           AnnualSemesterExamAcess,
+          AnnualEvaluationSubTypes,
         },
       }),
       this.annualConfiguratorService.create({
@@ -309,8 +315,11 @@ export class AcademicYearService {
       new Date(starts_at).getFullYear(),
       new Date(ends_at).getFullYear()
     );
-    const { AnnualCarryOverSytems, AnnualSemesterExamAcess } =
-      this.buildAcademicYearDefaultCreateInput(added_by);
+    const {
+      AnnualCarryOverSytems,
+      AnnualSemesterExamAcess,
+      AnnualEvaluationSubTypes,
+    } = await this.buildAcademicYearDefaultCreateInput(added_by);
     await this.prismaService.$transaction([
       this.academicYearService.create({
         data: {
@@ -324,6 +333,7 @@ export class AcademicYearService {
           School: { connect: { school_id } },
           AnnualCarryOverSytems,
           AnnualSemesterExamAcess,
+          AnnualEvaluationSubTypes,
         },
       }),
       this.annualConfiguratorService.create({
@@ -465,7 +475,11 @@ export class AcademicYearService {
     return academic_years;
   }
 
-  private buildAcademicYearDefaultCreateInput(annual_configurator_id: string) {
+  private async buildAcademicYearDefaultCreateInput(
+    annual_configurator_id: string
+  ) {
+    const evaluationTypes = await this.prismaService.evaluationType.findMany();
+
     return {
       AnnualCarryOverSytems: {
         create: {
@@ -487,6 +501,33 @@ export class AcademicYearService {
               annual_semester_number: 2,
               configured_by: annual_configurator_id,
               payment_percentage: 0,
+            },
+          ],
+        },
+      },
+      AnnualEvaluationSubTypes: {
+        createMany: {
+          data: [
+            {
+              evaluation_sub_type_name: EvaluationSubTypeEnum.CA,
+              evaluation_type_id: evaluationTypes.find(
+                (_) => _.evaluation_type === EvaluationTypeEnum.CA
+              ).evaluation_type_id,
+              evaluation_sub_type_weight: 100,
+            },
+            {
+              evaluation_sub_type_name: EvaluationSubTypeEnum.EXAM,
+              evaluation_type_id: evaluationTypes.find(
+                (_) => _.evaluation_type === EvaluationTypeEnum.EXAM
+              ).evaluation_type_id,
+              evaluation_sub_type_weight: 100,
+            },
+            {
+              evaluation_sub_type_name: EvaluationSubTypeEnum.RESIT,
+              evaluation_type_id: evaluationTypes.find(
+                (_) => _.evaluation_type === EvaluationTypeEnum.EXAM
+              ).evaluation_type_id,
+              evaluation_sub_type_weight: 100,
             },
           ],
         },
