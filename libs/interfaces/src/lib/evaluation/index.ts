@@ -16,7 +16,7 @@ export interface EvaluationHasStudent {
   evaluation_has_student_id: string;
   matricule: string;
   fullname: string;
-  mark: number;
+  mark: number|null;
   last_updated: Date;
 }
 
@@ -35,7 +35,7 @@ export interface Evaluation {
   subject_name: string;
   is_published: boolean;
   is_anonimated: boolean;
-  examination_date: boolean;
+  examination_date: Date;
   evaluation_sub_type_name: string;
 }
 
