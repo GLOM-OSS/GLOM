@@ -81,10 +81,11 @@ export class CourseService {
     });
     const courses = subects.map(
       ({
+        Chapters,
+        Evaluations,
         subject_code,
         subject_title,
         annual_credit_unit_subject_id,
-        Evaluations,
       }) => {
         const classroomAcronyms = classrooms
           .filter(
@@ -110,6 +111,7 @@ export class CourseService {
           subject_code,
           subject_title,
           classroomAcronyms,
+          has_course_plan: Chapters.length > 0,
           is_ca_available: Boolean(
             Evaluations.find(
               ({ AnnualEvaluationSubType: { evaluation_sub_type_name } }) =>
