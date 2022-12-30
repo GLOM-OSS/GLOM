@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'apps/api/src/prisma/prisma.service';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { AUTH404 } from '../../../errors';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { EvaluationParamDto } from '../teacher.dto';
 
 @Injectable()
@@ -19,7 +20,9 @@ export class EvaluationService {
     });
   }
 
-  async getEvaluation(evaluationParams: EvaluationParamDto) {
+  async getEvaluation(
+    evaluationParams: EvaluationParamDto | { evaluation_id: string }
+  ) {
     const evaluation = await this.prismaService.evaluation.findFirst({
       select: {
         evaluation_id: true,
@@ -31,23 +34,94 @@ export class EvaluationService {
       },
       where: evaluationParams,
     });
-    if (evaluation) {
-      const {
-        anonimated_at,
-        published_at,
-        evaluation_id,
-        examination_date,
-        AnnualCreditUnitSubject: { subject_title },
-        AnnualEvaluationSubType: { evaluation_sub_type_name },
-      } = evaluation;
-      return {
-        evaluation_id,
-        examination_date,
-        subject_title,
-        evaluation_sub_type_name,
-        is_published: Boolean(published_at),
-        is_anonimated: Boolean(anonimated_at),
-      };
-    }
+    if (!evaluation)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Evaluation')),
+        HttpStatus.NOT_FOUND
+      );
+    const {
+      anonimated_at,
+      published_at,
+      evaluation_id,
+      examination_date,
+      AnnualCreditUnitSubject: { subject_title },
+      AnnualEvaluationSubType: { evaluation_sub_type_name },
+    } = evaluation;
+    return {
+      evaluation_id,
+      examination_date,
+      subject_title,
+      evaluation_sub_type_name,
+      is_published: Boolean(published_at),
+      is_anonimated: Boolean(anonimated_at),
+    };
+  }
+
+  async getEvaluationHasStudents(
+    evaluation_id: string,
+    useAnonymityCode: boolean
+  ) {
+    const evaluationHasStudents =
+      await this.prismaService.evaluationHasStudent.findMany({
+        select: {
+          evaluation_has_student_id: true,
+          anonymity_code: true,
+          mark: true,
+          created_at: true,
+          EvaluationHasStudentAudits: {
+            take: 1,
+            select: { audited_at: true },
+            orderBy: { audited_at: 'desc' },
+          },
+          AnnualStudent: {
+            select: {
+              Student: {
+                select: {
+                  matricule: true,
+                  Login: {
+                    select: {
+                      Person: { select: { first_name: true, last_name: true } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        where: { evaluation_id, is_editable: true },
+      });
+    return evaluationHasStudents.map(
+      ({
+        evaluation_has_student_id,
+        anonymity_code,
+        mark,
+        created_at,
+        EvaluationHasStudentAudits: lastAudits,
+        AnnualStudent: {
+          Student: {
+            matricule,
+            Login: {
+              Person: { first_name, last_name },
+            },
+          },
+        },
+      }) =>
+        useAnonymityCode
+          ? {
+              evaluation_has_student_id,
+              anonymity_code,
+              mark,
+              last_updated:
+                lastAudits.length === 0 ? created_at : lastAudits[0].audited_at,
+            }
+          : {
+              mark,
+              matricule,
+              evaluation_has_student_id,
+              fullname: `${first_name} ${last_name}`,
+              last_updated:
+                lastAudits.length === 0 ? created_at : lastAudits[0].audited_at,
+            }
+    );
   }
 }

@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
-import { DeserializeSessionData } from 'apps/api/src/utils/types';
 import { Request } from 'express';
+import { DeserializeSessionData } from '../../../utils/types';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import { EvaluationService } from './evaluation.service';
 
@@ -15,6 +15,23 @@ export class EvaluationController {
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
     return this.evaluationService.getEvaluationSubTypes(academic_year_id);
+  }
+
+  @Get(':evaluation_id/students')
+  async getEvaluationStudents(@Param('evaluation_id') evaluation_id: string) {
+    const evaluation = await this.evaluationService.getEvaluation({
+      evaluation_id,
+    });
+    const { evaluation_sub_type_name, is_anonimated, is_published } =
+      evaluation;
+    const useAnonymityCode =
+      ['RESIT', 'EXAM'].includes(evaluation_sub_type_name) &&
+      is_anonimated &&
+      !is_published;
+    return this.evaluationService.getEvaluationHasStudents(
+      evaluation_id,
+      useAnonymityCode
+    );
   }
 
   @Get(':annual_credit_unit_subject_id/:annual_evaluation_sub_type_id')
