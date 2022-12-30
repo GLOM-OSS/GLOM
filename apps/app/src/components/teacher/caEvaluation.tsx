@@ -21,6 +21,7 @@ import {
   Evaluation,
   EvaluationHasStudent,
   EvaluationSubType,
+  EvaluationSubTypeEnum,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -63,47 +64,63 @@ export default function CAEvaluation() {
   const { annual_credit_unit_subject_id } = useParams();
 
   const loadStudents = () => {
-    setAreStudentsLoading(true);
-    const notif = new useNotification();
-    if (studentNotif) {
-      studentNotif.dismiss();
-    }
-    setStudentNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load evaluationHasStudents with data evaluation.evaluation_id
-      if (6 > 5) {
-        const newStudents: EvaluationHasStudent[] = [
-          {
-            evaluation_has_student_id: 'lsie',
-            fullname: 'Tchakoumi Lorrain',
-            last_updated: new Date(),
-            mark: 0,
-            matricule: '17C005',
-          },
-        ];
-        setEvaluationHasStudents(newStudents);
-        setAreStudentsLoading(false);
-        notif.dismiss();
-        setStudentNotif(undefined);
-      } else {
-        notif.notify({
-          render: formatMessage({ id: 'loadingStudents' }),
-        });
-        notif.update({
-          type: 'ERROR',
-          render: (
-            <ErrorMessage
-              retryFunction={loadStudents}
-              notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getStudentsFailed' })}
-            />
-          ),
-          autoClose: false,
-          icon: () => <ReportRounded fontSize="medium" color="error" />,
-        });
+    if (
+      activeEvaluationSubType &&
+      (activeEvaluationSubType.evaluation_sub_type_name ===
+        EvaluationSubTypeEnum.CA ||
+        (evaluation &&
+          ((activeEvaluationSubType.evaluation_sub_type_name ===
+            EvaluationSubTypeEnum.EXAM &&
+            evaluation.is_anonimated) ||
+            (activeEvaluationSubType.evaluation_sub_type_name ===
+              EvaluationSubTypeEnum.RESIT &&
+              evaluation.examination_date) ||
+            (activeEvaluationSubType.evaluation_sub_type_name ===
+              EvaluationSubTypeEnum.RESIT &&
+              evaluation.is_anonimated))))
+    ) {
+      setAreStudentsLoading(true);
+      const notif = new useNotification();
+      if (studentNotif) {
+        studentNotif.dismiss();
       }
-    }, 3000);
+      setStudentNotif(notif);
+      setTimeout(() => {
+        //TODO: call api here to load evaluationHasStudents with data evaluation.evaluation_id
+        if (6 > 5) {
+          const newStudents: EvaluationHasStudent[] = [
+            {
+              evaluation_has_student_id: 'lsie',
+              fullname: 'Tchakoumi Lorrain',
+              last_updated: new Date(),
+              mark: 0,
+              matricule: '17C005',
+            },
+          ];
+          setEvaluationHasStudents(newStudents);
+          setAreStudentsLoading(false);
+          notif.dismiss();
+          setStudentNotif(undefined);
+        } else {
+          notif.notify({
+            render: formatMessage({ id: 'loadingStudents' }),
+          });
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={loadStudents}
+                notification={notif}
+                //TODO: message should come from backend
+                message={formatMessage({ id: 'getStudentsFailed' })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
+      }, 3000);
+    }
   };
 
   const loadEvaluationSubTypes = () => {
@@ -119,15 +136,15 @@ export default function CAEvaluation() {
         const newEvaluationSubTypes: EvaluationSubType[] = [
           {
             evaluation_sub_type_id: 'lsiel',
-            evaluation_sub_type_name: 'CA',
+            evaluation_sub_type_name: EvaluationSubTypeEnum.CA,
           },
           {
             evaluation_sub_type_id: 'lsiesl',
-            evaluation_sub_type_name: 'EXAM',
+            evaluation_sub_type_name: EvaluationSubTypeEnum.EXAM,
           },
           {
-            evaluation_sub_type_id: 'lsiesl',
-            evaluation_sub_type_name: 'RESIT',
+            evaluation_sub_type_id: 'lsiesfl',
+            evaluation_sub_type_name: EvaluationSubTypeEnum.RESIT,
           },
         ];
         setEvaluationSubTypes(newEvaluationSubTypes);
