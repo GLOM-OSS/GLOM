@@ -1,25 +1,26 @@
 import { ReportRounded } from '@mui/icons-material';
 import {
-    Box,
-    Button,
-    Chip,
-    FormControl,
-    InputLabel,
-    lighten,
-    MenuItem,
-    OutlinedInput,
-    Select, Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableRow, Typography
+  Box,
+  Button,
+  Chip,
+  FormControl,
+  InputLabel,
+  lighten,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow
 } from '@mui/material';
 import {
-    Evaluation,
-    EvaluationHasStudent,
-    EvaluationSubType,
-    EvaluationSubTypeEnum,
-    EvaluationTypeEnum
+  Evaluation,
+  EvaluationHasStudent,
+  EvaluationSubType,
+  EvaluationSubTypeEnum,
+  EvaluationTypeEnum
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -29,11 +30,11 @@ import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';
 import ConfirmEvaluationActionDialog from '../../components/teacher/confirmEvaluationActionDialog';
 import {
-    NoTableElement,
-    TableLaneSkeleton
+  NoTableElement,
+  TableLaneSkeleton
 } from '../../components/teacher/courseLane';
 import { EvaluationStudentLane } from '../../components/teacher/evaluationStudentLane';
-import PendingAnonimation from './pendingAnonimation';
+import PendingAnonimation, { GetResitDate } from './pendingAnonimation';
 
 // interface UpdatedMark {evaluation_has_student_id:string, initialMark: number, newMark: number}
 interface UpdatedMark extends EvaluationHasStudent {
@@ -493,6 +494,46 @@ export default function CAEvaluation() {
     }
   };
 
+  const publishResitExamDate = (
+    examination_date: Date,
+    evaluation: Evaluation
+  ) => {
+    setIsModifyingEvaluation(true);
+    const notif = new useNotification();
+    if (evaluationNotif) {
+      evaluationNotif.dismiss();
+    }
+    setEvaluationNotif(notif);
+    notif.notify({
+      render: formatMessage({ id: 'settingResitDate' }),
+    });
+    setTimeout(() => {
+      //TODO: call api here to set resit examination date with data examination_date and evaluation.evaluation_id
+      if (6 > 5) {
+        setEvaluation({ ...evaluation, examination_date });
+        setIsModifyingEvaluation(false);
+        notif.update({ render: formatMessage({ id: 'savedResitDate' }) });
+        setEvaluationNotif(undefined);
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() =>
+                publishResitExamDate(examination_date, evaluation)
+              }
+              notification={notif}
+              //TODO: message should come from backend
+              message={formatMessage({ id: 'setResitDateFailed' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
+
   return (
     <>
       <ConfirmEvaluationActionDialog
@@ -651,8 +692,17 @@ export default function CAEvaluation() {
           EvaluationSubTypeEnum.RESIT &&
         activeEvaluationSubType &&
         evaluation &&
-        !evaluation.examination_date ? (
-          <Typography>Show exam date interface</Typography>
+        !evaluation.examination_date &&
+        !(
+          areStudentsLoading ||
+          areEvaluationSubTypesLoading ||
+          isEvaluationLoading
+        ) ? (
+          <GetResitDate
+            publishResitDate={(examination_date: Date) =>
+              publishResitExamDate(examination_date, evaluation)
+            }
+          />
         ) : activeEvaluationSubType &&
           activeEvaluationSubType.evaluation_type_name ===
             EvaluationTypeEnum.EXAM &&
