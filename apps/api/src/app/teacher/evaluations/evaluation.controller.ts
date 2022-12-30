@@ -1,8 +1,8 @@
+import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
+import { DeserializeSessionData } from 'apps/api/src/utils/types';
 import { Request } from 'express';
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import { EvaluationService } from './evaluation.service';
-import { DeserializeSessionData } from 'apps/api/src/utils/types';
 
 @Controller()
 @UseGuards(AuthenticatedGuard)
@@ -17,4 +17,16 @@ export class EvaluationController {
     return this.evaluationService.getEvaluationSubTypes(academic_year_id);
   }
 
+  @Get(':annual_credit_unit_subject_id/:annual_evaluation_sub_type_id')
+  async getEvaluation(
+    @Param('annual_credit_unit_subject_id')
+    annual_credit_unit_subject_id: string,
+    @Param('annual_evaluation_sub_type_id')
+    annual_evaluation_sub_type_id: string
+  ) {
+    return this.evaluationService.getEvaluation({
+      annual_credit_unit_subject_id,
+      annual_evaluation_sub_type_id,
+    });
+  }
 }
