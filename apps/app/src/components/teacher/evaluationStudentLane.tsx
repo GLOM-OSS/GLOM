@@ -69,14 +69,14 @@ export function EvaluationStudentLane({
         )}
       </TableCell>
       <TableCell>
-        {formatDate(new Date(lu), {
+        {lu?formatDate(new Date(lu), {
           year: 'numeric',
           month: 'short',
           day: '2-digit',
           hour: '2-digit',
           minute: '2-digit',
           timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        })}
+        }):null}
       </TableCell>
     </TableRow>
   );
