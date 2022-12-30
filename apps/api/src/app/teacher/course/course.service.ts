@@ -136,4 +136,61 @@ export class CourseService {
     );
     return courses;
   }
+
+  async findOne(annual_credit_unit_subject_id: string) {
+    const classrooms = await this.prismaService.annualClassroom.findMany({
+      select: {
+        classroom_acronym: true,
+        Classroom: {
+          select: {
+            level: true,
+            Major: {
+              select: {
+                AnnualCreditUnits: { select: { semester_number: true } },
+              },
+            },
+          },
+        },
+      },
+      where: {
+        Classroom: {
+          Major: {
+            AnnualCreditUnits: {
+              some: {
+                AnnualCreditUnitSubjects: {
+                  some: { annual_credit_unit_subject_id },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    const annualCreditUnitSubject =
+      await this.prismaService.annualCreditUnitSubject.findUnique({
+        select: {
+          objective: true,
+          annual_credit_unit_id: true,
+          subject_code: true,
+          subject_title: true,
+        },
+        where: { annual_credit_unit_subject_id },
+      });
+    return {
+      ...annualCreditUnitSubject,
+      classroomAcronyms: classrooms
+        .filter(
+          ({
+            Classroom: {
+              level,
+              Major: { AnnualCreditUnits },
+            },
+          }) =>
+            AnnualCreditUnits.find(
+              (_) => Math.ceil(_.semester_number / 2) === level
+            )
+        )
+        .map((_) => _.classroom_acronym),
+    };
+  }
 }
