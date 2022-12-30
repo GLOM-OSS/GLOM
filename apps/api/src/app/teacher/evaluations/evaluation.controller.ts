@@ -77,4 +77,42 @@ export class EvaluationController {
       throw new HttpException(error?.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  @Put(':evaluation_id/anonimate')
+  async anonimateEvaluation(
+    @Req() request: Request,
+    @Param('evaluation_id') evaluation_id: string
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      await this.evaluationService.updateEvaluation(
+        evaluation_id,
+        { anonimated_at: new Date() },
+        annual_teacher_id
+      );
+    } catch (error) {
+      throw new HttpException(error?.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Put(':evaluation_id/publish')
+  async publishEvaluation(
+    @Req() request: Request,
+    @Param('evaluation_id') evaluation_id: string
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      await this.evaluationService.updateEvaluation(
+        evaluation_id,
+        { published_at: new Date() },
+        annual_teacher_id
+      );
+    } catch (error) {
+      throw new HttpException(error?.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }
