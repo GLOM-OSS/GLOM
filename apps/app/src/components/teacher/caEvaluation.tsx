@@ -13,14 +13,14 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TableRow
+  TableRow,
 } from '@mui/material';
 import {
   Evaluation,
   EvaluationHasStudent,
   EvaluationSubType,
   EvaluationSubTypeEnum,
-  EvaluationTypeEnum
+  EvaluationTypeEnum,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -31,10 +31,11 @@ import { useParams } from 'react-router';
 import ConfirmEvaluationActionDialog from '../../components/teacher/confirmEvaluationActionDialog';
 import {
   NoTableElement,
-  TableLaneSkeleton
+  TableLaneSkeleton,
 } from '../../components/teacher/courseLane';
 import { EvaluationStudentLane } from '../../components/teacher/evaluationStudentLane';
 import PendingAnonimation, { GetResitDate } from './pendingAnonimation';
+import TableHeader from './tableHeader';
 
 // interface UpdatedMark {evaluation_has_student_id:string, initialMark: number, newMark: number}
 interface UpdatedMark extends EvaluationHasStudent {
@@ -192,8 +193,8 @@ export default function CAEvaluation() {
         const newEvaluation: Evaluation = {
           evaluation_id: 'siels',
           evaluation_sub_type_name: 'ca',
-          examination_date: null,
-          is_anonimated: false,
+          examination_date: new Date(),
+          is_anonimated: true,
           is_published: false,
           subject_title: 'biologie',
         };
@@ -224,6 +225,8 @@ export default function CAEvaluation() {
 
   useEffect(() => {
     if (activeEvaluationSubType) {
+      setEvaluation(undefined);
+      setEvaluationHasStudents([]);
       loadEvaluation();
       setUpdatedMarks([]);
     }
@@ -245,6 +248,7 @@ export default function CAEvaluation() {
 
   useEffect(() => {
     loadEvaluationSubTypes();
+    setEvaluation(undefined);
     return () => {
       //TODO: CLEANUP ABOVE FETCH
     };
@@ -717,25 +721,20 @@ export default function CAEvaluation() {
         ) : (
           <Scrollbars autoHide>
             <Table sx={{ minWidth: 650 }}>
-              <TableHead
-                sx={{
-                  backgroundColor: lighten(theme.palette.primary.light, 0.6),
-                }}
-              >
-                <TableRow>
-                  {[
-                    'number',
-                    'matricule',
-                    'studentName',
-                    'score',
-                    'lastUpdated',
-                  ].map((val, index) => (
-                    <TableCell key={index}>
-                      {formatMessage({ id: val })}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
+              <TableHeader
+                isAnonimated={Boolean(
+                  activeEvaluationSubType &&
+                    activeEvaluationSubType.evaluation_type_name ===
+                      EvaluationTypeEnum.EXAM &&
+                    evaluation &&
+                    !evaluation.is_published &&
+                    !(
+                      areStudentsLoading ||
+                      areEvaluationSubTypesLoading ||
+                      isEvaluationLoading
+                    )
+                )}
+              />
               <TableBody>
                 {areEvaluationSubTypesLoading ||
                 areStudentsLoading ||
