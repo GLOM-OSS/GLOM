@@ -404,6 +404,7 @@ model AnnualTeacher {
     ChapterAudits                               ChapterAudit[]
     Ressources                                  Ressource[]
     RessourceAudits                             RessourceAudit[]
+    EvaluationAudits                            EvaluationAudit[]
 
     @@unique([login_id, academic_year_id])
 }
@@ -1029,6 +1030,17 @@ model Evaluation {
     AnnualRegistry AnnualRegistry? @relation(fields: [anonimated_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
 
     EvaluationHasStudents EvaluationHasStudent[]
+    EvaluationAudits      EvaluationAudit[]
+}
+
+model EvaluationAudit {
+    evaluation_audit_id String        @id @default(uuid()) @db.VarChar(36)
+    examination_date    DateTime?     @db.DateTime(0)
+    evaluation_id       String        @db.VarChar(36)
+    Evaluation          Evaluation    @relation(fields: [evaluation_id], references: [evaluation_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_at          DateTime      @default(now()) @db.DateTime(0)
+    audited_by          String        @db.VarChar(36)
+    AnnualTeacher       AnnualTeacher @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model EvaluationHasStudent {
