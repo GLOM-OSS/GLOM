@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AUTH404 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { EvaluationParamDto } from '../teacher.dto';
+import { EvaluationQueryDto } from '../teacher.dto';
 
 @Injectable()
 export class EvaluationService {
@@ -21,7 +21,7 @@ export class EvaluationService {
   }
 
   async getEvaluation(
-    evaluationParams: EvaluationParamDto | { evaluation_id: string }
+    evaluationParams: EvaluationQueryDto | { evaluation_id: string }
   ) {
     const evaluation = await this.prismaService.evaluation.findFirst({
       select: {
