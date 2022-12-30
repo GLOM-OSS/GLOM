@@ -1,6 +1,8 @@
 import { GradingRounded, LayersOutlined } from '@mui/icons-material';
 import { MainLayout, NavItem } from '@squoolr/layout';
 import { injectIntl, IntlShape } from 'react-intl';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
   const coordinatorNavItems: NavItem[] = [
@@ -100,15 +102,17 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
   ];
 
   return (
-    <MainLayout
-      callingApp="personnel"
-      navItems={[
-        { role: 'registry', navItems: registryNavItems },
-        { role: 'coordinator', navItems: coordinatorNavItems },
-        { role: 'secretary', navItems: navItems },
-        { role: 'teacher', navItems: teacherNavItems },
-      ]}
-    />
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <MainLayout
+        callingApp="personnel"
+        navItems={[
+          { role: 'registry', navItems: registryNavItems },
+          { role: 'coordinator', navItems: coordinatorNavItems },
+          { role: 'secretary', navItems: navItems },
+          { role: 'teacher', navItems: teacherNavItems },
+        ]}
+      />
+    </LocalizationProvider>
   );
 }
 export default injectIntl(AppLayout);
