@@ -1,27 +1,25 @@
 import { ReportRounded } from '@mui/icons-material';
 import {
-  Box,
-  Button,
-  Chip,
-  FormControl,
-  InputLabel,
-  lighten,
-  MenuItem,
-  OutlinedInput,
-  Select,
-  Tab,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Tabs,
+    Box,
+    Button,
+    Chip,
+    FormControl,
+    InputLabel,
+    lighten,
+    MenuItem,
+    OutlinedInput,
+    Select, Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow, Typography
 } from '@mui/material';
 import {
-  Evaluation,
-  EvaluationHasStudent,
-  EvaluationSubType,
-  EvaluationSubTypeEnum,
+    Evaluation,
+    EvaluationHasStudent,
+    EvaluationSubType,
+    EvaluationSubTypeEnum,
+    EvaluationTypeEnum
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -31,10 +29,11 @@ import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';
 import ConfirmEvaluationActionDialog from '../../components/teacher/confirmEvaluationActionDialog';
 import {
-  NoTableElement,
-  TableLaneSkeleton,
+    NoTableElement,
+    TableLaneSkeleton
 } from '../../components/teacher/courseLane';
 import { EvaluationStudentLane } from '../../components/teacher/evaluationStudentLane';
+import PendingAnonimation from './pendingAnonimation';
 
 // interface UpdatedMark {evaluation_has_student_id:string, initialMark: number, newMark: number}
 interface UpdatedMark extends EvaluationHasStudent {
@@ -137,14 +136,17 @@ export default function CAEvaluation() {
           {
             evaluation_sub_type_id: 'lsiel',
             evaluation_sub_type_name: EvaluationSubTypeEnum.CA,
+            evaluation_type_name: EvaluationTypeEnum.CA,
           },
           {
             evaluation_sub_type_id: 'lsiesl',
             evaluation_sub_type_name: EvaluationSubTypeEnum.EXAM,
+            evaluation_type_name: EvaluationTypeEnum.EXAM,
           },
           {
             evaluation_sub_type_id: 'lsiesfl',
             evaluation_sub_type_name: EvaluationSubTypeEnum.RESIT,
+            evaluation_type_name: EvaluationTypeEnum.EXAM,
           },
         ];
         setEvaluationSubTypes(newEvaluationSubTypes);
@@ -161,7 +163,7 @@ export default function CAEvaluation() {
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={loadStudents}
+              retryFunction={loadEvaluationSubTypes}
               notification={notif}
               //TODO: message should come from backend
               message={formatMessage({ id: 'getEvaluationSubTypesFailed' })}
@@ -176,6 +178,8 @@ export default function CAEvaluation() {
 
   const loadEvaluation = () => {
     setIsEvaluationLoading(true);
+    setEvaluationHasStudents([]);
+    setUpdatedMarks([]);
     const notif = new useNotification();
     if (evaluationNotif) {
       evaluationNotif.dismiss();
@@ -187,7 +191,7 @@ export default function CAEvaluation() {
         const newEvaluation: Evaluation = {
           evaluation_id: 'siels',
           evaluation_sub_type_name: 'ca',
-          examination_date: new Date(),
+          examination_date: null,
           is_anonimated: false,
           is_published: false,
           subject_title: 'biologie',
@@ -605,30 +609,34 @@ export default function CAEvaluation() {
               )}
             </Select>
           </FormControl>
-          {evaluation && !evaluation.is_published && (
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => setIsConfirmPublishDialogOpen(true)}
-              disabled={
-                areStudentsLoading ||
-                areEvaluationSubTypesLoading ||
-                isEvaluationLoading ||
-                isConfirmPublishDialogOpen ||
-                isConfirmSaveDialogOpen ||
-                isConfirmResetMarksDialogOpen ||
-                isModifyingEvaluation
-              }
-              sx={{ textTransform: 'none' }}
-            >
-              {formatMessage({
-                id:
-                  updatedMarks.length > 0
-                    ? 'saveAndPublishMarks'
-                    : 'publishMarks',
-              })}
-            </Button>
-          )}
+          {evaluation &&
+            !evaluation.is_published &&
+            (evaluation.is_anonimated ||
+              activeEvaluationSubType?.evaluation_type_name ===
+                EvaluationTypeEnum.CA) && (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => setIsConfirmPublishDialogOpen(true)}
+                disabled={
+                  areStudentsLoading ||
+                  areEvaluationSubTypesLoading ||
+                  isEvaluationLoading ||
+                  isConfirmPublishDialogOpen ||
+                  isConfirmSaveDialogOpen ||
+                  isConfirmResetMarksDialogOpen ||
+                  isModifyingEvaluation
+                }
+                sx={{ textTransform: 'none' }}
+              >
+                {formatMessage({
+                  id:
+                    updatedMarks.length > 0
+                      ? 'saveAndPublishMarks'
+                      : 'publishMarks',
+                })}
+              </Button>
+            )}
           {evaluation && evaluation.is_published && (
             <Chip
               label={formatMessage({ id: 'published' })}
@@ -638,118 +646,142 @@ export default function CAEvaluation() {
             />
           )}
         </Box>
-        <Scrollbars autoHide>
-          <Table sx={{ minWidth: 650 }}>
-            <TableHead
+        {activeEvaluationSubType &&
+        activeEvaluationSubType.evaluation_sub_type_name ===
+          EvaluationSubTypeEnum.RESIT &&
+        activeEvaluationSubType &&
+        evaluation &&
+        !evaluation.examination_date ? (
+          <Typography>Show exam date interface</Typography>
+        ) : activeEvaluationSubType &&
+          activeEvaluationSubType.evaluation_type_name ===
+            EvaluationTypeEnum.EXAM &&
+          evaluation &&
+          !evaluation.is_anonimated &&
+          !(
+            areStudentsLoading ||
+            areEvaluationSubTypesLoading ||
+            isEvaluationLoading
+          ) ? (
+          <PendingAnonimation />
+        ) : (
+          <Scrollbars autoHide>
+            <Table sx={{ minWidth: 650 }}>
+              <TableHead
+                sx={{
+                  backgroundColor: lighten(theme.palette.primary.light, 0.6),
+                }}
+              >
+                <TableRow>
+                  {[
+                    'number',
+                    'matricule',
+                    'studentName',
+                    'score',
+                    'lastUpdated',
+                  ].map((val, index) => (
+                    <TableCell key={index}>
+                      {formatMessage({ id: val })}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {areEvaluationSubTypesLoading ||
+                areStudentsLoading ||
+                isEvaluationLoading ? (
+                  [...new Array(10)].map((_, index) => (
+                    <TableLaneSkeleton cols={5} key={index} />
+                  ))
+                ) : evaluationSubTypes.length === 0 ? (
+                  <NoTableElement
+                    message={formatMessage({ id: 'noEvaluationSubTypes' })}
+                    colSpan={5}
+                  />
+                ) : !evaluation ? (
+                  <NoTableElement
+                    message={formatMessage({ id: 'evaluationNotFound' })}
+                    colSpan={5}
+                  />
+                ) : evaluationHasStudents.length === 0 ? (
+                  <NoTableElement
+                    message={formatMessage({ id: 'noStudentsYet' })}
+                    colSpan={5}
+                  />
+                ) : (
+                  evaluationHasStudents.map((evaluationStudent, index) => (
+                    <EvaluationStudentLane
+                      student={evaluationStudent}
+                      position={index + 1}
+                      changeMark={updateStudentMark}
+                      is_evaluation_published={
+                        evaluation ? evaluation.is_published : false
+                      }
+                      disabled={
+                        isConfirmPublishDialogOpen ||
+                        isConfirmSaveDialogOpen ||
+                        isConfirmResetMarksDialogOpen ||
+                        isModifyingEvaluation
+                      }
+                      updatedMarks={updatedMarks as EvaluationHasStudent[]}
+                      key={index}
+                    />
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </Scrollbars>
+        )}
+        {evaluation &&
+          !evaluation.is_published &&
+          (evaluation.is_anonimated ||
+            activeEvaluationSubType?.evaluation_type_name ===
+              EvaluationTypeEnum.CA) && (
+            <Box
               sx={{
-                backgroundColor: lighten(theme.palette.primary.light, 0.6),
+                justifySelf: 'end',
+                display: 'grid',
+                gridAutoFlow: 'column',
+                columnGap: theme.spacing(2),
               }}
             >
-              <TableRow>
-                {[
-                  'number',
-                  'matricule',
-                  'studentName',
-                  'score',
-                  'lastUpdated',
-                ].map((val, index) => (
-                  <TableCell key={index}>
-                    {formatMessage({ id: val })}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {areEvaluationSubTypesLoading ||
-              areStudentsLoading ||
-              isEvaluationLoading ? (
-                [...new Array(10)].map((_, index) => (
-                  <TableLaneSkeleton cols={5} key={index} />
-                ))
-              ) : evaluationSubTypes.length === 0 ? (
-                <NoTableElement
-                  message={formatMessage({ id: 'noEvaluationSubTypes' })}
-                  colSpan={5}
-                />
-              ) : !evaluation ? (
-                <NoTableElement
-                  message={formatMessage({ id: 'evaluationNotFound' })}
-                  colSpan={5}
-                />
-              ) : evaluationHasStudents.length === 0 ? (
-                <NoTableElement
-                  message={formatMessage({ id: 'noStudentsYet' })}
-                  colSpan={5}
-                />
-              ) : (
-                evaluationHasStudents.map((evaluationStudent, index) => (
-                  <EvaluationStudentLane
-                    student={evaluationStudent}
-                    position={index + 1}
-                    changeMark={updateStudentMark}
-                    is_evaluation_published={
-                      evaluation ? evaluation.is_published : false
-                    }
-                    disabled={
-                      isConfirmPublishDialogOpen ||
-                      isConfirmSaveDialogOpen ||
-                      isConfirmResetMarksDialogOpen ||
-                      isModifyingEvaluation
-                    }
-                    updatedMarks={updatedMarks as EvaluationHasStudent[]}
-                    key={index}
-                  />
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </Scrollbars>
-        {evaluation && !evaluation.is_published && (
-          <Box
-            sx={{
-              justifySelf: 'end',
-              display: 'grid',
-              gridAutoFlow: 'column',
-              columnGap: theme.spacing(2),
-            }}
-          >
-            <Button
-              variant="text"
-              color="error"
-              sx={{ textTransform: 'none' }}
-              onClick={() => setIsConfirmResetMarksDialogOpen(true)}
-              disabled={
-                areStudentsLoading ||
-                areEvaluationSubTypesLoading ||
-                isEvaluationLoading ||
-                isConfirmPublishDialogOpen ||
-                isConfirmSaveDialogOpen ||
-                isConfirmResetMarksDialogOpen ||
-                isModifyingEvaluation
-              }
-            >
-              {formatMessage({ id: 'reinitialiseMarks' })}
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => setIsConfirmSaveDialogOpen(true)}
-              disabled={
-                updatedMarks.length === 0 ||
-                areStudentsLoading ||
-                areEvaluationSubTypesLoading ||
-                isEvaluationLoading ||
-                isConfirmPublishDialogOpen ||
-                isConfirmSaveDialogOpen ||
-                isConfirmResetMarksDialogOpen ||
-                isModifyingEvaluation
-              }
-              sx={{ textTransform: 'none' }}
-            >
-              {formatMessage({ id: 'save' })}
-            </Button>
-          </Box>
-        )}
+              <Button
+                variant="text"
+                color="error"
+                sx={{ textTransform: 'none' }}
+                onClick={() => setIsConfirmResetMarksDialogOpen(true)}
+                disabled={
+                  areStudentsLoading ||
+                  areEvaluationSubTypesLoading ||
+                  isEvaluationLoading ||
+                  isConfirmPublishDialogOpen ||
+                  isConfirmSaveDialogOpen ||
+                  isConfirmResetMarksDialogOpen ||
+                  isModifyingEvaluation
+                }
+              >
+                {formatMessage({ id: 'reinitialiseMarks' })}
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => setIsConfirmSaveDialogOpen(true)}
+                disabled={
+                  updatedMarks.length === 0 ||
+                  areStudentsLoading ||
+                  areEvaluationSubTypesLoading ||
+                  isEvaluationLoading ||
+                  isConfirmPublishDialogOpen ||
+                  isConfirmSaveDialogOpen ||
+                  isConfirmResetMarksDialogOpen ||
+                  isModifyingEvaluation
+                }
+                sx={{ textTransform: 'none' }}
+              >
+                {formatMessage({ id: 'save' })}
+              </Button>
+            </Box>
+          )}
       </Box>
     </>
   );
