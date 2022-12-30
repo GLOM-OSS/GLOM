@@ -25,6 +25,10 @@ export interface AnonimatedEvaluationHasStudent
   anonymity_code: string;
 }
 
+export enum EvaluationTypeEnum {
+  CA = 'CA',
+  EXAM = 'EXAM',
+}
 export enum EvaluationSubTypeEnum {
   CA = 'CA',
   EXAM = 'EXAM',
@@ -36,6 +40,7 @@ export enum EvaluationSubTypeEnum {
 export interface EvaluationSubType {
   evaluation_sub_type_id: string;
   evaluation_sub_type_name: EvaluationSubTypeEnum;
+  evaluation_type_name: EvaluationTypeEnum;
 }
 
 export interface Evaluation {
