@@ -4,7 +4,29 @@ import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router';
 
-export function TableLaneSkeleton({cols=6}:{cols?:number}) {
+export function NoTableElement({
+  colSpan = 6,
+  message,
+}: {
+  colSpan?: number;
+  message: string;
+}) {
+  return (
+    <TableRow
+      sx={{
+        borderBottom: `1px solid ${theme.common.line}`,
+        borderTop: `1px solid ${theme.common.line}`,
+        padding: `0 ${theme.spacing(4.625)}`,
+      }}
+    >
+      <TableCell colSpan={colSpan} align="center" sx={{ textAlign: 'center' }}>
+        {message}
+      </TableCell>
+    </TableRow>
+  );
+}
+
+export function TableLaneSkeleton({ cols = 6 }: { cols?: number }) {
   return (
     <TableRow
       sx={{

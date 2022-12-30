@@ -15,7 +15,7 @@ import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import {
   CourseLane,
-  CourseSkeleton,
+  TableLaneSkeleton,
 } from '../../components/teacher/courseLane';
 
 export default function TeacherCourses() {
@@ -102,7 +102,7 @@ export default function TeacherCourses() {
         </TableHead>
         <TableBody>
           {areCoursesLoading ? (
-            [...new Array(10)].map((_, index) => <CourseSkeleton key={index} />)
+            [...new Array(10)].map((_, index) => <TableLaneSkeleton key={index} />)
           ) : courses.length === 0 ? (
             <TableRow
               sx={{
