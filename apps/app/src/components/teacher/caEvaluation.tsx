@@ -10,17 +10,14 @@ import {
   OutlinedInput,
   Select,
   Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
+  TableBody
 } from '@mui/material';
 import {
   Evaluation,
   EvaluationHasStudent,
   EvaluationSubType,
   EvaluationSubTypeEnum,
-  EvaluationTypeEnum,
+  EvaluationTypeEnum
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -31,7 +28,7 @@ import { useParams } from 'react-router';
 import ConfirmEvaluationActionDialog from '../../components/teacher/confirmEvaluationActionDialog';
 import {
   NoTableElement,
-  TableLaneSkeleton,
+  TableLaneSkeleton
 } from '../../components/teacher/courseLane';
 import { EvaluationStudentLane } from '../../components/teacher/evaluationStudentLane';
 import PendingAnonimation, { GetResitDate } from './pendingAnonimation';
