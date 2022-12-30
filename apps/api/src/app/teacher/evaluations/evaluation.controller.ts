@@ -1,21 +1,25 @@
 import {
-    Body,
-    Controller,
-    Get,
-    HttpException,
-    HttpStatus,
-    Param,
-    Put,
-    Query,
-    Req,
-    UseGuards
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  Put,
+  Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ERR11 } from '../../../errors';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
-import { EvaluationQueryDto, ExamDatePutDto } from '../teacher.dto';
+import {
+  EvaluationQueryDto,
+  EvaluationsQeuryDto,
+  ExamDatePutDto,
+} from '../teacher.dto';
 import { EvaluationService } from './evaluation.service';
 
 @Controller()
@@ -40,6 +44,11 @@ export class EvaluationController {
     )
       return this.evaluationService.getEvaluation(evaluationQuery);
     throw new HttpException(ERR11[preferred_lang], HttpStatus.BAD_REQUEST);
+  }
+
+  @Get('all')
+  async getEvaluations(@Query() evaluationQuery: EvaluationsQeuryDto) {
+    return this.evaluationService.getEvaluations(evaluationQuery);
   }
 
   @Get('sub-types')
