@@ -3,7 +3,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { SemesterExamAccessPutDto } from '../registry.dto';
 
 @Injectable()
-export class EvaluationService {
+export class HallAccessService {
   constructor(private prismaService: PrismaService) {}
 
   async getExamAccess(academic_year_id: string) {
