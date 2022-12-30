@@ -32,7 +32,7 @@ export interface EvaluationSubType {
 
 export interface Evaluation {
   evaluation_id: string;
-  subject_name: string;
+  subject_title: string;
   is_published: boolean;
   is_anonimated: boolean;
   examination_date: Date;
