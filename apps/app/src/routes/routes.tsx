@@ -12,6 +12,7 @@ import NewAcademicYear from '../pages/secretary/newAcademicYear';
 import Personnel from '../pages/secretary/personnel';
 import SigninPage from '../pages/signin';
 import TeacherCourses from '../pages/teacher';
+import CourseDetails from '../pages/teacher/[annual_credit_unit_subject_id]';
 
 export const routes = [
   {
@@ -107,7 +108,7 @@ export const routes = [
           { path: '', element: <TeacherCourses /> },
           {
             path: ':annual_credit_unit_subject_id',
-            element: <Typography>Course Details</Typography>,
+            element: <CourseDetails />,
           },
         ],
       },
