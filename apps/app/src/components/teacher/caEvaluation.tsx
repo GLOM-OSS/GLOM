@@ -10,14 +10,15 @@ import {
   OutlinedInput,
   Select,
   Table,
-  TableBody
+  TableBody,
 } from '@mui/material';
 import {
+  AnonimatedEvaluationHasStudent,
   Evaluation,
   EvaluationHasStudent,
   EvaluationSubType,
   EvaluationSubTypeEnum,
-  EvaluationTypeEnum
+  EvaluationTypeEnum,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -28,9 +29,12 @@ import { useParams } from 'react-router';
 import ConfirmEvaluationActionDialog from '../../components/teacher/confirmEvaluationActionDialog';
 import {
   NoTableElement,
-  TableLaneSkeleton
+  TableLaneSkeleton,
 } from '../../components/teacher/courseLane';
-import { EvaluationStudentLane } from '../../components/teacher/evaluationStudentLane';
+import {
+  AnonimatedStudentLane,
+  EvaluationStudentLane,
+} from '../../components/teacher/evaluationStudentLane';
 import PendingAnonimation, { GetResitDate } from './pendingAnonimation';
 import TableHeader from './tableHeader';
 
@@ -38,10 +42,13 @@ import TableHeader from './tableHeader';
 interface UpdatedMark extends EvaluationHasStudent {
   initial_mark: number | null;
 }
+interface AnonimatedUpdatedMark extends AnonimatedEvaluationHasStudent {
+  initial_mark: number | null;
+}
 export default function CAEvaluation() {
   const { formatMessage } = useIntl();
   const [evaluationHasStudents, setEvaluationHasStudents] = useState<
-    EvaluationHasStudent[]
+    (EvaluationHasStudent | AnonimatedEvaluationHasStudent)[]
   >([]);
   const [areStudentsLoading, setAreStudentsLoading] = useState<boolean>(false);
   const [studentNotif, setStudentNotif] = useState<useNotification>();
@@ -252,10 +259,14 @@ export default function CAEvaluation() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [updatedMarks, setUpdatedMarks] = useState<UpdatedMark[]>([]);
+  const [updatedMarks, setUpdatedMarks] = useState<
+    (UpdatedMark | AnonimatedUpdatedMark)[]
+  >([]);
   const updateStudentMark = (
     newMark: number,
-    actionnedEvaluationStudent: EvaluationHasStudent
+    actionnedEvaluationStudent:
+      | EvaluationHasStudent
+      | AnonimatedEvaluationHasStudent
   ) => {
     const { evaluation_has_student_id, mark: initialMark } =
       actionnedEvaluationStudent;
@@ -311,7 +322,7 @@ export default function CAEvaluation() {
     useState<boolean>(false);
   const saveEvaluationMarks = (
     private_code: string,
-    updatedMarks: EvaluationHasStudent[]
+    updatedMarks: (EvaluationHasStudent | AnonimatedEvaluationHasStudent)[]
   ) => {
     if (updatedMarks.length > 0) {
       setIsModifyingEvaluation(true);
@@ -357,7 +368,7 @@ export default function CAEvaluation() {
 
   const resetEvaluationMarks = (
     private_code: string,
-    students: EvaluationHasStudent[]
+    students: (EvaluationHasStudent | AnonimatedEvaluationHasStudent)[]
   ) => {
     if (students.length > 0) {
       setIsModifyingEvaluation(true);
@@ -410,7 +421,7 @@ export default function CAEvaluation() {
 
   const publishEvaluationMarks = (
     private_code: string,
-    updatedMarks: EvaluationHasStudent[]
+    updatedMarks: (EvaluationHasStudent | AnonimatedEvaluationHasStudent)[]
   ) => {
     if (evaluation) {
       if (updatedMarks.length === 0) {
@@ -755,24 +766,54 @@ export default function CAEvaluation() {
                     colSpan={5}
                   />
                 ) : (
-                  evaluationHasStudents.map((evaluationStudent, index) => (
-                    <EvaluationStudentLane
-                      student={evaluationStudent}
-                      position={index + 1}
-                      changeMark={updateStudentMark}
-                      is_evaluation_published={
-                        evaluation ? evaluation.is_published : false
-                      }
-                      disabled={
-                        isConfirmPublishDialogOpen ||
-                        isConfirmSaveDialogOpen ||
-                        isConfirmResetMarksDialogOpen ||
-                        isModifyingEvaluation
-                      }
-                      updatedMarks={updatedMarks as EvaluationHasStudent[]}
-                      key={index}
-                    />
-                  ))
+                  evaluationHasStudents.map((evaluationStudent, index) =>
+                    activeEvaluationSubType &&
+                    activeEvaluationSubType.evaluation_type_name ===
+                      EvaluationTypeEnum.EXAM &&
+                    evaluation &&
+                    !evaluation.is_published &&
+                    !(
+                      areStudentsLoading ||
+                      areEvaluationSubTypesLoading ||
+                      isEvaluationLoading
+                    ) ? (
+                      <AnonimatedStudentLane
+                        student={
+                          evaluationStudent as AnonimatedEvaluationHasStudent
+                        }
+                        position={index + 1}
+                        changeMark={updateStudentMark}
+                        is_evaluation_published={
+                          evaluation ? evaluation.is_published : false
+                        }
+                        disabled={
+                          isConfirmPublishDialogOpen ||
+                          isConfirmSaveDialogOpen ||
+                          isConfirmResetMarksDialogOpen ||
+                          isModifyingEvaluation
+                        }
+                        updatedMarks={updatedMarks as EvaluationHasStudent[]}
+                        key={index}
+                      />
+                    ) : (
+                      <EvaluationStudentLane
+                        student={evaluationStudent as EvaluationHasStudent}
+                        position={index + 1}
+                        changeMark={updateStudentMark}
+                        is_evaluation_published={
+                          evaluation ? evaluation.is_published : false
+                        }
+                        disabled={
+                          isConfirmPublishDialogOpen ||
+                          isConfirmSaveDialogOpen ||
+                          isConfirmResetMarksDialogOpen ||
+                          isModifyingEvaluation
+                        }
+                        updatedMarks={updatedMarks as EvaluationHasStudent[]}
+                        key={index}
+                      />
+                    )
+                  )
                 )}
               </TableBody>
             </Table>
