@@ -96,6 +96,10 @@ export const routes = [
         path: 'exams',
         element: <Exams />,
       },
+      {
+        path: 'exams/:annual_credit_unit_subject_id',
+        element: <Exams />,
+      },
       { path: '*', element: <Navigate to="/" /> },
     ],
   },
