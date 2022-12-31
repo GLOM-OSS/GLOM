@@ -196,7 +196,7 @@ export default function CAEvaluation() {
       if (6 > 5) {
         const newEvaluation: Evaluation = {
           evaluation_id: 'siels',
-          evaluation_sub_type_name: 'ca',
+          evaluation_sub_type_name: EvaluationSubTypeEnum.CA,
           examination_date: new Date(),
           is_anonimated: true,
           is_published: false,
