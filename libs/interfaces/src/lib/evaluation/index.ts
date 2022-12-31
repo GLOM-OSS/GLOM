@@ -49,7 +49,7 @@ export interface Evaluation {
   is_published: boolean;
   is_anonimated: boolean;
   examination_date: Date | null;
-  evaluation_sub_type_name: string;
+  evaluation_sub_type_name: EvaluationSubTypeEnum;
 }
 
 export interface UEMarkStatus {
