@@ -88,6 +88,17 @@ export const routes = [
     ],
   },
   {
+    path: '/registry/marks-management',
+    element: <AppLayout />,
+    children: [
+      {
+        path: 'exams',
+        element: <Typography>Exams</Typography>,
+      },
+      { path: '*', element: <Navigate to="/" /> },
+    ],
+  },
+  {
     path: '/coordinator/marks-management',
     element: <AppLayout />,
     children: [
