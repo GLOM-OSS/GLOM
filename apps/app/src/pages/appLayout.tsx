@@ -1,4 +1,4 @@
-import { GradingRounded, LayersOutlined } from '@mui/icons-material';
+import { GradingRounded, InventoryOutlined, LayersOutlined } from '@mui/icons-material';
 import { MainLayout, NavItem } from '@squoolr/layout';
 import { injectIntl, IntlShape } from 'react-intl';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -10,6 +10,7 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
       id: 1,
       Icon: LayersOutlined,
       title: 'configurations',
+      route: 'configurations',
       children: [
         {
           title: formatMessage({ id: 'modulesAndSubjects' }),
@@ -22,6 +23,7 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
       id: 2,
       Icon: GradingRounded,
       title: 'marksManagement',
+      route: 'marks-Management',
       children: [
         {
           title: formatMessage({ id: 'marksFollowUp' }),
@@ -36,6 +38,7 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
       id: 1,
       Icon: LayersOutlined,
       title: 'configurations',
+      route: 'configurations',
       children: [
         {
           title: formatMessage({ id: 'departments' }),
@@ -66,6 +69,7 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
       id: 1,
       Icon: LayersOutlined,
       title: 'configurations',
+      route: 'configurations',
       children: [
         {
           title: formatMessage({ id: 'weightingTable' }),
@@ -79,6 +83,19 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
         },
       ],
     },
+    {
+      id: 2,
+      Icon: InventoryOutlined,
+      title: 'markManagement',
+      route: 'marks-management',
+      children: [
+        {
+          title: formatMessage({ id: 'examinations' }),
+          route: 'exams',
+          page_title: 'examinations',
+        },
+      ],
+    },
   ];
 
   const teacherNavItems: NavItem[] = [
@@ -86,6 +103,7 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
       id: 1,
       Icon: LayersOutlined,
       title: 'configurations',
+      route: 'configurations',
       children: [
         {
           title: formatMessage({ id: 'courses' }),
