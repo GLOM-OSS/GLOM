@@ -5,6 +5,7 @@ import AppLayout from '../pages/appLayout';
 import ModulesManagement from '../pages/coordinator/modulesManagement';
 import SubjectManagement from '../pages/coordinator/subjectManagement';
 import AcademicProfileTable from '../pages/registry/academicProfile';
+import Exams from '../pages/registry/exams';
 import WeightingTable from '../pages/registry/weightingTable';
 import Departments from '../pages/secretary/departments';
 import Majors from '../pages/secretary/majors';
@@ -93,7 +94,7 @@ export const routes = [
     children: [
       {
         path: 'exams',
-        element: <Typography>Exams</Typography>,
+        element: <Exams />,
       },
       { path: '*', element: <Navigate to="/" /> },
     ],
