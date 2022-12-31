@@ -114,7 +114,7 @@ export function Layout({
           );
         } else {
           navigate(
-            `/${activeRole}/${activeNavItem.title}/${children[0].route}`
+            `/${activeRole}/${activeNavItem.route}/${children[0].route}`
           );
         }
     }
@@ -158,7 +158,7 @@ export function Layout({
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
         localStorage.setItem('previousRoute', location.pathname);
-        setActiveRole('teacher') //TODO: DELETE LINE IN PRODUCTION
+        setActiveRole('registry') //TODO: DELETE LINE IN PRODUCTION
         // navigate('/'); TODO: uncomment in production
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -240,15 +240,15 @@ export function Layout({
           navItems={roleNavigationItems}
           openLogoutDialog={() => setIsConfirmLogoutDialogOpen(true)}
           setActiveNavItem={(navItem: NavItem) => {
-            const { children, title } = navItem;
+            const { children, route } = navItem;
             setActiveNavItem(navItem);
             setActiveSecondaryNavItem(
               children.length > 0 ? navItem.children[0] : undefined
             );
             setIsSecondaryNavOpen(children.length > 0);
             if (children.length > 0)
-              navigate(`/${activeRole}/${title}/${children[0].route}`);
-            else navigate(`/${activeRole}/${title}`);
+              navigate(`/${activeRole}/${route}/${children[0].route}`);
+            else navigate(`/${activeRole}/${route}`);
           }}
           activeNavItem={activeNavItem}
         />
