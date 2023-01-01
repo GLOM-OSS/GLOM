@@ -77,6 +77,22 @@ export class TeacherService {
           HttpStatus.AMBIGUOUS
         );
     }
+    const teacherType = await this.prismaService.teacherType.findUnique({
+      where: { teacher_type_id },
+    });
+    if (!teacherType)
+      throw new HttpException(
+        JSON.stringify(AUTH404('teacher type')),
+        HttpStatus.NOT_FOUND
+      );
+    const teachingGrade = await this.prismaService.teachingGrade.findUnique({
+      where: { teaching_grade_id },
+    });
+    if (!teachingGrade)
+      throw new HttpException(
+        JSON.stringify(AUTH404('teaching grade')),
+        HttpStatus.NOT_FOUND
+      );
 
     const login_id = login?.login_id ?? randomUUID();
     const password = Math.random().toString(36).slice(2).toUpperCase();
@@ -90,6 +106,8 @@ export class TeacherService {
       Number(process.env.SALT)
     );
     //TODO NodeMailer send generated password and private code
+    console.log({ password });
+    
     const {
       annual_teacher_id,
       Login: { Person },

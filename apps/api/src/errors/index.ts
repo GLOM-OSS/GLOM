@@ -108,3 +108,7 @@ export const ERR10 = {
   En: `Sorry, module total weight should equals 1.`,
   Fr: `Désolé, le poids total d'un module doit être 1.`,
 };
+export const ERR11 = {
+  En: `Please either use the evaluation id or subject and evaluation sub type id to fetch evaluation data.`,
+  Fr: `Veuillez utiliser soit l'identifiant de l'évaluation, soit l'identifiant du sujet et du sous-type d'évaluation pour récupérer les données d'évaluation.`,
+};

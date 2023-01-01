@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { EvaluationTypeEnum } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -34,7 +35,7 @@ export class AppService {
 
   private async seedEvaluationTypes() {
     await this.prismaService.evaluationType.createMany({
-      data: [{ evaluation_type: 'EXAM' }, { evaluation_type: 'CA' }],
+      data: [{ evaluation_type: EvaluationTypeEnum.EXAM }, { evaluation_type: EvaluationTypeEnum.CA }],
     });
   }
 
@@ -76,7 +77,7 @@ export class AppService {
           subject_part_id: process.env[
             'NX_GUIDED_WORK_SUBJECT_PART_ID'
           ] as string,
-          subject_part_name: 'GUIDED_WOR',
+          subject_part_name: 'GUIDED_WORK',
         },
       ],
     });

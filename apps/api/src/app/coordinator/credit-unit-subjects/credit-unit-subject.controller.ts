@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -68,14 +70,18 @@ export class CreditUnitSubjectController {
     annual_credit_unit_subject_id: string,
     @Body() newCreditUnitSubject: CreditUnitSubjectPutDto
   ) {
-    const {
-      annualTeacher: { annual_teacher_id },
-    } = request.user as DeserializeSessionData;
-    await this.creditUnitSubjectService.updateCreditUnitSubject(
-      annual_credit_unit_subject_id,
-      newCreditUnitSubject,
-      annual_teacher_id
-    );
+    try {
+      const {
+        annualTeacher: { annual_teacher_id },
+      } = request.user as DeserializeSessionData;
+      await this.creditUnitSubjectService.updateCreditUnitSubject(
+        annual_credit_unit_subject_id,
+        newCreditUnitSubject,
+        annual_teacher_id
+      );
+    } catch (error) {
+      throw new HttpException(error?.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Delete('/:annual_credit_unit_subject_id/delete')
@@ -85,12 +91,16 @@ export class CreditUnitSubjectController {
     @Param('annual_credit_unit_subject_id')
     annual_credit_unit_subject_id: string
   ) {
-    const {
-      annualTeacher: { annual_teacher_id },
-    } = request.user as DeserializeSessionData;
-    await this.creditUnitSubjectService.deleteCreditUnitSubject(
-      annual_credit_unit_subject_id,
-      annual_teacher_id
-    );
+    try {
+      const {
+        annualTeacher: { annual_teacher_id },
+      } = request.user as DeserializeSessionData;
+      await this.creditUnitSubjectService.deleteCreditUnitSubject(
+        annual_credit_unit_subject_id,
+        annual_teacher_id
+      );
+    } catch (error) {
+      throw new HttpException(error?.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

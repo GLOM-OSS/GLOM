@@ -13,14 +13,14 @@ import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import { SemesterExamAccessPutDto } from '../registry.dto';
-import { EvaluationService } from './evaluation.service';
+import { HallAccessService } from './hall-access.service';
 
 @Controller()
 @UseGuards(AuthenticatedGuard)
-export class EvaluationController {
-  constructor(private evaluationService: EvaluationService) {}
+export class HallAccessController {
+  constructor(private evaluationService: HallAccessService) {}
 
-  @Get('hall-access')
+  @Get('all')
   async getExamAccess(@Req() request: Request) {
     const {
       activeYear: { academic_year_id },
@@ -28,7 +28,7 @@ export class EvaluationController {
     return this.evaluationService.getExamAccess(academic_year_id);
   }
 
-  @Put('hall-access')
+  @Put('edit')
   @Roles(Role.REGISTRY)
   async updateExamHallAcess(
     @Req() request: Request,
@@ -48,4 +48,5 @@ export class EvaluationController {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
   }
+  
 }

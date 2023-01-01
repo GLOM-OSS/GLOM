@@ -19,7 +19,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     let errorMessage: string;
     try {
       errorMessage = JSON.parse(message ?? exception.message)[
-        request.headers['lang'] as string
+        request.headers['lang'] as string || 'Fr'
       ];
     } catch (error) {
       errorMessage = message ?? exception.message;

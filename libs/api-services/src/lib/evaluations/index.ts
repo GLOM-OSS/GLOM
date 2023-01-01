@@ -3,13 +3,13 @@ import { SemesterExamAccess } from '@squoolr/interfaces';
 
 export async function getExamAccess() {
   const { data } = await http.get<SemesterExamAccess[]>(
-    `/evaluations/hall-access`
+    `/hall-accesses/all`
   );
   return data;
 }
 
 export async function updateExamAcess(updateData: SemesterExamAccess[]) {
-  await http.put(`/evaluations/hall-access`, {
+  await http.put(`/hall-accesses/edit`, {
     semesterExamAccesses: updateData,
   });
 }

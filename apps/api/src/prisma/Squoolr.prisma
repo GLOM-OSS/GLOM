@@ -391,14 +391,20 @@ model AnnualTeacher {
     AnnualClassroomDivisionAudits               AnnualClassroomDivisionAudit[]
     AnnualCreditUnits                           AnnualCreditUnit[]
     AnnualCreditUnitAudits                      AnnualCreditUnitAudit[]
-    AnnualCreditUnitHasSubjects                 AnnualCreditUnitSubject[]
-    AnnualCreditUnitHasSubjectAudits            AnnualCreditUnitSubjectAudit[]
+    AnnualCreditUnitSubjects                    AnnualCreditUnitSubject[]
+    AnnualCreditUnitSubjectAudits               AnnualCreditUnitSubjectAudit[]
     AnnualCreditHasSubjectParts                 AnnualCreditUnitHasSubjectPart[]      @relation(name: "AnnualTeacher")
     CreatedAnnualCreditUnitHasSubjectParts      AnnualCreditUnitHasSubjectPart[]      @relation(name: "CreatedBy_AnnualTeacher")
     AnnualCreditHasSubjectPartAudits            AnnualCreditUnitHasSubjectPartAudit[] @relation(name: "AnnualTeacher")
     AuditedAnnualCreditUnitHasSubjectPartAudits AnnualCreditUnitHasSubjectPartAudit[] @relation(name: "AuditedBy_AnnualTeacher")
     CreatedEvaluations                          Evaluation[]                          @relation(name: "CreatedBy_AnnualTeacher")
     PublishedEvaluations                        Evaluation[]                          @relation(name: "PublishedBy_AnnualTeacher")
+    EvaluationHasStudentAudits                  EvaluationHasStudentAudit[]
+    Chapters                                    Chapter[]
+    ChapterAudits                               ChapterAudit[]
+    Ressources                                  Ressource[]
+    RessourceAudits                             RessourceAudit[]
+    EvaluationAudits                            EvaluationAudit[]
 
     @@unique([login_id, academic_year_id])
 }
@@ -653,6 +659,8 @@ model AnnualCreditUnit {
     credit_unit_name      String        @db.VarChar(45)
     credit_points         Int
     semester_number       Int
+    is_exam_published     Boolean       @default(false) @db.TinyInt
+    is_resit_published    Boolean       @default(false) @db.TinyInt
     is_deleted            Boolean       @default(false) @db.TinyInt
     created_at            DateTime      @default(now()) @db.DateTime(0)
     major_id              String        @db.VarChar(36)
@@ -662,8 +670,8 @@ model AnnualCreditUnit {
     created_by            String        @db.VarChar(36)
     AnnualTeacher         AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AnnualCreditUnitAudits      AnnualCreditUnitAudit[]
-    AnnualCreditUnitHasSubjects AnnualCreditUnitSubject[]
+    AnnualCreditUnitAudits   AnnualCreditUnitAudit[]
+    AnnualCreditUnitSubjects AnnualCreditUnitSubject[]
 }
 
 model AnnualCreditUnitAudit {
@@ -706,6 +714,7 @@ model AnnualCreditUnitSubject {
     AnnualCreditUnitSubjectAudits   AnnualCreditUnitSubjectAudit[]
     AnnualCreditUnitHasSubjectParts AnnualCreditUnitHasSubjectPart[]
     Evaluations                     Evaluation[]
+    Chapters                        Chapter[]
 }
 
 model AnnualCreditUnitSubjectAudit {
@@ -719,7 +728,7 @@ model AnnualCreditUnitSubjectAudit {
     audited_by                          String                  @db.VarChar(36)
     AnnualTeacher                       AnnualTeacher           @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
     annual_credit_unit_subject_id       String                  @db.VarChar(36)
-    AnnualCreditUnit                    AnnualCreditUnitSubject @relation(fields: [annual_credit_unit_subject_id], references: [annual_credit_unit_subject_id], onDelete: Cascade, onUpdate: Cascade)
+    AnnualCreditUnitSubject             AnnualCreditUnitSubject @relation(fields: [annual_credit_unit_subject_id], references: [annual_credit_unit_subject_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model AnnualCreditUnitHasSubjectPart {
@@ -729,7 +738,7 @@ model AnnualCreditUnitHasSubjectPart {
     subject_part_id                        String                  @db.VarChar(36)
     SubjectPart                            SubjectPart             @relation(fields: [subject_part_id], references: [subject_part_id], onDelete: Cascade, onUpdate: Cascade)
     annual_credit_unit_subject_id          String                  @db.VarChar(36)
-    AnnualCreditUnit                       AnnualCreditUnitSubject @relation(fields: [annual_credit_unit_subject_id], references: [annual_credit_unit_subject_id], onDelete: Cascade, onUpdate: Cascade)
+    AnnualCreditUnitSubject                AnnualCreditUnitSubject @relation(fields: [annual_credit_unit_subject_id], references: [annual_credit_unit_subject_id], onDelete: Cascade, onUpdate: Cascade)
     annual_teacher_id                      String                  @db.VarChar(36)
     AnnualTeacher                          AnnualTeacher           @relation(name: "AnnualTeacher", fields: [annual_teacher_id], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
     created_by                             String                  @db.VarChar(36)
@@ -849,14 +858,25 @@ model AnnualEvaluationTypeWeightingAudit {
     AnnualRegistry                            AnnualRegistry                @relation(fields: [audited_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
+enum EvaluationSubTypeEnum {
+    CA
+    EXAM
+    RESIT
+    PRACTICAL
+    ASSIGNMENT
+    GUIDED_WORK
+
+    @@map("evaluation_sub_type_enum")
+}
+
 model AnnualEvaluationSubType {
-    annual_evaluation_sub_type_id String         @id @default(uuid()) @db.VarChar(36)
-    evaluation_sub_type_name      String         @db.VarChar(45)
+    annual_evaluation_sub_type_id String                @id @default(uuid()) @db.VarChar(36)
+    evaluation_sub_type_name      EvaluationSubTypeEnum
     evaluation_sub_type_weight    Int
-    academic_year_id              String         @db.VarChar(36)
-    AcademicYear                  AcademicYear   @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
-    evaluation_type_id            String         @db.VarChar(36)
-    EvaluationType                EvaluationType @relation(fields: [evaluation_type_id], references: [evaluation_type_id], onDelete: Cascade, onUpdate: Cascade)
+    academic_year_id              String                @db.VarChar(36)
+    AcademicYear                  AcademicYear          @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    evaluation_type_id            String                @db.VarChar(36)
+    EvaluationType                EvaluationType        @relation(fields: [evaluation_type_id], references: [evaluation_type_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualEvaluationSubTypeAudits AnnualEvaluationSubTypeAudit[]
     Evaluations                   Evaluation[]
@@ -992,15 +1012,14 @@ model AnnualSemesterExamAcessAudit {
 
 model Evaluation {
     evaluation_id                 String                  @id @default(uuid()) @db.VarChar(36)
-    examination_date              DateTime                @db.DateTime(0)
+    examination_date              DateTime?               @db.DateTime(0)
     annual_evaluation_sub_type_id String                  @db.VarChar(36)
     AnnualEvaluationSubType       AnnualEvaluationSubType @relation(fields: [annual_evaluation_sub_type_id], references: [annual_evaluation_sub_type_id], onDelete: Cascade, onUpdate: Cascade)
     annual_credit_unit_subject_id String                  @db.VarChar(36)
     AnnualCreditUnitSubject       AnnualCreditUnitSubject @relation(fields: [annual_credit_unit_subject_id], references: [annual_credit_unit_subject_id], onDelete: Cascade, onUpdate: Cascade)
-
-    created_at             DateTime      @default(now()) @db.DateTime(0)
-    created_by             String        @db.VarChar(36)
-    CreatedByAnnualTeacher AnnualTeacher @relation(name: "CreatedBy_AnnualTeacher", fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    created_at                    DateTime                @default(now()) @db.DateTime(0)
+    created_by                    String                  @db.VarChar(36)
+    CreatedByAnnualTeacher        AnnualTeacher           @relation(name: "CreatedBy_AnnualTeacher", fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 
     published_at             DateTime?      @db.DateTime(0)
     published_by             String?        @db.VarChar(36)
@@ -1011,6 +1030,17 @@ model Evaluation {
     AnnualRegistry AnnualRegistry? @relation(fields: [anonimated_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
 
     EvaluationHasStudents EvaluationHasStudent[]
+    EvaluationAudits      EvaluationAudit[]
+}
+
+model EvaluationAudit {
+    evaluation_audit_id String        @id @default(uuid()) @db.VarChar(36)
+    examination_date    DateTime?     @db.DateTime(0)
+    evaluation_id       String        @db.VarChar(36)
+    Evaluation          Evaluation    @relation(fields: [evaluation_id], references: [evaluation_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_at          DateTime      @default(now()) @db.DateTime(0)
+    audited_by          String        @db.VarChar(36)
+    AnnualTeacher       AnnualTeacher @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model EvaluationHasStudent {
@@ -1018,13 +1048,89 @@ model EvaluationHasStudent {
     mark                          Int?
     anonymity_code                String                @db.VarChar(20)
     is_editable                   Boolean
+    is_deleted                    Boolean               @default(false) @db.TinyInt
+    created_at                    DateTime              @default(now()) @db.DateTime(0)
     edition_granted_at            DateTime?             @db.DateTime(0)
     evaluation_id                 String                @db.VarChar(36)
     Evaluation                    Evaluation            @relation(fields: [evaluation_id], references: [evaluation_id], onDelete: Cascade, onUpdate: Cascade)
     annual_student_id             String                @db.VarChar(36)
     AnnualStudent                 AnnualStudent         @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)
     ref_evaluation_has_student_id String?               @db.VarChar(36)
-    EvaluationHasStudent          EvaluationHasStudent? @relation(name: "Ref_EvaluationHasStudent", fields: [evaluation_has_student_id], references: [evaluation_has_student_id], onDelete: Cascade, onUpdate: Cascade)
+    EvaluationHasStudent          EvaluationHasStudent? @relation(name: "Ref_EvaluationHasStudent", fields: [ref_evaluation_has_student_id], references: [evaluation_has_student_id], onDelete: Cascade, onUpdate: Cascade)
 
-    EvaluationHasStudents EvaluationHasStudent[] @relation(name: "Ref_EvaluationHasStudent")
+    EvaluationHasStudents      EvaluationHasStudent[]      @relation(name: "Ref_EvaluationHasStudent")
+    EvaluationHasStudentAudits EvaluationHasStudentAudit[]
+}
+
+model EvaluationHasStudentAudit {
+    evaluation_has_student_audit_id String   @id @default(uuid()) @db.VarChar(36)
+    mark                            Int?
+    anonymity_code                  String   @db.VarChar(20)
+    is_deleted                      Boolean  @db.TinyInt
+    is_editable                     Boolean
+    audited_at                      DateTime @default(now()) @db.DateTime(0)
+
+    edition_granted_at        DateTime?            @db.DateTime(0)
+    evaluation_has_student_id String               @db.VarChar(36)
+    EvaluationHasStudent      EvaluationHasStudent @relation(fields: [evaluation_has_student_id], references: [evaluation_has_student_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by                String               @db.VarChar(36)
+    AnnualTeacher             AnnualTeacher        @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Chapter {
+    chapter_id                    String                  @id @default(uuid()) @db.VarChar(36)
+    chapter_title                 String                  @db.VarChar(45)
+    chapter_objective             String                  @db.MediumText
+    is_deleted                    Boolean                 @db.TinyInt
+    created_at                    DateTime                @default(now()) @db.DateTime(0)
+    annual_credit_unit_subject_id String                  @db.VarChar(36)
+    AnnualCreditUnitSubject       AnnualCreditUnitSubject @relation(fields: [annual_credit_unit_subject_id], references: [annual_credit_unit_subject_id], onDelete: Cascade, onUpdate: Cascade)
+    chapter_parent_id             String?                 @db.VarChar(36)
+    ChapterParent                 Chapter?                @relation(name: "ChapterParent", fields: [chapter_parent_id], references: [chapter_id], onDelete: Cascade, onUpdate: Cascade)
+    created_by                    String                  @db.VarChar(36)
+    AnnualTeacher                 AnnualTeacher           @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+
+    Chapter       Chapter[]      @relation(name: "ChapterParent")
+    ChapterAudits ChapterAudit[]
+    Ressources    Ressource[]
+}
+
+model ChapterAudit {
+    chapter_audit_id  String        @id @default(uuid()) @db.VarChar(36)
+    chapter_title     String        @db.VarChar(45)
+    chapter_objective String        @db.MediumText
+    is_deleted        Boolean       @db.TinyInt
+    audited_at        DateTime      @default(now()) @db.DateTime(0)
+    chapter_id        String        @db.VarChar(36)
+    Chapter           Chapter       @relation(fields: [chapter_id], references: [chapter_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by        String        @db.VarChar(36)
+    AnnualTeacher     AnnualTeacher @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Ressource {
+    ressource_id        String        @id @default(uuid()) @db.VarChar(36)
+    ressource_extension String        @db.VarChar(5)
+    ressource_ref       String        @db.VarChar(90)
+    ressource_name      String        @db.VarChar(45)
+    is_deleted          Boolean       @default(false) @db.TinyInt
+    created_at          DateTime      @default(now()) @db.DateTime(0)
+    chapter_id          String?
+    Chapter             Chapter?      @relation(fields: [chapter_id], references: [chapter_id], onDelete: Cascade, onUpdate: Cascade)
+    created_by          String        @db.VarChar(36)
+    AnnualTeacher       AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+
+    RessourceAudits RessourceAudit[]
+}
+
+model RessourceAudit {
+    ressource_audit_id  String        @id @default(uuid()) @db.VarChar(36)
+    ressource_extension String        @db.VarChar(5)
+    ressource_ref       String        @db.VarChar(90)
+    ressource_name      String        @db.VarChar(45)
+    is_deleted          Boolean       @default(false) @db.TinyInt
+    audited_at          DateTime      @default(now()) @db.DateTime(0)
+    ressource_id        String
+    Ressource           Ressource     @relation(fields: [ressource_id], references: [ressource_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by          String        @db.VarChar(36)
+    AnnualTeacher       AnnualTeacher @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 }

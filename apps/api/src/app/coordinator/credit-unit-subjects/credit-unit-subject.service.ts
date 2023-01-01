@@ -39,13 +39,34 @@ export class CreditUnitSubjectService {
       (total, { weighting }) => total + weighting,
       0
     );
-    if (weighting <= 1 - totalWeight)
+    if (weighting > 1 - totalWeight)
       throw new HttpException(
         JSON.stringify(ERR10),
         HttpStatus.EXPECTATION_FAILED
       );
 
-    const allSubjectParts = await this.prismaService.subjectPart.findMany();
+    const allSubjectParts = await this.prismaService.subjectPart.findMany({
+      where: {
+        OR: subjectParts.map(({ subject_part_id }) => ({ subject_part_id })),
+      },
+    });
+    if (allSubjectParts.length === 0)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Subject Parts')),
+        HttpStatus.NOT_FOUND
+      );
+    const teachers = await this.prismaService.annualTeacher.findMany({
+      where: { academic_year_id: annualCreditUnit.academic_year_id },
+    });
+    if (
+      !subjectParts.find((_) =>
+        teachers.find((__) => __.annual_teacher_id === _.annual_teacher_id)
+      )
+    )
+      throw new HttpException(
+        JSON.stringify(AUTH404('Annual Teacher(s)')),
+        HttpStatus.NOT_FOUND
+      );
     const annualCreditUnitHasSubjectParts = allSubjectParts.map(
       ({ subject_part_id }) => {
         const subjectPart = subjectParts.find(
@@ -59,6 +80,13 @@ export class CreditUnitSubjectService {
         };
       }
     );
+    const evaluationSubTypes =
+      await this.prismaService.annualEvaluationSubType.findMany({
+        where: {
+          evaluation_sub_type_name: { in: ['CA', 'EXAM'] },
+          academic_year_id: annualCreditUnit.academic_year_id,
+        },
+      });
     return this.prismaService.annualCreditUnitSubject.create({
       data: {
         objective,
@@ -70,7 +98,16 @@ export class CreditUnitSubjectService {
         AnnualCreditUnitHasSubjectParts: {
           createMany: {
             data: annualCreditUnitHasSubjectParts,
-            skipDuplicates: true,
+          },
+        },
+        Evaluations: {
+          createMany: {
+            data: evaluationSubTypes.map(
+              ({ annual_evaluation_sub_type_id }) => ({
+                annual_evaluation_sub_type_id,
+                created_by,
+              })
+            ),
           },
         },
       },
@@ -87,6 +124,27 @@ export class CreditUnitSubjectService {
     }: CreditUnitSubjectPutDto,
     audited_by: string
   ) {
+    const annualCreditUnit =
+      await this.prismaService.annualCreditUnit.findUnique({
+        where: { annual_credit_unit_id },
+      });
+    if (!annualCreditUnit)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Credit Unit')),
+        HttpStatus.NOT_FOUND
+      );
+    const teachers = await this.prismaService.annualTeacher.findMany({
+      where: { academic_year_id: annualCreditUnit.academic_year_id },
+    });
+    if (
+      !subjectParts.find((_) =>
+        teachers.find((__) => __.annual_teacher_id === _.annual_teacher_id)
+      )
+    )
+      throw new HttpException(
+        JSON.stringify(AUTH404('Annual Teacher(s)')),
+        HttpStatus.NOT_FOUND
+      );
     const annualCreditUnitSubject =
       await this.prismaService.annualCreditUnitSubject.findUnique({
         select: {
@@ -114,13 +172,16 @@ export class CreditUnitSubjectService {
       );
     const subjects = await this.prismaService.annualCreditUnitSubject.findMany({
       select: { weighting: true },
-      where: { annual_credit_unit_id },
+      where: {
+        annual_credit_unit_id,
+        annual_credit_unit_subject_id: { not: annual_credit_unit_subject_id },
+      },
     });
     const totalWeight = subjects.reduce(
       (total, { weighting }) => total + weighting,
       0
     );
-    if (weighting && weighting <= 1 - totalWeight)
+    if (weighting && weighting > 1 - totalWeight)
       throw new HttpException(
         JSON.stringify(ERR10),
         HttpStatus.EXPECTATION_FAILED
@@ -141,7 +202,7 @@ export class CreditUnitSubjectService {
         const subjectPart = oldSubjectParts.find(
           (_) => _.subject_part_id === subject_part_id
         );
-        if (subjectPart.number_of_hours !== number_of_hours)
+        if (subjectPart?.number_of_hours !== number_of_hours)
           updatedSubjectParts.push({
             subject_part_id,
             number_of_hours,
@@ -161,10 +222,13 @@ export class CreditUnitSubjectService {
     let updateTransactionInstruction: PrismaPromise<Prisma.BatchPayload>[] = [];
     if (updatedSubjectParts.length > 0)
       updateTransactionInstruction = [
-        this.prismaService.annualCreditUnitHasSubjectPart.updateMany({
-          data: updatedSubjectParts,
-          where: { annual_credit_unit_subject_id },
-        }),
+        ...updatedSubjectParts.map(
+          ({ annual_credit_unit_subject_id, subject_part_id, ...data }) =>
+            this.prismaService.annualCreditUnitHasSubjectPart.updateMany({
+              data,
+              where: { annual_credit_unit_subject_id, subject_part_id },
+            })
+        ),
         this.prismaService.annualCreditUnitHasSubjectPartAudit.createMany({
           data: annualCreditUnitHasSubjectPartAudits,
           skipDuplicates: true,
@@ -217,6 +281,7 @@ export class CreditUnitSubjectService {
         AnnualCreditUnitHasSubjectParts: subjectParts,
         ...annualCreditUnitSubject
       }) => {
+        console.log(subjectParts);
         const {
           AnnualTeacher: {
             Login: {
