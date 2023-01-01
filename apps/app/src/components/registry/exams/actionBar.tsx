@@ -40,7 +40,15 @@ export default function ActionBar({
 }) {
   const { formatMessage } = useIntl();
   return (
-    <Box sx={{marginTop: theme.spacing(1)}}>
+    <Box
+      sx={{
+        marginTop: theme.spacing(1),
+        display: 'grid',
+        gridAutoFlow: 'column',
+        justifyContent: 'start',
+        columnGap: theme.spacing(2),
+      }}
+    >
       <FormControl>
         <InputLabel id="major">{formatMessage({ id: 'major' })}</InputLabel>
         <Select
