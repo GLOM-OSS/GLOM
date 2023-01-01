@@ -407,7 +407,7 @@ export default function SubjectManagement() {
         confirm={() =>
           actionnedSubject ? deleteSubject(actionnedSubject) : null
         }
-        deleteMessage={formatMessage({ id: 'confirmDeleteSubjectMessage' })}
+        dialogMessage={formatMessage({ id: 'confirmDeleteSubjectMessage' })}
         isDialogOpen={isConfirmDeleteDialogOpen}
       />
       <Box

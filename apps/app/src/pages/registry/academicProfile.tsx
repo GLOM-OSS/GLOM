@@ -330,7 +330,7 @@ export default function AcademicProfileTable() {
             ? deleteProfile(actionnedProfile)
             : alert(formatMessage({ id: 'noActionnedAcademicProfilePresent' }))
         }
-        deleteMessage={formatMessage({ id: 'confirmDeleteAcademicProfile' })}
+        dialogMessage={formatMessage({ id: 'confirmDeleteAcademicProfile' })}
         isDialogOpen={isConfirmDeleteDialogOpen}
       />
       <Box
