@@ -112,3 +112,7 @@ export const ERR11 = {
   En: `Please either use the evaluation id or subject and evaluation sub type id to fetch evaluation data.`,
   Fr: `Veuillez utiliser soit l'identifiant de l'évaluation, soit l'identifiant du sujet et du sous-type d'évaluation pour récupérer les données d'évaluation.`,
 };
+export const ERR12 = {
+  En: `Sorry you cannot access student's anonymities once they are anonimated.`,
+  Fr: `Désolé, vous ne pouvez pas acceder aux anomimats des etudiants une fois qu'ils sont anonimés.`,
+};

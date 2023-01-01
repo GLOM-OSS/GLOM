@@ -8,17 +8,17 @@ import {
   Put,
   Query,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import { Request } from 'express';
-import { ERR11 } from '../../../errors';
+import { ERR11, ERR12 } from '../../../errors';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import {
   EvaluationQueryDto,
   EvaluationsQeuryDto,
-  ExamDatePutDto,
+  ExamDatePutDto
 } from '../teacher.dto';
 import { EvaluationService } from './evaluation.service';
 
@@ -60,13 +60,22 @@ export class EvaluationController {
   }
 
   @Get(':evaluation_id/students')
-  async getEvaluationStudents(@Param('evaluation_id') evaluation_id: string) {
-    const evaluation = await this.evaluationService.getEvaluation({
-      evaluation_id,
-    });
-    const { evaluation_sub_type_name, is_published } = evaluation;
-    const useAnonymityCode =
-      ['RESIT', 'EXAM'].includes(evaluation_sub_type_name) && !is_published;
+  @Roles(Role.REGISTRY, Role.TEACHER)
+  async getEvaluationStudents(
+    @Req() request: Request,
+    @Param('evaluation_id') evaluation_id: string
+  ) {
+    const { annualRegistry, annualTeacher, preferred_lang } =
+      request.user as DeserializeSessionData;
+    const { evaluation_sub_type_name, is_published, is_anonimated } =
+      await this.evaluationService.getEvaluation({
+        evaluation_id,
+      });
+    if (annualRegistry && is_anonimated)
+      throw new HttpException(ERR12[preferred_lang], HttpStatus.FORBIDDEN);
+    const useAnonymityCode = annualTeacher
+      ? ['RESIT', 'EXAM'].includes(evaluation_sub_type_name) && !is_published
+      : !is_anonimated;
     return this.evaluationService.getEvaluationHasStudents(
       evaluation_id,
       useAnonymityCode

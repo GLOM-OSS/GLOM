@@ -175,8 +175,15 @@ export class EvaluationService {
     }: { anonimated_at?: Date; examination_date?: Date; published_at?: Date },
     audited_by: string
   ) {
-    const evaluation = await this.prismaService.evaluation.findUnique({
-      where: { evaluation_id },
+    const evaluation = await this.prismaService.evaluation.findFirst({
+      where: {
+        evaluation_id,
+        AnnualCreditUnitSubject: {
+          AnnualCreditUnitHasSubjectParts: {
+            some: { annual_teacher_id: audited_by },
+          },
+        },
+      },
     });
     if (!evaluation)
       throw new HttpException(
