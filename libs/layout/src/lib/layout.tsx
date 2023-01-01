@@ -69,7 +69,6 @@ export function Layout({
   const [roleNavigationItems, setRoleNavigationItems] = useState<NavItem[]>([]);
 
   useEffect(() => {
-    alert(activeRole);
     const RoleNavItems = navItems.find(({ role }) => role === activeRole);
     if (RoleNavItems) setRoleNavigationItems(RoleNavItems.navItems);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -78,7 +77,7 @@ export function Layout({
   useEffect(() => {
     if (roleNavigationItems.length > 0) {
       let currentNavItem = roleNavigationItems.find(
-        ({ title }) => title === location.pathname.split('/')[2]
+        ({ route }) => route === location.pathname.split('/')[2]
       );
       if (!currentNavItem) currentNavItem = roleNavigationItems[0];
       setActiveNavItem(currentNavItem ?? roleNavigationItems[0]);
@@ -159,8 +158,7 @@ export function Layout({
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
         localStorage.setItem('previousRoute', location.pathname);
-        alert('helo');
-        setActiveRole('registry'); //TODO: DELETE LINE IN PRODUCTION
+        setActiveRole('coordinator'); //TODO: DELETE LINE IN PRODUCTION
         // navigate('/'); TODO: uncomment in production
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
