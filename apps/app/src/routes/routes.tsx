@@ -7,6 +7,7 @@ import SubjectManagement from '../pages/coordinator/subjectManagement';
 import AcademicProfileTable from '../pages/registry/academicProfile';
 import Exams from '../pages/registry/exams';
 import WeightingTable from '../pages/registry/weightingTable';
+import AnonimationDetails from '../pages/registry/[annual_credit_unit_subject_id]';
 import Departments from '../pages/secretary/departments';
 import Majors from '../pages/secretary/majors';
 import NewAcademicYear from '../pages/secretary/newAcademicYear';
@@ -98,7 +99,7 @@ export const routes = [
       },
       {
         path: 'exams/:annual_credit_unit_subject_id',
-        element: <Exams />,
+        element: <AnonimationDetails />,
       },
       { path: '*', element: <Navigate to="/" /> },
     ],
