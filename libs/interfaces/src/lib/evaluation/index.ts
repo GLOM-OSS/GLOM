@@ -20,8 +20,7 @@ export interface EvaluationHasStudent {
   last_updated: Date | null;
 }
 
-export interface AnonimatedEvaluationHasStudent
-  extends Omit<EvaluationHasStudent, 'fullname' | 'matricule'> {
+export interface AnonimatedEvaluationHasStudent extends EvaluationHasStudent {
   anonymity_code: string;
 }
 
