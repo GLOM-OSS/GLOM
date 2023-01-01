@@ -206,15 +206,35 @@ export default function Exams() {
   };
 
   useEffect(() => {
-    loadEvaluations();
     loadMajors();
+    return () => {
+      //TODO: CLEANUP ABOVE AXIOS CALL
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     loadCreditUnits();
+    return () => {
+      //TODO: CLEANUP ABOVE AXIOS CALL
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeMajor, activeSemester]);
+
+  useEffect(() => {
+    loadEvaluations();
+    return () => {
+      //TODO: CLEANUP ABOVE AXIOS CALL
+    };
+  }, [activeMajor, activeSemester, activeCreditUnit, activeSubject]);
+
+  useEffect(() => {
     loadSubjects();
     return () => {
       //TODO: CLEANUP ABOVE AXIOS CALLS
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [activeMajor, activeSemester, activeCreditUnit]);
 
   return (
     <Box
