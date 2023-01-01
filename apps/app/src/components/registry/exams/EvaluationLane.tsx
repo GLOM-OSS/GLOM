@@ -21,14 +21,14 @@ export default function EvaluationLane({
   const navigate = useNavigate();
   return (
     <TableRow
-      onClick={() => navigate(e_id)}
+      onClick={() => (ia ? null : navigate(e_id))}
       sx={{
         borderBottom: `1px solid ${theme.common.line}`,
         borderTop: `1px solid ${theme.common.line}`,
         padding: `0 ${theme.spacing(4.625)}`,
         cursor: 'pointer',
       }}
-      hover
+      hover={!ia}
     >
       <TableCell>{p}</TableCell>
       <TableCell>{st}</TableCell>
