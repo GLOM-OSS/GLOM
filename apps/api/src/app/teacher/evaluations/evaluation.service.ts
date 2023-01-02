@@ -81,7 +81,7 @@ export class EvaluationService {
         AnnualCreditUnitSubject: {
           annual_credit_unit_subject_id,
           AnnualCreditUnit: {
-            semester_number: Number(semester_number),
+            semester_number,
             annual_credit_unit_id,
             Major: { major_code },
           },
@@ -194,11 +194,15 @@ export class EvaluationService {
     const evaluation = await this.prismaService.evaluation.findFirst({
       where: {
         evaluation_id,
-        AnnualCreditUnitSubject: {
-          AnnualCreditUnitHasSubjectParts: {
-            some: { annual_teacher_id: audited_by },
-          },
-        },
+        ...(anonimated_at
+          ? {}
+          : {
+              AnnualCreditUnitSubject: {
+                AnnualCreditUnitHasSubjectParts: {
+                  some: { annual_teacher_id: audited_by },
+                },
+              },
+            }),
       },
     });
     if (!evaluation)
