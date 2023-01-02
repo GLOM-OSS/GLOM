@@ -57,5 +57,6 @@ export interface CreditUnitMarkStatus {
   credit_unit_name: string;
   annual_credit_unit_id: string;
   availability_percentage: number;
+  is_published: boolean;
   subjectMarkStatus: Omit<Course, 'classroom_acronyms' | 'has_course_plan'>[];
 }
