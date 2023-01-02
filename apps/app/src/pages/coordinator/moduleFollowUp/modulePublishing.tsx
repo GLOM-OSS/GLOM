@@ -77,11 +77,11 @@ export default function ModulePublishing() {
         const newModuleStatus: CreditUnitMarkStatus[] = [
           {
             annual_credit_unit_id: 'sueios',
-            availability_percentage: 79,
+            availability_percentage: 100,
             credit_points: 7,
             credit_unit_code: 'uc0116',
             credit_unit_name: 'Informatique I',
-            is_published: true,
+            is_published: false,
             subjectMarkStatus: [
               {
                 annual_credit_unit_subject_id: 'eisoe',
