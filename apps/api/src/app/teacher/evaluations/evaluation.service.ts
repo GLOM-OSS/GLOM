@@ -94,16 +94,24 @@ export class EvaluationService {
   }
 
   async getEvaluationSubTypes(academic_year_id: string) {
-    return this.prismaService.annualEvaluationSubType.findMany({
-      select: {
-        evaluation_sub_type_name: true,
-        annual_evaluation_sub_type_id: true,
-      },
-      where: {
-        academic_year_id,
-        evaluation_sub_type_name: { in: ['CA', 'EXAM', 'RESIT'] },
-      },
-    });
+    const evaluationSubjectType =
+      await this.prismaService.annualEvaluationSubType.findMany({
+        select: {
+          evaluation_sub_type_name: true,
+          annual_evaluation_sub_type_id: true,
+          EvaluationType: { select: { evaluation_type: true } },
+        },
+        where: {
+          academic_year_id,
+          evaluation_sub_type_name: { in: ['CA', 'EXAM', 'RESIT'] },
+        },
+      });
+    return evaluationSubjectType.map(
+      ({ EvaluationType: { evaluation_type }, ...subTypes }) => ({
+        evaluation_type,
+        ...subTypes,
+      })
+    );
   }
 
   async getEvaluationHasStudents(
