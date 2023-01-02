@@ -120,3 +120,7 @@ export const ERR13 = {
   En: `Sorry, some evaluations identifier are incorrect.`,
   Fr: `Désolé, Certains identifiants d'evaluations sont incorrect.`,
 };
+export const ERR14 = {
+  En: `Sorry, this action requires valid private code`,
+  Fr: `Désolé, Cette action neccessite un code privée valide.`,
+};

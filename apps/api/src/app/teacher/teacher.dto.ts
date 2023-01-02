@@ -7,9 +7,8 @@ import {
   IsDateString,
   IsNumber,
   IsNumberString,
-  IsOptional,
-  IsUUID,
-  ValidateNested,
+  IsOptional, IsUUID,
+  ValidateNested
 } from 'class-validator';
 
 export class EvaluationQueryDto {
@@ -77,5 +76,5 @@ export class EvaluationMarkDto {
 
   @IsBoolean()
   @ApiProperty()
-  is_published: boolean
+  is_published: boolean;
 }

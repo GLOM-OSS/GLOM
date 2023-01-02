@@ -12,8 +12,9 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ERR11, ERR12 } from '../../../errors';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { DeserializeSessionData, Role } from '../../../utils/types';
-import { Roles } from '../../app.decorator';
+import { IsPrivate, Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import {
   EvaluationMarkDto,
@@ -26,7 +27,10 @@ import { EvaluationService } from './evaluation.service';
 @Controller()
 @UseGuards(AuthenticatedGuard)
 export class EvaluationController {
-  constructor(private evaluationService: EvaluationService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private evaluationService: EvaluationService
+  ) {}
 
   @Get()
   async getEvaluation(
@@ -144,6 +148,7 @@ export class EvaluationController {
     }
   }
 
+  @IsPrivate()
   @Roles(Role.TEACHER)
   @Put(':evaluation_id/save')
   async saveEvaluation(

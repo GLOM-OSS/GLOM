@@ -565,4 +565,24 @@ export class AuthService {
   async getUser(email: string) {
     return this.personService.findUnique({ where: { email } });
   }
+
+  async verifyPrivateCode(
+    role: Role.REGISTRY | Role.TEACHER,
+    { private_code, user_id }: { private_code: string; user_id: string }
+  ) {
+    let privateCode: string;
+
+    if (role === Role.TEACHER) {
+      const teacher = await this.prismaService.teacher.findUnique({
+        where: { teacher_id: user_id },
+      });
+      privateCode = teacher?.private_code;
+    } else {
+      const registry = await this.prismaService.annualRegistry.findUnique({
+        where: { annual_registry_id: user_id },
+      });
+      privateCode = registry?.private_code;
+    }
+    return privateCode && bcrypt.compareSync(private_code, privateCode);
+  }
 }
