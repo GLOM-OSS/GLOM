@@ -5,11 +5,11 @@ import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import { CreditUnitMarkStatus } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import ActionBar from 'apps/app/src/components/coordinator/moduleFollowUp/actionBar';
-import ModuleDisplay from 'apps/app/src/components/coordinator/moduleFollowUp/moduleDisplay';
+import ActionBar from '../../../components/coordinator/moduleFollowUp/actionBar';
+import ModuleDisplay from '../../../components/coordinator/moduleFollowUp/moduleDisplay';
 import ModuleStatusSkeleton, {
   NoModuleStatus,
-} from 'apps/app/src/components/coordinator/moduleFollowUp/moduleStatusSkeleton';
+} from '../../../components/coordinator/moduleFollowUp/moduleStatusSkeleton';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
