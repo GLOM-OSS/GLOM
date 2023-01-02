@@ -193,4 +193,19 @@ export class CourseService {
         .map((_) => _.classroom_acronym),
     };
   }
+
+  async findResources(annual_credit_unit_subject_id: string) {
+    return this.prismaService.resource.findMany({
+      select: {
+        annual_credit_unit_subject_id: true,
+        resource_extension: true,
+        resource_name: true,
+        resource_ref: true,
+        resource_type: true,
+        resource_id: true,
+        chapter_id: true,
+      },
+      where: { annual_credit_unit_subject_id, is_deleted: false },
+    });
+  }
 }
