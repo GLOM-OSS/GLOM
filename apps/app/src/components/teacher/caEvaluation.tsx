@@ -13,6 +13,15 @@ import {
   TableBody,
 } from '@mui/material';
 import {
+  getEvaluation,
+  getEvaluationHasStudents,
+  getEvaluationSubTypes,
+  publishEvaluation,
+  resetStudentMarks,
+  saveStudentMarks,
+  setEvaluationDate,
+} from '@squoolr/api-services';
+import {
   AnonimatedEvaluationHasStudent,
   Evaluation,
   EvaluationHasStudent,
@@ -90,23 +99,14 @@ export default function CAEvaluation() {
         studentNotif.dismiss();
       }
       setStudentNotif(notif);
-      setTimeout(() => {
-        //TODO: call api here to load evaluationHasStudents with data evaluation.evaluation_id
-        if (6 > 5) {
-          const newStudents: EvaluationHasStudent[] = [
-            {
-              evaluation_has_student_id: 'lsie',
-              fullname: 'Tchakoumi Lorrain',
-              last_updated: new Date(),
-              mark: 0,
-              matricule: '17C005',
-            },
-          ];
-          setEvaluationHasStudents(newStudents);
+      getEvaluationHasStudents(evaluation?.evaluation_id as string)
+        .then((students) => {
+          setEvaluationHasStudents(students);
           setAreStudentsLoading(false);
           notif.dismiss();
           setStudentNotif(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.notify({
             render: formatMessage({ id: 'loadingStudents' }),
           });
@@ -116,15 +116,15 @@ export default function CAEvaluation() {
               <ErrorMessage
                 retryFunction={loadStudents}
                 notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'getStudentsFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'getStudentsFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        });
     }
   };
 
@@ -135,33 +135,16 @@ export default function CAEvaluation() {
       evaluationSubTypeNotif.dismiss();
     }
     setEvaluationSubTypeNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load evaluationSubTypes
-      if (6 > 5) {
-        const newEvaluationSubTypes: EvaluationSubType[] = [
-          {
-            evaluation_sub_type_id: 'lsiel',
-            evaluation_sub_type_name: EvaluationSubTypeEnum.CA,
-            evaluation_type_name: EvaluationTypeEnum.CA,
-          },
-          {
-            evaluation_sub_type_id: 'lsiesl',
-            evaluation_sub_type_name: EvaluationSubTypeEnum.EXAM,
-            evaluation_type_name: EvaluationTypeEnum.EXAM,
-          },
-          {
-            evaluation_sub_type_id: 'lsiesfl',
-            evaluation_sub_type_name: EvaluationSubTypeEnum.RESIT,
-            evaluation_type_name: EvaluationTypeEnum.EXAM,
-          },
-        ];
-        setEvaluationSubTypes(newEvaluationSubTypes);
-        if (newEvaluationSubTypes.length > 0)
-          setActiveEvaluationSubType(newEvaluationSubTypes[0]);
+    getEvaluationSubTypes()
+      .then((evaluationSubTypes) => {
+        setEvaluationSubTypes(evaluationSubTypes);
+        if (evaluationSubTypes.length > 0)
+          setActiveEvaluationSubType(evaluationSubTypes[0]);
         setAreEvaluationSubTypesLoading(false);
         notif.dismiss();
         setEvaluationSubTypeNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingEvaluationSubTypes' }),
         });
@@ -171,15 +154,16 @@ export default function CAEvaluation() {
             <ErrorMessage
               retryFunction={loadEvaluationSubTypes}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getEvaluationSubTypesFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'getEvaluationSubTypesFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const loadEvaluation = () => {
@@ -191,40 +175,37 @@ export default function CAEvaluation() {
       evaluationNotif.dismiss();
     }
     setEvaluationNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load evaluation with data annual_credit_unit_subject_id and activeEvaluationSubType
-      if (6 > 5) {
-        const newEvaluation: Evaluation = {
-          evaluation_id: 'siels',
-          evaluation_sub_type_name: EvaluationSubTypeEnum.CA,
-          examination_date: new Date(),
-          is_anonimated: true,
-          is_published: false,
-          subject_title: 'biologie',
-        };
-        setEvaluation(newEvaluation);
-        setIsEvaluationLoading(false);
-        notif.dismiss();
-        setEvaluationNotif(undefined);
-      } else {
-        notif.notify({
-          render: formatMessage({ id: 'loadingEvaluation' }),
+    if (annual_credit_unit_subject_id && activeEvaluationSubType)
+      getEvaluation({
+        annual_credit_unit_subject_id,
+        annual_evaluation_sub_type_id:
+          activeEvaluationSubType.evaluation_sub_type_id,
+      })
+        .then((evaluation) => {
+          setEvaluation(evaluation);
+          setIsEvaluationLoading(false);
+          notif.dismiss();
+          setEvaluationNotif(undefined);
+        })
+        .catch((error) => {
+          notif.notify({
+            render: formatMessage({ id: 'loadingEvaluation' }),
+          });
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={loadEvaluation}
+                notification={notif}
+                message={
+                  error?.message || formatMessage({ id: 'getEvaluationFailed' })
+                }
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
         });
-        notif.update({
-          type: 'ERROR',
-          render: (
-            <ErrorMessage
-              retryFunction={loadEvaluation}
-              notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getEvaluationFailed' })}
-            />
-          ),
-          autoClose: false,
-          icon: () => <ReportRounded fontSize="medium" color="error" />,
-        });
-      }
-    }, 3000);
   };
 
   useEffect(() => {
@@ -334,14 +315,23 @@ export default function CAEvaluation() {
       notif.notify({
         render: formatMessage({ id: 'savingMarks' }),
       });
-      setTimeout(() => {
-        //TODO: call api here to save updated marks with data updatedMarks and private_code
-        if (6 > 5) {
+      const studentMarks = updatedMarks.map(
+        ({ evaluation_has_student_id, mark }) => ({
+          evaluation_has_student_id,
+          mark: Number(mark),
+        })
+      );
+      saveStudentMarks(
+        evaluation?.evaluation_id as string,
+        { studentMarks, private_code },
+        false
+      )
+        .then(() => {
           setUpdatedMarks([]);
-          setIsModifyingEvaluation(false);
           notif.update({ render: formatMessage({ id: 'savedMarks' }) });
           setEvaluationNotif(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
@@ -350,15 +340,16 @@ export default function CAEvaluation() {
                   saveEvaluationMarks(private_code, updatedMarks)
                 }
                 notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'saveMarksFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'saveMarksFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        })
+        .finally(() => setIsModifyingEvaluation(false));
     } else {
       alert('saveMustHaveMarksToSave');
       //TODO: change this alert to toast message
@@ -380,21 +371,20 @@ export default function CAEvaluation() {
       notif.notify({
         render: formatMessage({ id: 'resettingMarks' }),
       });
-      setTimeout(() => {
-        //TODO: call api here to reset student marks for evaluation with data evaluation.evaluation_id
-        if (6 > 5) {
+      resetStudentMarks(evaluation?.evaluation_id as string)
+        .then(() => {
           setUpdatedMarks([]);
           setEvaluationHasStudents(
             students.map((student) => {
               return { ...student, mark: null };
             })
           );
-          setIsModifyingEvaluation(false);
           notif.update({
             render: formatMessage({ id: 'marksResetSuccessfull' }),
           });
           setEvaluationNotif(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
@@ -403,15 +393,16 @@ export default function CAEvaluation() {
                   resetEvaluationMarks(private_code, students)
                 }
                 notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'marksResetFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'marksResetFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        })
+        .finally(() => setIsModifyingEvaluation(false));
     } else {
       alert('resetMarksMustHaveStudents');
       //TODO: change this alert to toast message
@@ -434,15 +425,14 @@ export default function CAEvaluation() {
         notif.notify({
           render: formatMessage({ id: 'publishingMarks' }),
         });
-        setTimeout(() => {
-          //TODO: call api here to publish evaluation marks
-          if (6 > 5) {
+        publishEvaluation(evaluation.evaluation_id as string)
+          .then(() => {
             setUpdatedMarks([]);
             setEvaluation({ ...evaluation, is_published: true });
-            setIsModifyingEvaluation(false);
             notif.update({ render: formatMessage({ id: 'publishedMarks' }) });
             setEvaluationNotif(undefined);
-          } else {
+          })
+          .catch((error) => {
             notif.update({
               type: 'ERROR',
               render: (
@@ -451,15 +441,17 @@ export default function CAEvaluation() {
                     publishEvaluationMarks(private_code, updatedMarks)
                   }
                   notification={notif}
-                  //TODO: message should come from backend
-                  message={formatMessage({ id: 'publishMarksFailed' })}
+                  message={
+                    error?.message ||
+                    formatMessage({ id: 'publishMarksFailed' })
+                  }
                 />
               ),
               autoClose: false,
               icon: () => <ReportRounded fontSize="medium" color="error" />,
             });
-          }
-        }, 3000);
+          })
+          .finally(() => setIsModifyingEvaluation(false));
       } else {
         setIsModifyingEvaluation(true);
         const notif = new useNotification();
@@ -470,17 +462,26 @@ export default function CAEvaluation() {
         notif.notify({
           render: formatMessage({ id: 'savingAndPublishingMarks' }),
         });
-        setTimeout(() => {
-          //TODO: call api here to save and publish evaluation marks with data updatedMarks
-          if (6 > 5) {
+        const studentMarks = updatedMarks.map(
+          ({ evaluation_has_student_id, mark }) => ({
+            evaluation_has_student_id,
+            mark: Number(mark),
+          })
+        );
+        saveStudentMarks(
+          evaluation.evaluation_id,
+          { private_code, studentMarks },
+          true
+        )
+          .then(() => {
             setUpdatedMarks([]);
             setEvaluation({ ...evaluation, is_published: true });
-            setIsModifyingEvaluation(false);
             notif.update({
               render: formatMessage({ id: 'savedAndPublishedMarks' }),
             });
             setEvaluationNotif(undefined);
-          } else {
+          })
+          .catch((error) => {
             notif.update({
               type: 'ERROR',
               render: (
@@ -489,15 +490,17 @@ export default function CAEvaluation() {
                     publishEvaluationMarks(private_code, updatedMarks)
                   }
                   notification={notif}
-                  //TODO: message should come from backend
-                  message={formatMessage({ id: 'saveAndPublishMarksFailed' })}
+                  message={
+                    error?.message ||
+                    formatMessage({ id: 'saveAndPublishMarksFailed' })
+                  }
                 />
               ),
               autoClose: false,
               icon: () => <ReportRounded fontSize="medium" color="error" />,
             });
-          }
-        }, 3000);
+          })
+          .finally(() => setIsModifyingEvaluation(false));
       }
     } else {
       alert('publishMarksMustHaveEvaluation');
@@ -519,14 +522,13 @@ export default function CAEvaluation() {
     notif.notify({
       render: formatMessage({ id: 'settingResitDate' }),
     });
-    setTimeout(() => {
-      //TODO: call api here to set resit examination date with data examination_date and evaluation.evaluation_id
-      if (6 > 5) {
+    setEvaluationDate(evaluation.evaluation_id, examination_date)
+      .then(() => {
         setEvaluation({ ...evaluation, examination_date });
-        setIsModifyingEvaluation(false);
         notif.update({ render: formatMessage({ id: 'savedResitDate' }) });
         setEvaluationNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
@@ -535,15 +537,16 @@ export default function CAEvaluation() {
                 publishResitExamDate(examination_date, evaluation)
               }
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'setResitDateFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'setResitDateFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsModifyingEvaluation(false));
   };
 
   return (

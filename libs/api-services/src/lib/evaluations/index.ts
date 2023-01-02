@@ -1,5 +1,9 @@
 import { http } from '@squoolr/axios';
-import { Evaluation, EvaluationSubType } from '@squoolr/interfaces';
+import {
+  Evaluation,
+  EvaluationHasStudent,
+  EvaluationSubType,
+} from '@squoolr/interfaces';
 
 export async function getEvaluations(params: {
   major_id: string;
@@ -34,13 +38,13 @@ export async function getEvaluationSubTypes() {
 }
 
 export async function getEvaluationHasStudents(evaluation_id: string) {
-  const { data } = await http.get<Evaluation[]>(
+  const { data } = await http.get<EvaluationHasStudent[]>(
     `/evaluations/${evaluation_id}/students`
   );
   return data;
 }
 
-export async function updateEvaluation(
+export async function setEvaluationDate(
   evaluation_id: string,
   examination_date: Date
 ) {
@@ -57,13 +61,29 @@ export async function publishEvaluation(evaluation_id: string) {
   await http.put(`/evaluations/${evaluation_id}/publish`);
 }
 
-export async function saveEvaluation(
+export async function saveStudentMarks(
   evaluation_id: string,
-  studentMarks: { evaluation_has_student_id: string; mark: number },
+  {
+    private_code,
+    studentMarks,
+  }: {
+    private_code: string;
+    studentMarks: { evaluation_has_student_id: string; mark: number }[];
+  },
   is_published: boolean
 ) {
-  await http.put(`/evaluations/${evaluation_id}/save`, {
-    studentMarks,
-    is_published,
-  });
+  await http.put(
+    `/evaluations/${evaluation_id}/save`,
+    {
+      studentMarks,
+      is_published,
+    },
+    {
+      params: { private_code },
+    }
+  );
+}
+
+export async function resetStudentMarks(evaluation_id: string) {
+  await http.put(`/evaluations/${evaluation_id}/reset-marks`);
 }
