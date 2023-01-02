@@ -1,6 +1,5 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
-import { LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { MobileDatePicker } from '@mui/x-date-pickers';
 import { theme } from '@squoolr/theme';
 import { useFormik } from 'formik';
 import { useEffect } from 'react';
@@ -77,62 +76,58 @@ export default function AcademicYearData({
               width: 'fit-content',
             }}
           >
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <MobileDatePicker
-                label={formatMessage({
-                  id: 'academic_year_start_date',
-                })}
-                value={formik.values.academic_year_start_date}
-                onChange={(newValue) => {
-                  formik.setFieldValue('academic_year_start_date', newValue);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    color="primary"
-                    size="medium"
-                    error={
-                      formik.touched.academic_year_start_date &&
-                      Boolean(formik.errors.academic_year_start_date)
-                    }
-                    helperText={
-                      formik.touched.academic_year_start_date &&
-                      formik.errors.academic_year_start_date !== undefined &&
-                      String(formik.errors.academic_year_start_date)
-                    }
-                    {...formik.getFieldProps('academic_year_start_date')}
-                  />
-                )}
-              />
-            </LocalizationProvider>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <MobileDatePicker
-                label={formatMessage({
-                  id: 'academic_year_end_date',
-                })}
-                value={formik.values.academic_year_end_date}
-                onChange={(newValue) => {
-                  formik.setFieldValue('academic_year_end_date', newValue);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    color="primary"
-                    size="medium"
-                    error={
-                      formik.touched.academic_year_end_date &&
-                      Boolean(formik.errors.academic_year_end_date)
-                    }
-                    helperText={
-                      formik.touched.academic_year_end_date &&
-                      formik.errors.academic_year_end_date !== undefined &&
-                      String(formik.errors.academic_year_end_date)
-                    }
-                    {...formik.getFieldProps('academic_year_end_date')}
-                  />
-                )}
-              />
-            </LocalizationProvider>
+            <MobileDatePicker
+              label={formatMessage({
+                id: 'academic_year_start_date',
+              })}
+              value={formik.values.academic_year_start_date}
+              onChange={(newValue) => {
+                formik.setFieldValue('academic_year_start_date', newValue);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  color="primary"
+                  size="medium"
+                  error={
+                    formik.touched.academic_year_start_date &&
+                    Boolean(formik.errors.academic_year_start_date)
+                  }
+                  helperText={
+                    formik.touched.academic_year_start_date &&
+                    formik.errors.academic_year_start_date !== undefined &&
+                    String(formik.errors.academic_year_start_date)
+                  }
+                  {...formik.getFieldProps('academic_year_start_date')}
+                />
+              )}
+            />
+            <MobileDatePicker
+              label={formatMessage({
+                id: 'academic_year_end_date',
+              })}
+              value={formik.values.academic_year_end_date}
+              onChange={(newValue) => {
+                formik.setFieldValue('academic_year_end_date', newValue);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  color="primary"
+                  size="medium"
+                  error={
+                    formik.touched.academic_year_end_date &&
+                    Boolean(formik.errors.academic_year_end_date)
+                  }
+                  helperText={
+                    formik.touched.academic_year_end_date &&
+                    formik.errors.academic_year_end_date !== undefined &&
+                    String(formik.errors.academic_year_end_date)
+                  }
+                  {...formik.getFieldProps('academic_year_end_date')}
+                />
+              )}
+            />
           </Box>
           {hasSubmit && (
             <Button

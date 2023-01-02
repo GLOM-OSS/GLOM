@@ -5,13 +5,16 @@ import AppLayout from '../pages/appLayout';
 import ModulesManagement from '../pages/coordinator/modulesManagement';
 import SubjectManagement from '../pages/coordinator/subjectManagement';
 import AcademicProfileTable from '../pages/registry/academicProfile';
+import Exams from '../pages/registry/exams';
 import WeightingTable from '../pages/registry/weightingTable';
+import AnonimationDetails from '../pages/registry/[evaluation_id]';
 import Departments from '../pages/secretary/departments';
 import Majors from '../pages/secretary/majors';
 import NewAcademicYear from '../pages/secretary/newAcademicYear';
 import Personnel from '../pages/secretary/personnel';
 import SigninPage from '../pages/signin';
 import TeacherCourses from '../pages/teacher';
+import CourseDetails from '../pages/teacher/[annual_credit_unit_subject_id]';
 
 export const routes = [
   {
@@ -87,6 +90,21 @@ export const routes = [
     ],
   },
   {
+    path: '/registry/marks-management',
+    element: <AppLayout />,
+    children: [
+      {
+        path: 'exams',
+        element: <Exams />,
+      },
+      {
+        path: 'exams/:evaluation_id',
+        element: <AnonimationDetails />,
+      },
+      { path: '*', element: <Navigate to="/" /> },
+    ],
+  },
+  {
     path: '/coordinator/marks-management',
     element: <AppLayout />,
     children: [
@@ -107,7 +125,7 @@ export const routes = [
           { path: '', element: <TeacherCourses /> },
           {
             path: ':annual_credit_unit_subject_id',
-            element: <Typography>Course Details</Typography>,
+            element: <CourseDetails />,
           },
         ],
       },

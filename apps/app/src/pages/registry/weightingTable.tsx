@@ -559,7 +559,7 @@ export default function WeightingTable() {
             ? deleteWeighting(actionnedWeighting)
             : alert(formatMessage({ id: 'noActionnedWeightingPresent' }))
         }
-        deleteMessage={formatMessage({ id: 'confirmDeleteWeighting' })}
+        dialogMessage={formatMessage({ id: 'confirmDeleteWeighting' })}
         isDialogOpen={isConfirmDeleteDialogOpen}
       />
       <Box

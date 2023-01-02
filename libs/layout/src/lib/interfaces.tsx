@@ -14,6 +14,7 @@ export interface NavItem {
     muiName: string;
   };
   title: string;
+  route: string;
   children: NavChild[];
 }
 

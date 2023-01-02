@@ -16,27 +16,39 @@ export interface EvaluationHasStudent {
   evaluation_has_student_id: string;
   matricule: string;
   fullname: string;
-  mark: number;
-  last_updated: Date;
+  mark: number | null;
+  last_updated: Date | null;
 }
 
-export interface AnonimatedEvaluationHasStudent
-  extends Omit<EvaluationHasStudent, 'fullname' | 'matricule'> {
+export interface AnonimatedEvaluationHasStudent extends EvaluationHasStudent {
   anonymity_code: string;
 }
 
+export enum EvaluationTypeEnum {
+  CA = 'CA',
+  EXAM = 'EXAM',
+}
+export enum EvaluationSubTypeEnum {
+  CA = 'CA',
+  EXAM = 'EXAM',
+  RESIT = 'RESIT',
+  PRACTICAL = 'PRACTICAL',
+  ASSIGNMENT = 'ASSIGNMENT',
+  GUIDED_WORK = 'GUIDED_WORK',
+}
 export interface EvaluationSubType {
   evaluation_sub_type_id: string;
-  evaluation_sub_type_name: string;
+  evaluation_sub_type_name: EvaluationSubTypeEnum;
+  evaluation_type_name: EvaluationTypeEnum;
 }
 
 export interface Evaluation {
   evaluation_id: string;
-  subject_name: string;
+  subject_title: string;
   is_published: boolean;
   is_anonimated: boolean;
-  examination_date: boolean;
-  evaluation_sub_type_name: string;
+  examination_date: Date | null;
+  evaluation_sub_type_name: EvaluationSubTypeEnum;
 }
 
 export interface CreditUnitMarkStatus {

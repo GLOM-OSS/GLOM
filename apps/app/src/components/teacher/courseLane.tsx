@@ -4,7 +4,13 @@ import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router';
 
-export function CourseSkeleton() {
+export function NoTableElement({
+  colSpan = 6,
+  message,
+}: {
+  colSpan?: number;
+  message: string;
+}) {
   return (
     <TableRow
       sx={{
@@ -13,7 +19,23 @@ export function CourseSkeleton() {
         padding: `0 ${theme.spacing(4.625)}`,
       }}
     >
-      {[...new Array(6)].map((_, index) => (
+      <TableCell colSpan={colSpan} align="center" sx={{ textAlign: 'center' }}>
+        {message}
+      </TableCell>
+    </TableRow>
+  );
+}
+
+export function TableLaneSkeleton({ cols = 6 }: { cols?: number }) {
+  return (
+    <TableRow
+      sx={{
+        borderBottom: `1px solid ${theme.common.line}`,
+        borderTop: `1px solid ${theme.common.line}`,
+        padding: `0 ${theme.spacing(4.625)}`,
+      }}
+    >
+      {[...new Array(cols)].map((_, index) => (
         <TableCell component="th" scope="row" key={index}>
           <Skeleton animation="wave" />
         </TableCell>

@@ -297,7 +297,7 @@ export default function ModulesManagement() {
             ? deleteCreditUnitHandler(actionnedCreditUnit)
             : null
         }
-        deleteMessage={formatMessage({ id: 'confirmDeleteCreditUnitMessage' })}
+        dialogMessage={formatMessage({ id: 'confirmDeleteCreditUnitMessage' })}
         isDialogOpen={isConfirmDeleteDialogOpen}
       />
       <Box

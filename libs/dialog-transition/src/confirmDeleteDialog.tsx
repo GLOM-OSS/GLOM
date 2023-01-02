@@ -4,7 +4,7 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { useIntl } from 'react-intl';
@@ -13,12 +13,16 @@ export function ConfirmDeleteDialog({
   isDialogOpen,
   closeDialog,
   confirm,
-  deleteMessage
+  dialogMessage,
+  dialogTitle='delete',
+  confirmButton='delete',
 }: {
   isDialogOpen: boolean;
   closeDialog: () => void;
   confirm: () => void;
-  deleteMessage: string
+  dialogMessage: string;
+  dialogTitle?: string;
+  confirmButton?: string;
 }) {
   const { formatMessage } = useIntl();
   return (
@@ -29,12 +33,14 @@ export function ConfirmDeleteDialog({
       onClose={closeDialog}
     >
       <DialogTitle>
-          {formatMessage({
-            id: 'delete',
-          })}
+        {formatMessage({
+          id: dialogTitle,
+        })}
       </DialogTitle>
       <DialogContent>
-        <DialogContentText>{formatMessage({id:deleteMessage})}</DialogContentText>
+        <DialogContentText>
+          {formatMessage({ id: dialogMessage })}
+        </DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button
@@ -54,7 +60,7 @@ export function ConfirmDeleteDialog({
             closeDialog();
           }}
         >
-          {formatMessage({ id: 'delete' })}
+          {formatMessage({ id: confirmButton })}
         </Button>
       </DialogActions>
     </Dialog>
