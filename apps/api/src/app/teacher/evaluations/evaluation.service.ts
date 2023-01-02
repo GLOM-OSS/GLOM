@@ -1,11 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { EvaluationSubTypeEnum, Prisma } from '@prisma/client';
+import {
+  EvaluationHasStudent,
+  EvaluationSubTypeEnum,
+  Prisma,
+} from '@prisma/client';
 import { AUTH404, ERR13 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   EvaluationQueryDto,
   EvaluationsQeuryDto,
-  StudentMark
+  StudentMark,
 } from '../teacher.dto';
 
 @Injectable()
@@ -232,29 +236,64 @@ export class EvaluationService {
       });
     if (evaluationHasStudents.length !== studentMarks.length)
       throw new HttpException(JSON.stringify(ERR13), HttpStatus.NOT_FOUND);
-    const evaluationHasStudentAudits: Prisma.EvaluationHasStudentAuditCreateManyInput[] =
+    await this.updateStudentsMarks(
+      studentMarks,
+      evaluationHasStudents,
+      audited_by
+    );
+  }
+
+  async resetEvaluationMarks(evaluation_id: string, audited_by: string) {
+    const evaluationHasStudents =
+      await this.prismaService.evaluationHasStudent.findMany({
+        where: { evaluation_id },
+      });
+    const studentMarks = evaluationHasStudents.map(
+      ({ evaluation_has_student_id }) => ({
+        evaluation_has_student_id,
+        mark: null,
+      })
+    );
+    await this.updateStudentsMarks(
+      studentMarks,
+      evaluationHasStudents,
+      audited_by
+    );
+  }
+
+  async updateStudentsMarks(
+    studentMarks: StudentMark[],
+    evaluationHasStudents: EvaluationHasStudent[],
+    audited_by: string
+  ) {
+    const evaluationHasStudentAudits: Prisma.EvaluationHasStudentAuditCreateInput[] =
       evaluationHasStudents.map(
         ({ evaluation_has_student_id, mark, is_deleted, is_editable }) => ({
-          evaluation_has_student_id,
           mark,
           is_deleted,
           is_editable,
-          audited_by,
+          AnnualTeacher: { connect: { annual_teacher_id: audited_by } },
+          EvaluationHasStudent: { connect: { evaluation_has_student_id } },
         })
       );
-    const updateTransaction = studentMarks.map(
-      ({ evaluation_has_student_id, mark }) =>
+    return this.prismaService.$transaction([
+      ...studentMarks.map(({ evaluation_has_student_id, mark }) =>
         this.prismaService.evaluationHasStudent.update({
-          data: { mark },
+          data: {
+            mark,
+            EvaluationHasStudentAudits: {
+              create: evaluationHasStudentAudits.find(
+                ({
+                  EvaluationHasStudent: {
+                    connect: { evaluation_has_student_id: id },
+                  },
+                }) => id === evaluation_has_student_id
+              ),
+            },
+          },
           where: { evaluation_has_student_id },
         })
-    );
-    return this.prismaService.$transaction([
-      ...updateTransaction,
-      this.prismaService.evaluationHasStudentAudit.createMany({
-        data: evaluationHasStudentAudits,
-        skipDuplicates: true,
-      }),
+      ),
     ]);
   }
 }

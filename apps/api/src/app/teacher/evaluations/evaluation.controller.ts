@@ -169,4 +169,24 @@ export class EvaluationController {
       throw new HttpException(error?.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  @IsPrivate()
+  @Roles(Role.TEACHER)
+  @Put(':evaluation_id/reset-marks')
+  async resetEvaluationMarks(
+    @Req() request: Request,
+    @Param('evaluation_id') evaluation_id: string
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      await this.evaluationService.resetEvaluationMarks(
+        evaluation_id,
+        annual_teacher_id
+      );
+    } catch (error) {
+      throw new HttpException(error?.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }
