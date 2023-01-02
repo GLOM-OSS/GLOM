@@ -10,7 +10,7 @@ export * from './credit-unit-subjects';
 export * from './credit-units';
 export * from './demand';
 export * from './departments';
-export * from './evaluations';
+export * from './hall-accesses';
 export * from './grade-weightings';
 export * from './majors';
 export * from './personnel';
