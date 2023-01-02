@@ -14,7 +14,7 @@ export default function ModuleDisplaySubjectLane({
   },
   position: p,
 }: {
-  subject: Omit<Course, 'classroom_acronyms' | 'has_course_plan'>;
+  subject: Omit<Course, 'classroomAcronyms' | 'has_course_plan'>;
   position: number;
 }) {
   const { formatMessage } = useIntl();

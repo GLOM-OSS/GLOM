@@ -59,7 +59,8 @@ export default function ModuleDisplay({
     credit_unit_name: cun,
     credit_points: cp,
     availability_percentage: ap,
-    is_published: ip,
+    is_exam_published: iep,
+    is_resit_published: irp,
     subjectMarkStatus: subjects,
   },
   module,
@@ -107,7 +108,7 @@ export default function ModuleDisplay({
               />
             </TableCell>
             <TableCell align="center">
-              {ip ? (
+              {iep && irp ? (
                 <Chip
                   label={formatMessage({ id: 'published' })}
                   sx={{
@@ -122,7 +123,9 @@ export default function ModuleDisplay({
                   onClick={() => publishModule(module)}
                   disabled={disabled}
                 >
-                  {formatMessage({ id: 'publishModule' })}
+                  {formatMessage({
+                    id: iep ? 'publishResit' : 'publishModule',
+                  })}
                 </Button>
               )}
             </TableCell>

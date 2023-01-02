@@ -4,9 +4,9 @@ import {
   InputLabel,
   MenuItem,
   OutlinedInput,
-  Select,
+  Select
 } from '@mui/material';
-import { Major } from '@squoolr/api-services';
+import { UEMajor } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
 
@@ -19,9 +19,9 @@ export default function ActionBar({
   setActiveSemester,
 }: {
   disabled: boolean;
-  majors: Major[];
-  activeMajor?: Major;
-  setActiveMajor: (major: Major | undefined) => void;
+  majors: UEMajor[];
+  activeMajor?: UEMajor;
+  setActiveMajor: (major: UEMajor | undefined) => void;
   activeSemester: number | undefined;
   setActiveSemester: (semester: number) => void;
 }) {
@@ -42,10 +42,10 @@ export default function ActionBar({
           size="small"
           labelId="major"
           disabled={disabled}
-          value={activeMajor?.major_code}
+          value={activeMajor?.major_id}
           onChange={(event) => {
             setActiveMajor(
-              majors.find(({ major_code: mc }) => mc === event.target.value)
+              majors.find(({ major_id: mc }) => mc === event.target.value)
             );
           }}
           input={
@@ -62,7 +62,7 @@ export default function ActionBar({
             },
           }}
         >
-          {majors.map(({ major_code: mc, major_name: mn }, index) => (
+          {majors.map(({ major_id: mc, major_name: mn }, index) => (
             <MenuItem key={index} value={mc}>
               {`${mn}`}
             </MenuItem>

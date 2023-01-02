@@ -1,5 +1,6 @@
 export interface UEMajor {
   major_id: string;
+  major_code: string;
   major_name: string;
   number_of_years: number;
 }
@@ -33,11 +34,11 @@ export interface CreateCreditUnitSubject {
 
 export interface CreditUnitSubject {
   weighting: number;
-  objective: string|null;
+  objective: string | null;
   subject_code: string;
   subject_title: string;
   annual_credit_unit_id: string;
   subjectParts: SubjectPart[];
   main_teacher_fullname: string;
-  annual_credit_unit_subject_id: string
+  annual_credit_unit_subject_id: string;
 }

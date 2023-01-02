@@ -47,7 +47,7 @@ export function TableLaneSkeleton({ cols = 6 }: { cols?: number }) {
 export function CourseLane({
   course: {
     annual_credit_unit_subject_id: acus_id,
-    classroom_acronyms: c_accr,
+    classroomAcronyms: c_accr,
     subject_code: sc,
     subject_title: st,
     has_course_plan: hcp,
