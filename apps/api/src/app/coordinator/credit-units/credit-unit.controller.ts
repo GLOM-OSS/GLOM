@@ -142,4 +142,19 @@ export class CreditUnitController {
       annual_teacher_id
     );
   }
+
+  @Put(':annual_credit_unit_id/publish')
+  @Roles(Role.COORDINATOR)
+  async publishCreditUnit(
+    @Req() request: Request,
+    @Param('annual_credit_unit_id') annual_credit_unit_id: string
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    await this.creditUnitService.publishCreditUnit(
+      annual_credit_unit_id,
+      annual_teacher_id
+    );
+  }
 }

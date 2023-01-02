@@ -20,6 +20,7 @@ export class CreditUnitService {
                 Major: {
                   select: {
                     major_id: true,
+                    major_code: true,
                     major_name: true,
                     Cycle: { select: { number_of_years: true } },
                   },
@@ -44,13 +45,14 @@ export class CreditUnitService {
             Major: {
               major_id,
               major_name,
+              major_code,
               Cycle: { number_of_years },
             },
           },
         },
       }) => {
         if (!coordiantorMajors.find((_) => _.major_id === major_id))
-          coordiantorMajors.push({ major_id, number_of_years, major_name });
+          coordiantorMajors.push({ major_id, major_code, number_of_years, major_name });
       }
     );
     return coordiantorMajors;
@@ -235,5 +237,43 @@ export class CreditUnitService {
         };
       }
     );
+  }
+
+  async publishCreditUnit(annual_credit_unit_id: string, published_by: string) {
+    const creditUnit = await this.prismaService.annualCreditUnit.findUnique({
+      select: {
+        is_deleted: true,
+        credit_points: true,
+        semester_number: true,
+        credit_unit_code: true,
+        credit_unit_name: true,
+        is_exam_published: true,
+        is_resit_published: true,
+      },
+      where: { annual_credit_unit_id },
+    });
+    if (
+      !creditUnit ||
+      (creditUnit.is_exam_published && creditUnit.is_resit_published)
+    )
+      throw new HttpException(
+        JSON.stringify(AUTH404('Credit Unit')),
+        HttpStatus.NOT_FOUND
+      );
+
+    await this.prismaService.annualCreditUnit.update({
+      data: {
+        ...(creditUnit.is_exam_published
+          ? { is_resit_published: true }
+          : { is_exam_published: true }),
+        AnnualCreditUnitAudits: {
+          create: {
+            ...creditUnit,
+            audited_by: published_by,
+          },
+        },
+      },
+      where: { annual_credit_unit_id },
+    });
   }
 }
