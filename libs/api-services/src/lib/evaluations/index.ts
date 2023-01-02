@@ -6,7 +6,7 @@ import {
 } from '@squoolr/interfaces';
 
 export async function getEvaluations(params?: {
-  major_id?: string;
+  major_code?: string;
   semester_number?: number;
   annual_credit_unit_id?: string;
   annual_credit_unit_subject_id?: string;
