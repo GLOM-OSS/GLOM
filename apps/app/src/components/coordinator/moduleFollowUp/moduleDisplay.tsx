@@ -8,9 +8,11 @@ import {
   Chip,
   CircularProgress,
   CircularProgressProps,
+  Collapse,
   IconButton,
   lighten,
   Table,
+  TableBody,
   TableCell,
   TableHead,
   TableRow,
@@ -20,6 +22,7 @@ import {
 import { CreditUnitMarkStatus } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
+import ModuleDisplaySubjectLane from './moduleDisplaySubjectLane';
 
 function CircularProgressWithLabel(
   props: CircularProgressProps & { value: number }
@@ -73,7 +76,7 @@ export default function ModuleDisplay({
 }) {
   const { formatMessage } = useIntl();
   return (
-    <Box>
+    <Box sx={{ backgroundColor: theme.common.offWhite }}>
       <Table
         sx={{
           minWidth: 650,
@@ -87,7 +90,7 @@ export default function ModuleDisplay({
             backgroundColor: lighten(theme.palette.primary.light, 0.5),
           }}
         >
-          <TableRow sx={{ padding: '8px 2px' }}>
+          <TableRow>
             <TableCell align="center">{cuc}</TableCell>
             <TableCell>{cun}</TableCell>
             <TableCell>{`${cp} ${formatMessage({
@@ -135,27 +138,44 @@ export default function ModuleDisplay({
             </TableCell>
           </TableRow>
         </TableHead>
-        {/* <TableBody>
-          {AreEvaluationsLoading ? (
-            [...new Array(10)].map((_, index) => (
-              <TableLaneSkeleton cols={5} key={index} />
-            ))
-          ) : evaluations.length === 0 ? (
-            <NoTableElement
-              message={formatMessage({ id: 'noEvaluationsYet' })}
-              colSpan={5}
-            />
-          ) : (
-            evaluations.map((evaluation, index) => (
-              <EvaluationLane
-                evaluation={evaluation}
-                position={index + 1}
-                key={index}
-              />
-            ))
-          )}
-        </TableBody> */}
       </Table>
+      <Collapse in={open}>
+        <Box sx={{padding: theme.spacing(3)}}>
+          <Table
+            sx={{
+              minWidth: 650,
+            }}
+          >
+            <TableHead
+              sx={{
+                backgroundColor: lighten(theme.palette.primary.light, 0.7),
+              }}
+            >
+              <TableRow>
+                {['number', 'code', 'title', 'ca', 'exam', 'resit'].map(
+                  (val, index) => (
+                    <TableCell
+                      key={index}
+                      align={index > 2 ? 'center' : 'left'}
+                    >
+                      {val}
+                    </TableCell>
+                  )
+                )}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {subjects.map((subject, index) => (
+                <ModuleDisplaySubjectLane
+                  subject={subject}
+                  position={index + 1}
+                  key={index}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </Box>
+      </Collapse>
     </Box>
   );
 }
