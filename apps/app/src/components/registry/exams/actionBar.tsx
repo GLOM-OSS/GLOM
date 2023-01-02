@@ -55,10 +55,12 @@ export default function ActionBar({
           size="small"
           labelId="major"
           disabled={disabled}
-          onChange={(event) => {
-            setActiveSemester(Number(event.target.value));
-          }}
           value={activeMajor?.major_code}
+          onChange={(event) => {
+            setActiveMajor(
+              majors.find(({ major_code: mc }) => mc === event.target.value)
+            );
+          }}
           input={
             <OutlinedInput
               sx={{ minWidth: theme.spacing(20) }}
@@ -90,9 +92,7 @@ export default function ActionBar({
           labelId="semester"
           disabled={disabled}
           onChange={(event) => {
-            setActiveMajor(
-              majors.find(({ major_code: mc }) => mc === event.target.value)
-            );
+            setActiveSemester(Number(event.target.value));
           }}
           value={activeSemester}
           input={
