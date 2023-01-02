@@ -226,6 +226,7 @@ export default function Exams() {
     return () => {
       //TODO: CLEANUP ABOVE AXIOS CALL
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeMajor, activeSemester, activeCreditUnit, activeSubject]);
 
   useEffect(() => {
