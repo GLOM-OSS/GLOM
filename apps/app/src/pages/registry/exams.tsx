@@ -15,7 +15,12 @@ import {
   getMajors,
   Major,
 } from '@squoolr/api-services';
-import { CreditUnit, CreditUnitSubject, Evaluation } from '@squoolr/interfaces';
+import {
+  CreditUnit,
+  CreditUnitSubject,
+  Evaluation,
+  EvaluationSubTypeEnum,
+} from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
@@ -49,13 +54,17 @@ export default function Exams() {
     setEvaluationNotif(notif);
     getEvaluations({
       semester_number: activeSemester,
-      major_id: activeMajor?.major_code,
+      major_code: activeMajor?.major_code,
       annual_credit_unit_subject_id:
         activeSubject?.annual_credit_unit_subject_id,
       annual_credit_unit_id: activeCreditUnit?.annual_credit_unit_id,
     })
       .then((evaluations) => {
-        setEvaluations(evaluations);
+        setEvaluations(
+          evaluations.filter(
+            (_) => _.evaluation_sub_type_name !== EvaluationSubTypeEnum.CA
+          )
+        );
         setAreEvaluationsLoading(false);
         notif.dismiss();
         setEvaluationNotif(undefined);
