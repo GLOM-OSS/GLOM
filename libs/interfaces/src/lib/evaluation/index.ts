@@ -8,7 +8,7 @@ export interface Course extends SubjectMarkStatus {
   annual_credit_unit_subject_id: string;
   subject_code: string;
   subject_title: string;
-  classroom_acronyms: string[];
+  classroomAcronyms: string[];
   has_course_plan: boolean;
 }
 
