@@ -116,3 +116,7 @@ export const ERR12 = {
   En: `Sorry you cannot access student's anonymities once they are anonimated.`,
   Fr: `Désolé, vous ne pouvez pas acceder aux anomimats des etudiants une fois qu'ils sont anonimés.`,
 };
+export const ERR13 = {
+  En: `Sorry, some evaluations identifier are incorrect.`,
+  Fr: `Désolé, Certains identifiants d'evaluations sont incorrect.`,
+};

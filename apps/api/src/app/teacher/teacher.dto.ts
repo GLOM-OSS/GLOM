@@ -1,5 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsNumberString, IsOptional, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsBoolean,
+  IsDateString,
+  IsNumber,
+  IsNumberString,
+  IsOptional,
+  IsUUID,
+  ValidateNested,
+} from 'class-validator';
 
 export class EvaluationQueryDto {
   @IsUUID()
@@ -44,4 +55,27 @@ export class ExamDatePutDto {
   @ApiProperty()
   @IsDateString()
   examination_date: Date;
+}
+
+export class StudentMark {
+  @IsUUID()
+  @ApiProperty()
+  evaluation_has_student_id: string;
+
+  @IsNumber()
+  @ApiProperty()
+  mark: number;
+}
+
+export class EvaluationMarkDto {
+  @IsArray()
+  @ApiProperty()
+  @ArrayMinSize(1)
+  @Type(() => StudentMark)
+  @ValidateNested({ each: true })
+  studentMarks: StudentMark[];
+
+  @IsBoolean()
+  @ApiProperty()
+  is_published: boolean
 }

@@ -1,8 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { EvaluationSubTypeEnum } from '@prisma/client';
-import { AUTH404 } from '../../../errors';
+import { EvaluationSubTypeEnum, Prisma } from '@prisma/client';
+import { AUTH404, ERR13 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { EvaluationQueryDto, EvaluationsQeuryDto } from '../teacher.dto';
+import {
+  EvaluationQueryDto,
+  EvaluationsQeuryDto,
+  StudentMark
+} from '../teacher.dto';
 
 @Injectable()
 export class EvaluationService {
@@ -215,5 +219,42 @@ export class EvaluationService {
       },
       where: { evaluation_id },
     });
+  }
+
+  async saveEvaluationMarks(studentMarks: StudentMark[], audited_by: string) {
+    const evaluationHasStudents =
+      await this.prismaService.evaluationHasStudent.findMany({
+        where: {
+          OR: studentMarks.map(({ evaluation_has_student_id }) => ({
+            evaluation_has_student_id,
+          })),
+        },
+      });
+    if (evaluationHasStudents.length !== studentMarks.length)
+      throw new HttpException(JSON.stringify(ERR13), HttpStatus.NOT_FOUND);
+    const evaluationHasStudentAudits: Prisma.EvaluationHasStudentAuditCreateManyInput[] =
+      evaluationHasStudents.map(
+        ({ evaluation_has_student_id, mark, is_deleted, is_editable }) => ({
+          evaluation_has_student_id,
+          mark,
+          is_deleted,
+          is_editable,
+          audited_by,
+        })
+      );
+    const updateTransaction = studentMarks.map(
+      ({ evaluation_has_student_id, mark }) =>
+        this.prismaService.evaluationHasStudent.update({
+          data: { mark },
+          where: { evaluation_has_student_id },
+        })
+    );
+    return this.prismaService.$transaction([
+      ...updateTransaction,
+      this.prismaService.evaluationHasStudentAudit.createMany({
+        data: evaluationHasStudentAudits,
+        skipDuplicates: true,
+      }),
+    ]);
   }
 }
