@@ -70,7 +70,7 @@ export class EvaluationService {
   }
 
   async getEvaluations({
-    major_id,
+    major_code,
     semester_number,
     annual_credit_unit_id,
     annual_credit_unit_subject_id,
@@ -83,7 +83,7 @@ export class EvaluationService {
           AnnualCreditUnit: {
             semester_number: Number(semester_number),
             annual_credit_unit_id,
-            major_id,
+            Major: { major_code },
           },
         },
       },

@@ -7,7 +7,7 @@ import {
   IsDateString,
   IsNumber,
   IsNumberString,
-  IsOptional, IsUUID,
+  IsOptional, IsString, IsUUID,
   ValidateNested
 } from 'class-validator';
 
@@ -29,10 +29,10 @@ export class EvaluationQueryDto {
 }
 
 export class EvaluationsQeuryDto {
-  @IsUUID()
+  @IsString()
   @IsOptional()
   @ApiProperty({ required: false })
-  major_id?: string;
+  major_code?: string;
 
   @IsOptional()
   @IsNumberString()
