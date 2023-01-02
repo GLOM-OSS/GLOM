@@ -12,6 +12,7 @@ export class CourseService {
         annual_credit_unit_subject_id: true,
         subject_title: true,
         subject_code: true,
+        objective: true,
         Chapters: {
           select: { chapter_id: true },
         },
@@ -82,6 +83,7 @@ export class CourseService {
     const courses = subects.map(
       ({
         Chapters,
+        objective,
         Evaluations,
         subject_code,
         subject_title,
@@ -107,10 +109,11 @@ export class CourseService {
         );
 
         return {
-          annual_credit_unit_subject_id,
+          objective,
           subject_code,
           subject_title,
           classroomAcronyms,
+          annual_credit_unit_subject_id,
           has_course_plan: Chapters.length > 0,
           is_ca_available: Boolean(
             Evaluations.find(
