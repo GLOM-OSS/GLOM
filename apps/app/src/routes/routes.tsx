@@ -2,6 +2,7 @@ import { Typography } from '@mui/material';
 import { Navigate } from 'react-router';
 import Classrooms from '../components/secretary/classrooms';
 import AppLayout from '../pages/appLayout';
+import ModulePublishing from '../pages/coordinator/moduleFollowUp/modulePublishing';
 import ModulesManagement from '../pages/coordinator/modulesManagement';
 import SubjectManagement from '../pages/coordinator/subjectManagement';
 import AcademicProfileTable from '../pages/registry/academicProfile';
@@ -75,6 +76,17 @@ export const routes = [
     ],
   },
   {
+    path: '/coordinator/marks-management',
+    element: <AppLayout />,
+    children: [
+      {
+        path: 'module-follow-up',
+        element: <ModulePublishing />,
+      },
+      { path: '*', element: <Navigate to="/" /> },
+    ],
+  },
+  {
     path: '/registry/configurations',
     element: <AppLayout />,
     children: [
@@ -100,17 +112,6 @@ export const routes = [
       {
         path: 'exams/:evaluation_id',
         element: <AnonimationDetails />,
-      },
-      { path: '*', element: <Navigate to="/" /> },
-    ],
-  },
-  {
-    path: '/coordinator/marks-management',
-    element: <AppLayout />,
-    children: [
-      {
-        path: 'module-follow-up',
-        element: <Typography>Module marks follow up</Typography>,
       },
       { path: '*', element: <Navigate to="/" /> },
     ],
