@@ -1,9 +1,9 @@
 export interface CreateLink {
-    resource_ref: string;
-    resource_name: string;
+  resource_ref: string;
+  resource_name: string;
 }
 
-export interface Resource extends CreateLink {
+export interface Ressource extends CreateLink {
   resource_id: string;
   chaper_id: string | null;
   resource_type: 'FILE' | 'LINK';
@@ -15,6 +15,7 @@ export interface CreateChapter {
   chapter_title: string;
   chapter_objective: string;
   annual_credit_unit_subject_id: string;
+  chapter_number: number;
   chapter_parent_id?: string;
 }
 
