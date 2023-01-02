@@ -1,27 +1,31 @@
 import { ReportRounded } from '@mui/icons-material';
 import { Box } from '@mui/material';
-import { Major } from '@squoolr/api-services';
+import {
+  getCoordinatorMajors,
+  getCreditUnitMarkStatus,
+  publishCreditUnit,
+} from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
-import { CreditUnitMarkStatus } from '@squoolr/interfaces';
+import { CreditUnitMarkStatus, UEMajor } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import ActionBar from 'apps/app/src/components/coordinator/moduleFollowUp/actionBar';
-import ModuleDisplay from 'apps/app/src/components/coordinator/moduleFollowUp/moduleDisplay';
-import ModuleStatusSkeleton, {
-  NoModuleStatus,
-} from 'apps/app/src/components/coordinator/moduleFollowUp/moduleStatusSkeleton';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
+import ActionBar from '../../../components/coordinator/moduleFollowUp/actionBar';
+import ModuleDisplay from '../../../components/coordinator/moduleFollowUp/moduleDisplay';
+import ModuleStatusSkeleton, {
+  NoModuleStatus,
+} from '../../../components/coordinator/moduleFollowUp/moduleStatusSkeleton';
 
 export default function ModulePublishing() {
   const { formatMessage } = useIntl();
 
-  const [majors, setMajors] = useState<Major[]>([]);
+  const [majors, setMajors] = useState<UEMajor[]>([]);
   const [areMajorsLoading, setAreMajorsLoading] = useState<boolean>(false);
   const [majorNotif, setMajorNotif] = useState<useNotification>();
   const [activeSemester, setActiveSemester] = useState<number>();
-  const [activeMajor, setActiveMajor] = useState<Major>();
+  const [activeMajor, setActiveMajor] = useState<UEMajor>();
 
   const loadMajors = () => {
     setAreMajorsLoading(true);
@@ -30,15 +34,14 @@ export default function ModulePublishing() {
       majorNotif.dismiss();
     }
     setMajorNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load majors
-      if (6 > 5) {
-        const newMajors: Major[] = [];
-        setMajors(newMajors);
+    getCoordinatorMajors()
+      .then((majors) => {
+        setMajors(majors);
         setAreMajorsLoading(false);
         notif.dismiss();
         setMajorNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingMajors' }),
         });
@@ -48,15 +51,15 @@ export default function ModulePublishing() {
             <ErrorMessage
               retryFunction={loadMajors}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getMajorsFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getMajorsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [moduleStatus, setModuleStatus] = useState<CreditUnitMarkStatus[]>([]);
@@ -71,34 +74,17 @@ export default function ModulePublishing() {
       moduleStatusNotif.dismiss();
     }
     setModuleStatusNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load moduleStatus with data activeMajor and activeSemester
-      if (6 > 5) {
-        const newModuleStatus: CreditUnitMarkStatus[] = [
-          {
-            annual_credit_unit_id: 'sueios',
-            availability_percentage: 100,
-            credit_points: 7,
-            credit_unit_code: 'uc0116',
-            credit_unit_name: 'Informatique I',
-            is_published: false,
-            subjectMarkStatus: [
-              {
-                annual_credit_unit_subject_id: 'eisoe',
-                is_ca_available: true,
-                is_exam_available: true,
-                is_resit_available: false,
-                subject_code: 'SSII001',
-                subject_title: "Securite des systems d'information",
-              },
-            ],
-          },
-        ];
-        setModuleStatus(newModuleStatus);
+    getCreditUnitMarkStatus({
+      major_code: activeMajor?.major_code,
+      smester_number: activeSemester,
+    })
+      .then((creditUnitSubjects) => {
+        setModuleStatus(creditUnitSubjects);
         setAreModuleStatusLoading(false);
         notif.dismiss();
         setModuleStatusNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingModuleStatus' }),
         });
@@ -108,15 +94,15 @@ export default function ModulePublishing() {
             <ErrorMessage
               retryFunction={loadModuleStatus}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getModuleStatusFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getModuleStatusFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
@@ -149,37 +135,37 @@ export default function ModulePublishing() {
       }
       setModuleStatusNotif(notif);
       notif.notify({ render: formatMessage({ id: 'validating' }) });
-      setTimeout(() => {
-        //TODO: call api here to validateAnonimation
-        if (6 > 5) {
+      publishCreditUnit(module.annual_credit_unit_id)
+        .then(() => {
           setIsPublishing(false);
           setModuleStatus(
             moduleStatus.map((mdl) => {
               const { annual_credit_unit_id: acu_id } = mdl;
               if (acu_id === module.annual_credit_unit_id) {
-                return { ...mdl, is_published: true };
+                return { ...mdl, is_exam_published: true };
               }
               return mdl;
             })
           );
           notif.dismiss();
           setModuleStatusNotif(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={() => publishModule}
                 notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'validatingFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'validatingFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        });
     } else {
       alert(
         'availability percentage must be 100 for publications to be possible.'

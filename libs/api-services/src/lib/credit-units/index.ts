@@ -1,5 +1,10 @@
 import { http } from '@squoolr/axios';
-import { CreateCreditUnit, CreditUnit, UEMajor } from '@squoolr/interfaces';
+import {
+  CreateCreditUnit,
+  CreditUnit,
+  CreditUnitMarkStatus,
+  UEMajor,
+} from '@squoolr/interfaces';
 
 export async function getCreditUnits(params?: {
   majorIds?: { major_id: string }[];
@@ -40,4 +45,21 @@ export async function deleteCreditUnit(annual_credit_unit_id: string) {
 export async function getCoordinatorMajors() {
   const { data } = await http.get<UEMajor[]>(`/credit-units/majors`);
   return data;
+}
+
+export async function getCreditUnitMarkStatus(params: {
+  major_code?: string;
+  smester_number?: number;
+  annual_credit_unit_id?: string;
+  annual_credit_unit_subject_id?: string;
+}) {
+  const { data } = await http.get<CreditUnitMarkStatus[]>(
+    `credit-units/mark-status`,
+    { params }
+  );
+  return data;
+}
+
+export async function publishCreditUnit(annual_credit_unit_id: string) {
+  await http.put(`/credit-units/${annual_credit_unit_id}/publish`);
 }
