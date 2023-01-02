@@ -49,7 +49,7 @@ export async function getCoordinatorMajors() {
 
 export async function getCreditUnitMarkStatus(params: {
   major_code?: string;
-  smester_number?: number;
+  semester_number?: number;
   annual_credit_unit_id?: string;
   annual_credit_unit_subject_id?: string;
 }) {

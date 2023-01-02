@@ -38,9 +38,9 @@ export enum EvaluationSubTypeEnum {
   GUIDED_WORK = 'GUIDED_WORK',
 }
 export interface EvaluationSubType {
-  evaluation_sub_type_id: string;
+  evaluation_type: EvaluationTypeEnum;
+  annual_evaluation_sub_type_id: string;
   evaluation_sub_type_name: EvaluationSubTypeEnum;
-  evaluation_type_name: EvaluationTypeEnum;
 }
 
 export interface Evaluation {

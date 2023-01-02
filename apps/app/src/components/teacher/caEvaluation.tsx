@@ -137,6 +137,7 @@ export default function CAEvaluation() {
     setEvaluationSubTypeNotif(notif);
     getEvaluationSubTypes()
       .then((evaluationSubTypes) => {
+        alert(activeEvaluationSubType?.evaluation_type)
         setEvaluationSubTypes(evaluationSubTypes);
         if (evaluationSubTypes.length > 0)
           setActiveEvaluationSubType(evaluationSubTypes[0]);
@@ -179,7 +180,7 @@ export default function CAEvaluation() {
       getEvaluation({
         annual_credit_unit_subject_id,
         annual_evaluation_sub_type_id:
-          activeEvaluationSubType.evaluation_sub_type_id,
+          activeEvaluationSubType.annual_evaluation_sub_type_id,
       })
         .then((evaluation) => {
           setEvaluation(evaluation);
@@ -626,14 +627,14 @@ export default function CAEvaluation() {
               }
               onChange={(event) => {
                 const evaluationSubType = evaluationSubTypes.find(
-                  ({ evaluation_sub_type_id: est_id }) =>
+                  ({ annual_evaluation_sub_type_id: est_id }) =>
                     est_id === event.target.value
                 );
                 setActiveEvaluationSubType(evaluationSubType);
               }}
               value={
                 activeEvaluationSubType
-                  ? activeEvaluationSubType.evaluation_sub_type_id
+                  ? activeEvaluationSubType.annual_evaluation_sub_type_id
                   : ''
               }
               input={
@@ -653,7 +654,7 @@ export default function CAEvaluation() {
               {evaluationSubTypes.map(
                 (
                   {
-                    evaluation_sub_type_id: est_id,
+                    annual_evaluation_sub_type_id: est_id,
                     evaluation_sub_type_name: est_name,
                   },
                   index
@@ -668,7 +669,7 @@ export default function CAEvaluation() {
           {evaluation &&
             !evaluation.is_published &&
             (evaluation.is_anonimated ||
-              activeEvaluationSubType?.evaluation_type_name ===
+              activeEvaluationSubType?.evaluation_type ===
                 EvaluationTypeEnum.CA) && (
               <Button
                 variant="contained"
@@ -719,7 +720,7 @@ export default function CAEvaluation() {
             }
           />
         ) : activeEvaluationSubType &&
-          activeEvaluationSubType.evaluation_type_name ===
+          activeEvaluationSubType.evaluation_type ===
             EvaluationTypeEnum.EXAM &&
           evaluation &&
           !evaluation.is_anonimated &&
@@ -735,7 +736,7 @@ export default function CAEvaluation() {
               <TableHeader
                 isAnonimated={Boolean(
                   activeEvaluationSubType &&
-                    activeEvaluationSubType.evaluation_type_name ===
+                    activeEvaluationSubType.evaluation_type ===
                       EvaluationTypeEnum.EXAM &&
                     evaluation &&
                     !evaluation.is_published &&
@@ -771,7 +772,7 @@ export default function CAEvaluation() {
                 ) : (
                   evaluationHasStudents.map((evaluationStudent, index) =>
                     activeEvaluationSubType &&
-                    activeEvaluationSubType.evaluation_type_name ===
+                    activeEvaluationSubType.evaluation_type ===
                       EvaluationTypeEnum.EXAM &&
                     evaluation &&
                     !evaluation.is_published &&
@@ -825,7 +826,7 @@ export default function CAEvaluation() {
         {evaluation &&
           !evaluation.is_published &&
           (evaluation.is_anonimated ||
-            activeEvaluationSubType?.evaluation_type_name ===
+            activeEvaluationSubType?.evaluation_type ===
               EvaluationTypeEnum.CA) && (
             <Box
               sx={{

@@ -5,9 +5,7 @@ import {
   IsArray,
   IsBoolean,
   IsDateString,
-  IsNumber,
-  IsNumberString,
-  IsOptional, IsString, IsUUID,
+  IsNumber, IsOptional, IsString, IsUUID,
   ValidateNested
 } from 'class-validator';
 
@@ -35,7 +33,7 @@ export class EvaluationsQeuryDto {
   major_code?: string;
 
   @IsOptional()
-  @IsNumberString()
+  @IsNumber()
   @ApiProperty({ required: false })
   semester_number?: number;
 

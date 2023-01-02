@@ -76,7 +76,7 @@ export default function ModulePublishing() {
     setModuleStatusNotif(notif);
     getCreditUnitMarkStatus({
       major_code: activeMajor?.major_code,
-      smester_number: activeSemester,
+      semester_number: activeSemester,
     })
       .then((creditUnitSubjects) => {
         setModuleStatus(creditUnitSubjects);
