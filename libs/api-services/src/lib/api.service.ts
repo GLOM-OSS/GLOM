@@ -6,6 +6,7 @@ export * from './academic-years';
 export * from './auth';
 export * from './carry-over-system';
 export * from './classrooms';
+export * from './courses';
 export * from './credit-unit-subjects';
 export * from './credit-units';
 export * from './demand';

@@ -5,11 +5,11 @@ import {
   EvaluationSubType,
 } from '@squoolr/interfaces';
 
-export async function getEvaluations(params: {
-  major_id: string;
-  semester_number: string;
-  annual_credit_unit_id: string;
-  annual_credit_unit_subject_id: string;
+export async function getEvaluations(params?: {
+  major_id?: string;
+  semester_number?: number;
+  annual_credit_unit_id?: string;
+  annual_credit_unit_subject_id?: string;
 }) {
   const { data } = await http.get<Evaluation[]>(`/evaluations/all`, { params });
   return data;

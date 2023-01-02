@@ -1,20 +1,14 @@
 import { http } from '@squoolr/axios';
 import { Major } from '../interfaces';
 
-export async function getMajors({
-  department_code,
-  is_deleted,
-}: {
-  department_code: string;
+export async function getMajors(params?: {
+  department_code?: string;
   is_deleted?: boolean;
 }) {
   const {
     data: { majors },
   } = await http.get<{ majors: Major[] }>(`/majors/all`, {
-    params: {
-      department_code,
-      is_deleted,
-    },
+    params,
   });
   return majors;
 }

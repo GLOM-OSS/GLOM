@@ -8,13 +8,14 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
-import { Major } from '@squoolr/api-services';
 import {
-  CreditUnit,
-  CreditUnitSubject,
-  Evaluation,
-  EvaluationSubTypeEnum,
-} from '@squoolr/interfaces';
+  getCreditUnits,
+  getCreditUnitSubjects,
+  getEvaluations,
+  getMajors,
+  Major,
+} from '@squoolr/api-services';
+import { CreditUnit, CreditUnitSubject, Evaluation } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
@@ -46,24 +47,20 @@ export default function Exams() {
       evaluationNotif.dismiss();
     }
     setEvaluationNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load evaluation with data activeMajor, activeSemester, activeCreditUnit, activeSubject
-      if (6 > 5) {
-        const newEvaluation: Evaluation[] = [
-          {
-            evaluation_id: 'siels',
-            evaluation_sub_type_name: EvaluationSubTypeEnum.CA,
-            examination_date: new Date(),
-            is_anonimated: false,
-            is_published: false,
-            subject_title: 'biologie',
-          },
-        ];
-        setEvaluations(newEvaluation);
+    getEvaluations({
+      semester_number: activeSemester,
+      major_id: activeMajor?.major_code,
+      annual_credit_unit_subject_id:
+        activeSubject?.annual_credit_unit_subject_id,
+      annual_credit_unit_id: activeCreditUnit?.annual_credit_unit_id,
+    })
+      .then((evaluations) => {
+        setEvaluations(evaluations);
         setAreEvaluationsLoading(false);
         notif.dismiss();
         setEvaluationNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingEvaluations' }),
         });
@@ -73,15 +70,15 @@ export default function Exams() {
             <ErrorMessage
               retryFunction={loadEvaluations}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getEvaluationsFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getEvaluationsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [majors, setMajors] = useState<Major[]>([]);
@@ -95,15 +92,14 @@ export default function Exams() {
       majorNotif.dismiss();
     }
     setMajorNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load majors
-      if (6 > 5) {
-        const newMajors: Major[] = [];
-        setMajors(newMajors);
+    getMajors()
+      .then((majors) => {
+        setMajors(majors);
         setAreMajorsLoading(false);
         notif.dismiss();
         setMajorNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingMajors' }),
         });
@@ -113,15 +109,15 @@ export default function Exams() {
             <ErrorMessage
               retryFunction={loadMajors}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getMajorsFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getMajorsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [creditUnits, setCreditUnits] = useState<CreditUnit[]>([]);
@@ -136,15 +132,19 @@ export default function Exams() {
       creditUnitNotif.dismiss();
     }
     setCreditUnitNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load creditUnits with data activeSemester, activeMajor
-      if (6 > 5) {
-        const newCreditUnits: CreditUnit[] = [];
-        setCreditUnits(newCreditUnits);
+    getCreditUnits({
+      ...(activeMajor?.major_id
+        ? { majorIds: [{ major_id: activeMajor?.major_id }] }
+        : {}),
+      semester_number: activeSemester,
+    })
+      .then((creditUnits) => {
+        setCreditUnits(creditUnits);
         setAreCreditUnitsLoading(false);
         notif.dismiss();
         setCreditUnitNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingCreditUnits' }),
         });
@@ -154,15 +154,15 @@ export default function Exams() {
             <ErrorMessage
               retryFunction={loadCreditUnits}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getCreditUnitsFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getCreditUnitsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [subjects, setSubjects] = useState<CreditUnitSubject[]>([]);
@@ -176,15 +176,14 @@ export default function Exams() {
       subjectNotif.dismiss();
     }
     setSubjectNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load subjects with data activeCreditUnit, activeSemester, activeMajor
-      if (6 > 5) {
-        const newSubjects: CreditUnitSubject[] = [];
-        setSubjects(newSubjects);
+    getCreditUnitSubjects(activeCreditUnit?.annual_credit_unit_id as string)
+      .then((creditUnitSubjects) => {
+        setSubjects(creditUnitSubjects);
         setAreSubjectsLoading(false);
         notif.dismiss();
         setSubjectNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingSubjects' }),
         });
@@ -194,15 +193,15 @@ export default function Exams() {
             <ErrorMessage
               retryFunction={loadSubjects}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getSubjectsFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getSubjectsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
@@ -226,6 +225,7 @@ export default function Exams() {
     return () => {
       //TODO: CLEANUP ABOVE AXIOS CALL
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeMajor, activeSemester, activeCreditUnit, activeSubject]);
 
   useEffect(() => {

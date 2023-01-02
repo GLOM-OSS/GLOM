@@ -7,6 +7,7 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
+import { getCourses } from '@squoolr/api-services';
 import { Course } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -31,26 +32,14 @@ export default function TeacherCourses() {
       courseNotif.dismiss();
     }
     setCourseNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load teacher's courses
-      if (6 > 5) {
-        const newCourses: Course[] = [
-          {
-            annual_credit_unit_subject_id: 'lsei',
-            classroom_acronyms: ['irt3', 'irt2', 'imb2'],
-            subject_code: 'UE00353',
-            subject_title: 'Biologie Medical',
-            has_course_plan: false,
-            is_ca_available: true,
-            is_exam_available: true,
-            is_resit_available: true,
-          },
-        ];
-        setCourses(newCourses);
+    getCourses()
+      .then((courses) => {
+        setCourses(courses);
         setAreCoursesLoading(false);
         notif.dismiss();
         setCourseNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingCourses' }),
         });
@@ -60,15 +49,15 @@ export default function TeacherCourses() {
             <ErrorMessage
               retryFunction={loadCourses}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getCoursesFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getCoursesFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
@@ -102,7 +91,9 @@ export default function TeacherCourses() {
         </TableHead>
         <TableBody>
           {areCoursesLoading ? (
-            [...new Array(10)].map((_, index) => <TableLaneSkeleton key={index} />)
+            [...new Array(10)].map((_, index) => (
+              <TableLaneSkeleton key={index} />
+            ))
           ) : courses.length === 0 ? (
             <TableRow
               sx={{

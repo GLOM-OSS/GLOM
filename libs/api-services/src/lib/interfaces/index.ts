@@ -51,6 +51,7 @@ export interface Major {
   major_name: string;
   major_acronym: string;
   major_code: string;
+  major_id: string;
   created_at: Date;
   is_deleted: boolean;
   cycle_name: 'BACHELORS' | 'MASTER' | 'DOCTORATE' | 'DUT' | 'BTS' | 'DTS';

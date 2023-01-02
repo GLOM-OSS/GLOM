@@ -11,11 +11,15 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
+import {
+  anonimateEvaluation,
+  getEvaluation,
+  getEvaluationHasStudents,
+} from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
   AnonimatedEvaluationHasStudent,
   Evaluation,
-  EvaluationSubTypeEnum,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -31,8 +35,8 @@ import {
 
 export default function AnonimationDetails() {
   const { formatMessage } = useIntl();
-  const {evaluation_id} = useParams()
-  const navigate =  useNavigate()
+  const { evaluation_id } = useParams();
+  const navigate = useNavigate();
 
   const [evaluation, setEvaluation] = useState<Evaluation>();
   const [isEvaluationLoading, setIsEvaluationLoading] =
@@ -53,22 +57,14 @@ export default function AnonimationDetails() {
       evaluationNotif.dismiss();
     }
     setEvaluationNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load evaluation with data evaluation_id
-      if (6 > 5) {
-        const newEvaluation: Evaluation = {
-          evaluation_id: 'siels',
-          evaluation_sub_type_name: EvaluationSubTypeEnum.CA,
-          examination_date: new Date(),
-          is_anonimated: true,
-          is_published: false,
-          subject_title: 'biologie',
-        };
-        setEvaluation(newEvaluation);
+    getEvaluation(evaluation_id as string)
+      .then((evaluation) => {
+        setEvaluation(evaluation);
         setIsEvaluationLoading(false);
         notif.dismiss();
         setEvaluationNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingEvaluation' }),
         });
@@ -78,15 +74,15 @@ export default function AnonimationDetails() {
             <ErrorMessage
               retryFunction={loadEvaluation}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getEvaluationFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getEvaluationFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const loadStudents = () => {
@@ -97,24 +93,16 @@ export default function AnonimationDetails() {
         studentNotif.dismiss();
       }
       setStudentNotif(notif);
-      setTimeout(() => {
-        //TODO: call api here to load evaluationHasStudents with data evaluation.evaluation_id
-        if (6 > 5) {
-          const newStudents: AnonimatedEvaluationHasStudent[] = [
-            {
-              evaluation_has_student_id: 'lsie',
-              fullname: 'Tchakoumi Lorrain',
-              last_updated: new Date(),
-              mark: 0,
-              matricule: '17C005',
-              anonymity_code: '0002',
-            },
-          ];
-          setEvaluationHasStudents(newStudents);
+      getEvaluationHasStudents(evaluation.evaluation_id)
+        .then((studentMarks) => {
+          setEvaluationHasStudents(
+            studentMarks as AnonimatedEvaluationHasStudent[]
+          );
           setAreStudentsLoading(false);
           notif.dismiss();
           setStudentNotif(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.notify({
             render: formatMessage({ id: 'loadingStudents' }),
           });
@@ -124,15 +112,15 @@ export default function AnonimationDetails() {
               <ErrorMessage
                 retryFunction={loadStudents}
                 notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'getStudentsFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'getStudentsFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        });
     }
   };
 
@@ -155,40 +143,39 @@ export default function AnonimationDetails() {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
     useState<boolean>(false);
 
-  const [isAnonimating, setIsAnonimating] = useState<boolean>(false)
-  const anonimateEvaluation=()=>{
-    setIsAnonimating(true)
-    const notif = new useNotification()
+  const [isAnonimating, setIsAnonimating] = useState<boolean>(false);
+  const validateExamAnonimation = () => {
+    setIsAnonimating(true);
+    const notif = new useNotification();
     if (evaluationNotif) {
       evaluationNotif.dismiss();
     }
     setEvaluationNotif(notif);
-    notif.notify({render: formatMessage({id:'validating'})})
-    setTimeout(() => {
-      //TODO: call api here to validateAnonimation
-      if (6 > 5) {
-        setIsAnonimating(false);
+    notif.notify({ render: formatMessage({ id: 'validating' }) });
+    anonimateEvaluation(evaluation_id as string)
+      .then(() => {
         notif.dismiss();
         setEvaluationNotif(undefined);
-        navigate('/registry/marks-management/exams')
-      } else {
+        navigate('/registry/marks-management/exams');
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={anonimateEvaluation}
+              retryFunction={validateExamAnonimation}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'validatingFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'validatingFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
-
-  }
+      })
+      .finally(() => setIsAnonimating(false));
+  };
 
   return (
     <>
@@ -293,9 +280,12 @@ export default function AnonimationDetails() {
           color="primary"
           sx={{ textTransform: 'none', justifySelf: 'end' }}
           disabled={
-            isConfirmDialogOpen || isEvaluationLoading || areStudentsLoading || isAnonimating
+            isConfirmDialogOpen ||
+            isEvaluationLoading ||
+            areStudentsLoading ||
+            isAnonimating
           }
-          onClick={anonimateEvaluation}
+          onClick={validateExamAnonimation}
         >
           {formatMessage({ id: 'validateAnonimation' })}
         </Button>
