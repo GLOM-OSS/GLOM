@@ -14,9 +14,9 @@ export interface Resource extends CreateLink {
 export interface CreateChapter {
   chapter_title: string;
   chapter_objective: string;
+  chapter_parent_id?: string;
 }
 
 export interface Chapter extends CreateChapter {
   chapter_id: string;
-  chapter_parent_id: string;
 }

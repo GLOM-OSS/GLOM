@@ -3,6 +3,7 @@ import { theme } from '@squoolr/theme';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import CAEvaluation from '../../components/teacher/caEvaluation';
+import CoursePlan from '../../components/teacher/coursePlan';
 
 export default function CourseDetails() {
   const { formatMessage } = useIntl();
@@ -41,6 +42,7 @@ export default function CourseDetails() {
           />
         ))}
       </Tabs>
+      {tabValue === 0 && <CoursePlan />}
       {tabValue === 1 && <CAEvaluation />}
     </Box>
   );
