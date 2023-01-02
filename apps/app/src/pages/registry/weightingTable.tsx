@@ -64,36 +64,40 @@ export default function WeightingTable() {
       cycleNotif.dismiss();
     }
     setCycleNotif(notif);
-    getCycles().then(cycles => {
-      setCycles(cycles);
-      if (cycles.length > 0)
-        setActiveCycle(
-          cycles.sort((a, b) =>
-            a.cycle_type < b.cycle_type
-              ? 1
-              : a.cycle_name > b.cycle_name
-              ? 1
-              : -1
-          )[0]
-        );
-      setAreCyclesLoading(false);
-      notif.dismiss();
-      setCycleNotif(undefined);
-    }).catch(error => {
-      notif.notify({ render: formatMessage({ id: 'loadingCycles' }) });
-      notif.update({
-        type: 'ERROR',
-        render: (
-          <ErrorMessage
-            retryFunction={loadCycles}
-            notification={notif}
-            message={error?.message || formatMessage({ id: 'getCyclesFailed' })}
-          />
-        ),
-        autoClose: false,
-        icon: () => <ReportRounded fontSize="medium" color="error" />,
+    getCycles()
+      .then((cycles) => {
+        setCycles(cycles);
+        if (cycles.length > 0)
+          setActiveCycle(
+            cycles.sort((a, b) =>
+              a.cycle_type < b.cycle_type
+                ? 1
+                : a.cycle_name > b.cycle_name
+                ? 1
+                : -1
+            )[0]
+          );
+        setAreCyclesLoading(false);
+        notif.dismiss();
+        setCycleNotif(undefined);
+      })
+      .catch((error) => {
+        notif.notify({ render: formatMessage({ id: 'loadingCycles' }) });
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={loadCycles}
+              notification={notif}
+              message={
+                error?.message || formatMessage({ id: 'getCyclesFailed' })
+              }
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
       });
-    })
   };
 
   const [weightingSystem, setWeightingSystem] = useState<number>();
@@ -220,7 +224,9 @@ export default function WeightingTable() {
   const [isCreatingWeightingSystem, setIsCreatingWeightingSystem] =
     useState<boolean>(false);
 
-  const createWeightingSystem = (newWeightingSystem: CreateWeightingSystem) => {
+  const createWeightingSystemHandler = (
+    newWeightingSystem: CreateWeightingSystem
+  ) => {
     setIsCreatingWeightingSystem(true);
     const notif = new useNotification();
     if (weightingSystemNotif) weightingSystemNotif.dismiss();
@@ -238,7 +244,9 @@ export default function WeightingTable() {
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={() => createWeightingSystem(newWeightingSystem)}
+              retryFunction={() =>
+                createWeightingSystemHandler(newWeightingSystem)
+              }
               notification={notif}
               message={
                 error?.message ||
@@ -457,11 +465,11 @@ export default function WeightingTable() {
       })
       .finally(() => setIsSubmittingDialogData(false));
   };
-  const submitEvaluationWeighting = (examAccess: {
+  const submitEvaluationWeighting = (newEvaluationWeighting: {
     evaluationWeighting: EvaluationTypeWeighting;
     cycle_id: string;
   }) => {
-    const { cycle_id, evaluationWeighting } = examAccess;
+    const { cycle_id, evaluationWeighting } = newEvaluationWeighting;
     setIsSubmittingDialogData(true);
     const notif = new useNotification();
     if (dialogNotif) dialogNotif.dismiss();
@@ -469,7 +477,17 @@ export default function WeightingTable() {
     notif.notify({
       render: formatMessage({ id: 'savingEvaluationWeighting' }),
     });
-    updateEvaluationTypeWeighting(cycle_id, evaluationWeighting)
+    alert(JSON.stringify(evaluationWeighting.evaluationTypeWeightings));
+    updateEvaluationTypeWeighting(cycle_id, {
+      ...evaluationWeighting,
+      evaluationTypeWeightings:
+        evaluationWeighting.evaluationTypeWeightings.map(
+          ({ evaluation_type, weight }) => ({
+            evaluation_type,
+            weight: Number(weight),
+          })
+        ),
+    })
       .then(() => {
         notif.update({
           render: formatMessage({ id: 'savedSuccessfully' }),
@@ -480,7 +498,9 @@ export default function WeightingTable() {
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={() => submitEvaluationWeighting(examAccess)}
+              retryFunction={() =>
+                submitEvaluationWeighting(newEvaluationWeighting)
+              }
               notification={notif}
               message={
                 error?.message ||
@@ -514,7 +534,7 @@ export default function WeightingTable() {
   if (!areCyclesLoading && !isWeightingSystemLoading && !weightingSystem)
     return (
       <SelectWeightingSystem
-        handleSubmit={createWeightingSystem}
+        handleSubmit={createWeightingSystemHandler}
         isDataLoading={isCreatingWeightingSystem}
       />
     );
@@ -588,7 +608,7 @@ export default function WeightingTable() {
             isWeightingSystemLoading ||
             isSubmittingDialogData
           }
-          editWeightingSystem={createWeightingSystem}
+          editWeightingSystem={createWeightingSystemHandler}
           openCarryOverDialog={() => setIsCarryOverDialogOpen(true)}
           openEvaluationWeightingDialog={() =>
             setIsEvaluationWeightingDialogOpen(true)
