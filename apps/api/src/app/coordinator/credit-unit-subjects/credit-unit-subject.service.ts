@@ -281,7 +281,6 @@ export class CreditUnitSubjectService {
         AnnualCreditUnitHasSubjectParts: subjectParts,
         ...annualCreditUnitSubject
       }) => {
-        console.log(subjectParts);
         const {
           AnnualTeacher: {
             Login: {

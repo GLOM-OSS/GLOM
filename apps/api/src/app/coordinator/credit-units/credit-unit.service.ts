@@ -230,10 +230,9 @@ export class CreditUnitService {
         const totalAvailableMarks = subjectMarkStatus.reduce(
           (
             total,
-            { is_resit_available, is_exam_available, is_ca_available }
+            { is_exam_available, is_ca_available }
           ) => {
             if (is_ca_available) total++;
-            if (is_resit_available) total++;
             if (is_exam_available) total++;
             return total;
           },
@@ -243,7 +242,7 @@ export class CreditUnitService {
           ...creditUnit,
           subjectMarkStatus,
           availability_percentage:
-            (totalAvailableMarks * 100) / (subjectMarkStatus.length * 3),
+            (totalAvailableMarks * 100) / (subjectMarkStatus.length * 2),
         };
       }
     );
