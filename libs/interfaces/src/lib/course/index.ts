@@ -14,6 +14,7 @@ export interface Resource extends CreateLink {
 export interface CreateChapter {
   chapter_title: string;
   chapter_objective: string;
+  annual_credit_unit_subject_id: string;
   chapter_parent_id?: string;
 }
 
