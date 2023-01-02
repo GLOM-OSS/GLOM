@@ -98,8 +98,12 @@ export default function ModuleDisplay({
             })}`}</TableCell>
             <TableCell align="center">
               <CircularProgressWithLabel
-                sx={{ color: lighten(theme.palette.success.main, 0.6) }}
+                sx={{
+                  color: 'white',
+                }}
                 value={ap}
+                thickness={4}
+                size={50}
               />
             </TableCell>
             <TableCell align="center">
@@ -140,7 +144,7 @@ export default function ModuleDisplay({
         </TableHead>
       </Table>
       <Collapse in={open}>
-        <Box sx={{padding: theme.spacing(3)}}>
+        <Box sx={{ padding: theme.spacing(3) }}>
           <Table
             sx={{
               minWidth: 650,
