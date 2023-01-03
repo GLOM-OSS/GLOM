@@ -72,18 +72,16 @@ export async function saveStudentMarks(
   },
   is_published: boolean
 ) {
-  await http.put(
-    `/evaluations/${evaluation_id}/save`,
-    {
-      studentMarks,
-      is_published,
-    },
-    {
-      params: { private_code },
-    }
-  );
+  await http.put(`/evaluations/${evaluation_id}/save`, {
+    studentMarks,
+    private_code,
+    is_published,
+  });
 }
 
-export async function resetStudentMarks(evaluation_id: string) {
-  await http.put(`/evaluations/${evaluation_id}/reset-marks`);
+export async function resetStudentMarks(
+  evaluation_id: string,
+  private_code: string
+) {
+  await http.put(`/evaluations/${evaluation_id}/reset-marks`, { private_code });
 }
