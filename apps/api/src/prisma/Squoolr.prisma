@@ -1082,6 +1082,7 @@ model Chapter {
     chapter_id                    String                  @id @default(uuid()) @db.VarChar(36)
     chapter_title                 String                  @db.VarChar(45)
     chapter_objective             String                  @db.MediumText
+    chapter_number                Int
     is_deleted                    Boolean                 @db.TinyInt
     created_at                    DateTime                @default(now()) @db.DateTime(0)
     annual_credit_unit_subject_id String                  @db.VarChar(36)
@@ -1100,6 +1101,7 @@ model ChapterAudit {
     chapter_audit_id  String        @id @default(uuid()) @db.VarChar(36)
     chapter_title     String        @db.VarChar(45)
     chapter_objective String        @db.MediumText
+    chapter_number    Int
     is_deleted        Boolean       @db.TinyInt
     audited_at        DateTime      @default(now()) @db.DateTime(0)
     chapter_id        String        @db.VarChar(36)

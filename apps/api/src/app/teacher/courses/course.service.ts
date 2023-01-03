@@ -215,4 +215,17 @@ export class CourseService {
       },
     });
   }
+
+  async findChapters(annual_credit_unit_subject_id: string) {
+    return this.prismaService.chapter.findMany({
+        select: { 
+            chapter_title: true,
+            chapter_objective: true,
+            annual_credit_unit_subject_id: true,
+            chapter_number: true,
+            chapter_parent_id: true,
+         },
+        where: { annual_credit_unit_subject_id }
+    })
+}
 }

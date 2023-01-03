@@ -5,7 +5,7 @@ export interface CreateLink {
 
 export interface Ressource extends CreateLink {
   resource_id: string;
-  chaper_id: string | null;
+  chapter_id: string | null;
   resource_type: 'FILE' | 'LINK';
   resource_extension: string | null;
   annual_credit_unit_subject_id: string;
