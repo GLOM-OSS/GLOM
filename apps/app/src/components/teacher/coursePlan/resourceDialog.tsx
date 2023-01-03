@@ -79,7 +79,7 @@ export default function ResourceDialog({
         >
           <DialogTitle>
             {formatMessage({
-              id: 'chapterRessource',
+              id: chapter_id? 'chapterLinkResource':'courseLinkResource',
             })}
           </DialogTitle>
           <Button
