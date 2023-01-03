@@ -1,4 +1,4 @@
-import { AddRounded, ExpandMore, ReportRounded } from '@mui/icons-material';
+import { ExpandMore, ReportRounded } from '@mui/icons-material';
 import {
   Accordion,
   AccordionDetails,
@@ -6,10 +6,8 @@ import {
   Box,
   Button,
   Chip,
-  Fab,
   lighten,
   Skeleton,
-  Tooltip,
   Typography,
 } from '@mui/material';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
@@ -21,6 +19,7 @@ import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';
 import { RowMenu } from '../../coordinator/CreditUnitLane';
+import ChapterDialog from './chapterDialog';
 import ChapterLane, { ChapterLaneSkeleton } from './chapterLane';
 
 export default function CoursePlan() {
@@ -197,11 +196,12 @@ export default function CoursePlan() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
   const [actionnedChapter, setActionnedChapter] = useState<Chapter>();
 
-  const [isDeletingChapter, setIsDeletingChapter] = useState<boolean>(false);
+  const [isSubmittingChapter, setIsSubmittingChapter] =
+    useState<boolean>(false);
 
   const deleteChapter = (chapter: Chapter) => {
     if (actionnedChapter) {
-      setIsDeletingChapter(true);
+      setIsSubmittingChapter(true);
       const notif = new useNotification();
       if (chapterNotif) chapterNotif.dismiss();
       setChapterNotif(notif);
@@ -214,7 +214,7 @@ export default function CoursePlan() {
               ({ chapter_id: c_id }) => c_id !== chapter.chapter_id
             )
           );
-          setIsDeletingChapter(false);
+          setIsSubmittingChapter(false);
           notif.dismiss();
           setChapterNotif(undefined);
         } else {
@@ -236,6 +236,73 @@ export default function CoursePlan() {
     }
   };
 
+  const manageChapter = (chapter: Chapter) => {
+    setIsSubmittingChapter(true);
+    const notif = new useNotification();
+    if (chapterNotif) chapterNotif.dismiss();
+    setChapterNotif(notif);
+    notif.notify({
+      render: formatMessage({
+        id: chapter.chapter_id === '' ? 'creatingChapter' : 'editingChapter',
+      }),
+    });
+    if (chapter.chapter_id === '') {
+      setTimeout(() => {
+        //TODO: call api here to create chapter with data (chapter as CreateChapter)
+        if (6 > 5) {
+          const newChapter: Chapter = { ...chapter, chapter_id: 'sie' };
+          setChapters([...chapters, newChapter]);
+          setIsSubmittingChapter(false);
+          notif.dismiss();
+          setChapterNotif(undefined);
+        } else {
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={() => manageChapter(chapter)}
+                notification={notif}
+                //TODO: message should come from backend
+                message={formatMessage({ id: 'createChapterFailed' })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
+      }, 3000);
+    } else {
+      setTimeout(() => {
+        //TODO: call api here to edit chapter with data chapter.chapter_id
+        if (6 > 5) {
+          setChapters(
+            chapters.map((chptr) => {
+              if (chptr.chapter_id === chapter.chapter_id) return chapter;
+              return chptr;
+            })
+          );
+          setIsSubmittingChapter(false);
+          notif.dismiss();
+          setChapterNotif(undefined);
+        } else {
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={() => manageChapter(chapter)}
+                notification={notif}
+                //TODO: message should come from backend
+                message={formatMessage({ id: 'editChapterFailed' })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
+      }, 3000);
+    }
+  };
+
   return (
     <>
       <RowMenu
@@ -243,6 +310,16 @@ export default function CoursePlan() {
         closeMenu={() => setAnchorEl(null)}
         deleteItem={() => setIsConfirmDeleteChapterDialogOpen(true)}
         editItem={() => setIsEditDialogOpen(true)}
+      />
+      <ChapterDialog
+        closeDialog={() => {
+          setIsEditDialogOpen(false);
+          setActionnedChapter(undefined);
+        }}
+        estimatedChapterNumber={chapters.length + 1}
+        isDialogOpen={isEditDialogOpen}
+        editableChapter={actionnedChapter}
+        handleSubmit={manageChapter}
       />
       <ConfirmDeleteDialog
         closeDialog={() => setIsConfirmDeleteChapterDialogOpen(false)}
@@ -378,6 +455,10 @@ export default function CoursePlan() {
                 color="primary"
                 size="small"
                 disabled={isCourseLoading || areChaptersLoading}
+                onClick={() => {
+                  setIsEditDialogOpen(true);
+                  setActionnedChapter(undefined);
+                }}
               >
                 {formatMessage({ id: 'newChapter' })}
               </Button>
@@ -394,19 +475,21 @@ export default function CoursePlan() {
                   {formatMessage({ id: 'correspondingCourseNotFound' })}
                 </Typography>
               ) : (
-                chapters
-                  .sort((a, b) =>
-                    a.chapter_number > b.chapter_number ? 1 : -1
-                  )
-                  .map((chapter, index) => (
-                    <ChapterLane
-                      disabled={isDeletingChapter}
-                      getActionnedChapter={setActionnedChapter}
-                      setAnchorEl={setAnchorEl}
-                      chapter={chapter}
-                      key={index}
-                    />
-                  ))
+                <Box sx={{ display: 'grid', rowGap: theme.spacing(2) }}>
+                  {chapters
+                    .sort((a, b) =>
+                      a.chapter_number > b.chapter_number ? 1 : -1
+                    )
+                    .map((chapter, index) => (
+                      <ChapterLane
+                        disabled={isSubmittingChapter}
+                        getActionnedChapter={setActionnedChapter}
+                        setAnchorEl={setAnchorEl}
+                        chapter={chapter}
+                        key={index}
+                      />
+                    ))}
+                </Box>
               )}
             </Scrollbars>
           </Box>
