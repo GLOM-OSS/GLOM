@@ -19,6 +19,7 @@ export default function ChapterDialog({
   handleSubmit,
   closeDialog,
   editableChapter,
+  isChapter,
   estimatedChapterNumber,
 }: {
   isDialogOpen: boolean;
@@ -26,6 +27,7 @@ export default function ChapterDialog({
   closeDialog: () => void;
   editableChapter?: Chapter;
   estimatedChapterNumber: number;
+  isChapter: boolean;
 }) {
   const { formatMessage } = useIntl();
   const { annual_credit_unit_subject_id } = useParams();
@@ -75,7 +77,13 @@ export default function ChapterDialog({
       <form onSubmit={formik.handleSubmit}>
         <DialogTitle>
           {formatMessage({
-            id: editableChapter ? 'editChapter' : 'addChapter',
+            id: editableChapter
+              ? isChapter
+                ? 'editPart'
+                : 'editChapter'
+              : isChapter
+              ? 'addPart'
+              : 'addChapter',
           })}
         </DialogTitle>
         <DialogContent
@@ -87,8 +95,12 @@ export default function ChapterDialog({
           <TextField
             autoFocus
             sx={{ marginTop: theme.spacing(1) }}
-            placeholder={formatMessage({ id: 'chapterNumber' })}
-            label={formatMessage({ id: 'chapterNumber' })}
+            placeholder={formatMessage({
+              id: isChapter ? 'partNumber' : 'chapterNumber',
+            })}
+            label={formatMessage({
+              id: isChapter ? 'partNumber' : 'chapterNumber',
+            })}
             required
             color="primary"
             type="number"
@@ -102,8 +114,12 @@ export default function ChapterDialog({
             }
           />
           <TextField
-            placeholder={formatMessage({ id: 'chapterTitle' })}
-            label={formatMessage({ id: 'chapterTitle' })}
+            placeholder={formatMessage({
+              id: isChapter ? 'partTitle' : 'chapterTitle',
+            })}
+            label={formatMessage({
+              id: isChapter ? 'partTitle' : 'chapterTitle',
+            })}
             required
             color="primary"
             {...formik.getFieldProps('chapter_title')}
@@ -116,8 +132,12 @@ export default function ChapterDialog({
             }
           />
           <TextField
-            placeholder={formatMessage({ id: 'chapterObjective' })}
-            label={formatMessage({ id: 'chapterObjective' })}
+            placeholder={formatMessage({
+              id: isChapter ? 'partObjective' : 'chapterObjective',
+            })}
+            label={formatMessage({
+              id: isChapter ? 'partObjective' : 'chapterObjective',
+            })}
             fullWidth
             multiline
             rows={5}

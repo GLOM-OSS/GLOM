@@ -27,6 +27,8 @@ export default function CoursePlan() {
   const { formatMessage } = useIntl();
   const { annual_credit_unit_subject_id } = useParams();
 
+  const [activeChapter, setActiveChapter] = useState<Chapter>();
+
   const [course, setCourse] = useState<Course>();
   const [isCourseLoading, setIsCourseLoading] = useState<boolean>(false);
   const [courseNotif, setCourseNotif] = useState<useNotification>();
@@ -312,6 +314,7 @@ export default function CoursePlan() {
         editItem={() => setIsEditDialogOpen(true)}
       />
       <ChapterDialog
+        isChapter={Boolean(activeChapter)}
         closeDialog={() => {
           setIsEditDialogOpen(false);
           setActionnedChapter(undefined);
@@ -330,11 +333,34 @@ export default function CoursePlan() {
         isDialogOpen={isConfirmDeleteChapterDialogOpen}
       />
       <Box sx={{ height: '100%' }}>
-        <Box>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: activeChapter ? 'auto 1fr' : '1fr',
+            columnGap: theme.spacing(2),
+            alignItems: 'end',
+            justifyItems: 'start',
+          }}
+        >
+          {activeChapter && (
+            <Button
+              variant="outlined"
+              color="primary"
+              size="small"
+              sx={{ textTransform: 'none' }}
+              onClick={() => setActiveChapter(undefined)}
+            >
+              {formatMessage({ id: 'back' })}
+            </Button>
+          )}
           <Typography variant="h6">
             {course ? (
-              `${formatMessage({ id: 'chapterTitle' })}: ${
-                course.subject_title
+              `${formatMessage({
+                id: activeChapter ? 'chapterTitle' : 'courseTitle',
+              })}: ${
+                activeChapter
+                  ? activeChapter.chapter_title
+                  : course.subject_title
               }`
             ) : (
               <Skeleton animation="wave" />
@@ -358,7 +384,9 @@ export default function CoursePlan() {
               marginTop: theme.spacing(2),
             }}
           >
-            {course
+            {activeChapter
+              ? null
+              : course
               ? course.classroomAcronyms.map((val, key) => (
                   <Chip label={val} key={key} size="small" />
                 ))
@@ -384,12 +412,22 @@ export default function CoursePlan() {
               expandIcon={<ExpandMore />}
             >
               <Typography variant="h6" sx={{ fontWeight: 400 }}>
-                {formatMessage({ id: 'courseObjectives' })}
+                {formatMessage({
+                  id: activeChapter ? 'chapterObjectives' : 'courseObjectives',
+                })}
               </Typography>
             </AccordionSummary>
             <AccordionDetails>
               <Typography variant="body2">
-                {course ? course.objective : <Skeleton animation="wave" />}
+                {course ? (
+                  activeChapter ? (
+                    activeChapter.chapter_objective
+                  ) : (
+                    course.objective
+                  )
+                ) : (
+                  <Skeleton animation="wave" />
+                )}
               </Typography>
             </AccordionDetails>
           </Accordion>
@@ -411,7 +449,11 @@ export default function CoursePlan() {
                 }}
               >
                 <Typography variant="h6" sx={{ fontWeight: 400 }}>
-                  {formatMessage({ id: 'courseRessources' })}
+                  {formatMessage({
+                    id: activeChapter
+                      ? 'chapterRessources'
+                      : 'courseRessources',
+                  })}
                 </Typography>
                 <Button
                   variant="contained"
@@ -454,13 +496,16 @@ export default function CoursePlan() {
                 variant="contained"
                 color="primary"
                 size="small"
+                sx={{ textTransform: 'none' }}
                 disabled={isCourseLoading || areChaptersLoading}
                 onClick={() => {
                   setIsEditDialogOpen(true);
                   setActionnedChapter(undefined);
                 }}
               >
-                {formatMessage({ id: 'newChapter' })}
+                {formatMessage({
+                  id: activeChapter ? 'newPart' : 'newChapter',
+                })}
               </Button>
             </Box>
             <Scrollbars autoHide>
@@ -485,6 +530,8 @@ export default function CoursePlan() {
                         active={
                           actionnedChapter?.chapter_id === chapter.chapter_id
                         }
+                        setActiveChapter={setActiveChapter}
+                        isChapter={Boolean(activeChapter)}
                         disabled={isSubmittingChapter}
                         getActionnedChapter={setActionnedChapter}
                         setAnchorEl={setAnchorEl}

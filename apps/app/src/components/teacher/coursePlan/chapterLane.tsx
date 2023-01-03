@@ -34,14 +34,18 @@ export default function ChapterLane({
   chapter: c,
   disabled,
   active,
+  isChapter,
   setAnchorEl,
   getActionnedChapter,
+  setActiveChapter,
 }: {
   active: boolean;
+  isChapter: boolean;
   chapter: Chapter;
   disabled: boolean;
   setAnchorEl: (el: HTMLButtonElement) => void;
   getActionnedChapter: (chapter: Chapter) => void;
+  setActiveChapter: (chapter: Chapter) => void;
 }) {
   const { formatMessage } = useIntl();
 
@@ -64,11 +68,14 @@ export default function ChapterLane({
           transition: '0.2s',
         },
       }}
+      onClick={() => setActiveChapter(c)}
     >
       <Box>
         <Typography
           sx={{ color: theme.palette.primary.main, fontWeight: 'bold' }}
-        >{`${formatMessage({ id: 'chapter' })} ${cn}`}</Typography>
+        >{`${formatMessage({
+          id: isChapter ? 'part' : 'chapter',
+        })} ${cn}`}</Typography>
         <Typography>{ct}</Typography>
       </Box>
       <Tooltip arrow title={formatMessage({ id: 'more' })}>
