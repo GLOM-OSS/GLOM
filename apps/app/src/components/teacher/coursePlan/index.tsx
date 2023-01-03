@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
-import { Chapter, Course, Ressource } from '@squoolr/interfaces';
+import { Chapter, Course, CreateChapter, Ressource } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
@@ -85,7 +85,8 @@ export default function CoursePlan() {
   const [chapterNotif, setChapterNotif] = useState<useNotification>();
 
   const loadChapters = () => {
-    if (course) {
+    if (course && !activeChapter) {
+      setChapters([]);
       setAreChaptersLoading(true);
       const notif = new useNotification();
       if (chapterNotif) {
@@ -93,7 +94,7 @@ export default function CoursePlan() {
       }
       setChapterNotif(notif);
       setTimeout(() => {
-        //TODO: call api here to load course using data annual_credit_unit_subject_id
+        //TODO: call api here to load course chapters using data annual_credit_unit_subject_id
         if (6 > 5) {
           const newChapters: Chapter[] = [
             {
@@ -101,6 +102,49 @@ export default function CoursePlan() {
               chapter_id: 'isoes',
               chapter_objective: 'Things shall make it rain trust me',
               chapter_title: 'Introduction to Cameroon history',
+              chapter_number: 1,
+            },
+          ];
+          setChapters(newChapters);
+          setAreChaptersLoading(false);
+          notif.dismiss();
+          setChapterNotif(undefined);
+        } else {
+          notif.notify({
+            render: formatMessage({ id: 'loadingChapters' }),
+          });
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={loadChapters}
+                notification={notif}
+                //TODO: message should come from backend
+                message={formatMessage({ id: 'getChaptersFailed' })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
+      }, 3000);
+    } else if (activeChapter) {
+      setChapters([]);
+      setAreChaptersLoading(true);
+      const notif = new useNotification();
+      if (chapterNotif) {
+        chapterNotif.dismiss();
+      }
+      setChapterNotif(notif);
+      setTimeout(() => {
+        //TODO: call api here to load chapter pars using data activeChapter.chapter_id
+        if (6 > 5) {
+          const newChapters: Chapter[] = [
+            {
+              annual_credit_unit_subject_id: 'lsies',
+              chapter_id: 'isoesd',
+              chapter_objective: 'Things shall make it rain trust me',
+              chapter_title: 'Introduction to Cameroon Biology',
               chapter_number: 1,
             },
           ];
@@ -136,7 +180,8 @@ export default function CoursePlan() {
   const [ressourceNotif, setRessourceNotif] = useState<useNotification>();
 
   const loadRessources = () => {
-    if (course) {
+    if (course && !activeChapter) {
+      setRessources([]);
       setAreRessourcesLoading(true);
       const notif = new useNotification();
       if (ressourceNotif) {
@@ -144,7 +189,42 @@ export default function CoursePlan() {
       }
       setRessourceNotif(notif);
       setTimeout(() => {
-        //TODO: call api here to load course using data annual_credit_unit_subject_id
+        //TODO: call api here to load course ressources using data annual_credit_unit_subject_id
+        if (6 > 5) {
+          const newRessources: Ressource[] = [];
+          setRessources(newRessources);
+          setAreRessourcesLoading(false);
+          notif.dismiss();
+          setRessourceNotif(undefined);
+        } else {
+          notif.notify({
+            render: formatMessage({ id: 'loadingRessources' }),
+          });
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={loadRessources}
+                notification={notif}
+                //TODO: message should come from backend
+                message={formatMessage({ id: 'getRessourcesFailed' })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
+      }, 3000);
+    } else if (activeChapter) {
+      setRessources([]);
+      setAreRessourcesLoading(true);
+      const notif = new useNotification();
+      if (ressourceNotif) {
+        ressourceNotif.dismiss();
+      }
+      setRessourceNotif(notif);
+      setTimeout(() => {
+        //TODO: call api here to load chapter ressources using data activeChapter.chapter_id
         if (6 > 5) {
           const newRessources: Ressource[] = [];
           setRessources(newRessources);
@@ -188,7 +268,7 @@ export default function CoursePlan() {
       //TODO: CLEANUP AXIOS CALLS ABOVE
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [course]);
+  }, [course, activeChapter]);
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [
@@ -250,7 +330,11 @@ export default function CoursePlan() {
     });
     if (chapter.chapter_id === '') {
       setTimeout(() => {
-        //TODO: call api here to create chapter with data (chapter as CreateChapter)
+        const submitData: CreateChapter = {
+          ...(chapter as CreateChapter),
+          chapter_parent_id: activeChapter ? activeChapter.chapter_id : '',
+        };
+        //TODO: call api here to create chapter with data submitData
         if (6 > 5) {
           const newChapter: Chapter = { ...chapter, chapter_id: 'sie' };
           setChapters([...chapters, newChapter]);
