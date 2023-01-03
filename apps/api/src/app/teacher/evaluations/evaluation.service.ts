@@ -4,7 +4,7 @@ import {
   EvaluationSubTypeEnum,
   Prisma,
 } from '@prisma/client';
-import { AUTH404, ERR13 } from '../../../errors';
+import { AUTH404, ERR13, ERR15, ERR16 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   EvaluationQueryDto,
@@ -114,10 +114,7 @@ export class EvaluationService {
     );
   }
 
-  async getEvaluationHasStudents(
-    evaluation_id: string,
-    useAnonymityCode: boolean
-  ) {
+  async getEvaluationHasStudents(evaluation_id: string) {
     const evaluationHasStudents =
       await this.prismaService.evaluationHasStudent.findMany({
         select: {
@@ -162,23 +159,15 @@ export class EvaluationService {
             },
           },
         },
-      }) =>
-        useAnonymityCode
-          ? {
-              evaluation_has_student_id,
-              anonymity_code,
-              mark,
-              last_updated:
-                lastAudits.length === 0 ? created_at : lastAudits[0].audited_at,
-            }
-          : {
-              mark,
-              matricule,
-              evaluation_has_student_id,
-              fullname: `${first_name} ${last_name}`,
-              last_updated:
-                lastAudits.length === 0 ? created_at : lastAudits[0].audited_at,
-            }
+      }) => ({
+        mark,
+        matricule,
+        anonymity_code,
+        evaluation_has_student_id,
+        fullname: `${first_name} ${last_name}`,
+        last_updated:
+          lastAudits.length === 0 ? created_at : lastAudits[0].audited_at,
+      })
     );
   }
 
@@ -192,6 +181,11 @@ export class EvaluationService {
     audited_by: string
   ) {
     const evaluation = await this.prismaService.evaluation.findFirst({
+      select: {
+        examination_date: true,
+        anonimated_at: true,
+        AnnualEvaluationSubType: { select: { evaluation_sub_type_name: true } },
+      },
       where: {
         evaluation_id,
         ...(anonimated_at
@@ -210,6 +204,24 @@ export class EvaluationService {
         JSON.stringify(AUTH404('Evaluation')),
         HttpStatus.NOT_FOUND
       );
+    const {
+      AnnualEvaluationSubType: { evaluation_sub_type_name: sub_type },
+    } = evaluation;
+    if (
+      anonimated_at &&
+      sub_type === EvaluationSubTypeEnum.RESIT &&
+      !evaluation.examination_date
+    )
+      throw new HttpException(JSON.stringify(ERR15), HttpStatus.EARLYHINTS);
+
+    if (
+      published_at &&
+      (sub_type === EvaluationSubTypeEnum.RESIT ||
+        sub_type === EvaluationSubTypeEnum.EXAM) &&
+      !evaluation.anonimated_at
+    )
+      throw new HttpException(JSON.stringify(ERR16), HttpStatus.EARLYHINTS);
+
     await this.prismaService.evaluation.update({
       data: {
         ...(anonimated_at
