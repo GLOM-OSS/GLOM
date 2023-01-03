@@ -166,15 +166,15 @@ export class EvaluationController {
     const {
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
-    try {
+    // try {
       await this.evaluationService.saveEvaluationMarks(
         studentMarks,
         annual_teacher_id
       );
       if (is_published) await this.publishEvaluation(request, evaluation_id);
-    } catch (error) {
-      throw new HttpException(error?.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    // } catch (error) {
+    //   throw new HttpException(error?.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    // }
   }
 
   @IsPrivate()

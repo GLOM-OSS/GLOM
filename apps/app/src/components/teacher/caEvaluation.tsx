@@ -137,7 +137,6 @@ export default function CAEvaluation() {
     setEvaluationSubTypeNotif(notif);
     getEvaluationSubTypes()
       .then((evaluationSubTypes) => {
-        alert(activeEvaluationSubType?.evaluation_type)
         setEvaluationSubTypes(evaluationSubTypes);
         if (evaluationSubTypes.length > 0)
           setActiveEvaluationSubType(evaluationSubTypes[0]);
@@ -372,7 +371,7 @@ export default function CAEvaluation() {
       notif.notify({
         render: formatMessage({ id: 'resettingMarks' }),
       });
-      resetStudentMarks(evaluation?.evaluation_id as string)
+      resetStudentMarks(evaluation?.evaluation_id as string, private_code)
         .then(() => {
           setUpdatedMarks([]);
           setEvaluationHasStudents(
@@ -577,7 +576,7 @@ export default function CAEvaluation() {
       <ConfirmEvaluationActionDialog
         closeDialog={() => setIsConfirmSaveDialogOpen(false)}
         handleSubmit={(private_code: string) =>
-          resetEvaluationMarks(private_code, evaluationHasStudents)
+          saveEvaluationMarks(private_code, updatedMarks)
         }
         confirm={formatMessage({ id: 'saveMarks' })}
         isDialogOpen={isConfirmSaveDialogOpen}
@@ -587,7 +586,7 @@ export default function CAEvaluation() {
       <ConfirmEvaluationActionDialog
         closeDialog={() => setIsConfirmResetMarksDialogOpen(false)}
         handleSubmit={(private_code: string) =>
-          saveEvaluationMarks(private_code, updatedMarks)
+          resetEvaluationMarks(private_code, evaluationHasStudents)
         }
         confirm={formatMessage({ id: 'resetMarks' })}
         isDialogOpen={isConfirmResetMarksDialogOpen}
@@ -720,8 +719,7 @@ export default function CAEvaluation() {
             }
           />
         ) : activeEvaluationSubType &&
-          activeEvaluationSubType.evaluation_type ===
-            EvaluationTypeEnum.EXAM &&
+          activeEvaluationSubType.evaluation_type === EvaluationTypeEnum.EXAM &&
           evaluation &&
           !evaluation.is_anonimated &&
           !(

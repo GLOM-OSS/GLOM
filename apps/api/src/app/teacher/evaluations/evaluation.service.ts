@@ -1,15 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   EvaluationHasStudent,
-  EvaluationSubTypeEnum,
-  Prisma,
+  EvaluationSubTypeEnum
 } from '@prisma/client';
 import { AUTH404, ERR13, ERR15, ERR16 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   EvaluationQueryDto,
   EvaluationsQeuryDto,
-  StudentMark,
+  StudentMark
 } from '../teacher.dto';
 
 @Injectable()
@@ -290,34 +289,35 @@ export class EvaluationService {
     evaluationHasStudents: EvaluationHasStudent[],
     audited_by: string
   ) {
-    const evaluationHasStudentAudits: Prisma.EvaluationHasStudentAuditCreateInput[] =
-      evaluationHasStudents.map(
-        ({ evaluation_has_student_id, mark, is_deleted, is_editable }) => ({
-          mark,
-          is_deleted,
-          is_editable,
-          AnnualTeacher: { connect: { annual_teacher_id: audited_by } },
-          EvaluationHasStudent: { connect: { evaluation_has_student_id } },
-        })
-      );
+    const evaluationHasStudentAudits = evaluationHasStudents.map(
+      ({ evaluation_has_student_id, mark, is_deleted, is_editable }) => ({
+        mark,
+        is_deleted,
+        is_editable,
+        audited_by,
+        evaluation_has_student_id,
+      })
+    );
     return this.prismaService.$transaction([
-      ...studentMarks.map(({ evaluation_has_student_id, mark }) =>
-        this.prismaService.evaluationHasStudent.update({
+      ...studentMarks.map(({ evaluation_has_student_id, mark }) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { evaluation_has_student_id: _, ...auditData } =
+          evaluationHasStudentAudits.find(
+            ({ evaluation_has_student_id: id }) =>
+              id === evaluation_has_student_id
+          );
+        return this.prismaService.evaluationHasStudent.update({
           data: {
             mark,
             EvaluationHasStudentAudits: {
-              create: evaluationHasStudentAudits.find(
-                ({
-                  EvaluationHasStudent: {
-                    connect: { evaluation_has_student_id: id },
-                  },
-                }) => id === evaluation_has_student_id
-              ),
+              create: {
+                ...auditData,
+              },
             },
           },
           where: { evaluation_has_student_id },
-        })
-      ),
+        });
+      }),
     ]);
   }
 }
