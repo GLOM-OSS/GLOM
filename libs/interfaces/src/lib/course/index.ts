@@ -1,14 +1,15 @@
 export interface CreateLink {
+  chapter_id?: string;
   resource_ref: string;
   resource_name: string;
+  annual_credit_unit_subject_id: string;
 }
 
 export interface Ressource extends CreateLink {
   resource_id: string;
-  chaper_id: string | null;
+  chapter_id: string | null;
   resource_type: 'FILE' | 'LINK';
   resource_extension: string | null;
-  annual_credit_unit_subject_id: string;
 }
 
 export interface CreateChapter {

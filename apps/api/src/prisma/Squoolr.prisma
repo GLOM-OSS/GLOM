@@ -1082,7 +1082,8 @@ model Chapter {
     chapter_id                    String                  @id @default(uuid()) @db.VarChar(36)
     chapter_title                 String                  @db.VarChar(45)
     chapter_objective             String                  @db.MediumText
-    is_deleted                    Boolean                 @db.TinyInt
+    chapter_position              Int
+    is_deleted                    Boolean                 @default(false) @db.TinyInt
     created_at                    DateTime                @default(now()) @db.DateTime(0)
     annual_credit_unit_subject_id String                  @db.VarChar(36)
     AnnualCreditUnitSubject       AnnualCreditUnitSubject @relation(fields: [annual_credit_unit_subject_id], references: [annual_credit_unit_subject_id], onDelete: Cascade, onUpdate: Cascade)
@@ -1100,6 +1101,7 @@ model ChapterAudit {
     chapter_audit_id  String        @id @default(uuid()) @db.VarChar(36)
     chapter_title     String        @db.VarChar(45)
     chapter_objective String        @db.MediumText
+    chapter_position  Int
     is_deleted        Boolean       @db.TinyInt
     audited_at        DateTime      @default(now()) @db.DateTime(0)
     chapter_id        String        @db.VarChar(36)
@@ -1118,7 +1120,7 @@ enum ResourceType {
 model Resource {
     resource_id                   String                  @id @default(uuid()) @db.VarChar(36)
     resource_type                 ResourceType
-    resource_extension            String                  @db.VarChar(5)
+    resource_extension            String?                 @db.VarChar(5)
     resource_ref                  String                  @db.VarChar(90)
     resource_name                 String                  @db.VarChar(45)
     is_deleted                    Boolean                 @default(false) @db.TinyInt
@@ -1139,7 +1141,7 @@ model RessourceAudit {
     ressource_extension String        @db.VarChar(5)
     ressource_ref       String        @db.VarChar(90)
     ressource_name      String        @db.VarChar(45)
-    is_deleted          Boolean       @default(false) @db.TinyInt
+    is_deleted          Boolean       @db.TinyInt
     audited_at          DateTime      @default(now()) @db.DateTime(0)
     resource_id         String
     Resource            Resource      @relation(fields: [resource_id], references: [resource_id], onDelete: Cascade, onUpdate: Cascade)

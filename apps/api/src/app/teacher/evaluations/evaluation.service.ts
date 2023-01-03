@@ -1,14 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import {
-  EvaluationHasStudent,
-  EvaluationSubTypeEnum
-} from '@prisma/client';
+import { EvaluationHasStudent, EvaluationSubTypeEnum } from '@prisma/client';
 import { AUTH404, ERR13, ERR15, ERR16 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   EvaluationQueryDto,
   EvaluationsQeuryDto,
-  StudentMark
+  StudentMark,
 } from '../teacher.dto';
 
 @Injectable()
@@ -87,9 +84,11 @@ export class EvaluationService {
         },
       },
     });
-    return evaluations.map((evaluation) =>
-      this.transformEvaluation(evaluation)
-    );
+    return evaluations
+      .filter(
+        ({ anonimated_at, published_at }) => !anonimated_at && !published_at
+      )
+      .map((evaluation) => this.transformEvaluation(evaluation));
   }
 
   async getEvaluationSubTypes(academic_year_id: string) {

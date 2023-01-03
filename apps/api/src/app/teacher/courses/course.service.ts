@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EvaluationSubTypeEnum } from '@prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { LinkPostDto } from './course.dto';
 
 @Injectable()
 export class CourseService {
@@ -208,7 +209,39 @@ export class CourseService {
         resource_id: true,
         chapter_id: true,
       },
-      where: { annual_credit_unit_subject_id, is_deleted: false },
+      where: {
+        annual_credit_unit_subject_id,
+        is_deleted: false,
+        chapter_id: null,
+      },
+    });
+  }
+
+  async findChapters(annual_credit_unit_subject_id: string) {
+    return this.prismaService.chapter.findMany({
+      select: {
+        chapter_title: true,
+        chapter_objective: true,
+        annual_credit_unit_subject_id: true,
+        chapter_position: true,
+        chapter_parent_id: true,
+      },
+      where: { annual_credit_unit_subject_id },
+    });
+  }
+
+  async createLinkResource(
+    { annual_credit_unit_subject_id, chapter_id, ...newLink }: LinkPostDto,
+    created_by: string
+  ) {
+    return this.prismaService.resource.create({
+      data: {
+        ...newLink,
+        resource_type: 'LINK',
+        ...(chapter_id ? { Chapter: { connect: { chapter_id } } } : {}),
+        AnnualTeacher: { connect: { annual_teacher_id: created_by } },
+        AnnualCreditUnitSubject: { connect: { annual_credit_unit_subject_id } },
+      },
     });
   }
 }
