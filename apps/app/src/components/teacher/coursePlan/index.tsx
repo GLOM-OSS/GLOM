@@ -11,7 +11,13 @@ import {
   Typography,
 } from '@mui/material';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
-import { Chapter, Course, CreateChapter, Resource } from '@squoolr/interfaces';
+import {
+  Chapter,
+  Course,
+  CreateChapter,
+  CreateLink,
+  Resource,
+} from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
@@ -21,6 +27,7 @@ import { useParams } from 'react-router';
 import { RowMenu } from '../../coordinator/CreditUnitLane';
 import ChapterDialog from './chapterDialog';
 import ChapterLane, { ChapterLaneSkeleton } from './chapterLane';
+import ResourceDialog from './resourceDialog';
 
 export default function CoursePlan() {
   //fetch resources
@@ -389,6 +396,9 @@ export default function CoursePlan() {
     }
   };
 
+  const [isLinkDialogOpen, setIsLinkDialogOpen] = useState<boolean>(false);
+  const [isFileDialogOpen, setIsFileDialogOpen] = useState<boolean>(false);
+
   return (
     <>
       <RowMenu
@@ -396,6 +406,16 @@ export default function CoursePlan() {
         closeMenu={() => setAnchorEl(null)}
         deleteItem={() => setIsConfirmDeleteChapterDialogOpen(true)}
         editItem={() => setIsEditDialogOpen(true)}
+      />
+      <ResourceDialog
+        chapter_id={activeChapter ? activeChapter.chapter_id : null}
+        closeDialog={() => setIsLinkDialogOpen(false)}
+        isDialogOpen={isLinkDialogOpen}
+        openFileDialog={() => {
+          setIsLinkDialogOpen(false);
+          setIsFileDialogOpen(true);
+        }}
+        handleSubmit={(resource: CreateLink) => alert(JSON.stringify(resource))}
       />
       <ChapterDialog
         isChapter={Boolean(activeChapter)}
@@ -534,9 +554,7 @@ export default function CoursePlan() {
               >
                 <Typography variant="h6" sx={{ fontWeight: 400 }}>
                   {formatMessage({
-                    id: activeChapter
-                      ? 'chapterResources'
-                      : 'courseResources',
+                    id: activeChapter ? 'chapterResources' : 'courseResources',
                   })}
                 </Typography>
                 <Button
@@ -544,6 +562,10 @@ export default function CoursePlan() {
                   color="primary"
                   size="small"
                   sx={{ textTransform: 'none' }}
+                  onClick={() => {
+                    setIsFileDialogOpen(false);
+                    setIsLinkDialogOpen(true);
+                  }}
                   disabled={isCourseLoading || areResourcesLoading}
                 >
                   {formatMessage({ id: 'addResource' })}
