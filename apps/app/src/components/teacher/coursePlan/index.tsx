@@ -482,6 +482,9 @@ export default function CoursePlan() {
                     )
                     .map((chapter, index) => (
                       <ChapterLane
+                        active={
+                          actionnedChapter?.chapter_id === chapter.chapter_id
+                        }
                         disabled={isSubmittingChapter}
                         getActionnedChapter={setActionnedChapter}
                         setAnchorEl={setAnchorEl}

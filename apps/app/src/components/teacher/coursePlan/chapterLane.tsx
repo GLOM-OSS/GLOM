@@ -33,9 +33,11 @@ export default function ChapterLane({
   chapter: { chapter_number: cn, chapter_title: ct },
   chapter: c,
   disabled,
+  active,
   setAnchorEl,
   getActionnedChapter,
 }: {
+  active: boolean;
   chapter: Chapter;
   disabled: boolean;
   setAnchorEl: (el: HTMLButtonElement) => void;
@@ -51,7 +53,10 @@ export default function ChapterLane({
         gridTemplateColumns: '1fr auto',
         columnGap: theme.spacing(1),
         alignItems: 'center',
-        backgroundColor: lighten(theme.palette.primary.main, 0.95),
+        backgroundColor: lighten(
+          theme.palette[active ? 'secondary' : 'primary'].main,
+          active ? 0.9 : 0.95
+        ),
         padding: `${theme.spacing(0.5)} ${theme.spacing(2)}`,
         transition: '0.2s',
         '&:hover': {
