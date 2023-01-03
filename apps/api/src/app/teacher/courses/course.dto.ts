@@ -24,3 +24,22 @@ export class ChapterPostDto {
   @ApiProperty()
   annual_credit_unit_subject_id: string;
 }
+
+export class LinkPostDto {
+  @IsString()
+  @ApiProperty({ required: false })
+  resource_ref: string;
+
+  @IsString()
+  @ApiProperty({ required: false })
+  resource_name: string;
+
+  @IsUUID()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  chapter_id?: string;
+
+  @IsUUID()
+  @ApiProperty()
+  annual_credit_unit_subject_id: string;
+}

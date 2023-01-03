@@ -24,7 +24,9 @@ export class ChapterService {
       select: {
         resource_id: true,
         chapter_id: true,
+        resource_ref: true,
         resource_type: true,
+        resource_name: true,
         resource_extension: true,
         annual_credit_unit_subject_id: true,
       },
