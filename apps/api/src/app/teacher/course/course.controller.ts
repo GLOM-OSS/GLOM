@@ -1,9 +1,7 @@
 import {
   Controller,
   Get,
-  Param,
-  Req,
-  UseGuards
+  Param, Req, UseGuards
 } from '@nestjs/common';
 import { Request } from 'express';
 import { DeserializeSessionData } from '../../../utils/types';
