@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EvaluationSubTypeEnum } from '@prisma/client';
+import { EvaluationSubTypeEnum, ResourceType } from '@prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { LinkPostDto } from './course.dto';
 
@@ -230,18 +230,21 @@ export class CourseService {
     });
   }
 
-  async createLinkResource(
-    { annual_credit_unit_subject_id, chapter_id, ...newLink }: LinkPostDto,
+  async createResource(
+    resource_type: ResourceType,
+    resources: LinkPostDto[],
     created_by: string
   ) {
-    return this.prismaService.resource.create({
-      data: {
-        ...newLink,
-        resource_type: 'LINK',
-        ...(chapter_id ? { Chapter: { connect: { chapter_id } } } : {}),
-        AnnualTeacher: { connect: { annual_teacher_id: created_by } },
-        AnnualCreditUnitSubject: { connect: { annual_credit_unit_subject_id } },
-      },
+    return this.prismaService.resource.createMany({
+      data: resources.map(
+        ({ annual_credit_unit_subject_id, chapter_id, ...newLink }) => ({
+          ...newLink,
+          chapter_id,
+          created_by,
+          resource_type,
+          annual_credit_unit_subject_id,
+        })
+      ),
     });
   }
 }

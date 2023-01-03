@@ -1,18 +1,18 @@
 import {
   Body,
-  Controller,
-  Get,
+  Controller, Get,
   HttpException,
-  HttpStatus,
-  Param,
-  Post,
+  HttpStatus, Param, Post,
   Req,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
 import { DeserializeSessionData } from '../../../utils/types';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
-import { LinkPostDto } from './course.dto';
+import { LinkPostDto, ResourceOwner } from './course.dto';
 import { CourseService } from './course.service';
 
 @Controller()
@@ -53,13 +53,44 @@ export class CourseController {
     return this.courseService.findChapters(annual_credit_unit_subject_id);
   }
 
-  @Post('new-resource-link')
+  @Post('resources/new-link')
   async addNewLink(@Req() request: Request, @Body() newLink: LinkPostDto) {
     const {
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
     try {
-      return this.courseService.createLinkResource(newLink, annual_teacher_id);
+      return this.courseService.createResource(
+        'LINK',
+        [newLink],
+        annual_teacher_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Post('resources/new-files')
+  @UseInterceptors(FilesInterceptor('resources'))
+  async addNewFile(
+    @Req() request: Request,
+    @UploadedFiles()
+    files: Array<Express.Multer.File>,
+    @Body() { chapter_id, annual_credit_unit_subject_id }: ResourceOwner
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      return this.courseService.createResource(
+        'FILE',
+        files.map(({ originalname, filename }) => ({
+          annual_credit_unit_subject_id,
+          resource_name: originalname,
+          resource_ref: filename,
+          chapter_id,
+        })),
+        annual_teacher_id
+      );
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
