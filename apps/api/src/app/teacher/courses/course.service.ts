@@ -208,7 +208,11 @@ export class CourseService {
         resource_id: true,
         chapter_id: true,
       },
-      where: { annual_credit_unit_subject_id, is_deleted: false },
+      where: {
+        annual_credit_unit_subject_id,
+        is_deleted: false,
+        chapter_id: null,
+      },
     });
   }
 }
