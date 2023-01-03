@@ -396,6 +396,49 @@ export default function CoursePlan() {
     }
   };
 
+  const [isCreatingLink, setIsCreatingLink] = useState<boolean>(false);
+
+  const createLink = (link: CreateLink) => {
+    setIsCreatingLink(true);
+    const notif = new useNotification();
+    if (chapterNotif) chapterNotif.dismiss();
+    setResourceNotif(notif);
+    notif.notify({
+      render: formatMessage({
+        id: 'creatingLink',
+      }),
+    });
+    setTimeout(() => {
+      //TODO: call api here to create link
+      if (6 > 5) {
+        const newLink: Resource = {
+          ...link,
+          resource_extension: null,
+          resource_id: 'eisl',
+          resource_type: 'LINK',
+        };
+        setResources([...resources, newLink]);
+        setIsCreatingLink(false);
+        notif.dismiss();
+        setResourceNotif(undefined);
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => createLink(link)}
+              notification={notif}
+              //TODO: message should come from backend
+              message={formatMessage({ id: 'createLinkFailed' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
+
   const [isLinkDialogOpen, setIsLinkDialogOpen] = useState<boolean>(false);
   const [isFileDialogOpen, setIsFileDialogOpen] = useState<boolean>(false);
 
@@ -415,7 +458,7 @@ export default function CoursePlan() {
           setIsLinkDialogOpen(false);
           setIsFileDialogOpen(true);
         }}
-        handleSubmit={(resource: CreateLink) => alert(JSON.stringify(resource))}
+        handleSubmit={createLink}
       />
       <ChapterDialog
         isChapter={Boolean(activeChapter)}
@@ -566,7 +609,9 @@ export default function CoursePlan() {
                     setIsFileDialogOpen(false);
                     setIsLinkDialogOpen(true);
                   }}
-                  disabled={isCourseLoading || areResourcesLoading}
+                  disabled={
+                    isCourseLoading || areResourcesLoading || isCreatingLink
+                  }
                 >
                   {formatMessage({ id: 'addResource' })}
                 </Button>
