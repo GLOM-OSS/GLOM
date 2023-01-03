@@ -52,7 +52,12 @@ export class CreditUnitService {
         },
       }) => {
         if (!coordiantorMajors.find((_) => _.major_id === major_id))
-          coordiantorMajors.push({ major_id, major_code, number_of_years, major_name });
+          coordiantorMajors.push({
+            major_id,
+            major_code,
+            number_of_years,
+            major_name,
+          });
       }
     );
     return coordiantorMajors;
@@ -146,7 +151,11 @@ export class CreditUnitService {
 
   async getCreditUnitMarkStatus(
     academic_year_id: string,
-    { annual_credit_unit_subject_id, ...evaluationQuery }: EvaluationsQeuryDto
+    {
+      annual_credit_unit_subject_id,
+      major_code,
+      ...evaluationQuery
+    }: EvaluationsQeuryDto
   ) {
     const annualCreditUnits =
       await this.prismaService.annualCreditUnit.findMany({
@@ -177,6 +186,7 @@ export class CreditUnitService {
         },
         where: {
           ...evaluationQuery,
+          Major: { major_code },
           AnnualCreditUnitSubjects: {
             some: { annual_credit_unit_subject_id },
           },
@@ -208,7 +218,7 @@ export class CreditUnitService {
                 )?.published_at
               ),
               is_resit_available: Boolean(
-                activeYear.ended_at ?? resitEvaluation
+                activeYear.ended_at ?? resitEvaluation?.examination_date
                   ? (new Date(resitEvaluation.examination_date) < new Date() &&
                       resitEvaluation.EvaluationHasStudents.length === 0) ??
                       resitEvaluation.published_at
@@ -220,10 +230,9 @@ export class CreditUnitService {
         const totalAvailableMarks = subjectMarkStatus.reduce(
           (
             total,
-            { is_resit_available, is_exam_available, is_ca_available }
+            { is_exam_available, is_ca_available }
           ) => {
             if (is_ca_available) total++;
-            if (is_resit_available) total++;
             if (is_exam_available) total++;
             return total;
           },
@@ -233,7 +242,7 @@ export class CreditUnitService {
           ...creditUnit,
           subjectMarkStatus,
           availability_percentage:
-            (totalAvailableMarks * 100) / (subjectMarkStatus.length * 3),
+            (totalAvailableMarks * 100) / (subjectMarkStatus.length * 2),
         };
       }
     );

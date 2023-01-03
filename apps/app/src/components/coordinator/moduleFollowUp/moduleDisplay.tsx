@@ -46,7 +46,7 @@ function CircularProgressWithLabel(
           variant="body2"
           fontWeight={'500'}
           component="div"
-          color="text.secondary"
+          sx={{ color: theme.common.offWhite }}
         >{`${Math.round(props.value)}%`}</Typography>
       </Box>
     </Box>
@@ -88,19 +88,23 @@ export default function ModuleDisplay({
       >
         <TableHead
           sx={{
-            backgroundColor: lighten(theme.palette.primary.light, 0.5),
+            backgroundColor: theme.palette.primary.main,
           }}
         >
           <TableRow>
-            <TableCell align="center">{cuc}</TableCell>
-            <TableCell>{cun}</TableCell>
-            <TableCell>{`${cp} ${formatMessage({
+            <TableCell align="center" sx={{ color: theme.common.offWhite }}>
+              {cuc}
+            </TableCell>
+            <TableCell sx={{ color: theme.common.offWhite }}>{cun}</TableCell>
+            <TableCell
+              sx={{ color: theme.common.offWhite }}
+            >{`${cp} ${formatMessage({
               id: 'creditPoint',
             })}`}</TableCell>
             <TableCell align="center">
               <CircularProgressWithLabel
                 sx={{
-                  color: 'white',
+                  color: theme.palette.success.main,
                 }}
                 value={ap}
                 thickness={4}
@@ -136,9 +140,13 @@ export default function ModuleDisplay({
                   onClick={() => showMore(open ? undefined : module)}
                 >
                   {open ? (
-                    <KeyboardArrowUpOutlined />
+                    <KeyboardArrowUpOutlined
+                      sx={{ color: theme.common.offWhite }}
+                    />
                   ) : (
-                    <KeyboardArrowDownOutlined />
+                    <KeyboardArrowDownOutlined
+                      sx={{ color: theme.common.offWhite }}
+                    />
                   )}
                 </IconButton>
               </Tooltip>
@@ -155,7 +163,7 @@ export default function ModuleDisplay({
           >
             <TableHead
               sx={{
-                backgroundColor: lighten(theme.palette.primary.light, 0.7),
+                backgroundColor: lighten(theme.palette.primary.light, 0.8),
               }}
             >
               <TableRow>

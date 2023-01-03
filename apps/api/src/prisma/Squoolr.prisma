@@ -1048,7 +1048,7 @@ model EvaluationHasStudent {
     evaluation_has_student_id     String                @id @default(uuid()) @db.VarChar(36)
     mark                          Int?
     anonymity_code                String                @db.VarChar(20)
-    is_editable                   Boolean
+    is_editable                   Boolean               @default(true) @db.TinyInt
     is_deleted                    Boolean               @default(false) @db.TinyInt
     created_at                    DateTime              @default(now()) @db.DateTime(0)
     edition_granted_at            DateTime?             @db.DateTime(0)
@@ -1066,17 +1066,16 @@ model EvaluationHasStudent {
 }
 
 model EvaluationHasStudentAudit {
-    evaluation_has_student_audit_id String   @id @default(uuid()) @db.VarChar(36)
+    evaluation_has_student_audit_id String               @id @default(uuid()) @db.VarChar(36)
     mark                            Int?
-    is_deleted                      Boolean  @db.TinyInt
+    is_deleted                      Boolean              @db.TinyInt
     is_editable                     Boolean
-    audited_at                      DateTime @default(now()) @db.DateTime(0)
-
-    edition_granted_at        DateTime?            @db.DateTime(0)
-    evaluation_has_student_id String               @db.VarChar(36)
-    EvaluationHasStudent      EvaluationHasStudent @relation(fields: [evaluation_has_student_id], references: [evaluation_has_student_id], onDelete: Cascade, onUpdate: Cascade)
-    audited_by                String               @db.VarChar(36)
-    AnnualTeacher             AnnualTeacher        @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_at                      DateTime             @default(now()) @db.DateTime(0)
+    edition_granted_at              DateTime?            @db.DateTime(0)
+    evaluation_has_student_id       String               @db.VarChar(36)
+    EvaluationHasStudent            EvaluationHasStudent @relation(fields: [evaluation_has_student_id], references: [evaluation_has_student_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by                      String               @db.VarChar(36)
+    AnnualTeacher                   AnnualTeacher        @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Chapter {

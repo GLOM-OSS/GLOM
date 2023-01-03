@@ -379,11 +379,11 @@ export class PersonnelService {
     role: Role,
     reset_by: string
   ) {
-    const private_code = bcrypt.hashSync(
-      this.codeGenerator.getNumberString(Math.floor(Math.random() * 10000)),
-      Number(process.env.SALT)
-    );
     let username: string;
+    const newCode = this.codeGenerator.getNumberString(
+      Math.floor(Math.random() * 100000)
+    );
+    const private_code = bcrypt.hashSync(newCode, Number(process.env.SALT));
 
     if (role === Role.TEACHER) {
       const annualTeacher = await this.annualTeacherService.findUnique({
@@ -452,8 +452,8 @@ export class PersonnelService {
         where: { annual_registry_id: annual_personnel_id },
       });
     }
-    //TODO NodeMailer send email to username
-    username;
+    //TODO NodeMailer send the new private code to username
+    console.log({ username, newCode });
   }
 
   async resetPassword(email: string, squoolr_client: string, reset_by: string) {

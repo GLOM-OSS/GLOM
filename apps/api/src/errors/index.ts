@@ -124,3 +124,11 @@ export const ERR14 = {
   En: `Sorry, this action requires valid private code`,
   Fr: `Désolé, Cette action neccessite un code privée valide.`,
 };
+export const ERR15 = {
+  En: `Sorry, you can't anonimated a resit evaluation with unknown examination date`,
+  Fr: `Désolé, vous ne pouvez pas anonimer un examin de rattrapage dont la date est inconnue.`,
+};
+export const ERR16 = {
+  En: `Sorry, you can't published an exam that isn't anonimated`,
+  Fr: `Désolé, vous ne pouvez pas publier un examin qui n'a pas été anonimé.`,
+};

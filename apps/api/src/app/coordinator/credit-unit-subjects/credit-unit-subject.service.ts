@@ -83,7 +83,7 @@ export class CreditUnitSubjectService {
     const evaluationSubTypes =
       await this.prismaService.annualEvaluationSubType.findMany({
         where: {
-          evaluation_sub_type_name: { in: ['CA', 'EXAM'] },
+          evaluation_sub_type_name: { in: ['CA', 'EXAM', 'RESIT'] },
           academic_year_id: annualCreditUnit.academic_year_id,
         },
       });
@@ -281,7 +281,6 @@ export class CreditUnitSubjectService {
         AnnualCreditUnitHasSubjectParts: subjectParts,
         ...annualCreditUnitSubject
       }) => {
-        console.log(subjectParts);
         const {
           AnnualTeacher: {
             Login: {

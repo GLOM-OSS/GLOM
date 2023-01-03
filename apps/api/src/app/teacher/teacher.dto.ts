@@ -6,9 +6,10 @@ import {
   IsBoolean,
   IsDateString,
   IsNumber,
-  IsNumberString,
-  IsOptional, IsString, IsUUID,
-  ValidateNested
+  IsOptional,
+  IsString,
+  IsUUID,
+  ValidateNested,
 } from 'class-validator';
 
 export class EvaluationQueryDto {
@@ -35,7 +36,7 @@ export class EvaluationsQeuryDto {
   major_code?: string;
 
   @IsOptional()
-  @IsNumberString()
+  @IsNumber()
   @ApiProperty({ required: false })
   semester_number?: number;
 
@@ -77,4 +78,8 @@ export class EvaluationMarkDto {
   @IsBoolean()
   @ApiProperty()
   is_published: boolean;
+
+  @IsString()
+  @ApiProperty()
+  private_code: string;
 }

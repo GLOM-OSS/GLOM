@@ -78,13 +78,20 @@ export class EvaluationController {
       });
     if (annualRegistry && is_anonimated)
       throw new HttpException(ERR12[preferred_lang], HttpStatus.FORBIDDEN);
-    const useAnonymityCode = annualTeacher
-      ? ['RESIT', 'EXAM'].includes(evaluation_sub_type_name) && !is_published
-      : !is_anonimated;
-    return this.evaluationService.getEvaluationHasStudents(
-      evaluation_id,
-      useAnonymityCode
-    );
+    const useAnonymityCode =
+      ['RESIT', 'EXAM'].includes(evaluation_sub_type_name) && !is_published;
+    const evaluationHasStudents =
+      await this.evaluationService.getEvaluationHasStudents(evaluation_id);
+
+    return annualRegistry && !annualTeacher
+      ? // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        evaluationHasStudents.map(({ mark, ...data }) => ({ ...data }))
+      : annualTeacher && !annualRegistry && useAnonymityCode
+      ? // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        evaluationHasStudents.map(({ matricule, fullname, ...data }) => ({
+          ...data,
+        }))
+      : evaluationHasStudents;
   }
 
   @Roles(Role.TEACHER)
@@ -159,15 +166,15 @@ export class EvaluationController {
     const {
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
-    try {
+    // try {
       await this.evaluationService.saveEvaluationMarks(
         studentMarks,
         annual_teacher_id
       );
       if (is_published) await this.publishEvaluation(request, evaluation_id);
-    } catch (error) {
-      throw new HttpException(error?.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    // } catch (error) {
+    //   throw new HttpException(error?.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    // }
   }
 
   @IsPrivate()

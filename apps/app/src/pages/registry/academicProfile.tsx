@@ -8,7 +8,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
 import {
   addNewAcademicProfile,
@@ -16,12 +16,10 @@ import {
   getAcademicProfiles,
   getWeightingSystem,
   updateAcademicProfile,
-  updateWeightingSystem
+  updateWeightingSystem,
 } from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
-import {
-  AcademicProfile, CreateWeightingSystem
-} from '@squoolr/interfaces';
+import { AcademicProfile, CreateWeightingSystem } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
@@ -31,7 +29,7 @@ import { RowMenu } from '../../components/coordinator/CreditUnitLane';
 import ActionBar from '../../components/registry/academicProfile/actionBar';
 import ProfileDialog from '../../components/registry/academicProfile/profileDialog';
 import ProfileLane, {
-  ProfileSkeleton
+  ProfileSkeleton,
 } from '../../components/registry/academicProfile/profileLane';
 import SelectWeightingSystem from '../../components/registry/selectWeightingSystem';
 
@@ -187,9 +185,10 @@ export default function AcademicProfileTable() {
     setProfileNotif(notif);
     notif.notify({ render: formatMessage({ id: 'savingProfile' }) });
     if (actionnedProfile) {
+      const { annual_academic_profile_id, ...profileData } = profile;
       updateAcademicProfile(
         actionnedProfile.annual_academic_profile_id,
-        profile
+        profileData
       )
         .then(() => {
           notif.update({

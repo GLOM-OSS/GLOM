@@ -34,11 +34,10 @@ export class WeightingSystemController {
     );
   }
 
-  @Put(':cycle_id/upsert')
+  @Put('upsert')
   @Roles(Role.REGISTRY)
   async upsertWeightingSystem(
     @Req() request: Request,
-    @Param('cycle_id') cycle_id: string,
     @Body() updateWeightingSystem: WeightingPutDto
   ) {
     const {

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EvaluationTypeEnum } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -35,7 +34,10 @@ export class AppService {
 
   private async seedEvaluationTypes() {
     await this.prismaService.evaluationType.createMany({
-      data: [{ evaluation_type: EvaluationTypeEnum.EXAM }, { evaluation_type: EvaluationTypeEnum.CA }],
+      data: [
+        { evaluation_type: EvaluationTypeEnum.EXAM },
+        { evaluation_type: EvaluationTypeEnum.CA },
+      ],
     });
   }
 
@@ -84,67 +86,79 @@ export class AppService {
   }
 
   //seed student
-  private async seedStudent(annual_configurator_id: string) {
-    await this.prismaService.annualStudent.create({
+  private async seedStudent() {
+    const numberOfStudents = await this.prismaService.student.count();
+    return this.prismaService.annualStudent.create({
       data: {
+        EvaluationHasStudents: {
+          createMany: {
+            data: [
+              {
+                //CA evaluation type
+                evaluation_id: '40d62187-abb1-4cb9-b633-3287a8c1cac6',
+                anonymity_code: Math.random()
+                  .toString(36)
+                  .slice(2)
+                  .toUpperCase(),
+              },
+              {
+                //Resit evaluation type
+                evaluation_id: '1d429fd1-441b-43d5-a4ff-e2a6c74e3785',
+                anonymity_code: Math.random()
+                  .toString(36)
+                  .slice(2)
+                  .toUpperCase(),
+              },
+              {
+                //CA evaluation type
+                evaluation_id: 'd3f18067-add9-49ec-ba57-ca97c3d7e583',
+                anonymity_code: Math.random()
+                  .toString(36)
+                  .slice(2)
+                  .toUpperCase(),
+              },
+              {
+                //Resit evaluation type
+                evaluation_id: '9e929e76-98b5-4e59-b3e9-28c65c4e9df6',
+                anonymity_code: Math.random()
+                  .toString(36)
+                  .slice(2)
+                  .toUpperCase(),
+              },
+            ],
+          },
+        },
         Student: {
           create: {
             Classroom: {
-              create: {
-                classroom_code: 'YEAR-INF1#GL#1202120220001',
-                classroom_name: 'Genie Logiciel 3C',
-                classroom_acronym: 'GL3C',
-                Major: {
-                  create: {
-                    major_code: 'YEAR-INF1#GL202120220001',
-                    major_name: 'Genie Logiciel',
-                    major_acronym: 'GL',
-                    AnnualConfigurator: {
-                      connect: { annual_configurator_id },
-                    },
-                    Cycle: {
-                      create: {
-                        cycle_name: 'BACHELOR',
-                        cycle_type: 'LONG',
-                        number_of_years: 3,
-                      },
-                    },
-                  },
-                },
-                level: 3,
-                AnnualConfigurator: {
-                  connect: {
-                    annual_configurator_id,
-                  },
-                },
-              },
+              connect: { classroom_code: 'GL10001' },
             },
             Login: {
               create: {
                 password: bcrypt.hashSync(
-                  '123456789',
+                  '987654321',
                   Number(process.env.SALT)
                 ),
                 Person: {
                   create: {
-                    email: 'etudiantmarco@gmail.com',
+                    email: `student${numberOfStudents}@gmail.com`,
                     birthdate: new Date('03/09/2001'),
                     first_name: 'Etudiant',
                     last_name: 'Marco',
                     gender: 'Male',
                     national_id_number: '1102645613',
-                    phone_number: '6730564895',
+                    phone_number: `6730564${numberOfStudents}95`,
                   },
                 },
                 School: {
-                  connect: { school_email: 'contact@iaicameroun.com' },
+                  connect: { school_code: 'AICS0001' },
                 },
               },
             },
-            matricule: randomUUID(),
+            matricule: Math.random().toString(36).slice(2).toUpperCase(),
           },
         },
-        AcademicYear: { connect: { year_code: 'Year-202120220001' } },
+        AcademicYear: { connect: { year_code: 'YEAR-202320010001' } },
       },
     });
   }

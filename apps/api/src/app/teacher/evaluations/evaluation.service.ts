@@ -1,15 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   EvaluationHasStudent,
-  EvaluationSubTypeEnum,
-  Prisma,
+  EvaluationSubTypeEnum
 } from '@prisma/client';
-import { AUTH404, ERR13 } from '../../../errors';
+import { AUTH404, ERR13, ERR15, ERR16 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   EvaluationQueryDto,
   EvaluationsQeuryDto,
-  StudentMark,
+  StudentMark
 } from '../teacher.dto';
 
 @Injectable()
@@ -81,7 +80,7 @@ export class EvaluationService {
         AnnualCreditUnitSubject: {
           annual_credit_unit_subject_id,
           AnnualCreditUnit: {
-            semester_number: Number(semester_number),
+            semester_number,
             annual_credit_unit_id,
             Major: { major_code },
           },
@@ -94,22 +93,27 @@ export class EvaluationService {
   }
 
   async getEvaluationSubTypes(academic_year_id: string) {
-    return this.prismaService.annualEvaluationSubType.findMany({
-      select: {
-        evaluation_sub_type_name: true,
-        annual_evaluation_sub_type_id: true,
-      },
-      where: {
-        academic_year_id,
-        evaluation_sub_type_name: { in: ['CA', 'EXAM', 'RESIT'] },
-      },
-    });
+    const evaluationSubjectType =
+      await this.prismaService.annualEvaluationSubType.findMany({
+        select: {
+          evaluation_sub_type_name: true,
+          annual_evaluation_sub_type_id: true,
+          EvaluationType: { select: { evaluation_type: true } },
+        },
+        where: {
+          academic_year_id,
+          evaluation_sub_type_name: { in: ['CA', 'EXAM', 'RESIT'] },
+        },
+      });
+    return evaluationSubjectType.map(
+      ({ EvaluationType: { evaluation_type }, ...subTypes }) => ({
+        evaluation_type,
+        ...subTypes,
+      })
+    );
   }
 
-  async getEvaluationHasStudents(
-    evaluation_id: string,
-    useAnonymityCode: boolean
-  ) {
+  async getEvaluationHasStudents(evaluation_id: string) {
     const evaluationHasStudents =
       await this.prismaService.evaluationHasStudent.findMany({
         select: {
@@ -154,23 +158,15 @@ export class EvaluationService {
             },
           },
         },
-      }) =>
-        useAnonymityCode
-          ? {
-              evaluation_has_student_id,
-              anonymity_code,
-              mark,
-              last_updated:
-                lastAudits.length === 0 ? created_at : lastAudits[0].audited_at,
-            }
-          : {
-              mark,
-              matricule,
-              evaluation_has_student_id,
-              fullname: `${first_name} ${last_name}`,
-              last_updated:
-                lastAudits.length === 0 ? created_at : lastAudits[0].audited_at,
-            }
+      }) => ({
+        mark,
+        matricule,
+        anonymity_code,
+        evaluation_has_student_id,
+        fullname: `${first_name} ${last_name}`,
+        last_updated:
+          lastAudits.length === 0 ? created_at : lastAudits[0].audited_at,
+      })
     );
   }
 
@@ -184,13 +180,22 @@ export class EvaluationService {
     audited_by: string
   ) {
     const evaluation = await this.prismaService.evaluation.findFirst({
+      select: {
+        examination_date: true,
+        anonimated_at: true,
+        AnnualEvaluationSubType: { select: { evaluation_sub_type_name: true } },
+      },
       where: {
         evaluation_id,
-        AnnualCreditUnitSubject: {
-          AnnualCreditUnitHasSubjectParts: {
-            some: { annual_teacher_id: audited_by },
-          },
-        },
+        ...(anonimated_at
+          ? {}
+          : {
+              AnnualCreditUnitSubject: {
+                AnnualCreditUnitHasSubjectParts: {
+                  some: { annual_teacher_id: audited_by },
+                },
+              },
+            }),
       },
     });
     if (!evaluation)
@@ -198,6 +203,24 @@ export class EvaluationService {
         JSON.stringify(AUTH404('Evaluation')),
         HttpStatus.NOT_FOUND
       );
+    const {
+      AnnualEvaluationSubType: { evaluation_sub_type_name: sub_type },
+    } = evaluation;
+    if (
+      anonimated_at &&
+      sub_type === EvaluationSubTypeEnum.RESIT &&
+      !evaluation.examination_date
+    )
+      throw new HttpException(JSON.stringify(ERR15), HttpStatus.EARLYHINTS);
+
+    if (
+      published_at &&
+      (sub_type === EvaluationSubTypeEnum.RESIT ||
+        sub_type === EvaluationSubTypeEnum.EXAM) &&
+      !evaluation.anonimated_at
+    )
+      throw new HttpException(JSON.stringify(ERR16), HttpStatus.EARLYHINTS);
+
     await this.prismaService.evaluation.update({
       data: {
         ...(anonimated_at
@@ -266,34 +289,35 @@ export class EvaluationService {
     evaluationHasStudents: EvaluationHasStudent[],
     audited_by: string
   ) {
-    const evaluationHasStudentAudits: Prisma.EvaluationHasStudentAuditCreateInput[] =
-      evaluationHasStudents.map(
-        ({ evaluation_has_student_id, mark, is_deleted, is_editable }) => ({
-          mark,
-          is_deleted,
-          is_editable,
-          AnnualTeacher: { connect: { annual_teacher_id: audited_by } },
-          EvaluationHasStudent: { connect: { evaluation_has_student_id } },
-        })
-      );
+    const evaluationHasStudentAudits = evaluationHasStudents.map(
+      ({ evaluation_has_student_id, mark, is_deleted, is_editable }) => ({
+        mark,
+        is_deleted,
+        is_editable,
+        audited_by,
+        evaluation_has_student_id,
+      })
+    );
     return this.prismaService.$transaction([
-      ...studentMarks.map(({ evaluation_has_student_id, mark }) =>
-        this.prismaService.evaluationHasStudent.update({
+      ...studentMarks.map(({ evaluation_has_student_id, mark }) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { evaluation_has_student_id: _, ...auditData } =
+          evaluationHasStudentAudits.find(
+            ({ evaluation_has_student_id: id }) =>
+              id === evaluation_has_student_id
+          );
+        return this.prismaService.evaluationHasStudent.update({
           data: {
             mark,
             EvaluationHasStudentAudits: {
-              create: evaluationHasStudentAudits.find(
-                ({
-                  EvaluationHasStudent: {
-                    connect: { evaluation_has_student_id: id },
-                  },
-                }) => id === evaluation_has_student_id
-              ),
+              create: {
+                ...auditData,
+              },
             },
           },
           where: { evaluation_has_student_id },
-        })
-      ),
+        });
+      }),
     ]);
   }
 }

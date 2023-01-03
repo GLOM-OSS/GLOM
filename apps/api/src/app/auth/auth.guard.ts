@@ -50,7 +50,10 @@ export class AuthenticatedGuard implements CanActivate {
         roles[0]
       );
       if (!isPrivateCodeValid)
-        throw new HttpException(JSON.stringify(ERR14), HttpStatus.FORBIDDEN);
+        throw new HttpException(
+          JSON.stringify(ERR14),
+          HttpStatus.NOT_ACCEPTABLE
+        );
     }
     return isAuthenticated;
   }
@@ -95,7 +98,8 @@ export class AuthenticatedGuard implements CanActivate {
   }
 
   async validatePrivateCode(request: Request, role: Role) {
-    const private_code = request.query['private_code'] as string;
+    const private_code = request.body['private_code'] as string | '';
+
     if (role === Role.TEACHER) {
       const {
         annualTeacher: { teacher_id },
