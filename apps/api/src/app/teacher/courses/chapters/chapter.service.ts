@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'apps/api/src/prisma/prisma.service';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { ChapterPostDto } from '../course.dto';
 
 @Injectable()
 export class ChapterService {
@@ -11,7 +12,7 @@ export class ChapterService {
         chapter_title: true,
         chapter_objective: true,
         annual_credit_unit_subject_id: true,
-        chapter_number: true,
+        chapter_position: true,
         chapter_parent_id: true,
       },
       where: { chapter_id },
@@ -37,10 +38,30 @@ export class ChapterService {
         chapter_title: true,
         chapter_objective: true,
         annual_credit_unit_subject_id: true,
-        chapter_number: true,
+        chapter_position: true,
         chapter_parent_id: true,
       },
       where: { chapter_parent_id, is_deleted: false },
+    });
+  }
+
+  async create(
+    {
+      chapter_parent_id,
+      annual_credit_unit_subject_id,
+      ...newChapter
+    }: ChapterPostDto,
+    created_by: string
+  ) {
+    return this.prismaService.chapter.create({
+      data: {
+        ...newChapter,
+        AnnualTeacher: { connect: { annual_teacher_id: created_by } },
+        AnnualCreditUnitSubject: { connect: { annual_credit_unit_subject_id } },
+        ...(chapter_parent_id
+          ? { ChapterParent: { connect: { chapter_id: chapter_parent_id } } }
+          : {}),
+      },
     });
   }
 }
