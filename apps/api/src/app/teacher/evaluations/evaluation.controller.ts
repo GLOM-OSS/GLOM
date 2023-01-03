@@ -76,7 +76,7 @@ export class EvaluationController {
       await this.evaluationService.getEvaluation({
         evaluation_id,
       });
-    if (annualRegistry && is_anonimated)
+    if (annualRegistry && is_anonimated || (is_published && !is_anonimated))
       throw new HttpException(ERR12[preferred_lang], HttpStatus.FORBIDDEN);
     const useAnonymityCode =
       ['RESIT', 'EXAM'].includes(evaluation_sub_type_name) && !is_published;
@@ -166,15 +166,15 @@ export class EvaluationController {
     const {
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
-    // try {
+    try {
       await this.evaluationService.saveEvaluationMarks(
         studentMarks,
         annual_teacher_id
       );
       if (is_published) await this.publishEvaluation(request, evaluation_id);
-    // } catch (error) {
-    //   throw new HttpException(error?.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    // }
+    } catch (error) {
+      throw new HttpException(error?.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @IsPrivate()
