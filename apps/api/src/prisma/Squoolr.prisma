@@ -1048,7 +1048,7 @@ model EvaluationHasStudent {
     evaluation_has_student_id     String                @id @default(uuid()) @db.VarChar(36)
     mark                          Int?
     anonymity_code                String                @db.VarChar(20)
-    is_editable                   Boolean
+    is_editable                   Boolean               @default(true) @db.TinyInt
     is_deleted                    Boolean               @default(false) @db.TinyInt
     created_at                    DateTime              @default(now()) @db.DateTime(0)
     edition_granted_at            DateTime?             @db.DateTime(0)
