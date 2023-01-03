@@ -157,8 +157,9 @@ export function Layout({
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-        localStorage.setItem('previousRoute', location.pathname);
-        navigate('/');
+        localStorage.setItem('previousRoute', location.pathname); //TODO; remove in production
+        setActiveRole('teacher'); //TODO: REMOVE IN PRODUCTION
+        // navigate('/');
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
