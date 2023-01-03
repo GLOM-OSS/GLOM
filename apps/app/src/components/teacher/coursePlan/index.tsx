@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
-import { Chapter, Course, CreateChapter, Ressource } from '@squoolr/interfaces';
+import { Chapter, Course, CreateChapter, Resource } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
@@ -23,7 +23,7 @@ import ChapterDialog from './chapterDialog';
 import ChapterLane, { ChapterLaneSkeleton } from './chapterLane';
 
 export default function CoursePlan() {
-  //fetch ressources
+  //fetch resources
   const { formatMessage } = useIntl();
   const { annual_credit_unit_subject_id } = useParams();
 
@@ -174,40 +174,40 @@ export default function CoursePlan() {
     }
   };
 
-  const [ressources, setRessources] = useState<Ressource[]>([]);
-  const [areRessourcesLoading, setAreRessourcesLoading] =
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [areResourcesLoading, setAreResourcesLoading] =
     useState<boolean>(false);
-  const [ressourceNotif, setRessourceNotif] = useState<useNotification>();
+  const [resourceNotif, setResourceNotif] = useState<useNotification>();
 
-  const loadRessources = () => {
+  const loadResources = () => {
     if (course && !activeChapter) {
-      setRessources([]);
-      setAreRessourcesLoading(true);
+      setResources([]);
+      setAreResourcesLoading(true);
       const notif = new useNotification();
-      if (ressourceNotif) {
-        ressourceNotif.dismiss();
+      if (resourceNotif) {
+        resourceNotif.dismiss();
       }
-      setRessourceNotif(notif);
+      setResourceNotif(notif);
       setTimeout(() => {
-        //TODO: call api here to load course ressources using data annual_credit_unit_subject_id
+        //TODO: call api here to load course resources using data annual_credit_unit_subject_id
         if (6 > 5) {
-          const newRessources: Ressource[] = [];
-          setRessources(newRessources);
-          setAreRessourcesLoading(false);
+          const newResources: Resource[] = [];
+          setResources(newResources);
+          setAreResourcesLoading(false);
           notif.dismiss();
-          setRessourceNotif(undefined);
+          setResourceNotif(undefined);
         } else {
           notif.notify({
-            render: formatMessage({ id: 'loadingRessources' }),
+            render: formatMessage({ id: 'loadingResources' }),
           });
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
-                retryFunction={loadRessources}
+                retryFunction={loadResources}
                 notification={notif}
                 //TODO: message should come from backend
-                message={formatMessage({ id: 'getRessourcesFailed' })}
+                message={formatMessage({ id: 'getResourcesFailed' })}
               />
             ),
             autoClose: false,
@@ -216,33 +216,33 @@ export default function CoursePlan() {
         }
       }, 3000);
     } else if (activeChapter) {
-      setRessources([]);
-      setAreRessourcesLoading(true);
+      setResources([]);
+      setAreResourcesLoading(true);
       const notif = new useNotification();
-      if (ressourceNotif) {
-        ressourceNotif.dismiss();
+      if (resourceNotif) {
+        resourceNotif.dismiss();
       }
-      setRessourceNotif(notif);
+      setResourceNotif(notif);
       setTimeout(() => {
-        //TODO: call api here to load chapter ressources using data activeChapter.chapter_id
+        //TODO: call api here to load chapter resources using data activeChapter.chapter_id
         if (6 > 5) {
-          const newRessources: Ressource[] = [];
-          setRessources(newRessources);
-          setAreRessourcesLoading(false);
+          const newResources: Resource[] = [];
+          setResources(newResources);
+          setAreResourcesLoading(false);
           notif.dismiss();
-          setRessourceNotif(undefined);
+          setResourceNotif(undefined);
         } else {
           notif.notify({
-            render: formatMessage({ id: 'loadingRessources' }),
+            render: formatMessage({ id: 'loadingResources' }),
           });
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
-                retryFunction={loadRessources}
+                retryFunction={loadResources}
                 notification={notif}
                 //TODO: message should come from backend
-                message={formatMessage({ id: 'getRessourcesFailed' })}
+                message={formatMessage({ id: 'getResourcesFailed' })}
               />
             ),
             autoClose: false,
@@ -263,7 +263,7 @@ export default function CoursePlan() {
 
   useEffect(() => {
     loadChapters();
-    loadRessources();
+    loadResources();
     return () => {
       //TODO: CLEANUP AXIOS CALLS ABOVE
     };
@@ -535,8 +535,8 @@ export default function CoursePlan() {
                 <Typography variant="h6" sx={{ fontWeight: 400 }}>
                   {formatMessage({
                     id: activeChapter
-                      ? 'chapterRessources'
-                      : 'courseRessources',
+                      ? 'chapterResources'
+                      : 'courseResources',
                   })}
                 </Typography>
                 <Button
@@ -544,9 +544,9 @@ export default function CoursePlan() {
                   color="primary"
                   size="small"
                   sx={{ textTransform: 'none' }}
-                  disabled={isCourseLoading || areRessourcesLoading}
+                  disabled={isCourseLoading || areResourcesLoading}
                 >
-                  {formatMessage({ id: 'addRessource' })}
+                  {formatMessage({ id: 'addResource' })}
                 </Button>
               </Box>
             </AccordionSummary>
