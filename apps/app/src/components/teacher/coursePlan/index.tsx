@@ -68,7 +68,7 @@ export default function CoursePlan() {
               retryFunction={loadCourse}
               notification={notif}
               //TODO: message should come from backend
-              message={formatMessage({ id: 'getCourseFailedFailed' })}
+              message={formatMessage({ id: 'getCourseFailed' })}
             />
           ),
           autoClose: false,
