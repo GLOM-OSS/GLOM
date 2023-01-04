@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { EvaluationSubTypeEnum, ResourceType } from '@prisma/client';
+import { EvaluationSubTypeEnum } from '@prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { LinkPostDto } from './course.dto';
 
 @Injectable()
 export class CourseService {
@@ -227,24 +226,6 @@ export class CourseService {
         chapter_parent_id: true,
       },
       where: { annual_credit_unit_subject_id },
-    });
-  }
-
-  async createResource(
-    resource_type: ResourceType,
-    resources: LinkPostDto[],
-    created_by: string
-  ) {
-    return this.prismaService.resource.createMany({
-      data: resources.map(
-        ({ annual_credit_unit_subject_id, chapter_id, ...newLink }) => ({
-          ...newLink,
-          chapter_id,
-          created_by,
-          resource_type,
-          annual_credit_unit_subject_id,
-        })
-      ),
     });
   }
 }
