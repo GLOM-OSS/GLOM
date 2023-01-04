@@ -1,5 +1,4 @@
 import {
-  AudiotrackOutlined,
   CancelOutlined,
   DescriptionOutlined,
   FolderZipOutlined,
@@ -29,79 +28,86 @@ import { useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';
+import { readableFileFormats } from './fileDisplayDialog';
 
 export function FileIcon({
   name,
   deleteResource,
   resource_type: rt,
   resource_ref: rr,
+  readFile,
 }: {
   name: string;
   deleteResource?: () => void;
   resource_type?: 'FILE' | 'LINK';
   resource_ref: string;
+  readFile?: () => void;
 }) {
   const test = name.split('.');
-  const ext = `.${test[test.length - 1]}`;
+  const ext = `${test[test.length - 1]}`;
   let icon: JSX.Element;
   switch (ext) {
-    case '.jpg': {
+    case 'jpg': {
       icon = <ImageOutlined sx={{ fontSize: 50 }} />;
       break;
     }
-    case '.jpeg': {
+    case 'jpeg': {
       icon = <ImageOutlined sx={{ fontSize: 50 }} />;
       break;
     }
-    case '.png': {
+    case 'png': {
       icon = <ImageOutlined sx={{ fontSize: 50 }} />;
       break;
     }
-    case '.gif': {
+    case 'gif': {
       icon = <ImageOutlined sx={{ fontSize: 50 }} />;
       break;
     }
-    case '.bmp': {
+    case 'bmp': {
       icon = <ImageOutlined sx={{ fontSize: 50 }} />;
       break;
     }
-    case '.pdf': {
+    case 'pdf': {
       icon = <PictureAsPdfOutlined sx={{ fontSize: 50 }} />;
       break;
     }
-    case '.xslx': {
+    case 'xslx': {
       icon = <TextSnippetOutlined sx={{ fontSize: 50 }} />;
       break;
     }
-    case '.docx': {
+    case 'docx': {
       icon = <TextSnippetOutlined sx={{ fontSize: 50 }} />;
       break;
     }
-    case '.mp4': {
+    case 'pptx': {
+      icon = <TextSnippetOutlined sx={{ fontSize: 50 }} />;
+      break;
+    }
+    case 'ppt': {
+      icon = <TextSnippetOutlined sx={{ fontSize: 50 }} />;
+      break;
+    }
+    case 'mp4': {
       icon = <MovieOutlined sx={{ fontSize: 50 }} />;
       break;
     }
-    case '.webm': {
+    case 'webm': {
       icon = <MovieOutlined sx={{ fontSize: 50 }} />;
       break;
     }
-    case '.mp3': {
-      icon = <AudiotrackOutlined sx={{ fontSize: 50 }} />;
-      break;
-    }
-    case '.csv': {
+    case 'csv': {
       icon = <DescriptionOutlined sx={{ fontSize: 50 }} />;
       break;
     }
-    case '.zip': {
+    case 'zip': {
       icon = <FolderZipOutlined sx={{ fontSize: 50 }} />;
       break;
     }
-    case '.rar': {
+    case 'rar': {
       icon = <FolderZipOutlined sx={{ fontSize: 50 }} />;
       break;
     }
-    case '.7zip': {
+    case '7zip': {
       icon = <FolderZipOutlined sx={{ fontSize: 50 }} />;
       break;
     }
@@ -125,6 +131,13 @@ export function FileIcon({
         textDecoration: 'none',
         color: 'inherit',
       }}
+      onClick={
+        deleteResource && rt === 'FILE' && readableFileFormats.includes(ext)
+          ? readFile
+            ? () => readFile()
+            : () => alert('openFileFailed')
+          : () => null
+      }
     >
       {deleteResource && (
         <Tooltip
@@ -248,7 +261,7 @@ export default function FileDialog({
               <Box>
                 <input
                   id="add-image-button"
-                  accept=".jpg,.jpeg,.png,.gif,.bmp,.pdf,.xslx,.docx,.mp4,.webm,.mp3,.csv"
+                  accept={readableFileFormats.map((_) => `.${_}`).join(',')}
                   multiple
                   type="file"
                   hidden
