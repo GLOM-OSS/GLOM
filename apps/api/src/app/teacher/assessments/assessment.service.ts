@@ -136,4 +136,31 @@ export class AssessmentService {
       })
     );
   }
+
+  async getQuestion(question_id: string) {
+    const question = await this.prismaService.question.findUnique({
+      select: {
+        question_id: true,
+        question: true,
+        question_mark: true,
+        QuestionOptions: {
+          select: { question_option_id: true, option: true, is_answer: true },
+        },
+        QuestionResources: {
+          select: { question_resource_id: true, resource_ref: true },
+        },
+      },
+      where: { question_id },
+    });
+    const {
+      QuestionOptions: questionOptions,
+      QuestionResources: questionRessources,
+      ...questionData
+    } = question;
+    return {
+      ...questionData,
+      questionOptions,
+      questionRessources,
+    };
+  }
 }

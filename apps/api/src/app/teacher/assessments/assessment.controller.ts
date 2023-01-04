@@ -86,7 +86,12 @@ export class AssessmentController {
   }
 
   @Get(':assessment_id/questions')
-  async getQuestions(@Param('assessment_id') assessment_id: string) {
+  async getAssessmentQuestions(@Param('assessment_id') assessment_id: string) {
     return this.assessmentService.getAssessmentQuestions(assessment_id);
+  }
+
+  @Get('questions/:question_id')
+  async getQuestion(@Param('question_id') question_id: string) {
+    return this.assessmentService.getQuestion(question_id);
   }
 }
