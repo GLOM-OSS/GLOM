@@ -15,6 +15,7 @@ import {
   Chapter,
   Course,
   CreateChapter,
+  CreateFile,
   CreateLink,
   Resource,
 } from '@squoolr/interfaces';
@@ -27,6 +28,7 @@ import { useParams } from 'react-router';
 import { RowMenu } from '../../coordinator/CreditUnitLane';
 import ChapterDialog from './chapterDialog';
 import ChapterLane, { ChapterLaneSkeleton } from './chapterLane';
+import FileDialog from './fileDialog';
 import ResourceDialog from './resourceDialog';
 
 export default function CoursePlan() {
@@ -304,7 +306,9 @@ export default function CoursePlan() {
             )
           );
           setIsSubmittingChapter(false);
-          notif.dismiss();
+          notif.update({
+            render: formatMessage({ id: 'chapterDeletedSuccessfully' }),
+          });
           setChapterNotif(undefined);
         } else {
           notif.update({
@@ -346,7 +350,9 @@ export default function CoursePlan() {
           const newChapter: Chapter = { ...chapter, chapter_id: 'sie' };
           setChapters([...chapters, newChapter]);
           setIsSubmittingChapter(false);
-          notif.dismiss();
+          notif.update({
+            render: formatMessage({ id: 'chapterCreatedSuccessfully' }),
+          });
           setChapterNotif(undefined);
         } else {
           notif.update({
@@ -375,7 +381,9 @@ export default function CoursePlan() {
             })
           );
           setIsSubmittingChapter(false);
-          notif.dismiss();
+          notif.update({
+            render: formatMessage({ id: 'chapterEditedSuccessfully' }),
+          });
           setChapterNotif(undefined);
         } else {
           notif.update({
@@ -419,7 +427,9 @@ export default function CoursePlan() {
         };
         setResources([...resources, newLink]);
         setIsCreatingLink(false);
-        notif.dismiss();
+        notif.update({
+          render: formatMessage({ id: 'LinkCreatedSuccessfully' }),
+        });
         setResourceNotif(undefined);
       } else {
         notif.update({
@@ -430,6 +440,56 @@ export default function CoursePlan() {
               notification={notif}
               //TODO: message should come from backend
               message={formatMessage({ id: 'createLinkFailed' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
+
+  const [isCreatingFiles, setIsCreatingFiles] = useState<boolean>(false);
+
+  const createFiles = (files: CreateFile) => {
+    setIsCreatingFiles(true);
+    const notif = new useNotification();
+    if (chapterNotif) chapterNotif.dismiss();
+    setResourceNotif(notif);
+    notif.notify({
+      render: formatMessage({
+        id: 'creatingFiles',
+      }),
+    });
+    setTimeout(() => {
+      //TODO: call api here to create link
+      if (6 > 5) {
+        //TODO: FILES SHOULD COME BACK FROM THE BACKEND AFTER CREATION
+        const newResource: Resource = {
+          annual_credit_unit_subject_id:
+            files.details.annual_credit_unit_subject_id,
+          chapter_id: files.details.chapter_id,
+          resource_name: 'Making it rain',
+          resource_ref: 'tesing things',
+          resource_extension: '.pdf',
+          resource_id: 'eisl',
+          resource_type: 'FILE',
+        };
+        setResources([newResource, ...resources]);
+        setIsCreatingFiles(false);
+        notif.update({
+          render: formatMessage({ id: 'filesCreatedSuccessfully' }),
+        });
+        setResourceNotif(undefined);
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => createFiles(files)}
+              notification={notif}
+              //TODO: message should come from backend
+              message={formatMessage({ id: 'createFilesFailed' })}
             />
           ),
           autoClose: false,
@@ -459,6 +519,16 @@ export default function CoursePlan() {
           setIsFileDialogOpen(true);
         }}
         handleSubmit={createLink}
+      />
+      <FileDialog
+        chapter_id={activeChapter ? activeChapter.chapter_id : null}
+        closeDialog={() => setIsFileDialogOpen(false)}
+        isDialogOpen={isFileDialogOpen}
+        openFileDialog={() => {
+          setIsLinkDialogOpen(true);
+          setIsFileDialogOpen(false);
+        }}
+        handleSubmit={createFiles}
       />
       <ChapterDialog
         isChapter={Boolean(activeChapter)}
@@ -610,7 +680,10 @@ export default function CoursePlan() {
                     setIsLinkDialogOpen(true);
                   }}
                   disabled={
-                    isCourseLoading || areResourcesLoading || isCreatingLink
+                    isCourseLoading ||
+                    areResourcesLoading ||
+                    isCreatingLink ||
+                    isCreatingFiles
                   }
                 >
                   {formatMessage({ id: 'addResource' })}
