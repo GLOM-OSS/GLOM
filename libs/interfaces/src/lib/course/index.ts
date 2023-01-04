@@ -22,3 +22,11 @@ export interface CreateChapter {
 export interface Chapter extends CreateChapter {
   chapter_id: string;
 }
+
+export interface CreateFile {
+  files: FileList;
+  details: {
+    annual_credit_unit_subject_id: string;
+    chapter_id: string | null;
+  };
+}
