@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
-import { Chapter, Course, Ressource } from '@squoolr/interfaces';
+import { Chapter, Course, CreateChapter, Ressource } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
@@ -26,6 +26,8 @@ export default function CoursePlan() {
   //fetch ressources
   const { formatMessage } = useIntl();
   const { annual_credit_unit_subject_id } = useParams();
+
+  const [activeChapter, setActiveChapter] = useState<Chapter>();
 
   const [course, setCourse] = useState<Course>();
   const [isCourseLoading, setIsCourseLoading] = useState<boolean>(false);
@@ -68,7 +70,7 @@ export default function CoursePlan() {
               retryFunction={loadCourse}
               notification={notif}
               //TODO: message should come from backend
-              message={formatMessage({ id: 'getCourseFailedFailed' })}
+              message={formatMessage({ id: 'getCourseFailed' })}
             />
           ),
           autoClose: false,
@@ -83,7 +85,8 @@ export default function CoursePlan() {
   const [chapterNotif, setChapterNotif] = useState<useNotification>();
 
   const loadChapters = () => {
-    if (course) {
+    if (course && !activeChapter) {
+      setChapters([]);
       setAreChaptersLoading(true);
       const notif = new useNotification();
       if (chapterNotif) {
@@ -91,7 +94,7 @@ export default function CoursePlan() {
       }
       setChapterNotif(notif);
       setTimeout(() => {
-        //TODO: call api here to load course using data annual_credit_unit_subject_id
+        //TODO: call api here to load course chapters using data annual_credit_unit_subject_id
         if (6 > 5) {
           const newChapters: Chapter[] = [
             {
@@ -99,6 +102,49 @@ export default function CoursePlan() {
               chapter_id: 'isoes',
               chapter_objective: 'Things shall make it rain trust me',
               chapter_title: 'Introduction to Cameroon history',
+              chapter_number: 1,
+            },
+          ];
+          setChapters(newChapters);
+          setAreChaptersLoading(false);
+          notif.dismiss();
+          setChapterNotif(undefined);
+        } else {
+          notif.notify({
+            render: formatMessage({ id: 'loadingChapters' }),
+          });
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={loadChapters}
+                notification={notif}
+                //TODO: message should come from backend
+                message={formatMessage({ id: 'getChaptersFailed' })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
+      }, 3000);
+    } else if (activeChapter) {
+      setChapters([]);
+      setAreChaptersLoading(true);
+      const notif = new useNotification();
+      if (chapterNotif) {
+        chapterNotif.dismiss();
+      }
+      setChapterNotif(notif);
+      setTimeout(() => {
+        //TODO: call api here to load chapter pars using data activeChapter.chapter_id
+        if (6 > 5) {
+          const newChapters: Chapter[] = [
+            {
+              annual_credit_unit_subject_id: 'lsies',
+              chapter_id: 'isoesd',
+              chapter_objective: 'Things shall make it rain trust me',
+              chapter_title: 'Introduction to Cameroon Biology',
               chapter_number: 1,
             },
           ];
@@ -134,7 +180,8 @@ export default function CoursePlan() {
   const [ressourceNotif, setRessourceNotif] = useState<useNotification>();
 
   const loadRessources = () => {
-    if (course) {
+    if (course && !activeChapter) {
+      setRessources([]);
       setAreRessourcesLoading(true);
       const notif = new useNotification();
       if (ressourceNotif) {
@@ -142,7 +189,42 @@ export default function CoursePlan() {
       }
       setRessourceNotif(notif);
       setTimeout(() => {
-        //TODO: call api here to load course using data annual_credit_unit_subject_id
+        //TODO: call api here to load course ressources using data annual_credit_unit_subject_id
+        if (6 > 5) {
+          const newRessources: Ressource[] = [];
+          setRessources(newRessources);
+          setAreRessourcesLoading(false);
+          notif.dismiss();
+          setRessourceNotif(undefined);
+        } else {
+          notif.notify({
+            render: formatMessage({ id: 'loadingRessources' }),
+          });
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={loadRessources}
+                notification={notif}
+                //TODO: message should come from backend
+                message={formatMessage({ id: 'getRessourcesFailed' })}
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        }
+      }, 3000);
+    } else if (activeChapter) {
+      setRessources([]);
+      setAreRessourcesLoading(true);
+      const notif = new useNotification();
+      if (ressourceNotif) {
+        ressourceNotif.dismiss();
+      }
+      setRessourceNotif(notif);
+      setTimeout(() => {
+        //TODO: call api here to load chapter ressources using data activeChapter.chapter_id
         if (6 > 5) {
           const newRessources: Ressource[] = [];
           setRessources(newRessources);
@@ -186,7 +268,7 @@ export default function CoursePlan() {
       //TODO: CLEANUP AXIOS CALLS ABOVE
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [course]);
+  }, [course, activeChapter]);
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [
@@ -248,7 +330,11 @@ export default function CoursePlan() {
     });
     if (chapter.chapter_id === '') {
       setTimeout(() => {
-        //TODO: call api here to create chapter with data (chapter as CreateChapter)
+        const submitData: CreateChapter = {
+          ...(chapter as CreateChapter),
+          chapter_parent_id: activeChapter ? activeChapter.chapter_id : '',
+        };
+        //TODO: call api here to create chapter with data submitData
         if (6 > 5) {
           const newChapter: Chapter = { ...chapter, chapter_id: 'sie' };
           setChapters([...chapters, newChapter]);
@@ -312,6 +398,7 @@ export default function CoursePlan() {
         editItem={() => setIsEditDialogOpen(true)}
       />
       <ChapterDialog
+        isChapter={Boolean(activeChapter)}
         closeDialog={() => {
           setIsEditDialogOpen(false);
           setActionnedChapter(undefined);
@@ -330,11 +417,34 @@ export default function CoursePlan() {
         isDialogOpen={isConfirmDeleteChapterDialogOpen}
       />
       <Box sx={{ height: '100%' }}>
-        <Box>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: activeChapter ? 'auto 1fr' : '1fr',
+            columnGap: theme.spacing(2),
+            alignItems: 'end',
+            justifyItems: 'start',
+          }}
+        >
+          {activeChapter && (
+            <Button
+              variant="outlined"
+              color="primary"
+              size="small"
+              sx={{ textTransform: 'none' }}
+              onClick={() => setActiveChapter(undefined)}
+            >
+              {formatMessage({ id: 'back' })}
+            </Button>
+          )}
           <Typography variant="h6">
             {course ? (
-              `${formatMessage({ id: 'chapterTitle' })}: ${
-                course.subject_title
+              `${formatMessage({
+                id: activeChapter ? 'chapterTitle' : 'courseTitle',
+              })}: ${
+                activeChapter
+                  ? activeChapter.chapter_title
+                  : course.subject_title
               }`
             ) : (
               <Skeleton animation="wave" />
@@ -358,7 +468,9 @@ export default function CoursePlan() {
               marginTop: theme.spacing(2),
             }}
           >
-            {course
+            {activeChapter
+              ? null
+              : course
               ? course.classroomAcronyms.map((val, key) => (
                   <Chip label={val} key={key} size="small" />
                 ))
@@ -384,12 +496,22 @@ export default function CoursePlan() {
               expandIcon={<ExpandMore />}
             >
               <Typography variant="h6" sx={{ fontWeight: 400 }}>
-                {formatMessage({ id: 'courseObjectives' })}
+                {formatMessage({
+                  id: activeChapter ? 'chapterObjectives' : 'courseObjectives',
+                })}
               </Typography>
             </AccordionSummary>
             <AccordionDetails>
               <Typography variant="body2">
-                {course ? course.objective : <Skeleton animation="wave" />}
+                {course ? (
+                  activeChapter ? (
+                    activeChapter.chapter_objective
+                  ) : (
+                    course.objective
+                  )
+                ) : (
+                  <Skeleton animation="wave" />
+                )}
               </Typography>
             </AccordionDetails>
           </Accordion>
@@ -411,7 +533,11 @@ export default function CoursePlan() {
                 }}
               >
                 <Typography variant="h6" sx={{ fontWeight: 400 }}>
-                  {formatMessage({ id: 'courseRessources' })}
+                  {formatMessage({
+                    id: activeChapter
+                      ? 'chapterRessources'
+                      : 'courseRessources',
+                  })}
                 </Typography>
                 <Button
                   variant="contained"
@@ -454,13 +580,16 @@ export default function CoursePlan() {
                 variant="contained"
                 color="primary"
                 size="small"
+                sx={{ textTransform: 'none' }}
                 disabled={isCourseLoading || areChaptersLoading}
                 onClick={() => {
                   setIsEditDialogOpen(true);
                   setActionnedChapter(undefined);
                 }}
               >
-                {formatMessage({ id: 'newChapter' })}
+                {formatMessage({
+                  id: activeChapter ? 'newPart' : 'newChapter',
+                })}
               </Button>
             </Box>
             <Scrollbars autoHide>
@@ -485,6 +614,8 @@ export default function CoursePlan() {
                         active={
                           actionnedChapter?.chapter_id === chapter.chapter_id
                         }
+                        setActiveChapter={setActiveChapter}
+                        isChapter={Boolean(activeChapter)}
                         disabled={isSubmittingChapter}
                         getActionnedChapter={setActionnedChapter}
                         setAnchorEl={setAnchorEl}
