@@ -26,6 +26,8 @@ export const readableFileFormats = [
 ];
 
 export const videoFormats = ['mp4', 'webm'];
+export const downloadFormats = ['zip', 'rar', '7zip'];
+export const acceptedFileFormats = [...readableFileFormats, ...downloadFormats];
 
 export default function FileDisplayDialog({
   isDialogOpen,

@@ -28,7 +28,7 @@ import { useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';
-import { readableFileFormats } from './fileDisplayDialog';
+import { acceptedFileFormats, readableFileFormats } from './fileDisplayDialog';
 
 export function FileIcon({
   name,
@@ -261,7 +261,7 @@ export default function FileDialog({
               <Box>
                 <input
                   id="add-image-button"
-                  accept={readableFileFormats.map((_) => `.${_}`).join(',')}
+                  accept={acceptedFileFormats.map((_) => `.${_}`).join(',')}
                   multiple
                   type="file"
                   hidden
