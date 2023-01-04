@@ -1163,8 +1163,8 @@ model RessourceAudit {
 
 model Assessment {
     assessment_id                 String                  @id @default(uuid()) @db.VarChar(36)
-    assessment_date               DateTime                @db.DateTime(0)
-    duration                      Int
+    assessment_date               DateTime?               @db.DateTime(0)
+    duration                      Int?
     is_deleted                    Boolean                 @default(false) @db.TinyInt
     created_at                    DateTime                @default(now()) @db.DateTime(0)
     annual_credit_unit_subject_id String                  @db.VarChar(36)
@@ -1183,8 +1183,8 @@ model Assessment {
 
 model AssessmentAudit {
     assessment_audit_id String        @id @default(uuid()) @db.VarChar(36)
-    assessment_date     DateTime      @db.DateTime(0)
-    duration            Int
+    assessment_date     DateTime?     @db.DateTime(0)
+    duration            Int?
     is_deleted          Boolean       @db.TinyInt
     audited_at          DateTime      @default(now()) @db.DateTime(0)
     assessment_id       String        @db.VarChar(36)

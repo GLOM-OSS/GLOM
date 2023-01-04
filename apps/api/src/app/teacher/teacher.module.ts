@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { RouterModule } from '@nestjs/core';
+import { AssessmentModule } from './assessments/assessment.module';
 import { CourseModule } from './courses/course.module';
 import { EvaluationModule } from './evaluations/evaluation.module';
 
@@ -7,6 +8,7 @@ import { EvaluationModule } from './evaluations/evaluation.module';
   imports: [
     CourseModule,
     EvaluationModule,
+    AssessmentModule,
     RouterModule.register([
       {
         path: '/courses',
@@ -15,6 +17,10 @@ import { EvaluationModule } from './evaluations/evaluation.module';
       {
         path: '/evaluations',
         module: EvaluationModule,
+      },
+      {
+        path: '/assessments',
+        module: AssessmentModule,
       },
     ]),
   ],
