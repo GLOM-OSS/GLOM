@@ -101,4 +101,15 @@ export class AssessmentController {
   ) {
     return this.assessmentService.getStudentAssessmentMarks(assessment_id);
   }
+
+  @Get(':assessment_id/:annual_student_id/answers')
+  async getStudentAnswers(
+    @Param('assessment_id') assessment_id: string,
+    @Param('annual_student_id') annual_student_id: string
+  ) {
+    return this.assessmentService.getStudentAnswers(
+      annual_student_id,
+      assessment_id
+    );
+  }
 }

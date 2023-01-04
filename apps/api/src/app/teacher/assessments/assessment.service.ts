@@ -170,6 +170,7 @@ export class AssessmentService {
         select: {
           total_score: true,
           submitted_at: true,
+          annual_student_id: true,
           AnnualStudent: {
             select: {
               Student: {
@@ -198,7 +199,71 @@ export class AssessmentService {
           },
         },
         ...data
-      }) => ({ fullname: `${first_name} ${last_name}`, matricule, ...data })
+      }) => ({
+        ...data,
+        matricule,
+        fullname: `${first_name} ${last_name}`,
+      })
     );
+  }
+
+  async getStudentAnswers(annual_student_id: string, assessment_id: string) {
+    const annualStudent = await this.prismaService.annualStudent.findUnique({
+      select: {
+        Student: {
+          select: {
+            Login: {
+              select: {
+                Person: { select: { first_name: true, last_name: true } },
+              },
+            },
+          },
+        },
+      },
+      where: { annual_student_id },
+    });
+    if (!annualStudent)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Student')),
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    const studentAnswers =
+      await this.prismaService.annualStudentAnswerOption.findMany({
+        select: { answered_option_id: true, question_id: true },
+        where: {
+          AnnualStudentTakeAssessment: { annual_student_id, assessment_id },
+        },
+      });
+    const questions = await this.prismaService.question.findMany({
+      select: {
+        question: true,
+        question_id: true,
+        question_mark: true,
+        QuestionOptions: {
+          select: {
+            question_option_id: true,
+            question_id: true,
+            is_answer: true,
+            option: true,
+          },
+        },
+      },
+      where: { assessment_id },
+    });
+    return studentAnswers.map(({ question_id, answered_option_id }) => {
+      const {
+        question,
+        question_mark,
+        QuestionOptions: questionOptions,
+      } = questions.find((_) => _.question_id === question_id);
+      return {
+        question,
+        question_id,
+        question_mark,
+        assessment_id,
+        questionOptions,
+        answered_option_id,
+      };
+    });
   }
 }
