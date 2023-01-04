@@ -93,3 +93,13 @@ export class AssessmentPutDto {
   @ApiProperty()
   duration: number;
 }
+
+export class PublishAssessmentDto {
+  @IsUUID()
+  @ApiProperty()
+  assessment_id: string;
+
+  @IsUUID()
+  @ApiProperty()
+  evaluation_id: string;
+}

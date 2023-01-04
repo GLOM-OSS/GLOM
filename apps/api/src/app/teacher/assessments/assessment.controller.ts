@@ -15,7 +15,7 @@ import { Request } from 'express';
 import { DeserializeSessionData } from '../../../utils/types';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import { ResourceOwner } from '../courses/course.dto';
-import { AssessmentPutDto } from '../teacher.dto';
+import { AssessmentPutDto, PublishAssessmentDto } from '../teacher.dto';
 import { AssessmentService } from './assessment.service';
 
 @Controller()
@@ -60,6 +60,24 @@ export class AssessmentController {
       await this.assessmentService.updateAssessment(
         assessment_id,
         updatedData,
+        annual_teacher_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Put('publish')
+  async publishAssessment(
+    @Req() request: Request,
+    @Body() assessment: PublishAssessmentDto
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      return this.assessmentService.publishAssessment(
+        assessment,
         annual_teacher_id
       );
     } catch (error) {

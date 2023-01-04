@@ -136,3 +136,7 @@ export const ERR17 = (ext: string) => ({
   En: `Sorry, ${ext} is not supported`,
   Fr: `Désolé, ${ext} n'est pas une extendion supportée.`,
 });
+export const ERR18 = ({
+  En: `Sorry, you can't publish assessment marks before examination is passed.`,
+  Fr: `Désolé, vous ne pouvez pas publier les notes d'évaluation avant que l'examen ne soit passé.`,
+});
