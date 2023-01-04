@@ -52,7 +52,7 @@ export default function FileDisplayDialog({
       return {
         uri: rr,
         fileName: rn,
-        fileType: re ?? undefined,
+        // fileType: re ?? undefined,
       };
     });
 
@@ -85,13 +85,15 @@ export default function FileDisplayDialog({
           <video
             src={active.resource_ref}
             playsInline
+            autoPlay
+            muted
             style={{
               objectFit: 'cover',
               position: 'absolute',
-              height: 'inherit',
-              width: 'inherit',
+              height: '90%',
+              width: '98%',
             }}
-            poster="/video_poster.png" //TODO: MAKE AND ADD SQUOOLR VID IMAGE AS POSTER TO ALL VIDEOS
+            // poster="/video_poster.png" //TODO: MAKE AND ADD SQUOOLR VID IMAGE AS POSTER TO ALL VIDEOS
           />
         ) : (
           <Typography>

@@ -33,7 +33,10 @@ import { RowMenu } from '../../coordinator/CreditUnitLane';
 import ChapterDialog from './chapterDialog';
 import ChapterLane, { ChapterLaneSkeleton } from './chapterLane';
 import FileDialog, { FileIcon } from './fileDialog';
-import FileDisplayDialog from './fileDisplayDialog';
+import FileDisplayDialog, {
+  downloadFormats,
+  readableFileFormats,
+} from './fileDisplayDialog';
 import ResourceDialog from './resourceDialog';
 
 export default function CoursePlan() {
@@ -476,8 +479,8 @@ export default function CoursePlan() {
           chapter_id: files.details.chapter_id,
           resource_name: 'Making it rain',
           resource_ref:
-            'https://drive.google.com/file/d/1mVDhKsuQf2fEX7LPrONVa5AloNilFTFM/view',
-          resource_extension: 'pdf',
+            'https://www.youtube.com/watch?v=50VNCymT-Cs',
+          resource_extension: 'mp4',
           resource_id: 'eisl',
           resource_type: 'FILE',
         };
@@ -556,6 +559,11 @@ export default function CoursePlan() {
   const [activeResource, setActiveResource] = useState<Resource>();
   const [displayFile, setDisplayFile] = useState<number>();
 
+  const downloadFile = (resource_id: string) => {
+    //TODO: Trigger resource download eith data resource_id
+    alert(`downloading ${resource_id}`);
+  };
+
   return (
     <>
       <RowMenu
@@ -567,7 +575,7 @@ export default function CoursePlan() {
       {displayFile !== undefined && (
         <FileDisplayDialog
           closeDialog={() => setDisplayFile(undefined)}
-          isDialogOpen={displayFile!==undefined}
+          isDialogOpen={displayFile !== undefined}
           resources={resources}
           activeResource={displayFile}
         />
@@ -761,7 +769,8 @@ export default function CoursePlan() {
                     isCourseLoading ||
                     areResourcesLoading ||
                     isCreatingLink ||
-                    isCreatingFiles
+                    isCreatingFiles ||
+                    isDeletingResource
                   }
                 >
                   {formatMessage({ id: 'addResource' })}
@@ -813,14 +822,19 @@ export default function CoursePlan() {
                         resource_extension: re,
                         resource_type: rt,
                         resource_ref: rr,
+                        resource_id: r_id,
                       } = resource;
                       return (
                         <FileIcon
                           key={index}
                           resource_ref={rr}
                           readFile={
-                            rt === 'FILE'
+                            rt === 'FILE' &&
+                            readableFileFormats.includes(re as string)
                               ? () => setDisplayFile(index)
+                              : rt === 'FILE' &&
+                                downloadFormats.includes(re as string)
+                              ? () => downloadFile(r_id)
                               : undefined
                           }
                           name={`${rn}${re ? '.' : ''}${re ?? ''}`}

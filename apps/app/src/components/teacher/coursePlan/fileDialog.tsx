@@ -28,7 +28,11 @@ import { useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';
-import { acceptedFileFormats, readableFileFormats } from './fileDisplayDialog';
+import {
+  acceptedFileFormats,
+  downloadFormats,
+  readableFileFormats,
+} from './fileDisplayDialog';
 
 export function FileIcon({
   name,
@@ -136,6 +140,10 @@ export function FileIcon({
           ? readFile
             ? () => readFile()
             : () => alert('openFileFailed')
+          : deleteResource && rt === 'FILE' && downloadFormats.includes(ext)
+          ? readFile
+            ? () => readFile()
+            : () => alert('failedLoadingFileDownload')
           : () => null
       }
     >
