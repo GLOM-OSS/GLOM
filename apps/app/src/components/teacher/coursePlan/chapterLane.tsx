@@ -68,9 +68,8 @@ export default function ChapterLane({
           transition: '0.2s',
         },
       }}
-      onClick={() => setActiveChapter(c)}
     >
-      <Box>
+      <Box onClick={() => setActiveChapter(c)}>
         <Typography
           sx={{ color: theme.palette.primary.main, fontWeight: 'bold' }}
         >{`${formatMessage({
