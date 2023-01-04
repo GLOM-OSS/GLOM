@@ -83,3 +83,13 @@ export class EvaluationMarkDto {
   @ApiProperty()
   private_code: string;
 }
+
+export class AssessmentPutDto {
+  @ApiProperty()
+  @IsDateString()
+  assessment_date: Date;
+
+  @IsNumber()
+  @ApiProperty()
+  duration: number;
+}
