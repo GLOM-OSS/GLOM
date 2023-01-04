@@ -806,6 +806,7 @@ export default function CoursePlan() {
                       return (
                         <FileIcon
                           key={index}
+                          resource_ref={rr}
                           name={`${rn}${re ? '.' : ''}${re ?? ''}`}
                           deleteResource={
                             isDeletingResource

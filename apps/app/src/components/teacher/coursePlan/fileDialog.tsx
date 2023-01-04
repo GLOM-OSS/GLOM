@@ -34,10 +34,12 @@ export function FileIcon({
   name,
   deleteResource,
   resource_type: rt,
+  resource_ref: rr,
 }: {
   name: string;
   deleteResource?: () => void;
   resource_type?: 'FILE' | 'LINK';
+  resource_ref: string;
 }) {
   const test = name.split('.');
   const ext = `.${test[test.length - 1]}`;
@@ -132,14 +134,19 @@ export function FileIcon({
       )}
       {rt === 'LINK' ? <InsertLinkOutlined sx={{ fontSize: 50 }} /> : icon}
       <Typography
-        component="p"
+        component="a"
+        href={rr}
+        rel="noreferrer"
         variant="caption"
-        style={{
+        target="_blank"
+        sx={{
           width: '100px',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           textAlign: 'center',
+          textDecoration: 'none',
+          color: theme.palette.primary.main,
         }}
       >
         {name}
@@ -231,7 +238,9 @@ export default function FileDialog({
                   }}
                 >
                   {[...new Array(files.length)].map((_, index) => {
-                    return <FileIcon name={files[index].name} />;
+                    return (
+                      <FileIcon name={files[index].name} resource_ref="" />
+                    );
                   })}
                 </Box>
               </Scrollbars>
