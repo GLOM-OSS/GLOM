@@ -1,22 +1,25 @@
 import {
-    AudiotrackOutlined,
-    DescriptionOutlined,
-    FolderZipOutlined,
-    ImageOutlined,
-    InsertDriveFileOutlined,
-    MovieOutlined,
-    PictureAsPdfOutlined,
-    TextSnippetOutlined,
-    TopicOutlined
+  AudiotrackOutlined,
+  CancelOutlined,
+  DescriptionOutlined,
+  FolderZipOutlined,
+  ImageOutlined,
+  InsertDriveFileOutlined,
+  MovieOutlined,
+  PictureAsPdfOutlined,
+  TextSnippetOutlined,
+  TopicOutlined,
 } from '@mui/icons-material';
 import {
-    Box,
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Typography
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Tooltip,
+  Typography,
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { CreateFile } from '@squoolr/interfaces';
@@ -26,7 +29,13 @@ import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';
 
-export function FileIcon({ name }: { name: string }) {
+export function FileIcon({
+  name,
+  deleteResource,
+}: {
+  name: string;
+  deleteResource?: () => void;
+}) {
   const test = name.split('.');
   const ext = `.${test[test.length - 1]}`;
   let icon: JSX.Element;
@@ -96,8 +105,28 @@ export function FileIcon({ name }: { name: string }) {
       break;
     }
   }
+  const { formatMessage } = useIntl();
   return (
-    <Box sx={{ display: 'grid', justifyItems: 'center' }}>
+    <Box
+      sx={{
+        '&:hover': { '& .delete': { visibility: 'visible' } },
+        display: 'grid',
+        justifyItems: 'center',
+        position: 'relative',
+      }}
+    >
+      {!deleteResource && (
+        <Tooltip
+          className="delete"
+          sx={{ position: 'absolute', top: -5, right: 3, visibility: 'hidden' }}
+          arrow
+          title={formatMessage({ id: 'delete' })}
+        >
+          <IconButton size="small">
+            <CancelOutlined color="error" fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      )}
       {icon}
       <Typography
         component="p"
@@ -107,6 +136,7 @@ export function FileIcon({ name }: { name: string }) {
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
+          textAlign: 'center',
         }}
       >
         {name}

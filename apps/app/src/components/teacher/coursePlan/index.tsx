@@ -1,4 +1,8 @@
-import { ExpandMore, ReportRounded } from '@mui/icons-material';
+import {
+  ExpandMore,
+  InsertLinkOutlined,
+  ReportRounded,
+} from '@mui/icons-material';
 import {
   Accordion,
   AccordionDetails,
@@ -28,7 +32,7 @@ import { useParams } from 'react-router';
 import { RowMenu } from '../../coordinator/CreditUnitLane';
 import ChapterDialog from './chapterDialog';
 import ChapterLane, { ChapterLaneSkeleton } from './chapterLane';
-import FileDialog from './fileDialog';
+import FileDialog, { FileIcon } from './fileDialog';
 import ResourceDialog from './resourceDialog';
 
 export default function CoursePlan() {
@@ -691,9 +695,54 @@ export default function CoursePlan() {
               </Box>
             </AccordionSummary>
             <AccordionDetails>
-              <Typography variant="body2">
-                {course ? course.objective : <Skeleton animation="wave" />}
-              </Typography>
+              {!areResourcesLoading ? (
+                <Scrollbars autoHide style={{ height: '75px' }}>
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridAutoFlow: 'column',
+                      columnGap: theme.spacing(2),
+                      justifyContent: 'start',
+                    }}
+                  >
+                    {resources.map(
+                      (
+                        {
+                          resource_name: rn,
+                          resource_extension: re,
+                          resource_type: rt,
+                          resource_ref: rr,
+                          resource_id: ri,
+                        },
+                        index
+                      ) => {
+                        return rt === 'FILE' ? (
+                          <FileIcon name={`${rn}.${re}`} />
+                        ) : (
+                          <Box sx={{ display: 'grid', justifyItems: 'center' }}>
+                            <InsertLinkOutlined sx={{ fontSize: 50 }} />
+                            <Typography
+                              component="p"
+                              variant="caption"
+                              style={{
+                                width: '100px',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                textAlign: 'center',
+                              }}
+                            >
+                              {rn}
+                            </Typography>
+                          </Box>
+                        );
+                      }
+                    )}
+                  </Box>
+                </Scrollbars>
+              ) : (
+                'skeleton'
+              )}
             </AccordionDetails>
           </Accordion>
           <Box
