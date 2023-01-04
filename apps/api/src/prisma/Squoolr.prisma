@@ -1204,9 +1204,10 @@ model Question {
     created_by    String        @db.VarChar(36)
     AnnualTeacher AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 
-    QuestionAudits   QuestionAudit[]
-    QuestionOptions  QuestionOption[]
-    QuestionResources QuestionResource[]
+    QuestionAudits             QuestionAudit[]
+    QuestionOptions            QuestionOption[]
+    QuestionResources          QuestionResource[]
+    AnnualStudentAnswerOptions AnnualStudentAnswerOption[]
 }
 
 model QuestionAudit {
@@ -1276,8 +1277,10 @@ model AnnualStudentTakeAssessment {
 
 model AnnualStudentAnswerOption {
     annual_student_answer_question_id String                      @id @default(uuid()) @db.VarChar(36)
-    question_option_id                String                      @db.VarChar(36)
-    QuestionOption                    QuestionOption              @relation(fields: [question_option_id], references: [question_option_id], onDelete: Cascade, onUpdate: Cascade)
+    question_id                       String                      @db.VarChar(36)
+    Question                          Question                    @relation(fields: [question_id], references: [question_id], onDelete: Cascade, onUpdate: Cascade)
+    answered_option_id                String                      @db.VarChar(36)
+    QuestionOption                    QuestionOption              @relation(fields: [answered_option_id], references: [question_option_id], onDelete: Cascade, onUpdate: Cascade)
     annual_student_take_assessment_id String                      @db.VarChar(36)
     AnnualStudentTakeAssessment       AnnualStudentTakeAssessment @relation(fields: [annual_student_take_assessment_id], references: [annual_student_take_assessment_id], onDelete: Cascade, onUpdate: Cascade)
 }
