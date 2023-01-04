@@ -5,6 +5,7 @@ import {
   FolderZipOutlined,
   ImageOutlined,
   InsertDriveFileOutlined,
+  InsertLinkOutlined,
   MovieOutlined,
   PictureAsPdfOutlined,
   TextSnippetOutlined,
@@ -32,9 +33,11 @@ import { useParams } from 'react-router';
 export function FileIcon({
   name,
   deleteResource,
+  resource_type: rt,
 }: {
   name: string;
   deleteResource?: () => void;
+  resource_type?: 'FILE' | 'LINK';
 }) {
   const test = name.split('.');
   const ext = `.${test[test.length - 1]}`;
@@ -115,19 +118,19 @@ export function FileIcon({
         position: 'relative',
       }}
     >
-      {!deleteResource && (
+      {deleteResource && (
         <Tooltip
           className="delete"
           sx={{ position: 'absolute', top: -5, right: 3, visibility: 'hidden' }}
           arrow
           title={formatMessage({ id: 'delete' })}
         >
-          <IconButton size="small">
+          <IconButton size="small" onClick={deleteResource}>
             <CancelOutlined color="error" fontSize="small" />
           </IconButton>
         </Tooltip>
       )}
-      {icon}
+      {rt === 'LINK' ? <InsertLinkOutlined sx={{ fontSize: 50 }} /> : icon}
       <Typography
         component="p"
         variant="caption"
@@ -279,6 +282,7 @@ export default function FileDialog({
             sx={{ textTransform: 'none' }}
             color="primary"
             variant="contained"
+            disabled={!files}
             onClick={() => {
               if (files) {
                 handleSubmit({
