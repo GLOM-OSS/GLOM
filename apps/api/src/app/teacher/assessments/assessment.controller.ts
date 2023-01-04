@@ -84,4 +84,9 @@ export class AssessmentController {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  @Get(':assessment_id/questions')
+  async getQuestions(@Param('assessment_id') assessment_id: string) {
+    return this.assessmentService.getAssessmentQuestions(assessment_id);
+  }
 }

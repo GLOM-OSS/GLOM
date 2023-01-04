@@ -1204,8 +1204,9 @@ model Question {
     created_by    String        @db.VarChar(36)
     AnnualTeacher AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 
-    QuestionAudits  QuestionAudit[]
-    QuestionOptions QuestionOption[]
+    QuestionAudits   QuestionAudit[]
+    QuestionOptions  QuestionOption[]
+    QuestionResources QuestionResource[]
 }
 
 model QuestionAudit {
@@ -1225,6 +1226,8 @@ model QuestionResource {
     resource_ref           String         @db.VarChar(90)
     is_deleted             Boolean        @default(false) @db.TinyInt
     created_at             DateTime       @default(now()) @db.DateTime(0)
+    question_id            String         @db.VarChar(36)
+    Question               Question       @relation(fields: [question_id], references: [question_id], onDelete: Cascade, onUpdate: Cascade)
     created_by             String         @db.VarChar(36)
     CreatedByAnnualTeacher AnnualTeacher  @relation(name: "CreatedBy_AnnualTeacher", fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
     deleted_at             DateTime?      @db.DateTime(0)

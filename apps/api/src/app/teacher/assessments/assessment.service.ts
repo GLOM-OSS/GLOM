@@ -111,4 +111,29 @@ export class AssessmentService {
     });
     return this.prismaService.$transaction(publishMarksInstructions);
   }
+
+  async getAssessmentQuestions(assessment_id: string) {
+    const questions = await this.prismaService.question.findMany({
+      select: {
+        question_id: true,
+        question: true,
+        question_mark: true,
+        QuestionOptions: {
+          select: { question_option_id: true, option: true, is_answer: true },
+        },
+      },
+      where: {
+        assessment_id,
+        is_deleted: false,
+        QuestionOptions: { some: { is_deleted: false } },
+      },
+    });
+    return questions.map(
+      ({ QuestionOptions: questionOptions, ...question }) => ({
+        ...question,
+        questionOptions,
+        questionRessources: [],
+      })
+    );
+  }
 }
