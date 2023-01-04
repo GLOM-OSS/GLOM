@@ -33,6 +33,7 @@ import { RowMenu } from '../../coordinator/CreditUnitLane';
 import ChapterDialog from './chapterDialog';
 import ChapterLane, { ChapterLaneSkeleton } from './chapterLane';
 import FileDialog, { FileIcon } from './fileDialog';
+import FileDisplayDialog from './fileDisplayDialog';
 import ResourceDialog from './resourceDialog';
 
 export default function CoursePlan() {
@@ -474,8 +475,9 @@ export default function CoursePlan() {
             files.details.annual_credit_unit_subject_id,
           chapter_id: files.details.chapter_id,
           resource_name: 'Making it rain',
-          resource_ref: 'tesing things',
-          resource_extension: '.pdf',
+          resource_ref:
+            'https://drive.google.com/file/d/1mVDhKsuQf2fEX7LPrONVa5AloNilFTFM/view',
+          resource_extension: 'pdf',
           resource_id: 'eisl',
           resource_type: 'FILE',
         };
@@ -552,6 +554,7 @@ export default function CoursePlan() {
     setIsConfirmDeleteResourceDialogOpen,
   ] = useState<boolean>(false);
   const [activeResource, setActiveResource] = useState<Resource>();
+  const [displayFile, setDisplayFile] = useState<number>();
 
   return (
     <>
@@ -561,6 +564,14 @@ export default function CoursePlan() {
         deleteItem={() => setIsConfirmDeleteChapterDialogOpen(true)}
         editItem={() => setIsEditDialogOpen(true)}
       />
+      {displayFile !== undefined && (
+        <FileDisplayDialog
+          closeDialog={() => setDisplayFile(undefined)}
+          isDialogOpen={displayFile!==undefined}
+          resources={resources}
+          activeResource={displayFile}
+        />
+      )}
       <ResourceDialog
         chapter_id={activeChapter ? activeChapter.chapter_id : null}
         closeDialog={() => setIsLinkDialogOpen(false)}
@@ -807,6 +818,11 @@ export default function CoursePlan() {
                         <FileIcon
                           key={index}
                           resource_ref={rr}
+                          readFile={
+                            rt === 'FILE'
+                              ? () => setDisplayFile(index)
+                              : undefined
+                          }
                           name={`${rn}${re ? '.' : ''}${re ?? ''}`}
                           deleteResource={
                             isDeletingResource
