@@ -63,12 +63,14 @@ export class ChapterService {
     const {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       is_deleted,
-      Evaluation: {
-        AnnualEvaluationSubType: { evaluation_sub_type_name },
-      },
+      Evaluation,
       ...data
     } = assessment;
-    return { evaluation_sub_type_name, ...data };
+    return {
+      evaluation_sub_type_name:
+        Evaluation?.AnnualEvaluationSubType?.evaluation_sub_type_name ?? null,
+      ...data,
+    };
   }
 
   async create(

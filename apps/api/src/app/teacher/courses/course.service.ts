@@ -254,11 +254,13 @@ export class CourseService {
       ({
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         is_deleted,
-        Evaluation: {
-          AnnualEvaluationSubType: { evaluation_sub_type_name },
-        },
+        Evaluation,
         ...data
-      }) => ({ evaluation_sub_type_name, ...data })
+      }) => ({
+        evaluation_sub_type_name:
+          Evaluation?.AnnualEvaluationSubType?.evaluation_sub_type_name ?? null,
+        ...data,
+      })
     );
   }
 }
