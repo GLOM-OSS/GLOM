@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpException,
   HttpStatus,
+  Param,
   Post,
   Req,
   UploadedFiles,
@@ -11,8 +13,8 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
-import { DeserializeSessionData, Role } from 'apps/api/src/utils/types';
 import { Request } from 'express';
+import { DeserializeSessionData, Role } from '../../../../utils/types';
 import { Roles } from '../../../app.decorator';
 import { AuthenticatedGuard } from '../../../auth/auth.guard';
 import { LinkPostDto, ResourceOwner } from '../course.dto';
@@ -64,6 +66,22 @@ export class ResourceController {
         })),
         annual_teacher_id
       );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Roles(Role.TEACHER)
+  @Delete(':resource_id/delete')
+  async deleteResource(
+    @Req() request: Request,
+    @Param('resource_id') resource_id: string
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      await this.resourceService.deleteResource(resource_id, annual_teacher_id);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
