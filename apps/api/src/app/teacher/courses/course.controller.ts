@@ -1,18 +1,7 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpException,
-  HttpStatus,
-  Param,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { DeserializeSessionData } from '../../../utils/types';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
-import { LinkPostDto } from './course.dto';
 import { CourseService } from './course.service';
 
 @Controller()
@@ -53,15 +42,11 @@ export class CourseController {
     return this.courseService.findChapters(annual_credit_unit_subject_id);
   }
 
-  @Post('new-resource-link')
-  async addNewLink(@Req() request: Request, @Body() newLink: LinkPostDto) {
-    const {
-      annualTeacher: { annual_teacher_id },
-    } = request.user as DeserializeSessionData;
-    try {
-      return this.courseService.createLinkResource(newLink, annual_teacher_id);
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  @Get(':annual_credit_unit_subject_id/assessments')
+  async getAssessments(
+    @Param('annual_credit_unit_subject_id')
+    annual_credit_unit_subject_id: string
+  ) {
+    return this.courseService.findAssessments(annual_credit_unit_subject_id);
   }
 }

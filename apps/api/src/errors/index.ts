@@ -132,3 +132,7 @@ export const ERR16 = {
   En: `Sorry, you can't published an exam that isn't anonimated`,
   Fr: `Désolé, vous ne pouvez pas publier un examin qui n'a pas été anonimé.`,
 };
+export const ERR17 = (ext: string) => ({
+  En: `Sorry, ${ext} is not supported`,
+  Fr: `Désolé, ${ext} n'est pas une extendion supportée.`,
+});

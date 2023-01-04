@@ -1,13 +1,13 @@
 import {
-    Body,
-    Controller,
-    Get,
-    HttpException,
-    HttpStatus,
-    Param,
-    Post,
-    Req,
-    UseGuards
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -34,6 +34,11 @@ export class ChapterController {
   @Get(':chapter_id/resources')
   async getChapterResources(@Param('chapter_id') chapter_id: string) {
     return this.chapterService.findResources(chapter_id);
+  }
+
+  @Get(':chapter_id/assessment')
+  async getChapterAssessment(@Param('chapter_id') chapter_id: string) {
+    return this.chapterService.findChapterAssessment(chapter_id);
   }
 
   @Post('new')

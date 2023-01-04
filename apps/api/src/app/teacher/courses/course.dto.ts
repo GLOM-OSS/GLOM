@@ -25,15 +25,7 @@ export class ChapterPostDto {
   annual_credit_unit_subject_id: string;
 }
 
-export class LinkPostDto {
-  @IsString()
-  @ApiProperty({ required: false })
-  resource_ref: string;
-
-  @IsString()
-  @ApiProperty({ required: false })
-  resource_name: string;
-
+export class ResourceOwner {
   @IsUUID()
   @IsOptional()
   @ApiProperty({ required: false })
@@ -42,4 +34,14 @@ export class LinkPostDto {
   @IsUUID()
   @ApiProperty()
   annual_credit_unit_subject_id: string;
+}
+
+export class LinkPostDto extends ResourceOwner {
+  @IsString()
+  @ApiProperty({ required: false })
+  resource_ref: string;
+
+  @IsString()
+  @ApiProperty({ required: false })
+  resource_name: string;
 }

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EvaluationSubTypeEnum } from '@prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { LinkPostDto } from './course.dto';
 
 @Injectable()
 export class CourseService {
@@ -226,22 +225,42 @@ export class CourseService {
         chapter_position: true,
         chapter_parent_id: true,
       },
-      where: { annual_credit_unit_subject_id },
+      where: {
+        annual_credit_unit_subject_id,
+        is_deleted: false,
+        chapter_id: null,
+      },
     });
   }
 
-  async createLinkResource(
-    { annual_credit_unit_subject_id, chapter_id, ...newLink }: LinkPostDto,
-    created_by: string
-  ) {
-    return this.prismaService.resource.create({
-      data: {
-        ...newLink,
-        resource_type: 'LINK',
-        ...(chapter_id ? { Chapter: { connect: { chapter_id } } } : {}),
-        AnnualTeacher: { connect: { annual_teacher_id: created_by } },
-        AnnualCreditUnitSubject: { connect: { annual_credit_unit_subject_id } },
+  async findAssessments(annual_credit_unit_subject_id: string) {
+    const assessments = await this.prismaService.assessment.findMany({
+      include: {
+        Evaluation: {
+          select: {
+            AnnualEvaluationSubType: {
+              select: { evaluation_sub_type_name: true },
+            },
+          },
+        },
+      },
+      where: {
+        annual_credit_unit_subject_id,
+        is_deleted: false,
+        chapter_id: null,
       },
     });
+    return assessments.map(
+      ({
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        is_deleted,
+        Evaluation,
+        ...data
+      }) => ({
+        evaluation_sub_type_name:
+          Evaluation?.AnnualEvaluationSubType?.evaluation_sub_type_name ?? null,
+        ...data,
+      })
+    );
   }
 }

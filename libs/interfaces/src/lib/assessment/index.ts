@@ -4,7 +4,7 @@ export interface Assessment {
   total_mark: number;
   assessment_id: string;
   chapter_id: Date | null;
-  assesment_date: Date | null;
+  assessment_date: Date | null;
   annual_credit_unit_subject_id: string;
   evaluation_sub_type_name: string | null;
 }
@@ -60,4 +60,12 @@ export interface AssessmentStatistics {
   best_score: number;
   worst_score: number;
   scoreDistributions: ScoreDistribution[];
+}
+
+export interface EditQuestionInterface {
+  question: string;
+  question_mark: number;
+  deletedOptionIds: string[];
+  deletedResourceIds: string[];
+  editedOptions: QuestionOption[];
 }
