@@ -4,7 +4,7 @@ export interface Assessment {
   total_mark: number;
   assessment_id: string;
   chapter_id: Date | null;
-  assesment_date: Date | null;
+  assessment_date: Date | null;
   annual_credit_unit_subject_id: string;
   evaluation_sub_type_name: string | null;
 }

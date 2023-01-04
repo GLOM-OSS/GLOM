@@ -225,7 +225,40 @@ export class CourseService {
         chapter_position: true,
         chapter_parent_id: true,
       },
-      where: { annual_credit_unit_subject_id },
+      where: {
+        annual_credit_unit_subject_id,
+        is_deleted: false,
+        chapter_id: null,
+      },
     });
+  }
+
+  async findAssessments(annual_credit_unit_subject_id: string) {
+    const assessments = await this.prismaService.assessment.findMany({
+      include: {
+        Evaluation: {
+          select: {
+            AnnualEvaluationSubType: {
+              select: { evaluation_sub_type_name: true },
+            },
+          },
+        },
+      },
+      where: {
+        annual_credit_unit_subject_id,
+        is_deleted: false,
+        chapter_id: null,
+      },
+    });
+    return assessments.map(
+      ({
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        is_deleted,
+        Evaluation: {
+          AnnualEvaluationSubType: { evaluation_sub_type_name },
+        },
+        ...data
+      }) => ({ evaluation_sub_type_name, ...data })
+    );
   }
 }

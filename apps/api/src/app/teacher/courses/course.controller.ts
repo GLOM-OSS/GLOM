@@ -1,6 +1,4 @@
-import {
-  Controller, Get, Param, Req, UseGuards
-} from '@nestjs/common';
+import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { DeserializeSessionData } from '../../../utils/types';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
@@ -42,5 +40,13 @@ export class CourseController {
     annual_credit_unit_subject_id: string
   ) {
     return this.courseService.findChapters(annual_credit_unit_subject_id);
+  }
+
+  @Get(':annual_credit_unit_subject_id/assessments')
+  async getAssessments(
+    @Param('annual_credit_unit_subject_id')
+    annual_credit_unit_subject_id: string
+  ) {
+    return this.courseService.findAssessments(annual_credit_unit_subject_id);
   }
 }

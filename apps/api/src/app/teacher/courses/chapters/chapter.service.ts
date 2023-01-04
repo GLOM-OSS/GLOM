@@ -47,6 +47,30 @@ export class ChapterService {
     });
   }
 
+  async findChapterAssessment(chapter_id: string) {
+    const assessment = await this.prismaService.assessment.findFirst({
+      include: {
+        Evaluation: {
+          select: {
+            AnnualEvaluationSubType: {
+              select: { evaluation_sub_type_name: true },
+            },
+          },
+        },
+      },
+      where: { chapter_id, is_deleted: false },
+    });
+    const {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      is_deleted,
+      Evaluation: {
+        AnnualEvaluationSubType: { evaluation_sub_type_name },
+      },
+      ...data
+    } = assessment;
+    return { evaluation_sub_type_name, ...data };
+  }
+
   async create(
     {
       chapter_parent_id,
