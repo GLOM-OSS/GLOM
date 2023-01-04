@@ -113,11 +113,17 @@ export function FileIcon({
   const { formatMessage } = useIntl();
   return (
     <Box
+      component={rt === 'LINK' ? 'a' : 'div'}
+      href={rr}
+      rel="noreferrer"
+      target="_blank"
       sx={{
         '&:hover': { '& .delete': { visibility: 'visible' } },
         display: 'grid',
         justifyItems: 'center',
         position: 'relative',
+        textDecoration: 'none',
+        color: 'inherit',
       }}
     >
       {deleteResource && (
@@ -134,19 +140,13 @@ export function FileIcon({
       )}
       {rt === 'LINK' ? <InsertLinkOutlined sx={{ fontSize: 50 }} /> : icon}
       <Typography
-        component="a"
-        href={rr}
-        rel="noreferrer"
         variant="caption"
-        target="_blank"
         sx={{
           width: '100px',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           textAlign: 'center',
-          textDecoration: 'none',
-          color: theme.palette.primary.main,
         }}
       >
         {name}
