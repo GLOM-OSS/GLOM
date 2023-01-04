@@ -608,7 +608,7 @@ export default function CoursePlan() {
         confirm={() => (activeResource ? deleteResource(activeResource) : null)}
         dialogMessage="confirmDeleteResourceMessage"
         isDialogOpen={isConfirmDeleteResourceDialogOpen}
-        dialogTitle='deleteResource'
+        dialogTitle="deleteResource"
       />
       <Box sx={{ height: '100%' }}>
         <Box
@@ -641,7 +641,7 @@ export default function CoursePlan() {
                   : course.subject_title
               }`
             ) : (
-              <Skeleton animation="wave" />
+              <Skeleton animation="wave" sx={{ minWidth: '150px' }} />
             )}
           </Typography>
         </Box>
@@ -689,7 +689,10 @@ export default function CoursePlan() {
               sx={{ minHeight: 'auto' }}
               expandIcon={<ExpandMore />}
             >
-              <Typography variant="h6" sx={{ fontWeight: 400 }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 500, fontSize: '1.125rem' }}
+              >
                 {formatMessage({
                   id: activeChapter ? 'chapterObjectives' : 'courseObjectives',
                 })}
@@ -726,7 +729,10 @@ export default function CoursePlan() {
                   columnGap: theme.spacing(3),
                 }}
               >
-                <Typography variant="h6" sx={{ fontWeight: 400 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 500, fontSize: '1.125rem' }}
+                >
                   {formatMessage({
                     id: activeChapter ? 'chapterResources' : 'courseResources',
                   })}
@@ -752,7 +758,35 @@ export default function CoursePlan() {
               </Box>
             </AccordionSummary>
             <AccordionDetails>
-              {!areResourcesLoading ? (
+              {areResourcesLoading || isCourseLoading ? (
+                <Scrollbars autoHide style={{ height: '75px' }}>
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridAutoFlow: 'column',
+                      columnGap: theme.spacing(2),
+                      justifyContent: 'start',
+                    }}
+                  >
+                    {[...new Array(10)].map((_, index) => (
+                      <Skeleton
+                        variant="rectangular"
+                        height="85px"
+                        width="100px"
+                        animation="wave"
+                      />
+                    ))}
+                  </Box>
+                </Scrollbars>
+              ) : resources.length === 0 ? (
+                <Typography sx={{ fontWeight: '400', fontSize: '1.125rem' }}>
+                  {formatMessage({
+                    id: activeChapter
+                      ? 'noChapterResourcesYet'
+                      : 'noCourseResourcesYet',
+                  })}
+                </Typography>
+              ) : (
                 <Scrollbars autoHide style={{ height: '75px' }}>
                   <Box
                     sx={{
@@ -787,8 +821,6 @@ export default function CoursePlan() {
                     })}
                   </Box>
                 </Scrollbars>
-              ) : (
-                'skeleton'
               )}
             </AccordionDetails>
           </Accordion>
@@ -838,6 +870,17 @@ export default function CoursePlan() {
               ) : !course ? (
                 <Typography sx={{ textAlign: 'center' }}>
                   {formatMessage({ id: 'correspondingCourseNotFound' })}
+                </Typography>
+              ) : chapters.length === 0 ? (
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: '400', fontSize: '1.125rem' }}
+                >
+                  {formatMessage({
+                    id: activeChapter
+                      ? 'noChapterPartsYet'
+                      : 'noCourseChaptersYet',
+                  })}
                 </Typography>
               ) : (
                 <Box sx={{ display: 'grid', rowGap: theme.spacing(2) }}>
