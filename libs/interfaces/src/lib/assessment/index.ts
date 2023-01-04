@@ -44,6 +44,8 @@ export interface QuestionAnswer extends Omit<Question, 'questionResources'> {
 
 export interface StudentAssessmentAnswer {
   fullname: string;
+  matricule: string;
+  submitted_at: Date;
   total_score: number;
   questionAnswers: QuestionAnswer[];
 }

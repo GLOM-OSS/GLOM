@@ -163,4 +163,42 @@ export class AssessmentService {
       questionRessources,
     };
   }
+
+  async getStudentAssessmentMarks(assessment_id: string) {
+    const studentAssessmentMarks =
+      await this.prismaService.annualStudentTakeAssessment.findMany({
+        select: {
+          total_score: true,
+          submitted_at: true,
+          AnnualStudent: {
+            select: {
+              Student: {
+                select: {
+                  matricule: true,
+                  Login: {
+                    select: {
+                      Person: { select: { first_name: true, last_name: true } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        where: { assessment_id },
+      });
+    return studentAssessmentMarks.map(
+      ({
+        AnnualStudent: {
+          Student: {
+            matricule,
+            Login: {
+              Person: { first_name, last_name },
+            },
+          },
+        },
+        ...data
+      }) => ({ fullname: `${first_name} ${last_name}`, matricule, ...data })
+    );
+  }
 }

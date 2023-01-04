@@ -94,4 +94,11 @@ export class AssessmentController {
   async getQuestion(@Param('question_id') question_id: string) {
     return this.assessmentService.getQuestion(question_id);
   }
+
+  @Get(':assessment_id/marks')
+  async getStudentAssessmentMarks(
+    @Param('assessment_id') assessment_id: string
+  ) {
+    return this.assessmentService.getStudentAssessmentMarks(assessment_id);
+  }
 }
