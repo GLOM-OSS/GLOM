@@ -502,9 +502,56 @@ export default function CoursePlan() {
       }
     }, 3000);
   };
+  const [isDeletingResource, setIsDeletingResource] = useState<boolean>(false);
+
+  const deleteResource = (resource: Resource) => {
+    setIsDeletingResource(true);
+    const notif = new useNotification();
+    if (chapterNotif) chapterNotif.dismiss();
+    setResourceNotif(notif);
+    notif.notify({
+      render: formatMessage({
+        id: 'deletingResource',
+      }),
+    });
+    setTimeout(() => {
+      //TODO: call api here to delete resource
+      if (6 > 5) {
+        setResources(
+          resources.filter(
+            ({ resource_id: r_id }) => r_id !== resource.resource_id
+          )
+        );
+        setIsDeletingResource(false);
+        notif.update({
+          render: formatMessage({ id: 'resourceDeletedSuccessfully' }),
+        });
+        setResourceNotif(undefined);
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => deleteResource(resource)}
+              notification={notif}
+              //TODO: message should come from backend
+              message={formatMessage({ id: 'deleteResourceFailed' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
 
   const [isLinkDialogOpen, setIsLinkDialogOpen] = useState<boolean>(false);
   const [isFileDialogOpen, setIsFileDialogOpen] = useState<boolean>(false);
+  const [
+    isConfirmDeleteResourceDialogOpen,
+    setIsConfirmDeleteResourceDialogOpen,
+  ] = useState<boolean>(false);
+  const [activeResource, setActiveResource] = useState<Resource>();
 
   return (
     <>
@@ -552,6 +599,16 @@ export default function CoursePlan() {
         }
         dialogMessage="confirmDeleteChapterMessage"
         isDialogOpen={isConfirmDeleteChapterDialogOpen}
+      />
+      <ConfirmDeleteDialog
+        closeDialog={() => {
+          setActiveResource(undefined);
+          setIsConfirmDeleteResourceDialogOpen(false);
+        }}
+        confirm={() => (activeResource ? deleteResource(activeResource) : null)}
+        dialogMessage="confirmDeleteResourceMessage"
+        isDialogOpen={isConfirmDeleteResourceDialogOpen}
+        dialogTitle='deleteResource'
       />
       <Box sx={{ height: '100%' }}>
         <Box
@@ -705,39 +762,29 @@ export default function CoursePlan() {
                       justifyContent: 'start',
                     }}
                   >
-                    {resources.map(
-                      (
-                        {
-                          resource_name: rn,
-                          resource_extension: re,
-                          resource_type: rt,
-                          resource_ref: rr,
-                          resource_id: ri,
-                        },
-                        index
-                      ) => {
-                        return rt === 'FILE' ? (
-                          <FileIcon name={`${rn}.${re}`} />
-                        ) : (
-                          <Box sx={{ display: 'grid', justifyItems: 'center' }}>
-                            <InsertLinkOutlined sx={{ fontSize: 50 }} />
-                            <Typography
-                              component="p"
-                              variant="caption"
-                              style={{
-                                width: '100px',
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                textAlign: 'center',
-                              }}
-                            >
-                              {rn}
-                            </Typography>
-                          </Box>
-                        );
-                      }
-                    )}
+                    {resources.map((resource, index) => {
+                      const {
+                        resource_name: rn,
+                        resource_extension: re,
+                        resource_type: rt,
+                        resource_ref: rr,
+                      } = resource;
+                      return (
+                        <FileIcon
+                          key={index}
+                          name={`${rn}${re ? '.' : ''}${re ?? ''}`}
+                          deleteResource={
+                            isDeletingResource
+                              ? undefined
+                              : () => {
+                                  setIsConfirmDeleteResourceDialogOpen(true);
+                                  setActiveResource(resource);
+                                }
+                          }
+                          resource_type={rt}
+                        />
+                      );
+                    })}
                   </Box>
                 </Scrollbars>
               ) : (
