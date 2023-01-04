@@ -61,3 +61,11 @@ export interface AssessmentStatistics {
   worst_score: number;
   scoreDistributions: ScoreDistribution[];
 }
+
+export interface EditQuestionInterface {
+  question: string;
+  question_mark: number;
+  deletedOptionIds: string[];
+  deletedResourceIds: string[];
+  editedOptions: QuestionOption[];
+}
