@@ -243,6 +243,7 @@ export class CourseService {
             },
           },
         },
+        Questions: { select: { question_mark: true } },
       },
       where: {
         annual_credit_unit_subject_id,
@@ -254,12 +255,16 @@ export class CourseService {
       ({
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         is_deleted,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        created_by,
         Evaluation,
+        Questions,
         ...data
       }) => ({
         evaluation_sub_type_name:
           Evaluation?.AnnualEvaluationSubType?.evaluation_sub_type_name ?? null,
         ...data,
+        total_mark: Questions.reduce((total, _) => total + _.question_mark, 0),
       })
     );
   }

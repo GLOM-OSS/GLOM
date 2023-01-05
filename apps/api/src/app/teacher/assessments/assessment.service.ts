@@ -20,9 +20,37 @@ export class AssessmentService {
   }
 
   async getAssessment(assessment_id: string) {
-    return this.prismaService.assessment.findUnique({
+    const assessment = await this.prismaService.assessment.findUnique({
+      include: {
+        Evaluation: {
+          select: {
+            AnnualEvaluationSubType: {
+              select: { evaluation_sub_type_name: true },
+            },
+          },
+        },
+        Questions: { select: { question_mark: true } },
+      },
       where: { assessment_id },
     });
+    if (assessment) {
+      const {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        is_deleted,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        created_by,
+        Evaluation,
+        Questions,
+        ...data
+      } = assessment;
+      return {
+        ...data,
+        evaluation_sub_type_name:
+          Evaluation?.AnnualEvaluationSubType?.evaluation_sub_type_name ?? null,
+        total_mark: Questions.reduce((total, _) => total + _.question_mark, 0),
+      };
+    }
+    return null;
   }
 
   async updateAssessment(
@@ -122,7 +150,11 @@ export class AssessmentService {
           select: { question_option_id: true, option: true, is_answer: true },
         },
         QuestionResources: {
-          select: { question_resource_id: true, caption: true, resource_ref: true },
+          select: {
+            question_resource_id: true,
+            caption: true,
+            resource_ref: true,
+          },
         },
       },
       where: {
@@ -154,7 +186,11 @@ export class AssessmentService {
           select: { question_option_id: true, option: true, is_answer: true },
         },
         QuestionResources: {
-          select: { question_resource_id: true, caption: true, resource_ref: true },
+          select: {
+            question_resource_id: true,
+            caption: true,
+            resource_ref: true,
+          },
         },
       },
       where: { question_id },
