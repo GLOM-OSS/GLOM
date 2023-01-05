@@ -121,6 +121,9 @@ export class AssessmentService {
         QuestionOptions: {
           select: { question_option_id: true, option: true, is_answer: true },
         },
+        QuestionResources: {
+          select: { question_resource_id: true, caption: true, resource_ref: true },
+        },
       },
       where: {
         assessment_id,
@@ -129,10 +132,14 @@ export class AssessmentService {
       },
     });
     return questions.map(
-      ({ QuestionOptions: questionOptions, ...question }) => ({
+      ({
+        QuestionOptions: questionOptions,
+        QuestionResources: questionRessources,
+        ...question
+      }) => ({
         ...question,
         questionOptions,
-        questionRessources: [],
+        questionRessources,
       })
     );
   }
@@ -147,7 +154,7 @@ export class AssessmentService {
           select: { question_option_id: true, option: true, is_answer: true },
         },
         QuestionResources: {
-          select: { question_resource_id: true, resource_ref: true },
+          select: { question_resource_id: true, caption: true, resource_ref: true },
         },
       },
       where: { question_id },
@@ -295,7 +302,8 @@ export class AssessmentService {
     const bestScore = studentMarks[studentMarks.length - 1].total_score;
     do {
       const portion = studentMarks.filter(
-        ({ total_score }) => starting_bounds < total_score && total_score < ending_bounds
+        ({ total_score }) =>
+          starting_bounds < total_score && total_score < ending_bounds
       );
       scoreDistributions.push({
         number_of_students: portion.length,
