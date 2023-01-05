@@ -1,7 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AUTH404, ERR18 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { AssessmentPutDto, PublishAssessmentDto } from '../teacher.dto';
+import {
+  AssessmentPutDto,
+  PublishAssessmentDto,
+  QuestionPostDto,
+} from '../teacher.dto';
 
 @Injectable()
 export class AssessmentService {
@@ -363,5 +367,46 @@ export class AssessmentService {
       average_score: averageMark._avg.total_score,
       total_number_of_students: studentMarks.length,
     };
+  }
+
+  async createAssessmentQuestion(
+    newQuestion: QuestionPostDto,
+    questionResources: Array<Express.Multer.File>,
+    created_by: string
+  ) {
+    const { assessment_id, questionOptions, ...questionData } = newQuestion;
+    const assessment = await this.prismaService.assessment.findUnique({
+      where: { assessment_id },
+    });
+    if (!assessment)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Assessment')),
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    return await this.prismaService.question.create({
+      data: {
+        ...questionData,
+        QuestionResources: {
+          createMany: {
+            data: questionResources.map(({ filename }, index) => ({
+              created_by,
+              caption: index + 1,
+              resource_ref: filename,
+            })),
+          },
+        },
+        QuestionOptions: {
+          createMany: {
+            data: questionOptions.map(({ is_answer, option }) => ({
+              created_by,
+              is_answer,
+              option,
+            })),
+          },
+        },
+        Assessment: { connect: { assessment_id } },
+        AnnualTeacher: { connect: { annual_teacher_id: created_by } },
+      },
+    });
   }
 }

@@ -103,3 +103,33 @@ export class PublishAssessmentDto {
   @ApiProperty()
   evaluation_id: string;
 }
+
+export class CreateQuestionOption {
+  @IsBoolean()
+  @ApiProperty()
+  is_answer: boolean;
+
+  @IsString()
+  @ApiProperty()
+  option: string;
+}
+
+export class QuestionPostDto {
+  @IsString()
+  @ApiProperty()
+  question: string;
+
+  @IsNumber()
+  @ApiProperty()
+  question_mark: number;
+
+  @IsUUID()
+  @ApiProperty()
+  assessment_id: string;
+
+  @ApiProperty()
+  @ArrayMinSize(2)
+  @ValidateNested({ each: true })
+  @Type(() => CreateQuestionOption)
+  questionOptions: CreateQuestionOption[];
+}
