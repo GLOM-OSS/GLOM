@@ -1,4 +1,8 @@
-import { ExpandMore, ReportRounded } from '@mui/icons-material';
+import {
+  ExpandMore,
+  InsertLinkOutlined,
+  ReportRounded,
+} from '@mui/icons-material';
 import {
   Accordion,
   AccordionDetails,
@@ -11,7 +15,14 @@ import {
   Typography,
 } from '@mui/material';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
-import { Chapter, Course, CreateChapter, Ressource } from '@squoolr/interfaces';
+import {
+  Chapter,
+  Course,
+  CreateChapter,
+  CreateFile,
+  CreateLink,
+  Resource,
+} from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
@@ -21,9 +32,15 @@ import { useParams } from 'react-router';
 import { RowMenu } from '../../coordinator/CreditUnitLane';
 import ChapterDialog from './chapterDialog';
 import ChapterLane, { ChapterLaneSkeleton } from './chapterLane';
+import FileDialog, { FileIcon } from './fileDialog';
+import FileDisplayDialog, {
+  downloadFormats,
+  readableFileFormats,
+} from './fileDisplayDialog';
+import ResourceDialog from './resourceDialog';
 
 export default function CoursePlan() {
-  //fetch ressources
+  //fetch resources
   const { formatMessage } = useIntl();
   const { annual_credit_unit_subject_id } = useParams();
 
@@ -174,40 +191,40 @@ export default function CoursePlan() {
     }
   };
 
-  const [ressources, setRessources] = useState<Ressource[]>([]);
-  const [areRessourcesLoading, setAreRessourcesLoading] =
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [areResourcesLoading, setAreResourcesLoading] =
     useState<boolean>(false);
-  const [ressourceNotif, setRessourceNotif] = useState<useNotification>();
+  const [resourceNotif, setResourceNotif] = useState<useNotification>();
 
-  const loadRessources = () => {
+  const loadResources = () => {
     if (course && !activeChapter) {
-      setRessources([]);
-      setAreRessourcesLoading(true);
+      setResources([]);
+      setAreResourcesLoading(true);
       const notif = new useNotification();
-      if (ressourceNotif) {
-        ressourceNotif.dismiss();
+      if (resourceNotif) {
+        resourceNotif.dismiss();
       }
-      setRessourceNotif(notif);
+      setResourceNotif(notif);
       setTimeout(() => {
-        //TODO: call api here to load course ressources using data annual_credit_unit_subject_id
+        //TODO: call api here to load course resources using data annual_credit_unit_subject_id
         if (6 > 5) {
-          const newRessources: Ressource[] = [];
-          setRessources(newRessources);
-          setAreRessourcesLoading(false);
+          const newResources: Resource[] = [];
+          setResources(newResources);
+          setAreResourcesLoading(false);
           notif.dismiss();
-          setRessourceNotif(undefined);
+          setResourceNotif(undefined);
         } else {
           notif.notify({
-            render: formatMessage({ id: 'loadingRessources' }),
+            render: formatMessage({ id: 'loadingResources' }),
           });
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
-                retryFunction={loadRessources}
+                retryFunction={loadResources}
                 notification={notif}
                 //TODO: message should come from backend
-                message={formatMessage({ id: 'getRessourcesFailed' })}
+                message={formatMessage({ id: 'getResourcesFailed' })}
               />
             ),
             autoClose: false,
@@ -216,33 +233,33 @@ export default function CoursePlan() {
         }
       }, 3000);
     } else if (activeChapter) {
-      setRessources([]);
-      setAreRessourcesLoading(true);
+      setResources([]);
+      setAreResourcesLoading(true);
       const notif = new useNotification();
-      if (ressourceNotif) {
-        ressourceNotif.dismiss();
+      if (resourceNotif) {
+        resourceNotif.dismiss();
       }
-      setRessourceNotif(notif);
+      setResourceNotif(notif);
       setTimeout(() => {
-        //TODO: call api here to load chapter ressources using data activeChapter.chapter_id
+        //TODO: call api here to load chapter resources using data activeChapter.chapter_id
         if (6 > 5) {
-          const newRessources: Ressource[] = [];
-          setRessources(newRessources);
-          setAreRessourcesLoading(false);
+          const newResources: Resource[] = [];
+          setResources(newResources);
+          setAreResourcesLoading(false);
           notif.dismiss();
-          setRessourceNotif(undefined);
+          setResourceNotif(undefined);
         } else {
           notif.notify({
-            render: formatMessage({ id: 'loadingRessources' }),
+            render: formatMessage({ id: 'loadingResources' }),
           });
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
-                retryFunction={loadRessources}
+                retryFunction={loadResources}
                 notification={notif}
                 //TODO: message should come from backend
-                message={formatMessage({ id: 'getRessourcesFailed' })}
+                message={formatMessage({ id: 'getResourcesFailed' })}
               />
             ),
             autoClose: false,
@@ -263,7 +280,7 @@ export default function CoursePlan() {
 
   useEffect(() => {
     loadChapters();
-    loadRessources();
+    loadResources();
     return () => {
       //TODO: CLEANUP AXIOS CALLS ABOVE
     };
@@ -297,7 +314,9 @@ export default function CoursePlan() {
             )
           );
           setIsSubmittingChapter(false);
-          notif.dismiss();
+          notif.update({
+            render: formatMessage({ id: 'chapterDeletedSuccessfully' }),
+          });
           setChapterNotif(undefined);
         } else {
           notif.update({
@@ -339,7 +358,9 @@ export default function CoursePlan() {
           const newChapter: Chapter = { ...chapter, chapter_id: 'sie' };
           setChapters([...chapters, newChapter]);
           setIsSubmittingChapter(false);
-          notif.dismiss();
+          notif.update({
+            render: formatMessage({ id: 'chapterCreatedSuccessfully' }),
+          });
           setChapterNotif(undefined);
         } else {
           notif.update({
@@ -368,7 +389,9 @@ export default function CoursePlan() {
             })
           );
           setIsSubmittingChapter(false);
-          notif.dismiss();
+          notif.update({
+            render: formatMessage({ id: 'chapterEditedSuccessfully' }),
+          });
           setChapterNotif(undefined);
         } else {
           notif.update({
@@ -389,6 +412,158 @@ export default function CoursePlan() {
     }
   };
 
+  const [isCreatingLink, setIsCreatingLink] = useState<boolean>(false);
+
+  const createLink = (link: CreateLink) => {
+    setIsCreatingLink(true);
+    const notif = new useNotification();
+    if (chapterNotif) chapterNotif.dismiss();
+    setResourceNotif(notif);
+    notif.notify({
+      render: formatMessage({
+        id: 'creatingLink',
+      }),
+    });
+    setTimeout(() => {
+      //TODO: call api here to create link
+      if (6 > 5) {
+        const newLink: Resource = {
+          ...link,
+          resource_extension: null,
+          resource_id: 'eisl',
+          resource_type: 'LINK',
+        };
+        setResources([...resources, newLink]);
+        setIsCreatingLink(false);
+        notif.update({
+          render: formatMessage({ id: 'LinkCreatedSuccessfully' }),
+        });
+        setResourceNotif(undefined);
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => createLink(link)}
+              notification={notif}
+              //TODO: message should come from backend
+              message={formatMessage({ id: 'createLinkFailed' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
+
+  const [isCreatingFiles, setIsCreatingFiles] = useState<boolean>(false);
+
+  const createFiles = (files: CreateFile) => {
+    setIsCreatingFiles(true);
+    const notif = new useNotification();
+    if (chapterNotif) chapterNotif.dismiss();
+    setResourceNotif(notif);
+    notif.notify({
+      render: formatMessage({
+        id: 'creatingFiles',
+      }),
+    });
+    setTimeout(() => {
+      //TODO: call api here to create link
+      if (6 > 5) {
+        //TODO: FILES SHOULD COME BACK FROM THE BACKEND AFTER CREATION
+        const newResource: Resource = {
+          annual_credit_unit_subject_id:
+            files.details.annual_credit_unit_subject_id,
+          chapter_id: files.details.chapter_id,
+          resource_name: 'Making it rain',
+          resource_ref:
+            'https://www.youtube.com/watch?v=50VNCymT-Cs',
+          resource_extension: 'mp4',
+          resource_id: 'eisl',
+          resource_type: 'FILE',
+        };
+        setResources([newResource, ...resources]);
+        setIsCreatingFiles(false);
+        notif.update({
+          render: formatMessage({ id: 'filesCreatedSuccessfully' }),
+        });
+        setResourceNotif(undefined);
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => createFiles(files)}
+              notification={notif}
+              //TODO: message should come from backend
+              message={formatMessage({ id: 'createFilesFailed' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
+  const [isDeletingResource, setIsDeletingResource] = useState<boolean>(false);
+
+  const deleteResource = (resource: Resource) => {
+    setIsDeletingResource(true);
+    const notif = new useNotification();
+    if (chapterNotif) chapterNotif.dismiss();
+    setResourceNotif(notif);
+    notif.notify({
+      render: formatMessage({
+        id: 'deletingResource',
+      }),
+    });
+    setTimeout(() => {
+      //TODO: call api here to delete resource
+      if (6 > 5) {
+        setResources(
+          resources.filter(
+            ({ resource_id: r_id }) => r_id !== resource.resource_id
+          )
+        );
+        setIsDeletingResource(false);
+        notif.update({
+          render: formatMessage({ id: 'resourceDeletedSuccessfully' }),
+        });
+        setResourceNotif(undefined);
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => deleteResource(resource)}
+              notification={notif}
+              //TODO: message should come from backend
+              message={formatMessage({ id: 'deleteResourceFailed' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
+
+  const [isLinkDialogOpen, setIsLinkDialogOpen] = useState<boolean>(false);
+  const [isFileDialogOpen, setIsFileDialogOpen] = useState<boolean>(false);
+  const [
+    isConfirmDeleteResourceDialogOpen,
+    setIsConfirmDeleteResourceDialogOpen,
+  ] = useState<boolean>(false);
+  const [activeResource, setActiveResource] = useState<Resource>();
+  const [displayFile, setDisplayFile] = useState<number>();
+
+  const downloadFile = (resource_id: string) => {
+    //TODO: Trigger resource download eith data resource_id
+    alert(`downloading ${resource_id}`);
+  };
+
   return (
     <>
       <RowMenu
@@ -396,6 +571,34 @@ export default function CoursePlan() {
         closeMenu={() => setAnchorEl(null)}
         deleteItem={() => setIsConfirmDeleteChapterDialogOpen(true)}
         editItem={() => setIsEditDialogOpen(true)}
+      />
+      {displayFile !== undefined && (
+        <FileDisplayDialog
+          closeDialog={() => setDisplayFile(undefined)}
+          isDialogOpen={displayFile !== undefined}
+          resources={resources}
+          activeResource={displayFile}
+        />
+      )}
+      <ResourceDialog
+        chapter_id={activeChapter ? activeChapter.chapter_id : null}
+        closeDialog={() => setIsLinkDialogOpen(false)}
+        isDialogOpen={isLinkDialogOpen}
+        openFileDialog={() => {
+          setIsLinkDialogOpen(false);
+          setIsFileDialogOpen(true);
+        }}
+        handleSubmit={createLink}
+      />
+      <FileDialog
+        chapter_id={activeChapter ? activeChapter.chapter_id : null}
+        closeDialog={() => setIsFileDialogOpen(false)}
+        isDialogOpen={isFileDialogOpen}
+        openFileDialog={() => {
+          setIsLinkDialogOpen(true);
+          setIsFileDialogOpen(false);
+        }}
+        handleSubmit={createFiles}
       />
       <ChapterDialog
         isChapter={Boolean(activeChapter)}
@@ -415,6 +618,16 @@ export default function CoursePlan() {
         }
         dialogMessage="confirmDeleteChapterMessage"
         isDialogOpen={isConfirmDeleteChapterDialogOpen}
+      />
+      <ConfirmDeleteDialog
+        closeDialog={() => {
+          setActiveResource(undefined);
+          setIsConfirmDeleteResourceDialogOpen(false);
+        }}
+        confirm={() => (activeResource ? deleteResource(activeResource) : null)}
+        dialogMessage="confirmDeleteResourceMessage"
+        isDialogOpen={isConfirmDeleteResourceDialogOpen}
+        dialogTitle="deleteResource"
       />
       <Box sx={{ height: '100%' }}>
         <Box
@@ -447,7 +660,7 @@ export default function CoursePlan() {
                   : course.subject_title
               }`
             ) : (
-              <Skeleton animation="wave" />
+              <Skeleton animation="wave" sx={{ minWidth: '150px' }} />
             )}
           </Typography>
         </Box>
@@ -495,7 +708,10 @@ export default function CoursePlan() {
               sx={{ minHeight: 'auto' }}
               expandIcon={<ExpandMore />}
             >
-              <Typography variant="h6" sx={{ fontWeight: 400 }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 500, fontSize: '1.125rem' }}
+              >
                 {formatMessage({
                   id: activeChapter ? 'chapterObjectives' : 'courseObjectives',
                 })}
@@ -532,11 +748,12 @@ export default function CoursePlan() {
                   columnGap: theme.spacing(3),
                 }}
               >
-                <Typography variant="h6" sx={{ fontWeight: 400 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 500, fontSize: '1.125rem' }}
+                >
                   {formatMessage({
-                    id: activeChapter
-                      ? 'chapterRessources'
-                      : 'courseRessources',
+                    id: activeChapter ? 'chapterResources' : 'courseResources',
                   })}
                 </Typography>
                 <Button
@@ -544,16 +761,98 @@ export default function CoursePlan() {
                   color="primary"
                   size="small"
                   sx={{ textTransform: 'none' }}
-                  disabled={isCourseLoading || areRessourcesLoading}
+                  onClick={() => {
+                    setIsFileDialogOpen(false);
+                    setIsLinkDialogOpen(true);
+                  }}
+                  disabled={
+                    isCourseLoading ||
+                    areResourcesLoading ||
+                    isCreatingLink ||
+                    isCreatingFiles ||
+                    isDeletingResource
+                  }
                 >
-                  {formatMessage({ id: 'addRessource' })}
+                  {formatMessage({ id: 'addResource' })}
                 </Button>
               </Box>
             </AccordionSummary>
             <AccordionDetails>
-              <Typography variant="body2">
-                {course ? course.objective : <Skeleton animation="wave" />}
-              </Typography>
+              {areResourcesLoading || isCourseLoading ? (
+                <Scrollbars autoHide style={{ height: '75px' }}>
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridAutoFlow: 'column',
+                      columnGap: theme.spacing(2),
+                      justifyContent: 'start',
+                    }}
+                  >
+                    {[...new Array(10)].map((_, index) => (
+                      <Skeleton
+                        variant="rectangular"
+                        height="85px"
+                        width="100px"
+                        animation="wave"
+                      />
+                    ))}
+                  </Box>
+                </Scrollbars>
+              ) : resources.length === 0 ? (
+                <Typography sx={{ fontWeight: '400', fontSize: '1.125rem' }}>
+                  {formatMessage({
+                    id: activeChapter
+                      ? 'noChapterResourcesYet'
+                      : 'noCourseResourcesYet',
+                  })}
+                </Typography>
+              ) : (
+                <Scrollbars autoHide style={{ height: '75px' }}>
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridAutoFlow: 'column',
+                      columnGap: theme.spacing(2),
+                      justifyContent: 'start',
+                    }}
+                  >
+                    {resources.map((resource, index) => {
+                      const {
+                        resource_name: rn,
+                        resource_extension: re,
+                        resource_type: rt,
+                        resource_ref: rr,
+                        resource_id: r_id,
+                      } = resource;
+                      return (
+                        <FileIcon
+                          key={index}
+                          resource_ref={rr}
+                          readFile={
+                            rt === 'FILE' &&
+                            readableFileFormats.includes(re as string)
+                              ? () => setDisplayFile(index)
+                              : rt === 'FILE' &&
+                                downloadFormats.includes(re as string)
+                              ? () => downloadFile(r_id)
+                              : undefined
+                          }
+                          name={`${rn}${re ? '.' : ''}${re ?? ''}`}
+                          deleteResource={
+                            isDeletingResource
+                              ? undefined
+                              : () => {
+                                  setIsConfirmDeleteResourceDialogOpen(true);
+                                  setActiveResource(resource);
+                                }
+                          }
+                          resource_type={rt}
+                        />
+                      );
+                    })}
+                  </Box>
+                </Scrollbars>
+              )}
             </AccordionDetails>
           </Accordion>
           <Box
@@ -602,6 +901,17 @@ export default function CoursePlan() {
               ) : !course ? (
                 <Typography sx={{ textAlign: 'center' }}>
                   {formatMessage({ id: 'correspondingCourseNotFound' })}
+                </Typography>
+              ) : chapters.length === 0 ? (
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: '400', fontSize: '1.125rem' }}
+                >
+                  {formatMessage({
+                    id: activeChapter
+                      ? 'noChapterPartsYet'
+                      : 'noCourseChaptersYet',
+                  })}
                 </Typography>
               ) : (
                 <Box sx={{ display: 'grid', rowGap: theme.spacing(2) }}>
