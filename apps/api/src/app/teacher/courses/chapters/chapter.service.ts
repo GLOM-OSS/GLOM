@@ -37,11 +37,12 @@ export class ChapterService {
   async findChapterParts(chapter_parent_id: string) {
     return this.prismaService.chapter.findMany({
       select: {
+        chapter_id: true,
         chapter_title: true,
         chapter_objective: true,
-        annual_credit_unit_subject_id: true,
         chapter_position: true,
         chapter_parent_id: true,
+        annual_credit_unit_subject_id: true,
       },
       where: { chapter_parent_id, is_deleted: false },
     });
@@ -60,17 +61,20 @@ export class ChapterService {
       },
       where: { chapter_id, is_deleted: false },
     });
-    const {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      is_deleted,
-      Evaluation,
-      ...data
-    } = assessment;
-    return {
-      evaluation_sub_type_name:
-        Evaluation?.AnnualEvaluationSubType?.evaluation_sub_type_name ?? null,
-      ...data,
-    };
+    if (assessment) {
+      const {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        is_deleted,
+        Evaluation,
+        ...data
+      } = assessment;
+      return {
+        evaluation_sub_type_name:
+          Evaluation?.AnnualEvaluationSubType?.evaluation_sub_type_name ?? null,
+        ...data,
+      };
+    }
+    return null;
   }
 
   async create(
@@ -89,6 +93,14 @@ export class ChapterService {
         ...(chapter_parent_id
           ? { ChapterParent: { connect: { chapter_id: chapter_parent_id } } }
           : {}),
+        Assessment: {
+          create: {
+            AnnualCreditUnitSubject: {
+              connect: { annual_credit_unit_subject_id },
+            },
+            AnnualTeacher: { connect: { annual_teacher_id: created_by } },
+          },
+        },
       },
     });
   }
