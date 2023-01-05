@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -110,6 +111,17 @@ export class AssessmentController {
     return this.assessmentService.getStudentAnswers(
       annual_student_id,
       assessment_id
+    );
+  }
+
+  @Get(':assessment_id/statistics')
+  async getAssessmentStats(
+    @Param('assessment_id') assessment_id: string,
+    @Query('distribution_interval') distribution_interval: number
+  ) {
+    return this.assessmentService.getAssessmentStats(
+      assessment_id,
+      distribution_interval ?? 5
     );
   }
 }

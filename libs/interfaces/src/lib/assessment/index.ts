@@ -57,7 +57,7 @@ export interface ScoreDistribution {
 
 export interface AssessmentStatistics {
   distribution_interval: number;
-  number_of_students: number;
+  total_number_of_students: number;
   average_score: number;
   best_score: number;
   worst_score: number;

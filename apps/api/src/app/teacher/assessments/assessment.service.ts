@@ -266,4 +266,58 @@ export class AssessmentService {
       };
     });
   }
+
+  async getAssessmentStats(
+    assessment_id: string,
+    distribution_interval: number
+  ) {
+    const averageMark =
+      await this.prismaService.annualStudentTakeAssessment.aggregate({
+        _avg: { total_score: true },
+        where: { assessment_id },
+      });
+    const studentMarks =
+      await this.prismaService.annualStudentTakeAssessment.findMany({
+        orderBy: { total_score: 'asc' },
+        where: { assessment_id },
+      });
+    if (studentMarks.length === 0)
+      throw new HttpException(
+        JSON.stringify(AUTH404('StudentAssement')),
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    const scoreDistributions: {
+      number_of_students: number;
+      average_score: number;
+    }[] = [];
+    let starting_bounds = 0;
+    let ending_bounds = distribution_interval; //5 by default
+    const bestScore = studentMarks[studentMarks.length - 1].total_score;
+    do {
+      const portion = studentMarks.filter(
+        ({ total_score }) => starting_bounds < total_score && total_score < ending_bounds
+      );
+      scoreDistributions.push({
+        number_of_students: portion.length,
+        average_score: portion.reduce(
+          (avg, _) => avg + _.total_score / portion.length,
+          0
+        ),
+      });
+      starting_bounds = ending_bounds;
+      ending_bounds =
+        ending_bounds + distribution_interval > bestScore
+          ? bestScore
+          : ending_bounds + distribution_interval;
+    } while (ending_bounds < bestScore);
+
+    return {
+      scoreDistributions,
+      best_score: bestScore,
+      distribution_interval,
+      worst_score: studentMarks[0].total_score,
+      average_score: averageMark._avg.total_score,
+      total_number_of_students: studentMarks.length,
+    };
+  }
 }
