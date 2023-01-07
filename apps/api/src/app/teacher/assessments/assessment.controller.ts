@@ -23,6 +23,7 @@ import {
   AssessmentPutDto,
   PublishAssessmentDto,
   QuestionPostDto,
+  QuestionPutDto,
 } from '../teacher.dto';
 import { AssessmentService } from './assessment.service';
 
@@ -146,11 +147,34 @@ export class AssessmentController {
     try {
       return await this.assessmentService.createAssessmentQuestion(
         newQuestion,
-        files,
+        files ?? [],
         annual_teacher_id
       );
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @Put('questions/:question_id/edit')
+  @UseInterceptors(FilesInterceptor('questionResources'))
+  async updateResource(
+    @Req() request: Request,
+    @Param('question_id') question_id: string,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Body() updatedQuestion: QuestionPutDto
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    // try {
+      await this.assessmentService.updateAssessmentQuestion(
+        question_id,
+        updatedQuestion,
+        files ?? [],
+        annual_teacher_id
+      );
+    // } catch (error) {
+    //   throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    // }
   }
 }

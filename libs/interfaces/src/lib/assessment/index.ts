@@ -70,4 +70,5 @@ export interface EditQuestionInterface {
   deletedOptionIds: string[];
   deletedResourceIds: string[];
   editedOptions: QuestionOption[];
+  newOptions: CreateQuestionOption[];
 }

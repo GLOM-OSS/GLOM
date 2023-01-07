@@ -1,10 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { PrismaPromise } from '@prisma/client';
 import { AUTH404, ERR18 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   AssessmentPutDto,
   PublishAssessmentDto,
   QuestionPostDto,
+  QuestionPutDto,
 } from '../teacher.dto';
 
 @Injectable()
@@ -371,7 +373,7 @@ export class AssessmentService {
 
   async createAssessmentQuestion(
     newQuestion: QuestionPostDto,
-    questionResources: Array<Express.Multer.File>,
+    files: Array<Express.Multer.File>,
     created_by: string
   ) {
     const { assessment_id, questionOptions, ...questionData } = newQuestion;
@@ -388,7 +390,7 @@ export class AssessmentService {
         ...questionData,
         QuestionResources: {
           createMany: {
-            data: questionResources.map(({ filename }, index) => ({
+            data: files.map(({ filename }, index) => ({
               created_by,
               caption: index + 1,
               resource_ref: filename,
@@ -408,5 +410,138 @@ export class AssessmentService {
         AnnualTeacher: { connect: { annual_teacher_id: created_by } },
       },
     });
+  }
+
+  async updateAssessmentQuestion(
+    question_id: string,
+    {
+      question,
+      question_mark,
+
+      newOptions,
+      editedOptions,
+      deletedOptionIds,
+      deletedResourceIds,
+    }: QuestionPutDto,
+    files: Array<Express.Multer.File>,
+    audited_by: string
+  ) {
+    const questionData = await this.prismaService.question.findUnique({
+      select: { question: true, question_mark: true, is_deleted: false },
+      where: { question_id },
+    });
+    if (!questionData)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Assessment')),
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    const instructions: PrismaPromise<unknown>[] = [];
+    if (
+      questionData?.question !== question ||
+      questionData?.question_mark !== question_mark
+    )
+      instructions.push(
+        this.prismaService.question.update({
+          data: {
+            question,
+            question_mark,
+            QuestionAudits: {
+              create: {
+                ...questionData,
+                AnnualTeacher: { connect: { annual_teacher_id: audited_by } },
+              },
+            },
+          },
+          where: { question_id },
+        })
+      );
+    if (newOptions.length > 0)
+      instructions.push(
+        this.prismaService.questionOption.createMany({
+          data: newOptions.map((option) => ({
+            ...option,
+            question_id,
+            created_by: audited_by,
+          })),
+        })
+      );
+
+    if (deletedOptionIds.length > 0 || editedOptions.length > 0) {
+      const questionOptions = await this.prismaService.questionOption.findMany({
+        select: {
+          question_option_id: true,
+          is_answer: true,
+          option: true,
+          is_deleted: true,
+        },
+        where: {
+          OR: [
+            ...deletedOptionIds,
+            ...editedOptions.map((_) => _.question_option_id),
+          ].map((question_option_id) => ({
+            question_option_id,
+          })),
+        },
+      });
+      instructions.push(
+        this.prismaService.questionOptionAudit.createMany({
+          data: questionOptions.map((question) => ({
+            ...question,
+            audited_by,
+          })),
+        })
+      );
+      if (deletedOptionIds.length > 0)
+        instructions.push(
+          this.prismaService.questionOption.updateMany({
+            data: { is_deleted: true },
+            where: {
+              OR: deletedOptionIds.map((question_option_id) => ({
+                question_option_id,
+              })),
+            },
+          })
+        );
+      if (editedOptions.length > 0)
+        instructions.push(
+          ...editedOptions.map(({ question_option_id, ...editedOption }) =>
+            this.prismaService.questionOption.update({
+              data: editedOption,
+              where: { question_option_id },
+            })
+          )
+        );
+    }
+
+    if (deletedResourceIds.length > 0)
+      instructions.push(
+        this.prismaService.questionResource.updateMany({
+          data: {
+            deleted_at: new Date(),
+            deleted_by: audited_by,
+          },
+          where: {
+            OR: deletedResourceIds.map((question_resource_id) => ({
+              question_resource_id,
+            })),
+          },
+        })
+      );
+    if (files.length > 0) {
+      const caption = await this.prismaService.questionResource.count({
+        where: { question_id },
+      });
+      instructions.push(
+        this.prismaService.questionResource.createMany({
+          data: files.map(({ filename }) => ({
+            resource_ref: filename,
+            caption: caption + 1,
+            question_id,
+            created_by: audited_by,
+          })),
+        })
+      );
+    }
+    await this.prismaService.$transaction(instructions);
   }
 }
