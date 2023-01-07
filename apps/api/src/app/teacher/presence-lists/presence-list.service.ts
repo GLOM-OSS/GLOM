@@ -5,7 +5,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 export class PresenceListService {
   constructor(private prismaService: PrismaService) {}
 
-  async findAll(presence_list_id: string) {
+  async findPresenceList(presence_list_id: string) {
     const presenceList = await this.prismaService.presenceList.findUnique({
       select: {
         end_time: true,

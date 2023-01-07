@@ -11,6 +11,6 @@ export class PresenceListController {
 
   @Get(':presence_list_id')
   async getAllPresences(@Param('presence_list_id') presence_list_id: string) {
-    return this.presenceService.findAll(presence_list_id);
+    return this.presenceService.findPresenceList(presence_list_id);
   }
 }
