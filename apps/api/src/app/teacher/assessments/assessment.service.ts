@@ -69,7 +69,12 @@ export class AssessmentService {
     audited_by: string
   ) {
     const assessment = await this.prismaService.assessment.findUnique({
-      select: { assessment_date: true, duration: true, is_deleted: true },
+      select: {
+        duration: true,
+        is_deleted: true,
+        is_published: true,
+        assessment_date: true,
+      },
       where: { assessment_id },
     });
     if (!assessment)
