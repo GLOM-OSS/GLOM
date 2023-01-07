@@ -198,7 +198,7 @@ export class CourseService {
   }
 
   async findResources(annual_credit_unit_subject_id: string) {
-    return this.prismaService.resource.findMany({
+    const resources = await this.prismaService.resource.findMany({
       select: {
         annual_credit_unit_subject_id: true,
         resource_extension: true,
@@ -211,14 +211,15 @@ export class CourseService {
       where: {
         annual_credit_unit_subject_id,
         is_deleted: false,
-        chapter_id: null,
       },
     });
+    return resources.filter((_) => _.chapter_id === null);
   }
 
   async findChapters(annual_credit_unit_subject_id: string) {
-    return this.prismaService.chapter.findMany({
+    const chapters = await this.prismaService.chapter.findMany({
       select: {
+        chapter_id: true,
         chapter_title: true,
         chapter_objective: true,
         annual_credit_unit_subject_id: true,
@@ -228,9 +229,9 @@ export class CourseService {
       where: {
         annual_credit_unit_subject_id,
         is_deleted: false,
-        chapter_id: null,
       },
     });
+    return chapters.filter((_) => _.chapter_parent_id === null);
   }
 
   async findAssessments(annual_credit_unit_subject_id: string) {
@@ -248,25 +249,30 @@ export class CourseService {
       where: {
         annual_credit_unit_subject_id,
         is_deleted: false,
-        chapter_id: null,
       },
     });
-    return assessments.map(
-      ({
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        is_deleted,
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        created_by,
-        Evaluation,
-        Questions,
-        ...data
-      }) => ({
-        evaluation_sub_type_name:
-          Evaluation?.AnnualEvaluationSubType?.evaluation_sub_type_name ?? null,
-        ...data,
-        total_mark: Questions.reduce((total, _) => total + _.question_mark, 0),
-      })
-    );
+    return assessments
+      .filter((_) => _.chapter_id === null)
+      .map(
+        ({
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          is_deleted,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          created_by,
+          Evaluation,
+          Questions,
+          ...data
+        }) => ({
+          evaluation_sub_type_name:
+            Evaluation?.AnnualEvaluationSubType?.evaluation_sub_type_name ??
+            null,
+          ...data,
+          total_mark: Questions.reduce(
+            (total, _) => total + _.question_mark,
+            0
+          ),
+        })
+      );
   }
 
   async findPresentLists(annual_credit_unit_subject_id: string) {
