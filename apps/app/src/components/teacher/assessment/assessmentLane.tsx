@@ -61,7 +61,15 @@ export default function AssessmentLane({
             })
           : null}
       </TableCell>
-      <TableCell>{d ? formatNumber(d) : null}</TableCell>
+      <TableCell>
+        {d
+          ? formatNumber(d, {
+              style: 'unit',
+              unit: 'minute',
+              unitDisplay: 'short',
+            })
+          : null}
+      </TableCell>
     </TableRow>
   );
 }
