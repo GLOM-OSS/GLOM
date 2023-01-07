@@ -48,11 +48,11 @@ export default function AssessmentList({
         const newAssessments: Assessment[] = [
           {
             annual_credit_unit_subject_id: 'lsei',
-            assessment_date: new Date(),
+            assessment_date: null,
             assessment_id: 'sei',
             chapter_id: 'sei',
             created_at: new Date(),
-            duration: null,
+            duration: 10,
             evaluation_sub_type_name: EvaluationSubTypeEnum.ASSIGNMENT,
             total_mark: 0,
           },
@@ -139,7 +139,7 @@ export default function AssessmentList({
                 'createdAt',
                 'evaluationType',
                 'evaluationDate',
-                'duration (mins)',
+                'duration',
               ].map((val, index) => (
                 <TableCell key={index}>{formatMessage({ id: val })}</TableCell>
               ))}
