@@ -98,7 +98,7 @@ export class AcademicYearService {
           matricule,
           is_sudo: true,
           Login: { connect: { login_id } },
-          AnnualConfigurator: {
+          CreatedByAnnualConfigurator: {
             connect: { annual_configurator_id: added_by },
           },
           AcademicYear: {
@@ -341,7 +341,7 @@ export class AcademicYearService {
           matricule,
           is_sudo: true,
           Login: { connect: { login_id } },
-          AnnualConfigurator: {
+          CreatedByAnnualConfigurator: {
             connect: { annual_configurator_id: added_by },
           },
           AcademicYear: {

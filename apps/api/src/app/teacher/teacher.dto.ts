@@ -100,6 +100,80 @@ export class PublishAssessmentDto {
   assessment_id: string;
 
   @IsUUID()
+  @IsOptional()
   @ApiProperty()
-  evaluation_id: string;
+  evaluation_id?: string;
+}
+
+export class CreateQuestionOption {
+  @IsBoolean()
+  @ApiProperty()
+  is_answer: boolean;
+
+  @IsString()
+  @ApiProperty()
+  option: string;
+}
+
+export class QuestionOption extends CreateQuestionOption {
+  @IsUUID()
+  @ApiProperty()
+  question_option_id: string;
+}
+
+export class QuestionPostDto {
+  @IsString()
+  @ApiProperty()
+  question: string;
+
+  @IsNumber()
+  @ApiProperty()
+  question_mark: number;
+
+  @IsUUID()
+  @ApiProperty()
+  assessment_id: string;
+
+  @IsArray()
+  @ApiProperty()
+  @ArrayMinSize(2)
+  @ValidateNested({ each: true })
+  @Type(() => CreateQuestionOption)
+  questionOptions: CreateQuestionOption[];
+}
+
+export class QuestionPutDto {
+  @IsString()
+  @IsOptional()
+  @ApiProperty()
+  question?: string;
+
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty()
+  question_mark?: number;
+
+  @IsArray()
+  @ApiProperty()
+  @Type(() => String)
+  @ValidateNested({ each: true })
+  deletedOptionIds: string[];
+
+  @IsArray()
+  @ApiProperty()
+  @Type(() => String)
+  @ValidateNested({ each: true })
+  deletedResourceIds: string[];
+
+  @IsArray()
+  @ApiProperty()
+  @Type(() => QuestionOption)
+  @ValidateNested({ each: true })
+  editedOptions: QuestionOption[];
+
+  @IsArray()
+  @ApiProperty()
+  @Type(() => QuestionOption)
+  @ValidateNested({ each: true })
+  newOptions: CreateQuestionOption[];
 }

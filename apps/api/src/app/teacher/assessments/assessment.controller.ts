@@ -9,14 +9,22 @@ import {
   Put,
   Query,
   Req,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { DeserializeSessionData } from '../../../utils/types';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import { ResourceOwner } from '../courses/course.dto';
-import { AssessmentPutDto, PublishAssessmentDto } from '../teacher.dto';
+import {
+  AssessmentPutDto,
+  PublishAssessmentDto,
+  QuestionPostDto,
+  QuestionPutDto,
+} from '../teacher.dto';
 import { AssessmentService } from './assessment.service';
 
 @Controller()
@@ -123,5 +131,50 @@ export class AssessmentController {
       assessment_id,
       distribution_interval ?? 5
     );
+  }
+
+  @Post('questions/new')
+  @UseInterceptors(FilesInterceptor('questionResources'))
+  async createNewQuestion(
+    @Req() request: Request,
+    @UploadedFiles()
+    files: Array<Express.Multer.File>,
+    @Body() newQuestion: QuestionPostDto
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      return await this.assessmentService.createAssessmentQuestion(
+        newQuestion,
+        files ?? [],
+        annual_teacher_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Put('questions/:question_id/edit')
+  @UseInterceptors(FilesInterceptor('questionResources'))
+  async updateResource(
+    @Req() request: Request,
+    @Param('question_id') question_id: string,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Body() updatedQuestion: QuestionPutDto
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      await this.assessmentService.updateAssessmentQuestion(
+        question_id,
+        updatedQuestion,
+        files ?? [],
+        annual_teacher_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

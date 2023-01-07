@@ -19,7 +19,7 @@ export interface CreateQuestion {
   question: string;
   question_mark: number;
   assessment_id: string;
-  questionOptions: CreateQuestionOption[];
+  questionOptions: Omit<CreateQuestionOption, 'question_id'>[];
 }
 
 export interface QuestionOption extends CreateQuestionOption {
@@ -71,6 +71,7 @@ export interface EditQuestionInterface {
   deletedOptionIds: string[];
   deletedResourceIds: string[];
   editedOptions: QuestionOption[];
+  newOptions: CreateQuestionOption[];
 }
 
 export interface ActivateAssessment {

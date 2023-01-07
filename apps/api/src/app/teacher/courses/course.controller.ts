@@ -1,10 +1,12 @@
 import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { DeserializeSessionData } from '../../../utils/types';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import { CourseService } from './course.service';
 
 @Controller()
+@ApiTags('Courses')
 @UseGuards(AuthenticatedGuard)
 export class CourseController {
   constructor(private courseService: CourseService) {}
@@ -48,5 +50,21 @@ export class CourseController {
     annual_credit_unit_subject_id: string
   ) {
     return this.courseService.findAssessments(annual_credit_unit_subject_id);
+  }
+
+  @Get(':annual_credit_unit_subject_id/students')
+  async getStudents(
+    @Param('annual_credit_unit_subject_id')
+    annual_credit_unit_subject_id: string
+  ) {
+    return this.courseService.findStudents(annual_credit_unit_subject_id);
+  }
+
+  @Get(':annual_credit_unit_subject_id/presence-lists')
+  async getPreseneceLists(
+    @Param('annual_credit_unit_subject_id')
+    annual_credit_unit_subject_id: string
+  ) {
+    return this.courseService.findPresentLists(annual_credit_unit_subject_id);
   }
 }
