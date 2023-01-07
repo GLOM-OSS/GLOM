@@ -1,5 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaPromise } from '@prisma/client';
+import {
+  Assessment,
+  EvaluationHasStudent,
+  PrismaPromise,
+} from '@prisma/client';
 import { AUTH404, ERR18 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
@@ -87,7 +91,12 @@ export class AssessmentService {
     audited_by: string
   ) {
     const assessment = await this.prismaService.assessment.findUnique({
-      select: { assessment_date: true, duration: true, is_deleted: true },
+      select: {
+        duration: true,
+        is_deleted: true,
+        is_published: true,
+        assessment_date: true,
+      },
       where: { assessment_id },
     });
     if (!assessment)
@@ -101,49 +110,71 @@ export class AssessmentService {
         HttpStatus.INTERNAL_SERVER_ERROR
       );
 
-    const evaluationHasStudentAudits =
-      await this.prismaService.evaluationHasStudent.findMany({
-        select: {
-          evaluation_id: true,
-          annual_student_id: true,
-          is_deleted: true,
-          anonymity_code: true,
-          edition_granted_at: true,
-          is_editable: true,
-          mark: true,
-          evaluation_has_student_id: true,
-          ref_evaluation_has_student_id: true,
-        },
-        where: { evaluation_id },
-      });
-    const studentAssessmentMarks =
-      await this.prismaService.annualStudentTakeAssessment.findMany({
-        select: { annual_student_id: true, total_score: true },
-        where: { assessment_id },
-      });
+    const publishMarksInstructions: PrismaPromise<
+      EvaluationHasStudent | Assessment
+    >[] = [];
+    if (evaluation_id) {
+      const evaluationHasStudentAudits =
+        await this.prismaService.evaluationHasStudent.findMany({
+          select: {
+            evaluation_id: true,
+            annual_student_id: true,
+            is_deleted: true,
+            anonymity_code: true,
+            edition_granted_at: true,
+            is_editable: true,
+            mark: true,
+            evaluation_has_student_id: true,
+            ref_evaluation_has_student_id: true,
+          },
+          where: { evaluation_id },
+        });
+      const studentAssessmentMarks =
+        await this.prismaService.annualStudentTakeAssessment.findMany({
+          select: { annual_student_id: true, total_score: true },
+          where: { assessment_id },
+        });
 
-    const publishMarksInstructions = evaluationHasStudentAudits.map((_) => {
-      const { total_score, annual_student_id } = studentAssessmentMarks.find(
-        (__) => __.annual_student_id === _.annual_student_id
+      publishMarksInstructions.push(
+        ...evaluationHasStudentAudits.map((_) => {
+          const { total_score, annual_student_id } =
+            studentAssessmentMarks.find(
+              (__) => __.annual_student_id === _.annual_student_id
+            );
+          const { evaluation_has_student_id, ...auditData } =
+            evaluationHasStudentAudits.find(
+              (_) => _.annual_student_id === annual_student_id
+            );
+          return this.prismaService.evaluationHasStudent.update({
+            data: {
+              mark: total_score,
+              EvaluationHasStudentAudits: {
+                create: {
+                  audited_by,
+                  ...auditData,
+                },
+              },
+            },
+            where: { evaluation_has_student_id },
+          });
+        })
       );
-      const { evaluation_has_student_id, ...auditData } =
-        evaluationHasStudentAudits.find(
-          (_) => _.annual_student_id === annual_student_id
-        );
-      return this.prismaService.evaluationHasStudent.update({
+    }
+    return this.prismaService.$transaction([
+      this.prismaService.assessment.update({
+        where: { assessment_id },
         data: {
-          mark: total_score,
-          EvaluationHasStudentAudits: {
+          is_published: true,
+          AssessmentAudits: {
             create: {
-              audited_by,
-              ...auditData,
+              ...assessment,
+              AnnualTeacher: { connect: { annual_teacher_id: audited_by } },
             },
           },
         },
-        where: { evaluation_has_student_id },
-      });
-    });
-    return this.prismaService.$transaction(publishMarksInstructions);
+      }),
+      ...publishMarksInstructions,
+    ]);
   }
 
   async getAssessmentQuestions(assessment_id: string) {

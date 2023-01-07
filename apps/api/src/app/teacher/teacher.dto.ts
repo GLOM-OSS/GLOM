@@ -100,8 +100,9 @@ export class PublishAssessmentDto {
   assessment_id: string;
 
   @IsUUID()
+  @IsOptional()
   @ApiProperty()
-  evaluation_id: string;
+  evaluation_id?: string;
 }
 
 export class CreateQuestionOption {
