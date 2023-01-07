@@ -72,3 +72,9 @@ export interface EditQuestionInterface {
   deletedResourceIds: string[];
   editedOptions: QuestionOption[];
 }
+
+export interface ActivateAssessment {
+  duration: number;
+  assessment_date: Date;
+  assessment_time: Date;
+}
