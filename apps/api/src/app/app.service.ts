@@ -90,6 +90,12 @@ export class AppService {
     const numberOfStudents = await this.prismaService.student.count();
     return this.prismaService.annualStudent.create({
       data: {
+        AnnualClassroomDivision: {
+          connect: {
+            annual_classroom_division_id:
+              '1db0443d-eddc-40d6-ac19-d205c35a554c',
+          },
+        },
         EvaluationHasStudents: {
           createMany: {
             data: [

@@ -155,7 +155,9 @@ export class DemandService {
         ],
       }),
       this.annualConfiguratorService.update({
-        data: { AnnualConfigurator: { connect: { annual_configurator_id } } },
+        data: {
+          CreatedByAnnualConfigurator: { connect: { annual_configurator_id } },
+        },
         where: { annual_configurator_id },
       }),
     ]);
