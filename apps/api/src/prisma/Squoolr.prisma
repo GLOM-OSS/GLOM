@@ -1113,11 +1113,12 @@ model Chapter {
     ChapterParent                 Chapter?                @relation(name: "ChapterParent", fields: [chapter_parent_id], references: [chapter_id], onDelete: Cascade, onUpdate: Cascade)
     created_by                    String                  @db.VarChar(36)
     AnnualTeacher                 AnnualTeacher           @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    Assessment                    Assessment?
 
-    Chapter       Chapter[]      @relation(name: "ChapterParent")
-    ChapterAudits ChapterAudit[]
-    Resources     Resource[]
-    Assessment    Assessment?
+    Chapters                Chapter[]                @relation(name: "ChapterParent")
+    ChapterAudits           ChapterAudit[]
+    Resources               Resource[]
+    PresenceListHasChapters PresenceListHasChapter[]
 }
 
 model ChapterAudit {
@@ -1318,9 +1319,9 @@ model PresenceList {
     annual_credit_unit_subject_id String                  @db.VarChar(36)
     AnnualCreditUnitSubject       AnnualCreditUnitSubject @relation(fields: [annual_credit_unit_subject_id], references: [annual_credit_unit_subject_id], onDelete: Cascade, onUpdate: Cascade)
 
-    PresenceListAudits               PresenceListAudit[]
-    PresenceListHasChapters          PresenceListHasChapter[]
-    PresenceListHasCreditUnitStudent PresenceListHasCreditUnitStudent[]
+    PresenceListAudits                PresenceListAudit[]
+    PresenceListHasChapters           PresenceListHasChapter[]
+    PresenceListHasCreditUnitStudents PresenceListHasCreditUnitStudent[]
 }
 
 model PresenceListAudit {
@@ -1342,6 +1343,7 @@ model PresenceListHasChapter {
     presence_list_id         String        @db.VarChar(36)
     PresenceList             PresenceList  @relation(fields: [presence_list_id], references: [presence_list_id], onDelete: Cascade, onUpdate: Cascade)
     chapter_id               String
+    Chapter                  Chapter       @relation(fields: [chapter_id], references: [chapter_id], onDelete: Cascade, onUpdate: Cascade)
     created_at               DateTime      @default(now()) @db.DateTime(0)
     created_by               String        @db.VarChar(36)
     CreatedByAnnualTeacher   AnnualTeacher @relation(name: "CreatedBy_AnnualTeacher", fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)

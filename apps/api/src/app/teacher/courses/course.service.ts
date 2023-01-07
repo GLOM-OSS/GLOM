@@ -268,4 +268,44 @@ export class CourseService {
       })
     );
   }
+
+  async findPresentLists(annual_credit_unit_subject_id: string) {
+    const presenceLists = await this.prismaService.presenceList.findMany({
+      select: {
+        end_time: true,
+        start_time: true,
+        is_published: true,
+        presence_list_date: true,
+        AnnualCreditUnitSubject: {
+          select: { subject_code: true, subject_title: true },
+        },
+        PresenceListHasChapters: {
+          select: {
+            Chapter: { select: { chapter_id: true, chapter_title: true } },
+          },
+        },
+      },
+      where: { annual_credit_unit_subject_id, is_deleted: false },
+    });
+    const chapters = await this.prismaService.chapter.findMany({
+      select: { chapter_id: true },
+      where: { is_deleted: false, annual_credit_unit_subject_id },
+    });
+    return presenceLists.map(
+      ({
+        AnnualCreditUnitSubject: subject,
+        PresenceListHasChapters,
+        ...presenceList
+      }) => ({
+        ...subject,
+        ...presenceList,
+        chapters: PresenceListHasChapters.map(({ Chapter: chapter }) => ({
+          ...chapter,
+          is_covered: Boolean(
+            chapters.find((_) => _.chapter_id === chapter.chapter_id)
+          ),
+        })),
+      })
+    );
+  }
 }
