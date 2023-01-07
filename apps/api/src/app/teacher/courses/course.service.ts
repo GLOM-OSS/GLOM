@@ -308,4 +308,48 @@ export class CourseService {
       })
     );
   }
+
+  async findStudents(annual_credit_unit_subject_id: string) {
+    const students = await this.prismaService.annualStudent.findMany({
+      select: {
+        annual_student_id: true,
+        Student: {
+          select: {
+            matricule: true,
+            Login: {
+              select: {
+                Person: { select: { first_name: true, last_name: true } },
+              },
+            },
+          },
+        },
+      },
+      where: {
+        AnnualStudentHasCreditUnits: {
+          some: {
+            AnnualCreditUnit: {
+              AnnualCreditUnitSubjects: {
+                some: { annual_credit_unit_subject_id },
+              },
+            },
+          },
+        },
+      },
+    });
+    return students.map(
+      ({
+        annual_student_id,
+        Student: {
+          matricule,
+          Login: {
+            Person: { first_name, last_name },
+          },
+        },
+      }) => ({
+        matricule,
+        annual_student_id,
+        fullname: `${first_name} ${last_name}`,
+      })
+    );
+  }
 }

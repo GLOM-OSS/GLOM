@@ -52,6 +52,14 @@ export class CourseController {
     return this.courseService.findAssessments(annual_credit_unit_subject_id);
   }
 
+  @Get(':annual_credit_unit_subject_id/students')
+  async getStudents(
+    @Param('annual_credit_unit_subject_id')
+    annual_credit_unit_subject_id: string
+  ) {
+    return this.courseService.findStudents(annual_credit_unit_subject_id);
+  }
+
   @Get(':annual_credit_unit_subject_id/presence-lists')
   async getPreseneceLists(
     @Param('annual_credit_unit_subject_id')
