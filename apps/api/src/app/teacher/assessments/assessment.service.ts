@@ -2,15 +2,15 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   Assessment,
   EvaluationHasStudent,
-  PrismaPromise,
+  Prisma,
+  PrismaPromise
 } from '@prisma/client';
 import { AUTH404, ERR18 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
-  AssessmentPutDto,
   PublishAssessmentDto,
   QuestionPostDto,
-  QuestionPutDto,
+  QuestionPutDto
 } from '../teacher.dto';
 
 @Injectable()
@@ -65,7 +65,7 @@ export class AssessmentService {
 
   async updateAssessment(
     assessment_id: string,
-    newAssessment: AssessmentPutDto,
+    newAssessment: Prisma.AssessmentUpdateInput,
     audited_by: string
   ) {
     const assessment = await this.prismaService.assessment.findUnique({

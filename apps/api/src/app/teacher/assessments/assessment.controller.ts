@@ -59,6 +59,26 @@ export class AssessmentController {
   }
 
   @Roles(Role.TEACHER)
+  @Put(':assessment_id/delete')
+  async deleteAssessment(
+    @Req() request: Request,
+    @Param('assessment_id') assessment_id: string,
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      await this.assessmentService.updateAssessment(
+        assessment_id,
+        { is_deleted: true },
+        annual_teacher_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+  
+  @Roles(Role.TEACHER)
   @Put(':assessment_id/edit')
   async updateAssessment(
     @Req() request: Request,
