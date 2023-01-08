@@ -1,4 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { AUTH404 } from '../../../../errors';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { ChapterPostDto } from '../course.dto';
 
@@ -102,6 +104,40 @@ export class ChapterService {
           },
         },
       },
+    });
+  }
+
+  async update(
+    chapter_id: string,
+    updatedData: Prisma.ChapterUpdateInput,
+    audited_by: string
+  ) {
+    const chapter = await this.prismaService.chapter.findUnique({
+      select: {
+        chapter_objective: true,
+        chapter_position: true,
+        chapter_title: true,
+        is_deleted: true,
+      },
+      where: { chapter_id },
+    });
+    if (!chapter)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Chapter')),
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+
+    await this.prismaService.chapter.update({
+      data: {
+        ...updatedData,
+        ChapterAudits: {
+          create: {
+            ...chapter,
+            audited_by,
+          },
+        },
+      },
+      where: { chapter_id },
     });
   }
 }

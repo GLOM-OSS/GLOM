@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString, IsUUID, Min } from 'class-validator';
 
 export class ChapterPostDto {
@@ -24,6 +24,8 @@ export class ChapterPostDto {
   @ApiProperty()
   annual_credit_unit_subject_id: string;
 }
+
+export class ChapterPutDto extends PartialType(ChapterPostDto) {}
 
 export class ResourceOwner {
   @IsUUID()
