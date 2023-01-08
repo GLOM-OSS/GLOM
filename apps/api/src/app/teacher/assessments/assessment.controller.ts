@@ -16,7 +16,8 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { DeserializeSessionData } from '../../../utils/types';
+import { DeserializeSessionData, Role } from '../../../utils/types';
+import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
 import { ResourceOwner } from '../courses/course.dto';
 import {
@@ -39,6 +40,7 @@ export class AssessmentController {
   }
 
   @Post('new')
+  @Roles(Role.TEACHER)
   async createAssessment(
     @Req() request: Request,
     @Body() { annual_credit_unit_subject_id }: ResourceOwner
@@ -56,6 +58,7 @@ export class AssessmentController {
     }
   }
 
+  @Roles(Role.TEACHER)
   @Put(':assessment_id/edit')
   async updateAssessment(
     @Req() request: Request,
@@ -77,6 +80,7 @@ export class AssessmentController {
   }
 
   @Put('publish')
+  @Roles(Role.TEACHER)
   async publishAssessment(
     @Req() request: Request,
     @Body() assessment: PublishAssessmentDto
@@ -133,6 +137,7 @@ export class AssessmentController {
     );
   }
 
+  @Roles(Role.TEACHER)
   @Post('questions/new')
   @UseInterceptors(FilesInterceptor('questionResources'))
   async createNewQuestion(
@@ -155,6 +160,7 @@ export class AssessmentController {
     }
   }
 
+  @Roles(Role.TEACHER)
   @Put('questions/:question_id/edit')
   @UseInterceptors(FilesInterceptor('questionResources'))
   async updateResource(

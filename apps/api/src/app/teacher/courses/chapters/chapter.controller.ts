@@ -7,11 +7,12 @@ import {
   Param,
   Post,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { DeserializeSessionData } from '../../../../utils/types';
+import { DeserializeSessionData, Role } from '../../../../utils/types';
+import { Roles } from '../../../app.decorator';
 import { AuthenticatedGuard } from '../../../auth/auth.guard';
 import { ChapterPostDto } from '../course.dto';
 import { ChapterService } from './chapter.service';
@@ -42,6 +43,7 @@ export class ChapterController {
   }
 
   @Post('new')
+  @Roles(Role.TEACHER)
   async createNewChapter(
     @Req() request: Request,
     @Body() newChapter: ChapterPostDto
