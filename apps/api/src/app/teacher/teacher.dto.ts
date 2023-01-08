@@ -234,7 +234,7 @@ export class PresenceListChapter {
   chapter_title: string;
 }
 
-export class UpdatePresenceList extends OmitType(PresenceListPostDto, [
+export class PresenceListPutDto extends OmitType(PresenceListPostDto, [
   'studentIds',
   'chapterIds',
   'annual_credit_unit_subject_id',

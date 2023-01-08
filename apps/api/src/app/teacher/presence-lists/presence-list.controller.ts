@@ -6,15 +6,16 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
-import { PresenceListPostDto } from '../teacher.dto';
+import { PresenceListPostDto, PresenceListPutDto } from '../teacher.dto';
 import { PresenceListService } from './presence-list.service';
 
 @Controller()
@@ -42,6 +43,27 @@ export class PresenceListController {
     try {
       return await this.presenceService.createPresenceList(
         newPresenceList,
+        annual_teacher_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Put(':presence_list_id/edit')
+  @Roles(Role.TEACHER)
+  async updatePresenceList(
+    @Req() request: Request,
+    @Param('presence_list_id') presence_list_id: string,
+    @Body() updateData: PresenceListPutDto
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      await this.presenceService.updatePresenceList(
+        presence_list_id,
+        updateData,
         annual_teacher_id
       );
     } catch (error) {
