@@ -3,14 +3,14 @@ import {
   Assessment,
   EvaluationHasStudent,
   Prisma,
-  PrismaPromise
+  PrismaPromise,
 } from '@prisma/client';
 import { AUTH404, ERR18 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   PublishAssessmentDto,
   QuestionPostDto,
-  QuestionPutDto
+  QuestionPutDto,
 } from '../teacher.dto';
 
 @Injectable()
@@ -331,7 +331,7 @@ export class AssessmentService {
         questionOptions,
         questionRessources,
       }) => {
-        const answer = studentAnswers.find(
+        const answers = studentAnswers.filter(
           (_) => _.question_id === question_id
         );
         return {
@@ -341,7 +341,7 @@ export class AssessmentService {
           assessment_id,
           questionOptions,
           questionRessources,
-          answered_option_id: answer?.answered_option_id ?? null,
+          answeredOptionIds: answers.map((_) => _.answered_option_id),
         };
       }
     );
