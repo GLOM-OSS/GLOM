@@ -1,18 +1,37 @@
-import { ReportRounded } from '@mui/icons-material';
+import { KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
+import {
+  Box,
+  Button,
+  Chip,
+  lighten,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import {
   ActivateAssessment,
   Assessment,
   EvaluationSubTypeEnum,
+  StudentAssessmentAnswer,
 } from '@squoolr/interfaces';
+import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
+import { NoTableElement, TableLaneSkeleton } from '../courseLane';
 import ActivateAssessmentDialog from './activateAssessmentDialog';
 import AssessmentList from './assessmentList';
 import QuestionList from './questionList';
+import StudentLane from './studentLane';
+import SubmissionList from './submissionList';
 
 export default function Assessments() {
-  const { formatMessage } = useIntl();
+  const { formatMessage, formatDate, formatNumber } = useIntl();
 
   const [activeAssessment, setActiveAssessment] = useState<Assessment>();
 
@@ -128,6 +147,73 @@ export default function Assessments() {
 
   const [showResponses, setShowResponses] = useState<boolean>(false);
 
+  //   const [students, setStudents] = useState<StudentAssessmentAnswer[]>([]);
+  //   const [areStudentsLoading, setAreStudentsLoading] = useState<boolean>(false);
+  //   const [studentNotif, setStudentNotif] = useState<useNotification>();
+
+  //   const loadStudents = (activeAssessment: Assessment) => {
+  //     setAreStudentsLoading(true);
+  //     const notif = new useNotification();
+  //     if (studentNotif) {
+  //       studentNotif.dismiss();
+  //     }
+  //     setStudentNotif(notif);
+  //     setTimeout(() => {
+  //       //TODO: call api here to load assessment students with data activeAssessment
+  //       if (6 > 5) {
+  //         const newStudents: StudentAssessmentAnswer[] = [
+  //           {
+  //             fullname: 'Tchakoumi Lorrain',
+  //             matricule: '17C005',
+  //             questionAnswers: [],
+  //             submitted_at: new Date(),
+  //             total_score: 18,
+  //           },
+  //           {
+  //             fullname: 'Tchami Jennifer',
+  //             matricule: '17C006',
+  //             questionAnswers: [],
+  //             submitted_at: new Date(),
+  //             total_score: 18,
+  //           },
+  //         ];
+  //         setStudents(newStudents);
+  //         setAreStudentsLoading(false);
+  //         notif.dismiss();
+  //         setStudentNotif(undefined);
+  //       } else {
+  //         notif.notify({
+  //           render: formatMessage({ id: 'loadingStudents' }),
+  //         });
+  //         notif.update({
+  //           type: 'ERROR',
+  //           render: (
+  //             <ErrorMessage
+  //               retryFunction={() => loadStudents(activeAssessment)}
+  //               notification={notif}
+  //               //TODO: message should come from backend
+  //               message={formatMessage({ id: 'getStudentsFailed' })}
+  //             />
+  //           ),
+  //           autoClose: false,
+  //           icon: () => <ReportRounded fontSize="medium" color="error" />,
+  //         });
+  //       }
+  //     }, 3000);
+  //   };
+
+  //   useEffect(() => {
+  //     if (activeAssessment && showResponses) {
+  //       loadStudents(activeAssessment);
+  //     }
+  //     return () => {
+  //       //TODO: CLEANUP AXIOS FETCH ABOVE
+  //     };
+  //     // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   }, [showResponses]);
+
+  const [activeStudent, setActiveStudent] = useState<StudentAssessmentAnswer>();
+
   return (
     <>
       <ActivateAssessmentDialog
@@ -149,7 +235,11 @@ export default function Assessments() {
           setActiveAssessment={setActiveAssessment}
         />
       ) : showResponses ? (
-        'Showing Responses'
+        <SubmissionList
+          activeAssessment={activeAssessment}
+          onBack={() => setShowResponses(false)}
+          setActiveStudent={setActiveStudent}
+        />
       ) : (
         <QuestionList
           onShowResponses={() => setShowResponses(true)}
