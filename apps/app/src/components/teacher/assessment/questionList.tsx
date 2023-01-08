@@ -29,11 +29,13 @@ export default function QuestionList({
   setActiveAssessment,
   setIsActivateAssessmentDialogOpen,
   isActivatingAssessment,
+  onShowResponses,
 }: {
   setActiveAssessment: (val: Assessment | undefined) => void;
   activeAssessment: Assessment;
   setIsActivateAssessmentDialogOpen: (val: boolean) => void;
   isActivatingAssessment: boolean;
+  onShowResponses: () => void;
 }) {
   const { formatMessage, formatDate, formatNumber } = useIntl();
 
@@ -337,6 +339,7 @@ export default function QuestionList({
                     sx={{ textTransform: 'none' }}
                     size="small"
                     disabled={areQuestionsLoading}
+                    onClick={onShowResponses}
                     startIcon={<InsertDriveFileOutlined />}
                   >
                     {formatMessage({ id: 'viewResponses' })}

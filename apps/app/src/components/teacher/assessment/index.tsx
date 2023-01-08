@@ -126,6 +126,8 @@ export default function Assessments() {
     }
   };
 
+  const [showResponses, setShowResponses] = useState<boolean>(false);
+
   return (
     <>
       <ActivateAssessmentDialog
@@ -146,8 +148,11 @@ export default function Assessments() {
           isCreatingAssessment={isCreatingAssessment}
           setActiveAssessment={setActiveAssessment}
         />
+      ) : showResponses ? (
+        'Showing Responses'
       ) : (
         <QuestionList
+          onShowResponses={() => setShowResponses(true)}
           activeAssessment={activeAssessment}
           isActivatingAssessment={isActivatingAssessment}
           setActiveAssessment={setActiveAssessment}
