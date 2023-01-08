@@ -3,19 +3,24 @@ import {
   Box,
   Button,
   Chip,
+  InputAdornment,
   lighten,
+  Skeleton,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
+  TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
 import {
   ActivateAssessment,
   Assessment,
+  AssessmentStatistics,
   EvaluationSubTypeEnum,
+  ScoreDistribution,
   StudentAssessmentAnswer,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
@@ -26,8 +31,10 @@ import { useIntl } from 'react-intl';
 import { NoTableElement, TableLaneSkeleton } from '../courseLane';
 import ActivateAssessmentDialog from './activateAssessmentDialog';
 import AssessmentList from './assessmentList';
+import Graph from './graph';
 import QuestionDisplay from './questionDisplay';
 import QuestionList from './questionList';
+import Statistics from './statistics';
 import StudentLane from './studentLane';
 import StudentResponse from './studentResponse';
 import SubmissionList from './submissionList';
@@ -150,6 +157,7 @@ export default function Assessments() {
   const [showResponses, setShowResponses] = useState<boolean>(false);
 
   const [activeStudent, setActiveStudent] = useState<StudentAssessmentAnswer>();
+  const [showStatistics, setShowStatistics] = useState<boolean>(false);
 
   return (
     <>
@@ -171,6 +179,11 @@ export default function Assessments() {
           isCreatingAssessment={isCreatingAssessment}
           setActiveAssessment={setActiveAssessment}
         />
+      ) : showStatistics ? (
+        <Statistics
+          activeAssessment={activeAssessment}
+          onClose={() => setShowStatistics(false)}
+        />
       ) : activeStudent ? (
         <StudentResponse
           activeStudent={activeStudent}
@@ -179,6 +192,7 @@ export default function Assessments() {
         />
       ) : showResponses ? (
         <SubmissionList
+          openStatistics={() => setShowStatistics(true)}
           activeAssessment={activeAssessment}
           onBack={() => setShowResponses(false)}
           setActiveStudent={setActiveStudent}
