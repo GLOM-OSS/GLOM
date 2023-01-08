@@ -196,6 +196,7 @@ export class AssessmentService {
             question_resource_id: true,
             caption: true,
             resource_ref: true,
+            deleted_at: true,
           },
         },
       },
@@ -213,7 +214,9 @@ export class AssessmentService {
       }) => ({
         ...question,
         questionOptions,
-        questionRessources,
+        questionRessources: questionRessources.filter(
+          (_) => _.deleted_at === null
+        ),
       })
     );
   }
@@ -319,37 +322,29 @@ export class AssessmentService {
           AnnualStudentTakeAssessment: { annual_student_id, assessment_id },
         },
       });
-    const questions = await this.prismaService.question.findMany({
-      select: {
-        question: true,
-        question_id: true,
-        question_mark: true,
-        QuestionOptions: {
-          select: {
-            question_option_id: true,
-            question_id: true,
-            is_answer: true,
-            option: true,
-          },
-        },
-      },
-      where: { assessment_id },
-    });
-    return studentAnswers.map(({ question_id, answered_option_id }) => {
-      const {
-        question,
-        question_mark,
-        QuestionOptions: questionOptions,
-      } = questions.find((_) => _.question_id === question_id);
-      return {
-        question,
+    const questions = await this.getAssessmentQuestions(assessment_id);
+    return questions.map(
+      ({
         question_id,
+        question,
         question_mark,
-        assessment_id,
         questionOptions,
-        answered_option_id,
-      };
-    });
+        questionRessources,
+      }) => {
+        const answer = studentAnswers.find(
+          (_) => _.question_id === question_id
+        );
+        return {
+          question,
+          question_id,
+          question_mark,
+          assessment_id,
+          questionOptions,
+          questionRessources,
+          answered_option_id: answer?.answered_option_id ?? null,
+        };
+      }
+    );
   }
 
   async getAssessmentStats(
