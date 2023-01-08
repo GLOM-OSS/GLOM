@@ -1,20 +1,18 @@
 import { KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
 import {
-    Box,
-    Button,
-    Chip,
-    lighten,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableRow,
-    Tooltip,
-    Typography
+  Box,
+  Button,
+  Chip,
+  lighten,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Tooltip,
+  Typography,
 } from '@mui/material';
-import {
-    Assessment, StudentAssessmentAnswer
-} from '@squoolr/interfaces';
+import { Assessment, StudentAssessmentAnswer } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
@@ -59,7 +57,36 @@ export default function SubmissionList({
           {
             fullname: 'Tchami Jennifer',
             matricule: '17C006',
-            questionAnswers: [],
+            questionAnswers: [
+              {
+                answeredOptionIds: ['wdss'],
+                assessment_id: 'wsei',
+                question: 'What is the biggest country in Cameroon?',
+                question_id: 'sss',
+                question_mark: 2,
+                questionOptions: [
+                  {
+                    is_answer: true,
+                    option: 'Nkambe',
+                    question_id: 'sss',
+                    question_option_id: 'wds',
+                  },
+                  {
+                    is_answer: false,
+                    option: 'Binshua',
+                    question_id: 'sss',
+                    question_option_id: 'wdss',
+                  },
+                  {
+                    is_answer: false,
+                    option: 'Binka',
+                    question_id: 'sss',
+                    question_option_id: 'wdes',
+                  },
+                ],
+                questionResources: [],
+              },
+            ],
             submitted_at: new Date(),
             total_score: 18,
           },
