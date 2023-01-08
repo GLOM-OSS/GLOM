@@ -25,10 +25,12 @@ export default function SubmissionList({
   onBack,
   activeAssessment,
   setActiveStudent,
+  openStatistics,
 }: {
   onBack: () => void;
   activeAssessment: Assessment;
   setActiveStudent: (val: StudentAssessmentAnswer) => void;
+  openStatistics: () => void;
 }) {
   const { formatMessage, formatDate, formatNumber } = useIntl();
 
@@ -211,6 +213,7 @@ export default function SubmissionList({
             color="primary"
             size="small"
             sx={{ textTransform: 'none' }}
+            onClick={openStatistics}
           >
             {formatMessage({ id: 'statistics' })}
           </Button>
