@@ -26,6 +26,7 @@ import { useIntl } from 'react-intl';
 import { NoTableElement, TableLaneSkeleton } from '../courseLane';
 import ActivateAssessmentDialog from './activateAssessmentDialog';
 import AssessmentList from './assessmentList';
+import QuestionDisplay from './questionDisplay';
 import QuestionList from './questionList';
 import StudentLane from './studentLane';
 import SubmissionList from './submissionList';
@@ -147,71 +148,6 @@ export default function Assessments() {
 
   const [showResponses, setShowResponses] = useState<boolean>(false);
 
-  //   const [students, setStudents] = useState<StudentAssessmentAnswer[]>([]);
-  //   const [areStudentsLoading, setAreStudentsLoading] = useState<boolean>(false);
-  //   const [studentNotif, setStudentNotif] = useState<useNotification>();
-
-  //   const loadStudents = (activeAssessment: Assessment) => {
-  //     setAreStudentsLoading(true);
-  //     const notif = new useNotification();
-  //     if (studentNotif) {
-  //       studentNotif.dismiss();
-  //     }
-  //     setStudentNotif(notif);
-  //     setTimeout(() => {
-  //       //TODO: call api here to load assessment students with data activeAssessment
-  //       if (6 > 5) {
-  //         const newStudents: StudentAssessmentAnswer[] = [
-  //           {
-  //             fullname: 'Tchakoumi Lorrain',
-  //             matricule: '17C005',
-  //             questionAnswers: [],
-  //             submitted_at: new Date(),
-  //             total_score: 18,
-  //           },
-  //           {
-  //             fullname: 'Tchami Jennifer',
-  //             matricule: '17C006',
-  //             questionAnswers: [],
-  //             submitted_at: new Date(),
-  //             total_score: 18,
-  //           },
-  //         ];
-  //         setStudents(newStudents);
-  //         setAreStudentsLoading(false);
-  //         notif.dismiss();
-  //         setStudentNotif(undefined);
-  //       } else {
-  //         notif.notify({
-  //           render: formatMessage({ id: 'loadingStudents' }),
-  //         });
-  //         notif.update({
-  //           type: 'ERROR',
-  //           render: (
-  //             <ErrorMessage
-  //               retryFunction={() => loadStudents(activeAssessment)}
-  //               notification={notif}
-  //               //TODO: message should come from backend
-  //               message={formatMessage({ id: 'getStudentsFailed' })}
-  //             />
-  //           ),
-  //           autoClose: false,
-  //           icon: () => <ReportRounded fontSize="medium" color="error" />,
-  //         });
-  //       }
-  //     }, 3000);
-  //   };
-
-  //   useEffect(() => {
-  //     if (activeAssessment && showResponses) {
-  //       loadStudents(activeAssessment);
-  //     }
-  //     return () => {
-  //       //TODO: CLEANUP AXIOS FETCH ABOVE
-  //     };
-  //     // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   }, [showResponses]);
-
   const [activeStudent, setActiveStudent] = useState<StudentAssessmentAnswer>();
 
   return (
@@ -234,6 +170,73 @@ export default function Assessments() {
           isCreatingAssessment={isCreatingAssessment}
           setActiveAssessment={setActiveAssessment}
         />
+      ) : activeStudent ? (
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateRows: 'auto 1fr',
+            rowGap: theme.spacing(2),
+          }}
+        >
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'auto auto 1fr',
+              alignItems: 'center',
+              justifyItems: 'end',
+              columnGap: theme.spacing(2),
+            }}
+          >
+            <Tooltip arrow title={formatMessage({ id: 'back' })}>
+              <Button
+                onClick={() => setActiveStudent(undefined)}
+                variant="contained"
+                color="primary"
+                size="small"
+                startIcon={<KeyboardBackspaceOutlined />}
+              />
+            </Tooltip>
+            <Typography variant="h6">
+              {`(${activeStudent.matricule}) ${activeStudent.fullname}`}
+            </Typography>
+
+            <Box
+              sx={{
+                display: 'grid',
+                alignItems: 'center',
+                gridAutoFlow: 'column',
+                columnGap: theme.spacing(1),
+              }}
+            >
+              <Typography>{formatMessage({ id: 'totalMarks' })}</Typography>
+              <Chip
+                color="success"
+                sx={{ color: theme.common.offWhite }}
+                label={`${activeStudent.total_score} / ${activeAssessment.total_mark}`}
+              />
+            </Box>
+          </Box>
+          <Scrollbars autoHide>
+            {activeStudent.questionAnswers.length === 0 ? (
+              <Typography variant="h6" sx={{ textAlign: 'center' }}>
+                {formatMessage({ id: 'noQuestionsResponded' })}
+              </Typography>
+            ) : (
+              activeStudent.questionAnswers.map((question, index) => (
+                <QuestionDisplay
+                  disabled={false}
+                  isResponse={true}
+                  question={question}
+                  position={index + 1}
+                  responses={question.answeredOptionIds}
+                  //   onEdit={() => setEditableQuestion(question)}
+                  onDelete={() => null}
+                  key={index}
+                />
+              ))
+            )}
+          </Scrollbars>
+        </Box>
       ) : showResponses ? (
         <SubmissionList
           activeAssessment={activeAssessment}
