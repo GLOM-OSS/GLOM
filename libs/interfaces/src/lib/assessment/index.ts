@@ -1,9 +1,9 @@
 export interface Assessment {
   created_at: Date;
-  duration: number;
+  duration: number | null;
   total_mark: number;
   assessment_id: string;
-  chapter_id: Date | null;
+  chapter_id: string | null;
   assessment_date: Date | null;
   annual_credit_unit_subject_id: string;
   evaluation_sub_type_name: string | null;
@@ -30,6 +30,7 @@ export interface QuestionResource {
   question_resource_id: string;
   resource_ref: string;
   question_id: string;
+  caption: number;
 }
 
 export interface Question extends CreateQuestion {
@@ -71,4 +72,10 @@ export interface EditQuestionInterface {
   deletedResourceIds: string[];
   editedOptions: QuestionOption[];
   newOptions: CreateQuestionOption[];
+}
+
+export interface ActivateAssessment {
+  duration: number;
+  assessment_date: Date;
+  assessment_time: Date;
 }
