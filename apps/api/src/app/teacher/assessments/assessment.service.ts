@@ -7,11 +7,7 @@ import {
 } from '@prisma/client';
 import { AUTH404, ERR18 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
-import {
-  PublishAssessmentDto,
-  QuestionPostDto,
-  QuestionPutDto,
-} from '../teacher.dto';
+import { QuestionPostDto, QuestionPutDto } from '../teacher.dto';
 
 @Injectable()
 export class AssessmentService {
@@ -92,8 +88,9 @@ export class AssessmentService {
   }
 
   async publishAssessment(
-    { assessment_id, evaluation_id }: PublishAssessmentDto,
-    audited_by: string
+    assessment_id: string,
+    audited_by: string,
+    evaluation_id?: string
   ) {
     const assessment = await this.prismaService.assessment.findUnique({
       select: {
@@ -404,7 +401,6 @@ export class AssessmentService {
 
   async createAssessmentQuestion(
     newQuestion: QuestionPostDto,
-    files: Array<Express.Multer.File>,
     created_by: string
   ) {
     const { assessment_id, questionOptions, ...questionData } = newQuestion;
@@ -419,15 +415,6 @@ export class AssessmentService {
     return await this.prismaService.question.create({
       data: {
         ...questionData,
-        QuestionResources: {
-          createMany: {
-            data: files.map(({ filename }, index) => ({
-              created_by,
-              caption: index + 1,
-              resource_ref: filename,
-            })),
-          },
-        },
         QuestionOptions: {
           createMany: {
             data: questionOptions.map(({ is_answer, option }) => ({
@@ -443,6 +430,24 @@ export class AssessmentService {
     });
   }
 
+  async createQuestionResources(
+    question_id: string,
+    files: Array<Express.Multer.File>,
+    created_by: string
+  ) {
+    const caption = await this.prismaService.questionResource.count({
+      where: { question_id },
+    });
+    return await this.prismaService.questionResource.createMany({
+      data: files.map(({ filename }) => ({
+        created_by,
+        question_id,
+        caption: caption + 1,
+        resource_ref: filename,
+      })),
+    });
+  }
+
   async updateAssessmentQuestion(
     question_id: string,
     {
@@ -454,7 +459,6 @@ export class AssessmentService {
       deletedOptionIds,
       deletedResourceIds,
     }: QuestionPutDto,
-    files: Array<Express.Multer.File>,
     audited_by: string
   ) {
     const questionData = await this.prismaService.question.findUnique({
@@ -558,21 +562,6 @@ export class AssessmentService {
           },
         })
       );
-    if (files.length > 0) {
-      const caption = await this.prismaService.questionResource.count({
-        where: { question_id },
-      });
-      instructions.push(
-        this.prismaService.questionResource.createMany({
-          data: files.map(({ filename }) => ({
-            resource_ref: filename,
-            caption: caption + 1,
-            question_id,
-            created_by: audited_by,
-          })),
-        })
-      );
-    }
     await this.prismaService.$transaction(instructions);
   }
 }
