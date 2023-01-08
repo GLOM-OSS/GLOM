@@ -12,6 +12,7 @@ export class PresenceListService {
       select: {
         end_time: true,
         start_time: true,
+        is_deleted: true,
         is_published: true,
         presence_list_date: true,
         AnnualCreditUnitSubject: {
@@ -40,11 +41,13 @@ export class PresenceListService {
       },
       where: { presence_list_id },
     });
-    if (presenceList) {
+    if (presenceList && !presenceList.is_deleted) {
       const {
         AnnualCreditUnitSubject: { annual_credit_unit_subject_id, ...subject },
         PresenceListHasChapters: coveredChapters,
         PresenceListHasCreditUnitStudents: presentStudents,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        is_published,
         ...presenceListData
       } = presenceList;
       const chapters = await this.prismaService.chapter.findMany({
@@ -182,7 +185,7 @@ export class PresenceListService {
     });
   }
 
-  async updatePresenceList(
+  async updatePresenceListData(
     presence_list_id: string,
     {
       addedChapterIds,
@@ -302,5 +305,36 @@ export class PresenceListService {
         where: { presence_list_id },
       }),
     ]);
+  }
+
+  async updatePresenceList(
+    presence_list_id: string,
+    data: { is_deleted?: boolean; is_published?: boolean },
+    audited_by: string
+  ) {
+    const presenceList = await this.prismaService.presenceList.findUnique({
+      select: {
+        end_time: true,
+        start_time: true,
+        is_deleted: true,
+        is_published: true,
+        presence_list_date: true,
+      },
+      where: { presence_list_id },
+    });
+    if (!presenceList)
+      throw new HttpException(
+        JSON.stringify(AUTH404('PresenceList')),
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    await this.prismaService.presenceList.update({
+      data: {
+        ...data,
+        PresenceListAudits: {
+          create: { ...presenceList, audited_by },
+        },
+      },
+      where: { presence_list_id },
+    });
   }
 }
