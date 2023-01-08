@@ -29,6 +29,7 @@ import AssessmentList from './assessmentList';
 import QuestionDisplay from './questionDisplay';
 import QuestionList from './questionList';
 import StudentLane from './studentLane';
+import StudentResponse from './studentResponse';
 import SubmissionList from './submissionList';
 
 export default function Assessments() {
@@ -171,72 +172,11 @@ export default function Assessments() {
           setActiveAssessment={setActiveAssessment}
         />
       ) : activeStudent ? (
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateRows: 'auto 1fr',
-            rowGap: theme.spacing(2),
-          }}
-        >
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: 'auto auto 1fr',
-              alignItems: 'center',
-              justifyItems: 'end',
-              columnGap: theme.spacing(2),
-            }}
-          >
-            <Tooltip arrow title={formatMessage({ id: 'back' })}>
-              <Button
-                onClick={() => setActiveStudent(undefined)}
-                variant="contained"
-                color="primary"
-                size="small"
-                startIcon={<KeyboardBackspaceOutlined />}
-              />
-            </Tooltip>
-            <Typography variant="h6">
-              {`(${activeStudent.matricule}) ${activeStudent.fullname}`}
-            </Typography>
-
-            <Box
-              sx={{
-                display: 'grid',
-                alignItems: 'center',
-                gridAutoFlow: 'column',
-                columnGap: theme.spacing(1),
-              }}
-            >
-              <Typography>{formatMessage({ id: 'totalMarks' })}</Typography>
-              <Chip
-                color="success"
-                sx={{ color: theme.common.offWhite }}
-                label={`${activeStudent.total_score} / ${activeAssessment.total_mark}`}
-              />
-            </Box>
-          </Box>
-          <Scrollbars autoHide>
-            {activeStudent.questionAnswers.length === 0 ? (
-              <Typography variant="h6" sx={{ textAlign: 'center' }}>
-                {formatMessage({ id: 'noQuestionsResponded' })}
-              </Typography>
-            ) : (
-              activeStudent.questionAnswers.map((question, index) => (
-                <QuestionDisplay
-                  disabled={false}
-                  isResponse={true}
-                  question={question}
-                  position={index + 1}
-                  responses={question.answeredOptionIds}
-                  //   onEdit={() => setEditableQuestion(question)}
-                  onDelete={() => null}
-                  key={index}
-                />
-              ))
-            )}
-          </Scrollbars>
-        </Box>
+        <StudentResponse
+          activeStudent={activeStudent}
+          onBack={() => setActiveStudent(undefined)}
+          totalMark={activeAssessment.total_mark}
+        />
       ) : showResponses ? (
         <SubmissionList
           activeAssessment={activeAssessment}
