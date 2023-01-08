@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
@@ -155,14 +155,13 @@ export class QuestionPutDto {
 
   @IsArray()
   @ApiProperty()
-  @Type(() => String)
-  @ValidateNested({ each: true })
+  @IsString({ each: true })
   deletedOptionIds: string[];
 
   @IsArray()
   @ApiProperty()
   @Type(() => String)
-  @ValidateNested({ each: true })
+  @IsString({ each: true })
   deletedResourceIds: string[];
 
   @IsArray()
@@ -176,4 +175,87 @@ export class QuestionPutDto {
   @Type(() => QuestionOption)
   @ValidateNested({ each: true })
   newOptions: CreateQuestionOption[];
+}
+
+export class PresenceListPostDto {
+  @ApiProperty()
+  @IsDateString()
+  end_time: Date;
+
+  @ApiProperty()
+  @IsDateString()
+  start_time: Date;
+
+  @ApiProperty()
+  @IsDateString()
+  presence_list_date: Date;
+
+  @IsUUID()
+  @ApiProperty()
+  annual_credit_unit_subject_id: string;
+
+  @ApiProperty()
+  @ArrayMinSize(1)
+  @IsString({ each: true })
+  studentIds: string[];
+
+  @IsArray()
+  @ApiProperty()
+  @ArrayMinSize(1)
+  @IsString({ each: true })
+  chapterIds: string[];
+}
+
+export class Student {
+  @IsUUID()
+  @ApiProperty()
+  annual_student_id: string;
+
+  @IsBoolean()
+  @ApiProperty()
+  is_present: boolean;
+
+  @IsString()
+  @ApiProperty()
+  matricule: string;
+
+  @IsString()
+  @ApiProperty()
+  fullname: string;
+}
+
+export class PresenceListChapter {
+  @IsUUID()
+  @ApiProperty()
+  chpater_id: string;
+
+  @IsString()
+  @ApiProperty()
+  chapter_title: string;
+}
+
+export class UpdatePresenceList extends OmitType(PresenceListPostDto, [
+  'studentIds',
+  'chapterIds',
+  'annual_credit_unit_subject_id',
+]) {
+  @IsArray()
+  @ApiProperty()
+  @IsString({ each: true })
+  addedChapterIds: string[];
+
+  @IsArray()
+  @ApiProperty()
+  @IsString({ each: true })
+  removedChapterIds: string[];
+
+  @IsArray()
+  @ApiProperty()
+  @IsString({ each: true })
+  addedStudentIds: string[];
+
+  @IsArray()
+  @ApiProperty()
+  @IsString({ each: true })
+  removedStudentIds: string[];
 }
