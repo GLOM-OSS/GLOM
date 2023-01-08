@@ -39,8 +39,8 @@ export interface Question extends CreateQuestion {
   questionResources: QuestionResource[];
 }
 
-export interface QuestionAnswer extends Omit<Question, 'questionResources'> {
-  answered_option_id: string;
+export interface QuestionAnswer extends Question {
+  answeredOptionIds: string[];
 }
 
 export interface StudentAssessmentAnswer {
