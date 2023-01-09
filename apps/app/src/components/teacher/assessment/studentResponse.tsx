@@ -1,5 +1,6 @@
 import { KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
 import { Box, Button, Chip, Tooltip, Typography } from '@mui/material';
+import { getStudentAnswers } from '@squoolr/api-services';
 import {
   Assessment,
   QuestionAnswer,
@@ -41,44 +42,14 @@ export default function StudentResponse({
       questionNotif.dismiss();
     }
     setQuestionNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load questionAnswers
-      if (6 > 5) {
-        const newQuestionAnswers: QuestionAnswer[] = [
-          {
-            answeredOptionIds: ['wdss'],
-            assessment_id: 'wsei',
-            question: 'What is the biggest country in Cameroon?',
-            question_id: 'sss',
-            question_mark: 2,
-            questionOptions: [
-              {
-                is_answer: true,
-                option: 'Nkambe',
-                question_id: 'sss',
-                question_option_id: 'wds',
-              },
-              {
-                is_answer: false,
-                option: 'Binshua',
-                question_id: 'sss',
-                question_option_id: 'wdss',
-              },
-              {
-                is_answer: false,
-                option: 'Binka',
-                question_id: 'sss',
-                question_option_id: 'wdes',
-              },
-            ],
-            questionResources: [],
-          },
-        ];
-        setQuestionAnswers(newQuestionAnswers);
+    getStudentAnswers(assessment.assessment_id, activeStudent.annual_student_id)
+      .then((questionAnswers) => {
+        setQuestionAnswers(questionAnswers);
         setAreQuestionAnswersLoading(false);
         notif.dismiss();
         setQuestionNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingQuestionAnswers' }),
         });
@@ -90,15 +61,15 @@ export default function StudentResponse({
                 loadQuestionAnswers(activeStudent, assessment)
               }
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'questionAnswersFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'questionAnswersFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {

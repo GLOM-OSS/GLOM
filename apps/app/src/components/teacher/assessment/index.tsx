@@ -1,9 +1,11 @@
 import { ReportRounded } from '@mui/icons-material';
-import { activateAssessment, createNewAssessment } from '@squoolr/api-services';
+import {
+  activateAssessment,
+  createNewAssessment
+} from '@squoolr/api-services';
 import {
   ActivateAssessment,
-  Assessment,
-  StudentAssessmentAnswer,
+  Assessment, StudentAssessmentAnswer
 } from '@squoolr/interfaces';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useState } from 'react';
@@ -17,8 +19,8 @@ import StudentResponse from './studentResponse';
 import SubmissionList from './submissionList';
 
 export default function Assessments() {
-  const { annual_credit_unit_subject_id } = useParams();
   const { formatMessage } = useIntl();
+  const { annual_credit_unit_subject_id } = useParams();
 
   const [activeAssessment, setActiveAssessment] = useState<Assessment>();
 
@@ -164,11 +166,11 @@ export default function Assessments() {
         />
       ) : showResponses ? (
         <SubmissionList
-          setActiveAssessment={setActiveAssessment}
           openStatistics={() => setShowStatistics(true)}
           activeAssessment={activeAssessment}
           onBack={() => setShowResponses(false)}
           setActiveStudent={setActiveStudent}
+          setActiveAssessment={setActiveAssessment}
         />
       ) : (
         <QuestionList

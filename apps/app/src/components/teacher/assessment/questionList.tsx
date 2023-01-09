@@ -13,7 +13,11 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { deleteQuestion, getAssessmentQuestions } from '@squoolr/api-services';
+import {
+  createNewQuestion,
+  deleteQuestion,
+  getAssessmentQuestions,
+} from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import { Assessment, CreateQuestion, Question } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
@@ -158,48 +162,47 @@ export default function QuestionList({
         id: 'creatingQuestion',
       }),
     });
-    setTimeout(() => {
-      //TODO: call api here to create question with data question and resources
-      if (6 > 5) {
-        const newQuestion: Question = {
-          question_id: 'sieos',
-          assessment_id: question.assessment_id,
-          question: question.question,
-          question_mark: question.question_mark,
-          questionOptions: question.questionOptions.map(
-            ({ is_answer, option }, index) => {
-              return {
-                question_id: 'sieos',
-                question_option_id: `wie${index}`,
-                is_answer,
-                option,
-              };
-            }
-          ),
-          questionResources: [],
-        };
-        setQuestions([newQuestion, ...questions]);
-        setIsCreatingQuestion(false);
+    createNewQuestion(question)
+      .then((newQuestion) => {
+        setQuestions([
+          {
+            ...newQuestion,
+            questionOptions: question.questionOptions.map(
+              ({ is_answer, option }, index) => {
+                return {
+                  question_id: newQuestion.question_id,
+                  question_option_id: `wie${index}`,
+                  is_answer,
+                  option,
+                };
+              }
+            ),
+            questionResources: [],
+          },
+          ...questions,
+        ]);
         notif.update({
           render: formatMessage({ id: 'questionCreatedSuccessfully' }),
         });
         setQuestionNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() => createQuestion(question, resources)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'createQuestionFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'createQuestionFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsCreatingQuestion(false));
   };
 
   return (

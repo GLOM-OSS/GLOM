@@ -14,6 +14,10 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import {
+  getStudentAssessmentMarks,
+  publishAssessment,
+} from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import { Assessment, StudentAssessmentAnswer } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
@@ -55,29 +59,14 @@ export default function SubmissionList({
       studentNotif.dismiss();
     }
     setStudentNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load assessment students with data activeAssessment
-      if (6 > 5) {
-        const newStudents: Omit<StudentAssessmentAnswer, 'questionAnswers'>[] =
-          [
-            {
-              fullname: 'Tchakoumi Lorrain',
-              matricule: '17C005',
-              submitted_at: new Date(),
-              total_score: 18,
-            },
-            {
-              fullname: 'Tchami Jennifer',
-              matricule: '17C006',
-              submitted_at: new Date(),
-              total_score: 18,
-            },
-          ];
-        setStudents(newStudents);
+    getStudentAssessmentMarks(activeAssessment.assessment_id)
+      .then((students) => {
+        setStudents(students);
         setAreStudentsLoading(false);
         notif.dismiss();
         setStudentNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingStudents' }),
         });
@@ -87,15 +76,15 @@ export default function SubmissionList({
             <ErrorMessage
               retryFunction={() => loadStudents(activeAssessment)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getStudentsFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getStudentsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
@@ -114,7 +103,7 @@ export default function SubmissionList({
     useState<boolean>(false);
   const [assessmentNotif, setAssessmentNotif] = useState<useNotification>();
 
-  const publishAssessment = (
+  const publishAssessmentHandler = (
     assessment: Assessment,
     annual_evaluation_sub_type_id: string | undefined
   ) => {
@@ -127,33 +116,40 @@ export default function SubmissionList({
         id: 'publishingAssessment',
       }),
     });
-    setTimeout(() => {
-      //TODO: call api here to publishAssessment with data assessment and annual_evaluation_sub_type_id
-      if (6 > 5) {
+    publishAssessment(
+      assessment.assessment_id,
+      annual_evaluation_sub_type_id as string
+    )
+      .then(() => {
         setActiveAssessment({ ...assessment, is_published: true });
         setIsPublishingAssessment(false);
         notif.update({
           render: formatMessage({ id: 'publishedAssessmentSuccessfully' }),
         });
         setAssessmentNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() =>
-                publishAssessment(assessment, annual_evaluation_sub_type_id)
+                publishAssessmentHandler(
+                  assessment,
+                  annual_evaluation_sub_type_id
+                )
               }
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'publishAssessmentFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'publishAssessmentFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [
@@ -191,12 +187,12 @@ export default function SubmissionList({
         isDialogOpen={isConfirmPublishDialogOpen}
         confirmButton="publish"
         dialogTitle="confirmPublishMarks"
-        confirm={() => publishAssessment(activeAssessment, undefined)}
+        confirm={() => publishAssessmentHandler(activeAssessment, undefined)}
       />
       <PublishAssessmentDialog
         closeDialog={() => setIsConfirmPublishWithEvaluationDialogOpen(false)}
         handleSubmit={(evaluation_has_sub_type_id: string) =>
-          publishAssessment(activeAssessment, evaluation_has_sub_type_id)
+          publishAssessmentHandler(activeAssessment, evaluation_has_sub_type_id)
         }
         isDialogOpen={isConfirmPublishWithEvaluationDialogOpen}
       />

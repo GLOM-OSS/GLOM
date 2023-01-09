@@ -7,8 +7,9 @@ import {
   Skeleton,
   TextField,
   Tooltip,
-  Typography
+  Typography,
 } from '@mui/material';
+import { getAssessmentStats } from '@squoolr/api-services';
 import { Assessment, AssessmentStatistics } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -48,67 +49,14 @@ export default function Statistics({
       graphNotif.dismiss();
     }
     setGraphNotif(notif);
-    setTimeout(() => {
-      // TODO: CALL API TO GET assessment statistics with data activeAssessment and markInterval
-      if (6 > 5) {
-        const newUsageData: AssessmentStatistics = {
-          average_score: 15,
-          best_score: 17,
-          distribution_interval: 2,
-          total_number_of_students: 50,
-          worst_score: 7,
-          scoreDistributions: [
-            {
-              average_score: 0,
-              number_of_students: 3,
-            },
-            {
-              average_score: 2,
-              number_of_students: 3,
-            },
-            {
-              average_score: 4,
-              number_of_students: 3,
-            },
-            {
-              average_score: 6,
-              number_of_students: 6,
-            },
-            {
-              average_score: 8,
-              number_of_students: 10,
-            },
-            {
-              average_score: 10,
-              number_of_students: 8,
-            },
-            {
-              average_score: 12,
-              number_of_students: 6,
-            },
-            {
-              average_score: 14,
-              number_of_students: 16,
-            },
-            {
-              average_score: 16,
-              number_of_students: 17,
-            },
-            {
-              average_score: 18,
-              number_of_students: 10,
-            },
-            {
-              average_score: 20,
-              number_of_students: 5,
-            },
-          ],
-        };
-        setUsageGraphData(newUsageData);
+    getAssessmentStats(activeAssessment.assessment_id, markInterval)
+      .then((assessmentStatistics) => {
+        setUsageGraphData(assessmentStatistics);
         setIsGraphDataLoading(false);
         notif.dismiss();
         setGraphNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         const notif = new useNotification();
         notif.notify({
           render: formatMessage({ id: 'loadingGraphData' }),
@@ -121,15 +69,16 @@ export default function Statistics({
                 loadGraphData(activeAssessment, markInterval)
               }
               notification={notif}
-              // TODO: message should come from backend api
-              message={formatMessage({ id: 'failedLoadingGraphData' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'failedLoadingGraphData' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
