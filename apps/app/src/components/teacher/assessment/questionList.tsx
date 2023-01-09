@@ -14,13 +14,14 @@ import {
   Typography,
 } from '@mui/material';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
-import { Assessment, Question } from '@squoolr/interfaces';
+import { Assessment, CreateQuestion, Question } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
+import QuestionDialog from './questionDialog';
 import QuestionDisplay from './questionDisplay';
 import QuestionSkeleton from './questionSkeleton';
 
@@ -182,7 +183,8 @@ export default function QuestionList({
     }, 3000);
   };
 
-  const [isQuestionDialogOpen, setIsQuestionDialog] = useState<boolean>(false);
+  const [isQuestionDialogOpen, setIsQuestionDialogOpen] =
+    useState<boolean>(false);
 
   const [isCreatingQuestion, setIsCreatingQuestion] = useState<boolean>(false);
   const [activeQuestion, setActiveQuestion] = useState<Question>();
@@ -190,6 +192,66 @@ export default function QuestionList({
     isConfirmDeleteQuestionDialogOpen,
     setIsConfirmDeleteQuestionDialogOpen,
   ] = useState<boolean>(false);
+
+  const createQuestion = (
+    question: CreateQuestion,
+    resources: {
+      id: string;
+      file: File;
+    }[]
+  ) => {
+    setIsCreatingQuestion(true);
+    const notif = new useNotification();
+    if (questionNotif) questionNotif.dismiss();
+    setQuestionNotif(notif);
+    notif.notify({
+      render: formatMessage({
+        id: 'creatingQuestion',
+      }),
+    });
+    setTimeout(() => {
+      //TODO: call api here to create question with data question and resources
+      if (6 > 5) {
+        const newQuestion: Question = {
+          question_id: 'sieos',
+          assessment_id: question.assessment_id,
+          question: question.question,
+          question_mark: question.question_mark,
+          questionOptions: question.questionOptions.map(
+            ({ is_answer, option }, index) => {
+              return {
+                question_id: 'sieos',
+                question_option_id: `wie${index}`,
+                is_answer,
+                option,
+              };
+            }
+          ),
+          questionResources: [],
+        };
+        setQuestions([newQuestion, ...questions]);
+        setIsCreatingQuestion(false);
+        notif.update({
+          render: formatMessage({ id: 'questionCreatedSuccessfully' }),
+        });
+        setQuestionNotif(undefined);
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => createQuestion(question, resources)}
+              notification={notif}
+              //TODO: message should come from backend
+              message={formatMessage({ id: 'createQuestionFailed' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
 
   return (
     <>
@@ -203,6 +265,13 @@ export default function QuestionList({
           confirm={() => deleteQuestion(activeQuestion)}
         />
       )}
+
+      <QuestionDialog
+        assessment_id={activeAssessment.assessment_id}
+        closeDialog={() => setIsQuestionDialogOpen(false)}
+        isDialogOpen={isQuestionDialogOpen}
+        onSubmit={createQuestion}
+      />
 
       <Box
         sx={{
@@ -354,7 +423,7 @@ export default function QuestionList({
               disabled={
                 areQuestionsLoading || isCreatingQuestion || isDeletingQuestion
               }
-              onClick={() => setIsQuestionDialog(true)}
+              onClick={() => setIsQuestionDialogOpen(true)}
               color="primary"
               sx={{ position: 'absolute', bottom: 16, right: 24 }}
             >
