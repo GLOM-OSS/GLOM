@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -59,10 +60,10 @@ export class AssessmentController {
   }
 
   @Roles(Role.TEACHER)
-  @Put(':assessment_id/delete')
+  @Delete(':assessment_id/delete')
   async deleteAssessment(
     @Req() request: Request,
-    @Param('assessment_id') assessment_id: string,
+    @Param('assessment_id') assessment_id: string
   ) {
     const {
       annualTeacher: { annual_teacher_id },
@@ -77,9 +78,9 @@ export class AssessmentController {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  
+
   @Roles(Role.TEACHER)
-  @Put(':assessment_id/edit')
+  @Put(':assessment_id/activate')
   async updateAssessment(
     @Req() request: Request,
     @Param('assessment_id') assessment_id: string,
@@ -99,10 +100,11 @@ export class AssessmentController {
     }
   }
 
-  @Put('publish')
+  @Put(':assessment_id/publish')
   @Roles(Role.TEACHER)
   async publishAssessment(
     @Req() request: Request,
+    @Param('assessment_id') assessment_id: string,
     @Body() assessment: PublishAssessmentDto
   ) {
     const {
@@ -110,8 +112,9 @@ export class AssessmentController {
     } = request.user as DeserializeSessionData;
     try {
       return this.assessmentService.publishAssessment(
-        assessment,
-        annual_teacher_id
+        assessment_id,
+        annual_teacher_id,
+        assessment.evaluation_id
       );
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -162,8 +165,6 @@ export class AssessmentController {
   @UseInterceptors(FilesInterceptor('questionResources'))
   async createNewQuestion(
     @Req() request: Request,
-    @UploadedFiles()
-    files: Array<Express.Multer.File>,
     @Body() newQuestion: QuestionPostDto
   ) {
     const {
@@ -172,6 +173,28 @@ export class AssessmentController {
     try {
       return await this.assessmentService.createAssessmentQuestion(
         newQuestion,
+        annual_teacher_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Roles(Role.TEACHER)
+  @Post('questions/:question_id/new-resources')
+  @UseInterceptors(FilesInterceptor('questionResources'))
+  async saveQuestionResources(
+    @Req() request: Request,
+    @Param('question_id') question_id: string,
+    @UploadedFiles()
+    files: Array<Express.Multer.File>
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      return await this.assessmentService.createQuestionResources(
+        question_id,
         files ?? [],
         annual_teacher_id
       );
@@ -182,21 +205,37 @@ export class AssessmentController {
 
   @Roles(Role.TEACHER)
   @Put('questions/:question_id/edit')
-  @UseInterceptors(FilesInterceptor('questionResources'))
-  async updateResource(
+  async updateQuestion(
     @Req() request: Request,
     @Param('question_id') question_id: string,
-    @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() updatedQuestion: QuestionPutDto
   ) {
     const {
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
     try {
-      await this.assessmentService.updateAssessmentQuestion(
+      await this.assessmentService.updateQuestion(
         question_id,
         updatedQuestion,
-        files ?? [],
+        annual_teacher_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Roles(Role.TEACHER)
+  @Put('questions/:question_id/delete')
+  async deleteQuestion(
+    @Req() request: Request,
+    @Param('question_id') question_id: string
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      await this.assessmentService.deleteQuestion(
+        question_id,
         annual_teacher_id
       );
     } catch (error) {

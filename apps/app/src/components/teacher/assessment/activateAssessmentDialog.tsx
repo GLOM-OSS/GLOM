@@ -25,28 +25,6 @@ export default function ActivateAssessmentDialog({
 }) {
   const { formatMessage } = useIntl();
 
-  //   const initialValues: ActivateAssessment = {
-  //     assessment_date: new Date(),
-  //     assessment_time: new Date(),
-  //     duration: 0,
-  //   };
-
-  //   const validationSchema = Yup.object().shape({
-  //     duration: Yup.number().min(0, formatMessage({ id: 'minAllowedValue0' })),
-  //     assessment_date: Yup.date().required(formatMessage({ id: 'required' })),
-  //     assessment_time: Yup.date().required(formatMessage({ id: 'required' })),
-  //   });
-
-  //   const formik = useFormik({
-  //     initialValues,
-  //     validationSchema,
-  //     enableReinitialize: true,
-  //     onSubmit: (values) => {
-  //       handleSubmit(values);
-  //       close();
-  //     },
-  //   });
-
   const [assessmentDate, setAssessmentDate] = useState<Date>(new Date());
   const [assessmentTime, setAssessmentTime] = useState<Date>(new Date());
   const [duration, setDuration] = useState<number>(0);
@@ -88,7 +66,6 @@ export default function ActivateAssessmentDialog({
         >
           <MobileDatePicker
             label={formatMessage({ id: 'assessmentDate' })}
-            // {...formik.getFieldProps('assessment_date')}
             value={assessmentDate}
             minDate={dayjs(new Date())}
             onChange={(newValue) => {

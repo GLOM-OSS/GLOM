@@ -87,7 +87,15 @@ export default function Graph({
         <canvas id="dataChart"></canvas>
       </div>
       {isDataLoading && (
-        <div>
+        <div
+          style={{
+            display: 'grid',
+            gridAutoFlow: 'column',
+            columnGap: theme.spacing(1),
+            width: '100%',
+            height: '100%',
+          }}
+        >
           {[...new Array(9)].map((_, index) => (
             <Skeleton
               key={index}

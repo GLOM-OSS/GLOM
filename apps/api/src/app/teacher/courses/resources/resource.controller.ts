@@ -2,18 +2,24 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpException,
   HttpStatus,
   Param,
   Post,
   Req,
+  Res,
+  StreamableFile,
   UploadedFiles,
   UseGuards,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
-import { Request } from 'express';
+import { Request, Response } from 'express';
+import { createReadStream } from 'fs';
+import { join } from 'path';
+import { AUTH404 } from '../../../../errors';
 import { DeserializeSessionData, Role } from '../../../../utils/types';
 import { Roles } from '../../../app.decorator';
 import { AuthenticatedGuard } from '../../../auth/auth.guard';
@@ -82,6 +88,32 @@ export class ResourceController {
     } = request.user as DeserializeSessionData;
     try {
       await this.resourceService.deleteResource(resource_id, annual_teacher_id);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Get(':resource_id/download')
+  async downloadResource(
+    @Req() request: Request,
+    @Param('resource_id') resource_id: string,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    const { preferred_lang } = request.user as DeserializeSessionData;
+    const resource = await this.resourceService.getResource(resource_id);
+    if (!resource || resource.resource_type === 'LINK')
+      throw new HttpException(
+        AUTH404('Resource')[preferred_lang],
+        HttpStatus.NOT_FOUND
+      );
+    const { resource_name, resource_ref } = resource;
+    try {
+      const file = createReadStream(join(process.cwd(), `uploads/${resource_ref}`));
+      res.set({
+        'Content-Type': 'application/octet-stream',
+        'Content-Disposition': `attachment; filename=${resource_name}`,
+      });
+      return new StreamableFile(file);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

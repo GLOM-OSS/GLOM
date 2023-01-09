@@ -1229,11 +1229,11 @@ model QuestionAudit {
     question          String        @db.VarChar(190)
     question_mark     Int
     is_deleted        Boolean       @default(false) @db.TinyInt
-    created_at        DateTime      @default(now()) @db.DateTime(0)
+    audited_at        DateTime      @default(now()) @db.DateTime(0)
     question_id       String        @db.VarChar(36)
     Question          Question      @relation(fields: [question_id], references: [question_id], onDelete: Cascade, onUpdate: Cascade)
-    created_by        String        @db.VarChar(36)
-    AnnualTeacher     AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by        String        @db.VarChar(36)
+    AnnualTeacher     AnnualTeacher @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model QuestionResource {

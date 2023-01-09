@@ -3,6 +3,7 @@ import { Cycle, Grade } from '@squoolr/interfaces';
 
 export * from './academic-profiles';
 export * from './academic-years';
+export * from './assessments';
 export * from './auth';
 export * from './carry-over-system';
 export * from './classrooms';
@@ -16,6 +17,7 @@ export * from './grade-weightings';
 export * from './hall-accesses';
 export * from './majors';
 export * from './personnel';
+export * from './presence-lists';
 export * from './weighting-system';
 
 export async function getCycles() {

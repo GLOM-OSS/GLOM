@@ -24,7 +24,7 @@ export class ChapterController {
   constructor(private chapterService: ChapterService) {}
 
   @Get(':chapter_id')
-  async getChapters(@Param('chapter_id') chapter_id: string) {
+  async getChapter(@Param('chapter_id') chapter_id: string) {
     return this.chapterService.findOne(chapter_id);
   }
 
@@ -80,7 +80,7 @@ export class ChapterController {
     }
   }
 
-  @Put(':chpater_id/edit')
+  @Put(':chpater_id/delete')
   @Roles(Role.TEACHER)
   async deleteChapter(
     @Req() request: Request,

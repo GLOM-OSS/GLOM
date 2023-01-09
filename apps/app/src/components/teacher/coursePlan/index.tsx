@@ -1,8 +1,4 @@
-import {
-  ExpandMore,
-  InsertLinkOutlined,
-  ReportRounded,
-} from '@mui/icons-material';
+import { ExpandMore, ReportRounded } from '@mui/icons-material';
 import {
   Accordion,
   AccordionDetails,
@@ -14,6 +10,20 @@ import {
   Skeleton,
   Typography,
 } from '@mui/material';
+import {
+  addNewFileResources,
+  addNewLinkResource,
+  createNewChapter,
+  deleteChapter,
+  deleteResource,
+  downloadResource,
+  getChapterParts,
+  getChapterResources,
+  getCourse,
+  getCourseChapters,
+  getCourseResources,
+  updateChapter,
+} from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
   Chapter,
@@ -57,26 +67,14 @@ export default function CoursePlan() {
       courseNotif.dismiss();
     }
     setCourseNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load course using data annual_credit_unit_subject_id
-      if (6 > 5) {
-        const newCourse: Course = {
-          annual_credit_unit_subject_id: 'siels',
-          classroomAcronyms: ['irt', 'imb', 'isst', 'isss'],
-          has_course_plan: false,
-          is_ca_available: false,
-          is_exam_available: false,
-          is_resit_available: false,
-          objective:
-            'Make it rain in all directions. this is the way to make it shine',
-          subject_code: 'UUIDv4',
-          subject_title: 'Advanced History',
-        };
-        setCourse(newCourse);
+    getCourse(annual_credit_unit_subject_id as string)
+      .then((course) => {
+        setCourse(course);
         setIsCourseLoading(false);
         notif.dismiss();
         setCourseNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingCourse' }),
         });
@@ -86,15 +84,15 @@ export default function CoursePlan() {
             <ErrorMessage
               retryFunction={loadCourse}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getCourseFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getCourseFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [chapters, setChapters] = useState<Chapter[]>([]);
@@ -110,23 +108,14 @@ export default function CoursePlan() {
         chapterNotif.dismiss();
       }
       setChapterNotif(notif);
-      setTimeout(() => {
-        //TODO: call api here to load course chapters using data annual_credit_unit_subject_id
-        if (6 > 5) {
-          const newChapters: Chapter[] = [
-            {
-              annual_credit_unit_subject_id: 'lsie',
-              chapter_id: 'isoes',
-              chapter_objective: 'Things shall make it rain trust me',
-              chapter_title: 'Introduction to Cameroon history',
-              chapter_number: 1,
-            },
-          ];
-          setChapters(newChapters);
+      getCourseChapters(annual_credit_unit_subject_id as string)
+        .then((chapters) => {
+          setChapters(chapters);
           setAreChaptersLoading(false);
           notif.dismiss();
           setChapterNotif(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.notify({
             render: formatMessage({ id: 'loadingChapters' }),
           });
@@ -136,15 +125,15 @@ export default function CoursePlan() {
               <ErrorMessage
                 retryFunction={loadChapters}
                 notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'getChaptersFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'getChaptersFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        });
     } else if (activeChapter) {
       setChapters([]);
       setAreChaptersLoading(true);
@@ -153,23 +142,14 @@ export default function CoursePlan() {
         chapterNotif.dismiss();
       }
       setChapterNotif(notif);
-      setTimeout(() => {
-        //TODO: call api here to load chapter pars using data activeChapter.chapter_id
-        if (6 > 5) {
-          const newChapters: Chapter[] = [
-            {
-              annual_credit_unit_subject_id: 'lsies',
-              chapter_id: 'isoesd',
-              chapter_objective: 'Things shall make it rain trust me',
-              chapter_title: 'Introduction to Cameroon Biology',
-              chapter_number: 1,
-            },
-          ];
-          setChapters(newChapters);
+      getChapterParts(actionnedChapter?.chapter_id as string)
+        .then((chapters) => {
+          setChapters(chapters);
           setAreChaptersLoading(false);
           notif.dismiss();
           setChapterNotif(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.notify({
             render: formatMessage({ id: 'loadingChapters' }),
           });
@@ -179,15 +159,15 @@ export default function CoursePlan() {
               <ErrorMessage
                 retryFunction={loadChapters}
                 notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'getChaptersFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'getChaptersFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        });
     }
   };
 
@@ -205,15 +185,14 @@ export default function CoursePlan() {
         resourceNotif.dismiss();
       }
       setResourceNotif(notif);
-      setTimeout(() => {
-        //TODO: call api here to load course resources using data annual_credit_unit_subject_id
-        if (6 > 5) {
-          const newResources: Resource[] = [];
-          setResources(newResources);
+      getCourseResources(annual_credit_unit_subject_id as string)
+        .then((resources) => {
+          setResources(resources);
           setAreResourcesLoading(false);
           notif.dismiss();
           setResourceNotif(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.notify({
             render: formatMessage({ id: 'loadingResources' }),
           });
@@ -223,15 +202,15 @@ export default function CoursePlan() {
               <ErrorMessage
                 retryFunction={loadResources}
                 notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'getResourcesFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'getResourcesFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        });
     } else if (activeChapter) {
       setResources([]);
       setAreResourcesLoading(true);
@@ -240,15 +219,14 @@ export default function CoursePlan() {
         resourceNotif.dismiss();
       }
       setResourceNotif(notif);
-      setTimeout(() => {
-        //TODO: call api here to load chapter resources using data activeChapter.chapter_id
-        if (6 > 5) {
-          const newResources: Resource[] = [];
-          setResources(newResources);
+      getChapterResources(actionnedChapter?.chapter_id as string)
+        .then((resources) => {
+          setResources(resources);
           setAreResourcesLoading(false);
           notif.dismiss();
           setResourceNotif(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.notify({
             render: formatMessage({ id: 'loadingResources' }),
           });
@@ -265,8 +243,7 @@ export default function CoursePlan() {
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        });
     }
   };
 
@@ -298,42 +275,42 @@ export default function CoursePlan() {
   const [isSubmittingChapter, setIsSubmittingChapter] =
     useState<boolean>(false);
 
-  const deleteChapter = (chapter: Chapter) => {
+  const deleteChapterHandler = (chapter: Chapter) => {
     if (actionnedChapter) {
       setIsSubmittingChapter(true);
       const notif = new useNotification();
       if (chapterNotif) chapterNotif.dismiss();
       setChapterNotif(notif);
       notif.notify({ render: formatMessage({ id: 'deletingChapter' }) });
-      setTimeout(() => {
-        //TODO: call api here to delete chapter
-        if (6 > 5) {
+      deleteChapter(chapter.chapter_id)
+        .then(() => {
           setChapters(
             chapters.filter(
               ({ chapter_id: c_id }) => c_id !== chapter.chapter_id
             )
           );
-          setIsSubmittingChapter(false);
           notif.update({
             render: formatMessage({ id: 'chapterDeletedSuccessfully' }),
           });
           setChapterNotif(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
-                retryFunction={() => deleteChapter(chapter)}
+                retryFunction={() => deleteChapterHandler(chapter)}
                 notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'deleteChapterFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'deleteChapterFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        })
+        .finally(() => setIsSubmittingChapter(false));
     }
   };
 
@@ -348,67 +325,66 @@ export default function CoursePlan() {
       }),
     });
     if (chapter.chapter_id === '') {
-      setTimeout(() => {
-        const submitData: CreateChapter = {
-          ...(chapter as CreateChapter),
-          chapter_parent_id: activeChapter ? activeChapter.chapter_id : '',
-        };
-        //TODO: call api here to create chapter with data submitData
-        if (6 > 5) {
-          const newChapter: Chapter = { ...chapter, chapter_id: 'sie' };
-          setChapters([...chapters, newChapter]);
-          setIsSubmittingChapter(false);
+      const submitData: CreateChapter = {
+        ...(chapter as CreateChapter),
+        chapter_parent_id: activeChapter ? activeChapter.chapter_id : '',
+      };
+      createNewChapter(submitData)
+        .then((chapter) => {
+          setChapters([...chapters, chapter]);
           notif.update({
             render: formatMessage({ id: 'chapterCreatedSuccessfully' }),
           });
           setChapterNotif(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={() => manageChapter(chapter)}
                 notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'createChapterFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'createChapterFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        })
+        .finally(() => setIsSubmittingChapter(false));
     } else {
-      setTimeout(() => {
-        //TODO: call api here to edit chapter with data chapter.chapter_id
-        if (6 > 5) {
+      updateChapter(chapter.chapter_id, chapter)
+        .then(() => {
           setChapters(
             chapters.map((chptr) => {
               if (chptr.chapter_id === chapter.chapter_id) return chapter;
               return chptr;
             })
           );
-          setIsSubmittingChapter(false);
           notif.update({
             render: formatMessage({ id: 'chapterEditedSuccessfully' }),
           });
           setChapterNotif(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
                 retryFunction={() => manageChapter(chapter)}
                 notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'editChapterFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'editChapterFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        })
+        .finally(() => setIsSubmittingChapter(false));
     }
   };
 
@@ -424,37 +400,31 @@ export default function CoursePlan() {
         id: 'creatingLink',
       }),
     });
-    setTimeout(() => {
-      //TODO: call api here to create link
-      if (6 > 5) {
-        const newLink: Resource = {
-          ...link,
-          resource_extension: null,
-          resource_id: 'eisl',
-          resource_type: 'LINK',
-        };
-        setResources([...resources, newLink]);
+    addNewLinkResource(link)
+      .then((resourceLink) => {
+        setResources([...resources, resourceLink]);
         setIsCreatingLink(false);
         notif.update({
           render: formatMessage({ id: 'LinkCreatedSuccessfully' }),
         });
         setResourceNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() => createLink(link)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'createLinkFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'createLinkFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [isCreatingFiles, setIsCreatingFiles] = useState<boolean>(false);
@@ -469,47 +439,35 @@ export default function CoursePlan() {
         id: 'creatingFiles',
       }),
     });
-    setTimeout(() => {
-      //TODO: call api here to create link
-      if (6 > 5) {
-        //TODO: FILES SHOULD COME BACK FROM THE BACKEND AFTER CREATION
-        const newResource: Resource = {
-          annual_credit_unit_subject_id:
-            files.details.annual_credit_unit_subject_id,
-          chapter_id: files.details.chapter_id,
-          resource_name: 'Making it rain',
-          resource_ref:
-            'https://www.youtube.com/watch?v=50VNCymT-Cs',
-          resource_extension: 'mp4',
-          resource_id: 'eisl',
-          resource_type: 'FILE',
-        };
-        setResources([newResource, ...resources]);
-        setIsCreatingFiles(false);
+    addNewFileResources(files)
+      .then((newResources) => {
+        setResources([...newResources, ...resources]);
         notif.update({
           render: formatMessage({ id: 'filesCreatedSuccessfully' }),
         });
         setResourceNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() => createFiles(files)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'createFilesFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'createFilesFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsCreatingFiles(false));
   };
   const [isDeletingResource, setIsDeletingResource] = useState<boolean>(false);
 
-  const deleteResource = (resource: Resource) => {
+  const deleteResourceHandler = (resource: Resource) => {
     setIsDeletingResource(true);
     const notif = new useNotification();
     if (chapterNotif) chapterNotif.dismiss();
@@ -519,35 +477,35 @@ export default function CoursePlan() {
         id: 'deletingResource',
       }),
     });
-    setTimeout(() => {
-      //TODO: call api here to delete resource
-      if (6 > 5) {
+    deleteResource(resource.resource_id)
+      .then(() => {
         setResources(
           resources.filter(
             ({ resource_id: r_id }) => r_id !== resource.resource_id
           )
         );
-        setIsDeletingResource(false);
         notif.update({
           render: formatMessage({ id: 'resourceDeletedSuccessfully' }),
         });
         setResourceNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={() => deleteResource(resource)}
+              retryFunction={() => deleteResourceHandler(resource)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'deleteResourceFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'deleteResourceFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsDeletingResource(false));
   };
 
   const [isLinkDialogOpen, setIsLinkDialogOpen] = useState<boolean>(false);
@@ -560,7 +518,7 @@ export default function CoursePlan() {
   const [displayFile, setDisplayFile] = useState<number>();
 
   const downloadFile = (resource_id: string) => {
-    //TODO: Trigger resource download eith data resource_id
+    downloadResource(resource_id);
     alert(`downloading ${resource_id}`);
   };
 
@@ -614,7 +572,7 @@ export default function CoursePlan() {
       <ConfirmDeleteDialog
         closeDialog={() => setIsConfirmDeleteChapterDialogOpen(false)}
         confirm={() =>
-          actionnedChapter ? deleteChapter(actionnedChapter) : null
+          actionnedChapter ? deleteChapterHandler(actionnedChapter) : null
         }
         dialogMessage="confirmDeleteChapterMessage"
         isDialogOpen={isConfirmDeleteChapterDialogOpen}
@@ -624,7 +582,9 @@ export default function CoursePlan() {
           setActiveResource(undefined);
           setIsConfirmDeleteResourceDialogOpen(false);
         }}
-        confirm={() => (activeResource ? deleteResource(activeResource) : null)}
+        confirm={() =>
+          activeResource ? deleteResourceHandler(activeResource) : null
+        }
         dialogMessage="confirmDeleteResourceMessage"
         isDialogOpen={isConfirmDeleteResourceDialogOpen}
         dialogTitle="deleteResource"

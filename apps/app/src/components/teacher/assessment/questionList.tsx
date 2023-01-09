@@ -13,6 +13,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { deleteQuestion, getAssessmentQuestions } from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import { Assessment, CreateQuestion, Question } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
@@ -52,64 +53,14 @@ export default function QuestionList({
       questionNotif.dismiss();
     }
     setQuestionNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load assessments
-      if (6 > 5) {
-        const newQuestions: Question[] = [
-          {
-            assessment_id: 'sie',
-            question: 'What is the name of the biggest city in the world?',
-            question_id: 'wiso',
-            question_mark: 2,
-            questionOptions: [
-              {
-                is_answer: true,
-                option: 'Nkambe',
-                question_id: 'wiso',
-                question_option_id: 'oie',
-              },
-              {
-                is_answer: false,
-                option: 'Binju',
-                question_id: 'wiso',
-                question_option_id: 'siue',
-              },
-              {
-                is_answer: false,
-                option: 'Binshua',
-                question_id: 'wiso',
-                question_option_id: 'oies',
-              },
-              {
-                is_answer: false,
-                option: 'Binka',
-                question_id: 'wiso',
-                question_option_id: 'oiwe',
-              },
-            ],
-            questionResources: [
-              {
-                caption: 2,
-                question_id: 'wiso',
-                question_resource_id: 'wieos',
-                resource_ref:
-                  'https://www.kicksonfire.com/wp-content/uploads/2022/11/reebok-kamikaze-ii-seattle-sonics-6-1.jpeg',
-              },
-              {
-                caption: 2,
-                question_id: 'wiso',
-                question_resource_id: 'wieos',
-                resource_ref:
-                  'https://www.kicksonfire.com/wp-content/uploads/2022/11/reebok-kamikaze-ii-seattle-sonics-6-1.jpeg',
-              },
-            ],
-          },
-        ];
-        setQuestions(newQuestions);
+    getAssessmentQuestions(activeAssessment?.assessment_id as string)
+      .then((questions) => {
+        setQuestions(questions);
         setAreQuestionsLoading(false);
         notif.dismiss();
         setQuestionNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingQuestions' }),
         });
@@ -119,21 +70,19 @@ export default function QuestionList({
             <ErrorMessage
               retryFunction={loadQuestions}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getQuestionsFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getQuestionsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
-    if (activeAssessment) {
-      loadQuestions();
-    }
+    loadQuestions();
     return () => {
       //TODO: cleanup above axios fetch
     };
@@ -142,7 +91,7 @@ export default function QuestionList({
 
   const [isDeletingQuestion, setIsDeletingQuestion] = useState<boolean>(false);
 
-  const deleteQuestion = (question: Question) => {
+  const deleteQuestionHandler = (question: Question) => {
     setIsDeletingQuestion(true);
     const notif = new useNotification();
     if (questionNotif) questionNotif.dismiss();
@@ -152,35 +101,35 @@ export default function QuestionList({
         id: 'deletingQuestion',
       }),
     });
-    setTimeout(() => {
-      //TODO: call api here to delete question
-      if (6 > 5) {
+    deleteQuestion(question.question_id)
+      .then(() => {
         setQuestions(
           questions.filter(
             ({ question_id: q_id }) => q_id !== question.question_id
           )
         );
-        setIsDeletingQuestion(false);
         notif.update({
           render: formatMessage({ id: 'questionDeletedSuccessfully' }),
         });
         setQuestionNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={() => deleteQuestion(question)}
+              retryFunction={() => deleteQuestionHandler(question)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'deleteQuestionFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'deleteQuestionFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsDeletingQuestion(false));
   };
 
   const [isQuestionDialogOpen, setIsQuestionDialogOpen] =
@@ -262,7 +211,7 @@ export default function QuestionList({
           isDialogOpen={isConfirmDeleteQuestionDialogOpen}
           confirmButton="delete"
           dialogTitle="deleteQuestion"
-          confirm={() => deleteQuestion(activeQuestion)}
+          confirm={() => deleteQuestionHandler(activeQuestion)}
         />
       )}
 

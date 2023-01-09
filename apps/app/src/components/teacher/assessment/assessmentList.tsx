@@ -8,14 +8,16 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Typography,
+  Typography
 } from '@mui/material';
-import { Assessment, EvaluationSubTypeEnum } from '@squoolr/interfaces';
+import { getCourseAssessments } from '@squoolr/api-services';
+import { Assessment } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
+import { useParams } from 'react-router';
 import { NoTableElement, TableLaneSkeleton } from '../courseLane';
 import AssessmentLane from './assessmentLane';
 
@@ -29,6 +31,7 @@ export default function AssessmentList({
   setActiveAssessment: (assessment: Assessment) => void;
 }) {
   const { formatMessage } = useIntl();
+  const { annual_credit_unit_subject_id } = useParams();
 
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [areAssessmentsLoading, setAreAssessmentsLoading] =
@@ -42,27 +45,14 @@ export default function AssessmentList({
       assessmentNotif.dismiss();
     }
     setAssessmentNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load assessments
-      if (6 > 5) {
-        const newAssessments: Assessment[] = [
-          {
-            annual_credit_unit_subject_id: 'lsei',
-            assessment_date: null,
-            assessment_id: 'sei',
-            chapter_id: 'sei',
-            created_at: new Date(),
-            duration: 10,
-            evaluation_sub_type_name: EvaluationSubTypeEnum.ASSIGNMENT,
-            total_mark: 0,
-            is_published: false,
-          },
-        ];
-        setAssessments(newAssessments);
+    getCourseAssessments(annual_credit_unit_subject_id as string)
+      .then((assessments) => {
+        setAssessments(assessments);
         setAreAssessmentsLoading(false);
         notif.dismiss();
         setAssessmentNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingAssessments' }),
         });
@@ -72,15 +62,15 @@ export default function AssessmentList({
             <ErrorMessage
               retryFunction={() => loadAssessments()}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getAssessmentsFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getAssessmentsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {

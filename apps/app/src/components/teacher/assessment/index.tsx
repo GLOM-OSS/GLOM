@@ -1,47 +1,24 @@
-import { KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
-import {
-  Box,
-  Button,
-  Chip,
-  InputAdornment,
-  lighten,
-  Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  TextField,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { ReportRounded } from '@mui/icons-material';
+import { activateAssessment, createNewAssessment } from '@squoolr/api-services';
 import {
   ActivateAssessment,
   Assessment,
-  AssessmentStatistics,
-  EvaluationSubTypeEnum,
-  ScoreDistribution,
   StudentAssessmentAnswer,
 } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { useEffect, useState } from 'react';
-import Scrollbars from 'react-custom-scrollbars-2';
+import { useState } from 'react';
 import { useIntl } from 'react-intl';
-import { NoTableElement, TableLaneSkeleton } from '../courseLane';
+import { useParams } from 'react-router';
 import ActivateAssessmentDialog from './activateAssessmentDialog';
 import AssessmentList from './assessmentList';
-import Graph from './graph';
-import QuestionDialog from './questionDialog';
-import QuestionDisplay from './questionDisplay';
 import QuestionList from './questionList';
 import Statistics from './statistics';
-import StudentLane from './studentLane';
 import StudentResponse from './studentResponse';
 import SubmissionList from './submissionList';
 
 export default function Assessments() {
-  const { formatMessage, formatDate, formatNumber } = useIntl();
+  const { annual_credit_unit_subject_id } = useParams();
+  const { formatMessage } = useIntl();
 
   const [activeAssessment, setActiveAssessment] = useState<Assessment>();
 
@@ -59,42 +36,32 @@ export default function Assessments() {
         id: 'creatingAssessment',
       }),
     });
-    setTimeout(() => {
-      //TODO: call api here to delete resource
-      if (6 > 5) {
-        const newAssessment: Assessment = {
-          annual_credit_unit_subject_id: 'lsei',
-          assessment_date: new Date(),
-          assessment_id: 'sei',
-          chapter_id: 'sei',
-          created_at: new Date(),
-          duration: null,
-          evaluation_sub_type_name: EvaluationSubTypeEnum.ASSIGNMENT,
-          total_mark: 0,
-          is_published: false,
-        };
-        setActiveAssessment(newAssessment);
-        setIsCreatingAssessment(false);
+    createNewAssessment(annual_credit_unit_subject_id as string)
+      .then((assessment) => {
+        setActiveAssessment(assessment);
         notif.update({
           render: formatMessage({ id: 'assessmentCreatedSuccessfully' }),
         });
         setAssessmentNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={createAssessment}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'createAssessmentFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'createAssessmentFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsCreatingAssessment(false));
   };
 
   const [isActivateAssessmentDialogOpen, setIsActivateAssessmentDialogOpen] =
@@ -103,7 +70,7 @@ export default function Assessments() {
   const [isActivatingAssessment, setIsActivatingAssessment] =
     useState<boolean>(false);
 
-  const activateAssessment = (activateData: {
+  const activateAssessmentHandler = (activateData: {
     duration: number;
     assessment_date: Date;
     assessment_time: Date;
@@ -119,9 +86,8 @@ export default function Assessments() {
           id: 'activatingAssessment',
         }),
       });
-      setTimeout(() => {
-        //TODO: call api here to activateAssessment
-        if (6 > 5) {
+      activateAssessment(activeAssessment.assessment_id, activateData)
+        .then(() => {
           const examDate = activateData.assessment_date
             .toISOString()
             .split('T');
@@ -137,22 +103,24 @@ export default function Assessments() {
             render: formatMessage({ id: 'assessmentActivatedSuccessfully' }),
           });
           setAssessmentNotif(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
-                retryFunction={() => activateAssessment(activateData)}
+                retryFunction={() => activateAssessmentHandler(activateData)}
                 notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'activatingAssessmentFailed' })}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'activatingAssessmentFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        });
     }
   };
 
@@ -169,7 +137,7 @@ export default function Assessments() {
         isDialogOpen={isActivateAssessmentDialogOpen}
         handleSubmit={(val: ActivateAssessment) => {
           if (activeAssessment) {
-            activateAssessment({
+            activateAssessmentHandler({
               ...val,
               evaluation_id: activeAssessment.assessment_id,
             });
