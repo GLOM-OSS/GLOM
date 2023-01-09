@@ -24,7 +24,10 @@ export async function addNewFileResources({
     `/resources/new-files`,
     formData
   );
-  return data;
+  return data.map((resource) => ({
+    ...resource,
+    resource_ref: `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}`,
+  }));
 }
 
 export async function deleteResource(resource_id: string) {

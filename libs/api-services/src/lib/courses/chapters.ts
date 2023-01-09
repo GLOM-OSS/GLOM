@@ -25,7 +25,7 @@ export async function getChapterResources(chapter_id: string) {
     resource_ref:
       resource.resource_type === 'LINK'
         ? resource.resource_ref
-        : `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}.${resource.resource_extension}`,
+        : `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}`,
   }));
 }
 

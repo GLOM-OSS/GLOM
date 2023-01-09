@@ -441,22 +441,7 @@ export default function CoursePlan() {
     });
     addNewFileResources(files)
       .then((newResources) => {
-        setResources([
-          ...newResources.map(
-            ({
-              resource_ref,
-              resource_extension: re,
-              resource_name: rn,
-              ...resource
-            }) => ({
-              ...resource,
-              resource_extension: re,
-              resource_name: rn,
-              resource_ref: `${rn}${re ? '.' : ''}${re ?? ''}`,
-            })
-          ),
-          ...resources,
-        ]);
+        setResources([...newResources, ...resources]);
         notif.update({
           render: formatMessage({ id: 'filesCreatedSuccessfully' }),
         });
@@ -848,7 +833,9 @@ export default function CoursePlan() {
               }}
             >
               <Typography variant="h6">
-                {formatMessage({ id: activeChapter ? 'chapterParts' : 'chapters' })}
+                {formatMessage({
+                  id: activeChapter ? 'chapterParts' : 'chapters',
+                })}
               </Typography>
               <Button
                 variant="contained"
