@@ -1341,17 +1341,17 @@ model PresenceListAudit {
 }
 
 model PresenceListHasChapter {
-    presence_list_chapter_id String        @id @default(uuid()) @db.VarChar(36)
-    presence_list_id         String        @db.VarChar(36)
-    PresenceList             PresenceList  @relation(fields: [presence_list_id], references: [presence_list_id], onDelete: Cascade, onUpdate: Cascade)
-    chapter_id               String
-    Chapter                  Chapter       @relation(fields: [chapter_id], references: [chapter_id], onDelete: Cascade, onUpdate: Cascade)
-    created_at               DateTime      @default(now()) @db.DateTime(0)
-    created_by               String        @db.VarChar(36)
-    CreatedByAnnualTeacher   AnnualTeacher @relation(name: "CreatedBy_AnnualTeacher", fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
-    deleted_at               DateTime?     @db.DateTime(0)
-    deleted_by               String        @db.VarChar(36)
-    DeletedByAnnualTeacher   AnnualTeacher @relation(name: "DeletedBy_AnnualTeacher", fields: [deleted_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    presence_list_has_chapter_id String         @id @default(uuid()) @db.VarChar(36)
+    presence_list_id             String         @db.VarChar(36)
+    PresenceList                 PresenceList   @relation(fields: [presence_list_id], references: [presence_list_id], onDelete: Cascade, onUpdate: Cascade)
+    chapter_id                   String
+    Chapter                      Chapter        @relation(fields: [chapter_id], references: [chapter_id], onDelete: Cascade, onUpdate: Cascade)
+    created_at                   DateTime       @default(now()) @db.DateTime(0)
+    created_by                   String         @db.VarChar(36)
+    CreatedByAnnualTeacher       AnnualTeacher  @relation(name: "CreatedBy_AnnualTeacher", fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    deleted_at                   DateTime?      @db.DateTime(0)
+    deleted_by                   String?        @db.VarChar(36)
+    DeletedByAnnualTeacher       AnnualTeacher? @relation(name: "DeletedBy_AnnualTeacher", fields: [deleted_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model PresenceListHasCreditUnitStudent {
@@ -1364,6 +1364,6 @@ model PresenceListHasCreditUnitStudent {
     created_by                          String                     @db.VarChar(36)
     CreatedByAnnualTeacher              AnnualTeacher              @relation(name: "CreatedBy_AnnualTeacher", fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
     deleted_at                          DateTime?                  @db.DateTime(0)
-    deleted_by                          String                     @db.VarChar(36)
-    DeletedByAnnualTeacher              AnnualTeacher              @relation(name: "DeletedBy_AnnualTeacher", fields: [deleted_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    deleted_by                          String?                    @db.VarChar(36)
+    DeletedByAnnualTeacher              AnnualTeacher?             @relation(name: "DeletedBy_AnnualTeacher", fields: [deleted_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 }
