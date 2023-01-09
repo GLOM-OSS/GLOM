@@ -14,11 +14,15 @@ export default function QuestionDisplay({
   position: p,
   onDelete,
   disabled,
+  isResponse = false,
+  responses,
 }: {
   question: Question;
   position: number;
   onDelete: () => void;
   disabled: boolean;
+  isResponse?: boolean;
+  responses?: string[];
 }) {
   const { formatMessage } = useIntl();
   const shuffleOptions = (array: QuestionOption[]) => {
@@ -94,18 +98,25 @@ export default function QuestionDisplay({
               marginTop: theme.spacing(0.5),
             }}
           >
-            {shuffleOptions(qo).map(({ is_answer, option }, index) =>
-              is_answer ? (
-                <Chip
-                  color="success"
-                  size="small"
-                  label={`${String.fromCharCode(65 + index)}. ${option}`}
-                />
-              ) : (
-                <Typography>{`${String.fromCharCode(
-                  65 + index
-                )}. ${option}`}</Typography>
-              )
+            {(isResponse ? qo : shuffleOptions(qo)).map(
+              ({ is_answer, option, question_option_id }, index) =>
+                is_answer ? (
+                  <Chip
+                    color="success"
+                    size="small"
+                    label={`${String.fromCharCode(65 + index)}. ${option}`}
+                  />
+                ) : responses?.includes(question_option_id) ? (
+                  <Chip
+                    color="error"
+                    size="small"
+                    label={`${String.fromCharCode(65 + index)}. ${option}`}
+                  />
+                ) : (
+                  <Typography>{`${String.fromCharCode(
+                    65 + index
+                  )}. ${option}`}</Typography>
+                )
             )}
           </Box>
           <Box
@@ -123,16 +134,24 @@ export default function QuestionDisplay({
               }}
               label={qm}
             />
-            <Tooltip arrow title={formatMessage({ id: 'edit' })}>
-              <IconButton size="small" disabled={disabled}>
-                <EditOutlined sx={{ color: theme.common.titleActive }} />
-              </IconButton>
-            </Tooltip>
-            <Tooltip arrow title={formatMessage({ id: 'delete' })}>
-              <IconButton size="small" disabled={disabled} onClick={onDelete}>
-                <DeleteOutlined color="error" />
-              </IconButton>
-            </Tooltip>
+            {!isResponse && (
+              <>
+                <Tooltip arrow title={formatMessage({ id: 'edit' })}>
+                  <IconButton size="small" disabled={disabled}>
+                    <EditOutlined sx={{ color: theme.common.titleActive }} />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip arrow title={formatMessage({ id: 'delete' })}>
+                  <IconButton
+                    size="small"
+                    disabled={disabled}
+                    onClick={onDelete}
+                  >
+                    <DeleteOutlined color="error" />
+                  </IconButton>
+                </Tooltip>
+              </>
+            )}
           </Box>
         </Box>
       </Box>
