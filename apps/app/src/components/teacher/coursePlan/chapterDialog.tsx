@@ -104,7 +104,7 @@ export default function ChapterDialog({
             required
             color="primary"
             type="number"
-            {...formik.getFieldProps('chapter_number')}
+            {...formik.getFieldProps('chapter_position')}
             error={
               formik.touched.chapter_position &&
               Boolean(formik.errors.chapter_position)

@@ -8,7 +8,7 @@ import {
   Chip,
   lighten,
   Skeleton,
-  Typography
+  Typography,
 } from '@mui/material';
 import {
   addNewFileResources,
@@ -22,14 +22,15 @@ import {
   getCourse,
   getCourseChapters,
   getCourseResources,
-  updateChapter
+  updateChapter,
 } from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
   Chapter,
-  Course, CreateFile,
+  Course,
+  CreateFile,
   CreateLink,
-  Resource
+  Resource,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -43,7 +44,7 @@ import ChapterLane, { ChapterLaneSkeleton } from './chapterLane';
 import FileDialog, { FileIcon } from './fileDialog';
 import FileDisplayDialog, {
   downloadFormats,
-  readableFileFormats
+  readableFileFormats,
 } from './fileDisplayDialog';
 import ResourceDialog from './resourceDialog';
 
@@ -324,7 +325,7 @@ export default function CoursePlan() {
       }),
     });
     if (chapter.chapter_id === '') {
-      const {chapter_id, ...submitData} = {
+      const { chapter_id, ...submitData } = {
         ...chapter,
         chapter_parent_id: activeChapter ? activeChapter.chapter_id : undefined,
       };
@@ -847,7 +848,7 @@ export default function CoursePlan() {
               }}
             >
               <Typography variant="h6">
-                {formatMessage({ id: 'chapters' })}
+                {formatMessage({ id: activeChapter ? 'chapterParts' : 'chapters' })}
               </Typography>
               <Button
                 variant="contained"
