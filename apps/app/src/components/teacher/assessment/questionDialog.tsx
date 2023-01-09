@@ -73,7 +73,10 @@ export default function QuestionDialog({
             assessment_id,
             question,
             question_mark: score,
-            questionOptions: options,
+            questionOptions: options.map(({ is_answer, option }) => ({
+              is_answer,
+              option,
+            })),
           };
           onSubmit(submitData, uploadFiles);
           close();
@@ -139,13 +142,23 @@ export default function QuestionDialog({
                 onChange={(event) => {
                   const tt = event.target.files;
                   if (tt) {
+                    const dFiles: {
+                      id: string;
+                      file: string;
+                    }[] = [];
+                    const upFiles: {
+                      id: string;
+                      file: File;
+                    }[] = [];
                     [...new Array(tt.length)].forEach((_, index) => {
                       const lst = tt[index];
                       const bst = URL.createObjectURL(lst);
                       const id = crypto.randomUUID();
-                      setDisplayFiles([...displayFiles, { id, file: bst }]);
-                      setUploadFiles([...uploadFiles, { id, file: lst }]);
+                      displayFiles.push({ id, file: bst });
+                      uploadFiles.push({ id, file: lst });
                     });
+                    setDisplayFiles([...displayFiles, ...dFiles]);
+                    setUploadFiles([...uploadFiles, ...upFiles]);
                   }
                 }}
               />

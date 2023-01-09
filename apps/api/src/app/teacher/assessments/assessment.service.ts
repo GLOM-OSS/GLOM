@@ -3,14 +3,11 @@ import {
   Assessment,
   EvaluationHasStudent,
   Prisma,
-  PrismaPromise
+  PrismaPromise,
 } from '@prisma/client';
 import { AUTH404, ERR18 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
-import {
-  QuestionPostDto,
-  QuestionPutDto
-} from '../teacher.dto';
+import { QuestionPostDto, QuestionPutDto } from '../teacher.dto';
 
 @Injectable()
 export class AssessmentService {
@@ -111,7 +108,7 @@ export class AssessmentService {
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     const { annual_credit_unit_subject_id, ...assessmentData } = assessment;
-    if (new Date() > new Date(assessmentData.assessment_date))
+    if (new Date() < new Date(assessmentData.assessment_date))
       throw new HttpException(
         JSON.stringify(ERR18),
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -152,31 +149,31 @@ export class AssessmentService {
           select: { annual_student_id: true, total_score: true },
           where: { assessment_id },
         });
-
-      publishMarksInstructions.push(
-        ...evaluationHasStudentAudits.map((_) => {
-          const { total_score, annual_student_id } =
-            studentAssessmentMarks.find(
-              (__) => __.annual_student_id === _.annual_student_id
-            );
-          const { evaluation_has_student_id, ...auditData } =
-            evaluationHasStudentAudits.find(
-              (_) => _.annual_student_id === annual_student_id
-            );
-          return this.prismaService.evaluationHasStudent.update({
-            data: {
-              mark: total_score,
-              EvaluationHasStudentAudits: {
-                create: {
-                  audited_by,
-                  ...auditData,
+      if (studentAssessmentMarks.length > 0)
+        publishMarksInstructions.push(
+          ...evaluationHasStudentAudits.map((_) => {
+            const { total_score, annual_student_id } =
+              studentAssessmentMarks.find(
+                (__) => __.annual_student_id === _.annual_student_id
+              );
+            const { evaluation_has_student_id, ...auditData } =
+              evaluationHasStudentAudits.find(
+                (_) => _.annual_student_id === annual_student_id
+              );
+            return this.prismaService.evaluationHasStudent.update({
+              data: {
+                mark: total_score,
+                EvaluationHasStudentAudits: {
+                  create: {
+                    audited_by,
+                    ...auditData,
+                  },
                 },
               },
-            },
-            where: { evaluation_has_student_id },
-          });
-        })
-      );
+              where: { evaluation_has_student_id },
+            });
+          })
+        );
     }
     return this.prismaService.$transaction([
       this.prismaService.assessment.update({
@@ -227,7 +224,7 @@ export class AssessmentService {
       }) => ({
         ...question,
         questionOptions,
-        questionRessources: questionRessources.filter(
+        questionResources: questionRessources.filter(
           (_) => _.deleted_at === null
         ),
       })
@@ -342,7 +339,7 @@ export class AssessmentService {
         question,
         question_mark,
         questionOptions,
-        questionRessources,
+        questionResources,
       }) => {
         const answers = studentAnswers.filter(
           (_) => _.question_id === question_id
@@ -353,7 +350,7 @@ export class AssessmentService {
           question_mark,
           assessment_id,
           questionOptions,
-          questionRessources,
+          questionResources,
           answeredOptionIds: answers.map((_) => _.answered_option_id),
         };
       }
@@ -375,10 +372,14 @@ export class AssessmentService {
         where: { assessment_id },
       });
     if (studentMarks.length === 0)
-      throw new HttpException(
-        JSON.stringify(AUTH404('StudentAssement')),
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+      return {
+        best_score: 0,
+        worst_score: 0,
+        average_score: 0,
+        distribution_interval,
+        scoreDistributions: [],
+        total_number_of_students: 0,
+      };
     const scoreDistributions: {
       number_of_students: number;
       average_score: number;
@@ -454,13 +455,21 @@ export class AssessmentService {
     const caption = await this.prismaService.questionResource.count({
       where: { question_id },
     });
-    return await this.prismaService.questionResource.createMany({
-      data: files.map(({ filename }) => ({
+    await this.prismaService.questionResource.createMany({
+      data: files.map(({ filename }, index) => ({
         created_by,
         question_id,
-        caption: caption + 1,
+        caption: caption + index + 1,
         resource_ref: filename,
       })),
+    });
+    return this.prismaService.questionResource.findMany({
+      select: {
+        caption: true,
+        resource_ref: true,
+        question_resource_id: true,
+      },
+      where: { question_id },
     });
   }
 

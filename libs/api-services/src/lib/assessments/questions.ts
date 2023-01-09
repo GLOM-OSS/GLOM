@@ -10,36 +10,48 @@ export async function getQuestion(question_id: string) {
   const { data } = await http.get<Question>(
     `/assessments/questions/${question_id}`
   );
-  return data;
+  return {
+    ...data,
+    questionResources: data.questionResources.map((resource) => ({
+      ...resource,
+      resource_ref: `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}`,
+    })),
+  };
 }
 
 export async function createNewQuestion(
   newQuestion: CreateQuestion,
-  files?: FileList
+  files: File[]
 ) {
   const { data } = await http.post<
     Omit<Question, 'questionResources' | 'questionOptions'>
   >(`/assessments/questions/new`, newQuestion);
 
-  if (!files) return data;
+  if (files.length === 0) return { ...data, questionResources: [] };
   const formData = new FormData();
   for (const key in files) {
     formData.append('questionResources', files[key], files[key].name);
   }
-  const { data: questionResources } = await http.post<QuestionResource>(
+  const { data: questionResources } = await http.post<QuestionResource[]>(
     `/assessments/questions/${data.question_id}/new-resources`,
     formData
   );
-  return { ...data, questionResources };
+  return {
+    ...data,
+    questionResources: questionResources.map((resource) => ({
+      ...resource,
+      resource_ref: `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}`,
+    })),
+  };
 }
 
 export async function updateQuestion(
   question_id: string,
   updateQuestion: EditQuestionInterface,
-  files?: FileList
+  files: File[]
 ) {
   await http.put(`/assessments/questions/${question_id}/edit`, updateQuestion);
-  if (files) {
+  if (files.length > 0) {
     const formData = new FormData();
     for (const key in files) {
       formData.append('questionResources', files[key], files[key].name);

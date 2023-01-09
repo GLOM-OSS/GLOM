@@ -52,7 +52,13 @@ export async function getAssessmentQuestions(assessment_id: string) {
   const { data } = await http.get<Question[]>(
     `/assessments/${assessment_id}/questions`
   );
-  return data;
+  return data.map((question) => ({
+    ...question,
+    questionResources: question.questionResources.map((resource) => ({
+      ...resource,
+      resource_ref: `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}`,
+    })),
+  }));
 }
 
 export async function getStudentAssessmentMarks(assessment_id: string) {

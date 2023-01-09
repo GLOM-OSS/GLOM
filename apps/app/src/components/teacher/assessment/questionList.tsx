@@ -162,7 +162,10 @@ export default function QuestionList({
         id: 'creatingQuestion',
       }),
     });
-    createNewQuestion(question)
+    createNewQuestion(
+      question,
+      resources.map((_) => _.file)
+    )
       .then((newQuestion) => {
         setQuestions([
           {
@@ -177,10 +180,14 @@ export default function QuestionList({
                 };
               }
             ),
-            questionResources: [],
+            questionResources: newQuestion?.questionResources ?? [],
           },
           ...questions,
         ]);
+        setActiveAssessment({
+          ...activeAssessment,
+          total_mark: activeAssessment.total_mark + newQuestion.question_mark,
+        });
         notif.update({
           render: formatMessage({ id: 'questionCreatedSuccessfully' }),
         });

@@ -182,7 +182,9 @@ export class AssessmentController {
 
   @Roles(Role.TEACHER)
   @Post('questions/:question_id/new-resources')
-  @UseInterceptors(FilesInterceptor('questionResources'))
+  @UseInterceptors(
+    FilesInterceptor('questionResources', 5, { dest: 'uploads' })
+  )
   async saveQuestionResources(
     @Req() request: Request,
     @Param('question_id') question_id: string,
