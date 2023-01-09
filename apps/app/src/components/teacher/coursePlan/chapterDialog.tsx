@@ -35,7 +35,7 @@ export default function ChapterDialog({
   const initialValues: Chapter = editableChapter ?? {
     annual_credit_unit_subject_id: annual_credit_unit_subject_id as string,
     chapter_id: '',
-    chapter_number: estimatedChapterNumber,
+    chapter_position: estimatedChapterNumber,
     chapter_objective: '',
     chapter_title: '',
     chapter_parent_id: '',
@@ -44,7 +44,7 @@ export default function ChapterDialog({
   const validationSchema = Yup.object().shape({
     annual_credit_unit_subject_id: Yup.string(),
     chapter_parent_id: Yup.string(),
-    chapter_number: Yup.number().min(
+    chapter_position: Yup.number().min(
       0,
       formatMessage({ id: 'minAllowedValue0' })
     ),
@@ -106,11 +106,11 @@ export default function ChapterDialog({
             type="number"
             {...formik.getFieldProps('chapter_number')}
             error={
-              formik.touched.chapter_number &&
-              Boolean(formik.errors.chapter_number)
+              formik.touched.chapter_position &&
+              Boolean(formik.errors.chapter_position)
             }
             helperText={
-              formik.touched.chapter_number && formik.errors.chapter_number
+              formik.touched.chapter_position && formik.errors.chapter_position
             }
           />
           <TextField
@@ -170,8 +170,8 @@ export default function ChapterDialog({
               variant="contained"
               type="submit"
               disabled={
-                editableChapter.chapter_number ===
-                  formik.values.chapter_number &&
+                editableChapter.chapter_position ===
+                  formik.values.chapter_position &&
                 editableChapter.chapter_title === formik.values.chapter_title &&
                 editableChapter.chapter_objective ===
                   formik.values.chapter_objective

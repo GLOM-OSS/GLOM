@@ -30,7 +30,7 @@ export function ChapterLaneSkeleton() {
 }
 
 export default function ChapterLane({
-  chapter: { chapter_number: cn, chapter_title: ct },
+  chapter: { chapter_position: cn, chapter_title: ct },
   chapter: c,
   disabled,
   active,
