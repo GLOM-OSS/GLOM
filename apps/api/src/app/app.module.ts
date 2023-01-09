@@ -24,6 +24,8 @@ import { CoordinatorModule } from './coordinator/coordinator.module';
 import { DemandModule } from './demand/demand.module';
 import { RegistryModule } from './registry/registry.module';
 import { TeacherModule } from './teacher/teacher.module';
+import { MulterFileModule } from '../multer/multer.module';
+import { MulterConfigService } from '../multer/multer.service';
 
 @Module({
   imports: [
@@ -34,6 +36,9 @@ import { TeacherModule } from './teacher/teacher.module';
     ConfigModule.forRoot(),
     PassportModule.register({
       session: true,
+    }),
+    MulterFileModule.registerAsync({
+      useClass: MulterConfigService,
     }),
     PrismaModule,
     TasksModule,

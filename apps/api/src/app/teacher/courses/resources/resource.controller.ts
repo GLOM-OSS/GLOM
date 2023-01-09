@@ -51,14 +51,13 @@ export class ResourceController {
 
   @Post('new-files')
   @Roles(Role.TEACHER)
-  @UseInterceptors(FilesInterceptor('resources', 5, { dest: 'uploads' }))
+  @UseInterceptors(FilesInterceptor('resources'))
   async addNewFile(
     @Req() request: Request,
     @UploadedFiles()
     files: Array<Express.Multer.File>,
     @Body() { chapter_id, annual_credit_unit_subject_id }: ResourceOwner
   ) {
-    console.log(files, { annual_credit_unit_subject_id });
     const {
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;

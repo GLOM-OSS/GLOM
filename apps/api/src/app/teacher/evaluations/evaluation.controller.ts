@@ -76,7 +76,7 @@ export class EvaluationController {
       await this.evaluationService.getEvaluation({
         evaluation_id,
       });
-    if (annualRegistry && is_anonimated || (is_published && !is_anonimated))
+    if (annualRegistry && (is_anonimated || is_published))
       throw new HttpException(ERR12[preferred_lang], HttpStatus.FORBIDDEN);
     const useAnonymityCode =
       ['RESIT', 'EXAM'].includes(evaluation_sub_type_name) && !is_published;
