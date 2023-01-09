@@ -12,7 +12,7 @@ import {
   Req,
   UploadedFiles,
   UseGuards,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
@@ -25,7 +25,7 @@ import {
   AssessmentPutDto,
   PublishAssessmentDto,
   QuestionPostDto,
-  QuestionPutDto
+  QuestionPutDto,
 } from '../teacher.dto';
 import { AssessmentService } from './assessment.service';
 
@@ -205,8 +205,7 @@ export class AssessmentController {
 
   @Roles(Role.TEACHER)
   @Put('questions/:question_id/edit')
-  @UseInterceptors(FilesInterceptor('questionResources'))
-  async updateResource(
+  async updateQuestion(
     @Req() request: Request,
     @Param('question_id') question_id: string,
     @Body() updatedQuestion: QuestionPutDto
@@ -215,9 +214,28 @@ export class AssessmentController {
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
     try {
-      await this.assessmentService.updateAssessmentQuestion(
+      await this.assessmentService.updateQuestion(
         question_id,
         updatedQuestion,
+        annual_teacher_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Roles(Role.TEACHER)
+  @Put('questions/:question_id/delete')
+  async deleteQuestion(
+    @Req() request: Request,
+    @Param('question_id') question_id: string
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      await this.assessmentService.deleteQuestion(
+        question_id,
         annual_teacher_id
       );
     } catch (error) {

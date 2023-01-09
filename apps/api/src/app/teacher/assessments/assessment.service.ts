@@ -448,7 +448,7 @@ export class AssessmentService {
     });
   }
 
-  async updateAssessmentQuestion(
+  async updateQuestion(
     question_id: string,
     {
       question,
@@ -563,5 +563,19 @@ export class AssessmentService {
         })
       );
     await this.prismaService.$transaction(instructions);
+  }
+
+  async deleteQuestion(question_id: string, audited_by: string) {
+    const question = await this.prismaService.question.findUnique({
+      select: { question: true, question_mark: true, is_deleted: true },
+      where: { question_id },
+    });
+    await this.prismaService.question.update({
+      data: {
+        is_deleted: true,
+        QuestionAudits: { create: { ...question, audited_by } },
+      },
+      where: { question_id },
+    });
   }
 }
