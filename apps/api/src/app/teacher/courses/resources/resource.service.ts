@@ -72,4 +72,8 @@ export class ResourceService {
       where: { resource_id },
     });
   }
+
+  async getResource(resource_id: string) {
+    return this.prismaService.resource.findUnique({ where: { resource_id } });
+  }
 }
