@@ -3,11 +3,14 @@ import {
   Assessment,
   EvaluationHasStudent,
   Prisma,
-  PrismaPromise,
+  PrismaPromise
 } from '@prisma/client';
 import { AUTH404, ERR18 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { QuestionPostDto, QuestionPutDto } from '../teacher.dto';
+import {
+  QuestionPostDto,
+  QuestionPutDto
+} from '../teacher.dto';
 
 @Injectable()
 export class AssessmentService {
@@ -90,7 +93,7 @@ export class AssessmentService {
   async publishAssessment(
     assessment_id: string,
     audited_by: string,
-    evaluation_id?: string
+    annual_evaluation_sub_type_id?: string
   ) {
     const assessment = await this.prismaService.assessment.findUnique({
       select: {
@@ -98,6 +101,7 @@ export class AssessmentService {
         is_deleted: true,
         is_published: true,
         assessment_date: true,
+        annual_credit_unit_subject_id: true,
       },
       where: { assessment_id },
     });
@@ -106,7 +110,8 @@ export class AssessmentService {
         JSON.stringify(AUTH404('Assessment')),
         HttpStatus.INTERNAL_SERVER_ERROR
       );
-    if (new Date() > new Date(assessment.assessment_date))
+    const { annual_credit_unit_subject_id, ...assessmentData } = assessment;
+    if (new Date() > new Date(assessmentData.assessment_date))
       throw new HttpException(
         JSON.stringify(ERR18),
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -115,7 +120,18 @@ export class AssessmentService {
     const publishMarksInstructions: PrismaPromise<
       EvaluationHasStudent | Assessment
     >[] = [];
-    if (evaluation_id) {
+    if (annual_evaluation_sub_type_id) {
+      const evaluation = await this.prismaService.evaluation.findFirst({
+        where: {
+          annual_evaluation_sub_type_id,
+          annual_credit_unit_subject_id,
+        },
+      });
+      if (!evaluation)
+        throw new HttpException(
+          JSON.stringify(AUTH404('Evaluation')),
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
       const evaluationHasStudentAudits =
         await this.prismaService.evaluationHasStudent.findMany({
           select: {
@@ -129,7 +145,7 @@ export class AssessmentService {
             evaluation_has_student_id: true,
             ref_evaluation_has_student_id: true,
           },
-          where: { evaluation_id },
+          where: { evaluation_id: evaluation?.evaluation_id },
         });
       const studentAssessmentMarks =
         await this.prismaService.annualStudentTakeAssessment.findMany({
@@ -169,7 +185,7 @@ export class AssessmentService {
           is_published: true,
           AssessmentAudits: {
             create: {
-              ...assessment,
+              ...assessmentData,
               AnnualTeacher: { connect: { annual_teacher_id: audited_by } },
             },
           },

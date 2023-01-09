@@ -114,7 +114,7 @@ export class AssessmentController {
       return this.assessmentService.publishAssessment(
         assessment_id,
         annual_teacher_id,
-        assessment.evaluation_id
+        assessment?.annual_evaluation_sub_type_id
       );
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -1,11 +1,11 @@
 import { http } from '@squoolr/axios';
 import {
-    ActivateAssessment,
-    Assessment,
-    AssessmentStatistics,
-    Question,
-    QuestionAnswer,
-    StudentAssessmentAnswer
+  ActivateAssessment,
+  Assessment,
+  AssessmentStatistics,
+  Question,
+  QuestionAnswer,
+  StudentAssessmentAnswer,
 } from '@squoolr/interfaces';
 
 export async function getAssessment(assessment_id: string) {
@@ -40,10 +40,10 @@ export async function activateAssessment(
 
 export async function publishAssessment(
   assessment_id: string,
-  evaluation_id?: string
+  annual_evaluation_sub_type_id: string
 ) {
   const { data } = await http.put(`/assessments/${assessment_id}/publish`, {
-    evaluation_id,
+    annual_evaluation_sub_type_id,
   });
   return data;
 }

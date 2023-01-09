@@ -98,7 +98,7 @@ export class PublishAssessmentDto {
   @IsUUID()
   @IsOptional()
   @ApiProperty()
-  evaluation_id?: string;
+  annual_evaluation_sub_type_id?: string;
 }
 
 export class CreateQuestionOption {
