@@ -55,6 +55,7 @@ export default function AssessmentList({
             duration: 10,
             evaluation_sub_type_name: EvaluationSubTypeEnum.ASSIGNMENT,
             total_mark: 0,
+            is_published: false,
           },
         ];
         setAssessments(newAssessments);
