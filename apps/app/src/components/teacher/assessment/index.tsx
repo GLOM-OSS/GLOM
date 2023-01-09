@@ -71,6 +71,7 @@ export default function Assessments() {
           duration: null,
           evaluation_sub_type_name: EvaluationSubTypeEnum.ASSIGNMENT,
           total_mark: 0,
+          is_published: false,
         };
         setActiveAssessment(newAssessment);
         setIsCreatingAssessment(false);
@@ -195,6 +196,7 @@ export default function Assessments() {
         />
       ) : showResponses ? (
         <SubmissionList
+          setActiveAssessment={setActiveAssessment}
           openStatistics={() => setShowStatistics(true)}
           activeAssessment={activeAssessment}
           onBack={() => setShowResponses(false)}
