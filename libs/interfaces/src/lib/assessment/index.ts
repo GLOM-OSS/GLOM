@@ -7,6 +7,7 @@ export interface Assessment {
   assessment_date: Date | null;
   annual_credit_unit_subject_id: string;
   evaluation_sub_type_name: string | null;
+  is_published:boolean
 }
 
 export interface CreateQuestionOption {
