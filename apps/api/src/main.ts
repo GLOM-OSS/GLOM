@@ -22,7 +22,7 @@ async function bootstrap() {
       credentials: true,
     },
   });
-  app.useStaticAssets('./assets');
+  app.useStaticAssets('uploads');
   app.useGlobalPipes(
     new ValidationPipe({
       forbidNonWhitelisted: true,

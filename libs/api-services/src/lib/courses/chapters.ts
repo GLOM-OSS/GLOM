@@ -20,7 +20,13 @@ export async function getChapterResources(chapter_id: string) {
   const { data } = await http.get<Resource[]>(
     `/chapters/${chapter_id}/resources`
   );
-  return data;
+  return data.map((resource) => ({
+    ...resource,
+    resource_ref:
+      resource.resource_type === 'LINK'
+        ? resource.resource_ref
+        : `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}.${resource.resource_extension}`,
+  }));
 }
 
 export async function getChapterAssessment(chapter_id: string) {

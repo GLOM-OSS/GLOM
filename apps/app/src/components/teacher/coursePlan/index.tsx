@@ -219,7 +219,7 @@ export default function CoursePlan() {
         resourceNotif.dismiss();
       }
       setResourceNotif(notif);
-      getChapterResources(actionnedChapter?.chapter_id as string)
+      getChapterResources(activeChapter?.chapter_id as string)
         .then((resources) => {
           setResources(resources);
           setAreResourcesLoading(false);
@@ -236,8 +236,9 @@ export default function CoursePlan() {
               <ErrorMessage
                 retryFunction={loadResources}
                 notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'getResourcesFailed' })}
+                message={
+                  error?.message || formatMessage({ id: 'getResourcesFailed' })
+                }
               />
             ),
             autoClose: false,
@@ -441,7 +442,22 @@ export default function CoursePlan() {
     });
     addNewFileResources(files)
       .then((newResources) => {
-        setResources([...newResources, ...resources]);
+        setResources([
+          ...newResources.map(
+            ({
+              resource_ref,
+              resource_extension: re,
+              resource_name: rn,
+              ...resource
+            }) => ({
+              ...resource,
+              resource_extension: re,
+              resource_name: rn,
+              resource_ref: `${rn}${re ? '.' : ''}${re ?? ''}`,
+            })
+          ),
+          ...resources,
+        ]);
         notif.update({
           render: formatMessage({ id: 'filesCreatedSuccessfully' }),
         });
@@ -877,7 +893,7 @@ export default function CoursePlan() {
                 <Box sx={{ display: 'grid', rowGap: theme.spacing(2) }}>
                   {chapters
                     .sort((a, b) =>
-                      a.chapter_number > b.chapter_number ? 1 : -1
+                      a.chapter_position > b.chapter_position ? 1 : -1
                     )
                     .map((chapter, index) => (
                       <ChapterLane

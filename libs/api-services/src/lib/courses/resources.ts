@@ -11,14 +11,13 @@ export async function addNewFileResources({
   details: { annual_credit_unit_subject_id, chapter_id },
 }: CreateFile) {
   const formData = new FormData();
-  formData.append('chapter_id', chapter_id as string);
+  if (chapter_id) formData.append('chapter_id', chapter_id as string);
   formData.append(
     'annual_credit_unit_subject_id',
     annual_credit_unit_subject_id
   );
-
-  for (const key in files) {
-    formData.append('resources', files[key], files[key].name);
+  for (let i = 0; i < files.length; i++) {
+    formData.append('resources', files[i], files[i].name);
   }
 
   const { data } = await http.post<Resource[]>(
@@ -29,7 +28,7 @@ export async function addNewFileResources({
 }
 
 export async function deleteResource(resource_id: string) {
-  await http.put(`/resources/${resource_id}/delete`);
+  await http.delete(`/resources/${resource_id}/delete`);
 }
 
 export async function downloadResource(resource_id: string) {

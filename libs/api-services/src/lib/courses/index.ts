@@ -5,7 +5,7 @@ import {
   Course,
   PresenceList,
   Resource,
-  Student
+  Student,
 } from '@squoolr/interfaces';
 
 export async function getCourses() {
@@ -26,12 +26,18 @@ export async function getCourseResources(
   const { data } = await http.get<Resource[]>(
     `/courses/${annual_credit_unit_subject_id}/resources`
   );
-  return data;
+  return data.map((resource) => ({
+    ...resource,
+    resource_ref:
+      resource.resource_type === 'LINK'
+        ? resource.resource_ref
+        : `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}${resource.resource_extension}`,
+  }));
 }
 
 export async function getCourseChapters(annual_credit_unit_subject_id: string) {
   const { data } = await http.get<Chapter[]>(
-    `/courses/${annual_credit_unit_subject_id}/chpaters`
+    `/courses/${annual_credit_unit_subject_id}/chapters`
   );
   return data;
 }

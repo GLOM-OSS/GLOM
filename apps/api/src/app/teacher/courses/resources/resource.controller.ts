@@ -12,7 +12,7 @@ import {
   StreamableFile,
   UploadedFiles,
   UseGuards,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
@@ -51,25 +51,30 @@ export class ResourceController {
 
   @Post('new-files')
   @Roles(Role.TEACHER)
-  @UseInterceptors(FilesInterceptor('resources'))
+  @UseInterceptors(FilesInterceptor('resources', 5, { dest: 'uploads' }))
   async addNewFile(
     @Req() request: Request,
     @UploadedFiles()
     files: Array<Express.Multer.File>,
     @Body() { chapter_id, annual_credit_unit_subject_id }: ResourceOwner
   ) {
+    console.log(files, { annual_credit_unit_subject_id });
     const {
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
     try {
       return this.resourceService.createResource(
         'FILE',
-        files.map(({ originalname, filename }) => ({
-          annual_credit_unit_subject_id,
-          resource_name: originalname,
-          resource_ref: filename,
-          chapter_id,
-        })),
+        files.map(({ originalname, filename }) => {
+          const nameParts = originalname.split('.');
+          return {
+            annual_credit_unit_subject_id,
+            resource_ref: filename,
+            resource_extension: nameParts[nameParts.length - 1],
+            resource_name: nameParts.slice(0, nameParts.length - 1).join(),
+            chapter_id,
+          };
+        }),
         annual_teacher_id
       );
     } catch (error) {
@@ -108,7 +113,9 @@ export class ResourceController {
       );
     const { resource_name, resource_ref } = resource;
     try {
-      const file = createReadStream(join(process.cwd(), `uploads/${resource_ref}`));
+      const file = createReadStream(
+        join(process.cwd(), `uploads/${resource_ref}`)
+      );
       res.set({
         'Content-Type': 'application/octet-stream',
         'Content-Disposition': `attachment; filename=${resource_name}`,

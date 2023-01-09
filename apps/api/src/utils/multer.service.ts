@@ -11,14 +11,13 @@ import path = require('path');
 export class MulterConfigService implements MulterOptionsFactory {
   createMulterOptions(): MulterModuleOptions {
     return {
-      dest: './uploads',
+      dest: 'uploads',
       storage: diskStorage({
         destination: (req, file, callback) => {
-          callback(null, './uploads');
+          callback(null, 'uploads');
         },
         filename: (req, file, callback) => {
           const now = new Date();
-          console.log(req.files);
           const fileName = file.originalname.split(' ');
           let finalName = fileName.join('_').replace('-' || '-', '_').toLowerCase();
           finalName = `${now.getFullYear()}${now.getMonth()}${now.getDate()}${now.getHours()}${now.getMinutes()}${now.getSeconds()}_${now.getMilliseconds()}_${finalName}`;
