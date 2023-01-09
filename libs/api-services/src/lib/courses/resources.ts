@@ -2,8 +2,8 @@ import { http } from '@squoolr/axios';
 import { CreateFile, CreateLink, Resource } from '@squoolr/interfaces';
 
 export async function addNewLinkResource(newLink: CreateLink) {
-  const { data } = await http.post<Resource>(`/resources/new-link`, newLink);
-  return data;
+  const { data } = await http.post<Resource[]>(`/resources/new-link`, newLink);
+  return data[0];
 }
 
 export async function addNewFileResources({
@@ -20,7 +20,7 @@ export async function addNewFileResources({
   Object.keys(files).forEach((key) =>
     formData.append('resources', files[key], files[key].name)
   );
-  const { data } = await http.post<{ count: number }>(
+  const { data } = await http.post<Resource[]>(
     `/resources/new-files`,
     formData
   );
@@ -29,4 +29,8 @@ export async function addNewFileResources({
 
 export async function deleteResource(resource_id: string) {
   await http.put(`/resources/${resource_id}/delete`);
+}
+
+export async function downloadResource(resource_id: string) {
+  await http.get(`/resources/${resource_id}/download`);
 }

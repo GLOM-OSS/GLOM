@@ -50,3 +50,7 @@ export async function updateQuestion(
     );
   }
 }
+
+export async function deleteQuestion(question_id: string) {
+  await http.put(`/assessments/questions/${question_id}/delete`);
+}

@@ -1,45 +1,42 @@
 import {
-  AddOutlined,
   AddRounded,
   InsertDriveFileOutlined,
   KeyboardBackspaceOutlined,
-  ReportRounded,
+  ReportRounded
 } from '@mui/icons-material';
 import {
   Box,
   Button,
   Chip,
   Fab,
-  lighten,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Tooltip,
-  Typography,
+  lighten, Tooltip,
+  Typography
 } from '@mui/material';
 import {
+  activateAssessment,
+  createNewAssessment,
+  deleteQuestion,
+  getAssessmentQuestions
+} from '@squoolr/api-services';
+import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
+import {
   ActivateAssessment,
-  Assessment,
-  EvaluationSubTypeEnum,
-  Question,
+  Assessment, Question
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
+import moment from 'moment';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
-import { NoTableElement, TableLaneSkeleton } from '../courseLane';
-import AssessmentLane from './assessmentLane';
-import AssessmentList from './assessmentList';
-import moment, { Moment } from 'moment';
+import { useParams } from 'react-router';
 import ActivateAssessmentDialog from './activateAssessmentDialog';
-import QuestionSkeleton from './questionSkeleton';
+import AssessmentList from './assessmentList';
 import QuestionDisplay from './questionDisplay';
-import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
+import QuestionSkeleton from './questionSkeleton';
 
 export default function Assessments() {
+  const { annual_credit_unit_subject_id } = useParams();
   const { formatMessage, formatNumber, formatDate } = useIntl();
 
   const [activeAssessment, setActiveAssessment] = useState<Assessment>();
@@ -58,41 +55,32 @@ export default function Assessments() {
         id: 'creatingAssessment',
       }),
     });
-    setTimeout(() => {
-      //TODO: call api here to delete resource
-      if (6 > 5) {
-        const newAssessment: Assessment = {
-          annual_credit_unit_subject_id: 'lsei',
-          assessment_date: new Date(),
-          assessment_id: 'sei',
-          chapter_id: 'sei',
-          created_at: new Date(),
-          duration: null,
-          evaluation_sub_type_name: EvaluationSubTypeEnum.ASSIGNMENT,
-          total_mark: 0,
-        };
-        setActiveAssessment(newAssessment);
-        setIsCreatingAssessment(false);
+    createNewAssessment(annual_credit_unit_subject_id as string)
+      .then((assessment) => {
+        setActiveAssessment(assessment);
         notif.update({
           render: formatMessage({ id: 'assessmentCreatedSuccessfully' }),
         });
         setAssessmentNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={createAssessment}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'createAssessmentFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'createAssessmentFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsCreatingAssessment(false));
   };
 
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -107,64 +95,14 @@ export default function Assessments() {
       questionNotif.dismiss();
     }
     setQuestionNotif(notif);
-    setTimeout(() => {
-      //TODO: call api here to load assessments
-      if (6 > 5) {
-        const newQuestions: Question[] = [
-          {
-            assessment_id: 'sie',
-            question: 'What is the name of the biggest city in the world?',
-            question_id: 'wiso',
-            question_mark: 2,
-            questionOptions: [
-              {
-                is_answer: true,
-                option: 'Nkambe',
-                question_id: 'wiso',
-                question_option_id: 'oie',
-              },
-              {
-                is_answer: false,
-                option: 'Binju',
-                question_id: 'wiso',
-                question_option_id: 'siue',
-              },
-              {
-                is_answer: false,
-                option: 'Binshua',
-                question_id: 'wiso',
-                question_option_id: 'oies',
-              },
-              {
-                is_answer: false,
-                option: 'Binka',
-                question_id: 'wiso',
-                question_option_id: 'oiwe',
-              },
-            ],
-            questionResources: [
-              {
-                caption: 2,
-                question_id: 'wiso',
-                question_resource_id: 'wieos',
-                resource_ref:
-                  'https://www.kicksonfire.com/wp-content/uploads/2022/11/reebok-kamikaze-ii-seattle-sonics-6-1.jpeg',
-              },
-              {
-                caption: 2,
-                question_id: 'wiso',
-                question_resource_id: 'wieos',
-                resource_ref:
-                  'https://www.kicksonfire.com/wp-content/uploads/2022/11/reebok-kamikaze-ii-seattle-sonics-6-1.jpeg',
-              },
-            ],
-          },
-        ];
-        setQuestions(newQuestions);
+    getAssessmentQuestions(activeAssessment?.assessment_id as string)
+      .then((questions) => {
+        setQuestions(questions);
         setAreQuestionsLoading(false);
         notif.dismiss();
         setQuestionNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingQuestions' }),
         });
@@ -174,15 +112,15 @@ export default function Assessments() {
             <ErrorMessage
               retryFunction={loadQuestions}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getQuestionsFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getQuestionsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
@@ -201,7 +139,7 @@ export default function Assessments() {
   const [isActivatingAssessment, setIsActivatingAssessment] =
     useState<boolean>(false);
 
-  const activateAssessment = (activateData: {
+  const activateAssessmentHandler = (activateData: {
     duration: number;
     assessment_date: Date;
     assessment_time: Date;
@@ -217,9 +155,8 @@ export default function Assessments() {
           id: 'activatingAssessment',
         }),
       });
-      setTimeout(() => {
-        //TODO: call api here to activateAssessment
-        if (6 > 5) {
+      activateAssessment(activeAssessment.assessment_id, activateData)
+        .then(() => {
           const examDate = activateData.assessment_date
             .toISOString()
             .split('T');
@@ -235,22 +172,24 @@ export default function Assessments() {
             render: formatMessage({ id: 'assessmentActivatedSuccessfully' }),
           });
           setAssessmentNotif(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.update({
             type: 'ERROR',
             render: (
               <ErrorMessage
-                retryFunction={() => activateAssessment(activateData)}
+                retryFunction={() => activateAssessmentHandler(activateData)}
                 notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'activatingAssessmentFailed' })}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'activatingAssessmentFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
+        });
     }
   };
 
@@ -263,7 +202,7 @@ export default function Assessments() {
 
   const [isDeletingQuestion, setIsDeletingQuestion] = useState<boolean>(false);
 
-  const deleteQuestion = (question: Question) => {
+  const deleteQuestionHandler = (question: Question) => {
     setIsDeletingQuestion(true);
     const notif = new useNotification();
     if (questionNotif) questionNotif.dismiss();
@@ -273,35 +212,35 @@ export default function Assessments() {
         id: 'deletingQuestion',
       }),
     });
-    setTimeout(() => {
-      //TODO: call api here to delete question
-      if (6 > 5) {
+    deleteQuestion(question.question_id)
+      .then(() => {
         setQuestions(
           questions.filter(
             ({ question_id: q_id }) => q_id !== question.question_id
           )
         );
-        setIsDeletingQuestion(false);
         notif.update({
           render: formatMessage({ id: 'questionDeletedSuccessfully' }),
         });
         setQuestionNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={() => deleteQuestion(question)}
+              retryFunction={() => deleteQuestionHandler(question)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'deleteQuestionFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'deleteQuestionFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsDeletingQuestion(false));
   };
 
   const [isQuestionDialogOpen, setIsQuestionDialog] = useState<boolean>(false);
@@ -313,7 +252,7 @@ export default function Assessments() {
         isDialogOpen={isActivateAssessmentDialogOpen}
         handleSubmit={(val: ActivateAssessment) => {
           if (activeAssessment) {
-            activateAssessment({
+            activateAssessmentHandler({
               ...val,
               evaluation_id: activeAssessment.assessment_id,
             });
@@ -327,7 +266,7 @@ export default function Assessments() {
           isDialogOpen={isConfirmDeleteQuestionDialogOpen}
           confirmButton="delete"
           dialogTitle="deleteQuestion"
-          confirm={() => deleteQuestion(activeQuestion)}
+          confirm={() => deleteQuestionHandler(activeQuestion)}
         />
       )}
       {!activeAssessment ? (
