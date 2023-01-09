@@ -32,6 +32,7 @@ import { NoTableElement, TableLaneSkeleton } from '../courseLane';
 import ActivateAssessmentDialog from './activateAssessmentDialog';
 import AssessmentList from './assessmentList';
 import Graph from './graph';
+import QuestionDialog from './questionDialog';
 import QuestionDisplay from './questionDisplay';
 import QuestionList from './questionList';
 import Statistics from './statistics';
@@ -156,7 +157,8 @@ export default function Assessments() {
 
   const [showResponses, setShowResponses] = useState<boolean>(false);
 
-  const [activeStudent, setActiveStudent] = useState<StudentAssessmentAnswer>();
+  const [activeStudent, setActiveStudent] =
+    useState<Omit<StudentAssessmentAnswer, 'questionAnswers'>>();
   const [showStatistics, setShowStatistics] = useState<boolean>(false);
 
   return (
@@ -186,6 +188,7 @@ export default function Assessments() {
         />
       ) : activeStudent ? (
         <StudentResponse
+          activeAssessment={activeAssessment}
           activeStudent={activeStudent}
           onBack={() => setActiveStudent(undefined)}
           totalMark={activeAssessment.total_mark}

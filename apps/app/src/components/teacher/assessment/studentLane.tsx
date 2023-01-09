@@ -9,7 +9,7 @@ export default function StudentLane({
   total
 }: {
   position: number;
-  student: StudentAssessmentAnswer;
+  student: Omit<StudentAssessmentAnswer, 'questionAnswers'>;
   onSelect: () => void;
   total:number
 }) {

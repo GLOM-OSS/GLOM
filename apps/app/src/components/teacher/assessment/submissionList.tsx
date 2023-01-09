@@ -29,12 +29,16 @@ export default function SubmissionList({
 }: {
   onBack: () => void;
   activeAssessment: Assessment;
-  setActiveStudent: (val: StudentAssessmentAnswer) => void;
+  setActiveStudent: (
+    val: Omit<StudentAssessmentAnswer, 'questionAnswers'>
+  ) => void;
   openStatistics: () => void;
 }) {
   const { formatMessage, formatDate, formatNumber } = useIntl();
 
-  const [students, setStudents] = useState<StudentAssessmentAnswer[]>([]);
+  const [students, setStudents] = useState<
+    Omit<StudentAssessmentAnswer, 'questionAnswers'>[]
+  >([]);
   const [areStudentsLoading, setAreStudentsLoading] = useState<boolean>(false);
   const [studentNotif, setStudentNotif] = useState<useNotification>();
 
@@ -48,51 +52,21 @@ export default function SubmissionList({
     setTimeout(() => {
       //TODO: call api here to load assessment students with data activeAssessment
       if (6 > 5) {
-        const newStudents: StudentAssessmentAnswer[] = [
-          {
-            fullname: 'Tchakoumi Lorrain',
-            matricule: '17C005',
-            questionAnswers: [],
-            submitted_at: new Date(),
-            total_score: 18,
-          },
-          {
-            fullname: 'Tchami Jennifer',
-            matricule: '17C006',
-            questionAnswers: [
-              {
-                answeredOptionIds: ['wdss'],
-                assessment_id: 'wsei',
-                question: 'What is the biggest country in Cameroon?',
-                question_id: 'sss',
-                question_mark: 2,
-                questionOptions: [
-                  {
-                    is_answer: true,
-                    option: 'Nkambe',
-                    question_id: 'sss',
-                    question_option_id: 'wds',
-                  },
-                  {
-                    is_answer: false,
-                    option: 'Binshua',
-                    question_id: 'sss',
-                    question_option_id: 'wdss',
-                  },
-                  {
-                    is_answer: false,
-                    option: 'Binka',
-                    question_id: 'sss',
-                    question_option_id: 'wdes',
-                  },
-                ],
-                questionResources: [],
-              },
-            ],
-            submitted_at: new Date(),
-            total_score: 18,
-          },
-        ];
+        const newStudents: Omit<StudentAssessmentAnswer, 'questionAnswers'>[] =
+          [
+            {
+              fullname: 'Tchakoumi Lorrain',
+              matricule: '17C005',
+              submitted_at: new Date(),
+              total_score: 18,
+            },
+            {
+              fullname: 'Tchami Jennifer',
+              matricule: '17C006',
+              submitted_at: new Date(),
+              total_score: 18,
+            },
+          ];
         setStudents(newStudents);
         setAreStudentsLoading(false);
         notif.dismiss();

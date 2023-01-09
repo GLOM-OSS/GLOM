@@ -1,28 +1,114 @@
-import { KeyboardBackspaceOutlined } from '@mui/icons-material';
+import { KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
+import { Box, Button, Chip, Tooltip, Typography } from '@mui/material';
 import {
-    Box,
-    Button,
-    Chip, Tooltip,
-    Typography
-} from '@mui/material';
-import {
-    StudentAssessmentAnswer
+  Assessment,
+  QuestionAnswer,
+  StudentAssessmentAnswer,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
+import { ErrorMessage, useNotification } from '@squoolr/toast';
+import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import QuestionDisplay from './questionDisplay';
+import QuestionSkeleton from './questionSkeleton';
 
 export default function StudentResponse({
   onBack,
   activeStudent,
-  totalMark
+  totalMark,
+  activeAssessment,
 }: {
   onBack: () => void;
-  activeStudent: StudentAssessmentAnswer;
-  totalMark: number
+  activeStudent: Omit<StudentAssessmentAnswer, 'questionAnswers'>;
+  totalMark: number;
+  activeAssessment: Assessment;
 }) {
   const { formatMessage } = useIntl();
+
+  const [questionAnswers, setQuestionAnswers] = useState<QuestionAnswer[]>([]);
+  const [areQuestionAnswersLoading, setAreQuestionAnswersLoading] =
+    useState<boolean>(false);
+  const [questionNotif, setQuestionNotif] = useState<useNotification>();
+
+  const loadQuestionAnswers = (
+    activeStudent: Omit<StudentAssessmentAnswer, 'questionAnswers'>,
+    assessment: Assessment
+  ) => {
+    setAreQuestionAnswersLoading(true);
+    const notif = new useNotification();
+    if (questionNotif) {
+      questionNotif.dismiss();
+    }
+    setQuestionNotif(notif);
+    setTimeout(() => {
+      //TODO: call api here to load questionAnswers
+      if (6 > 5) {
+        const newQuestionAnswers: QuestionAnswer[] = [
+          {
+            answeredOptionIds: ['wdss'],
+            assessment_id: 'wsei',
+            question: 'What is the biggest country in Cameroon?',
+            question_id: 'sss',
+            question_mark: 2,
+            questionOptions: [
+              {
+                is_answer: true,
+                option: 'Nkambe',
+                question_id: 'sss',
+                question_option_id: 'wds',
+              },
+              {
+                is_answer: false,
+                option: 'Binshua',
+                question_id: 'sss',
+                question_option_id: 'wdss',
+              },
+              {
+                is_answer: false,
+                option: 'Binka',
+                question_id: 'sss',
+                question_option_id: 'wdes',
+              },
+            ],
+            questionResources: [],
+          },
+        ];
+        setQuestionAnswers(newQuestionAnswers);
+        setAreQuestionAnswersLoading(false);
+        notif.dismiss();
+        setQuestionNotif(undefined);
+      } else {
+        notif.notify({
+          render: formatMessage({ id: 'loadingQuestionAnswers' }),
+        });
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() =>
+                loadQuestionAnswers(activeStudent, assessment)
+              }
+              notification={notif}
+              //TODO: message should come from backend
+              message={formatMessage({ id: 'questionAnswersFailed' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
+
+  useEffect(() => {
+    loadQuestionAnswers(activeStudent, activeAssessment);
+    return () => {
+      //TODO: cleanup above axios fetch
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <Box
       sx={{
@@ -70,12 +156,14 @@ export default function StudentResponse({
         </Box>
       </Box>
       <Scrollbars autoHide>
-        {activeStudent.questionAnswers.length === 0 ? (
+        {areQuestionAnswersLoading ? (
+          [...new Array(10)].map((_, index) => <QuestionSkeleton key={index} />)
+        ) : questionAnswers.length === 0 ? (
           <Typography variant="h6" sx={{ textAlign: 'center' }}>
             {formatMessage({ id: 'noQuestionsResponded' })}
           </Typography>
         ) : (
-          activeStudent.questionAnswers.map((question, index) => (
+          questionAnswers.map((question, index) => (
             <QuestionDisplay
               disabled={false}
               isResponse={true}
