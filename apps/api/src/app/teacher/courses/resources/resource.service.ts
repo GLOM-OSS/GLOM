@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ResourceType } from '@prisma/client';
+import { randomUUID } from 'crypto';
 import { AUTH404 } from '../../../../errors';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { LinkPostDto } from '../course.dto';
@@ -13,16 +14,32 @@ export class ResourceService {
     resources: LinkPostDto[],
     created_by: string
   ) {
-    return this.prismaService.resource.createMany({
-      data: resources.map(
-        ({ annual_credit_unit_subject_id, chapter_id, ...newLink }) => ({
-          ...newLink,
-          chapter_id,
-          created_by,
-          resource_type,
-          annual_credit_unit_subject_id,
-        })
-      ),
+    const reseourceCreateData = resources.map(
+      ({ annual_credit_unit_subject_id, chapter_id, ...newResource }) => ({
+        ...newResource,
+        chapter_id,
+        created_by,
+        resource_type,
+        resource_id: randomUUID(),
+        annual_credit_unit_subject_id,
+      })
+    );
+    await this.prismaService.resource.createMany({
+      data: reseourceCreateData,
+    });
+    return this.prismaService.resource.findMany({
+      select: {
+        resource_id: true,
+        chapter_id: true,
+        resource_ref: true,
+        resource_type: true,
+        resource_name: true,
+        resource_extension: true,
+        annual_credit_unit_subject_id: true,
+      },
+      where: {
+        OR: reseourceCreateData.map(({ resource_id }) => ({ resource_id })),
+      },
     });
   }
 
