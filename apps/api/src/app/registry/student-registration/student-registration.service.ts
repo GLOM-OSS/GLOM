@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Student } from '@squoolr/interfaces';
+import { Student, StudentDetail } from '@squoolr/interfaces';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { StudentQueryQto } from '../registry.dto';
 
@@ -41,5 +41,42 @@ export class StudentRegistrationService {
         annual_student_id,
       })
     );
+  }
+
+  async getStudentDetails(
+    annual_student_id: string
+  ): Promise<StudentDetail | null> {
+    const annualStudent = await this.prismaService.annualStudent.findUnique({
+      select: {
+        annual_student_id: true,
+        Student: {
+          select: {
+            matricule: true,
+            Tutor: { select: { Person: true } },
+            Login: { select: { Person: true } },
+          },
+        },
+      },
+      where: {
+        annual_student_id,
+      },
+    });
+    if (annualStudent) {
+      const {
+        annual_student_id,
+        Student: {
+          matricule,
+          Login: { Person: person },
+          Tutor: { Person: tutorInfo },
+        },
+      } = annualStudent;
+      return {
+        matricule,
+        ...person,
+        tutorInfo,
+        annual_student_id,
+      };
+    }
+    return null;
   }
 }

@@ -161,6 +161,9 @@ export class AppService {
                 },
               },
             },
+            Tutor: {
+              connect: { login_id: '65f6ae65-d930-4ccb-92b5-1ec1a0f8ac22' },
+            },
             matricule: Math.random().toString(36).slice(2).toUpperCase(),
           },
         },
