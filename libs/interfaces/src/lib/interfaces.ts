@@ -1,9 +1,10 @@
 export * from './assessment';
 export * from './course';
 export * from './evaluation';
+export * from './presence-list';
+export * from './student';
 export * from './suject-management';
 export * from './weighting-system';
-export * from './presence-list';
 
 export interface Person {
   first_name: string;
