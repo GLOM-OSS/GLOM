@@ -1,4 +1,4 @@
-import { Person } from "../interfaces";
+import { Person } from '../interfaces';
 
 export interface PresenceListChapter {
   is_covered: boolean;
@@ -11,6 +11,7 @@ export interface Student extends Person {
   is_present?: boolean;
   matricule: string;
   classroom_acronym: string;
+  is_active: boolean;
 }
 
 export interface CreatePresenceList {
