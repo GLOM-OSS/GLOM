@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EvaluationSubTypeEnum } from '@prisma/client';
+import { PresenceList } from '@squoolr/interfaces';
 import { PrismaService } from '../../../prisma/prisma.service';
 
 @Injectable()
@@ -275,12 +276,15 @@ export class CourseService {
       );
   }
 
-  async findPresentLists(annual_credit_unit_subject_id: string) {
+  async findPresentLists(
+    annual_credit_unit_subject_id: string
+  ): Promise<PresenceList[]> {
     const presenceLists = await this.prismaService.presenceList.findMany({
       select: {
         end_time: true,
         start_time: true,
         is_published: true,
+        presence_list_id: true,
         presence_list_date: true,
         AnnualCreditUnitSubject: {
           select: { subject_code: true, subject_title: true },
@@ -289,6 +293,7 @@ export class CourseService {
           select: {
             Chapter: { select: { chapter_id: true, chapter_title: true } },
           },
+          where: { Chapter: { is_deleted: false } },
         },
       },
       where: { annual_credit_unit_subject_id, is_deleted: false },
@@ -311,6 +316,7 @@ export class CourseService {
             chapters.find((_) => _.chapter_id === chapter.chapter_id)
           ),
         })),
+        students: [],
       })
     );
   }

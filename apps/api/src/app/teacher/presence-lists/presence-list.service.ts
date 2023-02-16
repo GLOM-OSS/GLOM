@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { PresenceList } from '@squoolr/interfaces';
 import { AUTH404 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { PresenceListPostDto, PresenceListPutDto } from '../teacher.dto';
@@ -7,13 +8,14 @@ import { PresenceListPostDto, PresenceListPutDto } from '../teacher.dto';
 export class PresenceListService {
   constructor(private prismaService: PrismaService) {}
 
-  async findPresenceList(presence_list_id: string) {
-    const presenceList = await this.prismaService.presenceList.findUnique({
+  async findPresenceList(presence_list_id: string): Promise<PresenceList> {
+    const presenceList = await this.prismaService.presenceList.findFirst({
       select: {
         end_time: true,
         start_time: true,
         is_deleted: true,
         is_published: true,
+        presence_list_id: true,
         presence_list_date: true,
         AnnualCreditUnitSubject: {
           select: {
@@ -39,15 +41,13 @@ export class PresenceListService {
           },
         },
       },
-      where: { presence_list_id },
+      where: { presence_list_id, is_deleted: false },
     });
-    if (presenceList && !presenceList.is_deleted) {
+    if (presenceList) {
       const {
         AnnualCreditUnitSubject: { annual_credit_unit_subject_id, ...subject },
         PresenceListHasChapters: coveredChapters,
         PresenceListHasCreditUnitStudents: presentStudents,
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        is_published,
         ...presenceListData
       } = presenceList;
       const chapters = await this.prismaService.chapter.findMany({
@@ -66,9 +66,7 @@ export class PresenceListService {
               matricule: true,
               Login: {
                 select: {
-                  Person: {
-                    select: { first_name: true, last_name: true },
-                  },
+                  Person: true,
                 },
               },
             },
@@ -107,15 +105,13 @@ export class PresenceListService {
           ({
             Student: {
               matricule,
-              Login: {
-                Person: { first_name, last_name },
-              },
+              Login: { Person: person },
             },
             annual_student_id,
           }) => ({
             matricule,
+            ...person,
             annual_student_id,
-            fullname: `${first_name} ${last_name}`,
             is_present: Boolean(
               presentStudents.find(
                 ({ deleted_at, AnnualStudentHasCreditUnit: _ }) =>
