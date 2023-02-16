@@ -1,5 +1,5 @@
 import { http } from '@squoolr/axios';
-import { Person, Personnel } from '../../interfaces';
+import { Person, Personnel } from '@squoolr/interfaces';
 
 export async function getConfigurators(params?: {
   keywords?: string;

@@ -1,5 +1,5 @@
 import { http } from '@squoolr/axios';
-import { Person, School, SchoolDemand } from '../interfaces';
+import { Person, School, SchoolDemand } from '@squoolr/interfaces';
 
 export async function getDemands() {
   const {

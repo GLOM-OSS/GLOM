@@ -1,5 +1,5 @@
 import { http } from '@squoolr/axios';
-import { TemplateOptions } from '../interfaces';
+import { TemplateOptions } from '@squoolr/interfaces';
 
 /**
  *

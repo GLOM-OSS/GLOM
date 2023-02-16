@@ -1,5 +1,5 @@
 import { http } from '@squoolr/axios';
-import { Personnel } from '../../interfaces';
+import { Personnel } from '@squoolr/interfaces';
 
 export async function getCoordinators(params?: {
   keywords?: string;

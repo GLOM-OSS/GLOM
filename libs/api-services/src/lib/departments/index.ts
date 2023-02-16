@@ -1,5 +1,5 @@
 import { http } from '@squoolr/axios';
-import { Department } from '../interfaces';
+import { Department } from '@squoolr/interfaces';
 
 export async function getDepartments(params?: {
   is_deleted?: boolean;

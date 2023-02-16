@@ -1,5 +1,5 @@
 import { http } from '@squoolr/axios';
-import { Major } from '../interfaces';
+import { Major } from '@squoolr/interfaces';
 
 export async function getMajors(params?: {
   department_code?: string;

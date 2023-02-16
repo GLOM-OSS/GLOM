@@ -1,5 +1,5 @@
 import { http } from '@squoolr/axios';
-import { Classroom } from '../interfaces';
+import { Classroom } from '@squoolr/interfaces';
 
 export async function getClassrooms(params?: {
   academic_year_id?: string;

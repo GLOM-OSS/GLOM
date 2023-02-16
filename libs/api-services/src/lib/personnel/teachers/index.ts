@@ -1,5 +1,5 @@
 import { http } from '@squoolr/axios';
-import { Personnel, Teacher } from '../../interfaces';
+import { Personnel, Teacher } from '@squoolr/interfaces';
 
 export async function getTeachers(params?: {
   keywords?: string;
