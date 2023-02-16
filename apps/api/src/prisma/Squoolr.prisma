@@ -200,7 +200,8 @@ model Login {
     AnnualConfigurators  AnnualConfigurator[]
     AdminResetPasswwords ResetPassword[]      @relation("Admin_Generated_ResetPassword")
     Logs                 Log[]
-    Students             Student[]
+    Students             Student[]            @relation(name: "Student_Login")
+    Tutors               Student[]            @relation(name: "Tutor_Login")
     AnnualRegistries     AnnualRegistry[]
     AnnualTeachers       AnnualTeacher[]
     SchoolDemandAudits   SchoolDemandAudit[]
@@ -268,7 +269,9 @@ model Student {
     classroom_id String    @db.VarChar(36)
     Classroom    Classroom @relation(fields: [classroom_id], references: [classroom_id], onDelete: Cascade, onUpdate: Cascade)
     login_id     String    @db.VarChar(36)
-    Login        Login     @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+    Login        Login     @relation(name: "Student_Login", fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+    tutor_id     String    @db.VarChar(36)
+    Tutor        Login     @relation(name: "Tutor_Login", fields: [tutor_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualStudents AnnualStudent[]
 }
