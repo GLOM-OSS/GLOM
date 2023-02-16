@@ -10,6 +10,7 @@ export interface Student extends Person {
   annual_student_id: string;
   is_present?: boolean;
   matricule: string;
+  classroom_acronym: string;
 }
 
 export interface CreatePresenceList {
