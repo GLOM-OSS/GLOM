@@ -1,6 +1,16 @@
-import { Controller, Get } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
+import { Role } from '../utils/types';
+import { Roles } from './app.decorator';
 
 import { AppService } from './app.service';
+import { AuthenticatedGuard } from './auth/auth.guard';
 
 @Controller()
 export class AppController {
@@ -39,5 +49,19 @@ export class AppController {
   @Get('weighting-grades')
   async getGrades() {
     return { weightingGrades: await this.appService.getGrades() };
+  }
+
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthenticatedGuard)
+  @Put('clear-unused-sessions-logs')
+  async clearLogs() {
+    try {
+      return { log: await this.appService.closeLogs() };
+    } catch (error) {
+      throw new HttpException(
+        `Sorry, an error occured when closing the logs: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
   }
 }

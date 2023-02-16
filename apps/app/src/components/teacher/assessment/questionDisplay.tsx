@@ -71,8 +71,8 @@ export default function QuestionDisplay({
               <img
                 src={resource_ref}
                 alt={`fig${index}`}
-                height="200px"
-                width="200px"
+                height="150px"
+                width="150px"
                 style={{ objectFit: 'cover' }}
               />
               <Typography variant="body2">{`${formatMessage({

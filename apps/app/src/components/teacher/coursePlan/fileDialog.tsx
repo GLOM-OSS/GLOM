@@ -123,7 +123,8 @@ export function FileIcon({
   const { formatMessage } = useIntl();
   return (
     <Box
-      component={rt === 'LINK' ? 'a' : 'div'}
+      component={'a'}
+      // component={rt === 'LINK' ? 'a' : 'div'}
       href={rr}
       rel="noreferrer"
       target="_blank"
@@ -135,17 +136,17 @@ export function FileIcon({
         textDecoration: 'none',
         color: 'inherit',
       }}
-      onClick={
-        deleteResource && rt === 'FILE' && readableFileFormats.includes(ext)
-          ? readFile
-            ? () => readFile()
-            : () => alert('openFileFailed')
-          : deleteResource && rt === 'FILE' && downloadFormats.includes(ext)
-          ? readFile
-            ? () => readFile()
-            : () => alert('failedLoadingFileDownload')
-          : () => null
-      }
+      // onClick={
+      //   deleteResource && rt === 'FILE' && readableFileFormats.includes(ext)
+      //     ? readFile
+      //       ? () => readFile()
+      //       : () => alert('openFileFailed')
+      //     : deleteResource && rt === 'FILE' && downloadFormats.includes(ext)
+      //     ? readFile
+      //       ? () => readFile()
+      //       : () => alert('failedLoadingFileDownload')
+      //     : () => null
+      // }
     >
       {deleteResource && (
         <Tooltip

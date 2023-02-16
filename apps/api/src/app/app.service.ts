@@ -245,4 +245,11 @@ export class AppService {
   getGrades() {
     return this.prismaService.grade.findMany();
   }
+
+  closeLogs() {
+    return this.prismaService.log.updateMany({
+      data: { closed_at: new Date() },
+      where: { closed_at: null, logged_out_at: null },
+    });
+  }
 }

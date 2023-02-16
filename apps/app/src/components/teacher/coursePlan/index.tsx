@@ -518,12 +518,17 @@ export default function CoursePlan() {
   const [displayFile, setDisplayFile] = useState<number>();
 
   const downloadFile = (resource_id: string) => {
-    downloadResource(resource_id);
-    alert(`downloading ${resource_id}`);
+    downloadResource(resource_id).then(() => {
+      alert(`downloading ${resource_id}`);
+    });
   };
 
   return (
     <>
+      {/* <img
+        src="http://localhost:8080/202309185818_186_summary.png"
+        alt="Resource Alt"
+      /> */}
       <RowMenu
         anchorEl={anchorEl}
         closeMenu={() => setAnchorEl(null)}
@@ -789,12 +794,13 @@ export default function CoursePlan() {
                           key={index}
                           resource_ref={rr}
                           readFile={
-                            rt === 'FILE' &&
-                            readableFileFormats.includes(re as string)
-                              ? () => setDisplayFile(index)
-                              : rt === 'FILE' &&
-                                downloadFormats.includes(re as string)
-                              ? () => downloadFile(r_id)
+                            // rt === 'FILE' &&
+                            // readableFileFormats.includes(re as string)
+                            //   ? () => setDisplayFile(index)
+                            //   :
+                            rt === 'FILE'
+                              ? //  && downloadFormats.includes(re as string)
+                                () => downloadFile(r_id)
                               : undefined
                           }
                           name={`${rn}${re ? '.' : ''}${re ?? ''}`}
