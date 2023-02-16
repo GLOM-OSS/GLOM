@@ -6,6 +6,7 @@ import {
   ArrayMinSize,
   IsEnum,
   IsNumber,
+  IsOptional,
   IsString,
   IsUUID,
   Max,
@@ -40,7 +41,7 @@ export class GradeWeightingPostDto {
   @IsUUID()
   @ApiProperty()
   grade_id: string;
- 
+
   @IsUUID()
   @ApiProperty()
   cycle_id: string;
@@ -124,4 +125,16 @@ export class CarryOverSystemPutDto {
   @ApiProperty()
   @IsEnum(CarryOverSystemEnum)
   carry_over_system: CarryOverSystemEnum;
+}
+
+export class StudentQueryQto {
+  @IsUUID()
+  @IsOptional()
+  @ApiProperty()
+  major_code?: string;
+
+  @IsUUID()
+  @IsOptional()
+  @ApiProperty()
+  classroom_code?: string;
 }

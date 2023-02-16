@@ -5,6 +5,7 @@ import { CarryOverSystemModule } from './carry-over-system/carry-over-system.mod
 import { HallAccessModule } from './hall-access/hall-access.module';
 import { GradeWeightingModule } from './grade-weightings/grade-weighting.module';
 import { WeightingSystemModule } from './weighting-systems/weighting-system.module';
+import { StudentRegistrationModule } from './student-registration/student-registration.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { WeightingSystemModule } from './weighting-systems/weighting-system.modu
     GradeWeightingModule,
     AcademicProfileModule,
     HallAccessModule,
+    StudentRegistrationModule,
     RouterModule.register([
       {
         path: 'weighting-system',
@@ -33,6 +35,10 @@ import { WeightingSystemModule } from './weighting-systems/weighting-system.modu
       {
         path: 'hall-accesses',
         module: HallAccessModule,
+      },
+      {
+        path: 'student-registrations',
+        module: StudentRegistrationModule,
       },
     ]),
   ],
