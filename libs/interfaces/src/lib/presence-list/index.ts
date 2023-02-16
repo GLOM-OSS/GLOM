@@ -1,14 +1,15 @@
+import { Person } from "../interfaces";
+
 export interface PresenceListChapter {
   is_covered: boolean;
-  chpater_id: string;
+  chapter_id: string;
   chapter_title: string;
 }
 
-export interface Student {
+export interface Student extends Person {
   annual_student_id: string;
-  is_present: boolean;
+  is_present?: boolean;
   matricule: string;
-  fullname: string;
 }
 
 export interface CreatePresenceList {
