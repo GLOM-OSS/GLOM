@@ -12,11 +12,11 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  TextField,
   Typography,
 } from '@mui/material';
-import { TimePicker } from '@mui/x-date-pickers';
+import { MobileDatePicker, TimePicker } from '@mui/x-date-pickers';
 import {
-  Chapter,
   PresenceList,
   PresenceListChapter,
   Student,
@@ -109,7 +109,22 @@ export default function SessionDetails({
       //TODO: CALL API HERE TO LOAD student's offering subject (subjectStudents) with data annual_credit_unit_subject_id
       // eslint-disable-next-line no-constant-condition
       if (5 > 4) {
-        const newStudents: Student[] = [];
+        const newStudents: Student[] = [
+          {
+            annual_student_id: 'sieodsl',
+            birthdate: new Date(),
+            classroom_acronym: 'IRT3',
+            email: 'nguemeteulriche@gmail.com',
+            first_name: 'Ulriche Gaella',
+            gender: 'Female',
+            is_active: true,
+            last_name: 'Mache Nguemete',
+            matricule: '18C005',
+            national_id_number: '000310122',
+            phone_number: '693256789',
+            preferred_lang: 'fr',
+          },
+        ];
         setSubjectStudents(newStudents);
         setAreSubjectStudentsLoading(false);
         notif.dismiss();
@@ -144,6 +159,15 @@ export default function SessionDetails({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const [displayStudents, setDisplayStudents] = useState<Student[]>(s);
+
+  useEffect(() => {
+    if (!ip) {
+      setDisplayStudents(subjectStudents);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subjectStudents]);
 
   const [addedChapterIds, setAddedChapterIds] = useState<string[]>([]);
   const [addedStudentIds, setAddedStudentIds] = useState<string[]>([]);
@@ -187,6 +211,42 @@ export default function SessionDetails({
     }
   };
 
+  const [sessionDate, setSessionDate] = useState<Date>(new Date());
+  const [startTime, setStartTime] = useState<Date>(new Date());
+  const [endTime, setEndTime] = useState<Date>(new Date());
+
+  const [isConfirmReinitialiseDialogOpen, setIsConfirmReinitialiseDialogOpen] =
+    useState<boolean>(false);
+  const [isConfirmPublishDialogOpen, setIsConfirmPublishDialogOpen] =
+    useState<boolean>(false);
+  const [isConfirmSaveDialogOpen, setIsConfirmSaveDialogOpen] =
+    useState<boolean>(false);
+
+  const reinitialise = () => {
+    setRemovedChapterIds(CL);
+    setRemovedStudentIds(SL);
+    //submit value
+  };
+
+  const save = (is_published: boolean, presence_list_id:string) => {
+    //use presence_list_id to decide if to create of take the save route.
+    //use is_published to decide if to save or publish
+
+    // start_time
+    // end_time
+    // presence_list_date,
+    // removedStudentIds
+    // addedStudentIds
+    // removedChapterIds
+    // addedChapterIds
+    
+    //submit value
+  };
+
+  //confirm dialog for publish
+  //confirm dialog for reinitialise
+  //confirm dialog for save
+
   return (
     <Box
       sx={{
@@ -210,21 +270,38 @@ export default function SessionDetails({
               sx={{
                 display: 'grid',
                 gridTemplateColumns: '1fr auto',
+                justifySelf: ip ? 'initial' : 'start',
                 columnGap: 2,
                 alignItems: 'end',
               }}
             >
-              <Typography>
-                {formatMessage({ id: 'sessionDate' })}
-                {' : '}
-                <Typography component="span" fontWeight={500}>
-                  {formatDate(pld, {
-                    year: 'numeric',
-                    month: 'short',
-                    day: '2-digit',
-                  })}
+              {ip ? (
+                <Typography>
+                  {formatMessage({ id: 'sessionDate' })}
+                  {' : '}
+                  <Typography component="span" fontWeight={500}>
+                    {formatDate(pld, {
+                      year: 'numeric',
+                      month: 'short',
+                      day: '2-digit',
+                    })}
+                  </Typography>
                 </Typography>
-              </Typography>
+              ) : (
+                <MobileDatePicker
+                  label={formatMessage({ id: 'sessionDate' })}
+                  value={sessionDate}
+                  onChange={(newValue) => {
+                    if (newValue) setSessionDate(newValue);
+                  }}
+                  disabled={
+                    areNotDoneChaptersLoading || areSubjectStudentsLoading
+                  }
+                  renderInput={(params) => (
+                    <TextField {...params} color="primary" size="small" />
+                  )}
+                />
+              )}
               {ip ? (
                 <Box
                   sx={{
@@ -255,13 +332,34 @@ export default function SessionDetails({
                   </Typography>
                 </Box>
               ) : (
-                'adi cam solve am small time'
-                // <TimePicker
-                //   label={formatMessage({ id: 'startTime' })}
-                //   value={}
-                //   onChange={handleChange}
-                //   renderInput={(params) => <TextField {...params} />}
-                // />
+                <Box
+                  sx={{
+                    display: 'grid',
+                    columnGap: 2,
+                    gridTemplateColumns: 'auto 1fr',
+                  }}
+                >
+                  <TimePicker
+                    label={formatMessage({ id: 'startTime' })}
+                    value={startTime}
+                    onChange={(newValue) => {
+                      if (newValue) setStartTime(newValue);
+                    }}
+                    renderInput={(params) => (
+                      <TextField {...params} size="small" />
+                    )}
+                  />
+                  <TimePicker
+                    label={formatMessage({ id: 'endTime' })}
+                    value={endTime}
+                    onChange={(newValue) => {
+                      if (newValue) setEndTime(newValue);
+                    }}
+                    renderInput={(params) => (
+                      <TextField {...params} size="small" />
+                    )}
+                  />
+                </Box>
               )}
             </Box>
             <Box sx={{ display: 'grid', rowGap: 1 }}>
@@ -334,12 +432,18 @@ export default function SessionDetails({
           color="primary"
           size="small"
           sx={{ justifySelf: 'end', textTransform: 'none' }}
+          disabled={
+            isConfirmReinitialiseDialogOpen ||
+            isConfirmSaveDialogOpen ||
+            isConfirmPublishDialogOpen
+          }
+          onClick={() => setIsConfirmPublishDialogOpen(true)}
         >
           {formatMessage({ id: 'publishList' })}
         </Button>
       )}
       <Scrollbars autoHide>
-        <Table sx={{ minWidth: 650 }} size='small'>
+        <Table sx={{ minWidth: 650 }} size="small">
           <TableHead
             sx={{
               backgroundColor: lighten(theme.palette.primary.light, 0.6),
@@ -365,7 +469,7 @@ export default function SessionDetails({
             </TableRow>
           </TableHead>
           <TableBody>
-            {s.length === 0 ? (
+            {displayStudents.length === 0 ? (
               <NoTableElement
                 message={formatMessage({
                   id: 'noStudentsInClass',
@@ -373,7 +477,7 @@ export default function SessionDetails({
                 colSpan={ip ? 2 : 3}
               />
             ) : (
-              s
+              displayStudents
                 .sort((a, b) =>
                   a.first_name > b.first_name
                     ? 1
@@ -403,6 +507,43 @@ export default function SessionDetails({
           </TableBody>
         </Table>
       </Scrollbars>
+      {!ip && (
+        <Box
+          sx={{
+            justifySelf: 'end',
+            display: 'grid',
+            gridAutoFlow: 'column',
+            columnGap: 2,
+          }}
+        >
+          <Button
+            color="error"
+            variant="text"
+            disabled={
+              isConfirmReinitialiseDialogOpen ||
+              isConfirmSaveDialogOpen ||
+              isConfirmPublishDialogOpen
+            }
+            onClick={() => setIsConfirmReinitialiseDialogOpen(true)}
+            sx={{ textTransform: 'none' }}
+          >
+            {formatMessage({ id: 'reinitialise' })}
+          </Button>
+          <Button
+            color="primary"
+            variant="contained"
+            disabled={
+              isConfirmReinitialiseDialogOpen ||
+              isConfirmSaveDialogOpen ||
+              isConfirmPublishDialogOpen
+            }
+            onClick={() => setIsConfirmSaveDialogOpen(true)}
+            sx={{ textTransform: 'none' }}
+          >
+            {formatMessage({ id: 'save' })}
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 }
