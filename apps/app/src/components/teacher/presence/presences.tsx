@@ -63,7 +63,7 @@ export default function Presences() {
               },
             ],
             end_time: new Date(),
-            is_published: true,
+            is_published: false,
             presence_list_date: new Date(),
             presence_list_id: 'ieosl',
             start_time: new Date(),
