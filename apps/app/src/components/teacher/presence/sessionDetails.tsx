@@ -339,7 +339,7 @@ export default function SessionDetails({
         </Button>
       )}
       <Scrollbars autoHide>
-        <Table sx={{ minWidth: 650 }}>
+        <Table sx={{ minWidth: 650 }} size='small'>
           <TableHead
             sx={{
               backgroundColor: lighten(theme.palette.primary.light, 0.6),
