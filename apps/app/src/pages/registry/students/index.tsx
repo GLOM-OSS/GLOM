@@ -272,7 +272,12 @@ export default function Students() {
             <Typography variant="body2" component="span">
               {formatMessage({ id: 'importIntoLevel1Message1' })}
             </Typography>
-            <Typography variant="body2" component="span" fontWeight={'bold'} padding='0 4px'>
+            <Typography
+              variant="body2"
+              component="span"
+              fontWeight={'bold'}
+              padding="0 4px"
+            >
               {activeMajor?.major_name}
             </Typography>
             <Typography variant="body2" component="span">
@@ -350,7 +355,6 @@ export default function Students() {
                     {formatMessage({ id: val })}
                   </TableCell>
                 ))}
-                <TableCell />
               </TableRow>
             </TableHead>
             <TableBody>
