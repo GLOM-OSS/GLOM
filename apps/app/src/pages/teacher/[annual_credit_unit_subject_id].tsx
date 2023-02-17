@@ -5,6 +5,7 @@ import { useIntl } from 'react-intl';
 import Assessments from '../../components/teacher/assessment';
 import CAEvaluation from '../../components/teacher/caEvaluation';
 import CoursePlan from '../../components/teacher/coursePlan';
+import Presences from '../../components/teacher/presences';
 
 export default function CourseDetails() {
   const { formatMessage } = useIntl();
@@ -45,6 +46,7 @@ export default function CourseDetails() {
       </Tabs>
       {tabValue === 0 && <CoursePlan />}
       {tabValue === 1 && <CAEvaluation />}
+      {tabValue === 3 && <Presences />}
       {tabValue === 5 && <Assessments />}
     </Box>
   );
