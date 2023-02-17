@@ -18,6 +18,7 @@ import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';
 import { NoTableElement, TableLaneSkeleton } from '../courseLane';
 import PresenceLane from './presenceLane';
+import SessionDetails from './sessionDetails';
 
 export default function Presences() {
   const { formatMessage } = useIntl();
@@ -83,7 +84,7 @@ export default function Presences() {
     loadPresences(annual_credit_unit_subject_id as string);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  return (
+  return !activeSession ? (
     <Box
       sx={{
         display: 'grid',
@@ -148,5 +149,7 @@ export default function Presences() {
         </Table>
       </Scrollbars>
     </Box>
+  ) : (
+    <SessionDetails session={activeSession} />
   );
 }
