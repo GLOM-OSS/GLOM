@@ -54,6 +54,7 @@ export class StudentRegistrationController {
     @UploadedFile() file: Express.Multer.File
   ) {
     const {
+      school_id,
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
     if (!file)
@@ -96,8 +97,9 @@ export class StudentRegistrationController {
           Readable.from(file.buffer)
         );
       return this.studentRegistrationService.registerNewStudents(
-        majorId,
+        school_id,
         academic_year_id,
+        majorId,
         studentInformmations
       );
     } catch (error) {
