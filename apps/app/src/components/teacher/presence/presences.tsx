@@ -1,4 +1,4 @@
-import { ReportRounded } from '@mui/icons-material';
+import { KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -9,6 +9,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { CreditUnitSubject, PresenceList } from '@squoolr/interfaces';
@@ -221,6 +222,34 @@ export default function Presences() {
       </Scrollbars>
     </Box>
   ) : (
-    <SessionDetails session={activeSession} />
+    <Box sx={{ display: 'grid', rowGap: 1, gridTemplateRows: 'auto 1fr' }}>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'auto 1fr',
+          columnGap: 2,
+          alignItems: 'center',
+        }}
+      >
+        <Tooltip arrow title={formatMessage({ id: 'back' })}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={() => setActiveSession(undefined)}
+            startIcon={<KeyboardBackspaceOutlined />}
+          />
+        </Tooltip>
+
+        <Typography variant="h6">
+          {isSubjectLoading || !subject ? (
+            <Skeleton animation="wave" />
+          ) : (
+            subject.subject_title
+          )}
+        </Typography>
+      </Box>
+      <SessionDetails session={activeSession} />
+    </Box>
   );
 }
