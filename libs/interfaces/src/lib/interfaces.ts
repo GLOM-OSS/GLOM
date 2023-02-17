@@ -1,20 +1,28 @@
 export * from './assessment';
 export * from './course';
 export * from './evaluation';
+export * from './presence-list';
+export * from './student';
 export * from './suject-management';
 export * from './weighting-system';
-export * from './presence-list';
 
 export interface Person {
-  first_name: string;
-  last_name: string;
   email: string;
   birthdate: Date;
+  address?: string;
+  password?: string;
+  religion?: string;
+  handicap?: string;
+  last_name: string;
+  first_name: string;
+  birthplace?: string;
+  nationality?: string;
+  home_region?: string;
   phone_number: string;
   gender: 'Male' | 'Female';
   national_id_number: string;
-  password?: string;
-  address?: string;
+  civil_status?: 'Married' | 'Single' | 'Divorced';
+  employment_status: 'Employed' | 'Unemployed' | 'SelfEmployed';
 }
 
 export interface Teacher extends Person {

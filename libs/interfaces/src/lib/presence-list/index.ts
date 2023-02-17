@@ -6,12 +6,13 @@ export interface PresenceListChapter {
   chapter_title: string;
 }
 
-export interface Student extends Person {
+export interface Student extends Omit<Person, 'employment_status'> {
   annual_student_id: string;
   is_present?: boolean;
   matricule: string;
   classroom_acronym: string;
   is_active: boolean;
+  employment_status?: 'Employed' | 'SelfEmployed' | 'Unemployed';
 }
 
 export interface CreatePresenceList {

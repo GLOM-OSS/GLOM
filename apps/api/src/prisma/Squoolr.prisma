@@ -21,21 +21,44 @@ enum Lang {
     @@map("preferred_lang_enum")
 }
 
+enum CivilStatusEnum {
+    Married
+    Single
+    Divorced
+
+    @@map("civil_status_enum")
+}
+
+enum EmploymentStatus {
+    Employed
+    Unemployed
+    SelfEmployed
+
+    @@map("employment_status_enum")
+}
+
 model Person {
-    person_id          String   @id @default(uuid()) @db.VarChar(36)
-    first_name         String   @db.VarChar(50)
-    last_name          String   @db.VarChar(50)
-    phone_number       String   @unique @db.VarChar(15)
-    birthdate          DateTime @db.DateTime(0)
+    person_id          String            @id @default(uuid()) @db.VarChar(36)
+    first_name         String            @db.VarChar(50)
+    last_name          String            @db.VarChar(50)
+    phone_number       String            @unique @db.VarChar(15)
+    birthdate          DateTime          @db.DateTime(0)
+    birthplace         String?           @db.VarChar(45)
     gender             Gender
-    national_id_number String   @db.VarChar(15)
-    address            String?  @db.VarChar(100)
+    nationality        String?           @db.VarChar(45)
+    national_id_number String            @db.VarChar(15)
+    address            String?           @db.VarChar(100)
     longitude          Int?
     latitude           Int?
-    email              String   @unique @db.VarChar(50)
-    preferred_lang     Lang     @default(Fr)
-    image_ref          String?  @db.VarChar(50)
-    created_at         DateTime @default(now()) @db.DateTime(0)
+    email              String            @unique @db.VarChar(50)
+    preferred_lang     Lang              @default(Fr)
+    image_ref          String?           @db.VarChar(50)
+    home_region        String?           @db.VarChar(45)
+    religion           String?           @db.VarChar(45)
+    handicap           String            @default("None") @db.VarChar(45)
+    civil_status       CivilStatusEnum   @default(Single)
+    employment_status  EmploymentStatus?
+    created_at         DateTime          @default(now()) @db.DateTime(0)
 
     Schools      School[]
     PersonAudits PersonAudit[]
@@ -200,7 +223,8 @@ model Login {
     AnnualConfigurators  AnnualConfigurator[]
     AdminResetPasswwords ResetPassword[]      @relation("Admin_Generated_ResetPassword")
     Logs                 Log[]
-    Students             Student[]
+    Students             Student[]            @relation(name: "Student_Login")
+    Tutors               Student[]            @relation(name: "Tutor_Login")
     AnnualRegistries     AnnualRegistry[]
     AnnualTeachers       AnnualTeacher[]
     SchoolDemandAudits   SchoolDemandAudit[]
@@ -268,7 +292,9 @@ model Student {
     classroom_id String    @db.VarChar(36)
     Classroom    Classroom @relation(fields: [classroom_id], references: [classroom_id], onDelete: Cascade, onUpdate: Cascade)
     login_id     String    @db.VarChar(36)
-    Login        Login     @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+    Login        Login     @relation(name: "Student_Login", fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+    tutor_id     String    @db.VarChar(36)
+    Tutor        Login     @relation(name: "Tutor_Login", fields: [tutor_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualStudents AnnualStudent[]
 }
