@@ -5,7 +5,7 @@ import { useIntl } from 'react-intl';
 import Assessments from '../../components/teacher/assessment';
 import CAEvaluation from '../../components/teacher/caEvaluation';
 import CoursePlan from '../../components/teacher/coursePlan';
-import Presences from '../../components/teacher/presences';
+import Presences from '../../components/teacher/presence/presences';
 
 export default function CourseDetails() {
   const { formatMessage } = useIntl();
