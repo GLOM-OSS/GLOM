@@ -50,7 +50,7 @@ export class StudentRegistrationController {
   @UseInterceptors(FileInterceptor('students'))
   async importStudents(
     @Req() request: Request,
-    @Param('major_id') majorId: string,
+    @Param('major_id') major_id: string,
     @UploadedFile() file: Express.Multer.File
   ) {
     const {
@@ -91,17 +91,17 @@ export class StudentRegistrationController {
       'tutor_national_id_number',
     ];
     try {
-      const studentInformmations =
+      const importedStudentData =
         await readAndProcessFile<StudentImportInterface>(
           columns,
           Readable.from(file.buffer)
         );
-      return this.studentRegistrationService.registerNewStudents(
+      return this.studentRegistrationService.registerNewStudents({
         school_id,
         academic_year_id,
-        majorId,
-        studentInformmations
-      );
+        major_id,
+        importedStudentData,
+      });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

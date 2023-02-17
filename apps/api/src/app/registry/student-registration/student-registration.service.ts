@@ -112,19 +112,26 @@ export class StudentRegistrationService {
     return null;
   }
 
-  async registerNewStudents(
-    school_id: string,
-    academic_year_id: string,
-    major_id: string,
-    importedStudentData: StudentImportInterface[]
-  ) {
+  async registerNewStudents({
+    academic_year_id,
+    importedStudentData,
+    major_id,
+    school_id,
+    level = 1,
+  }: {
+    level?: number;
+    major_id: string;
+    school_id: string;
+    academic_year_id: string;
+    importedStudentData: StudentImportInterface[];
+  }) {
     const classroomDivision =
       await this.prismaService.annualClassroomDivision.findFirst({
         select: {
           annual_classroom_division_id: true,
           AnnualClassroom: { select: { classroom_id: true } },
         },
-        where: { AnnualClassroom: { Classroom: { major_id, level: 1 } } },
+        where: { AnnualClassroom: { Classroom: { major_id, level } } },
       });
     if (!classroomDivision)
       throw new HttpException(
@@ -135,6 +142,17 @@ export class StudentRegistrationService {
       AnnualClassroom: { classroom_id },
       annual_classroom_division_id,
     } = classroomDivision;
+    const annualCreditUnit = await this.prismaService.annualCreditUnit.findMany(
+      {
+        where: {
+          major_id,
+          academic_year_id,
+          is_deleted: false,
+          is_exam_published: false,
+          semester_number: { lte: level * 2 },
+        },
+      }
+    );
     const queryInstructions: PrismaPromise<Person | Student | AnnualStudent>[] =
       [];
     await Promise.all(
@@ -188,6 +206,9 @@ export class StudentRegistrationService {
             national_id_number: tutor_national_id_number.toString(),
             person_id: tutorPerson?.person_id ?? randomUUID(),
           };
+          const logins = tutorPerson.Logins;
+          const tutorLoginId =
+            logins.length > 0 ? logins[0].login_id : randomUUID();
           queryInstructions.push(
             this.prismaService.person.upsert({
               create: {
@@ -211,6 +232,7 @@ export class StudentRegistrationService {
                 Logins: {
                   create: {
                     is_parent: true,
+                    login_id: tutorLoginId,
                     password: bcrypt.hashSync(
                       'tutor-password',
                       Number(process.env.SALT)
@@ -235,7 +257,7 @@ export class StudentRegistrationService {
                 Classroom: { connect: { classroom_id } },
                 Tutor: {
                   connect: {
-                    login_id: tutorPerson.Logins[0].login_id,
+                    login_id: tutorLoginId,
                   },
                 },
               },
@@ -253,6 +275,14 @@ export class StudentRegistrationService {
                   },
                 },
                 AcademicYear: { connect: { academic_year_id } },
+                AnnualStudentHasCreditUnits: {
+                  create: annualCreditUnit.map(
+                    ({ annual_credit_unit_id, semester_number }) => ({
+                      semester_number,
+                      annual_credit_unit_id,
+                    })
+                  ),
+                },
               },
             })
           );
