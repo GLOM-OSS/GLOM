@@ -63,6 +63,7 @@ export default function Students() {
             matricule: '17C005',
             national_id_number: '000316122',
             phone_number: '681382151',
+            preferred_lang: 'en',
           },
         ];
         setStudents(newStudents);
@@ -224,6 +225,7 @@ export default function Students() {
             matricule: '18C005',
             national_id_number: '000310122',
             phone_number: '693256789',
+            preferred_lang: 'fr',
           },
         ];
         setStudents((prevStudents) => [...prevStudents, ...newStudents]);
