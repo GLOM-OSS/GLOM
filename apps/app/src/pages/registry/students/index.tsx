@@ -7,6 +7,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Typography,
 } from '@mui/material';
 import { Classroom, Student, UEMajor } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
@@ -266,9 +267,19 @@ export default function Students() {
             });
           }
         }}
-        dialogMessage={`${formatMessage({ id: 'importIntoLevel1Message1' })} ${
-          activeMajor?.major_name
-        } ${formatMessage({ id: 'importIntoLevel1Message2' })}`}
+        dialogMessage={
+          <Typography>
+            <Typography variant="body2" component="span">
+              {formatMessage({ id: 'importIntoLevel1Message1' })}
+            </Typography>
+            <Typography variant="body2" component="span" fontWeight={'bold'} padding='0 4px'>
+              {activeMajor?.major_name}
+            </Typography>
+            <Typography variant="body2" component="span">
+              {formatMessage({ id: 'importIntoLevel1Message2' })}
+            </Typography>
+          </Typography>
+        }
         isDialogOpen={isImportDialogOpen}
         dialogTitle={formatMessage({ id: 'confirmImportIntoLevel1' })}
       />
