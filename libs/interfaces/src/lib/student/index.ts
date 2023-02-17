@@ -6,6 +6,7 @@ export interface Student extends Person {
   matricule: string;
   classroom_acronym: string;
   is_active: boolean;
+  preferred_lang: 'fr' | 'en';
 }
 
 export interface StudentDetail extends Student {
