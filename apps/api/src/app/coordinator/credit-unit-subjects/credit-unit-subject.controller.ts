@@ -72,11 +72,13 @@ export class CreditUnitSubjectController {
   ) {
     try {
       const {
+        activeYear: { academic_year_id },
         annualTeacher: { annual_teacher_id },
       } = request.user as DeserializeSessionData;
       await this.creditUnitSubjectService.updateCreditUnitSubject(
         annual_credit_unit_subject_id,
         newCreditUnitSubject,
+        academic_year_id,
         annual_teacher_id
       );
     } catch (error) {
