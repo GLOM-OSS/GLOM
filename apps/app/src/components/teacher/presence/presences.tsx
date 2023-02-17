@@ -3,13 +3,15 @@ import {
   Box,
   Button,
   lighten,
+  Skeleton,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
+  Typography,
 } from '@mui/material';
-import { PresenceList } from '@squoolr/interfaces';
+import { CreditUnitSubject, PresenceList } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
@@ -78,10 +80,63 @@ export default function Presences() {
     }, 3000);
   };
 
+  const [isSubjectLoading, setIsSubjectLoading] = useState<boolean>(false);
+  const [subject, setSubject] = useState<CreditUnitSubject>();
+  const [subjectNotif, setSubjectNotif] = useState<useNotification>();
+
+  const loadSubjectDetail = (annual_credit_unit_subject_id: string) => {
+    setIsSubjectLoading(true);
+    const notif = new useNotification();
+    if (subjectNotif) {
+      subjectNotif.dismiss();
+    }
+    setSubjectNotif(notif);
+    setTimeout(() => {
+      //TODO: CALL API HERE TO LOAD subject details with data annual_credit_unit_subject_id
+      // eslint-disable-next-line no-constant-condition
+      if (5 > 4) {
+        const newSubject: CreditUnitSubject = {
+          annual_credit_unit_id: 'sldie',
+          annual_credit_unit_subject_id: 'lsie',
+          main_teacher_fullname: 'Boston',
+          objective: 'soeil',
+          subject_code: 'eisl',
+          subject_title: "Introduction a l'algorithme",
+          subjectParts: [],
+          weighting: 3,
+        };
+        setSubject(newSubject);
+        setIsSubjectLoading(false);
+        notif.dismiss();
+        setSubjectNotif(undefined);
+      } else {
+        notif.notify({
+          render: formatMessage({ id: 'loadingSubjectDetails' }),
+        });
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() =>
+                loadSubjectDetail(annual_credit_unit_subject_id)
+              }
+              notification={notif}
+              //TODO: message should come from backend
+              message={formatMessage({ id: 'getSubjectDetailsFailed' })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
+
   const [activeSession, setActiveSession] = useState<PresenceList>();
 
   useEffect(() => {
     loadPresences(annual_credit_unit_subject_id as string);
+    loadSubjectDetail(annual_credit_unit_subject_id as string);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return !activeSession ? (
@@ -89,13 +144,29 @@ export default function Presences() {
       sx={{
         display: 'grid',
         gridTemplateRows: 'auto 1fr',
-        justifyItems: 'end',
         rowGap: 1,
       }}
     >
-      <Button variant="contained" size="small" color="primary">
-        {formatMessage({ id: 'openNewList' })}
-      </Button>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: '1fr auto',
+          columnGap: 6,
+          alignItems: 'end',
+        }}
+      >
+        <Typography variant="h6">
+          {isSubjectLoading || !subject ? (
+            <Skeleton animation="wave" />
+          ) : (
+            subject.subject_title
+          )}
+        </Typography>
+
+        <Button variant="contained" size="small" color="primary">
+          {formatMessage({ id: 'openNewList' })}
+        </Button>
+      </Box>
       <Scrollbars autoHide>
         <Table sx={{ minWidth: 650 }}>
           <TableHead
