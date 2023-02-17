@@ -1,4 +1,4 @@
-import { GradingRounded, InventoryOutlined, LayersOutlined } from '@mui/icons-material';
+import { GradingRounded, InventoryOutlined, LayersOutlined, PeopleAltOutlined } from '@mui/icons-material';
 import { MainLayout, NavItem } from '@squoolr/layout';
 import { injectIntl, IntlShape } from 'react-intl';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -93,6 +93,19 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
           title: formatMessage({ id: 'examinations' }),
           route: 'exams',
           page_title: 'examinations',
+        },
+      ],
+    },
+    {
+      id: 3,
+      Icon: PeopleAltOutlined,
+      title: 'studentManagement',
+      route: 'student-management',
+      children: [
+        {
+          title: formatMessage({ id: 'students' }),
+          route: 'students',
+          page_title: 'students',
         },
       ],
     },

@@ -7,6 +7,8 @@ import ModulesManagement from '../pages/coordinator/modulesManagement';
 import SubjectManagement from '../pages/coordinator/subjectManagement';
 import AcademicProfileTable from '../pages/registry/academicProfile';
 import Exams from '../pages/registry/exams';
+import Students from '../pages/registry/students';
+import StudentDetails from '../pages/registry/students/[student_id]';
 import WeightingTable from '../pages/registry/weightingTable';
 import AnonimationDetails from '../pages/registry/[evaluation_id]';
 import Departments from '../pages/secretary/departments';
@@ -112,6 +114,21 @@ export const routes = [
       {
         path: 'exams/:evaluation_id',
         element: <AnonimationDetails />,
+      },
+      { path: '*', element: <Navigate to="/" /> },
+    ],
+  },
+  {
+    path: '/registry/student-management',
+    element: <AppLayout />,
+    children: [
+      {
+        path: 'students',
+        element: <Students />,
+      },
+      {
+        path: 'students/:student_id',
+        element: <StudentDetails />,
       },
       { path: '*', element: <Navigate to="/" /> },
     ],

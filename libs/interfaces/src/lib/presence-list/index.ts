@@ -1,10 +1,20 @@
-import { Student } from '../student';
+import { Person } from '../interfaces';
 
 export interface PresenceListChapter {
   is_covered: boolean;
   chapter_id: string;
   chapter_title: string;
 }
+
+export interface Student extends Omit<Person, 'employment_status'> {
+  annual_student_id: string;
+  is_present?: boolean;
+  matricule: string;
+  classroom_acronym: string;
+  is_active: boolean;
+  employment_status?: 'Employed' | 'SelfEmployed' | 'Unemployed';
+}
+
 export interface CreatePresenceList {
   end_time: Date;
   start_time: Date;
