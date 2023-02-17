@@ -45,13 +45,44 @@ export default function Presences() {
       if (5 > 4) {
         const newPresences: PresenceList[] = [
           {
-            chapters: [],
+            chapters: [
+              {
+                chapter_id: 'ieow',
+                chapter_title: 'Introduction',
+                is_covered: true,
+              },
+              {
+                chapter_id: 'ieows',
+                chapter_title: 'Corps du sujet',
+                is_covered: true,
+              },
+              {
+                chapter_id: 'ieowf',
+                chapter_title: 'Conclusion du cours',
+                is_covered: true,
+              },
+            ],
             end_time: new Date(),
-            is_published: false,
+            is_published: true,
             presence_list_date: new Date(),
             presence_list_id: 'ieosl',
             start_time: new Date(),
-            students: [],
+            students: [
+              {
+                annual_student_id: 'sieodsl',
+                birthdate: new Date(),
+                classroom_acronym: 'IRT3',
+                email: 'nguemeteulriche@gmail.com',
+                first_name: 'Ulriche Gaella',
+                gender: 'Female',
+                is_active: true,
+                last_name: 'Mache Nguemete',
+                matricule: '18C005',
+                national_id_number: '000310122',
+                phone_number: '693256789',
+                preferred_lang: 'fr',
+              },
+            ],
             subject_code: 'EU2030',
             subject_title: "Introduction a l'Algorithmique",
           },
