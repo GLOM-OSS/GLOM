@@ -1,4 +1,4 @@
-import { Person, Student } from '../interfaces';
+import { Student } from '../interfaces';
 
 export interface PresenceListChapter {
   is_covered: boolean;
