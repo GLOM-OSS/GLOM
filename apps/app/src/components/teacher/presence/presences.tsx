@@ -280,7 +280,13 @@ export default function Presences() {
           )}
         </Typography>
       </Box>
-      <SessionDetails session={activeSession} />
+      <SessionDetails
+        session={activeSession}
+        reset={() => {
+          setActiveSession({ ...activeSession, chapters: [], students: [] });
+        }}
+        back={() => setActiveSession(undefined)}
+      />
     </Box>
   );
 }
