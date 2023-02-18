@@ -7,6 +7,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Typography,
 } from '@mui/material';
 import { Classroom, Student, UEMajor } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
@@ -62,6 +63,7 @@ export default function Students() {
             matricule: '17C005',
             national_id_number: '000316122',
             phone_number: '681382151',
+            preferred_lang: 'en',
           },
         ];
         setStudents(newStudents);
@@ -223,6 +225,7 @@ export default function Students() {
             matricule: '18C005',
             national_id_number: '000310122',
             phone_number: '693256789',
+            preferred_lang: 'fr',
           },
         ];
         setStudents((prevStudents) => [...prevStudents, ...newStudents]);
@@ -266,9 +269,24 @@ export default function Students() {
             });
           }
         }}
-        dialogMessage={`${formatMessage({ id: 'importIntoLevel1Message1' })} ${
-          activeMajor?.major_name
-        } ${formatMessage({ id: 'importIntoLevel1Message2' })}`}
+        dialogMessage={
+          <Typography>
+            <Typography variant="body2" component="span">
+              {formatMessage({ id: 'importIntoLevel1Message1' })}
+            </Typography>
+            <Typography
+              variant="body2"
+              component="span"
+              fontWeight={'bold'}
+              padding="0 4px"
+            >
+              {activeMajor?.major_name}
+            </Typography>
+            <Typography variant="body2" component="span">
+              {formatMessage({ id: 'importIntoLevel1Message2' })}
+            </Typography>
+          </Typography>
+        }
         isDialogOpen={isImportDialogOpen}
         dialogTitle={formatMessage({ id: 'confirmImportIntoLevel1' })}
       />
@@ -339,7 +357,6 @@ export default function Students() {
                     {formatMessage({ id: val })}
                   </TableCell>
                 ))}
-                <TableCell />
               </TableRow>
             </TableHead>
             <TableBody>

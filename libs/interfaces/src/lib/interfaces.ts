@@ -22,7 +22,7 @@ export interface Person {
   gender: 'Male' | 'Female';
   national_id_number: string;
   civil_status?: 'Married' | 'Single' | 'Divorced';
-  employment_status: 'Employed' | 'Unemployed' | 'SelfEmployed';
+  employment_status?: 'Employed' | 'Unemployed' | 'SelfEmployed';
 }
 
 export interface Teacher extends Person {
