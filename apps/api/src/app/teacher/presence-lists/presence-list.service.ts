@@ -60,7 +60,13 @@ export class PresenceListService {
       });
       const students = await this.prismaService.annualStudent.findMany({
         select: {
+          is_active: true,
           annual_student_id: true,
+          AnnualClassroomDivision: {
+            select: {
+              AnnualClassroom: { select: { classroom_acronym: true } },
+            },
+          },
           Student: {
             select: {
               matricule: true,
@@ -103,6 +109,10 @@ export class PresenceListService {
           })),
         students: students.map(
           ({
+            is_active,
+            AnnualClassroomDivision: {
+              AnnualClassroom: { classroom_acronym },
+            },
             Student: {
               matricule,
               Login: { Person: person },
@@ -111,6 +121,8 @@ export class PresenceListService {
           }) => ({
             matricule,
             ...person,
+            is_active,
+            classroom_acronym,
             annual_student_id,
             is_present: Boolean(
               presentStudents.find(

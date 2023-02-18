@@ -1,9 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import {
-  AnnualStudent,
-  Person, PrismaPromise,
-  Student
-} from '@prisma/client';
+import { AnnualStudent, Person, PrismaPromise, Student } from '@prisma/client';
 import { Student as StudentInface, StudentDetail } from '@squoolr/interfaces';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
@@ -94,12 +90,18 @@ export class StudentRegistrationService {
   ): Promise<StudentDetail | null> {
     const annualStudent = await this.prismaService.annualStudent.findUnique({
       select: {
+        is_active: true,
         annual_student_id: true,
         Student: {
           select: {
             matricule: true,
             Tutor: { select: { Person: true } },
             Login: { select: { Person: true } },
+          },
+        },
+        AnnualClassroomDivision: {
+          select: {
+            AnnualClassroom: { select: { classroom_acronym: true } },
           },
         },
       },
@@ -109,18 +111,24 @@ export class StudentRegistrationService {
     });
     if (annualStudent) {
       const {
+        is_active,
         annual_student_id,
         Student: {
           matricule,
           Login: { Person: person },
           Tutor: { Person: tutorInfo },
         },
+        AnnualClassroomDivision: {
+          AnnualClassroom: { classroom_acronym },
+        },
       } = annualStudent;
       return {
         matricule,
         ...person,
         tutorInfo,
+        is_active,
         annual_student_id,
+        classroom_acronym,
       };
     }
     return null;
