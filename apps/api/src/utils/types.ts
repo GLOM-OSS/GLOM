@@ -10,6 +10,7 @@ export type RecordValue =
   | UserRole[];
 export enum Role {
   ADMIN = 'ADMIN',
+  PARENT = 'PARENT',
   STUDENT = 'STUDENT',
   TEACHER = 'TEACHER',
   REGISTRY = 'REGISTRY',
@@ -61,6 +62,7 @@ export type DesirializeRoles = {
   annualRegistry?: {
     annual_registry_id: string;
   };
+  tutorStudentIds?: string[];
   activeYear?: ActiveYear;
 };
 

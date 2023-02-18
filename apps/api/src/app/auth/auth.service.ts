@@ -108,8 +108,11 @@ export class AuthService {
   }
 
   async validateLogin(request: Request, login: Omit<Login, 'password'>) {
-    const origin = request.headers.origin; // new URL(request.headers.origin).hostname;
-    const { login_id, school_id, cookie_age } = login;
+    const origin =
+      process.env.NODE_ENV === 'production'
+        ? new URL(request.headers.origin).hostname
+        : request.headers.origin;
+    const { login_id, school_id, is_personnel, is_parent, cookie_age } = login;
 
     let user: Omit<PassportSession, 'log_id'> = {
       login_id,
@@ -132,13 +135,17 @@ export class AuthService {
         message: JSON.stringify(AUTH02),
       });
     }
-
-    if (school_id) {
+    if (is_parent && !this.checkOrigin(origin, Role.PARENT)) {
+      throw new UnauthorizedException({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        error: 'Unauthorized access',
+        message: AUTH401['Fr'],
+      });
+    } else if (school_id) {
       const school = await this.schoolService.findFirst({
         where: { school_id, is_validated: true },
       });
-      if (origin === 'http://localhost:4200') {
-        //origin === `${school.subdomain}.squoolr.com`
+      if (this.checkOrigin(origin, Role.STUDENT, school.subdomain)) {
         const student = await this.studentService.findFirst({
           where: { login_id },
         });
@@ -148,16 +155,17 @@ export class AuthService {
             error: 'Unauthorized access',
             message: AUTH401['Fr'],
           }); //someone attempting to be a student
-      } else if (!login.is_personnel || origin !== `http://localhost:4201`)
-        //origin !== `admin.${school.subdomain}.squoolr.com`
+      } else if (
+        !is_personnel ||
+        !this.checkOrigin(origin, Role.CONFIGURATOR, school.subdomain)
+      )
         throw new UnauthorizedException({
           statusCode: HttpStatus.UNAUTHORIZED,
           error: 'Unauthorized access',
           message: AUTH401['Fr'],
         }); //someone attempting to be a personnel
     } else {
-      if (origin !== 'http://localhost:4202')
-        //process.env.ADMIN_URL
+      if (!this.checkOrigin(origin, Role.ADMIN))
         throw new UnauthorizedException({
           statusCode: HttpStatus.UNAUTHORIZED,
           error: 'Unauthorized access',
@@ -179,6 +187,34 @@ export class AuthService {
       user.cookie_age
     );
     return { log_id, ...user, job_name };
+  }
+
+  private checkOrigin(origin: string, role: Role, subdomain?: string) {
+    const env = process.env.NODE_ENV;
+    return (
+      (role === Role.ADMIN &&
+        origin ===
+          (env === 'production'
+            ? `admin.squoolr.com`
+            : 'http://localhost:4202')) ||
+      (role === Role.PARENT &&
+        origin ===
+          (env === 'production'
+            ? `parent.squoolr.com`
+            : 'http://localhost:4203')) ||
+      (role === Role.STUDENT &&
+        origin ===
+          (env === 'production'
+            ? `${subdomain}.squoolr.com`
+            : 'http://localhost:4200')) ||
+      (role !== Role.ADMIN &&
+        role !== Role.PARENT &&
+        role !== Role.STUDENT &&
+        origin ===
+          (env === 'production'
+            ? `admin.${subdomain}.squoolr.com`
+            : 'http://localhost:4201'))
+    );
   }
 
   async getActiveRoles(
@@ -392,122 +428,38 @@ export class AuthService {
     throw new HttpException(sAUTH404['Fr'], HttpStatus.NOT_FOUND);
   }
 
-  async deserializeUser(user: PassportSession) {
-    const { academic_year_id, login_id, roles } = user;
+  async deserializeUser(
+    user: PassportSession
+  ): Promise<DeserializeSessionData> {
+    const { academic_year_id, login_id } = user;
     const person = await this.personService.findFirst({
+      include: { Logins: true },
       where: { Logins: { some: { login_id } } },
     });
-    const login = await this.loginService.findUnique({
-      where: { login_id },
-    });
-    if (!login) return null;
+    if (!person) return null;
 
-    const { school_id } = login;
-    if (!academic_year_id)
-      return school_id ? null : { ...person, login_id, school_id };
-
-    const { started_at, ended_at, starts_at, ends_at, year_code, year_status } =
-      await this.academicYearService.findFirst({
-        where: {
-          academic_year_id,
-          is_deleted: false,
-        },
+    const {
+      Logins: [login],
+    } = person;
+    let deserialedUser: DeserializeSessionData;
+    if (academic_year_id) {
+      const { availableRoles } = await this.getActiveRoles(
+        login_id,
+        academic_year_id
+      );
+      deserialedUser = { ...deserialedUser, ...availableRoles };
+    } else if (login.is_parent) {
+      //check for parent students
+      const parentStudents = await this.studentService.findMany({
+        select: { student_id: true },
+        where: { tutor_id: login_id },
       });
-
-    let deserialedUser: DeserializeSessionData = {
-      login_id,
-      ...person,
-      school_id,
-      activeYear: {
-        year_code,
-        year_status,
-        academic_year_id,
-        starting_date:
-          year_status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,
-        ending_date:
-          year_status !== AcademicYearStatus.FINISHED ? ends_at : ended_at,
-      },
-    };
-    for (let i = 0; i < roles.length; i++) {
-      const { user_id, role } = roles[i];
-      if (role === Role.STUDENT) {
-        deserialedUser = {
-          ...deserialedUser,
-          annualStudent: await this.annualStudentService.findFirst({
-            where: {
-              annual_student_id: user_id,
-              is_deleted: false,
-            },
-          }),
-        };
-        break;
-      } else {
-        switch (role) {
-          case Role.CONFIGURATOR: {
-            const { annual_configurator_id, is_sudo } =
-              await this.annualConfiguratorService.findFirst({
-                where: {
-                  annual_configurator_id: user_id,
-                  is_deleted: false,
-                },
-              });
-            deserialedUser = {
-              ...deserialedUser,
-              annualConfigurator: { annual_configurator_id, is_sudo },
-            };
-            break;
-          }
-          case Role.REGISTRY: {
-            const { annual_registry_id } =
-              await this.annualRegistryService.findFirst({
-                where: {
-                  annual_registry_id: user_id,
-                  is_deleted: false,
-                },
-              });
-            deserialedUser = {
-              ...deserialedUser,
-              annualRegistry: { annual_registry_id },
-            };
-            break;
-          }
-          case Role.TEACHER: {
-            const {
-              annual_teacher_id,
-              has_signed_convention,
-              hourly_rate,
-              origin_institute,
-              teacher_id,
-            } = await this.annualTeacherService.findFirst({
-              where: {
-                annual_teacher_id: user_id,
-                is_deleted: false,
-              },
-            });
-            const classroomDivisions =
-              await this.annualClassroomDivisionService.findMany({
-                where: { annual_coordinator_id: user_id },
-              });
-            deserialedUser = {
-              ...deserialedUser,
-              annualTeacher: {
-                classroomDivisions: classroomDivisions.map(
-                  ({ annual_classroom_division_id: id }) => id
-                ),
-                has_signed_convention,
-                annual_teacher_id,
-                origin_institute,
-                hourly_rate,
-                teacher_id,
-              },
-            };
-            break;
-          }
-        }
-      }
+      deserialedUser = {
+        ...deserialedUser,
+        tutorStudentIds: parentStudents.map((_) => _.student_id),
+      };
     }
-
-    return deserialedUser;
+    return { login_id, ...person, ...deserialedUser };
   }
 
   async logIn(request: Request, login_id: string, cookie_age: number) {
@@ -546,6 +498,7 @@ export class AuthService {
       annualRegistry,
       annualStudent,
       annualTeacher,
+      tutorStudentIds,
     } = deserialedUser;
     const school = await this.schoolService.findFirst({
       where: {
@@ -555,10 +508,11 @@ export class AuthService {
       },
     });
     return (
-      (login_id && squoolr_client === 'http://localhost:4202') || //Admin -> process.env.ADMIN_URL
-      (annualStudent && squoolr_client === 'http://localhost:4200') || //Student -> `${school.subdomain}.squoolr.com`
+      (login_id && this.checkOrigin(squoolr_client, Role.ADMIN)) || //Admin -> process.env.ADMIN_URL
+      (annualStudent && this.checkOrigin(squoolr_client, Role.STUDENT)) || //Student -> `${school.subdomain}.squoolr.com`
+      (tutorStudentIds && this.checkOrigin(squoolr_client, Role.PARENT)) || //Parent -> `parent.squoolr.com`
       ((annualConfigurator || annualRegistry || annualTeacher) &&
-        squoolr_client === 'http://localhost:4201') //Personnel -> `admin.${school.subdomain}.squoolr.com`
+        this.checkOrigin(squoolr_client, Role.CONFIGURATOR, school.subdomain)) //Personnel -> `admin.${school.subdomain}.squoolr.com`
     );
   }
 
