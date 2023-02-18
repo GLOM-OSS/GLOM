@@ -191,7 +191,7 @@ export class DemandService {
           ? SchoolDemandStatus.REJECTED
           : SchoolDemandStatus.VALIDATED,
         School: {
-          update: { subdomain },
+          update: { subdomain, is_validated: true },
         },
         SchoolDemandAudits: {
           create: {
