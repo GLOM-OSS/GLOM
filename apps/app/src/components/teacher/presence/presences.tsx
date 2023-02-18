@@ -282,8 +282,8 @@ export default function Presences() {
       </Box>
       <SessionDetails
         session={activeSession}
-        reset={() => {
-          setActiveSession({ ...activeSession, chapters: [], students: [] });
+        reset={(session?:PresenceList) => {
+          setActiveSession(session??{ ...activeSession, chapters: [], students: [] });
         }}
         back={() => setActiveSession(undefined)}
       />
