@@ -1,5 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { AnnualStudent, Person, PrismaPromise, Student } from '@prisma/client';
+import {
+  AnnualStudent,
+  Person, PrismaPromise,
+  Student
+} from '@prisma/client';
 import { Student as StudentInface, StudentDetail } from '@squoolr/interfaces';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
@@ -45,9 +49,13 @@ export class StudentRegistrationService {
   ): Promise<StudentInface[]> {
     const annualStudents = await this.prismaService.annualStudent.findMany({
       select: {
+        is_active: true,
         annual_student_id: true,
         Student: {
           select: { matricule: true, Login: { select: { Person: true } } },
+        },
+        AnnualClassroomDivision: {
+          select: { AnnualClassroom: { select: { classroom_acronym: true } } },
         },
       },
       where: {
@@ -62,15 +70,21 @@ export class StudentRegistrationService {
     });
     return annualStudents.map(
       ({
+        is_active,
         annual_student_id,
         Student: {
           matricule,
           Login: { Person: person },
         },
+        AnnualClassroomDivision: {
+          AnnualClassroom: { classroom_acronym },
+        },
       }) => ({
         matricule,
         ...person,
+        is_active,
         annual_student_id,
+        classroom_acronym,
       })
     );
   }
@@ -153,11 +167,31 @@ export class StudentRegistrationService {
         },
       }
     );
-    const queryInstructions: PrismaPromise<Person | Student | AnnualStudent>[] =
-      [];
-    await Promise.all(
-      importedStudentData.map(
-        async ({
+    const existingAccounts = await this.prismaService.person.findMany({
+      select: {
+        email: true,
+        person_id: true,
+        Logins: {
+          select: { login_id: true, school_id: true, is_parent: true },
+        },
+      },
+      where: {
+        OR: importedStudentData.reduce<{ email: string }[]>(
+          (emails, { email, tutor_email }) => [
+            ...emails,
+            { email },
+            { email: tutor_email },
+          ],
+          []
+        ),
+      },
+    });
+    const queryInstructions = importedStudentData.reduce<
+      PrismaPromise<Person | Student | AnnualStudent>[]
+    >(
+      (
+        queries,
+        {
           tutor_address,
           tutor_email,
           tutor_firstname,
@@ -173,121 +207,120 @@ export class StudentRegistrationService {
           phone_number,
           national_id_number,
           ...person
-        }) => {
-          const studentPerson = await this.prismaService.person.findUnique({
-            where: { email: person.email },
-          });
-          const tutorPerson = await this.prismaService.person.findUnique({
-            select: {
-              person_id: true,
+        }
+      ) => {
+        const studentPerson = existingAccounts.find(
+          ({ email }) => email === person.email
+        );
+        const tutorPerson = existingAccounts.find(
+          ({ email }) => email === tutor_email
+        );
+        const newStudentPerson = {
+          ...person,
+          birthdate: new Date(birthdate),
+          phone_number: phone_number.toString(),
+          national_id_number: national_id_number.toString(),
+          person_id: studentPerson?.person_id ?? randomUUID(),
+        };
+        const logins = tutorPerson?.Logins;
+        const tutorLoginId =
+          logins && logins.length > 0 && logins[0].is_parent
+            ? logins[0].login_id
+            : randomUUID();
+        const newTutorPerson = {
+          email: tutor_email,
+          gender: tutor_gender,
+          address: tutor_address,
+          last_name: tutor_lastname,
+          first_name: tutor_firstname,
+          nationality: tutor_nationality,
+          birthdate: new Date(tutor_birthdate),
+          phone_number: tutor_phone_number.toString(),
+          national_id_number: tutor_national_id_number.toString(),
+          person_id: tutorPerson?.person_id ?? randomUUID(),
+          Logins: {
+            connectOrCreate: {
+              create: {
+                is_parent: true,
+                login_id: tutorLoginId,
+                password: bcrypt.hashSync(
+                  'tutor-password',
+                  Number(process.env.SALT)
+                ),
+              },
+              where: { login_id: tutorLoginId },
+            },
+          },
+        };
+
+        return [
+          ...queries,
+          this.prismaService.person.upsert({
+            create: {
+              ...newStudentPerson,
               Logins: {
-                select: { login_id: true },
-                where: { school_id: null },
+                create: {
+                  password: bcrypt.hashSync(
+                    'student-password',
+                    Number(process.env.SALT)
+                  ),
+                  School: { connect: { school_id } },
+                },
               },
             },
+            update: newStudentPerson,
+            where: { email: person.email },
+          }),
+          this.prismaService.person.upsert({
+            create: newTutorPerson,
+            update: newTutorPerson,
             where: { email: tutor_email },
-          });
-          const newStudentPerson = {
-            ...person,
-            birthdate: new Date(birthdate),
-            phone_number: phone_number.toString(),
-            national_id_number: national_id_number.toString(),
-            person_id: studentPerson?.person_id ?? randomUUID(),
-          };
-          const newTutorPerson = {
-            email: tutor_email,
-            gender: tutor_gender,
-            address: tutor_address,
-            last_name: tutor_lastname,
-            first_name: tutor_firstname,
-            nationality: tutor_nationality,
-            birthdate: new Date(tutor_birthdate),
-            phone_number: tutor_phone_number.toString(),
-            national_id_number: tutor_national_id_number.toString(),
-            person_id: tutorPerson?.person_id ?? randomUUID(),
-          };
-          const logins = tutorPerson.Logins;
-          const tutorLoginId =
-            logins.length > 0 ? logins[0].login_id : randomUUID();
-          queryInstructions.push(
-            this.prismaService.person.upsert({
-              create: {
-                ...newStudentPerson,
-                Logins: {
-                  create: {
-                    password: bcrypt.hashSync(
-                      'student-password',
-                      Number(process.env.SALT)
-                    ),
-                    School: { connect: { school_id } },
+          }),
+          this.prismaService.student.upsert({
+            create: {
+              matricule,
+              Login: {
+                connect: {
+                  person_id_school_id: {
+                    school_id,
+                    person_id: newStudentPerson.person_id,
                   },
                 },
               },
-              update: newStudentPerson,
-              where: { email: person.email },
-            }),
-            this.prismaService.person.upsert({
-              create: {
-                ...newTutorPerson,
-                Logins: {
-                  create: {
-                    is_parent: true,
-                    login_id: tutorLoginId,
-                    password: bcrypt.hashSync(
-                      'tutor-password',
-                      Number(process.env.SALT)
-                    ),
-                  },
+              Classroom: { connect: { classroom_id } },
+              Tutor: {
+                connect: {
+                  login_id: tutorLoginId,
                 },
               },
-              update: newTutorPerson,
-              where: { email: tutor_email },
-            }),
-            this.prismaService.student.upsert({
-              create: {
-                matricule,
-                Login: {
-                  connect: {
-                    person_id_school_id: {
-                      school_id,
-                      person_id: newStudentPerson.person_id,
-                    },
-                  },
-                },
-                Classroom: { connect: { classroom_id } },
-                Tutor: {
-                  connect: {
-                    login_id: tutorLoginId,
-                  },
+            },
+            update: {},
+            where: { matricule },
+          }),
+          this.prismaService.annualStudent.create({
+            data: {
+              Student: {
+                connect: { matricule },
+              },
+              AnnualClassroomDivision: {
+                connect: {
+                  annual_classroom_division_id,
                 },
               },
-              update: {},
-              where: { matricule },
-            }),
-            this.prismaService.annualStudent.create({
-              data: {
-                Student: {
-                  connect: { matricule },
-                },
-                AnnualClassroomDivision: {
-                  connect: {
-                    annual_classroom_division_id,
-                  },
-                },
-                AcademicYear: { connect: { academic_year_id } },
-                AnnualStudentHasCreditUnits: {
-                  create: annualCreditUnit.map(
-                    ({ annual_credit_unit_id, semester_number }) => ({
-                      semester_number,
-                      annual_credit_unit_id,
-                    })
-                  ),
-                },
+              AcademicYear: { connect: { academic_year_id } },
+              AnnualStudentHasCreditUnits: {
+                create: annualCreditUnit.map(
+                  ({ annual_credit_unit_id, semester_number }) => ({
+                    semester_number,
+                    annual_credit_unit_id,
+                  })
+                ),
               },
-            })
-          );
-        }
-      )
+            },
+          }),
+        ];
+      },
+      []
     );
     return this.prismaService.$transaction(queryInstructions);
   }
