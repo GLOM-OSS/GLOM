@@ -14,7 +14,7 @@ const App = (props) => {
   useEffect(() => {
     languageDispatch({
       type:
-        localStorage.getItem('squoolr_active_language') === 'En'
+        localStorage.getItem('squoolr_active_language') === 'en'
           ? 'USE_ENGLISH'
           : 'USE_FRENCH',
     });

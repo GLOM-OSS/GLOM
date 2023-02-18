@@ -119,7 +119,7 @@ export default function Navbar() {
           <IconButton
             onClick={() =>
               languageDispatch({
-                type: activeLanguage === 'En' ? 'USE_FRENCH' : 'USE_ENGLISH',
+                type: activeLanguage === 'en' ? 'USE_FRENCH' : 'USE_ENGLISH',
               })
             }
           >

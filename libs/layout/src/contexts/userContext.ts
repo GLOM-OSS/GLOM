@@ -22,7 +22,7 @@ const UserContext = createContext<User & DispatchInterface>({
   national_id_number: '',
   person_id: '',
   phone_number: '',
-  preferred_lang: 'En',
+  preferred_lang: 'en',
   userDispatch: () => null,
 });
 

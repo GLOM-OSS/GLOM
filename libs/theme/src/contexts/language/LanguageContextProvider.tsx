@@ -12,12 +12,12 @@ import {
 const languageReducer: Reducer<Language, Action> = (state: State, action: Action) => {
   switch (action.type) {
     case 'USE_ENGLISH': {
-      localStorage.setItem('squoolr_active_language', 'En');
-      return { ...state, activeLanguage: 'En' };
+      localStorage.setItem('squoolr_active_language', 'en');
+      return { ...state, activeLanguage: 'en' };
     }
     case 'USE_FRENCH': {
-      localStorage.setItem('squoolr_active_language', 'Fr');
-      return { ...state, activeLanguage: 'Fr' };
+      localStorage.setItem('squoolr_active_language', 'fr');
+      return { ...state, activeLanguage: 'fr' };
     }
     default:
       return state;
@@ -28,7 +28,7 @@ function LanguageContextProvider({
   children,
 }: LanguageContextProviderProps): JSX.Element {
   const initialState: Language = {
-    activeLanguage:  'Fr',
+    activeLanguage:  'fr',
     languageDispatch: () => null,
   };
 

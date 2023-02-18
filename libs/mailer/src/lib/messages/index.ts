@@ -1,6 +1,6 @@
 const resetPassword = {
-    Fr: 'Reinitialisation du mot de passe Squoolr',
-    En: 'Squoolr password reset',
+    fr: 'Reinitialisation du mot de passe Squoolr',
+    en: 'Squoolr password reset',
 }
 
 export const messages = {

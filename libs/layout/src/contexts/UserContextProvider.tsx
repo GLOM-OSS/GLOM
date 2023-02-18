@@ -26,7 +26,7 @@ const userReducer: Reducer<User & DispatchInterface, UserAction> = (
         national_id_number: '',
         person_id: '',
         phone_number: '',
-        preferred_lang: 'Fr',
+        preferred_lang: 'fr',
       };
     }
     case 'LOAD_USER': {
@@ -59,7 +59,7 @@ function UserContextProvider({
     national_id_number: '',
     person_id: '',
     phone_number: '',
-    preferred_lang: 'En',
+    preferred_lang: 'en',
     annualConfigurator: { annual_configurator_id: 'lsk', is_sudo: false },
     annualRegistry: { annual_registry_id: 'lsk' },
     annualTeacher: {

@@ -103,7 +103,7 @@ export class AuthService {
     throw new UnauthorizedException({
       statusCode: HttpStatus.UNAUTHORIZED,
       error: 'Unauthorized access',
-      message: AUTH401['Fr'],
+      message: AUTH401['fr'],
     });
   }
 
@@ -139,7 +139,7 @@ export class AuthService {
       throw new UnauthorizedException({
         statusCode: HttpStatus.UNAUTHORIZED,
         error: 'Unauthorized access',
-        message: AUTH401['Fr'],
+        message: AUTH401['fr'],
       });
     } else if (school_id) {
       const school = await this.schoolService.findFirst({
@@ -153,7 +153,7 @@ export class AuthService {
           throw new UnauthorizedException({
             statusCode: HttpStatus.UNAUTHORIZED,
             error: 'Unauthorized access',
-            message: AUTH401['Fr'],
+            message: AUTH401['fr'],
           }); //someone attempting to be a student
       } else if (
         !is_personnel ||
@@ -162,14 +162,14 @@ export class AuthService {
         throw new UnauthorizedException({
           statusCode: HttpStatus.UNAUTHORIZED,
           error: 'Unauthorized access',
-          message: AUTH401['Fr'],
+          message: AUTH401['fr'],
         }); //someone attempting to be a personnel
     } else {
       if (!this.checkOrigin(origin, Role.ADMIN))
         throw new UnauthorizedException({
           statusCode: HttpStatus.UNAUTHORIZED,
           error: 'Unauthorized access',
-          message: AUTH401['Fr'],
+          message: AUTH401['fr'],
         }); //attempting to be an admin
       user = {
         ...user,
@@ -373,7 +373,7 @@ export class AuthService {
         where: { OR: { is_valid: true, expires_at: { gt: new Date() } } },
       });
       if (resetPasswords === 1)
-        throw new HttpException(AUTH04['Fr'], HttpStatus.NOT_FOUND);
+        throw new HttpException(AUTH04['fr'], HttpStatus.NOT_FOUND);
       const { reset_password_id } = await this.resetPasswordService.create({
         data: {
           Login: { connect: { login_id: login.login_id } },
@@ -385,7 +385,7 @@ export class AuthService {
 
       return { reset_password_id };
     }
-    throw new HttpException(AUTH404('Email')['Fr'], HttpStatus.NOT_FOUND);
+    throw new HttpException(AUTH404('Email')['fr'], HttpStatus.NOT_FOUND);
   }
 
   async setNewPassword(
@@ -425,7 +425,7 @@ export class AuthService {
         }),
       ]);
     }
-    throw new HttpException(sAUTH404['Fr'], HttpStatus.NOT_FOUND);
+    throw new HttpException(sAUTH404['fr'], HttpStatus.NOT_FOUND);
   }
 
   async deserializeUser(

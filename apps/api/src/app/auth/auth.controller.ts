@@ -129,7 +129,7 @@ export class AuthController {
       return request.session.destroy(async (err) => {
         if (err)
           throw new HttpException(
-            AUTH500['Fr'],
+            AUTH500['fr'],
             HttpStatus.INTERNAL_SERVER_ERROR
           );
         await this.prismaService.log.update({

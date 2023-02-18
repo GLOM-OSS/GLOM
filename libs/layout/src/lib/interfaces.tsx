@@ -19,7 +19,7 @@ export interface NavItem {
 }
 
 export type Gender = 'Male' | 'Female';
-export type Lang = 'En' | 'Fr';
+export type Lang = 'en' | 'fr';
 
 export type UserAction =
   | { type: 'LOAD_USER'; payload: { user: User } }

@@ -56,7 +56,7 @@ const Classroom = ({
           currencyDisplay="symbol"
         >
           {(parts) => {
-            return activeLanguage === 'Fr' ? (
+            return activeLanguage === 'fr' ? (
               <>
                 {parts.map((part, index) => {
                   return index !== parts.length - 1 ? part.value : null;
@@ -82,7 +82,7 @@ const Classroom = ({
           currencyDisplay="symbol"
         >
           {(parts) => {
-            return activeLanguage === 'Fr' ? (
+            return activeLanguage === 'fr' ? (
               <>
                 {parts.map((part, index) => {
                   return index !== parts.length - 1 ? part.value : null;

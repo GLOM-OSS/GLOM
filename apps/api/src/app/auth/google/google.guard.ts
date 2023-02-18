@@ -15,7 +15,7 @@ export class GoogleGuard extends AuthGuard('google') {
       await super.logIn(request);
       return result;
     } catch (error) {
-      throw new HttpException(AUTH400['Fr'], HttpStatus.BAD_REQUEST);
+      throw new HttpException(AUTH400['fr'], HttpStatus.BAD_REQUEST);
     }
   }
 }

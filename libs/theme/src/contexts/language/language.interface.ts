@@ -2,7 +2,7 @@ export interface LanguageContextProviderProps {
     children: JSX.Element;
 }
 
-export type LanguageType = 'En' | 'Fr';
+export type LanguageType = 'en' | 'fr';
 
 
 export type Action = { type: "USE_ENGLISH" } | { type: "USE_FRENCH" };

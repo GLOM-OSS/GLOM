@@ -83,7 +83,7 @@ export class AuthenticatedGuard implements CanActivate {
       squoolr_client
     );
     if (!userHasTheAcess || !userClientCorrect)
-      throw new HttpException(AUTH05['Fr'], HttpStatus.FORBIDDEN);
+      throw new HttpException(AUTH05['fr'], HttpStatus.FORBIDDEN);
     const now = new Date();
     this.tasksService.upsertCronTime(
       job_name,

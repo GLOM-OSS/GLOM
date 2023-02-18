@@ -468,7 +468,7 @@ export class PersonnelService {
         where: { OR: { is_valid: true, expires_at: { gt: new Date() } } },
       });
       if (resetPasswords === 1)
-        throw new HttpException(AUTH04['Fr'], HttpStatus.NOT_FOUND);
+        throw new HttpException(AUTH04['fr'], HttpStatus.NOT_FOUND);
       const { reset_password_id } = await this.resetPasswordService.create({
         data: {
           Login: { connect: { login_id: login.login_id } },
@@ -483,7 +483,7 @@ export class PersonnelService {
 
       return { reset_password_id };
     }
-    throw new HttpException(AUTH404('Email')['Fr'], HttpStatus.NOT_FOUND);
+    throw new HttpException(AUTH404('Email')['fr'], HttpStatus.NOT_FOUND);
   }
 
   async addNewStaff(

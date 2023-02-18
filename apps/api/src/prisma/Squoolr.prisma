@@ -15,8 +15,8 @@ enum Gender {
 }
 
 enum Lang {
-    En
-    Fr
+    en
+    fr
 
     @@map("preferred_lang_enum")
 }
@@ -51,7 +51,7 @@ model Person {
     longitude          Int?
     latitude           Int?
     email              String            @unique @db.VarChar(50)
-    preferred_lang     Lang              @default(Fr)
+    preferred_lang     Lang              @default(fr)
     image_ref          String?           @db.VarChar(50)
     home_region        String?           @db.VarChar(45)
     religion           String?           @db.VarChar(45)

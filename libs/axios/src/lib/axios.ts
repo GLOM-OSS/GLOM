@@ -17,7 +17,7 @@ function axiosInstance(): AxiosInstance {
         ...request,
         headers: {
           ...request.headers,
-          lang: 'Fr',
+          lang: 'fr',
         },
         params: request.params ? { data: encrypt(request.params) } : undefined,
         data:
