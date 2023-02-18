@@ -122,21 +122,14 @@ export class CreditUnitSubjectService {
       annual_credit_unit_id,
       ...newAnnualCreditUnitSubject
     }: CreditUnitSubjectPutDto,
+    academic_year_id: string,
     audited_by: string
   ) {
-    const annualCreditUnit =
-      await this.prismaService.annualCreditUnit.findUnique({
-        where: { annual_credit_unit_id },
-      });
-    if (!annualCreditUnit)
-      throw new HttpException(
-        JSON.stringify(AUTH404('Credit Unit')),
-        HttpStatus.NOT_FOUND
-      );
     const teachers = await this.prismaService.annualTeacher.findMany({
-      where: { academic_year_id: annualCreditUnit.academic_year_id },
+      where: { academic_year_id },
     });
     if (
+      subjectParts &&
       !subjectParts.find((_) =>
         teachers.find((__) => __.annual_teacher_id === _.annual_teacher_id)
       )
@@ -153,6 +146,7 @@ export class CreditUnitSubjectService {
           subject_code: true,
           subject_title: true,
           weighting: true,
+          annual_credit_unit_id: true,
           AnnualCreditUnitHasSubjectParts: {
             select: {
               number_of_hours: true,
@@ -165,15 +159,20 @@ export class CreditUnitSubjectService {
         },
         where: { annual_credit_unit_subject_id },
       });
-    if (!annual_credit_unit_subject_id)
+    if (!annualCreditUnitSubject)
       throw new HttpException(
         JSON.stringify(AUTH404('Credit Unit Subject')),
         HttpStatus.NOT_FOUND
       );
+    const {
+      annual_credit_unit_id: ue_id,
+      AnnualCreditUnitHasSubjectParts: oldSubjectParts,
+      ...annualCreditUnitSubjectData
+    } = annualCreditUnitSubject;
     const subjects = await this.prismaService.annualCreditUnitSubject.findMany({
       select: { weighting: true },
       where: {
-        annual_credit_unit_id,
+        annual_credit_unit_id: ue_id,
         annual_credit_unit_subject_id: { not: annual_credit_unit_subject_id },
       },
     });
@@ -181,15 +180,12 @@ export class CreditUnitSubjectService {
       (total, { weighting }) => total + weighting,
       0
     );
+    console.log(totalWeight);
     if (weighting && weighting > 1 - totalWeight)
       throw new HttpException(
         JSON.stringify(ERR10),
         HttpStatus.EXPECTATION_FAILED
       );
-    const {
-      AnnualCreditUnitHasSubjectParts: oldSubjectParts,
-      ...annualCreditUnitSubjectData
-    } = annualCreditUnitSubject;
 
     const updatedSubjectParts: {
       subject_part_id: string;
@@ -197,7 +193,7 @@ export class CreditUnitSubjectService {
       annual_teacher_id: string;
       annual_credit_unit_subject_id: string;
     }[] = [];
-    subjectParts.forEach(
+    subjectParts?.forEach(
       ({ number_of_hours, subject_part_id, annual_teacher_id }) => {
         const subjectPart = oldSubjectParts.find(
           (_) => _.subject_part_id === subject_part_id
@@ -239,8 +235,9 @@ export class CreditUnitSubjectService {
         data: {
           weighting,
           ...newAnnualCreditUnitSubject,
-          AnnualTeacher: { connect: { annual_teacher_id: audited_by } },
-          AnnualCreditUnit: { connect: { annual_credit_unit_id } },
+          AnnualCreditUnit: {
+            connect: { annual_credit_unit_id: annual_credit_unit_id ?? ue_id },
+          },
           AnnualCreditUnitSubjectAudits: {
             create: {
               ...annualCreditUnitSubjectData,
