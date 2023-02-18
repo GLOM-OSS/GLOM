@@ -21,6 +21,7 @@ import {
   PresenceList,
   PresenceListChapter,
   Student,
+  UpdatePresenceList,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -231,10 +232,7 @@ export default function SessionDetails({
   const [isReinitialising, setIsRenitialising] = useState<boolean>(false);
   const [reinitialiseNotif, setReinitialiseNotif] = useState<useNotification>();
 
-  const reinitialise = (
-    removedStudentIds: string[],
-    removedChapterIds: string[]
-  ) => {
+  const reinitialise = (presenceList: UpdatePresenceList) => {
     setIsRenitialising(true);
     const notif = new useNotification();
     if (reinitialiseNotif) {
@@ -245,7 +243,7 @@ export default function SessionDetails({
       render: formatMessage({ id: 'reinitialisingPresenceList' }),
     });
     setTimeout(() => {
-      //TODO: CALL API HERE TO reinitialise presence list with data removedStudentIds and removedChapterIds
+      //TODO: CALL API HERE TO reinitialise presence list with data presenceList
       // eslint-disable-next-line no-constant-condition
       if (5 > 4) {
         const newStudents: Student[] = [];
@@ -265,9 +263,7 @@ export default function SessionDetails({
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={() =>
-                reinitialise(removedStudentIds, removedChapterIds)
-              }
+              retryFunction={() => reinitialise(presenceList)}
               notification={notif}
               //TODO: message should come from backend
               message={formatMessage({ id: 'reinitialisePresenceListFailed' })}
@@ -280,16 +276,31 @@ export default function SessionDetails({
     }, 3000);
   };
 
-  const save = (is_published: boolean, presence_list_id?: string) => {
-    //use presence_list_id to decide if to create of take the save route.
-    //use is_published to decide if to save or publish
-    // start_time
-    // end_time
-    // presence_list_date,
-    // removedStudentIds
-    // addedStudentIds
-    // removedChapterIds
-    // addedChapterIds
+  const save = (shouldPublish: boolean, presence_list_id?: string) => {
+    // start_time: stateTime
+    // end_time: endTime
+    // presence_list_date: sessionDate,
+
+    if (presence_list_id) {
+      // removedStudentIds
+      // addedStudentIds
+      // removedChapterIds
+      // addedChapterIds
+
+      if (shouldPublish) {
+        //publish existing list
+      } else {
+        //save existing list
+      }
+    } else {
+      // addedStudentIds
+      // addedChapterIds
+      if (shouldPublish) {
+        //publish new list straight away
+      } else {
+        //save new list
+      }
+    }
     //submit value
   };
 
@@ -303,7 +314,17 @@ export default function SessionDetails({
         confirmButton={formatMessage({ id: 'reinitialise' })}
         closeDialog={() => setIsConfirmReinitialiseDialogOpen(false)}
         isDialogOpen={isConfirmReinitialiseDialogOpen}
-        confirm={() => reinitialise(SL, CL)}
+        confirm={() =>
+          reinitialise({
+            addedChapterIds: [],
+            addedStudentIds: [],
+            removedChapterIds: CL,
+            removedStudentIds: SL,
+            end_time: e_time,
+            start_time: s_time,
+            presence_list_date: pld,
+          })
+        }
         danger
       />
       <ConfirmDeleteDialog
