@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/dialogTransition';
+import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
 
 export function ConfirmDeleteDialog({
@@ -14,8 +15,9 @@ export function ConfirmDeleteDialog({
   closeDialog,
   confirm,
   dialogMessage,
-  dialogTitle='delete',
-  confirmButton='delete',
+  dialogTitle = 'delete',
+  confirmButton = 'delete',
+  danger = false,
 }: {
   isDialogOpen: boolean;
   closeDialog: () => void;
@@ -23,6 +25,7 @@ export function ConfirmDeleteDialog({
   dialogMessage: string;
   dialogTitle?: string;
   confirmButton?: string;
+  danger?: boolean;
 }) {
   const { formatMessage } = useIntl();
   return (
@@ -32,7 +35,9 @@ export function ConfirmDeleteDialog({
       keepMounted
       onClose={closeDialog}
     >
-      <DialogTitle>
+      <DialogTitle
+        sx={{ color: danger ? theme.palette.error.main : 'initial' }}
+      >
         {formatMessage({
           id: dialogTitle,
         })}
@@ -45,16 +50,16 @@ export function ConfirmDeleteDialog({
       <DialogActions>
         <Button
           sx={{ textTransform: 'none' }}
-          color="error"
-          variant="text"
+          color={danger ? 'primary' : 'error'}
+          variant={danger ? 'outlined' : 'text'}
           onClick={closeDialog}
         >
           {formatMessage({ id: 'cancel' })}
         </Button>
         <Button
           sx={{ textTransform: 'none' }}
-          color="primary"
-          variant="contained"
+          color={danger ? 'error' : 'primary'}
+          variant={danger ? 'outlined' : 'contained'}
           onClick={() => {
             confirm();
             closeDialog();
