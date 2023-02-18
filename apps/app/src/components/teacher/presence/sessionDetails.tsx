@@ -686,7 +686,13 @@ export default function SessionDetails({
               isReinitialising ||
               isSubmitting
             }
-            onClick={() => setIsConfirmPublishDialogOpen(true)}
+            onClick={() => {
+              if (endTime < startTime)
+                alert(
+                  formatMessage({ id: 'endDateMustBeGreaterThanStartDate' })
+                );
+              else setIsConfirmPublishDialogOpen(true);
+            }}
           >
             {formatMessage({ id: 'publishList' })}
           </Button>
@@ -778,7 +784,13 @@ export default function SessionDetails({
                   isConfirmPublishDialogOpen ||
                   isReinitialising
                 }
-                onClick={() => setIsConfirmReinitialiseDialogOpen(true)}
+                onClick={() => {
+                  if (endTime < startTime)
+                    alert(
+                      formatMessage({ id: 'endDateMustBeGreaterThanStartDate' })
+                    );
+                  else setIsConfirmReinitialiseDialogOpen(true);
+                }}
                 sx={{ textTransform: 'none' }}
               >
                 {formatMessage({ id: 'reinitialise' })}
@@ -810,7 +822,13 @@ export default function SessionDetails({
                 isReinitialising ||
                 isSubmitting
               }
-              onClick={() => setIsConfirmSaveDialogOpen(true)}
+              onClick={() => {
+                if (endTime < startTime)
+                  alert(
+                    formatMessage({ id: 'endDateMustBeGreaterThanStartDate' })
+                  );
+                else setIsConfirmSaveDialogOpen(true);
+              }}
               sx={{ textTransform: 'none' }}
             >
               {formatMessage({ id: 'save' })}
