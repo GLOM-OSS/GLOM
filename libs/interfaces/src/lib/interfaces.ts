@@ -20,7 +20,7 @@ export interface Person {
   home_region?: string;
   phone_number: string;
   gender: 'Male' | 'Female';
-  preferred_lang: 'fr' | 'en';
+  preferred_lang?: 'fr' | 'en';
   national_id_number: string;
   civil_status?: 'Married' | 'Single' | 'Divorced';
   employment_status?: 'Employed' | 'Unemployed' | 'SelfEmployed';
