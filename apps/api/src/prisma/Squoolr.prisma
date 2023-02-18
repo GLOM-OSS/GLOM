@@ -210,7 +210,7 @@ model Login {
     login_id     String   @id @default(uuid()) @db.VarChar(36)
     password     String   @db.VarChar(75)
     cookie_age   Int      @default(3600) //60* 60 seconds of inativity
-    is_parent Boolean  @default(false) @db.TinyInt
+    is_parent    Boolean  @default(false) @db.TinyInt
     is_personnel Boolean  @default(false) @db.TinyInt
     is_deleted   Boolean  @default(false) @db.TinyInt()
     created_at   DateTime @default(now()) @db.DateTime(0)
@@ -302,6 +302,7 @@ model Student {
 
 model AnnualStudent {
     annual_student_id            String                  @id @default(uuid()) @db.VarChar(36)
+    is_active                    Boolean                 @default(true) @db.TinyInt
     is_deleted                   Boolean                 @default(false) @db.TinyInt
     student_id                   String
     Student                      Student                 @relation(fields: [student_id], references: [student_id], onDelete: Cascade, onUpdate: Cascade)
@@ -1328,7 +1329,6 @@ model AnnualStudentAnswerOption {
 
 model AnnualStudentHasCreditUnit {
     annual_student_has_credit_unit_id String                             @id @default(uuid()) @db.VarChar(36)
-    is_active                         Boolean                            @default(true) @db.TinyInt
     semester_number                   Int
     annual_student_id                 String                             @db.VarChar(36)
     AnnualStudent                     AnnualStudent                      @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)

@@ -73,10 +73,10 @@ export class PresenceListService {
           },
         },
         where: {
+          is_active: true,
           is_deleted: false,
           AnnualStudentHasCreditUnits: {
             some: {
-              is_active: true,
               AnnualCreditUnit: {
                 AnnualCreditUnitSubjects: {
                   some: { annual_credit_unit_subject_id },
