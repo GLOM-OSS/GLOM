@@ -475,7 +475,7 @@ export default function SessionDetails({
         closeDialog={() => setIsConfirmSaveDialogOpen(false)}
         isDialogOpen={isConfirmSaveDialogOpen}
         confirm={() => {
-          if (pl_id) save(false, pl_id);
+          if (pl_id !== 'new') save(false, pl_id);
           else save(false, undefined);
         }}
       />
@@ -488,7 +488,7 @@ export default function SessionDetails({
         closeDialog={() => setIsConfirmPublishDialogOpen(false)}
         isDialogOpen={isConfirmPublishDialogOpen}
         confirm={() => {
-          if (pl_id) save(true, pl_id);
+          if (pl_id !== 'new') save(true, pl_id);
           else save(true, undefined);
         }}
       />

@@ -195,9 +195,33 @@ export default function Presences() {
           )}
         </Typography>
 
-        <Button variant="contained" size="small" color="primary">
-          {formatMessage({ id: 'openNewList' })}
-        </Button>
+        {subject ? (
+          <Button
+            variant="contained"
+            size="small"
+            color="primary"
+            onClick={() => {
+              const pl: PresenceList = {
+                chapters: [],
+                end_time: new Date(),
+                is_published: false,
+                presence_list_date: new Date(),
+                presence_list_id: 'new',
+                start_time: new Date(),
+                students: [],
+                subject_code: subject.subject_code,
+                subject_title: subject.subject_title,
+              };
+              setActiveSession(pl);
+            }}
+          >
+            {formatMessage({ id: 'openNewList' })}
+          </Button>
+        ) : (
+          <Button variant="contained" size="small" color="primary" disabled>
+            {formatMessage({ id: 'openNewList' })}
+          </Button>
+        )}
       </Box>
       <Scrollbars autoHide>
         <Table sx={{ minWidth: 650 }}>
@@ -282,8 +306,10 @@ export default function Presences() {
       </Box>
       <SessionDetails
         session={activeSession}
-        reset={(session?:PresenceList) => {
-          setActiveSession(session??{ ...activeSession, chapters: [], students: [] });
+        reset={(session?: PresenceList) => {
+          setActiveSession(
+            session ?? { ...activeSession, chapters: [], students: [] }
+          );
         }}
         back={() => setActiveSession(undefined)}
       />
