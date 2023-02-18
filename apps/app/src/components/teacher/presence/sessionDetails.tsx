@@ -18,6 +18,7 @@ import {
 import { MobileDatePicker, TimePicker } from '@mui/x-date-pickers';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
+  CreatePresenceList,
   PresenceList,
   PresenceListChapter,
   Student,
@@ -46,7 +47,7 @@ export default function SessionDetails({
   back,
 }: {
   session: PresenceList;
-  reset: () => void;
+  reset: (session?: PresenceList) => void;
   back: () => void;
 }) {
   const { formatMessage, formatDate, formatTime } = useIntl();
@@ -276,32 +277,172 @@ export default function SessionDetails({
     }, 3000);
   };
 
-  const save = (shouldPublish: boolean, presence_list_id?: string) => {
-    // start_time: stateTime
-    // end_time: endTime
-    // presence_list_date: sessionDate,
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submitNotif, setSubmitNotif] = useState<useNotification>();
 
-    if (presence_list_id) {
-      // removedStudentIds
-      // addedStudentIds
-      // removedChapterIds
-      // addedChapterIds
-
-      if (shouldPublish) {
-        //publish existing list
-      } else {
-        //save existing list
-      }
-    } else {
-      // addedStudentIds
-      // addedChapterIds
-      if (shouldPublish) {
-        //publish new list straight away
-      } else {
-        //save new list
-      }
+  const createNewPresenceList = (
+    presenceList: CreatePresenceList,
+    shouldPublish: boolean
+  ) => {
+    setIsSubmitting(true);
+    const notif = new useNotification();
+    if (submitNotif) {
+      submitNotif.dismiss();
     }
-    //submit value
+    setSubmitNotif(notif);
+    notif.notify({
+      render: formatMessage({
+        id: shouldPublish ? 'publishingPresenceList' : 'savingPresenceList',
+      }),
+    });
+    setTimeout(() => {
+      //TODO: CALL API HERE TO create and or publish presence list with data presenceList
+      // eslint-disable-next-line no-constant-condition
+      if (5 > 4) {
+        const newStudents: Student[] = [];
+        setSubjectStudents(newStudents);
+        setIsSubmitting(false);
+        setRemovedChapterIds([]);
+        setRemovedStudentIds([]);
+        const { end_time, start_time, presence_list_date } = presenceList;
+        //TODO: should contain the newly created presenceList
+        const newPresenceList: PresenceList = {
+          chapters: [],
+          end_time,
+          is_published: true,
+          presence_list_date,
+          presence_list_id: 'wieos',
+          start_time,
+          students: [],
+          subject_code: 'wiels',
+          subject_title: "Introduction a l'algorithmique",
+        };
+        reset(newPresenceList);
+        notif.update({
+          render: formatMessage({
+            id: shouldPublish
+              ? 'publishPresenceListSuccess'
+              : 'savePresenceListSuccess',
+          }),
+        });
+        setSubmitNotif(undefined);
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() =>
+                createNewPresenceList(presenceList, shouldPublish)
+              }
+              notification={notif}
+              //TODO: message should come from backend
+              message={formatMessage({
+                id: shouldPublish
+                  ? 'publishPresenceListFailed'
+                  : 'savePresenceListFailed',
+              })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
+
+  const updatePresenceList = (
+    presenceList: UpdatePresenceList,
+    shouldPublish: boolean
+  ) => {
+    setIsSubmitting(true);
+    const notif = new useNotification();
+    if (submitNotif) {
+      submitNotif.dismiss();
+    }
+    setSubmitNotif(notif);
+    notif.notify({
+      render: formatMessage({
+        id: shouldPublish ? 'publishingPresenceList' : 'savingPresenceList',
+      }),
+    });
+    setTimeout(() => {
+      //TODO: CALL API HERE TO update and or publish presence list with data presenceList
+      // eslint-disable-next-line no-constant-condition
+      if (5 > 4) {
+        const newStudents: Student[] = [];
+        setSubjectStudents(newStudents);
+        setIsSubmitting(false);
+        setRemovedChapterIds([]);
+        setRemovedStudentIds([]);
+        const { end_time, start_time, presence_list_date } = presenceList;
+        const newPresenceList: PresenceList = {
+          chapters: [],
+          end_time,
+          is_published: true,
+          presence_list_date,
+          presence_list_id: 'wieos',
+          start_time,
+          students: [],
+          subject_code: 'wiels',
+          subject_title: "Introduction a l'algorithmique",
+        };
+
+        reset(newPresenceList);
+        notif.update({
+          render: formatMessage({
+            id: shouldPublish
+              ? 'publishPresenceListSuccess'
+              : 'savePresenceListSuccess',
+          }),
+        });
+        setSubmitNotif(undefined);
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() =>
+                updatePresenceList(presenceList, shouldPublish)
+              }
+              notification={notif}
+              //TODO: message should come from backend
+              message={formatMessage({
+                id: shouldPublish
+                  ? 'publishPresenceListFailed'
+                  : 'savePresenceListFailed',
+              })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
+
+  const save = (shouldPublish: boolean, presence_list_id?: string) => {
+    if (presence_list_id) {
+      const newPresenceList: UpdatePresenceList = {
+        addedChapterIds,
+        addedStudentIds,
+        end_time: endTime,
+        presence_list_date: sessionDate,
+        removedChapterIds,
+        removedStudentIds,
+        start_time: startTime,
+      };
+      updatePresenceList(newPresenceList, shouldPublish);
+    } else {
+      const newPresenceList: CreatePresenceList = {
+        annual_credit_unit_subject_id: String(annual_credit_unit_subject_id),
+        chapterIds: addedChapterIds,
+        end_time: endTime,
+        presence_list_date: sessionDate,
+        start_time: startTime,
+        studentIds: addedStudentIds,
+      };
+      createNewPresenceList(newPresenceList, shouldPublish);
+    }
   };
 
   return (
@@ -542,7 +683,8 @@ export default function SessionDetails({
               isConfirmReinitialiseDialogOpen ||
               isConfirmSaveDialogOpen ||
               isConfirmPublishDialogOpen ||
-              isReinitialising
+              isReinitialising ||
+              isSubmitting
             }
             onClick={() => setIsConfirmPublishDialogOpen(true)}
           >
@@ -649,7 +791,8 @@ export default function SessionDetails({
                   isConfirmReinitialiseDialogOpen ||
                   isConfirmSaveDialogOpen ||
                   isConfirmPublishDialogOpen ||
-                  isReinitialising
+                  isReinitialising ||
+                  isSubmitting
                 }
                 onClick={back}
                 sx={{ textTransform: 'none' }}
@@ -664,7 +807,8 @@ export default function SessionDetails({
                 isConfirmReinitialiseDialogOpen ||
                 isConfirmSaveDialogOpen ||
                 isConfirmPublishDialogOpen ||
-                isReinitialising
+                isReinitialising ||
+                isSubmitting
               }
               onClick={() => setIsConfirmSaveDialogOpen(true)}
               sx={{ textTransform: 'none' }}
