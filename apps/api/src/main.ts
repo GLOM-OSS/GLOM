@@ -14,11 +14,14 @@ import { HttpExceptionFilter } from './errors/http-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: {
-      origin: [
-        'http://localhost:4200', //student
-        'http://localhost:4201', //personnel
-        'http://localhost:4202', //admin
-      ],
+      origin:
+        process.env.NODE_ENV === 'production'
+          ? ['https://squoolr.com', /\.squoolr\.com$/]
+          : [
+              'http://localhost:4200', //student
+              'http://localhost:4201', //personnel
+              'http://localhost:4202', //admin
+            ],
       credentials: true,
     },
   });
