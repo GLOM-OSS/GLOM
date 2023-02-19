@@ -69,6 +69,10 @@ export interface User {
   annualRegistry?: {
     annual_registry_id: string;
   };
+  student?: {
+    annual_student_id: string;
+    student_id: string;
+  };
   activeYear: AcademicYearInterface;
 }
 
@@ -76,17 +80,21 @@ export const getUserRoles = ({
   annualConfigurator,
   annualRegistry,
   annualTeacher,
-}: User): PersonnelRole[] => {
+  student,
+}: User): (PersonnelRole | 'student')[] => {
   const newRoles: (PersonnelRole | undefined)[] = [
     annualConfigurator ? 'secretary' : undefined,
     annualRegistry ? 'registry' : undefined,
     annualTeacher ? 'teacher' : undefined,
-    annualTeacher?.classroomDivisions && annualTeacher.classroomDivisions.length > 0
+    annualTeacher?.classroomDivisions &&
+    annualTeacher.classroomDivisions.length > 0
       ? 'coordinator'
       : undefined,
   ];
   const Roles: PersonnelRole[] = newRoles.filter(
     (_) => _ !== undefined
   ) as PersonnelRole[];
+
+  if (Roles.length === 0 && student) return ['student'];
   return Roles.sort((a, b) => (a > b ? 1 : -1));
 };

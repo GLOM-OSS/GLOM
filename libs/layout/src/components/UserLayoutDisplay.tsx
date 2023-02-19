@@ -18,9 +18,9 @@ export default function UserLayoutDisplay({
   activeRole,
   userRoles,
 }: {
-  selectRole: (item: PersonnelRole) => void;
-  activeRole?: PersonnelRole | 'administrator';
-  userRoles: PersonnelRole[];
+  selectRole: (item: PersonnelRole | 'student') => void;
+  activeRole?: PersonnelRole | 'administrator' | 'student';
+  userRoles: (PersonnelRole | 'student')[];
 }) {
   const intl = useIntl();
   const { formatMessage } = intl;

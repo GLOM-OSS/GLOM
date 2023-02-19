@@ -6,15 +6,15 @@ export function MainLayout({
   navItems,
   callingApp,
 }: {
-  navItems: {role: PersonnelRole | 'administrator', navItems:NavItem[]}[];
-  callingApp: 'admin' | 'personnel';
+  navItems: {
+    role: PersonnelRole | 'administrator' | 'student';
+    navItems: NavItem[];
+  }[];
+  callingApp: 'admin' | 'personnel' | 'student';
 }) {
   return (
     <UserContextProvider>
-      <Layout
-        callingApp={callingApp}
-        navItems={navItems}
-      />
+      <Layout callingApp={callingApp} navItems={navItems} />
     </UserContextProvider>
   );
 }

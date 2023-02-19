@@ -40,8 +40,11 @@ export function Layout({
   navItems,
   callingApp,
 }: {
-  navItems: { role: PersonnelRole | 'administrator'; navItems: NavItem[] }[];
-  callingApp: 'admin' | 'personnel';
+  navItems: {
+    role: PersonnelRole | 'administrator' | 'student';
+    navItems: NavItem[];
+  }[];
+  callingApp: 'admin' | 'personnel' | 'student';
 }) {
   const [activeNavItem, setActiveNavItem] = useState<NavItem>();
   const [isSecondaryNavOpen, setIsSecondaryNavOpen] = useState<boolean>(false);
@@ -54,16 +57,16 @@ export function Layout({
   const intl = useIntl();
   const { formatMessage } = intl;
 
-  const handleSwapRole = (newRole: PersonnelRole) => {
+  const handleSwapRole = (newRole: PersonnelRole | 'student') => {
     setActiveRole(newRole);
     localStorage.setItem('activeRole', newRole);
   };
 
   const { userDispatch } = useUser();
 
-  const [userRoles, setUserRoles] = useState<PersonnelRole[]>([]);
+  const [userRoles, setUserRoles] = useState<(PersonnelRole | 'student')[]>([]);
   const [activeRole, setActiveRole] = useState<
-    PersonnelRole | 'administrator'
+    PersonnelRole | 'administrator' | 'student'
   >();
 
   const [roleNavigationItems, setRoleNavigationItems] = useState<NavItem[]>([]);
@@ -86,6 +89,7 @@ export function Layout({
       setIsSecondaryNavOpen(false);
       setActiveNavItem(undefined);
       setActiveSecondaryNavItem(undefined);
+      // navigate('/');
       //TODO: call api here to NOTIFY ADMIN HERE that activeRole has no navItems then notify a 404
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -141,6 +145,8 @@ export function Layout({
         setActiveRole(
           callingApp === 'admin'
             ? 'administrator'
+            : callingApp === 'student'
+            ? 'student'
             : Roles.includes(routeRole as PersonnelRole)
             ? (routeRole as PersonnelRole | 'administrator')
             : Roles.includes(storageActiveRole as PersonnelRole)
@@ -158,7 +164,7 @@ export function Layout({
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
         localStorage.setItem('previousRoute', location.pathname); //TODO; remove in production
-        setActiveRole('teacher'); //TODO: REMOVE IN PRODUCTION
+        setActiveRole('student'); //TODO: REMOVE IN PRODUCTION
         // navigate('/');
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -286,7 +292,9 @@ export function Layout({
           <UserLayoutDisplay
             userRoles={userRoles}
             activeRole={activeRole}
-            selectRole={(newRole: PersonnelRole) => handleSwapRole(newRole)}
+            selectRole={(newRole: PersonnelRole | 'student') =>
+              handleSwapRole(newRole)
+            }
           />
           <Typography variant="body2" sx={{ color: theme.common.label }}>
             {activeNavItem ? formatMessage({ id: activeNavItem.title }) : null}
