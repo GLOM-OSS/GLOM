@@ -1,45 +1,43 @@
 version: '3.3'
 
 services:
-  # redis_container:
-  #   image: redis:alpine
-  #   ports:
-  #     - 6380:6379
-  # mysql_container:
-  #   image: mysql
-  #   environment:
-  #     - MYSQL_ROOT_PASSWORD=12345678
-  #     - MYSQL_DATABASE=skeleton_db
-  #   command: mysqld --sql_mode=""
-  # api:
-  #   build:
-  #     dockerfile: ./Dockerfile.api
-  #     context: .
-  #   restart: always
-  #   environment:
-  #     - REDIS_HOST=redis_container
-  #     - REDIS_PORT=6380
-  #     - PRISMA_SECRET=k1.aesgcm256.ztwF1a4stlVgXXJM9lH1ATgN_B-hYEfVcoSmVAFeWGA=
-  #     - DATABASE_URL=mysql://root:12345678@mysql_container:3306/skeleton_db
-  #     - NX_CRYPTJS_SECRET=skeleton-end-to-end-crypting
-  #     - SALT=12
-  #     - SECURE_PHRASE_LENGTH=5
-  #     - SESSION_SECRET=squoolr-session-secret
-  #     - SESSION_NAME=SQUOOLR_SESSION_ID
-  #     - APP_PORT=8080
-  #     - MAX_AGE=600
-  #     - CLIENT_BASE_URL=https://admin.squoolr.com
-  #     - GOOGLE_CLIENT_ID='752561817920-8esi5105gks06dugi9l14h7dg23vdnff.apps.googleusercontent.com'
-  #     - GOOGLE_SECRET='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'
-  #     - EMAIL_HOST='smtp.gmail.com'
-  #     - EMAIL_USER='glomexam@gmail.com'
-  #     - EMAIL_PASSWORD='..........'
-  #     - ADMIN_URL='admin.squoolr.com'
-  #   ports:
-  #     - "83:8080"
-  #   depends_on:
-  #     - mysql_container
-  #     - redis_container
+  redis_container:
+    image: redis:alpine
+    ports:
+      - 6380:6379
+  mysql_container:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345678
+      - MYSQL_DATABASE=skeleton_db
+    command: mysqld --sql_mode=""
+  api:
+    build:
+      dockerfile: ./Dockerfile.api
+      context: .
+    restart: always
+    environment:
+      - REDIS_HOST=redis_container
+      - REDIS_PORT=6380
+      - DATABASE_URL=mysql://root:12345678@mysql_container:3306/squoolr_api_db
+      - SALT=12
+      - SECURE_PHRASE_LENGTH=5
+      - SESSION_SECRET=squoolr-session-secret
+      - SESSION_NAME=SQUOOLR_SESSION_ID
+      - APP_PORT=8080
+      - MAX_AGE=600
+      - GOOGLE_CLIENT_ID=752561817920-8esi5105gks06dugi9l14h7dg23vdnff.apps.googleusercontent.com
+      - GOOGLE_SECRET=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
+      - EMAIL_HOST=smtp.gmail.com
+      - EMAIL_USER=glomexam@gmail.com
+      - EMAIL_PASSWORD=..........
+      - ADMIN_URL=admin.squoolr.com
+      - NODE_ENV=production
+    ports:
+      - "83:8080"
+    depends_on:
+      - mysql_container
+      - redis_container
   landing:
     build:
       dockerfile: ./Dockerfile.landing
@@ -49,8 +47,8 @@ services:
       - NX_API_BASE_URL='https://api.squoolr.com'
     ports:
       - "84:3000"
-    # depends_on:
-    #   - api
+    depends_on:
+      - api
   admin:
     build:
       dockerfile: ./Dockerfile.admin
@@ -60,8 +58,8 @@ services:
       - NX_API_BASE_URL='https://api.squoolr.com'
     ports:
       - "85:3000"
-    # depends_on:
-    #   - api
+    depends_on:
+      - api
   personnel:
     build:
       dockerfile: ./Dockerfile.personnel
@@ -69,10 +67,14 @@ services:
     restart: always
     environment:
       - NX_API_BASE_URL='https://api.squoolr.com'
+      - NX_API_BASE_URL='http://localhost:8080/'
+      - NX_THEORY_SUBJECT_PART_ID='e8b4319c-6b40-4b81-94d7-14da80621731'
+      - NX_PRACTICAL_SUBJECT_PART_ID='a38eba80-bcfd-47ea-872f-25b15030330d'
+      - NX_GUIDED_WORK_SUBJECT_PART_ID='8d710443-5ff6-4cfa-911f-f5fab76224ca'
     ports:
       - "86:3000"
-    # depends_on:
-    #   - api
+    depends_on:
+      - api
   student:
     build:
       dockerfile: ./Dockerfile.student
@@ -82,6 +84,5 @@ services:
       - NX_API_BASE_URL='https://api.squoolr.com'
     ports:
       - "87:3000"
-    # depends_on:
-    #   - api
-
+    depends_on:
+      - api
