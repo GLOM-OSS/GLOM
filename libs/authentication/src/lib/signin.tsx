@@ -77,18 +77,20 @@ export function Signin({
             setAcademicYears(academic_years);
             setIsAcademicYearDialogOpen(true);
           } else {
-            const userRoles =getUserRoles(user)
+            const userRoles = getUserRoles(user, callingApp);
             const activeRole = userRoles[0];
 
             let storageActiveRole = localStorage.getItem('previousRoute');
             storageActiveRole = storageActiveRole ?? null;
-            const routeRole = storageActiveRole? storageActiveRole.split('/')[1]:'';
+            const routeRole = storageActiveRole
+              ? storageActiveRole.split('/')[1]
+              : '';
 
-            const routeUrl =
-              userRoles.includes(routeRole as PersonnelRole)? storageActiveRole as string:
-              (callingApp === 'admin'
-                ? '/management'
-                : `${activeRole}/configurations`);
+            const routeUrl = userRoles.includes(routeRole as PersonnelRole)
+              ? (storageActiveRole as string)
+              : callingApp === 'admin'
+              ? '/management'
+              : `${activeRole}/configurations`;
             navigate(routeUrl);
             userDispatch({ type: 'LOAD_USER', payload: { user } });
             resetForm();

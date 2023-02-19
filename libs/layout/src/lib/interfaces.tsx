@@ -76,12 +76,10 @@ export interface User {
   activeYear: AcademicYearInterface;
 }
 
-export const getUserRoles = ({
-  annualConfigurator,
-  annualRegistry,
-  annualTeacher,
-  student,
-}: User): (PersonnelRole | 'student')[] => {
+export const getUserRoles = (
+  { annualConfigurator, annualRegistry, annualTeacher, student }: User,
+  callingApp: 'admin' | 'personnel' | 'student'
+): (PersonnelRole | 'student')[] => {
   const newRoles: (PersonnelRole | undefined)[] = [
     annualConfigurator ? 'secretary' : undefined,
     annualRegistry ? 'registry' : undefined,
@@ -95,6 +93,6 @@ export const getUserRoles = ({
     (_) => _ !== undefined
   ) as PersonnelRole[];
 
-  if (Roles.length === 0 && student) return ['student'];
+  if (callingApp==='student' && student) return ['student'];
   return Roles.sort((a, b) => (a > b ? 1 : -1));
 };

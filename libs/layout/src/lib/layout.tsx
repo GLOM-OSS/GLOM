@@ -133,7 +133,7 @@ export function Layout({
             user,
           },
         });
-        const Roles = getUserRoles(user as User);
+        const Roles = getUserRoles(user as User, callingApp);
         if (Roles.length === 0) navigate('/');
         setUserRoles(Roles);
 
