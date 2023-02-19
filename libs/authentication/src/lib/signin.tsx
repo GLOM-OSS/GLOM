@@ -1,14 +1,14 @@
 import {
   EmailRounded,
   LockPersonRounded,
-  ReportRounded
+  ReportRounded,
 } from '@mui/icons-material';
 import {
   Box,
   Button,
   InputAdornment,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import { signIn } from '@squoolr/api-services';
 import { getUserRoles, PersonnelRole, User, useUser } from '@squoolr/layout';
@@ -22,7 +22,7 @@ import * as Yup from 'yup';
 import favicon from './logo.png';
 import {
   AcademicYearInterface,
-  SelectAcademicYearDialog
+  SelectAcademicYearDialog,
 } from './selectAcademicYear';
 
 export function Signin({

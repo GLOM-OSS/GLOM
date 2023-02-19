@@ -7,6 +7,7 @@ function AdminLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
     {
       id: 1,
       Icon: LayersOutlined,
+      route: '',
       title: 'management',
       children: [
         {
@@ -30,6 +31,7 @@ function AdminLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
       id: 2,
       Icon: SettingsSuggestOutlined,
       title: 'settings',
+      route: '',
       children: [],
     },
   ];
