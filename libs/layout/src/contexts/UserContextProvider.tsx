@@ -69,6 +69,10 @@ function UserContextProvider({
       teacher_id: 'htsl',
       classroomDivisions: ['Hello', 'Yes'],
     },
+    student: {
+      annual_student_id: 'wieo',
+      student_id: 'sieosl',
+    },
 
     userDispatch: () => null,
   };
