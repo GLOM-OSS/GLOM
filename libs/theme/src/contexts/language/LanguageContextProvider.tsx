@@ -1,12 +1,9 @@
-import { useReducer, useContext, Reducer } from 'react';
+import { Reducer, useContext, useReducer } from 'react';
 import LanguageContext from './languageContext';
 
 import {
-  Action,
-  State,
-  Language,
-  LanguageContextProviderProps,
-  LanguageType,
+  Action, Language,
+  LanguageContextProviderProps, State
 } from './language.interface';
 
 const languageReducer: Reducer<Language, Action> = (state: State, action: Action) => {
