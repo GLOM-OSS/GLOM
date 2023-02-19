@@ -26,6 +26,7 @@ import { RegistryModule } from './registry/registry.module';
 import { TeacherModule } from './teacher/teacher.module';
 import { MulterFileModule } from '../multer/multer.module';
 import { MulterConfigService } from '../multer/multer.service';
+import * as shell from 'shelljs';
 
 @Module({
   imports: [
@@ -71,6 +72,10 @@ export class AppModule implements NestModule {
     redisClient.connect().catch((message) => Logger.error(message));
     const RedisStore = connectRedis(session);
 
+    console.log(process.env.DATABASE_URL);
+    shell.exec(`npx prisma migrate dev --name deploy`);
+    shell.exec(`npx prisma migrate deploy`);
+
     consumer
       .apply(
         session({
@@ -78,7 +83,6 @@ export class AppModule implements NestModule {
           store: new RedisStore({
             client: redisClient,
             host: process.env.REDIS_HOST,
-            port: Number(process.env.REDIS_PORT),
           }),
           secret: process.env.SESSION_SECRET,
           genid: () => randomUUID(),
