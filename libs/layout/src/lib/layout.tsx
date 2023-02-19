@@ -89,7 +89,6 @@ export function Layout({
       setIsSecondaryNavOpen(false);
       setActiveNavItem(undefined);
       setActiveSecondaryNavItem(undefined);
-      // navigate('/');
       //TODO: call api here to NOTIFY ADMIN HERE that activeRole has no navItems then notify a 404
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
