@@ -1,8 +1,10 @@
 import { http } from '@squoolr/axios';
 import { Student, StudentDetail } from '@squoolr/interfaces';
 
-export async function getStudents() {
-  const { data } = await http.get<Student[]>(`/students/all`);
+export async function getStudents(major_code: string, classroom_code?: string) {
+  const { data } = await http.get<Student[]>(`/students/all`, {
+    params: { major_code, classroom_code },
+  });
   return data;
 }
 
