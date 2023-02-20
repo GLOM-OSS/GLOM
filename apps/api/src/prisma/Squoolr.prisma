@@ -229,6 +229,7 @@ model Login {
     AnnualRegistries     AnnualRegistry[]
     AnnualTeachers       AnnualTeacher[]
     SchoolDemandAudits   SchoolDemandAudit[]
+    Payment              Payment[]
 
     @@unique([person_id, school_id])
 }
@@ -314,6 +315,7 @@ model AnnualStudent {
     EvaluationHasStudents        EvaluationHasStudent[]
     AnnualStudentTakeAssessments AnnualStudentTakeAssessment[]
     AnnualStudentHasCreditUnits  AnnualStudentHasCreditUnit[]
+    Payments                     Payment[]
 }
 
 model AnnualRegistry {
@@ -1393,4 +1395,16 @@ model PresenceListHasCreditUnitStudent {
     deleted_at                          DateTime?                  @db.DateTime(0)
     deleted_by                          String?                    @db.VarChar(36)
     DeletedByAnnualTeacher              AnnualTeacher?             @relation(name: "DeletedBy_AnnualTeacher", fields: [deleted_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Payment {
+    payment_id        String        @id @default(uuid()) @db.VarChar(36)
+    amount            Float
+    payment_date      DateTime      @db.DateTime(0)
+    semester_number   Int
+    annual_student_id String        @db.VarChar(36)
+    AnnualStudent     AnnualStudent @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)
+    paid_by           String        @db.VarChar(36)
+    Login             Login         @relation(fields: [paid_by], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+    created_at        DateTime      @default(now()) @db.DateTime(0)
 }
