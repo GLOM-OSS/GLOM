@@ -1,4 +1,9 @@
 import {
+  FileDownloadOutlined,
+  ReportRounded,
+  WarningOutlined
+} from '@mui/icons-material';
+import {
   Box,
   Button,
   lighten,
@@ -7,25 +12,26 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Typography,
+  Typography
 } from '@mui/material';
-import { Classroom, Student, UEMajor } from '@squoolr/interfaces';
+import {
+  getClassrooms,
+  getMajors,
+  getStudents,
+  importNewStudents
+} from '@squoolr/api-services';
+import { Classroom, Major, Student } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import FilterBar from '../../../components/registry/students/filterBar';
-import {
-  NoTableElement,
-  TableLaneSkeleton,
-} from '../../../components/teacher/courseLane';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
-import StudentLane from 'apps/app/src/components/registry/students/studentLane';
+import FilterBar from '../../../components/registry/students/filterBar';
+import StudentLane from '../../../components/registry/students/studentLane';
 import {
-  FileDownloadOutlined,
-  ReportRounded,
-  WarningOutlined,
-} from '@mui/icons-material';
+  NoTableElement,
+  TableLaneSkeleton
+} from '../../../components/teacher/courseLane';
 import ConfirmImportDialog from './confirmImportDialog';
 
 export default function Students() {
@@ -39,38 +45,21 @@ export default function Students() {
   const [students, setStudents] = useState<Student[]>([]);
   const [studentNotif, setStudentNotif] = useState<useNotification>();
 
-  const loadStudents = (major_id: string, classroom_code?: string) => {
+  const loadStudents = (major_code: string, classroom_code?: string) => {
     setAreStudentsLoading(true);
     const notif = new useNotification();
     if (studentNotif) {
       studentNotif.dismiss();
     }
     setStudentNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD SCHOOL STUDENTS, WITH OPTIONAL DATA classroom_code
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newStudents: Student[] = [
-          {
-            annual_student_id: 'sieosl',
-            birthdate: new Date(),
-            classroom_acronym: 'IRT3',
-            email: 'lorraintchakoumi@gmail.com',
-            first_name: 'Lorrain',
-            gender: 'Male',
-            is_active: true,
-            last_name: 'Kouatchoua Tchakoumi',
-            matricule: '17C005',
-            national_id_number: '000316122',
-            phone_number: '681382151',
-            preferred_lang: 'en',
-          },
-        ];
-        setStudents(newStudents);
+    getStudents(major_code, classroom_code)
+      .then((students) => {
+        setStudents(students);
         setAreStudentsLoading(false);
         notif.dismiss();
         setStudentNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingStudents' }),
         });
@@ -78,17 +67,17 @@ export default function Students() {
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={() => loadStudents(major_id, classroom_code)}
+              retryFunction={() => loadStudents(major_code, classroom_code)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getStudentsFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getStudentsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [areClassroomsLoading, setAreClassroomsLoading] =
@@ -97,23 +86,21 @@ export default function Students() {
   const [classroomNotif, setClassroomNotif] = useState<useNotification>();
   const [activeClassroomCode, setActiveClassroomCode] = useState<string>();
 
-  const loadClassrooms = (major_id: string) => {
+  const loadClassrooms = (major_code: string) => {
     setAreClassroomsLoading(true);
     const notif = new useNotification();
     if (classroomNotif) {
       classroomNotif.dismiss();
     }
     setClassroomNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD major's classrooms, WITH DATA major_id
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newClassrooms: Classroom[] = [];
-        setClassrooms(newClassrooms);
+    getClassrooms({ major_code })
+      .then((classrooms) => {
+        setClassrooms(classrooms);
         setAreClassroomsLoading(false);
         notif.dismiss();
         setClassroomNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingClassrooms' }),
         });
@@ -121,23 +108,23 @@ export default function Students() {
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={() => loadClassrooms(major_id)}
+              retryFunction={() => loadClassrooms(major_code)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getClassroomsFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getClassroomsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [areMajorsLoading, setAreMajorsLoading] = useState<boolean>(false);
-  const [majors, setMajors] = useState<UEMajor[]>([]);
+  const [majors, setMajors] = useState<Major[]>([]);
   const [majorNotif, setMajorNotif] = useState<useNotification>();
-  const [activeMajor, setActiveMajor] = useState<UEMajor>();
+  const [activeMajor, setActiveMajor] = useState<Major>();
 
   const loadMajors = () => {
     setAreMajorsLoading(true);
@@ -146,24 +133,15 @@ export default function Students() {
       majorNotif.dismiss();
     }
     setMajorNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD school's majors
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newMajors: UEMajor[] = [
-          {
-            major_code: 'LSI',
-            major_id: 'wieold',
-            major_name: 'Informatique reseaux et telecoms',
-            number_of_years: 4,
-          },
-        ];
-        setMajors(newMajors);
-        if (newMajors.length > 0) setActiveMajor(newMajors[0]);
+    getMajors()
+      .then((majors) => {
+        setMajors(majors);
+        if (majors.length > 0) setActiveMajor(majors[0]);
         setAreMajorsLoading(false);
         notif.dismiss();
         setMajorNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingMajors' }),
         });
@@ -173,15 +151,15 @@ export default function Students() {
             <ErrorMessage
               retryFunction={loadMajors}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'geMajorsFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'geMajorsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
@@ -208,49 +186,32 @@ export default function Students() {
     notif.notify({
       render: formatMessage({ id: 'importingStudents' }),
     });
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD STUDENT IMPORT FILE TO BACKEND with data files[0] and major activeMajorId
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newStudents: Student[] = [
-          {
-            annual_student_id: 'sieodsl',
-            birthdate: new Date(),
-            classroom_acronym: 'IRT3',
-            email: 'nguemeteulriche@gmail.com',
-            first_name: 'Ulriche Gaella',
-            gender: 'Female',
-            is_active: true,
-            last_name: 'Mache Nguemete',
-            matricule: '18C005',
-            national_id_number: '000310122',
-            phone_number: '693256789',
-            preferred_lang: 'fr',
-          },
-        ];
-        setStudents((prevStudents) => [...prevStudents, ...newStudents]);
+    importNewStudents(activeMajorId, files[0])
+      .then(() => {
+        loadStudents(activeMajorId);
         notif.update({
           render: formatMessage({
             id: 'studentsImportedSuccessfully',
           }),
         });
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() => uploadFile(files, activeMajorId)}
               notification={notif}
-              //TODO: Message should come from backend
-              message={formatMessage({ id: 'csvCreationFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'csvCreationFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-      setIsImporting(false);
-    }, 3000);
+      })
+      .finally(() => setIsImporting(false));
   }
 
   return (
