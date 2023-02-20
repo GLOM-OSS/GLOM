@@ -252,6 +252,14 @@ export class AuthService {
 
     //check for annual student
     const annualStudent = await this.annualStudentService.findFirst({
+      select: {
+        student_id: true,
+        annual_student_id: true,
+        AnnualStudentHasCreditUnits: {
+          distinct: ['semester_number'],
+          select: { semester_number: true },
+        },
+      },
       where: {
         academic_year_id,
         is_deleted: false,
@@ -259,10 +267,18 @@ export class AuthService {
       },
     });
     if (annualStudent) {
-      const { annual_student_id, student_id } = annualStudent;
+      const {
+        student_id,
+        annual_student_id,
+        AnnualStudentHasCreditUnits: crediUnits,
+      } = annualStudent;
       availableRoles = {
         ...availableRoles,
-        annualStudent: { annual_student_id, student_id },
+        annualStudent: {
+          student_id,
+          annual_student_id,
+          activeSemesters: crediUnits.map((_) => _.semester_number),
+        },
       };
       userRoles.push({
         user_id: annualStudent.annual_student_id,
