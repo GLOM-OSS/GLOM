@@ -1,7 +1,16 @@
-import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus, Query,
+  Req,
+  UseGuards
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { DeserializeSessionData } from '../../utils/types';
+import { ERR20 } from '../../errors';
+import { DeserializeSessionData, Role } from '../../utils/types';
+import { Roles } from '../app.decorator';
 import { AuthenticatedGuard } from '../auth/auth.guard';
 import { StudentQueryQto } from './student.dto';
 import { StudentService } from './student.service';
@@ -20,24 +29,50 @@ export class StudentController {
     return this.studentService.getStudents(academic_year_id, query);
   }
 
-  @Get(':annual_student_id/details')
+  @Get('details')
   async findStudentDetalis(
-    @Param('annual_student_id') annual_student_id: string
+    @Req() request: Request,
+    @Query('annual_student_id') annual_student_id: string
   ) {
-    return this.studentService.getStudentDetails(annual_student_id);
+    const { annualStudent, preferred_lang } =
+      request.user as DeserializeSessionData;
+    if (!annualStudent && !annual_student_id)
+      throw new HttpException(ERR20[preferred_lang], HttpStatus.BAD_REQUEST);
+    return this.studentService.getStudentDetails(
+      annualStudent.annual_student_id ?? annual_student_id
+    );
   }
 
-  @Get(':annual_student_id/absences')
+  @Get('absences')
   async findStudentAbsences(
     @Req() request: Request,
-    @Param('annual_student_id') annual_student_id: string
+    @Query('annual_student_id') annual_student_id: string
   ) {
     const {
+      annualStudent,
+      preferred_lang,
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
+    if (!annualStudent && !annual_student_id)
+      throw new HttpException(ERR20[preferred_lang], HttpStatus.BAD_REQUEST);
     return this.studentService.getStudentAbsences(
       academic_year_id,
-      annual_student_id
+      annualStudent.annual_student_id ?? annual_student_id
+    );
+  }
+
+  @Get('fees')
+  @Roles(Role.REGISTRY, Role.STUDENT, Role.PARENT)
+  async findStudentFeeSummary(
+    @Req() request: Request,
+    @Query('annual_student_id') annual_student_id: string
+  ) {
+    const { annualStudent, preferred_lang } =
+      request.user as DeserializeSessionData;
+    if (!annualStudent && !annual_student_id)
+      throw new HttpException(ERR20[preferred_lang], HttpStatus.BAD_REQUEST);
+    return this.studentService.getStudentFeeSummary(
+      annualStudent.annual_student_id ?? annual_student_id
     );
   }
 }

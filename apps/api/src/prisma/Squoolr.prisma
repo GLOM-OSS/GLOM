@@ -1397,14 +1397,23 @@ model PresenceListHasCreditUnitStudent {
     DeletedByAnnualTeacher              AnnualTeacher?             @relation(name: "DeletedBy_AnnualTeacher", fields: [deleted_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
+enum PaymentReasonEnum {
+    Fee
+    Platform
+    Registration
+
+    @@map("payement_reason_enum")
+}
+
 model Payment {
-    payment_id        String        @id @default(uuid()) @db.VarChar(36)
+    payment_id        String            @id @default(uuid()) @db.VarChar(36)
     amount            Float
-    payment_date      DateTime      @db.DateTime(0)
+    payment_date      DateTime          @db.DateTime(0)
+    payment_reason    PaymentReasonEnum
     semester_number   Int
-    annual_student_id String        @db.VarChar(36)
-    AnnualStudent     AnnualStudent @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)
-    paid_by           String        @db.VarChar(36)
-    Login             Login         @relation(fields: [paid_by], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
-    created_at        DateTime      @default(now()) @db.DateTime(0)
+    annual_student_id String            @db.VarChar(36)
+    AnnualStudent     AnnualStudent     @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)
+    paid_by           String            @db.VarChar(36)
+    Login             Login             @relation(fields: [paid_by], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+    created_at        DateTime          @default(now()) @db.DateTime(0)
 }

@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   IDiscipline,
+  IFeeSummary,
   Student as StudentInface,
   StudentDetail,
 } from '@squoolr/interfaces';
+import { AUTH404 } from '../../errors';
 import { PrismaService } from '../../prisma/prisma.service';
 import { StudentQueryQto } from './student.dto';
 
@@ -160,5 +162,41 @@ export class StudentService {
           : absences,
       []
     );
+  }
+
+  async getStudentFeeSummary(annual_student_id: string): Promise<IFeeSummary> {
+    const annualStudent = await this.prismaService.annualStudent.findUnique({
+      select: {
+        AnnualClassroomDivision: {
+          select: {
+            AnnualClassroom: {
+              select: { registration_fee: true, total_fee_due: true },
+            },
+          },
+        },
+      },
+      where: { annual_student_id },
+    });
+    if (!annualStudent)
+      throw new HttpException(JSON.stringify(AUTH404), HttpStatus.NOT_FOUND);
+    const {
+      AnnualClassroomDivision: {
+        AnnualClassroom: { registration_fee, total_fee_due },
+      },
+    } = annualStudent;
+    const paymentHistories = await this.prismaService.payment.findMany({
+      where: { annual_student_id, payment_reason: { not: 'Fee' } },
+    });
+    const total_due = total_fee_due + registration_fee;
+    const total_paid = paymentHistories.reduce(
+      (total, { amount }) => total + amount,
+      0
+    );
+    return {
+      total_due,
+      total_paid,
+      paymentHistories,
+      total_owing: total_due - total_paid,
+    };
   }
 }
