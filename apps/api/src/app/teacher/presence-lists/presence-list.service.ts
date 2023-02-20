@@ -319,4 +319,29 @@ export class PresenceListService {
       where: { presence_list_id },
     });
   }
+
+  async reinitialize(presence_list_id: string, annual_teacher_id: string) {
+    const presenceList = await this.prismaService.presenceList.findFirst({
+      where: { presence_list_id, is_published: false, is_deleted: false },
+    });
+    if (!presenceList)
+      throw new HttpException(JSON.stringify(AUTH404), HttpStatus.NOT_FOUND);
+    await this.prismaService.presenceList.update({
+      data: {
+        PresenceListHasChapters: {
+          updateMany: {
+            data: { deleted_at: new Date(), deleted_by: annual_teacher_id },
+            where: { presence_list_id },
+          },
+        },
+        PresenceListHasCreditUnitStudents: {
+          updateMany: {
+            data: { deleted_at: new Date(), deleted_by: annual_teacher_id },
+            where: { presence_list_id },
+          },
+        },
+      },
+      where: { presence_list_id },
+    });
+  }
 }
