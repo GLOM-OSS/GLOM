@@ -35,9 +35,12 @@ export async function getCourseResources(
   }));
 }
 
-export async function getCourseChapters(annual_credit_unit_subject_id: string) {
+export async function getCourseChapters(
+  annual_credit_unit_subject_id: string,
+  isNotDone?: boolean
+) {
   const { data } = await http.get<Chapter[]>(
-    `/courses/${annual_credit_unit_subject_id}/chapters`
+    `/courses/${annual_credit_unit_subject_id}/chapters?isNotDone=${isNotDone}`
   );
   return data;
 }

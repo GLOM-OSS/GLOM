@@ -219,7 +219,7 @@ export class CourseService {
 
   async findChapters(
     annual_credit_unit_subject_id: string,
-    isCovered?: boolean
+    isNotDone?: boolean
   ) {
     // const presenceLists = await this.prismaService.presenceList.findMany({
     //   where: { annual_credit_unit_subject_id },
@@ -236,7 +236,7 @@ export class CourseService {
       where: {
         annual_credit_unit_subject_id,
         is_deleted: false,
-        ...(isCovered ? { PresenceListHasChapters: { none: {} } } : {}),
+        ...(isNotDone ? { PresenceListHasChapters: { none: {} } } : {}),
       },
     });
     return chapters.filter((_) => _.chapter_parent_id === null);

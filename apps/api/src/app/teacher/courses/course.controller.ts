@@ -40,11 +40,11 @@ export class CourseController {
   async getCourseChapters(
     @Param('annual_credit_unit_subject_id')
     annual_credit_unit_subject_id: string,
-    @Query('is_covered') isCovered: boolean
+    @Query('isNotDone') isNotDone: boolean
   ) {
     return this.courseService.findChapters(
       annual_credit_unit_subject_id,
-      isCovered
+      isNotDone
     );
   }
 
