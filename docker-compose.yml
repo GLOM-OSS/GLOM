@@ -38,51 +38,50 @@ services:
     depends_on:
       - mysql_container
       - redis_container
-  landing:
-    build:
-      dockerfile: ./Dockerfile.landing
-      context: .
-    restart: always
-    environment:
-      - NX_API_BASE_URL='https://api.squoolr.com'
-    ports:
-      - "84:3000"
-    depends_on:
-      - api
-  admin:
-    build:
-      dockerfile: ./Dockerfile.admin
-      context: .
-    restart: always
-    environment:
-      - NX_API_BASE_URL='https://api.squoolr.com'
-    ports:
-      - "85:3000"
-    depends_on:
-      - api
+  # landing:
+  #   build:
+  #     dockerfile: ./Dockerfile.landing
+  #     context: .
+  #   restart: always
+  #   environment:
+  #     - NX_API_BASE_URL=http://localhost:83
+  #     # - NX_API_BASE_URL=https://api.squoolr.com
+  #   ports:
+  #     - "84:3000"
+  #   depends_on:
+  #     - api
+  # admin:
+  #   build:
+  #     dockerfile: ./Dockerfile.admin
+  #     context: .
+  #   restart: always
+  #   environment:
+  #     - NX_API_BASE_URL=http://localhost:83/
+  #     # - NX_API_BASE_URL=https://api.squoolr.com
+  #   ports:
+  #     - "85:3000"
+  #   depends_on:
+  #     - api
   personnel:
     build:
       dockerfile: ./Dockerfile.personnel
       context: .
     restart: always
     environment:
-      - NX_API_BASE_URL='https://api.squoolr.com'
-      - NX_API_BASE_URL='http://localhost:8080/'
-      - NX_THEORY_SUBJECT_PART_ID='e8b4319c-6b40-4b81-94d7-14da80621731'
-      - NX_PRACTICAL_SUBJECT_PART_ID='a38eba80-bcfd-47ea-872f-25b15030330d'
-      - NX_GUIDED_WORK_SUBJECT_PART_ID='8d710443-5ff6-4cfa-911f-f5fab76224ca'
+      env_file: .env
     ports:
       - "86:3000"
     depends_on:
       - api
-  student:
-    build:
-      dockerfile: ./Dockerfile.student
-      context: .
-    restart: always
-    environment:
-      - NX_API_BASE_URL='https://api.squoolr.com'
-    ports:
-      - "87:3000"
-    depends_on:
-      - api
+  # student:
+  #   build:
+  #     dockerfile: ./Dockerfile.student
+  #     context: .
+  #   restart: always
+  #   environment:
+  #     - NX_API_BASE_URL=http://localhost:83/
+  #     # - NX_API_BASE_URL=https://api.squoolr.com
+  #   ports:
+  #     - "87:3000"
+  #   depends_on:
+  #     - api
