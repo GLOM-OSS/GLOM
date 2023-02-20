@@ -20,6 +20,7 @@ import {
   createPresenceList,
   getCourseChapters,
   getCourseStudents,
+  reinitialisePresenceList,
   updatePresenceList,
 } from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
@@ -233,12 +234,9 @@ export default function SessionDetails({
     notif.notify({
       render: formatMessage({ id: 'reinitialisingPresenceList' }),
     });
-    setTimeout(() => {
-      //TODO: CALL API HERE TO reinitialise presence list with data presenceList
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newStudents: Student[] = [];
-        setSubjectStudents(newStudents);
+    reinitialisePresenceList(pl_id)
+      .then(() => {
+        setSubjectStudents([]);
         setIsRenitialising(false);
         reset();
         setRemovedChapterIds([]);
@@ -249,22 +247,24 @@ export default function SessionDetails({
           render: formatMessage({ id: 'reinitialisePresenceListSuccess' }),
         });
         setReinitialiseNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() => reinitialise(presenceList)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'reinitialisePresenceListFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'reinitialisePresenceListFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);

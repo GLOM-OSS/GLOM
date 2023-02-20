@@ -27,6 +27,10 @@ export async function updatePresenceList(
   );
 }
 
+export async function reinitialisePresenceList(presence_list_id: string) {
+  await http.put(`/presence-lists/${presence_list_id}/reinitialize`);
+}
+
 export async function deletePresenceList(presence_list_id: string) {
   await http.put(`/presence-lists/${presence_list_id}/delete`);
 }
