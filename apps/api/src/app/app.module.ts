@@ -26,6 +26,7 @@ import { RegistryModule } from './registry/registry.module';
 import { TeacherModule } from './teacher/teacher.module';
 import { MulterFileModule } from '../multer/multer.module';
 import { MulterConfigService } from '../multer/multer.service';
+import { StudentModule } from './student/student.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { MulterConfigService } from '../multer/multer.service';
     CoordinatorModule,
     RegistryModule,
     TeacherModule,
+    StudentModule,
   ],
   controllers: [AppController],
   providers: [

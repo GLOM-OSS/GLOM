@@ -1,15 +1,11 @@
 import {
-  Controller,
-  Get,
-  HttpException,
+  Controller, HttpException,
   HttpStatus,
   Param,
-  Post,
-  Query,
-  Req,
+  Post, Req,
   UploadedFile,
   UseGuards,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
@@ -19,31 +15,15 @@ import { readAndProcessFile } from '../../../utils/csv-parser';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
-import { StudentQueryQto } from '../registry.dto';
 import {
   StudentImportInterface,
-  StudentRegistrationService,
+  StudentRegistrationService
 } from './student-registration.service';
 
 @Controller()
 @UseGuards(AuthenticatedGuard)
 export class StudentRegistrationController {
   constructor(private studentRegistrationService: StudentRegistrationService) {}
-
-  @Get('all')
-  async findStudents(@Req() request: Request, @Query() query: StudentQueryQto) {
-    const {
-      activeYear: { academic_year_id },
-    } = request.user as DeserializeSessionData;
-    return this.studentRegistrationService.getStudents(academic_year_id, query);
-  }
-
-  @Get(':annual_student_id/details')
-  async findStudentDetalis(
-    @Param('annual_student_id') annual_student_id: string
-  ) {
-    return this.studentRegistrationService.getStudentDetails(annual_student_id);
-  }
 
   @Post(':major_id/imports')
   @Roles(Role.REGISTRY)
@@ -96,7 +76,7 @@ export class StudentRegistrationController {
           columns,
           Readable.from(file.buffer)
         );
-      return this.studentRegistrationService.registerNewStudents({
+      return this.studentRegistrationService.registerImportedStudents({
         school_id,
         academic_year_id,
         major_id,
