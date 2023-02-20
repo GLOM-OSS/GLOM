@@ -72,6 +72,7 @@ export interface User {
   student?: {
     annual_student_id: string;
     student_id: string;
+    activeSemesters: number[]
   };
   activeYear: AcademicYearInterface;
 }

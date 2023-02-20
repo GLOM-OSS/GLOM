@@ -26,6 +26,7 @@ const UserContext = createContext<User & DispatchInterface>({
   student: {
     annual_student_id: '',
     student_id: '',
+    activeSemesters: [],
   },
   userDispatch: () => null,
 });
