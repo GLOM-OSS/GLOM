@@ -1,7 +1,6 @@
 import { http } from '@squoolr/axios';
 import { Person, Personnel } from '@squoolr/interfaces';
 
-export * from '@squoolr/interfaces';
 export * from './configurators';
 export * from './coordinators';
 export * from './registries';

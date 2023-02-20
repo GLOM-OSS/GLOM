@@ -14,12 +14,12 @@ import {
 import {
   createDepartment,
   createMajor,
-  Department,
   editDepartment,
   editMajor,
   getDepartments,
   getMajors,
 } from '@squoolr/api-services';
+import { Department } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
