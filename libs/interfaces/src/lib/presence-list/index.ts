@@ -1,7 +1,6 @@
 import { Student } from '../interfaces';
 
 export interface PresenceListChapter {
-  is_covered: boolean;
   chapter_id: string;
   chapter_title: string;
 }
