@@ -1,14 +1,43 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsOptional, IsUUID } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { PaymentReasonEnum } from '@prisma/client';
+import {
+  IsDateString,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsUUID,
+  Max,
+  Min,
+} from 'class-validator';
 
 export class StudentQueryQto {
-    @IsUUID()
-    @IsOptional()
-    @ApiProperty()
-    major_code?: string;
-  
-    @IsUUID()
-    @IsOptional()
-    @ApiProperty()
-    classroom_code?: string;
-  }
+  @IsUUID()
+  @IsOptional()
+  @ApiProperty()
+  major_code?: string;
+
+  @IsUUID()
+  @IsOptional()
+  @ApiProperty()
+  classroom_code?: string;
+}
+
+export class CreatePaymentDto {
+  @IsNumber()
+  amount: number;
+
+  @Min(1)
+  @Max(14)
+  @IsNumber()
+  semester_number: number;
+
+  @IsEnum(PaymentReasonEnum)
+  payment_reason: PaymentReasonEnum;
+
+  @IsDateString()
+  payment_date: Date;
+
+  @IsUUID()
+  @IsOptional()
+  annual_student_id: string;
+}

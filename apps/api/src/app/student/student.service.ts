@@ -7,7 +7,7 @@ import {
 } from '@squoolr/interfaces';
 import { AUTH404 } from '../../errors';
 import { PrismaService } from '../../prisma/prisma.service';
-import { StudentQueryQto } from './student.dto';
+import { CreatePaymentDto, StudentQueryQto } from './student.dto';
 
 @Injectable()
 export class StudentService {
@@ -198,5 +198,18 @@ export class StudentService {
       paymentHistories,
       total_owing: total_due - total_paid,
     };
+  }
+
+  async payStudentFee(
+    { annual_student_id, ...newPayment }: CreatePaymentDto,
+    paid_by: string
+  ) {
+    return this.prismaService.payment.create({
+      data: {
+        ...newPayment,
+        AnnualStudent: { connect: { annual_student_id } },
+        Login: { connect: { login_id: paid_by } },
+      },
+    });
   }
 }

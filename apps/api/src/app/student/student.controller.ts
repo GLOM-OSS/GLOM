@@ -1,8 +1,10 @@
 import {
+  Body,
   Controller,
   Get,
   HttpException,
-  HttpStatus, Query,
+  HttpStatus,
+  Query,
   Req,
   UseGuards
 } from '@nestjs/common';
@@ -12,7 +14,7 @@ import { ERR20 } from '../../errors';
 import { DeserializeSessionData, Role } from '../../utils/types';
 import { Roles } from '../app.decorator';
 import { AuthenticatedGuard } from '../auth/auth.guard';
-import { StudentQueryQto } from './student.dto';
+import { CreatePaymentDto, StudentQueryQto } from './student.dto';
 import { StudentService } from './student.service';
 
 @ApiTags('Students')
@@ -74,5 +76,29 @@ export class StudentController {
     return this.studentService.getStudentFeeSummary(
       annualStudent.annual_student_id ?? annual_student_id
     );
+  }
+
+  @Get('pay-fee')
+  @Roles(Role.STUDENT, Role.PARENT)
+  async payFee(
+    @Req() request: Request,
+    @Body() { annual_student_id, ...newPayment }: CreatePaymentDto
+  ) {
+    const { annualStudent, preferred_lang, login_id } =
+      request.user as DeserializeSessionData;
+    if (!annualStudent && !annual_student_id)
+      throw new HttpException(ERR20[preferred_lang], HttpStatus.BAD_REQUEST);
+    try {
+      return this.studentService.payStudentFee(
+        {
+          annual_student_id:
+            annualStudent.annual_student_id ?? annual_student_id,
+          ...newPayment,
+        },
+        login_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
