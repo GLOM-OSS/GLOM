@@ -18,10 +18,14 @@ export interface IDiscipline {
   absences: number;
 }
 
-export interface IPaymentHistory {
+export interface ICreatePayment {
   amount: number;
   payment_date: Date;
+  semester_number?: number;
   payment_reason: 'Platform' | 'Fee' | 'Registration';
+}
+export interface IPaymentHistory extends ICreatePayment {
+  payment_id: string;
 }
 
 export interface IFeeSummary {
