@@ -26,4 +26,18 @@ export class StudentController {
   ) {
     return this.studentService.getStudentDetails(annual_student_id);
   }
+
+  @Get(':annual_student_id/absences')
+  async findStudentAbsences(
+    @Req() request: Request,
+    @Param('annual_student_id') annual_student_id: string
+  ) {
+    const {
+      activeYear: { academic_year_id },
+    } = request.user as DeserializeSessionData;
+    return this.studentService.getStudentAbsences(
+      academic_year_id,
+      annual_student_id
+    );
+  }
 }

@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Student as StudentInface, StudentDetail } from '@squoolr/interfaces';
+import {
+  IDiscipline,
+  Student as StudentInface,
+  StudentDetail,
+} from '@squoolr/interfaces';
 import { PrismaService } from '../../prisma/prisma.service';
 import { StudentQueryQto } from './student.dto';
 
@@ -100,5 +104,61 @@ export class StudentService {
       };
     }
     return null;
+  }
+
+  async getStudentAbsences(
+    academic_year_id: string,
+    annual_student_id: string
+  ): Promise<IDiscipline[]> {
+    const presenceLists = await this.prismaService.presenceList.findMany({
+      select: {
+        end_time: true,
+        start_time: true,
+        presence_list_date: true,
+        AnnualCreditUnitSubject: { select: { subject_title: true } },
+        PresenceListHasCreditUnitStudents: {
+          select: {
+            AnnualStudentHasCreditUnit: { select: { annual_student_id: true } },
+          },
+        },
+      },
+      where: {
+        AnnualCreditUnitSubject: {
+          AnnualCreditUnit: {
+            academic_year_id,
+            AnnualStudentHasCreditUnits: { some: { annual_student_id } },
+          },
+        },
+      },
+    });
+    return presenceLists.reduce<IDiscipline[]>(
+      (
+        absences,
+        {
+          end_time,
+          start_time,
+          presence_list_date,
+          AnnualCreditUnitSubject: { subject_title },
+          PresenceListHasCreditUnitStudents: presentStudents,
+        }
+      ) =>
+        presentStudents.findIndex(
+          ({ AnnualStudentHasCreditUnit: _ }) =>
+            _.annual_student_id === annual_student_id
+        ) == -1
+          ? [
+              ...absences,
+              {
+                subject_title,
+                presence_list_date,
+                absences:
+                  (new Date(end_time).getTime() -
+                    new Date(start_time).getTime()) /
+                  (3.6 * 1e5),
+              },
+            ]
+          : absences,
+      []
+    );
   }
 }
