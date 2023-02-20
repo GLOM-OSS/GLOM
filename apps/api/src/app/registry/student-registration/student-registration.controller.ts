@@ -1,8 +1,9 @@
 import {
-  Controller, HttpException,
-  HttpStatus,
-  Param,
-  Post, Req,
+  Body,
+  Controller,
+  HttpException,
+  HttpStatus, Post,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors
@@ -15,6 +16,7 @@ import { readAndProcessFile } from '../../../utils/csv-parser';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
+import { ImportOptionsDto } from '../registry.dto';
 import {
   StudentImportInterface,
   StudentRegistrationService
@@ -25,12 +27,12 @@ import {
 export class StudentRegistrationController {
   constructor(private studentRegistrationService: StudentRegistrationService) {}
 
-  @Post(':major_id/imports')
+  @Post('/imports')
   @Roles(Role.REGISTRY)
   @UseInterceptors(FileInterceptor('students'))
   async importStudents(
     @Req() request: Request,
-    @Param('major_id') major_id: string,
+    @Body() { major_id }: ImportOptionsDto,
     @UploadedFile() file: Express.Multer.File
   ) {
     const {

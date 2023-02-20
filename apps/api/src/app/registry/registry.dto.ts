@@ -124,3 +124,9 @@ export class CarryOverSystemPutDto {
   @IsEnum(CarryOverSystemEnum)
   carry_over_system: CarryOverSystemEnum;
 }
+
+export class ImportOptionsDto {
+  @IsUUID()
+  @ApiProperty()
+  major_id: string;
+}
