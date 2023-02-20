@@ -4,6 +4,7 @@ import ForgotPassword from '../pages/forgotPassword';
 import NewPassword from '../pages/newPassword';
 import SigninPage from '../pages/signin';
 import AppLayout from '../pages/layout';
+import Home from '../pages/home';
 
 export const routes = [
   {
@@ -30,7 +31,7 @@ export const routes = [
     children: [
       {
         path: 'home',
-        element: <Typography variant="h1">Testing 123</Typography>,
+        element: <Home />,
       },
       {
         path: 'my-courses',
