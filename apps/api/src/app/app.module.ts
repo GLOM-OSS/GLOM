@@ -74,9 +74,11 @@ export class AppModule implements NestModule {
     redisClient.connect().catch((message) => Logger.error(message));
     const RedisStore = connectRedis(session);
 
-    console.log(process.env.DATABASE_URL);
-    shell.exec(`npx prisma migrate dev --name deploy`);
-    shell.exec(`npx prisma migrate deploy`);
+    if (process.env.NODE_ENV === 'production') {
+      console.log(process.env.DATABASE_URL);
+      shell.exec(`npx prisma migrate dev --name deploy`);
+      shell.exec(`npx prisma migrate deploy`);
+    }
 
     consumer
       .apply(
