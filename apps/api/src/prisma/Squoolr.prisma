@@ -1206,7 +1206,7 @@ model RessourceAudit {
 model Assessment {
     assessment_id                 String                  @id @default(uuid()) @db.VarChar(36)
     assessment_date               DateTime?               @db.DateTime(0)
-    duration                      Int?
+    duration                      Int? //in minutes
     is_published                  Boolean                 @default(false) @db.TinyInt
     is_deleted                    Boolean                 @default(false) @db.TinyInt
     created_at                    DateTime                @default(now()) @db.DateTime(0)

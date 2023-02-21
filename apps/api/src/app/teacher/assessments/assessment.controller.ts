@@ -12,7 +12,7 @@ import {
   Req,
   UploadedFiles,
   UseGuards,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
@@ -25,7 +25,7 @@ import {
   AssessmentPutDto,
   PublishAssessmentDto,
   QuestionPostDto,
-  QuestionPutDto,
+  QuestionPutDto
 } from '../teacher.dto';
 import { AssessmentService } from './assessment.service';
 
@@ -122,8 +122,15 @@ export class AssessmentController {
   }
 
   @Get(':assessment_id/questions')
-  async getAssessmentQuestions(@Param('assessment_id') assessment_id: string) {
-    return this.assessmentService.getAssessmentQuestions(assessment_id);
+  async getAssessmentQuestions(
+    @Req() request: Request,
+    @Param('assessment_id') assessment_id: string
+  ) {
+    const { annualStudent } = request.user as DeserializeSessionData;
+    return this.assessmentService.getAssessmentQuestions(
+      assessment_id,
+      annualStudent as unknown as boolean
+    );
   }
 
   @Get('questions/:question_id')

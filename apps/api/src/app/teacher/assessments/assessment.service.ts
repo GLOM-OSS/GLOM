@@ -5,6 +5,7 @@ import {
   Prisma,
   PrismaPromise,
 } from '@prisma/client';
+import { Question } from '@squoolr/interfaces';
 import { AUTH404, ERR18 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { QuestionPostDto, QuestionPutDto } from '../teacher.dto';
@@ -192,21 +193,44 @@ export class AssessmentService {
     ]);
   }
 
-  async getAssessmentQuestions(assessment_id: string) {
+  async getAssessmentQuestions(
+    assessment_id: string,
+    is_student: boolean
+  ): Promise<Question[]> {
+    const assessment = await this.prismaService.assessment.findFirst({
+      where: { assessment_id },
+    });
+    if (!assessment || (is_student && !assessment.assessment_date))
+      throw new HttpException(
+        JSON.stringify(AUTH404('Assessment')),
+        HttpStatus.NOT_FOUND
+      );
+    const { assessment_date, duration } = assessment;
+    const assessmentEndDate = new Date(
+      new Date(assessment_date).getTime() + duration * 60 * 1000
+    );
     const questions = await this.prismaService.question.findMany({
       select: {
         question_id: true,
         question: true,
         question_mark: true,
         QuestionOptions: {
-          select: { question_option_id: true, option: true, is_answer: true },
+          select: {
+            question_option_id: true,
+            question_id: true,
+            option: true,
+            is_answer:
+              !is_student || (is_student && new Date() < assessmentEndDate),
+          },
+          where: { is_deleted: false },
         },
         QuestionResources: {
           select: {
             question_resource_id: true,
-            caption: true,
+            question_id: true,
             resource_ref: true,
             deleted_at: true,
+            caption: true,
           },
         },
       },
@@ -223,6 +247,7 @@ export class AssessmentService {
         ...question
       }) => ({
         ...question,
+        assessment_id,
         questionOptions,
         questionResources: questionRessources.filter(
           (_) => _.deleted_at === null
@@ -332,7 +357,7 @@ export class AssessmentService {
           AnnualStudentTakeAssessment: { annual_student_id, assessment_id },
         },
       });
-    const questions = await this.getAssessmentQuestions(assessment_id);
+    const questions = await this.getAssessmentQuestions(assessment_id, false);
     return questions.map(
       ({
         question_id,
