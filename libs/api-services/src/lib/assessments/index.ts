@@ -73,7 +73,10 @@ export async function getStudentAnswers(
   annual_student_id: string
 ) {
   const { data } = await http.get<QuestionAnswer[]>(
-    `/assessments/${assessment_id}/${annual_student_id}/answers`
+    `/assessments/${assessment_id}/answers`,
+    {
+      params: { annual_student_id },
+    }
   );
   return data;
 }

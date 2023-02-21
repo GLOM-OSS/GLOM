@@ -17,6 +17,7 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import { ERR20 } from '../../../../src/errors';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
@@ -145,13 +146,21 @@ export class AssessmentController {
     return this.assessmentService.getStudentAssessmentMarks(assessment_id);
   }
 
-  @Get(':assessment_id/:annual_student_id/answers')
+  @Get(':assessment_id/answers')
   async getStudentAnswers(
+    @Req() request: Request,
     @Param('assessment_id') assessment_id: string,
-    @Param('annual_student_id') annual_student_id: string
+    @Query('annual_student_id') annual_student_id: string
   ) {
+    const { annualStudent, preferred_lang } =
+      request.user as DeserializeSessionData;
+    if (!annualStudent && !annual_student_id)
+      throw new HttpException(
+        ERR20('student id')[preferred_lang],
+        HttpStatus.BAD_REQUEST
+      );
     return this.assessmentService.getStudentAnswers(
-      annual_student_id,
+      annualStudent?.annual_student_id ?? annual_student_id,
       assessment_id
     );
   }
@@ -168,14 +177,22 @@ export class AssessmentController {
   }
 
   @Roles(Role.STUDENT)
-  @Post(':assessment_id/:annual_student_id/take')
+  @Post(':assessment_id/take')
   async takeAssessment(
+    @Req() request: Request,
     @Param('assessment_id') assessment_id: string,
-    @Param('annual_student_id') annual_student_id: string
+    @Query('annual_student_id') annual_student_id: string
   ) {
+    const { annualStudent, preferred_lang } =
+      request.user as DeserializeSessionData;
+    if (!annualStudent && !annual_student_id)
+      throw new HttpException(
+        ERR20('student id')[preferred_lang],
+        HttpStatus.BAD_REQUEST
+      );
     try {
       return this.assessmentService.takeAssessment(
-        annual_student_id,
+        annualStudent?.annual_student_id ?? annual_student_id,
         assessment_id
       );
     } catch (error) {
@@ -184,15 +201,23 @@ export class AssessmentController {
   }
 
   @Roles(Role.STUDENT)
-  @Post(':assessment_id/:annual_student_id/submit')
+  @Post(':assessment_id/submit')
   async submitAssessment(
+    @Req() request: Request,
     @Param('assessment_id') assessment_id: string,
-    @Param('annual_student_id') annual_student_id: string,
+    @Query('annual_student_id') annual_student_id: string,
     @Body() { answers }: StudentAnswerDto
   ) {
+    const { annualStudent, preferred_lang } =
+      request.user as DeserializeSessionData;
+    if (!annualStudent && !annual_student_id)
+      throw new HttpException(
+        ERR20('student id')[preferred_lang],
+        HttpStatus.BAD_REQUEST
+      );
     try {
       return this.assessmentService.correctStudentAnswers(
-        annual_student_id,
+        annualStudent?.annual_student_id ?? annual_student_id,
         assessment_id,
         answers
       );
