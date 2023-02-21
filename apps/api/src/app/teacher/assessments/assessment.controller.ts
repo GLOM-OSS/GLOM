@@ -12,7 +12,7 @@ import {
   Req,
   UploadedFiles,
   UseGuards,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
@@ -25,7 +25,7 @@ import {
   AssessmentPutDto,
   PublishAssessmentDto,
   QuestionPostDto,
-  QuestionPutDto
+  QuestionPutDto,
 } from '../teacher.dto';
 import { AssessmentService } from './assessment.service';
 
@@ -165,6 +165,21 @@ export class AssessmentController {
       assessment_id,
       distribution_interval ?? 5
     );
+  }
+
+  @Post(':assessment_id/:annual_student_id/take')
+  async takeAssessment(
+    @Param('assessment_id') assessment_id: string,
+    @Param('annual_student_id') annual_student_id: string
+  ) {
+    try {
+      return this.assessmentService.takeAssessment(
+        annual_student_id,
+        assessment_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Roles(Role.TEACHER)

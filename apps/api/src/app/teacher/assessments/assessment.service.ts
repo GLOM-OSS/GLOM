@@ -3,10 +3,10 @@ import {
   Assessment,
   EvaluationHasStudent,
   Prisma,
-  PrismaPromise,
+  PrismaPromise
 } from '@prisma/client';
 import { Question } from '@squoolr/interfaces';
-import { AUTH404, ERR18 } from '../../../errors';
+import { AUTH404, ERR18, ERR21 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { QuestionPostDto, QuestionPutDto } from '../teacher.dto';
 
@@ -627,5 +627,31 @@ export class AssessmentService {
       },
       where: { question_id },
     });
+  }
+
+  async takeAssessment(annual_student_id: string, assessment_id: string) {
+    const assessment = await this.prismaService.assessment.findFirst({
+      where: { assessment_id },
+    });
+    if (!assessment || !assessment.assessment_date)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Assessment')),
+        HttpStatus.NOT_FOUND
+      );
+
+    await this.prismaService.annualStudentTakeAssessment.create({
+      data: {
+        total_score: 0,
+        Assessment: { connect: { assessment_id } },
+        AnnualStudent: { connect: { annual_student_id } },
+      },
+    });
+
+    const { assessment_date, duration } = assessment;
+    const assessmentEndDate = new Date(
+      new Date(assessment_date).getTime() + (duration / 8) * 60 * 1000
+    );
+    if (assessmentEndDate < new Date())
+      throw new HttpException(JSON.stringify(ERR21), HttpStatus.EARLYHINTS);
   }
 }
