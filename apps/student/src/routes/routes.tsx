@@ -5,6 +5,7 @@ import NewPassword from '../pages/newPassword';
 import SigninPage from '../pages/signin';
 import AppLayout from '../pages/layout';
 import Home from '../pages/home';
+import Courses from '../pages/courses';
 
 export const routes = [
   {
@@ -35,7 +36,11 @@ export const routes = [
       },
       {
         path: 'my-courses',
-        element: <Typography variant="h1">courses</Typography>,
+        element: <Courses />,
+      },
+      {
+        path: 'my-courses/:annual_credit_unit_subject_id',
+        element: <Typography>Course details</Typography>,
       },
       { path: '*', element: <Navigate to="/" /> },
     ],
