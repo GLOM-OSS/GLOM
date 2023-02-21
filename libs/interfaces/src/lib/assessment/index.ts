@@ -1,15 +1,17 @@
-export interface Assessment {
+export interface CreateAssessment {
+  number_per_group: number;
+  submission_type: 'Individual' | 'Group';
+  annual_credit_unit_subject_id: string;
+}
+export interface Assessment extends CreateAssessment {
   created_at: Date;
   total_mark: number;
   assessment_id: string;
   is_published: boolean;
   duration: number | null;
-  number_per_group: number;
   chapter_id: string | null;
   assessment_date: Date | null;
-  annual_credit_unit_subject_id: string;
   evaluation_sub_type_name: string | null;
-  submission_type: 'Individual' | 'Group';
 }
 
 export interface CreateQuestionOption {
@@ -78,7 +80,7 @@ export interface EditQuestionInterface {
   question_mark: number;
   question_answer: string | null;
   question_type: 'MCQ' | 'Structural' | 'File';
-  
+
   deletedOptionIds: string[];
   deletedResourceIds: string[];
   editedOptions: QuestionOption[];

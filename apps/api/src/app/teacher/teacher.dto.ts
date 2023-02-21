@@ -1,10 +1,12 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { QuestionType, SubmissionType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
   IsDateString,
+  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
@@ -84,6 +86,21 @@ export class EvaluationMarkDto {
   private_code: string;
 }
 
+export class AssessmentPostDto {
+  @IsOptional()
+  @IsEnum(SubmissionType)
+  @ApiProperty({ required: false })
+  submission_type?: SubmissionType;
+
+  @IsNumber()
+  @ApiProperty()
+  number_per_group: number;
+
+  @IsUUID()
+  @ApiProperty()
+  annual_credit_unit_subject_id: string;
+}
+
 export class AssessmentPutDto {
   @ApiProperty()
   @IsDateString()
@@ -126,8 +143,18 @@ export class QuestionPostDto {
   @ApiProperty()
   question_mark: number;
 
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  question_answer?: string;
+
+  @IsOptional()
+  @IsEnum(QuestionType)
+  @ApiProperty({ required: false })
+  question_type?: QuestionType;
+
   @IsUUID()
-  @ApiProperty()
+  @ApiProperty({ required: false })
   assessment_id: string;
 
   @IsArray()
