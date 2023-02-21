@@ -12,7 +12,7 @@ import {
   Req,
   UploadedFiles,
   UseGuards,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
@@ -21,12 +21,13 @@ import { ERR20 } from '../../../../src/errors';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
-import { ResourceOwner, StudentAnswerDto } from '../courses/course.dto';
+import { StudentAnswerDto } from '../courses/course.dto';
 import {
+  AssessmentPostDto,
   AssessmentPutDto,
   PublishAssessmentDto,
   QuestionPostDto,
-  QuestionPutDto,
+  QuestionPutDto
 } from '../teacher.dto';
 import { AssessmentService } from './assessment.service';
 
@@ -45,14 +46,14 @@ export class AssessmentController {
   @Roles(Role.TEACHER)
   async createAssessment(
     @Req() request: Request,
-    @Body() { annual_credit_unit_subject_id }: ResourceOwner
+    @Body() newAssessment: AssessmentPostDto
   ) {
     const {
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
     try {
       return await this.assessmentService.createAssessment(
-        annual_credit_unit_subject_id,
+        newAssessment,
         annual_teacher_id
       );
     } catch (error) {

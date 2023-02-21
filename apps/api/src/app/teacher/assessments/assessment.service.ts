@@ -9,18 +9,23 @@ import { Question } from '@squoolr/interfaces';
 import { AUTH404, ERR18, ERR21 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { QuestionAnswer } from '../courses/course.dto';
-import { QuestionPostDto, QuestionPutDto } from '../teacher.dto';
+import {
+  AssessmentPostDto,
+  QuestionPostDto,
+  QuestionPutDto,
+} from '../teacher.dto';
 
 @Injectable()
 export class AssessmentService {
   constructor(private prismaService: PrismaService) {}
 
   async createAssessment(
-    annual_credit_unit_subject_id: string,
+    { annual_credit_unit_subject_id, ...newAssessment }: AssessmentPostDto,
     created_by: string
   ) {
     return this.prismaService.assessment.create({
       data: {
+        ...newAssessment,
         AnnualCreditUnitSubject: { connect: { annual_credit_unit_subject_id } },
         AnnualTeacher: { connect: { annual_teacher_id: created_by } },
       },
