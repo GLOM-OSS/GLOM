@@ -20,7 +20,7 @@ import { Request } from 'express';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
-import { ResourceOwner } from '../courses/course.dto';
+import { ResourceOwner, StudentAnswerDto } from '../courses/course.dto';
 import {
   AssessmentPutDto,
   PublishAssessmentDto,
@@ -167,6 +167,7 @@ export class AssessmentController {
     );
   }
 
+  @Roles(Role.STUDENT)
   @Post(':assessment_id/:annual_student_id/take')
   async takeAssessment(
     @Param('assessment_id') assessment_id: string,
@@ -176,6 +177,24 @@ export class AssessmentController {
       return this.assessmentService.takeAssessment(
         annual_student_id,
         assessment_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Roles(Role.STUDENT)
+  @Post(':assessment_id/:annual_student_id/submit')
+  async submitAssessment(
+    @Param('assessment_id') assessment_id: string,
+    @Param('annual_student_id') annual_student_id: string,
+    @Body() { answers }: StudentAnswerDto
+  ) {
+    try {
+      return this.assessmentService.correctStudentAnswers(
+        annual_student_id,
+        assessment_id,
+        answers
       );
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);

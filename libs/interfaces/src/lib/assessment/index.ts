@@ -81,3 +81,10 @@ export interface ActivateAssessment {
   assessment_date: Date;
   assessment_time: Date;
 }
+
+export interface StudentAnswers {
+  answers: {
+    answered_option_id: string;
+    question_id: string;
+  }[];
+}

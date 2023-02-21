@@ -8,6 +8,7 @@ import {
 import { Question } from '@squoolr/interfaces';
 import { AUTH404, ERR18, ERR21 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { QuestionAnswer } from '../courses/course.dto';
 import { QuestionPostDto, QuestionPutDto } from '../teacher.dto';
 
 @Injectable()
@@ -648,10 +649,65 @@ export class AssessmentService {
     });
 
     const { assessment_date, duration } = assessment;
-    const assessmentEndDate = new Date(
+    const allowedDate = new Date(
       new Date(assessment_date).getTime() + (duration / 8) * 60 * 1000
     );
-    if (assessmentEndDate < new Date())
+    if (allowedDate < new Date())
       throw new HttpException(JSON.stringify(ERR21), HttpStatus.EARLYHINTS);
+  }
+
+  async correctStudentAnswers(
+    annual_student_id: string,
+    assessment_id: string,
+    studentAnswers: QuestionAnswer[]
+  ) {
+    const {
+      created_at,
+      annual_student_take_assessment_id,
+      Assessment: { assessment_date, duration },
+    } = await this.prismaService.annualStudentTakeAssessment.findFirstOrThrow({
+      select: {
+        created_at: true,
+        annual_student_take_assessment_id: true,
+        Assessment: { select: { assessment_date: true, duration: true } },
+      },
+      where: { annual_student_id, assessment_id },
+    });
+    const allowedDate = new Date(
+      new Date(assessment_date).getTime() + (duration / 8) * 60 * 1000
+    );
+    if (allowedDate < new Date(created_at))
+      throw new HttpException(JSON.stringify(ERR21), HttpStatus.EARLYHINTS);
+
+    const assessmentQuestions = await this.getAssessmentQuestions(
+      assessment_id,
+      false
+    );
+    const totalScore = assessmentQuestions.reduce(
+      (totalScore, { question_id, question_mark, questionOptions }) =>
+        totalScore +
+          questionOptions.find((_) => _.is_answer).question_option_id ===
+        studentAnswers.find((_) => _.question_id === question_id)
+          .answered_option_id
+          ? question_mark
+          : 0,
+      0
+    );
+    await this.prismaService.$transaction([
+      this.prismaService.annualStudentAnswerOption.createMany({
+        data: studentAnswers.map(({ answered_option_id, question_id }) => ({
+          annual_student_take_assessment_id,
+          answered_option_id,
+          question_id,
+        })),
+      }),
+      this.prismaService.annualStudentTakeAssessment.update({
+        data: {
+          submitted_at: new Date(),
+          total_score: totalScore,
+        },
+        where: { annual_student_take_assessment_id },
+      }),
+    ]);
   }
 }
