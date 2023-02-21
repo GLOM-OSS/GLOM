@@ -178,7 +178,10 @@ export class StudentService {
       where: { annual_student_id },
     });
     if (!annualStudent)
-      throw new HttpException(JSON.stringify(AUTH404), HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        JSON.stringify(AUTH404('Student')),
+        HttpStatus.NOT_FOUND
+      );
     const {
       AnnualClassroomDivision: {
         AnnualClassroom: { registration_fee, total_fee_due },

@@ -325,7 +325,10 @@ export class PresenceListService {
       where: { presence_list_id, is_published: false, is_deleted: false },
     });
     if (!presenceList)
-      throw new HttpException(JSON.stringify(AUTH404), HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        JSON.stringify(AUTH404('Presence list')),
+        HttpStatus.NOT_FOUND
+      );
     await this.prismaService.presenceList.update({
       data: {
         PresenceListHasChapters: {
