@@ -11,6 +11,7 @@ export interface Course extends SubjectMarkStatus {
   classroomAcronyms: string[];
   has_course_plan: boolean;
   objective: string;
+  semester?: number;
 }
 
 export interface EvaluationHasStudent {
