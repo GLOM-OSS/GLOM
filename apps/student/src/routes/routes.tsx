@@ -6,6 +6,7 @@ import SigninPage from '../pages/signin';
 import AppLayout from '../pages/layout';
 import Home from '../pages/home';
 import Courses from '../pages/courses';
+import CourseDetails from '../pages/courses/[annual_credit_unit_subject_id]';
 
 export const routes = [
   {
@@ -40,7 +41,7 @@ export const routes = [
       },
       {
         path: 'my-courses/:annual_credit_unit_subject_id',
-        element: <Typography>Course details</Typography>,
+        element: <CourseDetails />,
       },
       { path: '*', element: <Navigate to="/" /> },
     ],
