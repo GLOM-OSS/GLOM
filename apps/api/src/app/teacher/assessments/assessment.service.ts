@@ -3,10 +3,12 @@ import {
   Assessment,
   EvaluationHasStudent,
   Prisma,
-  PrismaPromise,
+  PrismaPromise
 } from '@prisma/client';
-import { AUTH404, ERR18 } from '../../../errors';
+import { Question } from '@squoolr/interfaces';
+import { AUTH404, ERR18, ERR21 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { QuestionAnswer } from '../courses/course.dto';
 import { QuestionPostDto, QuestionPutDto } from '../teacher.dto';
 
 @Injectable()
@@ -192,21 +194,44 @@ export class AssessmentService {
     ]);
   }
 
-  async getAssessmentQuestions(assessment_id: string) {
+  async getAssessmentQuestions(
+    assessment_id: string,
+    is_student: boolean
+  ): Promise<Question[]> {
+    const assessment = await this.prismaService.assessment.findFirst({
+      where: { assessment_id },
+    });
+    if (!assessment || (is_student && !assessment.assessment_date))
+      throw new HttpException(
+        JSON.stringify(AUTH404('Assessment')),
+        HttpStatus.NOT_FOUND
+      );
+    const { assessment_date, duration } = assessment;
+    const assessmentEndDate = new Date(
+      new Date(assessment_date).getTime() + duration * 60 * 1000
+    );
     const questions = await this.prismaService.question.findMany({
       select: {
         question_id: true,
         question: true,
         question_mark: true,
         QuestionOptions: {
-          select: { question_option_id: true, option: true, is_answer: true },
+          select: {
+            question_option_id: true,
+            question_id: true,
+            option: true,
+            is_answer:
+              !is_student || (is_student && new Date() < assessmentEndDate),
+          },
+          where: { is_deleted: false },
         },
         QuestionResources: {
           select: {
             question_resource_id: true,
-            caption: true,
+            question_id: true,
             resource_ref: true,
             deleted_at: true,
+            caption: true,
           },
         },
       },
@@ -223,6 +248,7 @@ export class AssessmentService {
         ...question
       }) => ({
         ...question,
+        assessment_id,
         questionOptions,
         questionResources: questionRessources.filter(
           (_) => _.deleted_at === null
@@ -332,7 +358,7 @@ export class AssessmentService {
           AnnualStudentTakeAssessment: { annual_student_id, assessment_id },
         },
       });
-    const questions = await this.getAssessmentQuestions(assessment_id);
+    const questions = await this.getAssessmentQuestions(assessment_id, false);
     return questions.map(
       ({
         question_id,
@@ -602,5 +628,86 @@ export class AssessmentService {
       },
       where: { question_id },
     });
+  }
+
+  async takeAssessment(annual_student_id: string, assessment_id: string) {
+    const assessment = await this.prismaService.assessment.findFirst({
+      where: { assessment_id },
+    });
+    if (!assessment || !assessment.assessment_date)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Assessment')),
+        HttpStatus.NOT_FOUND
+      );
+
+    await this.prismaService.annualStudentTakeAssessment.create({
+      data: {
+        total_score: 0,
+        Assessment: { connect: { assessment_id } },
+        AnnualStudent: { connect: { annual_student_id } },
+      },
+    });
+
+    const { assessment_date, duration } = assessment;
+    const allowedDate = new Date(
+      new Date(assessment_date).getTime() + (duration / 8) * 60 * 1000
+    );
+    if (allowedDate < new Date())
+      throw new HttpException(JSON.stringify(ERR21), HttpStatus.EARLYHINTS);
+  }
+
+  async correctStudentAnswers(
+    annual_student_id: string,
+    assessment_id: string,
+    studentAnswers: QuestionAnswer[]
+  ) {
+    const {
+      created_at,
+      annual_student_take_assessment_id,
+      Assessment: { assessment_date, duration },
+    } = await this.prismaService.annualStudentTakeAssessment.findFirstOrThrow({
+      select: {
+        created_at: true,
+        annual_student_take_assessment_id: true,
+        Assessment: { select: { assessment_date: true, duration: true } },
+      },
+      where: { annual_student_id, assessment_id },
+    });
+    const allowedDate = new Date(
+      new Date(assessment_date).getTime() + (duration / 8) * 60 * 1000
+    );
+    if (allowedDate < new Date(created_at))
+      throw new HttpException(JSON.stringify(ERR21), HttpStatus.EARLYHINTS);
+
+    const assessmentQuestions = await this.getAssessmentQuestions(
+      assessment_id,
+      false
+    );
+    const totalScore = assessmentQuestions.reduce(
+      (totalScore, { question_id, question_mark, questionOptions }) =>
+        totalScore +
+          questionOptions.find((_) => _.is_answer).question_option_id ===
+        studentAnswers.find((_) => _.question_id === question_id)
+          .answered_option_id
+          ? question_mark
+          : 0,
+      0
+    );
+    await this.prismaService.$transaction([
+      this.prismaService.annualStudentAnswerOption.createMany({
+        data: studentAnswers.map(({ answered_option_id, question_id }) => ({
+          annual_student_take_assessment_id,
+          answered_option_id,
+          question_id,
+        })),
+      }),
+      this.prismaService.annualStudentTakeAssessment.update({
+        data: {
+          submitted_at: new Date(),
+          total_score: totalScore,
+        },
+        where: { annual_student_take_assessment_id },
+      }),
+    ]);
   }
 }

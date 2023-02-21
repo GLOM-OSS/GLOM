@@ -18,13 +18,17 @@ export async function createPresenceList(newPresenceList: CreatePresenceList) {
 
 export async function updatePresenceList(
   presence_list_id: string,
-  updateData: Partial<CreatePresenceList>
+  updateData: Partial<CreatePresenceList>,
+  shouldPublish: boolean
 ) {
-  await http.put(`/presence-lists/${presence_list_id}/edit`, updateData);
+  await http.put(
+    `/presence-lists/${presence_list_id}/${shouldPublish ? 'publish' : 'edit'}`,
+    updateData
+  );
 }
 
-export async function publishPresenceList(presence_list_id: string) {
-  await http.put(`/presence-lists/${presence_list_id}/publish`);
+export async function reinitialisePresenceList(presence_list_id: string) {
+  await http.put(`/presence-lists/${presence_list_id}/reinitialize`);
 }
 
 export async function deletePresenceList(presence_list_id: string) {

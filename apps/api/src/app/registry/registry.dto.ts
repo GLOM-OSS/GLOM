@@ -5,13 +5,11 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsEnum,
-  IsNumber,
-  IsOptional,
-  IsString,
+  IsNumber, IsString,
   IsUUID,
   Max,
   Min,
-  ValidateNested,
+  ValidateNested
 } from 'class-validator';
 
 export class WeightingPutDto {
@@ -127,14 +125,8 @@ export class CarryOverSystemPutDto {
   carry_over_system: CarryOverSystemEnum;
 }
 
-export class StudentQueryQto {
+export class ImportOptionsDto {
   @IsUUID()
-  @IsOptional()
   @ApiProperty()
-  major_code?: string;
-
-  @IsUUID()
-  @IsOptional()
-  @ApiProperty()
-  classroom_code?: string;
+  major_id: string;
 }

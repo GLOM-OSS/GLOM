@@ -151,3 +151,7 @@ export const ERR20 = (element: string) => ({
   en: `${element} input is required`,
   fr: `la donnee '${element}' est requise`,
 });
+export const ERR21 = {
+  en: `This assessment hall access is closed`,
+  fr: `La salle d'accès à cette examen est fermée`,
+};

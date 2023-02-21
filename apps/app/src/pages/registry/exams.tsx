@@ -13,9 +13,9 @@ import {
   getCreditUnitSubjects,
   getEvaluations,
   getMajors,
-  Major,
 } from '@squoolr/api-services';
 import {
+  Major,
   CreditUnit,
   CreditUnitSubject,
   Evaluation,

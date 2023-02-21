@@ -18,6 +18,7 @@ export * from './hall-accesses';
 export * from './majors';
 export * from './personnel';
 export * from './presence-lists';
+export * from './students';
 export * from './weighting-system';
 
 export async function getCycles() {

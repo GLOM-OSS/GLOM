@@ -20,11 +20,11 @@ import {
   getPersonnel as getAllPersonnel,
   getRegistries,
   getTeachers,
-  Personnel as PersonnelData,
   resetPersonnelPassword,
   resetRegistryCode,
   resetTeacherCode,
 } from '@squoolr/api-services';
+import { Personnel as PersonnelData } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import {
   ErrorMessage,

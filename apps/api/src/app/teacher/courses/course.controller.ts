@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { DeserializeSessionData } from '../../../utils/types';
@@ -39,9 +39,13 @@ export class CourseController {
   @Get(':annual_credit_unit_subject_id/chapters')
   async getCourseChapters(
     @Param('annual_credit_unit_subject_id')
-    annual_credit_unit_subject_id: string
+    annual_credit_unit_subject_id: string,
+    @Query('isNotDone') isNotDone: boolean
   ) {
-    return this.courseService.findChapters(annual_credit_unit_subject_id);
+    return this.courseService.findChapters(
+      annual_credit_unit_subject_id,
+      isNotDone
+    );
   }
 
   @Get(':annual_credit_unit_subject_id/assessments')

@@ -19,7 +19,6 @@ export class PresenceListService {
         presence_list_date: true,
         AnnualCreditUnitSubject: {
           select: {
-            annual_credit_unit_subject_id: true,
             subject_code: true,
             subject_title: true,
           },
@@ -27,7 +26,12 @@ export class PresenceListService {
         PresenceListHasChapters: {
           select: {
             deleted_at: true,
-            Chapter: { select: { chapter_id: true } },
+            Chapter: {
+              select: {
+                chapter_id: true,
+                chapter_title: true,
+              },
+            },
           },
         },
         PresenceListHasCreditUnitStudents: {
@@ -35,7 +39,29 @@ export class PresenceListService {
             deleted_at: true,
             AnnualStudentHasCreditUnit: {
               select: {
-                annual_student_id: true,
+                AnnualStudent: {
+                  select: {
+                    is_active: true,
+                    annual_student_id: true,
+                    AnnualClassroomDivision: {
+                      select: {
+                        AnnualClassroom: {
+                          select: { classroom_acronym: true },
+                        },
+                      },
+                    },
+                    Student: {
+                      select: {
+                        matricule: true,
+                        Login: {
+                          select: {
+                            Person: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
               },
             },
           },
@@ -45,94 +71,42 @@ export class PresenceListService {
     });
     if (presenceList) {
       const {
-        AnnualCreditUnitSubject: { annual_credit_unit_subject_id, ...subject },
+        AnnualCreditUnitSubject: subject,
         PresenceListHasChapters: coveredChapters,
         PresenceListHasCreditUnitStudents: presentStudents,
         ...presenceListData
       } = presenceList;
-      const chapters = await this.prismaService.chapter.findMany({
-        select: {
-          chapter_id: true,
-          chapter_title: true,
-          chapter_parent_id: true,
-        },
-        where: { is_deleted: false, annual_credit_unit_subject_id },
-      });
-      const students = await this.prismaService.annualStudent.findMany({
-        select: {
-          is_active: true,
-          annual_student_id: true,
-          AnnualClassroomDivision: {
-            select: {
-              AnnualClassroom: { select: { classroom_acronym: true } },
-            },
-          },
-          Student: {
-            select: {
-              matricule: true,
-              Login: {
-                select: {
-                  Person: true,
-                },
-              },
-            },
-          },
-        },
-        where: {
-          is_active: true,
-          is_deleted: false,
-          AnnualStudentHasCreditUnits: {
-            some: {
-              AnnualCreditUnit: {
-                AnnualCreditUnitSubjects: {
-                  some: { annual_credit_unit_subject_id },
-                },
-              },
-            },
-          },
-        },
-      });
       return {
         ...subject,
         ...presenceListData,
-        chapters: chapters
-          .filter((_) => _.chapter_parent_id === null)
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          .map(({ chapter_parent_id, ...chapter }) => ({
-            ...chapter,
-            is_covered: Boolean(
-              coveredChapters.find(
-                ({ deleted_at, Chapter: _ }) =>
-                  _.chapter_id === chapter.chapter_id && deleted_at === null
-              )
-            ),
-          })),
-        students: students.map(
-          ({
-            is_active,
-            AnnualClassroomDivision: {
-              AnnualClassroom: { classroom_acronym },
-            },
-            Student: {
+        chapters: coveredChapters
+          .filter((_) => _.deleted_at === null)
+          .map(({ Chapter: chapter }) => chapter),
+        students: presentStudents
+          .filter((_) => _.deleted_at === null)
+          .map(
+            ({
+              AnnualStudentHasCreditUnit: {
+                AnnualStudent: {
+                  is_active,
+                  AnnualClassroomDivision: {
+                    AnnualClassroom: { classroom_acronym },
+                  },
+                  Student: {
+                    matricule,
+                    Login: { Person: person },
+                  },
+                  annual_student_id,
+                },
+              },
+            }) => ({
               matricule,
-              Login: { Person: person },
-            },
-            annual_student_id,
-          }) => ({
-            matricule,
-            ...person,
-            is_active,
-            classroom_acronym,
-            annual_student_id,
-            is_present: Boolean(
-              presentStudents.find(
-                ({ deleted_at, AnnualStudentHasCreditUnit: _ }) =>
-                  _.annual_student_id === annual_student_id &&
-                  deleted_at === null
-              )
-            ),
-          })
-        ),
+              ...person,
+              is_active,
+              classroom_acronym,
+              annual_student_id,
+            })
+          ),
       };
     }
     return null;
@@ -340,6 +314,34 @@ export class PresenceListService {
         ...data,
         PresenceListAudits: {
           create: { ...presenceList, audited_by },
+        },
+      },
+      where: { presence_list_id },
+    });
+  }
+
+  async reinitialize(presence_list_id: string, annual_teacher_id: string) {
+    const presenceList = await this.prismaService.presenceList.findFirst({
+      where: { presence_list_id, is_published: false, is_deleted: false },
+    });
+    if (!presenceList)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Presence list')),
+        HttpStatus.NOT_FOUND
+      );
+    await this.prismaService.presenceList.update({
+      data: {
+        PresenceListHasChapters: {
+          updateMany: {
+            data: { deleted_at: new Date(), deleted_by: annual_teacher_id },
+            where: { presence_list_id },
+          },
+        },
+        PresenceListHasCreditUnitStudents: {
+          updateMany: {
+            data: { deleted_at: new Date(), deleted_by: annual_teacher_id },
+            where: { presence_list_id },
+          },
         },
       },
       where: { presence_list_id },

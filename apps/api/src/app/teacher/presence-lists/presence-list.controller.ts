@@ -110,4 +110,23 @@ export class PresenceListController {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  @Put(':presence_list_id/reinitialize')
+  @Roles(Role.TEACHER)
+  async reinitializePresenceList(
+    @Req() request: Request,
+    @Param('presence_list_id') presence_list_id: string
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      await this.presenceService.reinitialize(
+        presence_list_id,
+        annual_teacher_id
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }

@@ -12,6 +12,10 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import {
+  getCreditUnitSubjectDetails,
+  getPreseneceLists,
+} from '@squoolr/api-services';
 import { CreditUnitSubject, PresenceList } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -39,59 +43,14 @@ export default function Presences() {
       presenceNotif.dismiss();
     }
     setPresenceNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD course presence  lists with data annual_credit_unit_subject_id
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newPresences: PresenceList[] = [
-          {
-            chapters: [
-              {
-                chapter_id: 'ieow',
-                chapter_title: 'Introduction',
-                is_covered: true,
-              },
-              {
-                chapter_id: 'ieows',
-                chapter_title: 'Corps du sujet',
-                is_covered: true,
-              },
-              {
-                chapter_id: 'ieowf',
-                chapter_title: 'Conclusion du cours',
-                is_covered: true,
-              },
-            ],
-            end_time: new Date(),
-            is_published: false,
-            presence_list_date: new Date(),
-            presence_list_id: 'ieosl',
-            start_time: new Date(),
-            students: [
-              {
-                annual_student_id: 'sieodsl',
-                birthdate: new Date(),
-                classroom_acronym: 'IRT3',
-                email: 'nguemeteulriche@gmail.com',
-                first_name: 'Ulriche Gaella',
-                gender: 'Female',
-                is_active: true,
-                last_name: 'Mache Nguemete',
-                matricule: '18C005',
-                national_id_number: '000310122',
-                phone_number: '693256789',
-                preferred_lang: 'fr',
-              },
-            ],
-            subject_code: 'EU2030',
-            subject_title: "Introduction a l'Algorithmique",
-          },
-        ];
-        setPresenceList(newPresences);
+    getPreseneceLists(annual_credit_unit_subject_id)
+      .then((presenceLists) => {
+        setPresenceList(presenceLists);
         setIsPresenceListLoading(false);
         notif.dismiss();
         setPresenceNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingPresenceLists' }),
         });
@@ -101,15 +60,16 @@ export default function Presences() {
             <ErrorMessage
               retryFunction={() => loadPresences(annual_credit_unit_subject_id)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getPresenceListsFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'getPresenceListsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [isSubjectLoading, setIsSubjectLoading] = useState<boolean>(false);
@@ -123,25 +83,14 @@ export default function Presences() {
       subjectNotif.dismiss();
     }
     setSubjectNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD subject details with data annual_credit_unit_subject_id
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newSubject: CreditUnitSubject = {
-          annual_credit_unit_id: 'sldie',
-          annual_credit_unit_subject_id: 'lsie',
-          main_teacher_fullname: 'Boston',
-          objective: 'soeil',
-          subject_code: 'eisl',
-          subject_title: "Introduction a l'algorithme",
-          subjectParts: [],
-          weighting: 3,
-        };
-        setSubject(newSubject);
+    getCreditUnitSubjectDetails(annual_credit_unit_subject_id)
+      .then((subject) => {
+        setSubject(subject);
         setIsSubjectLoading(false);
         notif.dismiss();
         setSubjectNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingSubjectDetails' }),
         });
@@ -153,24 +102,27 @@ export default function Presences() {
                 loadSubjectDetail(annual_credit_unit_subject_id)
               }
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getSubjectDetailsFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'getSubjectDetailsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [activeSession, setActiveSession] = useState<PresenceList>();
 
   useEffect(() => {
-    loadPresences(annual_credit_unit_subject_id as string);
-    loadSubjectDetail(annual_credit_unit_subject_id as string);
+    if (annual_credit_unit_subject_id) {
+      loadPresences(annual_credit_unit_subject_id);
+      loadSubjectDetail(annual_credit_unit_subject_id);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [annual_credit_unit_subject_id]);
   return !activeSession ? (
     <Box
       sx={{

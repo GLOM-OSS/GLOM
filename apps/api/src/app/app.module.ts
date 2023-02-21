@@ -27,6 +27,7 @@ import { TeacherModule } from './teacher/teacher.module';
 import { MulterFileModule } from '../multer/multer.module';
 import { MulterConfigService } from '../multer/multer.service';
 import * as shell from 'shelljs';
+import { StudentModule } from './student/student.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import * as shell from 'shelljs';
     CoordinatorModule,
     RegistryModule,
     TeacherModule,
+    StudentModule,
   ],
   controllers: [AppController],
   providers: [

@@ -10,7 +10,8 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { getTeachers, Personnel } from '@squoolr/api-services';
+import { getTeachers } from '@squoolr/api-services';
+import { Personnel } from '@squoolr/interfaces';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -134,10 +135,7 @@ export default function SubjectDialog({
     annual_teacher_id: Yup.string().required(formatMessage({ id: 'required' })),
     weighting: Yup.number()
       .required(formatMessage({ id: 'required' }))
-      .max(
-        getMaxAllowedWeighting(),
-        formatMessage({ id: 'maxAllowedValue' })
-      )
+      .max(getMaxAllowedWeighting(), formatMessage({ id: 'maxAllowedValue' }))
       .min(0.1, formatMessage({ id: 'minAllowedValue0' })),
   });
 
