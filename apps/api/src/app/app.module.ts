@@ -13,6 +13,9 @@ import { createClient } from 'redis';
 // import * as csurf from 'csurf';
 import helmet from 'helmet';
 
+import * as shell from 'shelljs';
+import { MulterFileModule } from '../multer/multer.module';
+import { MulterConfigService } from '../multer/multer.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AppController } from './app.controller';
 import { AppInterceptor } from './app.interceptor';
@@ -23,11 +26,8 @@ import { ConfiguratorModule } from './configurator/configurator.module';
 import { CoordinatorModule } from './coordinator/coordinator.module';
 import { DemandModule } from './demand/demand.module';
 import { RegistryModule } from './registry/registry.module';
-import { TeacherModule } from './teacher/teacher.module';
-import { MulterFileModule } from '../multer/multer.module';
-import { MulterConfigService } from '../multer/multer.service';
-import * as shell from 'shelljs';
 import { StudentModule } from './student/student.module';
+import { TeacherModule } from './teacher/teacher.module';
 
 @Module({
   imports: [
