@@ -20,13 +20,13 @@ export interface IDiscipline {
 export interface ICreatePayment {
   amount: number;
   payment_date: Date;
-  semesterNumber?: number[];
+  semester_number?: number[];
   payment_reason: 'Platform' | 'Fee' | 'Registration';
 }
 export interface IPaymentHistory
-  extends Omit<ICreatePayment, 'semesterNumber'> {
+  extends Omit<ICreatePayment, 'semester_number'> {
   payment_id: string;
-  semesterNumber: number;
+  semester_number: number;
 }
 
 export interface IFeeSummary {

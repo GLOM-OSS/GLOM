@@ -1,13 +1,15 @@
 export interface Assessment {
   created_at: Date;
-  duration: number | null;
   total_mark: number;
   assessment_id: string;
+  is_published: boolean;
+  duration: number | null;
+  number_per_group: number;
   chapter_id: string | null;
   assessment_date: Date | null;
   annual_credit_unit_subject_id: string;
   evaluation_sub_type_name: string | null;
-  is_published: boolean;
+  submission_type: 'Individual' | 'Group';
 }
 
 export interface CreateQuestionOption {
@@ -20,6 +22,8 @@ export interface CreateQuestion {
   question: string;
   question_mark: number;
   assessment_id: string;
+  question_answer: string | null;
+  question_type: 'MCQ' | 'Structural' | 'File';
   questionOptions: Omit<CreateQuestionOption, 'question_id'>[];
 }
 
@@ -41,7 +45,9 @@ export interface Question extends CreateQuestion {
 }
 
 export interface QuestionAnswer extends Question {
+  response: string | null;
   answeredOptionIds: string[];
+  teacher_comment: string | null;
 }
 
 export interface StudentAssessmentAnswer {
@@ -70,6 +76,9 @@ export interface AssessmentStatistics {
 export interface EditQuestionInterface {
   question: string;
   question_mark: number;
+  question_answer: string | null;
+  question_type: 'MCQ' | 'Structural' | 'File';
+  
   deletedOptionIds: string[];
   deletedResourceIds: string[];
   editedOptions: QuestionOption[];
