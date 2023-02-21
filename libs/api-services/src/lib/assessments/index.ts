@@ -3,6 +3,7 @@ import {
   ActivateAssessment,
   Assessment,
   AssessmentStatistics,
+  CreateAssessment,
   Question,
   QuestionAnswer,
   StudentAssessmentAnswer,
@@ -13,12 +14,11 @@ export async function getAssessment(assessment_id: string) {
   return data;
 }
 
-export async function createNewAssessment(
-  annual_credit_unit_subject_id: string
-) {
-  const { data } = await http.post<Assessment>(`/assessments/new`, {
-    annual_credit_unit_subject_id,
-  });
+export async function createNewAssessment(newAssessment: CreateAssessment) {
+  const { data } = await http.post<Assessment>(
+    `/assessments/new`,
+    newAssessment
+  );
   return data;
 }
 

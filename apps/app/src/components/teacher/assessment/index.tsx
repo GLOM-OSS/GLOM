@@ -1,11 +1,9 @@
 import { ReportRounded } from '@mui/icons-material';
-import {
-  activateAssessment,
-  createNewAssessment
-} from '@squoolr/api-services';
+import { activateAssessment, createNewAssessment } from '@squoolr/api-services';
 import {
   ActivateAssessment,
-  Assessment, StudentAssessmentAnswer
+  Assessment,
+  StudentAssessmentAnswer,
 } from '@squoolr/interfaces';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useState } from 'react';
@@ -38,7 +36,11 @@ export default function Assessments() {
         id: 'creatingAssessment',
       }),
     });
-    createNewAssessment(annual_credit_unit_subject_id as string)
+    createNewAssessment({
+      number_per_group: 1,
+      submission_type: 'Individual',
+      annual_credit_unit_subject_id: annual_credit_unit_subject_id as string,
+    })
       .then((assessment) => {
         setActiveAssessment(assessment);
         notif.update({
