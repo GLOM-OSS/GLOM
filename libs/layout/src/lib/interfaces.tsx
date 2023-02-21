@@ -72,7 +72,9 @@ export interface User {
   student?: {
     annual_student_id: string;
     student_id: string;
-    activeSemesters: number[]
+    activeSemesters: number[];
+    classroom_code: string;
+    classroom_level: number;
   };
   activeYear: AcademicYearInterface;
 }
@@ -94,6 +96,6 @@ export const getUserRoles = (
     (_) => _ !== undefined
   ) as PersonnelRole[];
 
-  if (callingApp==='student' && student) return ['student'];
+  if (callingApp === 'student' && student) return ['student'];
   return Roles.sort((a, b) => (a > b ? 1 : -1));
 };

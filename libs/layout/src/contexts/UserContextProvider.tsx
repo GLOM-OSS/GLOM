@@ -73,6 +73,8 @@ function UserContextProvider({
       annual_student_id: 'wieo',
       student_id: 'sieosl',
       activeSemesters: [1, 2, 3],
+      classroom_code: 'IRT3',
+      classroom_level: 3,
     },
 
     userDispatch: () => null,
