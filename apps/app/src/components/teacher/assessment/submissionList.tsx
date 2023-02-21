@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Chip,
+  Fab,
   lighten,
   Menu,
   MenuItem,
@@ -10,13 +11,11 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TableRow,
-  Tooltip,
-  Typography,
+  TableRow, Typography
 } from '@mui/material';
 import {
   getStudentAssessmentMarks,
-  publishAssessment,
+  publishAssessment
 } from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import { Assessment, StudentAssessmentAnswer } from '@squoolr/interfaces';
@@ -212,15 +211,14 @@ export default function SubmissionList({
             columnGap: theme.spacing(2),
           }}
         >
-          <Tooltip arrow title={formatMessage({ id: 'back' })}>
-            <Button
-              onClick={onBack}
-              variant="contained"
-              color="primary"
-              size="small"
-              startIcon={<KeyboardBackspaceOutlined />}
-            />
-          </Tooltip>
+          <Fab
+            color="primary"
+            aria-label={formatMessage({ id: 'back' })}
+            size="small"
+            onClick={onBack}
+          >
+            <KeyboardBackspaceOutlined fontSize="small" />
+          </Fab>
           <Typography variant="h6">
             {formatMessage({ id: 'assessmentSubmissions' })}
           </Typography>

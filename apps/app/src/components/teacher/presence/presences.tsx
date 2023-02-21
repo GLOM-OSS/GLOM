@@ -2,6 +2,7 @@ import { KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
 import {
   Box,
   Button,
+  Fab,
   lighten,
   Skeleton,
   Table,
@@ -9,7 +10,6 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Tooltip,
   Typography,
 } from '@mui/material';
 import {
@@ -238,15 +238,14 @@ export default function Presences() {
           alignItems: 'center',
         }}
       >
-        <Tooltip arrow title={formatMessage({ id: 'back' })}>
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            onClick={() => setActiveSession(undefined)}
-            startIcon={<KeyboardBackspaceOutlined />}
-          />
-        </Tooltip>
+        <Fab
+          color="primary"
+          aria-label={formatMessage({ id: 'back' })}
+          size="small"
+          onClick={() => setActiveSession(undefined)}
+        >
+          <KeyboardBackspaceOutlined fontSize="small" />
+        </Fab>
 
         <Typography variant="h6">
           {isSubjectLoading || !subject ? (
