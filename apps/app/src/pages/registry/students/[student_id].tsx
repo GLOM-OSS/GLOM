@@ -1,21 +1,18 @@
 import { KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
 import {
-  Box,
-  Button,
-  Chip,
+  Box, Chip,
+  Fab,
   lighten,
-  Skeleton,
-  Tooltip,
-  Typography,
+  Skeleton, Typography
 } from '@mui/material';
+import { getStudentDetails } from '@squoolr/api-services';
 import { StudentDetail } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import DetailLine from '../../../components/registry/students/detailLine';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useNavigate, useParams } from 'react-router';
-import { getStudentDetails } from '@squoolr/api-services';
+import DetailLine from '../../../components/registry/students/detailLine';
 
 export default function StudentDetails() {
   const { formatMessage, formatDate } = useIntl();
@@ -79,15 +76,14 @@ export default function StudentDetails() {
           columnGap: 2,
         }}
       >
-        <Tooltip arrow title={formatMessage({ id: 'back' })}>
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            onClick={() => navigate('/registry/student-management/students')}
-            startIcon={<KeyboardBackspaceOutlined fontSize="large" />}
-          />
-        </Tooltip>
+        <Fab
+          color="primary"
+          aria-label={formatMessage({ id: 'back' })}
+          size="small"
+          onClick={() => navigate('/registry/student-management/students')}
+        >
+          <KeyboardBackspaceOutlined fontSize="small" />
+        </Fab>
         <Typography variant="h6">
           {isStudentDetailLoading ? (
             <Skeleton animation="wave" width={100} />
