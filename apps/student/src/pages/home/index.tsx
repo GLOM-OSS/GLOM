@@ -314,7 +314,7 @@ export default function Home() {
                 <TableBody>
                   {areAbsencesLoading ? (
                     [...new Array(5)].map((_, index) => (
-                      <TableLaneSkeleton cols={3} />
+                      <TableLaneSkeleton cols={3} key={index} />
                     ))
                   ) : absences.length === 0 ? (
                     <NoTableElement
