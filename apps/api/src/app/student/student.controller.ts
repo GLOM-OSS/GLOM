@@ -6,7 +6,7 @@ import {
   HttpStatus,
   Query,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -39,9 +39,12 @@ export class StudentController {
     const { annualStudent, preferred_lang } =
       request.user as DeserializeSessionData;
     if (!annualStudent && !annual_student_id)
-      throw new HttpException(ERR20[preferred_lang], HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        ERR20('student id')[preferred_lang],
+        HttpStatus.BAD_REQUEST
+      );
     return this.studentService.getStudentDetails(
-      annualStudent.annual_student_id ?? annual_student_id
+      annualStudent?.annual_student_id ?? annual_student_id
     );
   }
 
@@ -56,10 +59,13 @@ export class StudentController {
       activeYear: { academic_year_id },
     } = request.user as DeserializeSessionData;
     if (!annualStudent && !annual_student_id)
-      throw new HttpException(ERR20[preferred_lang], HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        ERR20('student id')[preferred_lang],
+        HttpStatus.BAD_REQUEST
+      );
     return this.studentService.getStudentAbsences(
       academic_year_id,
-      annualStudent.annual_student_id ?? annual_student_id
+      annualStudent?.annual_student_id ?? annual_student_id
     );
   }
 
@@ -72,9 +78,12 @@ export class StudentController {
     const { annualStudent, preferred_lang } =
       request.user as DeserializeSessionData;
     if (!annualStudent && !annual_student_id)
-      throw new HttpException(ERR20[preferred_lang], HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        ERR20('student id')[preferred_lang],
+        HttpStatus.BAD_REQUEST
+      );
     return this.studentService.getStudentFeeSummary(
-      annualStudent.annual_student_id ?? annual_student_id
+      annualStudent?.annual_student_id ?? annual_student_id
     );
   }
 
@@ -87,7 +96,10 @@ export class StudentController {
     const { annualStudent, preferred_lang, login_id } =
       request.user as DeserializeSessionData;
     if (!annualStudent && !annual_student_id)
-      throw new HttpException(ERR20[preferred_lang], HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        ERR20('student id')[preferred_lang],
+        HttpStatus.BAD_REQUEST
+      );
     try {
       return this.studentService.payStudentFee(
         {
