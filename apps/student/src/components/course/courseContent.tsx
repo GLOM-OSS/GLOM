@@ -12,11 +12,11 @@ import {
 import { Chapter, Course, Resource } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import ResourceDisplay from 'apps/student/src/components/course/resourceDisplay';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import ChapterLane, { ChapterLaneSkeleton } from './chapterLaneSkeleton';
+import ResourceDisplay from './resourceDisplay';
 
 export default function CourseContent({
   course,
