@@ -18,6 +18,7 @@ export class StudentService {
     { classroom_code, major_code }: StudentQueryQto
   ): Promise<StudentInface[]> {
     const annualStudents = await this.prismaService.annualStudent.findMany({
+      distinct: 'student_id',
       select: {
         is_active: true,
         annual_student_id: true,
