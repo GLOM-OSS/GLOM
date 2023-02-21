@@ -70,9 +70,11 @@ export default function QuestionDialog({
       if (options.length > 0) {
         if (score > 0) {
           const submitData: CreateQuestion = {
-            assessment_id,
             question,
+            assessment_id,
             question_mark: score,
+            question_type: 'MCQ',
+            question_answer: null,
             questionOptions: options.map(({ is_answer, option }) => ({
               is_answer,
               option,

@@ -199,6 +199,7 @@ export class StudentService {
       total_due,
       total_paid,
       paymentHistories,
+      registration: registration_fee,
       total_owing: total_due - total_paid,
     };
   }

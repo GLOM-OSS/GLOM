@@ -3,7 +3,7 @@ import {
   Assessment,
   EvaluationHasStudent,
   Prisma,
-  PrismaPromise
+  PrismaPromise,
 } from '@prisma/client';
 import { Question } from '@squoolr/interfaces';
 import { AUTH404, ERR18, ERR21 } from '../../../errors';
@@ -212,9 +212,11 @@ export class AssessmentService {
     );
     const questions = await this.prismaService.question.findMany({
       select: {
-        question_id: true,
         question: true,
+        question_id: true,
         question_mark: true,
+        question_type: true,
+        question_answer: true,
         QuestionOptions: {
           select: {
             question_option_id: true,
@@ -352,7 +354,7 @@ export class AssessmentService {
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     const studentAnswers =
-      await this.prismaService.annualStudentAnswerOption.findMany({
+      await this.prismaService.annualStudentAnswerQuestion.findMany({
         select: { answered_option_id: true, question_id: true },
         where: {
           AnnualStudentTakeAssessment: { annual_student_id, assessment_id },
@@ -684,18 +686,22 @@ export class AssessmentService {
       false
     );
     const totalScore = assessmentQuestions.reduce(
-      (totalScore, { question_id, question_mark, questionOptions }) =>
-        totalScore +
+      (totalScore, { question_id, question_mark, questionOptions }) => {
+        return totalScore +
           questionOptions.find((_) => _.is_answer).question_option_id ===
-        studentAnswers.find((_) => _.question_id === question_id)
-          .answered_option_id
+          studentAnswers.find((_) => _.question_id === question_id)
+            .answered_option_id
           ? question_mark
-          : 0,
+          : 0;
+      },
       0
     );
     await this.prismaService.$transaction([
-      this.prismaService.annualStudentAnswerOption.createMany({
+      this.prismaService.annualStudentAnswerQuestion.createMany({
         data: studentAnswers.map(({ answered_option_id, question_id }) => ({
+          question_mark:
+            assessmentQuestions.find((_) => _.question_id === question_id)
+              ?.question_mark ?? 0,
           annual_student_take_assessment_id,
           answered_option_id,
           question_id,
