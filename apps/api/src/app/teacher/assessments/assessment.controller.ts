@@ -10,14 +10,18 @@ import {
   Put,
   Query,
   Req,
+  UploadedFile,
   UploadedFiles,
   UseGuards,
   UseInterceptors
 } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import {
+  FileInterceptor,
+  FilesInterceptor
+} from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { ERR20 } from '../../../../src/errors';
+import { ERR20, ERR22 } from '../../../../src/errors';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
@@ -38,11 +42,15 @@ export class AssessmentController {
   constructor(private assessmentService: AssessmentService) {}
 
   @Get(':assessment_id')
-  async getAssessment(@Req() request: Request, @Param('assessment_id') assessment_id: string) {
-    const {
-      annualStudent,
-    } = request.user as DeserializeSessionData;
-    return this.assessmentService.getAssessment(assessment_id, Boolean(annualStudent));
+  async getAssessment(
+    @Req() request: Request,
+    @Param('assessment_id') assessment_id: string
+  ) {
+    const { annualStudent } = request.user as DeserializeSessionData;
+    return this.assessmentService.getAssessment(
+      assessment_id,
+      Boolean(annualStudent)
+    );
   }
 
   @Post('new')
@@ -232,17 +240,29 @@ export class AssessmentController {
 
   @Roles(Role.TEACHER)
   @Post('questions/new')
-  @UseInterceptors(FilesInterceptor('questionResources'))
+  @UseInterceptors(FileInterceptor('answer_file'))
   async createNewQuestion(
     @Req() request: Request,
-    @Body() newQuestion: QuestionPostDto
+    @Body() { question_answer, question_type, ...newQuestion }: QuestionPostDto,
+    @UploadedFile() file: Express.Multer.File
   ) {
     const {
+      preferred_lang,
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
+    if (
+      (question_type === 'File' && !file) ||
+      (question_type === 'Structural' && !question_answer)
+    )
+      throw new HttpException(ERR22[preferred_lang], HttpStatus.BAD_REQUEST);
     try {
       return await this.assessmentService.createAssessmentQuestion(
-        newQuestion,
+        {
+          question_answer:
+            question_type === 'File' ? file.filename : question_answer,
+          question_type,
+          ...newQuestion,
+        },
         annual_teacher_id
       );
     } catch (error) {

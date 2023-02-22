@@ -155,3 +155,7 @@ export const ERR21 = {
   en: `This assessment hall access is closed`,
   fr: `La salle d'accès à cette examen est fermée`,
 };
+export const ERR22 = {
+  en: `Structural questions require an answer, while File question require a file`,
+  fr: `Les questions structurelles nécessitent une réponse, tandis que les questions relatives aux fichiers nécessitent un fichier.`,
+};
