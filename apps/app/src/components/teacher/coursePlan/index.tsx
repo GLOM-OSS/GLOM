@@ -1,4 +1,4 @@
-import { ExpandMore, ReportRounded } from '@mui/icons-material';
+import { ExpandMore, KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
 import {
   Accordion,
   AccordionDetails,
@@ -6,9 +6,10 @@ import {
   Box,
   Button,
   Chip,
+  Fab,
   lighten,
   Skeleton,
-  Typography,
+  Typography
 } from '@mui/material';
 import {
   addNewFileResources,
@@ -22,7 +23,7 @@ import {
   getCourse,
   getCourseChapters,
   getCourseResources,
-  updateChapter,
+  updateChapter
 } from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
@@ -30,7 +31,7 @@ import {
   Course,
   CreateFile,
   CreateLink,
-  Resource,
+  Resource
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -42,10 +43,7 @@ import { RowMenu } from '../../coordinator/CreditUnitLane';
 import ChapterDialog from './chapterDialog';
 import ChapterLane, { ChapterLaneSkeleton } from './chapterLane';
 import FileDialog, { FileIcon } from './fileDialog';
-import FileDisplayDialog, {
-  downloadFormats,
-  readableFileFormats,
-} from './fileDisplayDialog';
+import FileDisplayDialog from './fileDisplayDialog';
 import ResourceDialog from './resourceDialog';
 
 export default function CoursePlan() {
@@ -605,15 +603,14 @@ export default function CoursePlan() {
           }}
         >
           {activeChapter && (
-            <Button
-              variant="outlined"
+            <Fab
               color="primary"
+              aria-label={formatMessage({ id: 'back' })}
               size="small"
-              sx={{ textTransform: 'none' }}
               onClick={() => setActiveChapter(undefined)}
             >
-              {formatMessage({ id: 'back' })}
-            </Button>
+              <KeyboardBackspaceOutlined fontSize="small" />
+            </Fab>
           )}
           <Typography variant="h6">
             {course ? (

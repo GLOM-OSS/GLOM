@@ -10,14 +10,15 @@ import {
   Put,
   Query,
   Req,
+  UploadedFile,
   UploadedFiles,
   UseGuards,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { ERR20 } from '../../../../src/errors';
+import { ERR20, ERR22 } from '../../../../src/errors';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
@@ -27,7 +28,7 @@ import {
   AssessmentPutDto,
   PublishAssessmentDto,
   QuestionPostDto,
-  QuestionPutDto
+  QuestionPutDto,
 } from '../teacher.dto';
 import { AssessmentService } from './assessment.service';
 
@@ -38,8 +39,15 @@ export class AssessmentController {
   constructor(private assessmentService: AssessmentService) {}
 
   @Get(':assessment_id')
-  async getAssessment(@Param('assessment_id') assessment_id: string) {
-    return this.assessmentService.getAssessment(assessment_id);
+  async getAssessment(
+    @Req() request: Request,
+    @Param('assessment_id') assessment_id: string
+  ) {
+    const { annualStudent } = request.user as DeserializeSessionData;
+    return this.assessmentService.getAssessment(
+      assessment_id,
+      Boolean(annualStudent)
+    );
   }
 
   @Post('new')
@@ -203,24 +211,22 @@ export class AssessmentController {
 
   @Roles(Role.STUDENT)
   @Post(':assessment_id/submit')
+  @UseInterceptors(FilesInterceptor('responseFiles'))
   async submitAssessment(
     @Req() request: Request,
     @Param('assessment_id') assessment_id: string,
-    @Query('annual_student_id') annual_student_id: string,
-    @Body() { answers }: StudentAnswerDto
+    @Body() { answers }: StudentAnswerDto,
+    @UploadedFiles() files: Array<Express.Multer.File>
   ) {
-    const { annualStudent, preferred_lang } =
-      request.user as DeserializeSessionData;
-    if (!annualStudent && !annual_student_id)
-      throw new HttpException(
-        ERR20('student id')[preferred_lang],
-        HttpStatus.BAD_REQUEST
-      );
+    const {
+      annualStudent: { annual_student_id },
+    } = request.user as DeserializeSessionData;
     try {
-      return this.assessmentService.correctStudentAnswers(
-        annualStudent?.annual_student_id ?? annual_student_id,
+      return this.assessmentService.submitStudentAnswers(
+        annual_student_id,
         assessment_id,
-        answers
+        answers,
+        files
       );
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -229,17 +235,29 @@ export class AssessmentController {
 
   @Roles(Role.TEACHER)
   @Post('questions/new')
-  @UseInterceptors(FilesInterceptor('questionResources'))
+  @UseInterceptors(FileInterceptor('answerFile'))
   async createNewQuestion(
     @Req() request: Request,
-    @Body() newQuestion: QuestionPostDto
+    @Body() { question_answer, question_type, ...newQuestion }: QuestionPostDto,
+    @UploadedFile() file: Express.Multer.File
   ) {
     const {
+      preferred_lang,
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
+    if (
+      (question_type === 'File' && !file) ||
+      (question_type === 'Structural' && !question_answer)
+    )
+      throw new HttpException(ERR22[preferred_lang], HttpStatus.BAD_REQUEST);
     try {
       return await this.assessmentService.createAssessmentQuestion(
-        newQuestion,
+        {
+          question_answer:
+            question_type === 'File' ? file.filename : question_answer,
+          question_type,
+          ...newQuestion,
+        },
         annual_teacher_id
       );
     } catch (error) {

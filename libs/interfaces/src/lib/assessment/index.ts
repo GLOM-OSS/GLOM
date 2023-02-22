@@ -93,9 +93,17 @@ export interface ActivateAssessment {
   assessment_time: Date;
 }
 
-export interface StudentAnswers {
+export interface CreateStudentAnswers {
   answers: {
-    answered_option_id: string;
+    answered_option_id?: string;
     question_id: string;
+    response?: string;
   }[];
+}
+
+export interface AssignmentGroup {
+  effectif: number; 
+  group_code: string;
+  assessment_id: string;
+  annual_student_id: string;
 }

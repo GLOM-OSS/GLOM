@@ -58,11 +58,19 @@ export class LinkPostDto extends ResourceOwner {
 }
 
 export class QuestionAnswer {
-  @IsUUID()
-  answered_option_id: string;
+  @IsString()
+  @IsOptional()
+  @ApiProperty()
+  response?: string;
 
   @IsUUID()
+  @ApiProperty()
   question_id: string;
+
+  @IsUUID()
+  @IsOptional()
+  @ApiProperty()
+  answered_option_id?: string;
 }
 export class StudentAnswerDto {
   @IsArray()

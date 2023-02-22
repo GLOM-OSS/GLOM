@@ -1,4 +1,4 @@
-import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
 import { QuestionType, SubmissionType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
@@ -101,14 +101,17 @@ export class AssessmentPostDto {
   annual_credit_unit_subject_id: string;
 }
 
-export class AssessmentPutDto {
+export class AssessmentPutDto extends PartialType(
+  OmitType(AssessmentPostDto, ['annual_credit_unit_subject_id'])
+) {
   @ApiProperty()
   @IsDateString()
   assessment_date: Date;
 
   @IsNumber()
-  @ApiProperty()
-  duration: number;
+  @IsOptional()
+  @ApiProperty({ required: false })
+  duration?: number;
 }
 
 export class PublishAssessmentDto {
@@ -165,17 +168,9 @@ export class QuestionPostDto {
   questionOptions: CreateQuestionOption[];
 }
 
-export class QuestionPutDto {
-  @IsString()
-  @IsOptional()
-  @ApiProperty()
-  question?: string;
-
-  @IsNumber()
-  @IsOptional()
-  @ApiProperty()
-  question_mark?: number;
-
+export class QuestionPutDto extends PartialType(
+  OmitType(QuestionPostDto, ['assessment_id', 'questionOptions'])
+) {
   @IsArray()
   @ApiProperty()
   @IsString({ each: true })
@@ -194,7 +189,7 @@ export class QuestionPutDto {
 
   @IsArray()
   @ApiProperty()
-  @Type(() => QuestionOption)
+  @Type(() => CreateQuestionOption)
   @ValidateNested({ each: true })
   newOptions: CreateQuestionOption[];
 }
@@ -256,11 +251,13 @@ export class PresenceListChapter {
   chapter_title: string;
 }
 
-export class PresenceListPutDto extends OmitType(PresenceListPostDto, [
-  'studentIds',
-  'chapterIds',
-  'annual_credit_unit_subject_id',
-]) {
+export class PresenceListPutDto extends PartialType(
+  OmitType(PresenceListPostDto, [
+    'studentIds',
+    'chapterIds',
+    'annual_credit_unit_subject_id',
+  ])
+) {
   @IsArray()
   @ApiProperty()
   @IsString({ each: true })

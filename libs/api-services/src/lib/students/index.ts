@@ -9,9 +9,9 @@ export async function getStudents(major_code: string, classroom_code?: string) {
 }
 
 export async function getStudentDetails(annual_student_id: string) {
-  const { data } = await http.get<StudentDetail>(
-    `/students/${annual_student_id}/details`
-  );
+  const { data } = await http.get<StudentDetail>(`/students/details`, {
+    params: { annual_student_id },
+  });
   return data;
 }
 

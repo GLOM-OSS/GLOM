@@ -1,10 +1,10 @@
 import { KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
-import { Box, Button, Chip, Tooltip, Typography } from '@mui/material';
+import { Box, Chip, Fab, Typography } from '@mui/material';
 import { getStudentAnswers } from '@squoolr/api-services';
 import {
   Assessment,
   QuestionAnswer,
-  StudentAssessmentAnswer,
+  StudentAssessmentAnswer
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -97,15 +97,14 @@ export default function StudentResponse({
           columnGap: theme.spacing(2),
         }}
       >
-        <Tooltip arrow title={formatMessage({ id: 'back' })}>
-          <Button
-            onClick={onBack}
-            variant="contained"
-            color="primary"
-            size="small"
-            startIcon={<KeyboardBackspaceOutlined />}
-          />
-        </Tooltip>
+        <Fab
+          color="primary"
+          aria-label={formatMessage({ id: 'back' })}
+          size="small"
+          onClick={onBack}
+        >
+          <KeyboardBackspaceOutlined fontSize="small" />
+        </Fab>
         <Typography variant="h6">
           {`(${activeStudent.matricule}) ${activeStudent.fullname}`}
         </Typography>

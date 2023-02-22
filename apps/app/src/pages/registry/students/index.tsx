@@ -54,6 +54,7 @@ export default function Students() {
     setStudentNotif(notif);
     getStudents(major_code, classroom_code)
       .then((students) => {
+        console.log(students)
         setStudents(students);
         setAreStudentsLoading(false);
         notif.dismiss();
@@ -173,7 +174,7 @@ export default function Students() {
   }, [activeMajor]);
 
   useEffect(() => {
-    if (activeMajor) loadStudents(activeMajor.major_id, activeClassroomCode);
+    if (activeMajor) loadStudents(activeMajor.major_code, activeClassroomCode);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeMajor, activeClassroomCode]);
 

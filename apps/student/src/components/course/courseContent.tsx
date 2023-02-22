@@ -1,13 +1,16 @@
-import { ExpandMore, ReportRounded } from '@mui/icons-material';
+import {
+  ExpandMore,
+  KeyboardBackspaceOutlined,
+  ReportRounded
+} from '@mui/icons-material';
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Box,
-  Button,
+  Box, Fab,
   lighten,
   Skeleton,
-  Typography,
+  Typography
 } from '@mui/material';
 import { Chapter, Course, Resource } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
@@ -15,6 +18,7 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
+import ResourceDisplay from '../../components/course/resourceDisplay';
 import ChapterLane, { ChapterLaneSkeleton } from './chapterLaneSkeleton';
 import ResourceDisplay from './resourceDisplay';
 
@@ -249,15 +253,14 @@ export default function CourseContent({
               marginTop: 2,
             }}
           >
-            <Button
-              variant="outlined"
+            <Fab
               color="primary"
+              aria-label={formatMessage({ id: 'back' })}
               size="small"
-              sx={{ textTransform: 'none' }}
               onClick={() => setActiveChapter(undefined)}
             >
-              {formatMessage({ id: 'back' })}
-            </Button>
+              <KeyboardBackspaceOutlined fontSize="small" />
+            </Fab>
             <Typography variant="h6">
               {`${formatMessage({
                 id: 'chapterTitle',

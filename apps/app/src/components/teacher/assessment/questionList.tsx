@@ -255,15 +255,14 @@ export default function QuestionList({
               columnGap: theme.spacing(2),
             }}
           >
-            <Tooltip arrow title={formatMessage({ id: 'back' })}>
-              <Button
-                onClick={() => setActiveAssessment(undefined)}
-                variant="contained"
-                color="primary"
-                size="small"
-                startIcon={<KeyboardBackspaceOutlined />}
-              />
-            </Tooltip>
+            <Fab
+              color="primary"
+              aria-label={formatMessage({ id: 'back' })}
+              size="small"
+              onClick={() => setActiveAssessment(undefined)}
+            >
+              <KeyboardBackspaceOutlined fontSize="small" />
+            </Fab>
             {activeAssessment.assessment_date ? (
               <Box
                 sx={{
