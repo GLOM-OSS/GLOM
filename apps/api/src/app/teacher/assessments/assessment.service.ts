@@ -5,7 +5,7 @@ import {
   Prisma,
   PrismaPromise,
 } from '@prisma/client';
-import { Question } from '@squoolr/interfaces';
+import { Question, Assessment as IAssessment } from '@squoolr/interfaces';
 import { AUTH404, ERR18, ERR21 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { QuestionAnswer } from '../courses/course.dto';
@@ -32,7 +32,10 @@ export class AssessmentService {
     });
   }
 
-  async getAssessment(assessment_id: string) {
+  async getAssessment(
+    assessment_id: string,
+    is_student: boolean
+  ): Promise<IAssessment> {
     const assessment = await this.prismaService.assessment.findUnique({
       include: {
         Evaluation: {
@@ -47,21 +50,27 @@ export class AssessmentService {
       where: { assessment_id },
     });
     if (assessment) {
-      const {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        is_deleted,
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        created_by,
-        Evaluation,
-        Questions,
-        ...data
-      } = assessment;
-      return {
-        ...data,
-        evaluation_sub_type_name:
-          Evaluation?.AnnualEvaluationSubType?.evaluation_sub_type_name ?? null,
-        total_mark: Questions.reduce((total, _) => total + _.question_mark, 0),
-      };
+      if ((is_student && assessment.assessment_date) || !is_student) {
+        const {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          is_deleted,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          created_by,
+          Evaluation,
+          Questions,
+          ...data
+        } = assessment;
+        return {
+          ...data,
+          evaluation_sub_type_name:
+            Evaluation?.AnnualEvaluationSubType?.evaluation_sub_type_name ??
+            null,
+          total_mark: Questions.reduce(
+            (total, _) => total + _.question_mark,
+            0
+          ),
+        };
+      }
     }
     return null;
   }

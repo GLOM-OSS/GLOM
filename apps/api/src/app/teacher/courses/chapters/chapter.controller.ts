@@ -39,8 +39,15 @@ export class ChapterController {
   }
 
   @Get(':chapter_id/assessment')
-  async getChapterAssessment(@Param('chapter_id') chapter_id: string) {
-    return this.chapterService.findChapterAssessment(chapter_id);
+  async getChapterAssessment(
+    @Req() request: Request,
+    @Param('chapter_id') chapter_id: string
+  ) {
+    const { annualStudent } = request.user as DeserializeSessionData;
+    return this.chapterService.findChapterAssessment(
+      chapter_id,
+      Boolean(annualStudent)
+    );
   }
 
   @Post('new')

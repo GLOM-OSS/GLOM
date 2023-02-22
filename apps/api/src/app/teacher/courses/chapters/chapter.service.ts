@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { Assessment } from '@squoolr/interfaces';
 import { AUTH404 } from '../../../../errors';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { ChapterPostDto } from '../course.dto';
@@ -50,7 +51,10 @@ export class ChapterService {
     });
   }
 
-  async findChapterAssessment(chapter_id: string) {
+  async findChapterAssessment(
+    chapter_id: string,
+    is_student: boolean
+  ): Promise<Assessment> {
     const assessment = await this.prismaService.assessment.findFirst({
       include: {
         Evaluation: {
@@ -60,21 +64,30 @@ export class ChapterService {
             },
           },
         },
+        Questions: { select: { question_mark: true } },
       },
       where: { chapter_id, is_deleted: false },
     });
     if (assessment) {
-      const {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        is_deleted,
-        Evaluation,
-        ...data
-      } = assessment;
-      return {
-        evaluation_sub_type_name:
-          Evaluation?.AnnualEvaluationSubType?.evaluation_sub_type_name ?? null,
-        ...data,
-      };
+      if ((is_student && assessment.assessment_date) || !is_student) {
+        const {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          is_deleted,
+          Evaluation,
+          Questions,
+          ...data
+        } = assessment;
+        return {
+          evaluation_sub_type_name:
+            Evaluation?.AnnualEvaluationSubType?.evaluation_sub_type_name ??
+            null,
+          ...data,
+          total_mark: Questions.reduce(
+            (total, _) => total + _.question_mark,
+            0
+          ),
+        };
+      }
     }
     return null;
   }

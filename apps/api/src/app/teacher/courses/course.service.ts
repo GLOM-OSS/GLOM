@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EvaluationSubTypeEnum } from '@prisma/client';
-import { PresenceList } from '@squoolr/interfaces';
+import { Assessment, PresenceList } from '@squoolr/interfaces';
 import { PrismaService } from '../../../prisma/prisma.service';
 
 @Injectable()
@@ -242,7 +242,10 @@ export class CourseService {
     return chapters.filter((_) => _.chapter_parent_id === null);
   }
 
-  async findAssessments(annual_credit_unit_subject_id: string) {
+  async findAssessments(
+    annual_credit_unit_subject_id: string,
+    is_student: boolean
+  ): Promise<Assessment[]> {
     const assessments = await this.prismaService.assessment.findMany({
       include: {
         Evaluation: {
@@ -260,7 +263,12 @@ export class CourseService {
       },
     });
     return assessments
-      .filter((_) => _.chapter_id === null)
+      .filter((_) => {
+        return (
+          _.chapter_id === null &&
+          ((is_student && _.assessment_date) || !is_student)
+        );
+      })
       .map(
         ({
           // eslint-disable-next-line @typescript-eslint/no-unused-vars

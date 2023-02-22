@@ -38,8 +38,11 @@ export class AssessmentController {
   constructor(private assessmentService: AssessmentService) {}
 
   @Get(':assessment_id')
-  async getAssessment(@Param('assessment_id') assessment_id: string) {
-    return this.assessmentService.getAssessment(assessment_id);
+  async getAssessment(@Req() request: Request, @Param('assessment_id') assessment_id: string) {
+    const {
+      annualStudent,
+    } = request.user as DeserializeSessionData;
+    return this.assessmentService.getAssessment(assessment_id, Boolean(annualStudent));
   }
 
   @Post('new')
