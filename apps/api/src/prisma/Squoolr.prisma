@@ -1231,6 +1231,7 @@ model Assessment {
     AssessmentAudits             AssessmentAudit[]
     Questions                    Question[]
     AnnualStudentTakeAssessments AnnualStudentTakeAssessment[]
+    AssignmentGroups             AssignmentGroup[]
 }
 
 model AssessmentAudit {
@@ -1338,8 +1339,10 @@ model AnnualStudentTakeAssessment {
     assessment_id                     String        @db.VarChar(36)
     Assessment                        Assessment    @relation(fields: [assessment_id], references: [assessment_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AnnualStudentAnswerQuestions      AnnualStudentAnswerQuestion[]
-    AnnualStudentAnswerQuestionAudits AnnualStudentAnswerQuestionAudit[]
+    AnnualStudentAnswerQuestions          AnnualStudentAnswerQuestion[]
+    LastAnnualStudentAnswerQuestionAudits AnnualStudentAnswerQuestionAudit[] @relation(name: "Previously_AuditedBy_AnnualStudent")
+    AnnualStudentAnswerQuestionAudits     AnnualStudentAnswerQuestionAudit[] @relation(name: "AuditedBy_AnnualStudent")
+    AssignmentGroups                      AssignmentGroup[]
 }
 
 model AnnualStudentAnswerQuestion {
@@ -1359,11 +1362,13 @@ model AnnualStudentAnswerQuestion {
 
 model AnnualStudentAnswerQuestionAudit {
     annual_student_answer_question_audit_id String                      @id @default(uuid()) @db.VarChar(36)
-    annual_student_answer_question_id       String                      @db.VarChar(36)
     response                                String                      @db.VarChar(45)
+    annual_student_answer_question_id       String                      @db.VarChar(36)
     AnnualStudentAnswerQuestion             AnnualStudentAnswerQuestion @relation(fields: [annual_student_answer_question_id], references: [annual_student_answer_question_id], onDelete: Cascade, onUpdate: Cascade)
+    previous_auditer                        String                      @db.VarChar(36)
+    PreviousAnnualStudentTakeAssessment     AnnualStudentTakeAssessment @relation(name: "Previously_AuditedBy_AnnualStudent", fields: [previous_auditer], references: [annual_student_take_assessment_id], onDelete: Cascade, onUpdate: Cascade)
     audited_by                              String                      @db.VarChar(36)
-    AnnualStudentTakeAssessment             AnnualStudentTakeAssessment @relation(fields: [audited_by], references: [annual_student_take_assessment_id], onDelete: Cascade, onUpdate: Cascade)
+    AuditedByAnnualStudentTakeAssessment    AnnualStudentTakeAssessment @relation(name: "AuditedBy_AnnualStudent", fields: [audited_by], references: [annual_student_take_assessment_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model AnnualStudentHasCreditUnit {
@@ -1453,4 +1458,15 @@ model Payment {
     paid_by           String            @db.VarChar(36)
     Login             Login             @relation(fields: [paid_by], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
     created_at        DateTime          @default(now()) @db.DateTime(0)
+}
+
+model AssignmentGroup {
+    assignment_group_id               String                      @id @default(uuid()) @db.VarChar(36)
+    is_approved                       Boolean                     @default(false) @db.TinyInt
+    assessment_id                     String                      @db.VarChar(36)
+    Assessment                        Assessment                  @relation(fields: [assessment_id], references: [assessment_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_student_take_assessment_id String                      @db.VarChar(36)
+    AnnualStudentTakeAssessment       AnnualStudentTakeAssessment @relation(fields: [annual_student_take_assessment_id], references: [annual_student_take_assessment_id], onDelete: Cascade, onUpdate: Cascade)
+
+    @@unique([annual_student_take_assessment_id, assessment_id])
 }

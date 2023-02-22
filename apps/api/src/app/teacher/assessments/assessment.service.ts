@@ -3,16 +3,15 @@ import {
   Assessment,
   EvaluationHasStudent,
   Prisma,
-  PrismaPromise,
+  PrismaPromise
 } from '@prisma/client';
-import { Question, Assessment as IAssessment } from '@squoolr/interfaces';
-import { AUTH404, ERR18, ERR21 } from '../../../errors';
+import { Assessment as IAssessment, Question } from '@squoolr/interfaces';
+import { AUTH404, ERR18, ERR21, ERR22, ERR24, ERR25 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { QuestionAnswer } from '../courses/course.dto';
 import {
-  AssessmentPostDto,
-  QuestionPostDto,
-  QuestionPutDto,
+  AssessmentPostDto, QuestionPostDto,
+  QuestionPutDto
 } from '../teacher.dto';
 
 @Injectable()
@@ -77,7 +76,7 @@ export class AssessmentService {
 
   async updateAssessment(
     assessment_id: string,
-    newAssessment: Prisma.AssessmentUpdateInput,
+    { duration, ...newAssessment }: Prisma.AssessmentUpdateInput,
     audited_by: string
   ) {
     const assessment = await this.prismaService.assessment.findUnique({
@@ -86,6 +85,8 @@ export class AssessmentService {
         is_deleted: true,
         is_published: true,
         assessment_date: true,
+        submission_type: true,
+        number_per_group: true,
       },
       where: { assessment_id },
     });
@@ -94,6 +95,8 @@ export class AssessmentService {
         JSON.stringify(AUTH404('Assessment')),
         HttpStatus.INTERNAL_SERVER_ERROR
       );
+    if (duration && assessment.submission_type === 'Group')
+      throw new HttpException(JSON.stringify(ERR22), HttpStatus.BAD_REQUEST);
     await this.prismaService.assessment.update({
       data: {
         ...newAssessment,
@@ -672,54 +675,175 @@ export class AssessmentService {
       throw new HttpException(JSON.stringify(ERR21), HttpStatus.EARLYHINTS);
   }
 
-  async correctStudentAnswers(
+  async submitStudentAnswers(
     annual_student_id: string,
     assessment_id: string,
-    studentAnswers: QuestionAnswer[]
+    studentAnswers: QuestionAnswer[],
+    responseFiles: Array<Express.Multer.File>
   ) {
+    let annualStudentAnswerQuestionAudits: Prisma.AnnualStudentAnswerQuestionAuditCreateManyInput[] =
+      [];
+    const auditedQuestions: {
+      question_id: string;
+      annual_student_answer_question_id: string;
+    }[] = [];
     const {
       created_at,
+      submitted_at,
+      AssignmentGroups: groupIds,
       annual_student_take_assessment_id,
-      Assessment: { assessment_date, duration },
+      Assessment: { assessment_date, submission_type, duration },
     } = await this.prismaService.annualStudentTakeAssessment.findFirstOrThrow({
       select: {
         created_at: true,
+        submitted_at: true,
         annual_student_take_assessment_id: true,
-        Assessment: { select: { assessment_date: true, duration: true } },
+        Assessment: {
+          select: {
+            assessment_date: true,
+            submission_type: true,
+            duration: true,
+          },
+        },
+        AssignmentGroups: {
+          where: { assessment_id },
+        },
       },
       where: { annual_student_id, assessment_id },
     });
-    const allowedDate = new Date(
-      new Date(assessment_date).getTime() + (duration / 8) * 60 * 1000
-    );
-    if (allowedDate < new Date(created_at))
-      throw new HttpException(JSON.stringify(ERR21), HttpStatus.EARLYHINTS);
+    if (submission_type === 'Individual') {
+      const allowedDate = new Date(
+        new Date(assessment_date).getTime() + (duration / 8) * 60 * 1000
+      );
+      if (allowedDate < new Date(created_at))
+        throw new HttpException(JSON.stringify(ERR21), HttpStatus.EARLYHINTS);
+      if (submitted_at)
+        throw new HttpException(JSON.stringify(ERR25), HttpStatus.BAD_REQUEST);
+    } else {
+      if (new Date() > new Date(assessment_date))
+        throw new HttpException(JSON.stringify(ERR21), HttpStatus.EARLYHINTS);
+
+      const studentResponses =
+        await this.prismaService.annualStudentAnswerQuestion.findMany({
+          select: {
+            annual_student_answer_question_id: true,
+            annual_student_take_assessment_id: true,
+            question_id: true,
+            response: true,
+          },
+          where: {
+            AnnualStudentTakeAssessment: {
+              AssignmentGroups: {
+                some: {
+                  assessment_id,
+                  OR: groupIds.map(({ assignment_group_id }) => ({
+                    assignment_group_id,
+                  })),
+                },
+              },
+            },
+            OR: studentAnswers.map(({ question_id }) => ({ question_id })),
+          },
+        });
+      annualStudentAnswerQuestionAudits = studentResponses.map(
+        ({
+          response,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          question_id,
+          annual_student_take_assessment_id: previous_auditer,
+          annual_student_answer_question_id,
+        }) => {
+          auditedQuestions.push({
+            question_id,
+            annual_student_answer_question_id,
+          });
+          return {
+            response,
+            previous_auditer,
+            annual_student_answer_question_id,
+            audited_by: annual_student_take_assessment_id,
+          };
+        }
+      );
+    }
 
     const assessmentQuestions = await this.getAssessmentQuestions(
       assessment_id,
       false
     );
-    const totalScore = assessmentQuestions.reduce(
-      (totalScore, { question_id, question_mark, questionOptions }) => {
-        return totalScore +
-          questionOptions.find((_) => _.is_answer).question_option_id ===
-          studentAnswers.find((_) => _.question_id === question_id)
-            .answered_option_id
-          ? question_mark
-          : 0;
-      },
-      0
-    );
+
+    let totalScore = 0;
+    const studentAnswerQuestionUpdateQueries: {
+      data: Prisma.AnnualStudentAnswerQuestionUpdateInput;
+      id: string;
+    }[] = [];
+    const studentAnswerQuestionCreateInputs: Prisma.AnnualStudentAnswerQuestionCreateManyInput[] =
+      [];
+    studentAnswers.forEach(({ question_id, answered_option_id, response }) => {
+      const {
+        question_type,
+        question_mark,
+        questionOptions,
+        question_id: questionId,
+      } = assessmentQuestions.find((_) => _.question_id === question_id);
+      if (question_type === 'File') {
+        const responseFile = responseFiles.find(
+          (_) => _.originalname === questionId
+        );
+        if (!responseFile)
+          throw new HttpException(
+            JSON.stringify(ERR24),
+            HttpStatus.BAD_REQUEST
+          );
+        response = responseFile.fieldname;
+      }
+      const questionMark =
+        submission_type === 'Individual'
+          ? questionOptions.find((_) => _.is_answer)?.question_option_id ===
+            answered_option_id
+            ? question_mark
+            : 0
+          : null;
+      totalScore += questionMark;
+      const newQuestionAnswer = {
+        response,
+        question_id,
+        question_mark,
+        answered_option_id,
+        annual_student_take_assessment_id,
+      };
+      const question = auditedQuestions.find(
+        (_) => _.question_id === question_id
+      );
+      if (question)
+        studentAnswerQuestionUpdateQueries.push({
+          data: {
+            response,
+            QuestionOption: {
+              connect: { question_option_id: answered_option_id },
+            },
+            AnnualStudentTakeAssessment: {
+              connect: { annual_student_take_assessment_id },
+            },
+          },
+          id: question.annual_student_answer_question_id,
+        });
+      else studentAnswerQuestionCreateInputs.push(newQuestionAnswer);
+    });
+
     await this.prismaService.$transaction([
+      ...studentAnswerQuestionUpdateQueries.map(({ id, data }) =>
+        this.prismaService.annualStudentAnswerQuestion.update({
+          data,
+          where: { annual_student_answer_question_id: id },
+        })
+      ),
+      this.prismaService.annualStudentAnswerQuestionAudit.createMany({
+        data: annualStudentAnswerQuestionAudits,
+      }),
       this.prismaService.annualStudentAnswerQuestion.createMany({
-        data: studentAnswers.map(({ answered_option_id, question_id }) => ({
-          question_mark:
-            assessmentQuestions.find((_) => _.question_id === question_id)
-              ?.question_mark ?? 0,
-          annual_student_take_assessment_id,
-          answered_option_id,
-          question_id,
-        })),
+        data: studentAnswerQuestionCreateInputs,
+        skipDuplicates: true,
       }),
       this.prismaService.annualStudentTakeAssessment.update({
         data: {

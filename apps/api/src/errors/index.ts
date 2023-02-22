@@ -159,3 +159,15 @@ export const ERR22 = {
   en: `Structural questions require an answer, while File question require a file`,
   fr: `Les questions structurelles nécessitent une réponse, tandis que les questions relatives aux fichiers nécessitent un fichier.`,
 };
+export const ERR23 = {
+  en: `Group assignments can't have duration.`,
+  fr: `Les devoirs de group ne peuvent pas avoir de durée.`,
+};
+export const ERR24 = {
+  en: `The question type does not match with the answer value`,
+  fr: `Le type de question ne correspond pas à la valeur de la réponse`,
+};
+export const ERR25 = {
+  en: `Sorry, you can only submit ones`,
+  fr: `Désolé, vous pouvez soumettre qu'une seule fois.`,
+};

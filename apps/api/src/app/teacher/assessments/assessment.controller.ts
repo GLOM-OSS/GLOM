@@ -13,12 +13,9 @@ import {
   UploadedFile,
   UploadedFiles,
   UseGuards,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
-import {
-  FileInterceptor,
-  FilesInterceptor
-} from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { ERR20, ERR22 } from '../../../../src/errors';
@@ -31,7 +28,7 @@ import {
   AssessmentPutDto,
   PublishAssessmentDto,
   QuestionPostDto,
-  QuestionPutDto
+  QuestionPutDto,
 } from '../teacher.dto';
 import { AssessmentService } from './assessment.service';
 
@@ -214,24 +211,22 @@ export class AssessmentController {
 
   @Roles(Role.STUDENT)
   @Post(':assessment_id/submit')
+  @UseInterceptors(FilesInterceptor('responseFiles'))
   async submitAssessment(
     @Req() request: Request,
     @Param('assessment_id') assessment_id: string,
-    @Query('annual_student_id') annual_student_id: string,
-    @Body() { answers }: StudentAnswerDto
+    @Body() { answers }: StudentAnswerDto,
+    @UploadedFiles() files: Array<Express.Multer.File>
   ) {
-    const { annualStudent, preferred_lang } =
-      request.user as DeserializeSessionData;
-    if (!annualStudent && !annual_student_id)
-      throw new HttpException(
-        ERR20('student id')[preferred_lang],
-        HttpStatus.BAD_REQUEST
-      );
+    const {
+      annualStudent: { annual_student_id },
+    } = request.user as DeserializeSessionData;
     try {
-      return this.assessmentService.correctStudentAnswers(
-        annualStudent?.annual_student_id ?? annual_student_id,
+      return this.assessmentService.submitStudentAnswers(
+        annual_student_id,
         assessment_id,
-        answers
+        answers,
+        files
       );
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -240,7 +235,7 @@ export class AssessmentController {
 
   @Roles(Role.TEACHER)
   @Post('questions/new')
-  @UseInterceptors(FileInterceptor('answer_file'))
+  @UseInterceptors(FileInterceptor('answerFile'))
   async createNewQuestion(
     @Req() request: Request,
     @Body() { question_answer, question_type, ...newQuestion }: QuestionPostDto,
