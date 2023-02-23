@@ -156,6 +156,18 @@ export class AssessmentController {
   }
 
   @Roles(Role.TEACHER)
+  @Get(':assessment_id/:group_code/details')
+  async getGroupAssignementDetails(
+    @Param('assessment_id') assessment_id: string,
+    @Param('group_code') group_code: string
+  ) {
+    return this.assessmentService.getGroupAssignmentDetails(
+      assessment_id,
+      group_code
+    );
+  }
+
+  @Roles(Role.TEACHER)
   @Get(':assessment_id/answers')
   async getStudentAnswers(
     @Req() request: Request,

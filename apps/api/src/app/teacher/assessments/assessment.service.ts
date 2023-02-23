@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
+  AnnualStudentAnswerQuestion,
   Assessment,
   EvaluationHasStudent,
   Prisma,
@@ -7,6 +8,7 @@ import {
 } from '@prisma/client';
 import {
   Assessment as IAssessment,
+  GroupAssignmentDetails,
   IGroupAssignment,
   Question,
   QuestionAnswer as IQuestionAnswer,
@@ -33,6 +35,25 @@ import {
 
 @Injectable()
 export class AssessmentService {
+  private annualStudentTakeAssessmentSelect = {
+    total_score: true,
+    AnnualStudent: {
+      select: {
+        Student: {
+          select: {
+            matricule: true,
+            Login: {
+              select: {
+                Person: {
+                  select: { first_name: true, last_name: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  };
   constructor(
     private prismaService: PrismaService,
     private codeGenerator: CodeGeneratorService
@@ -475,20 +496,11 @@ export class AssessmentService {
     annual_student_id: string,
     assessment_id: string
   ): Promise<IQuestionAnswer[]> {
-    const annualStudent = await this.prismaService.annualStudent.findUnique({
-      select: {
-        Student: {
-          select: {
-            Login: {
-              select: {
-                Person: { select: { first_name: true, last_name: true } },
-              },
-            },
-          },
-        },
-      },
-      where: { annual_student_id },
-    });
+    const annualStudent =
+      await this.prismaService.annualStudentTakeAssessment.findFirst({
+        select: this.annualStudentTakeAssessmentSelect,
+        where: { annual_student_id, assessment_id },
+      });
     if (!annualStudent)
       throw new HttpException(
         JSON.stringify(AUTH404('Student')),
@@ -496,48 +508,15 @@ export class AssessmentService {
       );
     const studentAnswers =
       await this.prismaService.annualStudentAnswerQuestion.findMany({
-        select: {
-          response: true,
-          question_id: true,
-          question_mark: true,
-          teacher_comment: true,
-          answered_option_id: true,
-        },
         where: {
           AnnualStudentTakeAssessment: { annual_student_id, assessment_id },
         },
       });
     const questions = await this.getAssessmentQuestions(assessment_id, false);
-    return questions.map(
-      ({
-        question_id,
-        question,
-        question_type,
-        questionOptions,
-        questionResources,
-        question_answer,
-      }) => {
-        const { response, teacher_comment, question_mark } =
-          studentAnswers.find((_) => _.question_id === question_id);
-        return {
-          question,
-          question_id,
-          question_mark,
-          assessment_id,
-          question_type,
-          question_answer,
-          questionResources,
-          response: question_type !== 'MCQ' ? response : null,
-          teacher_comment: question_type !== 'MCQ' ? teacher_comment : null,
-          questionOptions: question_type === 'MCQ' ? questionOptions : [],
-          answeredOptionIds:
-            question_type === 'MCQ'
-              ? studentAnswers
-                  .filter((_) => _.question_id === question_id)
-                  .map((_) => _.answered_option_id)
-              : [],
-        };
-      }
+    return this.getQuestionAnswerObjects(
+      assessment_id,
+      questions,
+      studentAnswers
     );
   }
 
@@ -952,12 +931,12 @@ export class AssessmentService {
             ? question_mark
             : 0
           : null;
-      totalScore += questionMark;
+      totalScore += questionMark ?? 0;
       const newQuestionAnswer = {
         response,
         question_id,
-        question_mark,
         answered_option_id,
+        question_mark: questionMark,
         annual_student_take_assessment_id,
       };
       const question = auditedQuestions.find(
@@ -1001,5 +980,102 @@ export class AssessmentService {
         where: { annual_student_take_assessment_id },
       }),
     ]);
+  }
+
+  async getGroupAssignmentDetails(
+    assessment_id: string,
+    group_code: string
+  ): Promise<GroupAssignmentDetails> {
+    const groupMembers =
+      await this.prismaService.assignmentGroupMember.findMany({
+        select: {
+          total_score: true,
+          has_approved: true,
+          has_submitted: true,
+          annual_student_take_assessment_id: true,
+          AnnualStudentTakeAssessment: {
+            select: this.annualStudentTakeAssessmentSelect,
+          },
+        },
+        where: { group_code, assessment_id },
+      });
+    const studentAssignmentAnswers =
+      await this.prismaService.annualStudentAnswerQuestion.findMany({
+        where: {
+          OR: groupMembers.map(({ annual_student_take_assessment_id }) => ({
+            annual_student_take_assessment_id,
+          })),
+        },
+      });
+    const questions = await this.getAssessmentQuestions(assessment_id, false);
+    return {
+      group_code,
+      assessment_id,
+      number_of_students: 0,
+      total_score: groupMembers.length > 0 ? groupMembers[0].total_score : 0,
+      is_submitted: groupMembers.reduce(
+        (isSubmitted, { has_submitted }) => isSubmitted && has_submitted,
+        true
+      ),
+      members: groupMembers.map(
+        ({
+          has_approved,
+          AnnualStudentTakeAssessment: {
+            total_score,
+            AnnualStudent: {
+              Student: {
+                matricule,
+                Login: {
+                  Person: { first_name, last_name },
+                },
+              },
+            },
+          },
+        }) => ({ has_approved, first_name, last_name, matricule, total_score })
+      ),
+      answers: this.getQuestionAnswerObjects(
+        assessment_id,
+        questions,
+        studentAssignmentAnswers
+      ),
+    };
+  }
+
+  private getQuestionAnswerObjects(
+    assessment_id: string,
+    questions: Question[],
+    answeredQuestionIds: AnnualStudentAnswerQuestion[]
+  ): IQuestionAnswer[] {
+    return questions.map(
+      ({
+        question_id,
+        question,
+        question_type,
+        questionOptions,
+        questionResources,
+        question_answer,
+      }) => {
+        const { response, teacher_comment, question_mark } =
+          answeredQuestionIds.find((_) => _.question_id === question_id);
+        return {
+          question,
+          question_id,
+          question_mark,
+          assessment_id,
+          question_type,
+          question_answer,
+          questionResources,
+          response: question_type !== 'MCQ' ? response : null,
+          teacher_comment: question_type !== 'MCQ' ? teacher_comment : null,
+          questionOptions: question_type === 'MCQ' ? questionOptions : [],
+          answeredOptionIds:
+            question_type === 'MCQ'
+              ? answeredQuestionIds
+                  .filter((_) => _.question_id === question_id)
+                  .map((_) => _.answered_option_id)
+              : [],
+        };
+      }
+    );
   }
 }

@@ -1349,7 +1349,7 @@ model AnnualStudentTakeAssessment {
 
 model AnnualStudentAnswerQuestion {
     annual_student_answer_question_id String                      @id @default(uuid()) @db.VarChar(36)
-    question_mark                     Int
+    question_mark                     Int                        
     response                          String?                     @db.VarChar(45)
     teacher_comment                   String?                     @db.VarChar(45)
     question_id                       String                      @db.VarChar(36)
