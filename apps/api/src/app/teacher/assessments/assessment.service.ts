@@ -13,7 +13,15 @@ import {
   StudentAssessmentAnswer,
 } from '@squoolr/interfaces';
 import { randomUUID } from 'crypto';
-import { AUTH404, ERR18, ERR21, ERR22, ERR24, ERR25 } from '../../../errors';
+import {
+  AUTH404,
+  ERR18,
+  ERR21,
+  ERR22,
+  ERR24,
+  ERR25,
+  ERR26,
+} from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
 import { QuestionAnswer } from '../courses/course.dto';
@@ -592,10 +600,14 @@ export class AssessmentService {
   }
 
   async createAssessmentQuestion(
-    newQuestion: QuestionPostDto,
+    {
+      assessment_id,
+      question_type,
+      questionOptions,
+      ...questionData
+    }: QuestionPostDto,
     created_by: string
   ) {
-    const { assessment_id, questionOptions, ...questionData } = newQuestion;
     const assessment = await this.prismaService.assessment.findUnique({
       where: { assessment_id },
     });
@@ -604,8 +616,11 @@ export class AssessmentService {
         JSON.stringify(AUTH404('Assessment')),
         HttpStatus.INTERNAL_SERVER_ERROR
       );
+    if (assessment.submission_type === 'Individual' && question_type === 'File')
+      throw new HttpException(JSON.stringify(ERR26), HttpStatus.BAD_REQUEST);
     return await this.prismaService.question.create({
       data: {
+        question_type,
         ...questionData,
         QuestionOptions: {
           createMany: {

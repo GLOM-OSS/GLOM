@@ -171,3 +171,7 @@ export const ERR25 = {
   en: `Sorry, you can only submit ones`,
   fr: `Désolé, vous pouvez soumettre qu'une seule fois.`,
 };
+export const ERR26 = {
+  en: `Sorry, only group assignments support file type questions.`,
+  fr: `Désolé, seules les devoirs de groupe prennent en charge les questions de type fichier.`,
+};
