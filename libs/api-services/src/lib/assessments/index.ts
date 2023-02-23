@@ -3,10 +3,11 @@ import {
   ActivateAssessment,
   Assessment,
   AssessmentStatistics,
+  AssignmentGroup,
   CreateAssessment,
   Question,
   QuestionAnswer,
-  StudentAssessmentAnswer,
+  StudentAssessmentAnswer
 } from '@squoolr/interfaces';
 
 export async function getAssessment(assessment_id: string) {
@@ -61,10 +62,10 @@ export async function getAssessmentQuestions(assessment_id: string) {
   }));
 }
 
-export async function getStudentAssessmentMarks(assessment_id: string) {
-  const { data } = await http.get<StudentAssessmentAnswer[]>(
-    `/assessments/${assessment_id}/marks`
-  );
+export async function getAssessmentSubmissions(assessment_id: string) {
+  const { data } = await http.get<
+    (StudentAssessmentAnswer | AssignmentGroup)[]
+  >(`/assessments/${assessment_id}/submissions`);
   return data;
 }
 
@@ -93,3 +94,4 @@ export async function getAssessmentStats(
 }
 
 export * from './questions';
+

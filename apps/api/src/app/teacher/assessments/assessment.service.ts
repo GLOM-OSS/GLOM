@@ -7,8 +7,10 @@ import {
 } from '@prisma/client';
 import {
   Assessment as IAssessment,
+  AssignmentGroup,
   Question,
   QuestionAnswer as IQuestionAnswer,
+  StudentAssessmentAnswer,
 } from '@squoolr/interfaces';
 import { AUTH404, ERR18, ERR21, ERR22, ERR24, ERR25 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
@@ -220,7 +222,7 @@ export class AssessmentService {
     assessment_id: string,
     is_student: boolean
   ): Promise<Question[]> {
-    const assessment = await this.prismaService.assessment.findFirst({
+    const assessment = await this.prismaService.assessment.findUnique({
       where: { assessment_id },
     });
     if (!assessment || (is_student && !assessment.assessment_date))
@@ -312,47 +314,87 @@ export class AssessmentService {
     };
   }
 
-  async getStudentAssessmentMarks(assessment_id: string) {
-    const studentAssessmentMarks =
-      await this.prismaService.annualStudentTakeAssessment.findMany({
-        select: {
-          total_score: true,
-          submitted_at: true,
-          annual_student_id: true,
-          AnnualStudent: {
-            select: {
-              Student: {
-                select: {
-                  matricule: true,
-                  Login: {
-                    select: {
-                      Person: { select: { first_name: true, last_name: true } },
+  async getAssessmentSubmissions(
+    assessment_id: string
+  ): Promise<(StudentAssessmentAnswer | AssignmentGroup)[]> {
+    const assessment = await this.prismaService.assessment.findUnique({
+      where: { assessment_id },
+    });
+    if (!assessment)
+      throw new HttpException(
+        JSON.stringify(AUTH404('Assessment')),
+        HttpStatus.NOT_FOUND
+      );
+    const { submission_type } = assessment;
+    if (submission_type === 'Individual') {
+      const studentAssessmentMarks =
+        await this.prismaService.annualStudentTakeAssessment.findMany({
+          select: {
+            total_score: true,
+            submitted_at: true,
+            annual_student_id: true,
+            AnnualStudent: {
+              select: {
+                Student: {
+                  select: {
+                    matricule: true,
+                    Login: {
+                      select: {
+                        Person: {
+                          select: { first_name: true, last_name: true },
+                        },
+                      },
                     },
                   },
                 },
               },
             },
           },
-        },
-        where: { assessment_id },
-      });
-    return studentAssessmentMarks.map(
-      ({
-        AnnualStudent: {
-          Student: {
-            matricule,
-            Login: {
-              Person: { first_name, last_name },
+          where: { assessment_id },
+        });
+      return studentAssessmentMarks.map(
+        ({
+          AnnualStudent: {
+            Student: {
+              matricule,
+              Login: {
+                Person: { first_name, last_name },
+              },
             },
           },
-        },
-        ...data
-      }) => ({
-        ...data,
-        matricule,
-        fullname: `${first_name} ${last_name}`,
-      })
-    );
+          ...data
+        }) => ({
+          ...data,
+          matricule,
+          questionAnswers: [],
+          fullname: `${first_name} ${last_name}`,
+        })
+      );
+    } else {
+      const assignmentGroups =
+        await this.prismaService.assignmentGroup.findMany({
+          distinct: ['group_code'],
+          select: {
+            group_code: true,
+            total_score: true,
+            is_submitted: true,
+            assessment_id: true,
+            assignment_group_id: true,
+          },
+          where: { assessment_id, is_submitted: true },
+        });
+      const groups = await this.prismaService.assignmentGroup.groupBy({
+        _count: true,
+        by: ['group_code'],
+        where: { assessment_id, is_submitted: true },
+      });
+      return assignmentGroups.map((group) => ({
+        ...group,
+        number_of_students: groups.find(
+          (_) => _.group_code === group.group_code
+        )._count,
+      }));
+    }
   }
 
   async getStudentAnswers(
@@ -401,9 +443,8 @@ export class AssessmentService {
         questionResources,
         question_answer,
       }) => {
-        const { response, teacher_comment, question_mark } = studentAnswers.find(
-          (_) => _.question_id === question_id
-        );
+        const { response, teacher_comment, question_mark } =
+          studentAnswers.find((_) => _.question_id === question_id);
         return {
           question,
           question_id,
@@ -413,8 +454,7 @@ export class AssessmentService {
           question_answer,
           questionResources,
           response: question_type !== 'MCQ' ? response : null,
-          teacher_comment:
-            question_type !== 'MCQ' ? teacher_comment : null,
+          teacher_comment: question_type !== 'MCQ' ? teacher_comment : null,
           questionOptions: question_type === 'MCQ' ? questionOptions : [],
           answeredOptionIds:
             question_type === 'MCQ'
@@ -731,6 +771,7 @@ export class AssessmentService {
           },
         },
         AssignmentGroups: {
+          select: { group_code: true },
           where: { assessment_id },
         },
       },
@@ -761,8 +802,8 @@ export class AssessmentService {
               AssignmentGroups: {
                 some: {
                   assessment_id,
-                  OR: groupIds.map(({ assignment_group_id }) => ({
-                    assignment_group_id,
+                  OR: groupIds.map(({ group_code }) => ({
+                    group_code,
                   })),
                 },
               },

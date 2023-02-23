@@ -102,9 +102,9 @@ export interface CreateStudentAnswers {
 }
 
 export interface AssignmentGroup {
-  number_of_students: number; 
-  group_code: string;
+  assignment_group_id: string;
+  number_of_students: number;
   assessment_id: string;
-  annual_student_id: string;
-  is_submitted: boolean;
+  total_score: number;
+  group_code: string;
 }

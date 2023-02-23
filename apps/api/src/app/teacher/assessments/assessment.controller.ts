@@ -148,13 +148,14 @@ export class AssessmentController {
     return this.assessmentService.getQuestion(question_id);
   }
 
-  @Get(':assessment_id/marks')
-  async getStudentAssessmentMarks(
+  @Get(':assessment_id/submissions')
+  async getAssessmentSubmissions(
     @Param('assessment_id') assessment_id: string
   ) {
-    return this.assessmentService.getStudentAssessmentMarks(assessment_id);
+    return this.assessmentService.getAssessmentSubmissions(assessment_id);
   }
 
+  @Roles(Role.TEACHER)
   @Get(':assessment_id/answers')
   async getStudentAnswers(
     @Req() request: Request,

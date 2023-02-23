@@ -1462,8 +1462,10 @@ model Payment {
 
 model AssignmentGroup {
     assignment_group_id               String                      @id @default(uuid()) @db.VarChar(36)
+    total_score                       Int                         @default(0)
     group_code                        String                      @db.VarChar(45)
     is_approved                       Boolean                     @default(false) @db.TinyInt
+    is_submitted                      Boolean                     @default(false) @db.TinyInt
     assessment_id                     String                      @db.VarChar(36)
     Assessment                        Assessment                  @relation(fields: [assessment_id], references: [assessment_id], onDelete: Cascade, onUpdate: Cascade)
     annual_student_take_assessment_id String                      @db.VarChar(36)
