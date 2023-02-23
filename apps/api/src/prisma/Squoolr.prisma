@@ -1343,6 +1343,8 @@ model AnnualStudentTakeAssessment {
     LastAnnualStudentAnswerQuestionAudits AnnualStudentAnswerQuestionAudit[] @relation(name: "Previously_AuditedBy_AnnualStudent")
     AnnualStudentAnswerQuestionAudits     AnnualStudentAnswerQuestionAudit[] @relation(name: "AuditedBy_AnnualStudent")
     AssignmentGroups                      AssignmentGroup[]
+
+    @@unique([annual_student_id, assessment_id])
 }
 
 model AnnualStudentAnswerQuestion {

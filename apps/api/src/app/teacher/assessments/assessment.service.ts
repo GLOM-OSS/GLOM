@@ -3,14 +3,14 @@ import {
   Assessment,
   EvaluationHasStudent,
   Prisma,
-  PrismaPromise
+  PrismaPromise,
 } from '@prisma/client';
 import {
   Assessment as IAssessment,
   AssignmentGroup,
   Question,
   QuestionAnswer as IQuestionAnswer,
-  StudentAssessmentAnswer
+  StudentAssessmentAnswer,
 } from '@squoolr/interfaces';
 import { randomUUID } from 'crypto';
 import { AUTH404, ERR18, ERR21, ERR22, ERR24, ERR25 } from '../../../errors';
@@ -20,7 +20,7 @@ import { QuestionAnswer } from '../courses/course.dto';
 import {
   AssessmentPostDto,
   QuestionPostDto,
-  QuestionPutDto
+  QuestionPutDto,
 } from '../teacher.dto';
 
 @Injectable()
@@ -788,21 +788,22 @@ export class AssessmentService {
         JSON.stringify(AUTH404('Assessment')),
         HttpStatus.NOT_FOUND
       );
+    if (assessment.submission_type === 'Individual') {
+      await this.prismaService.annualStudentTakeAssessment.create({
+        data: {
+          total_score: 0,
+          Assessment: { connect: { assessment_id } },
+          AnnualStudent: { connect: { annual_student_id } },
+        },
+      });
 
-    await this.prismaService.annualStudentTakeAssessment.create({
-      data: {
-        total_score: 0,
-        Assessment: { connect: { assessment_id } },
-        AnnualStudent: { connect: { annual_student_id } },
-      },
-    });
-
-    const { assessment_date, duration } = assessment;
-    const allowedDate = new Date(
-      new Date(assessment_date).getTime() + (duration / 8) * 60 * 1000
-    );
-    if (allowedDate < new Date())
-      throw new HttpException(JSON.stringify(ERR21), HttpStatus.EARLYHINTS);
+      const { assessment_date, duration } = assessment;
+      const allowedDate = new Date(
+        new Date(assessment_date).getTime() + (duration / 8) * 60 * 1000
+      );
+      if (allowedDate < new Date())
+        throw new HttpException(JSON.stringify(ERR21), HttpStatus.EARLYHINTS);
+    }
   }
 
   async submitStudentAnswers(
