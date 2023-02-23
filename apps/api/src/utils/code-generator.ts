@@ -154,7 +154,7 @@ export class CodeGeneratorService {
       await this.prismaService.annualCreditUnitSubject.findUniqueOrThrow({
         where: { annual_credit_unit_subject_id },
       });
-    const numberOfGroups = await this.prismaService.assignmentGroup.count({
+    const numberOfGroups = await this.prismaService.assignmentGroupMember.count({
       distinct: 'group_code',
       where: { Assessment: { annual_credit_unit_subject_id } },
     });

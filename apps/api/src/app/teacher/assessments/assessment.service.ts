@@ -7,7 +7,7 @@ import {
 } from '@prisma/client';
 import {
   Assessment as IAssessment,
-  AssignmentGroup,
+  IGroupAssignment,
   Question,
   QuestionAnswer as IQuestionAnswer,
   StudentAssessmentAnswer,
@@ -389,7 +389,7 @@ export class AssessmentService {
 
   async getAssessmentSubmissions(
     assessment_id: string
-  ): Promise<(StudentAssessmentAnswer | AssignmentGroup)[]> {
+  ): Promise<(StudentAssessmentAnswer | IGroupAssignment)[]> {
     const assessment = await this.prismaService.assessment.findUnique({
       where: { assessment_id },
     });
@@ -445,24 +445,25 @@ export class AssessmentService {
       );
     } else {
       const assignmentGroups =
-        await this.prismaService.assignmentGroup.findMany({
+        await this.prismaService.assignmentGroupMember.findMany({
           distinct: ['group_code'],
           select: {
             group_code: true,
             total_score: true,
-            is_submitted: true,
+            has_submitted: true,
             assessment_id: true,
             assignment_group_id: true,
           },
           where: { assessment_id },
         });
-      const groups = await this.prismaService.assignmentGroup.groupBy({
+      const groups = await this.prismaService.assignmentGroupMember.groupBy({
         _count: true,
         by: ['group_code'],
         where: { assessment_id },
       });
-      return assignmentGroups.map((group) => ({
+      return assignmentGroups.map(({ has_submitted, ...group }) => ({
         ...group,
+        is_submitted: has_submitted,
         number_of_students: groups.find(
           (_) => _.group_code === group.group_code
         )._count,

@@ -103,7 +103,7 @@ export interface CreateStudentAnswers {
   }[];
 }
 
-export interface GroupAssignment {
+export interface IGroupAssignment {
   number_of_students: number;
   is_submitted: boolean;
   assessment_id: string;
@@ -111,13 +111,13 @@ export interface GroupAssignment {
   group_code: string;
 }
 
-export interface GroupMember
+export interface IGroupMember
   extends Pick<Student, 'matricule' | 'last_name' | 'first_name'> {
   total_score: number;
   has_approved: boolean;
 }
 
-export interface GroupAssignmentDetails extends GroupAssignment {
-  members: GroupMember[];
+export interface GroupAssignmentDetails extends IGroupAssignment {
+  members: IGroupMember[];
   answers: QuestionAnswer[];
 }

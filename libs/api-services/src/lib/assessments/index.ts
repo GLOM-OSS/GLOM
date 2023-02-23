@@ -3,7 +3,7 @@ import {
   ActivateAssessment,
   Assessment,
   AssessmentStatistics,
-  AssignmentGroup,
+  IGroupAssignment,
   CreateAssessment,
   Question,
   QuestionAnswer,
@@ -64,7 +64,7 @@ export async function getAssessmentQuestions(assessment_id: string) {
 
 export async function getAssessmentSubmissions(assessment_id: string) {
   const { data } = await http.get<
-    (StudentAssessmentAnswer | AssignmentGroup)[]
+    (StudentAssessmentAnswer | IGroupAssignment)[]
   >(`/assessments/${assessment_id}/submissions`);
   return data;
 }
