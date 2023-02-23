@@ -50,14 +50,14 @@ export default function QuestionList({
     useState<boolean>(false);
   const [questionNotif, setQuestionNotif] = useState<useNotification>();
 
-  const loadQuestions = () => {
+  const loadQuestions = (assessment_id: string) => {
     setAreQuestionsLoading(true);
     const notif = new useNotification();
     if (questionNotif) {
       questionNotif.dismiss();
     }
     setQuestionNotif(notif);
-    getAssessmentQuestions(activeAssessment?.assessment_id as string)
+    getAssessmentQuestions(assessment_id)
       .then((questions) => {
         setQuestions(questions);
         setAreQuestionsLoading(false);
@@ -72,7 +72,7 @@ export default function QuestionList({
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={loadQuestions}
+              retryFunction={() => loadQuestions(assessment_id)}
               notification={notif}
               message={
                 error?.message || formatMessage({ id: 'getQuestionsFailed' })
@@ -86,7 +86,7 @@ export default function QuestionList({
   };
 
   useEffect(() => {
-    loadQuestions();
+    if (activeAssessment) loadQuestions(activeAssessment.assessment_id);
     return () => {
       //TODO: cleanup above axios fetch
     };
