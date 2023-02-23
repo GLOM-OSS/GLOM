@@ -446,12 +446,12 @@ export class AssessmentService {
             assessment_id: true,
             assignment_group_id: true,
           },
-          where: { assessment_id, is_submitted: true },
+          where: { assessment_id },
         });
       const groups = await this.prismaService.assignmentGroup.groupBy({
         _count: true,
         by: ['group_code'],
-        where: { assessment_id, is_submitted: true },
+        where: { assessment_id },
       });
       return assignmentGroups.map((group) => ({
         ...group,

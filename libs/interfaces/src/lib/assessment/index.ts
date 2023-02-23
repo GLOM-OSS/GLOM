@@ -104,6 +104,7 @@ export interface CreateStudentAnswers {
 export interface AssignmentGroup {
   assignment_group_id: string;
   number_of_students: number;
+  is_submitted: boolean;
   assessment_id: string;
   total_score: number;
   group_code: string;
