@@ -3,39 +3,104 @@ import {
   Assessment,
   EvaluationHasStudent,
   Prisma,
-  PrismaPromise,
+  PrismaPromise
 } from '@prisma/client';
 import {
   Assessment as IAssessment,
   AssignmentGroup,
   Question,
   QuestionAnswer as IQuestionAnswer,
-  StudentAssessmentAnswer,
+  StudentAssessmentAnswer
 } from '@squoolr/interfaces';
+import { randomUUID } from 'crypto';
 import { AUTH404, ERR18, ERR21, ERR22, ERR24, ERR25 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { CodeGeneratorService } from '../../../utils/code-generator';
 import { QuestionAnswer } from '../courses/course.dto';
 import {
   AssessmentPostDto,
   QuestionPostDto,
-  QuestionPutDto,
+  QuestionPutDto
 } from '../teacher.dto';
 
 @Injectable()
 export class AssessmentService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private codeGenerator: CodeGeneratorService
+  ) {}
 
   async createAssessment(
-    { annual_credit_unit_subject_id, ...newAssessment }: AssessmentPostDto,
+    {
+      annual_credit_unit_subject_id,
+      submission_type,
+      ...newAssessment
+    }: AssessmentPostDto,
     created_by: string
   ) {
-    return this.prismaService.assessment.create({
-      data: {
-        ...newAssessment,
-        AnnualCreditUnitSubject: { connect: { annual_credit_unit_subject_id } },
-        AnnualTeacher: { connect: { annual_teacher_id: created_by } },
+    const assessmentInput: Prisma.AssessmentCreateInput = {
+      ...newAssessment,
+      AnnualCreditUnitSubject: {
+        connect: { annual_credit_unit_subject_id },
       },
-    });
+      AnnualTeacher: { connect: { annual_teacher_id: created_by } },
+    };
+    if (submission_type === 'Individual')
+      return this.prismaService.assessment.create({
+        data: assessmentInput,
+      });
+    else {
+      const assessment_id = randomUUID();
+      const annualStudents: Prisma.AnnualStudentTakeAssessmentCreateManyInput[] =
+        (
+          await this.prismaService.annualStudent.findMany({
+            select: { annual_student_id: true },
+            where: {
+              is_active: true,
+              AnnualStudentHasCreditUnits: {
+                some: {
+                  AnnualCreditUnit: {
+                    AnnualCreditUnitSubjects: {
+                      some: { annual_credit_unit_subject_id },
+                    },
+                  },
+                },
+              },
+            },
+          })
+        ).map(({ annual_student_id }) => ({
+          assessment_id,
+          total_score: 0,
+          annual_student_id,
+          annual_student_take_assessment_id: randomUUID(),
+        }));
+      const groupCode = await this.codeGenerator.getGroupCode(
+        annual_credit_unit_subject_id
+      );
+      return this.prismaService.$transaction([
+        this.prismaService.annualStudentTakeAssessment.createMany({
+          data: annualStudents,
+          skipDuplicates: true,
+        }),
+        this.prismaService.assessment.create({
+          data: {
+            ...assessmentInput,
+            AssignmentGroups: {
+              createMany: {
+                data: annualStudents.map(
+                  ({ annual_student_take_assessment_id, ...groupMember }) => ({
+                    ...groupMember,
+                    group_code: groupCode,
+                    annual_student_take_assessment_id,
+                  })
+                ),
+                skipDuplicates: true,
+              },
+            },
+          },
+        }),
+      ]);
+    }
   }
 
   async getAssessment(
