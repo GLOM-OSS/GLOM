@@ -155,15 +155,18 @@ export class AssessmentController {
     return this.assessmentService.getAssessmentSubmissions(assessment_id);
   }
 
-  @Roles(Role.TEACHER)
+  @Roles(Role.TEACHER, Role.STUDENT)
   @Get(':assessment_id/:group_code/details')
   async getGroupAssignementDetails(
-    @Param('assessment_id') assessment_id: string,
-    @Param('group_code') group_code: string
+    @Req() request: Request,
+    @Param('group_code') group_code: string,
+    @Param('assessment_id') assessment_id: string
   ) {
+    const { annualStudent } = request.user as DeserializeSessionData;
     return this.assessmentService.getGroupAssignmentDetails(
       assessment_id,
-      group_code
+      group_code,
+      annualStudent?.annual_student_id
     );
   }
 

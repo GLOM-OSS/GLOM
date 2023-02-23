@@ -175,3 +175,7 @@ export const ERR26 = {
   en: `Sorry, only group assignments support file type questions.`,
   fr: `Désolé, seules les devoirs de groupe prennent en charge les questions de type fichier.`,
 };
+export const ERR27 = {
+  en: `Access denied. group's submission details can only be seen by group members`,
+  fr: `Accès refusé. Les détails de soumission du groupe ne peuvent être vus que par les membres du groupe.`,
+};

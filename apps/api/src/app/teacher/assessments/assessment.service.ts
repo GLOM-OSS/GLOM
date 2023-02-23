@@ -23,6 +23,7 @@ import {
   ERR24,
   ERR25,
   ERR26,
+  ERR27,
 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
@@ -39,6 +40,7 @@ export class AssessmentService {
     total_score: true,
     AnnualStudent: {
       select: {
+        annual_student_id: true,
         Student: {
           select: {
             matricule: true,
@@ -984,7 +986,8 @@ export class AssessmentService {
 
   async getGroupAssignmentDetails(
     assessment_id: string,
-    group_code: string
+    group_code: string,
+    annual_student_id?: string
   ): Promise<GroupAssignmentDetails> {
     const groupMembers =
       await this.prismaService.assignmentGroupMember.findMany({
@@ -999,6 +1002,17 @@ export class AssessmentService {
         },
         where: { group_code, assessment_id },
       });
+    if (
+      annual_student_id &&
+      !groupMembers.find(
+        ({
+          AnnualStudentTakeAssessment: {
+            AnnualStudent: { annual_student_id: id },
+          },
+        }) => id === annual_student_id
+      )
+    )
+      throw new HttpException(JSON.stringify(ERR27), HttpStatus.UNAUTHORIZED);
     const studentAssignmentAnswers =
       await this.prismaService.annualStudentAnswerQuestion.findMany({
         where: {
