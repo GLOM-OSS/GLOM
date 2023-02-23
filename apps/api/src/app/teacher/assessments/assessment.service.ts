@@ -3,15 +3,20 @@ import {
   Assessment,
   EvaluationHasStudent,
   Prisma,
-  PrismaPromise
+  PrismaPromise,
 } from '@prisma/client';
-import { Assessment as IAssessment, Question } from '@squoolr/interfaces';
+import {
+  Assessment as IAssessment,
+  Question,
+  QuestionAnswer as IQuestionAnswer,
+} from '@squoolr/interfaces';
 import { AUTH404, ERR18, ERR21, ERR22, ERR24, ERR25 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { QuestionAnswer } from '../courses/course.dto';
 import {
-  AssessmentPostDto, QuestionPostDto,
-  QuestionPutDto
+  AssessmentPostDto,
+  QuestionPostDto,
+  QuestionPutDto,
 } from '../teacher.dto';
 
 @Injectable()
@@ -350,7 +355,10 @@ export class AssessmentService {
     );
   }
 
-  async getStudentAnswers(annual_student_id: string, assessment_id: string) {
+  async getStudentAnswers(
+    annual_student_id: string,
+    assessment_id: string
+  ): Promise<IQuestionAnswer[]> {
     const annualStudent = await this.prismaService.annualStudent.findUnique({
       select: {
         Student: {
@@ -372,7 +380,13 @@ export class AssessmentService {
       );
     const studentAnswers =
       await this.prismaService.annualStudentAnswerQuestion.findMany({
-        select: { answered_option_id: true, question_id: true },
+        select: {
+          response: true,
+          question_id: true,
+          question_mark: true,
+          teacher_comment: true,
+          answered_option_id: true,
+        },
         where: {
           AnnualStudentTakeAssessment: { annual_student_id, assessment_id },
         },
@@ -382,11 +396,12 @@ export class AssessmentService {
       ({
         question_id,
         question,
-        question_mark,
+        question_type,
         questionOptions,
         questionResources,
+        question_answer,
       }) => {
-        const answers = studentAnswers.filter(
+        const { response, teacher_comment, question_mark } = studentAnswers.find(
           (_) => _.question_id === question_id
         );
         return {
@@ -394,9 +409,19 @@ export class AssessmentService {
           question_id,
           question_mark,
           assessment_id,
-          questionOptions,
+          question_type,
+          question_answer,
           questionResources,
-          answeredOptionIds: answers.map((_) => _.answered_option_id),
+          response: question_type !== 'MCQ' ? response : null,
+          teacher_comment:
+            question_type !== 'MCQ' ? teacher_comment : null,
+          questionOptions: question_type === 'MCQ' ? questionOptions : [],
+          answeredOptionIds:
+            question_type === 'MCQ'
+              ? studentAnswers
+                  .filter((_) => _.question_id === question_id)
+                  .map((_) => _.answered_option_id)
+              : [],
         };
       }
     );
@@ -798,7 +823,7 @@ export class AssessmentService {
         response = responseFile.fieldname;
       }
       const questionMark =
-        submission_type === 'Individual'
+        question_type === 'MCQ'
           ? questionOptions.find((_) => _.is_answer)?.question_option_id ===
             answered_option_id
             ? question_mark
