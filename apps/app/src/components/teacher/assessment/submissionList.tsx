@@ -11,11 +11,12 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TableRow, Typography
+  TableRow,
+  Typography,
 } from '@mui/material';
 import {
-  getStudentAssessmentMarks,
-  publishAssessment
+  getAssessmentSubmissions,
+  publishAssessment,
 } from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import { Assessment, StudentAssessmentAnswer } from '@squoolr/interfaces';
@@ -58,9 +59,9 @@ export default function SubmissionList({
       studentNotif.dismiss();
     }
     setStudentNotif(notif);
-    getStudentAssessmentMarks(activeAssessment.assessment_id)
+    getAssessmentSubmissions(activeAssessment.assessment_id)
       .then((students) => {
-        setStudents(students);
+        setStudents(students as StudentAssessmentAnswer[]);
         setAreStudentsLoading(false);
         notif.dismiss();
         setStudentNotif(undefined);

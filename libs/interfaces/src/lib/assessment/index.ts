@@ -1,4 +1,7 @@
+import { Student } from '../interfaces';
+
 export interface CreateAssessment {
+  is_assignment: boolean;
   number_per_group: number;
   submission_type: 'Individual' | 'Group';
   annual_credit_unit_subject_id: string;
@@ -101,9 +104,21 @@ export interface CreateStudentAnswers {
   }[];
 }
 
-export interface AssignmentGroup {
+export interface IGroupAssignment {
   number_of_students: number;
-  group_code: string;
+  is_submitted: boolean;
   assessment_id: string;
-  annual_student_id: string;
+  total_score: number;
+  group_code: string;
+}
+
+export interface IGroupMember
+  extends Pick<Student, 'matricule' | 'last_name' | 'first_name'> {
+  total_score: number;
+  has_approved: boolean;
+}
+
+export interface GroupAssignmentDetails extends IGroupAssignment {
+  members: IGroupMember[];
+  answers: QuestionAnswer[];
 }

@@ -141,10 +141,23 @@ export class CodeGeneratorService {
       where: { school_id },
     });
     const startsWith = `UV${school_acronym}${acronym}`;
-    const numberOfUVs = await this.prismaService.annualCreditUnitSubject.findMany({
-      distinct: ['subject_code'],
-      where: { subject_code: { startsWith } },
-    });
+    const numberOfUVs =
+      await this.prismaService.annualCreditUnitSubject.findMany({
+        distinct: ['subject_code'],
+        where: { subject_code: { startsWith } },
+      });
     return `${startsWith}${this.getNumberString(numberOfUVs.length) + 1}`;
+  }
+
+  async getGroupCode(annual_credit_unit_subject_id: string) {
+    const { subject_code } =
+      await this.prismaService.annualCreditUnitSubject.findUniqueOrThrow({
+        where: { annual_credit_unit_subject_id },
+      });
+    const numberOfGroups = await this.prismaService.assignmentGroupMember.count({
+      distinct: 'group_code',
+      where: { Assessment: { annual_credit_unit_subject_id } },
+    });
+    return `G${this.getNumberString(numberOfGroups)}#${subject_code}`;
   }
 }
