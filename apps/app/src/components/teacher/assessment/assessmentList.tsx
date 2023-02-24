@@ -68,6 +68,7 @@ export default function AssessmentList({
               number_per_group: 1,
               submission_type: 'Group',
               total_mark: 4,
+              is_assignment: true,
             },
           ];
           setAssessments(newAssignments);
