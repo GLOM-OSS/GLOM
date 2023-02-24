@@ -5,6 +5,7 @@ import {
   Assessment,
   Course,
   CreateAssessment,
+  IGroupAssignment,
   StudentAssessmentAnswer,
 } from '@squoolr/interfaces';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -18,6 +19,8 @@ import Statistics from '../assessment/statistics';
 import StudentResponse from '../assessment/studentResponse';
 import SubmissionList from '../assessment/submissionList';
 import CreateAssignmentDialog from './createAssignmentDialog';
+
+export type SubmissionEntity = Omit<StudentAssessmentAnswer, 'questionAnswers'> | IGroupAssignment
 
 export default function Assignments() {
   const { formatMessage } = useIntl();
@@ -80,7 +83,7 @@ export default function Assignments() {
   const [assessmentNotif, setAssessmentNotif] = useState<useNotification>();
   const [showStatistics, setShowStatistics] = useState<boolean>(false);
   const [activeStudent, setActiveStudent] =
-    useState<Omit<StudentAssessmentAnswer, 'questionAnswers'>>();
+    useState<SubmissionEntity>();
   const [showResponses, setShowResponses] = useState<boolean>(false);
   const [isActivatingAssessment, setIsActivatingAssessment] =
     useState<boolean>(false);
