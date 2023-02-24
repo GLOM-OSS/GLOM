@@ -88,7 +88,7 @@ export interface EditQuestionInterface {
 }
 
 export interface ActivateAssessment {
-  duration: number;
+  duration: number | null;
   assessment_date: Date;
   assessment_time: Date;
 }
@@ -102,7 +102,7 @@ export interface CreateStudentAnswers {
 }
 
 export interface AssignmentGroup {
-  effectif: number; 
+  number_of_students: number;
   group_code: string;
   assessment_id: string;
   annual_student_id: string;
