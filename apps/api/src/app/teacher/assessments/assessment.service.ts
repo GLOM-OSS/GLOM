@@ -8,7 +8,7 @@ import {
 } from '@prisma/client';
 import {
   Assessment as IAssessment,
-  GroupAssignmentDetails,
+  IGroupAssignmentDetails,
   IGroupAssignment,
   Question,
   QuestionAnswer as IQuestionAnswer,
@@ -992,7 +992,11 @@ export class AssessmentService {
     assessment_id: string,
     group_code: string,
     annual_student_id?: string
-  ): Promise<GroupAssignmentDetails> {
+  ): Promise<IGroupAssignmentDetails> {
+    const { is_published } =
+      await this.prismaService.assessment.findFirstOrThrow({
+        where: { assessment_id, is_assignment: true },
+      });
     const groupMembers =
       await this.prismaService.assignmentGroupMember.findMany({
         select: {
@@ -1028,6 +1032,7 @@ export class AssessmentService {
     const questions = await this.getAssessmentQuestions(assessment_id, false);
     return {
       group_code,
+      is_published,
       assessment_id,
       number_of_students: 0,
       total_score: groupMembers.length > 0 ? groupMembers[0].total_score : 0,

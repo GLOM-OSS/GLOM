@@ -118,7 +118,20 @@ export interface IGroupMember
   has_approved: boolean;
 }
 
-export interface GroupAssignmentDetails extends IGroupAssignment {
+export interface IGroupAssignmentDetails extends IGroupAssignment {
+  is_published: boolean;
   members: IGroupMember[];
   answers: QuestionAnswer[];
+}
+
+export interface ICorrectedQuestion {
+  question_id: string;
+  question_mark: number;
+  teacher_comment: string;
+}
+
+export interface ICorrectAnswerDto {
+  group_code?: string;
+  annual_student_id?: string;
+  correctedAnswers: ICorrectedQuestion[];
 }
