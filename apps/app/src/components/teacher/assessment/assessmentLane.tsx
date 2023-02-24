@@ -61,7 +61,7 @@ export default function AssessmentLane({
               minute: '2-digit',
               timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             })
-          : null}
+          : formatMessage({ id: 'notAvailable' })}
       </TableCell>
       <TableCell>
         {et ? formatMessage({ id: isAssignment ? st : et }) : null}
