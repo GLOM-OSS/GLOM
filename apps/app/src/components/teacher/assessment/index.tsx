@@ -40,6 +40,7 @@ export default function Assessments() {
       number_per_group: 1,
       submission_type: 'Individual',
       annual_credit_unit_subject_id: annual_credit_unit_subject_id as string,
+      is_assignment: false,
     })
       .then((assessment) => {
         setActiveAssessment(assessment);
@@ -75,7 +76,7 @@ export default function Assessments() {
     useState<boolean>(false);
 
   const activateAssessmentHandler = (activateData: {
-    duration: number|null;
+    duration: number | null;
     assessment_date: Date;
     assessment_time: Date;
     evaluation_id: string;
