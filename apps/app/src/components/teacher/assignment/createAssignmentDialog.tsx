@@ -70,6 +70,7 @@ export default function CreateAssignmentDialog({
               annual_credit_unit_subject_id as string,
             number_per_group: numberPerGoup,
             submission_type: submissionType,
+            is_assignment: true,
           };
           if (submissionType === 'Group' && numberPerGoup > 1) {
             handleSubmit(val);
