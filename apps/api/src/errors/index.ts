@@ -179,3 +179,11 @@ export const ERR27 = {
   en: `Access denied. group's submission details can only be seen by group members`,
   fr: `Accès refusé. Les détails de soumission du groupe ne peuvent être vus que par les membres du groupe.`,
 };
+export const ERR28 = {
+  en: `Sorry, only group assignments can be corrected with a group code and annual student IDs are required for individual assessments only.`,
+  fr: `Désolé, seuls les devoirs de groupe peuvent être corrigés avec un code de groupe et les identifiants annuels des étudiants sont requis pour les évaluations individuelles uniquement.`,
+};
+export const ERR29 = {
+  en: `Sorry, all student must approve before corrections are made.`,
+  fr: `Désolé, tous les étudiants doivent approuver avant que les corrections ne soient faites.`,
+};

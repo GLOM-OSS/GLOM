@@ -113,7 +113,7 @@ export interface IGroupAssignment {
 }
 
 export interface IGroupMember
-  extends Pick<Student, 'matricule' | 'last_name' | 'first_name'> {
+  extends Pick<Student, 'annual_student_id' | 'last_name' | 'first_name'> {
   total_score: number;
   has_approved: boolean;
 }
