@@ -254,8 +254,8 @@ export class AssessmentController {
   @UseInterceptors(FileInterceptor('answerFile'))
   async createNewQuestion(
     @Req() request: Request,
-    @Body() { question_answer, question_type, ...newQuestion }: QuestionPostDto,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
+    @Body() { question_answer, question_type, ...newQuestion }: QuestionPostDto
   ) {
     const {
       preferred_lang,
@@ -306,18 +306,32 @@ export class AssessmentController {
 
   @Roles(Role.TEACHER)
   @Put('questions/:question_id/edit')
+  @UseInterceptors(FileInterceptor('answerFile'))
   async updateQuestion(
     @Req() request: Request,
     @Param('question_id') question_id: string,
-    @Body() updatedQuestion: QuestionPutDto
+    @UploadedFile() file: Express.Multer.File,
+    @Body()
+    { question_answer, question_type, ...updatedQuestion }: QuestionPutDto
   ) {
     const {
+      preferred_lang,
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
+    if (
+      (question_type === 'File' && !file) ||
+      (question_type === 'Structural' && !question_answer)
+    )
+      throw new HttpException(ERR22[preferred_lang], HttpStatus.BAD_REQUEST);
     try {
       await this.assessmentService.updateQuestion(
         question_id,
-        updatedQuestion,
+        {
+          question_answer:
+            question_type === 'File' ? file.filename : question_answer,
+          question_type,
+          ...updatedQuestion,
+        },
         annual_teacher_id
       );
     } catch (error) {

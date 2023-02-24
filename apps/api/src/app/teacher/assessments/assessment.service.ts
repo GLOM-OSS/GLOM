@@ -65,7 +65,7 @@ export class AssessmentService {
   async createAssessment(
     {
       annual_credit_unit_subject_id,
-      submission_type,
+      is_assignment,
       ...newAssessment
     }: AssessmentPostDto,
     created_by: string
@@ -77,11 +77,7 @@ export class AssessmentService {
       },
       AnnualTeacher: { connect: { annual_teacher_id: created_by } },
     };
-    if (submission_type === 'Individual')
-      return this.prismaService.assessment.create({
-        data: assessmentInput,
-      });
-    else {
+    if (is_assignment) {
       const assessment_id = randomUUID();
       const annualStudents: Prisma.AnnualStudentTakeAssessmentCreateManyInput[] =
         (
@@ -117,7 +113,7 @@ export class AssessmentService {
         this.prismaService.assessment.create({
           data: {
             ...assessmentInput,
-            AssignmentGroups: {
+            AssignmentGroupMembers: {
               createMany: {
                 data: annualStudents.map(
                   ({ annual_student_take_assessment_id, ...groupMember }) => ({
@@ -132,7 +128,10 @@ export class AssessmentService {
           },
         }),
       ]);
-    }
+    } else
+      return this.prismaService.assessment.create({
+        data: assessmentInput,
+      });
   }
 
   async getAssessment(
@@ -468,7 +467,7 @@ export class AssessmentService {
         })
       );
     } else {
-      const assignmentGroups =
+      const assignmentGroupMembers =
         await this.prismaService.assignmentGroupMember.findMany({
           distinct: ['group_code'],
           select: {
@@ -485,7 +484,7 @@ export class AssessmentService {
         by: ['group_code'],
         where: { assessment_id },
       });
-      return assignmentGroups.map(({ has_submitted, ...group }) => ({
+      return assignmentGroupMembers.map(({ has_submitted, ...group }) => ({
         ...group,
         is_submitted: has_submitted,
         number_of_students: groups.find(
@@ -599,7 +598,7 @@ export class AssessmentService {
         JSON.stringify(AUTH404('Assessment')),
         HttpStatus.INTERNAL_SERVER_ERROR
       );
-    if (assessment.submission_type === 'Individual' && question_type === 'File')
+    if (!assessment.is_assignment && question_type === 'File')
       throw new HttpException(JSON.stringify(ERR26), HttpStatus.BAD_REQUEST);
     return await this.prismaService.question.create({
       data: {
@@ -651,6 +650,8 @@ export class AssessmentService {
     {
       question,
       question_mark,
+      question_type,
+      question_answer,
 
       newOptions,
       editedOptions,
@@ -678,6 +679,8 @@ export class AssessmentService {
           data: {
             question,
             question_mark,
+            question_type,
+            question_answer,
             QuestionAudits: {
               create: {
                 ...questionData,
@@ -819,7 +822,7 @@ export class AssessmentService {
     const {
       created_at,
       submitted_at,
-      AssignmentGroups: groupIds,
+      AssignmentGroupMembers: groupIds,
       annual_student_take_assessment_id,
       Assessment: { assessment_date, submission_type, duration },
     } = await this.prismaService.annualStudentTakeAssessment.findFirstOrThrow({
@@ -834,7 +837,7 @@ export class AssessmentService {
             duration: true,
           },
         },
-        AssignmentGroups: {
+        AssignmentGroupMembers: {
           select: { group_code: true },
           where: { assessment_id },
         },
@@ -863,7 +866,7 @@ export class AssessmentService {
           },
           where: {
             AnnualStudentTakeAssessment: {
-              AssignmentGroups: {
+              AssignmentGroupMembers: {
                 some: {
                   assessment_id,
                   OR: groupIds.map(({ group_code }) => ({

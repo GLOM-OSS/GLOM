@@ -92,6 +92,10 @@ export class AssessmentPostDto {
   @ApiProperty({ required: false })
   submission_type?: SubmissionType;
 
+  @IsBoolean()
+  @ApiProperty()
+  is_assignment: boolean;
+
   @IsNumber()
   @ApiProperty()
   number_per_group: number;
