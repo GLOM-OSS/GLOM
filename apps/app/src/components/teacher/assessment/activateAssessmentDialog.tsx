@@ -18,20 +18,22 @@ export default function ActivateAssessmentDialog({
   isDialogOpen,
   handleSubmit,
   closeDialog,
+  isAssignment = false,
 }: {
   isDialogOpen: boolean;
   handleSubmit: (value: ActivateAssessment) => void;
   closeDialog: () => void;
+  isAssignment?: boolean;
 }) {
   const { formatMessage } = useIntl();
 
   const [assessmentDate, setAssessmentDate] = useState<Date>(new Date());
   const [assessmentTime, setAssessmentTime] = useState<Date>(new Date());
-  const [duration, setDuration] = useState<number>(0);
+  const [durationInMinutes, setDurationInMinutes] = useState<number>(0);
 
   const close = () => {
     closeDialog();
-    setDuration(0);
+    setDurationInMinutes(0);
   };
 
   return (
@@ -45,11 +47,20 @@ export default function ActivateAssessmentDialog({
         onSubmit={(event) => {
           event.preventDefault();
           if (assessmentDate && assessmentTime)
-            handleSubmit({
-              assessment_date: assessmentDate,
-              assessment_time: assessmentTime,
-              duration,
-            });
+            if (isAssignment)
+              handleSubmit({
+                assessment_date: assessmentDate,
+                assessment_time: assessmentTime,
+                duration: null,
+              });
+            else if (durationInMinutes > 0)
+              handleSubmit({
+                assessment_date: assessmentDate,
+                assessment_time: assessmentTime,
+                duration: durationInMinutes,
+              });
+            else alert(formatMessage({ id: 'durationMustBeGreaterThanZero' }));
+          else alert(formatMessage({ id: 'mustHaveDateAndTime' }));
           close();
         }}
       >
@@ -61,7 +72,7 @@ export default function ActivateAssessmentDialog({
         <DialogContent
           sx={{
             display: 'grid',
-            rowGap: theme.spacing(2),
+            rowGap: 2,
           }}
         >
           <MobileDatePicker
@@ -71,7 +82,9 @@ export default function ActivateAssessmentDialog({
             onChange={(newValue) => {
               setAssessmentDate(new Date(String(newValue)));
             }}
-            renderInput={(params) => <TextField {...params} />}
+            renderInput={(params) => (
+              <TextField {...params} sx={{ marginTop: 1 }} />
+            )}
           />
           <DesktopTimePicker
             label={formatMessage({ id: 'assessmentTime' })}
@@ -81,19 +94,21 @@ export default function ActivateAssessmentDialog({
             }}
             renderInput={(params) => <TextField {...params} />}
           />
-          <TextField
-            sx={{ marginTop: theme.spacing(1) }}
-            placeholder={formatMessage({ id: 'assessmentDuration' })}
-            label={formatMessage({ id: 'assessmentDuration(mins)' })}
-            required
-            color="primary"
-            type="number"
-            value={duration}
-            onChange={(event) => {
-              if (Number(event.target.value) >= 0)
-                setDuration(Number(event.target.value));
-            }}
-          />
+          {!isAssignment && (
+            <TextField
+              sx={{ marginTop: theme.spacing(1) }}
+              placeholder={formatMessage({ id: 'assessmentDuration' })}
+              label={formatMessage({ id: 'assessmentDuration(mins)' })}
+              required
+              color="primary"
+              type="number"
+              value={durationInMinutes}
+              onChange={(event) => {
+                if (Number(event.target.value) >= 0)
+                  setDurationInMinutes(Number(event.target.value));
+              }}
+            />
+          )}
         </DialogContent>
         <DialogActions>
           <Button
