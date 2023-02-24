@@ -36,26 +36,27 @@ import {
 
 @Injectable()
 export class AssessmentService {
-  private annualStudentTakeAssessmentSelect = {
-    total_score: true,
-    AnnualStudent: {
-      select: {
-        annual_student_id: true,
-        Student: {
-          select: {
-            matricule: true,
-            Login: {
-              select: {
-                Person: {
-                  select: { first_name: true, last_name: true },
+  private annualStudentTakeAssessmentSelect =
+    Prisma.validator<Prisma.AnnualStudentTakeAssessmentSelect>()({
+      total_score: true,
+      AnnualStudent: {
+        select: {
+          annual_student_id: true,
+          Student: {
+            select: {
+              matricule: true,
+              Login: {
+                select: {
+                  Person: {
+                    select: { first_name: true, last_name: true },
+                  },
                 },
               },
             },
           },
         },
       },
-    },
-  };
+    });
   constructor(
     private prismaService: PrismaService,
     private codeGenerator: CodeGeneratorService
