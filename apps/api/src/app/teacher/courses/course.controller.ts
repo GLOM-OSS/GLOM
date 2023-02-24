@@ -22,10 +22,17 @@ export class CourseController {
 
   @Get(':annual_credit_unit_subject_id')
   async getCourse(
+    @Req() request: Request,
     @Param('annual_credit_unit_subject_id')
     annual_credit_unit_subject_id: string
   ) {
-    return this.courseService.findOne(annual_credit_unit_subject_id);
+    const {
+      activeYear: { academic_year_id },
+    } = request.user as DeserializeSessionData;
+    return this.courseService.findOne(
+      academic_year_id,
+      annual_credit_unit_subject_id
+    );
   }
 
   @Get(':annual_credit_unit_subject_id/resources')
@@ -54,10 +61,11 @@ export class CourseController {
     @Param('annual_credit_unit_subject_id')
     annual_credit_unit_subject_id: string
   ) {
-    const {
-      annualStudent
-    } = request.user as DeserializeSessionData;
-    return this.courseService.findAssessments(annual_credit_unit_subject_id, Boolean(annualStudent));
+    const { annualStudent } = request.user as DeserializeSessionData;
+    return this.courseService.findAssessments(
+      annual_credit_unit_subject_id,
+      Boolean(annualStudent)
+    );
   }
 
   @Get(':annual_credit_unit_subject_id/students')

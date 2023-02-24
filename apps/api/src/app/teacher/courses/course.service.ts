@@ -1,14 +1,35 @@
 import { Injectable } from '@nestjs/common';
-import { EvaluationSubTypeEnum } from '@prisma/client';
-import { Assessment, PresenceList } from '@squoolr/interfaces';
+import { EvaluationSubTypeEnum, Prisma } from '@prisma/client';
+import { Assessment, Course, PresenceList } from '@squoolr/interfaces';
 import { PrismaService } from '../../../prisma/prisma.service';
 
 @Injectable()
 export class CourseService {
-  constructor(private prismaService: PrismaService) {}
-
-  async findAll(academic_year_id: string, annual_teacher_id: string) {
-    const subects = await this.prismaService.annualCreditUnitSubject.findMany({
+  private annualClassroomSelect =
+    Prisma.validator<Prisma.AnnualClassroomArgs>()({
+      select: {
+        classroom_acronym: true,
+        Classroom: {
+          select: {
+            level: true,
+            Major: {
+              select: {
+                major_id: true,
+                AnnualCreditUnits: {
+                  select: {
+                    AnnualCreditUnitSubjects: {
+                      select: { subject_code: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  private annualCreditUnitSubjectSelect =
+    Prisma.validator<Prisma.AnnualCreditUnitSubjectArgs>()({
       select: {
         annual_credit_unit_subject_id: true,
         subject_title: true,
@@ -31,43 +52,30 @@ export class CourseService {
         },
         AnnualCreditUnit: {
           select: {
+            major_id: true,
             semester_number: true,
-            Major: { select: { major_id: true, major_acronym: true } },
-          },
-        },
-      },
-      where: { AnnualTeacher: { annual_teacher_id } },
-    });
-
-    const classrooms = await this.prismaService.annualClassroom.findMany({
-      select: {
-        classroom_acronym: true,
-        Classroom: {
-          select: {
-            level: true,
-            Major: {
+            _count: {
               select: {
-                major_id: true,
-                AnnualCreditUnits: {
-                  select: {
-                    AnnualCreditUnitSubjects: {
-                      select: { subject_code: true },
-                    },
-                  },
-                },
+                AnnualStudentHasCreditUnits: true,
               },
             },
           },
         },
       },
+    });
+  constructor(private prismaService: PrismaService) {}
+
+  async findAll(academic_year_id: string, annual_teacher_id: string) {
+    const subects = await this.prismaService.annualCreditUnitSubject.findMany({
+      select: this.annualCreditUnitSubjectSelect.select,
+      where: { AnnualTeacher: { annual_teacher_id } },
+    });
+
+    const classrooms = await this.prismaService.annualClassroom.findMany({
+      select: this.annualClassroomSelect.select,
       where: {
         OR: subects.map(
-          ({
-            AnnualCreditUnit: {
-              Major: { major_id },
-              semester_number,
-            },
-          }) => ({
+          ({ AnnualCreditUnit: { major_id, semester_number } }) => ({
             academic_year_id,
             Classroom: {
               major_id,
@@ -81,80 +89,20 @@ export class CourseService {
     const activeYear = await this.prismaService.academicYear.findUnique({
       where: { academic_year_id },
     });
-    const courses = subects.map(
-      ({
-        Chapters,
-        objective,
-        Evaluations,
-        subject_code,
-        subject_title,
-        annual_credit_unit_subject_id,
-      }) => {
-        const classroomAcronyms = classrooms
-          .filter(
-            ({
-              Classroom: {
-                Major: { AnnualCreditUnits },
-              },
-            }) =>
-              AnnualCreditUnits.find(({ AnnualCreditUnitSubjects }) =>
-                AnnualCreditUnitSubjects.find(
-                  (_) => _.subject_code === subject_code
-                )
-              )
-          )
-          .map(({ classroom_acronym }) => classroom_acronym);
-        const resitEvaluation = Evaluations.find(
-          ({ AnnualEvaluationSubType: { evaluation_sub_type_name } }) =>
-            evaluation_sub_type_name === EvaluationSubTypeEnum.RESIT
-        );
-
-        return {
-          objective,
-          subject_code,
-          subject_title,
-          classroomAcronyms,
-          annual_credit_unit_subject_id,
-          has_course_plan: Chapters.length > 0,
-          is_ca_available: Boolean(
-            Evaluations.find(
-              ({ AnnualEvaluationSubType: { evaluation_sub_type_name } }) =>
-                evaluation_sub_type_name === EvaluationSubTypeEnum.CA
-            )?.published_at
-          ),
-          is_exam_available: Boolean(
-            Evaluations.find(
-              ({ AnnualEvaluationSubType: { evaluation_sub_type_name } }) =>
-                evaluation_sub_type_name === EvaluationSubTypeEnum.EXAM
-            )?.published_at
-          ),
-          is_resit_available: Boolean(
-            activeYear.ended_at ?? resitEvaluation
-              ? (new Date(resitEvaluation.examination_date) < new Date() &&
-                  resitEvaluation.EvaluationHasStudents.length === 0) ??
-                  resitEvaluation.published_at
-              : false
-          ),
-        };
-      }
+    const courses = subects.map((subject) =>
+      this.getCourseObject(subject, classrooms, activeYear.ended_at)
     );
     return courses;
   }
 
-  async findOne(annual_credit_unit_subject_id: string) {
+  async findOne(
+    academic_year_id: string,
+    annual_credit_unit_subject_id: string
+  ) {
     const classrooms = await this.prismaService.annualClassroom.findMany({
       select: {
-        classroom_acronym: true,
-        Classroom: {
-          select: {
-            level: true,
-            Major: {
-              select: {
-                AnnualCreditUnits: { select: { semester_number: true } },
-              },
-            },
-          },
-        },
+        academic_year_id: true,
+        ...this.annualClassroomSelect.select,
       },
       where: {
         Classroom: {
@@ -171,30 +119,91 @@ export class CourseService {
       },
     });
     const annualCreditUnitSubject =
-      await this.prismaService.annualCreditUnitSubject.findUnique({
+      await this.prismaService.annualCreditUnitSubject.findUniqueOrThrow({
         select: {
-          objective: true,
-          annual_credit_unit_id: true,
-          subject_code: true,
-          subject_title: true,
+          ...this.annualCreditUnitSubjectSelect.select,
+          _count: {
+            select: {},
+          },
         },
         where: { annual_credit_unit_subject_id },
       });
-    return {
-      ...annualCreditUnitSubject,
-      classroomAcronyms: classrooms
-        .filter(
-          ({
-            Classroom: {
-              level,
-              Major: { AnnualCreditUnits },
-            },
-          }) =>
-            AnnualCreditUnits.find(
-              (_) => Math.ceil(_.semester_number / 2) === level
+    const activeYear = await this.prismaService.academicYear.findUnique({
+      where: { academic_year_id },
+    });
+    return this.getCourseObject(
+      annualCreditUnitSubject,
+      classrooms,
+      activeYear.ended_at
+    );
+  }
+
+  private getCourseObject(
+    subject: Prisma.AnnualCreditUnitSubjectGetPayload<
+      typeof this.annualCreditUnitSubjectSelect
+    >,
+    classrooms: Prisma.AnnualClassroomGetPayload<
+      typeof this.annualClassroomSelect
+    >[],
+    activeYearEndDate: Date | null
+  ): Course {
+    const {
+      Chapters,
+      objective,
+      Evaluations,
+      subject_code,
+      subject_title,
+      annual_credit_unit_subject_id,
+      AnnualCreditUnit: {
+        _count: { AnnualStudentHasCreditUnits: number_of_students },
+      },
+    } = subject;
+    const classroomAcronyms = classrooms
+      .filter(
+        ({
+          Classroom: {
+            Major: { AnnualCreditUnits },
+          },
+        }) =>
+          AnnualCreditUnits.find(({ AnnualCreditUnitSubjects }) =>
+            AnnualCreditUnitSubjects.find(
+              (_) => _.subject_code === subject_code
             )
-        )
-        .map((_) => _.classroom_acronym),
+          )
+      )
+      .map(({ classroom_acronym }) => classroom_acronym);
+    const resitEvaluation = Evaluations.find(
+      ({ AnnualEvaluationSubType: { evaluation_sub_type_name } }) =>
+        evaluation_sub_type_name === EvaluationSubTypeEnum.RESIT
+    );
+
+    return {
+      objective,
+      subject_code,
+      subject_title,
+      classroomAcronyms,
+      number_of_students,
+      annual_credit_unit_subject_id,
+      has_course_plan: Chapters.length > 0,
+      is_ca_available: Boolean(
+        Evaluations.find(
+          ({ AnnualEvaluationSubType: { evaluation_sub_type_name } }) =>
+            evaluation_sub_type_name === EvaluationSubTypeEnum.CA
+        )?.published_at
+      ),
+      is_exam_available: Boolean(
+        Evaluations.find(
+          ({ AnnualEvaluationSubType: { evaluation_sub_type_name } }) =>
+            evaluation_sub_type_name === EvaluationSubTypeEnum.EXAM
+        )?.published_at
+      ),
+      is_resit_available: Boolean(
+        activeYearEndDate ?? resitEvaluation
+          ? (new Date(resitEvaluation.examination_date) < new Date() &&
+              resitEvaluation.EvaluationHasStudents.length === 0) ??
+              resitEvaluation.published_at
+          : false
+      ),
     };
   }
 
