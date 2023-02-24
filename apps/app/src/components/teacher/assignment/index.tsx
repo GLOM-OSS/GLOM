@@ -149,7 +149,7 @@ export default function Assignments() {
       setAssessmentNotif(notif);
       notif.notify({
         render: formatMessage({
-          id: 'activatingAssessment',
+          id: 'activatingAssignment',
         }),
       });
       activateAssessment(activeAssessment.assessment_id, activateData)
@@ -166,7 +166,7 @@ export default function Assignments() {
           });
           setIsActivatingAssessment(false);
           notif.update({
-            render: formatMessage({ id: 'assessmentActivatedSuccessfully' }),
+            render: formatMessage({ id: 'assignmentActivatedSuccessfully' }),
           });
           setAssessmentNotif(undefined);
         })
@@ -179,7 +179,7 @@ export default function Assignments() {
                 notification={notif}
                 message={
                   error?.message ||
-                  formatMessage({ id: 'activatingAssessmentFailed' })
+                  formatMessage({ id: 'activatingAssignmentFailed' })
                 }
               />
             ),
