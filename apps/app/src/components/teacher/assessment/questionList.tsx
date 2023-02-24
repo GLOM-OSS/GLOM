@@ -32,11 +32,11 @@ import QuestionSkeleton from './questionSkeleton';
 
 export default function QuestionList({
   activeAssessment,
+  activeAssessment: { is_assignment: isAssignment },
   setActiveAssessment,
   setIsActivateAssessmentDialogOpen,
   isActivatingAssessment,
   onShowResponses,
-  isAssignment = false,
   confirmPublishAssignment,
 }: {
   setActiveAssessment: (val: Assessment | undefined) => void;
@@ -44,7 +44,6 @@ export default function QuestionList({
   setIsActivateAssessmentDialogOpen: (val: boolean) => void;
   isActivatingAssessment: boolean;
   onShowResponses: () => void;
-  isAssignment?: boolean;
   confirmPublishAssignment?: () => void;
 }) {
   const { formatMessage, formatDate, formatNumber } = useIntl();
@@ -54,6 +53,7 @@ export default function QuestionList({
     useState<boolean>(false);
   const [questionNotif, setQuestionNotif] = useState<useNotification>();
 
+  //TODO: UNCOMMENT THIS AND LOAD QUESTIONS/ REMOVED IT FOR DEV PURPOSES
   // const loadQuestions = (assessment_id: string) => {
   //   setAreQuestionsLoading(true);
   //   const notif = new useNotification();
