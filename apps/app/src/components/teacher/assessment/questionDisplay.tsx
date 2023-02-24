@@ -3,6 +3,7 @@ import { Box, Chip, IconButton, Tooltip, Typography } from '@mui/material';
 import { Question, QuestionOption } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
+import { FileIcon } from '../coursePlan/fileDialog';
 
 export default function QuestionDisplay({
   question: {
@@ -10,12 +11,15 @@ export default function QuestionDisplay({
     questionOptions: qo,
     questionResources: qr,
     question_mark: qm,
+    question_answer: qa,
+    question_type: qt,
   },
   position: p,
   onDelete,
   disabled,
   isResponse = false,
   responses,
+  isActivated,
 }: {
   question: Question;
   position: number;
@@ -23,6 +27,7 @@ export default function QuestionDisplay({
   disabled: boolean;
   isResponse?: boolean;
   responses?: string[];
+  isActivated: boolean;
 }) {
   const { formatMessage } = useIntl();
   const shuffleOptions = (array: QuestionOption[]) => {
@@ -88,37 +93,53 @@ export default function QuestionDisplay({
             columnGap: theme.spacing(2),
           }}
         >
-          <Box
-            sx={{
-              display: 'grid',
-              gridAutoFlow: 'column',
-              alignItems: 'center',
-              justifyContent: 'start',
-              columnGap: theme.spacing(1),
-              marginTop: theme.spacing(0.5),
-            }}
-          >
-            {(isResponse ? qo : shuffleOptions(qo)).map(
-              ({ is_answer, option, question_option_id }, index) =>
-                is_answer ? (
-                  <Chip
-                    color="success"
-                    size="small"
-                    label={`${String.fromCharCode(65 + index)}. ${option}`}
-                  />
-                ) : responses?.includes(question_option_id) ? (
-                  <Chip
-                    color="error"
-                    size="small"
-                    label={`${String.fromCharCode(65 + index)}. ${option}`}
-                  />
-                ) : (
-                  <Typography>{`${String.fromCharCode(
-                    65 + index
-                  )}. ${option}`}</Typography>
-                )
-            )}
-          </Box>
+          {qt === 'MCQ' ? (
+            <Box
+              sx={{
+                display: 'grid',
+                gridAutoFlow: 'column',
+                alignItems: 'center',
+                justifyContent: 'start',
+                columnGap: theme.spacing(1),
+                marginTop: theme.spacing(0.5),
+              }}
+            >
+              {(isResponse ? qo : shuffleOptions(qo)).map(
+                ({ is_answer, option, question_option_id }, index) =>
+                  is_answer ? (
+                    <Chip
+                      color="success"
+                      size="small"
+                      label={`${String.fromCharCode(65 + index)}. ${option}`}
+                    />
+                  ) : responses?.includes(question_option_id) ? (
+                    <Chip
+                      color="error"
+                      size="small"
+                      label={`${String.fromCharCode(65 + index)}. ${option}`}
+                    />
+                  ) : (
+                    <Typography>{`${String.fromCharCode(
+                      65 + index
+                    )}. ${option}`}</Typography>
+                  )
+              )}
+            </Box>
+          ) : qt === 'Structural' ? (
+            <Typography>{qa}</Typography>
+          ) : qa ? (
+            <FileIcon
+              name={`${formatMessage({ id: 'correction' })}.${
+                qa.split('.').slice(-1)[0]
+              }`}
+              resource_ref={qa}
+              resource_type="FILE"
+            />
+          ) : (
+            <Typography variant="body2" color={theme.palette.error.main}>
+              {formatMessage({ id: 'noFileYet' })}
+            </Typography>
+          )}
           <Box
             sx={{
               display: 'grid',
@@ -134,7 +155,7 @@ export default function QuestionDisplay({
               }}
               label={qm}
             />
-            {!isResponse && (
+            {!isResponse && !isActivated && (
               <>
                 <Tooltip arrow title={formatMessage({ id: 'edit' })}>
                   <IconButton size="small" disabled={disabled}>
