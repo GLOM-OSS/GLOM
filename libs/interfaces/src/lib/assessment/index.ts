@@ -91,7 +91,7 @@ export interface EditQuestionInterface {
 }
 
 export interface ActivateAssessment {
-  duration: number;
+  duration: number | null;
   assessment_date: Date;
   assessment_time: Date;
 }

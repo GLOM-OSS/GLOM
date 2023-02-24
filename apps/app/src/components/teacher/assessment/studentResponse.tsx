@@ -4,7 +4,7 @@ import { getStudentAnswers } from '@squoolr/api-services';
 import {
   Assessment,
   QuestionAnswer,
-  StudentAssessmentAnswer
+  StudentAssessmentAnswer,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -139,6 +139,7 @@ export default function StudentResponse({
               isResponse={true}
               question={question}
               position={index + 1}
+              isActivated={activeAssessment.duration !== null}
               responses={question.answeredOptionIds}
               //   onEdit={() => setEditableQuestion(question)}
               onDelete={() => null}

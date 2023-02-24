@@ -1,8 +1,8 @@
 import { Box, Skeleton, Typography } from '@mui/material';
 import { Resource } from '@squoolr/interfaces';
-import { FileIcon } from 'apps/student/src/components/course/fileIcon';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
+import { FileIcon } from './fileIcon';
 
 export default function ResourceDisplay({
   areResourcesLoading,

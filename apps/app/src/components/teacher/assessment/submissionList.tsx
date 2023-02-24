@@ -19,36 +19,38 @@ import {
   publishAssessment,
 } from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
-import { Assessment, StudentAssessmentAnswer } from '@squoolr/interfaces';
+import {
+  Assessment,
+  IGroupAssignment,
+  StudentAssessmentAnswer,
+} from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
+import { SubmissionEntity } from '../assignment';
 import { NoTableElement, TableLaneSkeleton } from '../courseLane';
 import PublishAssessmentDialog from './publishAssessmentDialog';
-import StudentLane from './studentLane';
+import StudentLane, { GroupLane } from './studentLane';
 
 export default function SubmissionList({
   onBack,
   activeAssessment,
+  activeAssessment: { is_assignment },
   setActiveStudent,
   openStatistics,
   setActiveAssessment,
 }: {
   onBack: () => void;
   activeAssessment: Assessment;
-  setActiveStudent: (
-    val: Omit<StudentAssessmentAnswer, 'questionAnswers'>
-  ) => void;
+  setActiveStudent: (val: SubmissionEntity) => void;
   openStatistics: () => void;
   setActiveAssessment: (val: Assessment) => void;
 }) {
   const { formatMessage, formatDate, formatNumber } = useIntl();
 
-  const [students, setStudents] = useState<
-    Omit<StudentAssessmentAnswer, 'questionAnswers'>[]
-  >([]);
+  const [submissions, setSubmissions] = useState<SubmissionEntity[]>([]);
   const [areStudentsLoading, setAreStudentsLoading] = useState<boolean>(false);
   const [studentNotif, setStudentNotif] = useState<useNotification>();
 
@@ -61,7 +63,7 @@ export default function SubmissionList({
     setStudentNotif(notif);
     getAssessmentSubmissions(activeAssessment.assessment_id)
       .then((students) => {
-        setStudents(students as StudentAssessmentAnswer[]);
+        setSubmissions(students);
         setAreStudentsLoading(false);
         notif.dismiss();
         setStudentNotif(undefined);
@@ -153,6 +155,11 @@ export default function SubmissionList({
   };
 
   const [
+    isConfirmPublishAssignmentDialogOpen,
+    setIsConfirmPublishAssignmentDialogOpen,
+  ] = useState<boolean>(false);
+
+  const [
     isConfirmPublishWithEvaluationDialogOpen,
     setIsConfirmPublishWithEvaluationDialogOpen,
   ] = useState<boolean>(false);
@@ -180,6 +187,17 @@ export default function SubmissionList({
           {formatMessage({ id: 'publishAssessment' })}
         </MenuItem>
       </Menu>
+
+      <ConfirmDeleteDialog
+        closeDialog={() => setIsConfirmPublishAssignmentDialogOpen(false)}
+        confirm={() => publishAssessmentHandler(activeAssessment, undefined)}
+        dialogMessage={formatMessage({
+          id: 'confirmPublishAssignmentDialogMessage',
+        })}
+        isDialogOpen={isConfirmPublishAssignmentDialogOpen}
+        dialogTitle={formatMessage({ id: 'confirmPublishAssignment' })}
+        confirmButton={formatMessage({ id: 'publish' })}
+      />
 
       <ConfirmDeleteDialog
         closeDialog={() => setIsConfirmPublishDialogOpen(false)}
@@ -221,7 +239,9 @@ export default function SubmissionList({
             <KeyboardBackspaceOutlined fontSize="small" />
           </Fab>
           <Typography variant="h6">
-            {formatMessage({ id: 'assessmentSubmissions' })}
+            {formatMessage({
+              id: 'submissions',
+            })}
           </Typography>
 
           <Box
@@ -258,17 +278,22 @@ export default function SubmissionList({
                     }
                   )}
                 />
-                <Chip
-                  sx={{
-                    backgroundColor: lighten(theme.palette.primary.main, 0.93),
-                  }}
-                  label={formatNumber(activeAssessment.duration as number, {
-                    style: 'unit',
-                    unit: 'minute',
-                    unitDisplay: 'short',
-                  })}
-                />
-                {activeAssessment.evaluation_sub_type_name && (
+                {!is_assignment && (
+                  <Chip
+                    sx={{
+                      backgroundColor: lighten(
+                        theme.palette.primary.main,
+                        0.93
+                      ),
+                    }}
+                    label={formatNumber(activeAssessment.duration as number, {
+                      style: 'unit',
+                      unit: 'minute',
+                      unitDisplay: 'short',
+                    })}
+                  />
+                )}
+                {activeAssessment.evaluation_sub_type_name && !is_assignment && (
                   <Chip
                     sx={{
                       backgroundColor: lighten(
@@ -299,12 +324,16 @@ export default function SubmissionList({
               />
             ) : (
               <Button
-                variant="contained"
-                color="inherit"
+                variant={is_assignment ? 'outlined' : 'contained'}
+                color={is_assignment ? 'primary' : 'inherit'}
                 sx={{ textTransform: 'none' }}
                 disabled={areStudentsLoading || isPublishingAssessment}
                 size="small"
-                onClick={(event) => setAnchorEl(event.currentTarget)}
+                onClick={(event) =>
+                  is_assignment
+                    ? setIsConfirmPublishAssignmentDialogOpen(true)
+                    : setAnchorEl(event.currentTarget)
+                }
               >
                 {formatMessage({ id: 'publish' })}
               </Button>
@@ -319,13 +348,22 @@ export default function SubmissionList({
               }}
             >
               <TableRow>
-                {[
-                  'number',
-                  'matricule',
-                  'studentName',
-                  'score',
-                  'submittedAt',
-                ].map((val, index) => (
+                {(activeAssessment.submission_type === 'Individual'
+                  ? [
+                      'number',
+                      'matricule',
+                      'studentName',
+                      'score',
+                      'submittedAt',
+                    ]
+                  : [
+                      'number',
+                      'groupCode',
+                      'studentsInGroup',
+                      'totalScore',
+                      'hasSubmitted',
+                    ]
+                ).map((val, index) => (
                   <TableCell key={index}>
                     {formatMessage({ id: val })}
                   </TableCell>
@@ -337,21 +375,31 @@ export default function SubmissionList({
                 [...new Array(10)].map((_, index) => (
                   <TableLaneSkeleton cols={5} key={index} />
                 ))
-              ) : students.length === 0 ? (
+              ) : submissions.length === 0 ? (
                 <NoTableElement
                   message={formatMessage({ id: 'noSubmissions' })}
                   colSpan={5}
                 />
               ) : (
-                students.map((student, index) => (
-                  <StudentLane
-                    student={student}
-                    total={activeAssessment.total_mark}
-                    position={index + 1}
-                    onSelect={() => setActiveStudent(student)}
-                    key={index}
-                  />
-                ))
+                submissions.map((student, index) =>
+                  activeAssessment.submission_type === 'Individual' ? (
+                    <StudentLane
+                      student={student as StudentAssessmentAnswer}
+                      total={activeAssessment.total_mark}
+                      position={index + 1}
+                      onSelect={() => setActiveStudent(student)}
+                      key={index}
+                    />
+                  ) : (
+                    <GroupLane
+                      group={student as IGroupAssignment}
+                      total={activeAssessment.total_mark}
+                      position={index + 1}
+                      onSelect={() => setActiveStudent(student)}
+                      key={index}
+                    />
+                  )
+                )
               )}
             </TableBody>
           </Table>

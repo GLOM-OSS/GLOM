@@ -182,7 +182,7 @@ export function PaymentDialog({
               amount,
               payment_date: new Date(),
               payment_reason: paymentReason,
-              semesterNumber: semesters,
+              semester_number: semesters,
             };
             confirm(data);
             close();

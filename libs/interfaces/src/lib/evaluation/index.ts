@@ -12,7 +12,7 @@ export interface Course extends SubjectMarkStatus {
   has_course_plan: boolean;
   objective: string;
   semester?: number;
-  number_of_students?: number
+  number_of_students?: number;
 }
 
 export interface EvaluationHasStudent {

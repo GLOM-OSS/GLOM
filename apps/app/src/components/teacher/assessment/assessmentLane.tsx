@@ -11,13 +11,16 @@ export default function AssessmentLane({
     evaluation_sub_type_name: et,
     created_at: ca,
     duration: d,
+    submission_type: st,
   },
   disabled,
+  isAssignment,
 }: {
   position: number;
   assessment: Assessment;
   onSelect: () => void;
   disabled: boolean;
+  isAssignment: boolean;
 }) {
   const { formatMessage, formatDate, formatNumber } = useIntl();
   return (
@@ -48,7 +51,6 @@ export default function AssessmentLane({
           timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         })}
       </TableCell>
-      <TableCell>{et ? formatMessage({ id: et }) : null}</TableCell>
       <TableCell>
         {ad
           ? formatDate(new Date(ad), {
@@ -59,17 +61,22 @@ export default function AssessmentLane({
               minute: '2-digit',
               timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             })
-          : null}
+          : formatMessage({ id: 'notAvailable' })}
       </TableCell>
       <TableCell>
-        {d
-          ? formatNumber(d, {
-              style: 'unit',
-              unit: 'minute',
-              unitDisplay: 'short',
-            })
-          : null}
+        {et ? formatMessage({ id: isAssignment ? st : et }) : null}
       </TableCell>
+      {!isAssignment && (
+        <TableCell>
+          {d
+            ? formatNumber(d, {
+                style: 'unit',
+                unit: 'minute',
+                unitDisplay: 'short',
+              })
+            : null}
+        </TableCell>
+      )}
     </TableRow>
   );
 }

@@ -32,7 +32,10 @@ export default function ActionBar({
         weightingSystem={weightingSystem}
       />
       <Chip
-        sx={{ backgroundColor: lighten(theme.palette.success.main, 0.6), justifySelf:'end' }}
+        sx={{
+          backgroundColor: lighten(theme.palette.success.main, 0.6),
+          justifySelf: 'end',
+        }}
         onDelete={
           weightingSystem && !isDataLoading
             ? (event) => setAnchorEl(event.target)

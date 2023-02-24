@@ -20,6 +20,7 @@ import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import ResourceDisplay from '../../components/course/resourceDisplay';
 import ChapterLane, { ChapterLaneSkeleton } from './chapterLaneSkeleton';
+import ResourceDisplay from './resourceDisplay';
 
 export default function CourseContent({
   course,

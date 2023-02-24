@@ -32,16 +32,19 @@ import QuestionSkeleton from './questionSkeleton';
 
 export default function QuestionList({
   activeAssessment,
+  activeAssessment: { is_assignment: isAssignment },
   setActiveAssessment,
   setIsActivateAssessmentDialogOpen,
   isActivatingAssessment,
   onShowResponses,
+  confirmPublishAssignment,
 }: {
   setActiveAssessment: (val: Assessment | undefined) => void;
   activeAssessment: Assessment;
   setIsActivateAssessmentDialogOpen: (val: boolean) => void;
   isActivatingAssessment: boolean;
   onShowResponses: () => void;
+  confirmPublishAssignment?: () => void;
 }) {
   const { formatMessage, formatDate, formatNumber } = useIntl();
 
@@ -50,21 +53,83 @@ export default function QuestionList({
     useState<boolean>(false);
   const [questionNotif, setQuestionNotif] = useState<useNotification>();
 
-  const loadQuestions = () => {
+  //TODO: UNCOMMENT THIS AND LOAD QUESTIONS/ REMOVED IT FOR DEV PURPOSES
+  // const loadQuestions = (assessment_id: string) => {
+  //   setAreQuestionsLoading(true);
+  //   const notif = new useNotification();
+  //   if (questionNotif) {
+  //     questionNotif.dismiss();
+  //   }
+  //   setQuestionNotif(notif);
+  //   getAssessmentQuestions(assessment_id)
+  //     .then((questions) => {
+  //       setQuestions(questions);
+  //       setAreQuestionsLoading(false);
+  //       notif.dismiss();
+  //       setQuestionNotif(undefined);
+  //     })
+  //     .catch((error) => {
+  //       notif.notify({
+  //         render: formatMessage({ id: 'loadingQuestions' }),
+  //       });
+  //       notif.update({
+  //         type: 'ERROR',
+  //         render: (
+  //           <ErrorMessage
+  //             retryFunction={() => loadQuestions(assessment_id)}
+  //             notification={notif}
+  //             message={
+  //               error?.message || formatMessage({ id: 'getQuestionsFailed' })
+  //             }
+  //           />
+  //         ),
+  //         autoClose: false,
+  //         icon: () => <ReportRounded fontSize="medium" color="error" />,
+  //       });
+  //     });
+  // };
+
+  const loadQuestions = (assessment_id: string) => {
     setAreQuestionsLoading(true);
     const notif = new useNotification();
     if (questionNotif) {
       questionNotif.dismiss();
     }
     setQuestionNotif(notif);
-    getAssessmentQuestions(activeAssessment?.assessment_id as string)
-      .then((questions) => {
-        setQuestions(questions);
+    setTimeout(() => {
+      //TODO: CALL API HERE TO LOAD questions
+      // eslint-disable-next-line no-constant-condition
+      if (5 > 4) {
+        const newQuestions: Question[] = [
+          {
+            assessment_id: 'wieol',
+            question: 'Make it rain?',
+            question_answer: [...new Array(200)].join('Testing 123'),
+            question_id: 'weis',
+            question_mark: 2,
+            question_type: 'Structural',
+            questionOptions: [
+              {
+                is_answer: false,
+                option: 'make',
+                question_id: 'wiel',
+                question_option_id: 'wieo',
+              },
+              {
+                is_answer: true,
+                option: 'it rain',
+                question_id: 'wielddd1d',
+                question_option_id: 'wieoddd',
+              },
+            ],
+            questionResources: [],
+          },
+        ];
+        setQuestions(newQuestions);
         setAreQuestionsLoading(false);
         notif.dismiss();
         setQuestionNotif(undefined);
-      })
-      .catch((error) => {
+      } else {
         notif.notify({
           render: formatMessage({ id: 'loadingQuestions' }),
         });
@@ -72,21 +137,21 @@ export default function QuestionList({
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={loadQuestions}
+              retryFunction={() => loadQuestions(assessment_id)}
               notification={notif}
-              message={
-                error?.message || formatMessage({ id: 'getQuestionsFailed' })
-              }
+              //TODO: message should come from backend
+              message={formatMessage({ id: 'getQuestionsFailed' })}
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      });
+      }
+    }, 3000);
   };
 
   useEffect(() => {
-    loadQuestions();
+    if (activeAssessment) loadQuestions(activeAssessment.assessment_id);
     return () => {
       //TODO: cleanup above axios fetch
     };
@@ -230,6 +295,7 @@ export default function QuestionList({
         closeDialog={() => setIsQuestionDialogOpen(false)}
         isDialogOpen={isQuestionDialogOpen}
         onSubmit={createQuestion}
+        isAssignment={isAssignment}
       />
 
       <Box
@@ -255,14 +321,15 @@ export default function QuestionList({
               columnGap: theme.spacing(2),
             }}
           >
-            <Fab
-              color="primary"
-              aria-label={formatMessage({ id: 'back' })}
-              size="small"
-              onClick={() => setActiveAssessment(undefined)}
-            >
-              <KeyboardBackspaceOutlined fontSize="small" />
-            </Fab>
+            <Tooltip arrow title={formatMessage({ id: 'back' })}>
+              <Fab
+                color="primary"
+                size="small"
+                onClick={() => setActiveAssessment(undefined)}
+              >
+                <KeyboardBackspaceOutlined fontSize="small" />
+              </Fab>
+            </Tooltip>
             {activeAssessment.assessment_date ? (
               <Box
                 sx={{
@@ -289,17 +356,43 @@ export default function QuestionList({
                     }
                   )}
                 />
-                <Chip
-                  sx={{
-                    backgroundColor: lighten(theme.palette.primary.main, 0.93),
-                  }}
-                  label={formatNumber(activeAssessment.duration as number, {
-                    style: 'unit',
-                    unit: 'minute',
-                    unitDisplay: 'short',
-                  })}
-                />
-                {activeAssessment.evaluation_sub_type_name && (
+                {isAssignment && (
+                  <Chip
+                    sx={{
+                      backgroundColor: lighten(
+                        theme.palette.primary.main,
+                        0.93
+                      ),
+                    }}
+                    label={`${formatMessage({
+                      id: activeAssessment.submission_type,
+                    })} ${
+                      activeAssessment.submission_type === 'Group'
+                        ? '(' +
+                          formatNumber(activeAssessment.number_per_group) +
+                          ' ' +
+                          formatMessage({ id: 'perGroup' }) +
+                          ')'
+                        : null
+                    }`}
+                  />
+                )}
+                {!isAssignment && (
+                  <Chip
+                    sx={{
+                      backgroundColor: lighten(
+                        theme.palette.primary.main,
+                        0.93
+                      ),
+                    }}
+                    label={formatNumber(activeAssessment.duration as number, {
+                      style: 'unit',
+                      unit: 'minute',
+                      unitDisplay: 'short',
+                    })}
+                  />
+                )}
+                {activeAssessment.evaluation_sub_type_name && !isAssignment && (
                   <Chip
                     sx={{
                       backgroundColor: lighten(
@@ -315,7 +408,11 @@ export default function QuestionList({
               </Box>
             ) : questions.length > 0 ? (
               <Button
-                onClick={() => setIsActivateAssessmentDialogOpen(true)}
+                onClick={() =>
+                  isAssignment && confirmPublishAssignment
+                    ? confirmPublishAssignment()
+                    : setIsActivateAssessmentDialogOpen(true)
+                }
                 variant="contained"
                 color="primary"
                 sx={{ textTransform: 'none' }}
@@ -326,7 +423,11 @@ export default function QuestionList({
                   isCreatingQuestion
                 }
               >
-                {formatMessage({ id: 'activateAssessment' })}
+                {formatMessage({
+                  id: isAssignment
+                    ? 'activateAssignment'
+                    : 'activateAssessment',
+                })}
               </Button>
             ) : (
               <Typography></Typography>
@@ -376,18 +477,22 @@ export default function QuestionList({
           </Box>
         </Box>
         <Box sx={{ height: '100%', position: 'relative' }}>
-          <Tooltip arrow title={formatMessage({ id: `newSubject` })}>
-            <Fab
-              disabled={
-                areQuestionsLoading || isCreatingQuestion || isDeletingQuestion
-              }
-              onClick={() => setIsQuestionDialogOpen(true)}
-              color="primary"
-              sx={{ position: 'absolute', bottom: 16, right: 24 }}
-            >
-              <AddRounded />
-            </Fab>
-          </Tooltip>
+          {!activeAssessment.assessment_date && (
+            <Tooltip arrow title={formatMessage({ id: `newQuestion` })}>
+              <Fab
+                disabled={
+                  areQuestionsLoading ||
+                  isCreatingQuestion ||
+                  isDeletingQuestion
+                }
+                onClick={() => setIsQuestionDialogOpen(true)}
+                color="primary"
+                sx={{ position: 'absolute', bottom: 16, right: 24 }}
+              >
+                <AddRounded />
+              </Fab>
+            </Tooltip>
+          )}
           <Scrollbars autoHide>
             {areQuestionsLoading ? (
               [...new Array(10)].map((_, index) => (
@@ -402,6 +507,7 @@ export default function QuestionList({
                 <QuestionDisplay
                   disabled={isCreatingQuestion || isDeletingQuestion}
                   question={question}
+                  isActivated={activeAssessment.assessment_date ? true : false}
                   position={index + 1}
                   //   onEdit={() => setEditableQuestion(question)}
                   onDelete={() => {

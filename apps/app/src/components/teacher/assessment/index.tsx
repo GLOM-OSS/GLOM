@@ -9,6 +9,7 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';
+import { SubmissionEntity } from '../assignment';
 import ActivateAssessmentDialog from './activateAssessmentDialog';
 import AssessmentList from './assessmentList';
 import QuestionList from './questionList';
@@ -40,6 +41,7 @@ export default function Assessments() {
       number_per_group: 1,
       submission_type: 'Individual',
       annual_credit_unit_subject_id: annual_credit_unit_subject_id as string,
+      is_assignment: false,
     })
       .then((assessment) => {
         setActiveAssessment(assessment);
@@ -75,7 +77,7 @@ export default function Assessments() {
     useState<boolean>(false);
 
   const activateAssessmentHandler = (activateData: {
-    duration: number;
+    duration: number | null;
     assessment_date: Date;
     assessment_time: Date;
     evaluation_id: string;
@@ -130,8 +132,7 @@ export default function Assessments() {
 
   const [showResponses, setShowResponses] = useState<boolean>(false);
 
-  const [activeStudent, setActiveStudent] =
-    useState<Omit<StudentAssessmentAnswer, 'questionAnswers'>>();
+  const [activeStudent, setActiveStudent] = useState<SubmissionEntity>();
   const [showStatistics, setShowStatistics] = useState<boolean>(false);
 
   return (
