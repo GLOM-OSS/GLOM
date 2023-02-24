@@ -62,7 +62,7 @@ export default function AssessmentList({
               assessment_id: 'eisoe',
               chapter_id: 'sieo',
               created_at: new Date(),
-              duration: 4,
+              duration: null,
               evaluation_sub_type_name: 'eiwo',
               is_published: false,
               number_per_group: 1,
