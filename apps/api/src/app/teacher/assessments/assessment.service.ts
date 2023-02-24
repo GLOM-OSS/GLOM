@@ -71,6 +71,7 @@ export class AssessmentService {
     created_by: string
   ) {
     const assessmentInput: Prisma.AssessmentCreateInput = {
+      is_assignment,
       ...newAssessment,
       AnnualCreditUnitSubject: {
         connect: { annual_credit_unit_subject_id },

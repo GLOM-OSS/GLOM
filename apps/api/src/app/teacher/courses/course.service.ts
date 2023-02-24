@@ -253,6 +253,7 @@ export class CourseService {
 
   async findAssessments(
     annual_credit_unit_subject_id: string,
+    is_assignment: boolean,
     is_student: boolean
   ): Promise<Assessment[]> {
     const assessments = await this.prismaService.assessment.findMany({
@@ -269,6 +270,7 @@ export class CourseService {
       where: {
         annual_credit_unit_subject_id,
         is_deleted: false,
+        is_assignment,
       },
     });
     return assessments

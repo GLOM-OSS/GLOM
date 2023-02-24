@@ -58,12 +58,14 @@ export class CourseController {
   @Get(':annual_credit_unit_subject_id/assessments')
   async getAssessments(
     @Req() request: Request,
+    @Query('is_assignment') isAssignment: boolean,
     @Param('annual_credit_unit_subject_id')
     annual_credit_unit_subject_id: string
   ) {
     const { annualStudent } = request.user as DeserializeSessionData;
     return this.courseService.findAssessments(
       annual_credit_unit_subject_id,
+      isAssignment,
       Boolean(annualStudent)
     );
   }
