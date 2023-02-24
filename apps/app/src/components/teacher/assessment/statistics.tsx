@@ -1,10 +1,12 @@
 import { KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
 import {
-  Box, Fab,
+  Box,
+  Fab,
   InputAdornment,
   lighten,
   Skeleton,
-  TextField, Typography
+  TextField,
+  Typography,
 } from '@mui/material';
 import { getAssessmentStats } from '@squoolr/api-services';
 import { Assessment, AssessmentStatistics } from '@squoolr/interfaces';
@@ -111,7 +113,7 @@ export default function Statistics({
           <KeyboardBackspaceOutlined fontSize="small" />
         </Fab>
         <Typography variant="h6">
-          {formatMessage({ id: 'assessmentStatistics' })}
+          {formatMessage({ id: 'statistics' })}
         </Typography>
         <TextField
           required
