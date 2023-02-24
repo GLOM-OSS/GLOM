@@ -9,6 +9,7 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';
+import { SubmissionEntity } from '../assignment';
 import ActivateAssessmentDialog from './activateAssessmentDialog';
 import AssessmentList from './assessmentList';
 import QuestionList from './questionList';
@@ -131,8 +132,7 @@ export default function Assessments() {
 
   const [showResponses, setShowResponses] = useState<boolean>(false);
 
-  const [activeStudent, setActiveStudent] =
-    useState<Omit<StudentAssessmentAnswer, 'questionAnswers'>>();
+  const [activeStudent, setActiveStudent] = useState<SubmissionEntity>();
   const [showStatistics, setShowStatistics] = useState<boolean>(false);
 
   return (
