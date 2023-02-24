@@ -211,7 +211,7 @@ export default function Assignments() {
           }
         }}
         isDialogOpen={isConfirmActivateAssignmentDialogOpen}
-        isAssignment={true}
+        isAssignment={activeAssessment ? activeAssessment.is_assignment : true}
       />
       <CreateAssignmentDialog
         closeDialog={() => setIsCreateAssignmentDialogOpen(false)}
@@ -252,7 +252,6 @@ export default function Assignments() {
         />
       ) : (
         <QuestionList
-          isAssignment={true}
           onShowResponses={() => setShowResponses(true)}
           activeAssessment={activeAssessment}
           isActivatingAssessment={isActivatingAssessment}
