@@ -75,7 +75,7 @@ export default function Assessments() {
     useState<boolean>(false);
 
   const activateAssessmentHandler = (activateData: {
-    duration: number;
+    duration: number|null;
     assessment_date: Date;
     assessment_time: Date;
     evaluation_id: string;
