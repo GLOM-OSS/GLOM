@@ -66,7 +66,7 @@ export default function ActivateAssessmentDialog({
       >
         <DialogTitle>
           {formatMessage({
-            id: 'activateAssessment',
+            id: isAssignment ? 'activateAssignment' : 'activateAssessment',
           })}
         </DialogTitle>
         <DialogContent
@@ -76,7 +76,9 @@ export default function ActivateAssessmentDialog({
           }}
         >
           <MobileDatePicker
-            label={formatMessage({ id: 'assessmentDate' })}
+            label={formatMessage({
+              id: isAssignment ? 'assignmentDueDate' : 'assessmentDate',
+            })}
             value={assessmentDate}
             minDate={dayjs(new Date())}
             onChange={(newValue) => {
@@ -87,7 +89,9 @@ export default function ActivateAssessmentDialog({
             )}
           />
           <DesktopTimePicker
-            label={formatMessage({ id: 'assessmentTime' })}
+            label={formatMessage({
+              id: isAssignment ? 'assignmentDueTime' : 'assessmentTime',
+            })}
             value={assessmentTime}
             onChange={(newValue) => {
               setAssessmentTime(new Date(String(newValue)));
