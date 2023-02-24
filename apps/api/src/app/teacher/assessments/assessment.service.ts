@@ -4,15 +4,12 @@ import {
   Assessment,
   EvaluationHasStudent,
   Prisma,
-  PrismaPromise,
+  PrismaPromise
 } from '@prisma/client';
 import {
-  Assessment as IAssessment,
-  IGroupAssignmentDetails,
-  IGroupAssignment,
-  Question,
+  Assessment as IAssessment, IGroupAssignment, IGroupAssignmentDetails, Question,
   QuestionAnswer as IQuestionAnswer,
-  StudentAssessmentAnswer,
+  StudentAssessmentAnswer
 } from '@squoolr/interfaces';
 import { randomUUID } from 'crypto';
 import {
@@ -26,6 +23,7 @@ import {
   ERR27,
   ERR28,
   ERR29,
+  ERR30
 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
@@ -33,7 +31,7 @@ import { CorrectAnswerDto, QuestionAnswer } from '../courses/course.dto';
 import {
   AssessmentPostDto,
   QuestionPostDto,
-  QuestionPutDto,
+  QuestionPutDto
 } from '../teacher.dto';
 
 @Injectable()
@@ -1126,10 +1124,12 @@ export class AssessmentService {
     }: CorrectAnswerDto,
     corrected_by: string
   ) {
-    const { is_assignment } =
+    const { is_assignment, is_published } =
       await this.prismaService.assessment.findUniqueOrThrow({
         where: { assessment_id },
       });
+    if (is_published)
+      throw new HttpException(JSON.stringify(ERR30), HttpStatus.BAD_REQUEST);
     if ((!is_assignment && group_code) || (group_code && annual_student_id))
       throw new HttpException(JSON.stringify(ERR28), HttpStatus.BAD_REQUEST);
     const unapprovedGroupMember =

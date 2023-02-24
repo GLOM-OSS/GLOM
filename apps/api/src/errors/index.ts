@@ -187,3 +187,7 @@ export const ERR29 = {
   en: `Sorry, all student must approve before corrections are made.`,
   fr: `Désolé, tous les étudiants doivent approuver avant que les corrections ne soient faites.`,
 };
+export const ERR30 = {
+  en: `Sorry, a published assessment or assignment can't be modified.`,
+  fr: `Désolé, une évaluation ou un devoir publié ne peut être modifier`,
+};
