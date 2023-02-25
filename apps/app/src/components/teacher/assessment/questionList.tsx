@@ -53,42 +53,6 @@ export default function QuestionList({
     useState<boolean>(false);
   const [questionNotif, setQuestionNotif] = useState<useNotification>();
 
-  //TODO: UNCOMMENT THIS AND LOAD QUESTIONS/ REMOVED IT FOR DEV PURPOSES
-  // const loadQuestions = (assessment_id: string) => {
-  //   setAreQuestionsLoading(true);
-  //   const notif = new useNotification();
-  //   if (questionNotif) {
-  //     questionNotif.dismiss();
-  //   }
-  //   setQuestionNotif(notif);
-  //   getAssessmentQuestions(assessment_id)
-  //     .then((questions) => {
-  //       setQuestions(questions);
-  //       setAreQuestionsLoading(false);
-  //       notif.dismiss();
-  //       setQuestionNotif(undefined);
-  //     })
-  //     .catch((error) => {
-  //       notif.notify({
-  //         render: formatMessage({ id: 'loadingQuestions' }),
-  //       });
-  //       notif.update({
-  //         type: 'ERROR',
-  //         render: (
-  //           <ErrorMessage
-  //             retryFunction={() => loadQuestions(assessment_id)}
-  //             notification={notif}
-  //             message={
-  //               error?.message || formatMessage({ id: 'getQuestionsFailed' })
-  //             }
-  //           />
-  //         ),
-  //         autoClose: false,
-  //         icon: () => <ReportRounded fontSize="medium" color="error" />,
-  //       });
-  //     });
-  // };
-
   const loadQuestions = (assessment_id: string) => {
     setAreQuestionsLoading(true);
     const notif = new useNotification();
@@ -96,40 +60,14 @@ export default function QuestionList({
       questionNotif.dismiss();
     }
     setQuestionNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD questions
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newQuestions: Question[] = [
-          {
-            assessment_id: 'wieol',
-            question: 'Make it rain?',
-            question_answer: [...new Array(200)].join('Testing 123'),
-            question_id: 'weis',
-            question_mark: 2,
-            question_type: 'Structural',
-            questionOptions: [
-              {
-                is_answer: false,
-                option: 'make',
-                question_id: 'wiel',
-                question_option_id: 'wieo',
-              },
-              {
-                is_answer: true,
-                option: 'it rain',
-                question_id: 'wielddd1d',
-                question_option_id: 'wieoddd',
-              },
-            ],
-            questionResources: [],
-          },
-        ];
-        setQuestions(newQuestions);
+    getAssessmentQuestions(assessment_id)
+      .then((questions) => {
+        setQuestions(questions);
         setAreQuestionsLoading(false);
         notif.dismiss();
         setQuestionNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingQuestions' }),
         });
@@ -139,15 +77,15 @@ export default function QuestionList({
             <ErrorMessage
               retryFunction={() => loadQuestions(assessment_id)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getQuestionsFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getQuestionsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {

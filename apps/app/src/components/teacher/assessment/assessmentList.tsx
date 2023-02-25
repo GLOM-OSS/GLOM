@@ -50,89 +50,41 @@ export default function AssessmentList({
       assessmentNotif.dismiss();
     }
     setAssessmentNotif(notif);
-    if (isAssignment) {
-      setTimeout(() => {
-        //TODO: CALL API HERE TO LOAD course assignments
-        // eslint-disable-next-line no-constant-condition
-        if (5 > 4) {
-          const newAssignments: Assessment[] = [
-            {
-              annual_credit_unit_subject_id: 'lsie',
-              assessment_date: new Date(),
-              assessment_id: 'eisoe',
-              chapter_id: 'sieo',
-              created_at: new Date(),
-              duration: null,
-              evaluation_sub_type_name: 'eiwo',
-              is_published: false,
-              number_per_group: 1,
-              submission_type: 'Group',
-              total_mark: 4,
-              is_assignment: true,
-            },
-          ];
-          setAssessments(newAssignments);
-          setAreAssessmentsLoading(false);
-          notif.dismiss();
-          setAssessmentNotif(undefined);
-        } else {
-          notif.notify({
-            render: formatMessage({ id: 'loadingAssignments' }),
-          });
-          notif.update({
-            type: 'ERROR',
-            render: (
-              <ErrorMessage
-                retryFunction={() =>
-                  loadAssessments(annual_credit_unit_subject_id, isAssignment)
-                }
-                notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'getAssignmentsFailed' })}
-              />
-            ),
-            autoClose: false,
-            icon: () => <ReportRounded fontSize="medium" color="error" />,
-          });
-        }
-      }, 3000);
-    } else {
-      getCourseAssessments(annual_credit_unit_subject_id)
-        .then((assessments) => {
-          setAssessments(assessments);
-          setAreAssessmentsLoading(false);
-          notif.dismiss();
-          setAssessmentNotif(undefined);
-        })
-        .catch((error) => {
-          notif.notify({
-            render: formatMessage({
-              id: isAssignment ? 'loadingAssignments' : 'loadingAssessments',
-            }),
-          });
-          notif.update({
-            type: 'ERROR',
-            render: (
-              <ErrorMessage
-                retryFunction={() =>
-                  loadAssessments(annual_credit_unit_subject_id, isAssignment)
-                }
-                notification={notif}
-                message={
-                  error?.message ||
-                  formatMessage({
-                    id: isAssignment
-                      ? 'getAssignmentsFailed'
-                      : 'getAssessmentsFailed',
-                  })
-                }
-              />
-            ),
-            autoClose: false,
-            icon: () => <ReportRounded fontSize="medium" color="error" />,
-          });
+    getCourseAssessments(annual_credit_unit_subject_id, isAssignment)
+      .then((assessments) => {
+        setAssessments(assessments);
+        setAreAssessmentsLoading(false);
+        notif.dismiss();
+        setAssessmentNotif(undefined);
+      })
+      .catch((error) => {
+        notif.notify({
+          render: formatMessage({
+            id: isAssignment ? 'loadingAssignments' : 'loadingAssessments',
+          }),
         });
-    }
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() =>
+                loadAssessments(annual_credit_unit_subject_id, isAssignment)
+              }
+              notification={notif}
+              message={
+                error?.message ||
+                formatMessage({
+                  id: isAssignment
+                    ? 'getAssignmentsFailed'
+                    : 'getAssessmentsFailed',
+                })
+              }
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      });
   };
 
   useEffect(() => {
