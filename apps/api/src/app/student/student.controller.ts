@@ -4,6 +4,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Post,
   Query,
   Req,
   UseGuards,
@@ -87,9 +88,9 @@ export class StudentController {
     );
   }
 
-  @Get('pay-fee')
+  @Post('pay-fee')
   @Roles(Role.STUDENT, Role.PARENT)
-  async payFee(
+  async payStudentFee(
     @Req() request: Request,
     @Body() { annual_student_id, ...newPayment }: CreatePaymentDto
   ) {
