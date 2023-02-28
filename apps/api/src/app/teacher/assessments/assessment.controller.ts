@@ -283,15 +283,16 @@ export class AssessmentController {
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
     if (
-      (question_type === 'File' && !file) ||
-      (question_type === 'Structural' && !question_answer)
+      // (question_type === 'File' && !file) ||
+      question_type === 'Structural' &&
+      !question_answer
     )
       throw new HttpException(ERR22[preferred_lang], HttpStatus.BAD_REQUEST);
     try {
       return await this.assessmentService.createAssessmentQuestion(
         {
           question_answer:
-            question_type === 'File' ? file.filename : question_answer,
+            question_type === 'File' && file ? file.filename : question_answer,
           question_type,
           ...newQuestion,
         },

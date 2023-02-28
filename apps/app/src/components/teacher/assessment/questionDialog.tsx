@@ -40,7 +40,8 @@ export default function QuestionDialog({
     res: {
       id: string;
       file: File;
-    }[]
+    }[],
+    answerFile?: File
   ) => void;
   //   handleSubmit: (value: ActivateAssessment) => void;
   closeDialog: () => void;
@@ -83,22 +84,15 @@ export default function QuestionDialog({
       if (score > 0) {
         switch (activeQuestionType) {
           case 'File': {
-            if (questionAnswer) {
-              //TODO: ANSWER FILE TO UPLOAD HERE
-              //file is not mandatory
-            }
             const submitData: CreateQuestion = {
               question,
               assessment_id,
               question_mark: score,
               question_type: 'File',
-              //TODO: read value in text below
-              question_answer: questionAnswer
-                ? 'MAKE_THIS_VALUE_THE_UPLOADED_FILE_REF.pdf'
-                : null,
+              question_answer: null,
               questionOptions: [],
             };
-            onSubmit(submitData, uploadFiles);
+            onSubmit(submitData, uploadFiles, questionAnswer as File);
             break;
           }
           case 'MCQ': {

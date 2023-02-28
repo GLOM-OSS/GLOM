@@ -21,11 +21,29 @@ export async function getQuestion(question_id: string) {
 
 export async function createNewQuestion(
   newQuestion: CreateQuestion,
-  files: File[]
+  files: File[],
+  answerFile?: File
 ) {
+  const {
+    assessment_id,
+    question,
+    question_mark,
+    question_type,
+    question_answer,
+  } = newQuestion;
+  const questionFormData = new FormData();
+  if (answerFile) {
+    questionFormData.append('question', question);
+    questionFormData.append('assessment_id', assessment_id);
+    questionFormData.append('question_type', question_type);
+    questionFormData.append('question_answer', question_answer);
+    questionFormData.append('question_mark', question_mark.toString());
+    questionFormData.append('answerFile', answerFile, answerFile.name);
+  }
+
   const { data } = await http.post<
     Omit<Question, 'questionResources' | 'questionOptions'>
-  >(`/assessments/questions/new`, newQuestion);
+  >(`/assessments/questions/new`, answerFile ? questionFormData : newQuestion);
 
   if (files.length === 0) return { ...data, questionResources: [] };
   const formData = new FormData();
