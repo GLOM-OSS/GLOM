@@ -11,6 +11,11 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
+import {
+  getStudentAbsences,
+  getStudentFeeSummary,
+  payStudentFee,
+} from '@squoolr/api-services';
 import { ICreatePayment, IDiscipline, IFeeSummary } from '@squoolr/interfaces';
 import { useUser } from '@squoolr/layout';
 import { theme } from '@squoolr/theme';
@@ -42,16 +47,14 @@ export default function Home() {
       absenceNotif.dismiss();
     }
     setAbsenceNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD student's absences
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newAbsences: IDiscipline[] = [];
-        setAbsences(newAbsences);
+    getStudentAbsences()
+      .then((absences) => {
+        setAbsences(absences);
         setAreAbsencesLoading(false);
         notif.dismiss();
         setAbsenceNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingAbsences' }),
         });
@@ -61,15 +64,15 @@ export default function Home() {
             <ErrorMessage
               retryFunction={() => loadAbsences()}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getAbsencesFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getAbsencesFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [isFeeSummaryLoading, setIsFeeSummaryLoading] =
@@ -84,44 +87,14 @@ export default function Home() {
       feeNotif.dismiss();
     }
     setFeeNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD student's feeSummary
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newFeeSummary: IFeeSummary = {
-          paymentHistories: [
-            {
-              amount: 10000,
-              payment_date: new Date(),
-              payment_id: 'siel',
-              payment_reason: 'Fee',
-              semester_number: 2,
-            },
-            {
-              amount: 100000,
-              payment_date: new Date(),
-              payment_id: 'siels',
-              payment_reason: 'Platform',
-              semester_number: 2,
-            },
-            {
-              amount: 100000,
-              payment_date: new Date(),
-              payment_id: 'sieals',
-              payment_reason: 'Registration',
-              semester_number: 2,
-            },
-          ],
-          total_due: 30000000,
-          total_owing: 10000000,
-          total_paid: 20000000,
-          registration: 100000,
-        };
-        setFeeSummary(newFeeSummary);
+    getStudentFeeSummary()
+      .then((feeSummary) => {
+        setFeeSummary(feeSummary);
         setIsFeeSummaryLoading(false);
         notif.dismiss();
         setFeeNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingFeeSummary' }),
         });
@@ -131,15 +104,15 @@ export default function Home() {
             <ErrorMessage
               retryFunction={() => loadFeeSummary()}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getFeeSummaryFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getFeeSummaryFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
@@ -176,35 +149,35 @@ export default function Home() {
         id: 'submittingPayment',
       }),
     });
-    setTimeout(() => {
-      //TODO: CALL API HERE TO submit payment with data payment
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        setIsSubmitting(false);
+    payStudentFee()
+      .then((paymentHistory) => {
         notif.update({
           render: formatMessage({
             id: 'paymentSubmissionSuccessfull',
           }),
         });
         setSubmitNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() => submitPayment(payment)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({
-                id: 'paymentSubmissionFailed',
-              })}
+              message={
+                error?.message ||
+                formatMessage({
+                  id: 'paymentSubmissionFailed',
+                })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsSubmitting(false));
   };
 
   return (

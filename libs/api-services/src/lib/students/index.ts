@@ -29,7 +29,7 @@ export async function getStudentAbsences(annual_student_id?: string) {
 }
 
 export async function getStudentFeeSummary(annual_student_id?: string) {
-  const { data } = await http.get<IFeeSummary[]>(`/students/fees`, {
+  const { data } = await http.get<IFeeSummary>(`/students/fees`, {
     params: { annual_student_id },
   });
   return data;
