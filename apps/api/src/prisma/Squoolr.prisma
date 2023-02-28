@@ -452,7 +452,7 @@ model AnnualTeacher {
     DeletedPresenceListHasChapters              PresenceListHasChapter[]              @relation(name: "DeletedBy_AnnualTeacher")
     CreatedPresenceListHasCreditUnitStudents    PresenceListHasCreditUnitStudent[]    @relation(name: "CreatedBy_AnnualTeacher")
     DeletedPresenceListHasCreditUnitStudents    PresenceListHasCreditUnitStudent[]    @relation(name: "DeletedBy_AnnualTeacher")
-    AnnualStudentAnswerQuestions                 AnnualStudentAnswerQuestion[]
+    AnnualStudentAnswerQuestions                AnnualStudentAnswerQuestion[]
 
     @@unique([login_id, academic_year_id])
 }
@@ -1470,8 +1470,8 @@ model AssignmentGroupMember {
     assignment_group_id               String                      @id @default(uuid()) @db.VarChar(36)
     total_score                       Int                         @default(0)
     group_code                        String                      @db.VarChar(45)
-    has_approved                      Boolean                     @default(false) @db.TinyInt
-    has_submitted                     Boolean                     @default(false) @db.TinyInt
+    approved_at                       DateTime?                   @db.DateTime(0)
+    created_at                        DateTime                    @default(now()) @db.DateTime(0)
     assessment_id                     String                      @db.VarChar(36)
     Assessment                        Assessment                  @relation(fields: [assessment_id], references: [assessment_id], onDelete: Cascade, onUpdate: Cascade)
     annual_student_take_assessment_id String                      @db.VarChar(36)

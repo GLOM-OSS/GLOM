@@ -191,3 +191,7 @@ export const ERR30 = {
   en: `Sorry, a published assessment or assignment can't be modified.`,
   fr: `Désolé, une évaluation ou un devoir publié ne peut être modifier`,
 };
+export const ERR31 = {
+  en: `Sorry, you can't submit after approval.`,
+  fr: `Désolé, vous ne pouvez soumettre apres approbation.`,
+};
