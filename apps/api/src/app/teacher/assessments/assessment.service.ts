@@ -68,21 +68,25 @@ export class AssessmentService {
 
   async createAssessment(
     {
-      annual_credit_unit_subject_id,
       is_assignment,
+      submission_type,
+      number_per_group,
+      annual_credit_unit_subject_id,
       ...newAssessment
     }: AssessmentPostDto,
     created_by: string
   ) {
     const assessmentInput: Prisma.AssessmentCreateInput = {
       is_assignment,
+      submission_type,
+      number_per_group,
       ...newAssessment,
       AnnualCreditUnitSubject: {
         connect: { annual_credit_unit_subject_id },
       },
       AnnualTeacher: { connect: { annual_teacher_id: created_by } },
     };
-    if (is_assignment) {
+    if (is_assignment && submission_type === 'Group') {
       const assessment_id = randomUUID();
       const annualStudents: Prisma.AnnualStudentTakeAssessmentCreateManyInput[] =
         (
@@ -107,8 +111,13 @@ export class AssessmentService {
           annual_student_id,
           annual_student_take_assessment_id: randomUUID(),
         }));
-      const groupCode = await this.codeGenerator.getGroupCode(
-        annual_credit_unit_subject_id
+
+      const numberOfGroups = Math.ceil(
+        annualStudents.length / number_per_group
+      );
+      const groupCodes = await this.codeGenerator.getGroupCodes(
+        annual_credit_unit_subject_id,
+        numberOfGroups
       );
       return this.prismaService.$transaction([
         this.prismaService.annualStudentTakeAssessment.createMany({
@@ -121,9 +130,13 @@ export class AssessmentService {
             AssignmentGroupMembers: {
               createMany: {
                 data: annualStudents.map(
-                  ({ annual_student_take_assessment_id, ...groupMember }) => ({
+                  (
+                    { annual_student_take_assessment_id, ...groupMember },
+                    index
+                  ) => ({
                     ...groupMember,
-                    group_code: groupCode,
+                    group_code:
+                      groupCodes[Math.floor(index / number_per_group)],
                     annual_student_take_assessment_id,
                   })
                 ),
