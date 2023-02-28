@@ -170,7 +170,7 @@ export class AssessmentController {
     );
   }
 
-  @Roles(Role.TEACHER)
+  @Roles(Role.TEACHER, Role.STUDENT)
   @Get(':assessment_id/answers')
   async getStudentAnswers(
     @Req() request: Request,

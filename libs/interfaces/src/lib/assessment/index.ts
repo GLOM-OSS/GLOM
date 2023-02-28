@@ -53,6 +53,7 @@ export interface QuestionAnswer extends Question {
   response: string | null;
   answeredOptionIds: string[];
   teacher_comment: string | null;
+  acquired_mark: number | null;
 }
 
 export interface StudentAssessmentAnswer {

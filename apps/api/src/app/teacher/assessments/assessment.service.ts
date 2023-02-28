@@ -4,12 +4,15 @@ import {
   Assessment,
   EvaluationHasStudent,
   Prisma,
-  PrismaPromise
+  PrismaPromise,
 } from '@prisma/client';
 import {
-  Assessment as IAssessment, IGroupAssignment, IGroupAssignmentDetails, Question,
+  Assessment as IAssessment,
+  IGroupAssignment,
+  IGroupAssignmentDetails,
+  Question,
   QuestionAnswer as IQuestionAnswer,
-  StudentAssessmentAnswer
+  StudentAssessmentAnswer,
 } from '@squoolr/interfaces';
 import { randomUUID } from 'crypto';
 import {
@@ -23,7 +26,7 @@ import {
   ERR27,
   ERR28,
   ERR29,
-  ERR30
+  ERR30,
 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
@@ -31,7 +34,7 @@ import { CorrectAnswerDto, QuestionAnswer } from '../courses/course.dto';
 import {
   AssessmentPostDto,
   QuestionPostDto,
-  QuestionPutDto
+  QuestionPutDto,
 } from '../teacher.dto';
 
 @Injectable()
@@ -1086,19 +1089,24 @@ export class AssessmentService {
       ({
         question_id,
         question,
+        question_mark,
         question_type,
         questionOptions,
         questionResources,
         question_answer,
       }) => {
-        const { response, teacher_comment, question_mark } =
-          answeredQuestionIds.find((_) => _.question_id === question_id);
+        const {
+          response,
+          teacher_comment,
+          question_mark: acquired_mark,
+        } = answeredQuestionIds.find((_) => _.question_id === question_id);
         return {
           question,
           question_id,
           question_mark,
           assessment_id,
           question_type,
+          acquired_mark,
           question_answer,
           questionResources,
           response: question_type !== 'MCQ' ? response : null,
