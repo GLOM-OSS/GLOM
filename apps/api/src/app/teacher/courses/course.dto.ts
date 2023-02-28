@@ -104,7 +104,7 @@ export class GivenScore {
   total_score: number;
 }
 
-export class CorrectAnswerDto {
+export class CorrectSubmissionDto {
   @IsString()
   @IsOptional()
   @ApiProperty()

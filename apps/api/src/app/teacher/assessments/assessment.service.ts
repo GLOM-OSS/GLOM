@@ -31,7 +31,7 @@ import {
 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
-import { CorrectAnswerDto, QuestionAnswer } from '../courses/course.dto';
+import { CorrectSubmissionDto, QuestionAnswer } from '../courses/course.dto';
 import {
   AssessmentPostDto,
   QuestionPostDto,
@@ -826,7 +826,7 @@ export class AssessmentService {
     }
   }
 
-  async submitStudentAnswers(
+  async submitAssessment(
     annual_student_id: string,
     assessment_id: string,
     studentAnswers: QuestionAnswer[],
@@ -1139,14 +1139,14 @@ export class AssessmentService {
     );
   }
 
-  async correctAssignmentAnswers(
+  async correctSubmission(
     assessment_id: string,
     {
       group_code,
       givenScores,
       correctedAnswers,
       annual_student_id,
-    }: CorrectAnswerDto,
+    }: CorrectSubmissionDto,
     corrected_by: string
   ) {
     const { is_assignment, is_published } =

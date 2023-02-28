@@ -22,7 +22,7 @@ import { ERR20, ERR22 } from '../../../../src/errors';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
-import { CorrectAnswerDto, StudentAnswerDto } from '../courses/course.dto';
+import { CorrectSubmissionDto, StudentAnswerDto } from '../courses/course.dto';
 import {
   AssessmentPostDto,
   AssessmentPutDto,
@@ -238,7 +238,7 @@ export class AssessmentController {
       annualStudent: { annual_student_id },
     } = request.user as DeserializeSessionData;
     try {
-      return this.assessmentService.submitStudentAnswers(
+      return this.assessmentService.submitAssessment(
         annual_student_id,
         assessment_id,
         answers,
@@ -254,13 +254,13 @@ export class AssessmentController {
   async correctAssessment(
     @Req() request: Request,
     @Param('assessment_id') assessment_id: string,
-    @Body() newCorrection: CorrectAnswerDto
+    @Body() newCorrection: CorrectSubmissionDto
   ) {
     const {
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
     try {
-      return this.assessmentService.correctAssignmentAnswers(
+      return this.assessmentService.correctSubmission(
         assessment_id,
         newCorrection,
         annual_teacher_id
