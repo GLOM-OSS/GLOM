@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { EvaluationSubTypeEnum, Prisma } from '@prisma/client';
 import { Assessment, Course, PresenceList } from '@squoolr/interfaces';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { CourseQueryDto } from './course.dto';
 
 @Injectable()
 export class CourseService {
@@ -65,10 +66,17 @@ export class CourseService {
     });
   constructor(private prismaService: PrismaService) {}
 
-  async findAll(academic_year_id: string, annual_teacher_id: string) {
+  async findAll(
+    academic_year_id: string,
+    annual_teacher_id: string,
+    { semester_number }: CourseQueryDto
+  ) {
     const subects = await this.prismaService.annualCreditUnitSubject.findMany({
       select: this.annualCreditUnitSubjectSelect.select,
-      where: { AnnualTeacher: { annual_teacher_id } },
+      where: {
+        AnnualTeacher: { annual_teacher_id },
+        AnnualCreditUnit: { semester_number },
+      },
     });
 
     const classrooms = await this.prismaService.annualClassroom.findMany({

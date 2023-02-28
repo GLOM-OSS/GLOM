@@ -128,3 +128,10 @@ export class CorrectSubmissionDto {
   @ApiProperty({ required: false })
   givenScores?: GivenScore[];
 }
+
+export class CourseQueryDto {
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({ required: true })
+  semester_number?: number;
+}
