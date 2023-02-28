@@ -13,6 +13,7 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
+import { getCourses } from '@squoolr/api-services';
 import { Course } from '@squoolr/interfaces';
 import { useUser } from '@squoolr/layout';
 import { theme } from '@squoolr/theme';
@@ -41,29 +42,14 @@ export default function Courses() {
       courseNotif.dismiss();
     }
     setCourseNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD student's courses with data activeSemester
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newCourses: Course[] = [
-          {
-            annual_credit_unit_subject_id: 'sieo',
-            classroomAcronyms: [],
-            has_course_plan: false,
-            is_ca_available: false,
-            is_exam_available: false,
-            is_resit_available: false,
-            objective: 'Make it rain',
-            subject_code: 'UC0116',
-            subject_title: "Introduction a l'algorithmique",
-            semester: 2,
-          },
-        ];
-        setCourses(newCourses);
+    getCourses(activeSemester)
+      .then((courses) => {
+        setCourses(courses);
         setAreCoursesLoading(false);
         notif.dismiss();
         setCourseNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingCourses' }),
         });
@@ -73,15 +59,15 @@ export default function Courses() {
             <ErrorMessage
               retryFunction={() => loadCourses(activeSemester)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getCoursesFailed' })}
+              message={
+                error?.nessage || formatMessage({ id: 'getCoursesFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [activeSemester, setActiveSemester] = useState<number>(0);

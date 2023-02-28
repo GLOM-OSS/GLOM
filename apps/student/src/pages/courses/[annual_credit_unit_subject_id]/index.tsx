@@ -1,5 +1,6 @@
 import { ReportRounded } from '@mui/icons-material';
 import { Box, Skeleton, Tab, Tabs, Typography } from '@mui/material';
+import { getCourse } from '@squoolr/api-services';
 import { Course } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -23,26 +24,14 @@ export default function CourseDetails() {
       courseNotif.dismiss();
     }
     setCourseNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD student's courses
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newCourse: Course = {
-          annual_credit_unit_subject_id: 'lseoi',
-          classroomAcronyms: [],
-          has_course_plan: false,
-          is_ca_available: false,
-          is_exam_available: false,
-          is_resit_available: false,
-          objective: 'Make it rain',
-          subject_code: 'UC0116',
-          subject_title: "Introduction a l'algorithmique",
-        };
-        setCourse(newCourse);
+    getCourse(annual_credit_unit_subject_id)
+      .then((course) => {
+        setCourse(course);
         setIsCourseLoading(false);
         notif.dismiss();
         setCourseNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingCourse' }),
         });
@@ -52,19 +41,20 @@ export default function CourseDetails() {
             <ErrorMessage
               retryFunction={() => loadCourse(annual_credit_unit_subject_id)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getCourseFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getCourseFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
-    loadCourse(annual_credit_unit_subject_id as string);
+    if (annual_credit_unit_subject_id)
+      loadCourse(annual_credit_unit_subject_id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
