@@ -7,7 +7,8 @@ import {
   CreateAssessment,
   Question,
   QuestionAnswer,
-  StudentAssessmentAnswer
+  StudentAssessmentAnswer,
+  IGroupAssignmentDetails,
 } from '@squoolr/interfaces';
 
 export async function getAssessment(assessment_id: string) {
@@ -69,6 +70,16 @@ export async function getAssessmentSubmissions(assessment_id: string) {
   return data;
 }
 
+export async function getGroupSumbssionDetails(
+  assessment_id: string,
+  group_code: string
+) {
+  const { data } = await http.get<IGroupAssignmentDetails>(
+    `/assessments/${assessment_id}/${group_code}/details`
+  );
+  return data;
+}
+
 export async function getStudentAnswers(
   assessment_id: string,
   annual_student_id: string
@@ -94,4 +105,3 @@ export async function getAssessmentStats(
 }
 
 export * from './questions';
-
