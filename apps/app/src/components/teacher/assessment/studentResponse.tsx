@@ -1,18 +1,13 @@
 import { KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
-import {
-  Box,
-  Button,
-  Chip,
-  Fab, TextField,
-  Typography
-} from '@mui/material';
+import { Box, Button, Chip, Fab, TextField, Typography } from '@mui/material';
 import {
   Assessment,
   ICorrectedQuestion,
+  ICorrectedSubmission,
   IGroupAssignment,
   IGroupAssignmentDetails,
   QuestionAnswer,
-  StudentAssessmentAnswer
+  StudentAssessmentAnswer,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -26,16 +21,61 @@ import QuestionSkeleton from './questionSkeleton';
 export default function StudentResponse({
   onBack,
   activeSubmission,
-  totalMark,
   activeAssessment,
-  activeAssessment: { submission_type },
+  activeAssessment: { submission_type, total_mark: totalMark, is_published },
 }: {
   onBack: () => void;
   activeSubmission: SubmissionEntity;
-  totalMark: number;
   activeAssessment: Assessment;
 }) {
-  const { formatMessage, formatDate, formatNumber } = useIntl();
+  const { formatMessage, formatDate } = useIntl();
+
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submissionNotif, setSubmissionNotif] = useState<useNotification>();
+
+  const saveSubmissionHandler = (submission: ICorrectedSubmission) => {
+    setIsSubmitting(true);
+    const notif = new useNotification();
+    if (submissionNotif) {
+      submissionNotif.dismiss();
+    }
+    setSubmissionNotif(notif);
+    notif.notify({
+      render: formatMessage({
+        id: 'savingCorrection',
+      }),
+    });
+    setTimeout(() => {
+      //TODO: CALL API HERE TO save submission
+      // eslint-disable-next-line no-constant-condition
+      if (5 > 4) {
+        setIsSubmitting(false);
+        notif.update({
+          render: formatMessage({
+            id: 'savingCorrectionSuccessfull',
+          }),
+        });
+        onBack();
+        setSubmissionNotif(undefined);
+      } else {
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => saveSubmissionHandler(submission)}
+              notification={notif}
+              //TODO: message should come from backend
+              message={formatMessage({
+                id: 'saveCorrectionFailed',
+              })}
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      }
+    }, 3000);
+  };
 
   const [questionAnswers, setQuestionAnswers] = useState<QuestionAnswer[]>([]);
   const [areQuestionAnswersLoading, setAreQuestionAnswersLoading] =
@@ -57,7 +97,7 @@ export default function StudentResponse({
     setQuestionNotif(notif);
     if (isGroup) {
       setTimeout(() => {
-        //TODO: CALL API HERE TO LOAD submissionsAnswers
+        //TODO: CALL API HERE TO LOAD groupAssignmentDetails
         // eslint-disable-next-line no-constant-condition
         if (5 > 4) {
           const newDetails: IGroupAssignmentDetails = {
@@ -184,46 +224,6 @@ export default function StudentResponse({
     }
   };
 
-  // const loadQuestionAnswers = (
-  //   activeStudent: Omit<StudentAssessmentAnswer, 'questionAnswers'>,
-  //   assessment: Assessment
-  // ) => {
-  //   setAreQuestionAnswersLoading(true);
-  //   const notif = new useNotification();
-  //   if (questionNotif) {
-  //     questionNotif.dismiss();
-  //   }
-  //   setQuestionNotif(notif);
-  //   getStudentAnswers(assessment.assessment_id, activeStudent.annual_student_id)
-  //     .then((questionAnswers) => {
-  //       setQuestionAnswers(questionAnswers);
-  //       setAreQuestionAnswersLoading(false);
-  //       notif.dismiss();
-  //       setQuestionNotif(undefined);
-  //     })
-  //     .catch((error) => {
-  //       notif.notify({
-  //         render: formatMessage({ id: 'loadingQuestionAnswers' }),
-  //       });
-  //       notif.update({
-  //         type: 'ERROR',
-  //         render: (
-  //           <ErrorMessage
-  //             retryFunction={() =>
-  //               loadQuestionAnswers(activeStudent, assessment)
-  //             }
-  //             notification={notif}
-  //             message={
-  //               error?.message || formatMessage({ id: 'questionAnswersFailed' })
-  //             }
-  //           />
-  //         ),
-  //         autoClose: false,
-  //         icon: () => <ReportRounded fontSize="medium" color="error" />,
-  //       });
-  //     });
-  // };
-
   useEffect(() => {
     loadSubmissionDetails(
       activeSubmission as Omit<StudentAssessmentAnswer, 'questionAnswers'>,
@@ -301,8 +301,6 @@ export default function StudentResponse({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teacherCorrections]);
-
-  // management is the effective efficient correct and timely use of another persons property and resources for the purpose for which they were delegated with the view to produce the expected added value to the person
 
   return (
     <Box
@@ -390,11 +388,18 @@ export default function StudentResponse({
               ) : (
                 questionAnswers.map((question, index) => (
                   <QuestionDisplay
-                    disabled={false}
+                    isPublished={is_published}
+                    disabled={
+                      isSubmitting ||
+                      (activeAssessment.submission_type === 'Group' &&
+                        !(activeSubmission as IGroupAssignment).is_submitted)
+                    }
                     isResponse={true}
                     question={question}
                     position={index + 1}
-                    isActivated={activeAssessment.duration !== null}
+                    isActivated={
+                      activeAssessment.assessment_date ? true : false
+                    }
                     responses={question.answeredOptionIds}
                     getTeacherCorrections={getTeacherCorrections}
                     //   onEdit={() => setEditableQuestion(question)}
@@ -424,11 +429,18 @@ export default function StudentResponse({
               ) : (
                 groupDetails.answers.map((question, index) => (
                   <QuestionDisplay
-                    disabled={false}
+                    isPublished={is_published}
+                    disabled={
+                      isSubmitting ||
+                      (activeAssessment.submission_type === 'Group' &&
+                        !(activeSubmission as IGroupAssignment).is_submitted)
+                    }
                     isResponse={true}
                     question={question}
                     position={index + 1}
-                    isActivated={activeAssessment.duration !== null}
+                    isActivated={
+                      activeAssessment.assessment_date ? true : false
+                    }
                     responses={question.answeredOptionIds}
                     getTeacherCorrections={getTeacherCorrections}
                     //   onEdit={() => setEditableQuestion(question)}
@@ -446,15 +458,48 @@ export default function StudentResponse({
               )}
             </Scrollbars>
           )}
-          <Button
-            variant="outlined"
-            color="primary"
-            sx={{ justifySelf: 'end', textTransform: 'none' }}
-            size="small"
-            disabled={areQuestionAnswersLoading}
-          >
-            {formatMessage({ id: 'saveCorrection' })}
-          </Button>
+          {!is_published && (
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ justifySelf: 'end', textTransform: 'none' }}
+              size="small"
+              onClick={() => {
+                if (activeAssessment.submission_type === 'Group') {
+                  const cc = activeSubmission as IGroupAssignment;
+                  const uploadData: ICorrectedSubmission = {
+                    correctedAnswers: teacherCorrections,
+                    group_code: cc.group_code,
+                    givenScores: studentMarks.map(
+                      ({ annual_student_id: as_id, mark }) => {
+                        return { annual_student_id: as_id, total_score: mark };
+                      }
+                    ),
+                  };
+                  saveSubmissionHandler(uploadData);
+                } else {
+                  const cc = activeSubmission as Omit<
+                    StudentAssessmentAnswer,
+                    'questionAnswers'
+                  >;
+                  const uploadData: ICorrectedSubmission = {
+                    correctedAnswers: teacherCorrections,
+                    annual_student_id: cc.annual_student_id,
+                  };
+
+                  saveSubmissionHandler(uploadData);
+                }
+              }}
+              disabled={
+                areQuestionAnswersLoading ||
+                isSubmitting ||
+                (activeAssessment.submission_type === 'Group' &&
+                  !(activeSubmission as IGroupAssignment).is_submitted)
+              }
+            >
+              {formatMessage({ id: 'saveCorrection' })}
+            </Button>
+          )}
         </Box>
         {submission_type === 'Group' && (
           <Box
@@ -494,46 +539,64 @@ export default function StudentResponse({
                         }}
                       >
                         <Typography>{`${fn}`}</Typography>
-                        <TextField
-                          size="small"
-                          value={
-                            studentMarks.find(
-                              ({ annual_student_id }) =>
-                                annual_student_id === as_id
-                            )?.mark ?? total_score
-                          }
-                          onChange={(event) => {
-                            const val = studentMarks.find(
-                              ({ annual_student_id }) =>
-                                annual_student_id === as_id
-                            );
-                            const tt = Number(event.target.value);
-                            if (tt >= 0 && tt <= computeTotalMark())
-                              if (val) {
-                                setStudentMarks([
-                                  ...studentMarks.filter(
-                                    ({ annual_student_id: ast_id }) =>
-                                      ast_id !== as_id
-                                  ),
-                                  {
-                                    annual_student_id: as_id,
-                                    mark: tt,
-                                  },
-                                ]);
-                              } else {
-                                setStudentMarks([
-                                  ...studentMarks,
-                                  {
-                                    annual_student_id: as_id,
-                                    mark: tt,
-                                  },
-                                ]);
-                              }
-                          }}
-                          variant="outlined"
-                          type="number"
-                          placeholder={formatMessage({ id: 'studentScore' })}
-                        />
+                        {is_published ? (
+                          <Chip
+                            color={
+                              total_score < totalMark * 0.6
+                                ? 'error'
+                                : 'success'
+                            }
+                            sx={{ color: theme.common.offWhite }}
+                            label={`${total_score} / ${totalMark}`}
+                          />
+                        ) : (
+                          <TextField
+                            size="small"
+                            disabled={
+                              isSubmitting ||
+                              (activeAssessment.submission_type === 'Group' &&
+                                !(activeSubmission as IGroupAssignment)
+                                  .is_submitted)
+                            }
+                            value={
+                              studentMarks.find(
+                                ({ annual_student_id }) =>
+                                  annual_student_id === as_id
+                              )?.mark ?? total_score
+                            }
+                            onChange={(event) => {
+                              const val = studentMarks.find(
+                                ({ annual_student_id }) =>
+                                  annual_student_id === as_id
+                              );
+                              const tt = Number(event.target.value);
+                              if (tt >= 0 && tt <= computeTotalMark())
+                                if (val) {
+                                  setStudentMarks([
+                                    ...studentMarks.filter(
+                                      ({ annual_student_id: ast_id }) =>
+                                        ast_id !== as_id
+                                    ),
+                                    {
+                                      annual_student_id: as_id,
+                                      mark: tt,
+                                    },
+                                  ]);
+                                } else {
+                                  setStudentMarks([
+                                    ...studentMarks,
+                                    {
+                                      annual_student_id: as_id,
+                                      mark: tt,
+                                    },
+                                  ]);
+                                }
+                            }}
+                            variant="outlined"
+                            type="number"
+                            placeholder={formatMessage({ id: 'studentScore' })}
+                          />
+                        )}
                         <Typography>
                           {approved_at
                             ? formatDate(new Date(approved_at), {
