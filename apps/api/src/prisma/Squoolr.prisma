@@ -452,6 +452,7 @@ model AnnualTeacher {
     DeletedPresenceListHasChapters              PresenceListHasChapter[]              @relation(name: "DeletedBy_AnnualTeacher")
     CreatedPresenceListHasCreditUnitStudents    PresenceListHasCreditUnitStudent[]    @relation(name: "CreatedBy_AnnualTeacher")
     DeletedPresenceListHasCreditUnitStudents    PresenceListHasCreditUnitStudent[]    @relation(name: "DeletedBy_AnnualTeacher")
+    AnnualStudentAnswerQuestions                 AnnualStudentAnswerQuestion[]
 
     @@unique([login_id, academic_year_id])
 }
@@ -1359,6 +1360,8 @@ model AnnualStudentAnswerQuestion {
     QuestionOption                    QuestionOption?             @relation(fields: [answered_option_id], references: [question_option_id], onDelete: Cascade, onUpdate: Cascade)
     annual_student_take_assessment_id String                      @db.VarChar(36)
     AnnualStudentTakeAssessment       AnnualStudentTakeAssessment @relation(fields: [annual_student_take_assessment_id], references: [annual_student_take_assessment_id], onDelete: Cascade, onUpdate: Cascade)
+    corrected_by                      String?                     @db.VarChar(36)
+    AnnualTeacher                     AnnualTeacher?              @relation(fields: [corrected_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualStudentAnswerQuestionAudits AnnualStudentAnswerQuestionAudit[]
 }

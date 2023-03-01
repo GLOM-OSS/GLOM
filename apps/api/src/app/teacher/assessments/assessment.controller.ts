@@ -22,7 +22,7 @@ import { ERR20, ERR22 } from '../../../../src/errors';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
-import { StudentAnswerDto } from '../courses/course.dto';
+import { CorrectAnswerDto, StudentAnswerDto } from '../courses/course.dto';
 import {
   AssessmentPostDto,
   AssessmentPutDto,
@@ -170,7 +170,7 @@ export class AssessmentController {
     );
   }
 
-  @Roles(Role.TEACHER)
+  @Roles(Role.TEACHER, Role.STUDENT)
   @Get(':assessment_id/answers')
   async getStudentAnswers(
     @Req() request: Request,
@@ -243,6 +243,27 @@ export class AssessmentController {
         assessment_id,
         answers,
         files
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Roles(Role.TEACHER)
+  @Post(':assessment_id/correct')
+  async correctAssessment(
+    @Req() request: Request,
+    @Param('assessment_id') assessment_id: string,
+    @Body() newCorrection: CorrectAnswerDto
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user as DeserializeSessionData;
+    try {
+      return this.assessmentService.correctAssignmentAnswers(
+        assessment_id,
+        newCorrection,
+        annual_teacher_id
       );
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);

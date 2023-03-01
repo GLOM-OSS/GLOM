@@ -74,7 +74,57 @@ export class QuestionAnswer {
 }
 export class StudentAnswerDto {
   @IsArray()
+  @ApiProperty()
   @Type(() => QuestionAnswer)
   @ValidateNested({ each: true })
   answers: QuestionAnswer[];
+}
+
+export class CorrectedQuestion {
+  @IsUUID()
+  @ApiProperty()
+  question_id: string;
+
+  @IsNumber()
+  @ApiProperty()
+  question_mark: number;
+
+  @IsString()
+  @ApiProperty()
+  teacher_comment: string;
+}
+
+export class GivenScore {
+  @IsUUID()
+  @ApiProperty()
+  annual_student_id: string;
+
+  @IsNumber()
+  @ApiProperty()
+  total_score: number;
+}
+
+export class CorrectAnswerDto {
+  @IsString()
+  @IsOptional()
+  @ApiProperty()
+  group_code?: string;
+
+  @IsUUID()
+  @IsOptional()
+  @ApiProperty()
+  annual_student_id?: string;
+
+  @IsArray()
+  @ApiProperty()
+  @Type(() => CorrectedQuestion)
+  @ValidateNested({ each: true })
+  correctedAnswers: CorrectedQuestion[];
+
+  @IsArray()
+  @IsOptional()
+  @Type(() => GivenScore)
+  @ValidateNested({ each: true })
+  @ApiProperty({ required: false })
+  givenScores?: GivenScore[];
 }

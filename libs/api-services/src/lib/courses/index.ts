@@ -46,10 +46,16 @@ export async function getCourseChapters(
 }
 
 export async function getCourseAssessments(
-  annual_credit_unit_subject_id: string
+  annual_credit_unit_subject_id: string,
+  is_assignment = false
 ) {
   const { data } = await http.get<Assessment[]>(
-    `/courses/${annual_credit_unit_subject_id}/assessments`
+    `/courses/${annual_credit_unit_subject_id}/assessments`,
+    {
+      params: {
+        is_assignment,
+      },
+    }
   );
   return data;
 }

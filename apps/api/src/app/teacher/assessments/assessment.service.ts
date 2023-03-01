@@ -8,8 +8,8 @@ import {
 } from '@prisma/client';
 import {
   Assessment as IAssessment,
-  IGroupAssignmentDetails,
   IGroupAssignment,
+  IGroupAssignmentDetails,
   Question,
   QuestionAnswer as IQuestionAnswer,
   StudentAssessmentAnswer,
@@ -24,10 +24,13 @@ import {
   ERR25,
   ERR26,
   ERR27,
+  ERR28,
+  ERR29,
+  ERR30,
 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
-import { QuestionAnswer } from '../courses/course.dto';
+import { CorrectAnswerDto, QuestionAnswer } from '../courses/course.dto';
 import {
   AssessmentPostDto,
   QuestionPostDto,
@@ -71,6 +74,7 @@ export class AssessmentService {
     created_by: string
   ) {
     const assessmentInput: Prisma.AssessmentCreateInput = {
+      is_assignment,
       ...newAssessment,
       AnnualCreditUnitSubject: {
         connect: { annual_credit_unit_subject_id },
@@ -824,7 +828,7 @@ export class AssessmentService {
       submitted_at,
       AssignmentGroupMembers: groupIds,
       annual_student_take_assessment_id,
-      Assessment: { assessment_date, submission_type, duration },
+      Assessment: { assessment_date, is_assignment, duration },
     } = await this.prismaService.annualStudentTakeAssessment.findFirstOrThrow({
       select: {
         created_at: true,
@@ -833,7 +837,7 @@ export class AssessmentService {
         Assessment: {
           select: {
             assessment_date: true,
-            submission_type: true,
+            is_assignment: true,
             duration: true,
           },
         },
@@ -844,7 +848,7 @@ export class AssessmentService {
       },
       where: { annual_student_id, assessment_id },
     });
-    if (submission_type === 'Individual') {
+    if (!is_assignment) {
       const allowedDate = new Date(
         new Date(assessment_date).getTime() + (duration / 8) * 60 * 1000
       );
@@ -866,14 +870,19 @@ export class AssessmentService {
           },
           where: {
             AnnualStudentTakeAssessment: {
-              AssignmentGroupMembers: {
-                some: {
-                  assessment_id,
-                  OR: groupIds.map(({ group_code }) => ({
-                    group_code,
-                  })),
+              OR: [
+                { annual_student_take_assessment_id },
+                {
+                  AssignmentGroupMembers: {
+                    some: {
+                      assessment_id,
+                      OR: groupIds.map(({ group_code }) => ({
+                        group_code,
+                      })),
+                    },
+                  },
                 },
-              },
+              ],
             },
             OR: studentAnswers.map(({ question_id }) => ({ question_id })),
           },
@@ -1023,6 +1032,7 @@ export class AssessmentService {
       throw new HttpException(JSON.stringify(ERR27), HttpStatus.UNAUTHORIZED);
     const studentAssignmentAnswers =
       await this.prismaService.annualStudentAnswerQuestion.findMany({
+        distinct: ['question_id'],
         where: {
           OR: groupMembers.map(({ annual_student_take_assessment_id }) => ({
             annual_student_take_assessment_id,
@@ -1046,15 +1056,21 @@ export class AssessmentService {
           AnnualStudentTakeAssessment: {
             total_score,
             AnnualStudent: {
+              annual_student_id,
               Student: {
-                matricule,
                 Login: {
                   Person: { first_name, last_name },
                 },
               },
             },
           },
-        }) => ({ has_approved, first_name, last_name, matricule, total_score })
+        }) => ({
+          has_approved,
+          first_name,
+          last_name,
+          annual_student_id,
+          total_score,
+        })
       ),
       answers: this.getQuestionAnswerObjects(
         assessment_id,
@@ -1073,19 +1089,24 @@ export class AssessmentService {
       ({
         question_id,
         question,
+        question_mark,
         question_type,
         questionOptions,
         questionResources,
         question_answer,
       }) => {
-        const { response, teacher_comment, question_mark } =
-          answeredQuestionIds.find((_) => _.question_id === question_id);
+        const {
+          response,
+          teacher_comment,
+          question_mark: acquired_mark,
+        } = answeredQuestionIds.find((_) => _.question_id === question_id);
         return {
           question,
           question_id,
           question_mark,
           assessment_id,
           question_type,
+          acquired_mark,
           question_answer,
           questionResources,
           response: question_type !== 'MCQ' ? response : null,
@@ -1100,5 +1121,98 @@ export class AssessmentService {
         };
       }
     );
+  }
+
+  async correctAssignmentAnswers(
+    assessment_id: string,
+    {
+      group_code,
+      givenScores,
+      correctedAnswers,
+      annual_student_id,
+    }: CorrectAnswerDto,
+    corrected_by: string
+  ) {
+    const { is_assignment, is_published } =
+      await this.prismaService.assessment.findUniqueOrThrow({
+        where: { assessment_id },
+      });
+    if (is_published)
+      throw new HttpException(JSON.stringify(ERR30), HttpStatus.BAD_REQUEST);
+    if ((!is_assignment && group_code) || (group_code && annual_student_id))
+      throw new HttpException(JSON.stringify(ERR28), HttpStatus.BAD_REQUEST);
+    const unapprovedGroupMember =
+      await this.prismaService.assignmentGroupMember.findFirst({
+        where: { group_code, assessment_id, has_approved: false },
+      });
+    if (!unapprovedGroupMember)
+      throw new HttpException(JSON.stringify(ERR29), HttpStatus.BAD_REQUEST);
+
+    const groupMembers =
+      await this.prismaService.annualStudentTakeAssessment.findMany({
+        where: {
+          assessment_id,
+          annual_student_id,
+          AssignmentGroupMembers: { some: { group_code } },
+        },
+      });
+    const studentQuestions =
+      await this.prismaService.annualStudentAnswerQuestion.findMany({
+        distinct: ['question_id'],
+        where: {
+          OR: groupMembers.map(({ annual_student_take_assessment_id }) => ({
+            annual_student_take_assessment_id,
+          })),
+        },
+      });
+    const totalScore = studentQuestions.reduce(
+      (total, { question_id, question_mark }) =>
+        total +
+          correctedAnswers.find((_) => _.question_id === question_id)
+            ?.question_mark ?? question_mark,
+      0
+    );
+    return this.prismaService.$transaction([
+      ...correctedAnswers.map(
+        ({ question_id, question_mark, teacher_comment }) =>
+          this.prismaService.annualStudentAnswerQuestion.updateMany({
+            data: { question_mark, teacher_comment, corrected_by },
+            where: {
+              Question: { question_id, question_type: { not: 'MCQ' } },
+              OR: groupMembers.map(({ annual_student_take_assessment_id }) => ({
+                annual_student_take_assessment_id,
+              })),
+            },
+          })
+      ),
+      this.prismaService.assignmentGroupMember.updateMany({
+        data: { total_score: totalScore },
+        where: { group_code, assessment_id },
+      }),
+      ...(givenScores
+        ? givenScores.map(({ annual_student_id, total_score }) =>
+            this.prismaService.annualStudentTakeAssessment.update({
+              data: { total_score },
+              where: {
+                annual_student_id_assessment_id: {
+                  annual_student_id,
+                  assessment_id,
+                },
+              },
+            })
+          )
+        : [
+            this.prismaService.annualStudentTakeAssessment.updateMany({
+              data: { total_score: totalScore },
+              where: {
+                OR: groupMembers.map(
+                  ({ annual_student_take_assessment_id }) => ({
+                    annual_student_take_assessment_id,
+                  })
+                ),
+              },
+            }),
+          ]),
+    ]);
   }
 }
