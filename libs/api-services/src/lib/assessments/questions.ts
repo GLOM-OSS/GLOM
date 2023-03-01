@@ -36,9 +36,9 @@ export async function createNewQuestion(
     questionFormData.append('question', question);
     questionFormData.append('assessment_id', assessment_id);
     questionFormData.append('question_type', question_type);
-    questionFormData.append('question_answer', question_answer);
     questionFormData.append('question_mark', question_mark.toString());
     questionFormData.append('answerFile', answerFile, answerFile.name);
+    questionFormData.append('question_answer', question_answer as string);
   }
 
   const { data } = await http.post<
