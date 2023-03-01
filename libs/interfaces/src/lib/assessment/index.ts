@@ -131,8 +131,14 @@ export interface ICorrectedQuestion {
   teacher_comment: string;
 }
 
-export interface ICorrectAnswerDto {
+export interface IStudentAssignmentScore {
+  annual_student_id: string;
+  total_score: number;
+}
+
+export interface ICorrectedSubmission {
   group_code?: string;
   annual_student_id?: string;
   correctedAnswers: ICorrectedQuestion[];
+  givenScores: IStudentAssignmentScore[];
 }

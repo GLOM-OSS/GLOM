@@ -455,7 +455,7 @@ export function Layout({
                               .length -
                               2
                               ? 400
-                              : 200,
+                              : 300,
                           color:
                             location.pathname.split('/').filter((_) => _ !== '')
                               .length - 2

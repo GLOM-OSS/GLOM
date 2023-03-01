@@ -232,7 +232,7 @@ export default function Assignments() {
       ) : activeStudent ? (
         <StudentResponse
           activeAssessment={activeAssessment}
-          activeStudent={activeStudent}
+          activeSubmission={activeStudent}
           onBack={() => setActiveStudent(undefined)}
           totalMark={activeAssessment.total_mark}
         />
