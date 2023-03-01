@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EvaluationSubTypeEnum, Prisma } from '@prisma/client';
-import { Assessment, Course, PresenceList } from '@squoolr/interfaces';
+import { Assessment, Course, PresenceList, Student } from '@squoolr/interfaces';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CourseQueryDto } from './course.dto';
 
@@ -128,12 +128,7 @@ export class CourseService {
     });
     const annualCreditUnitSubject =
       await this.prismaService.annualCreditUnitSubject.findUniqueOrThrow({
-        select: {
-          ...this.annualCreditUnitSubjectSelect.select,
-          _count: {
-            select: {},
-          },
-        },
+        select: this.annualCreditUnitSubjectSelect.select,
         where: { annual_credit_unit_subject_id },
       });
     const activeYear = await this.prismaService.academicYear.findUnique({
@@ -355,16 +350,20 @@ export class CourseService {
     );
   }
 
-  async findStudents(annual_credit_unit_subject_id: string) {
+  async findStudents(
+    annual_credit_unit_subject_id: string
+  ): Promise<Student[]> {
     const students = await this.prismaService.annualStudent.findMany({
       select: {
+        is_active: true,
         annual_student_id: true,
         Student: {
           select: {
             matricule: true,
+            Classroom: { select: { classroom_acronym: true } },
             Login: {
               select: {
-                Person: { select: { first_name: true, last_name: true } },
+                Person: true,
               },
             },
           },
@@ -384,17 +383,19 @@ export class CourseService {
     });
     return students.map(
       ({
+        is_active,
         annual_student_id,
         Student: {
           matricule,
-          Login: {
-            Person: { first_name, last_name },
-          },
+          Login: { Person: person },
+          Classroom: { classroom_acronym },
         },
       }) => ({
+        ...person,
         matricule,
+        is_active,
         annual_student_id,
-        fullname: `${first_name} ${last_name}`,
+        classroom_acronym,
       })
     );
   }
