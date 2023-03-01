@@ -11,6 +11,7 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
+import { SubmissionEntity } from '../assignment';
 import QuestionDisplay from './questionDisplay';
 import QuestionSkeleton from './questionSkeleton';
 
@@ -21,7 +22,7 @@ export default function StudentResponse({
   activeAssessment,
 }: {
   onBack: () => void;
-  activeStudent: Omit<StudentAssessmentAnswer, 'questionAnswers'>;
+  activeStudent: SubmissionEntity;
   totalMark: number;
   activeAssessment: Assessment;
 }) {
@@ -73,7 +74,10 @@ export default function StudentResponse({
   };
 
   useEffect(() => {
-    loadQuestionAnswers(activeStudent, activeAssessment);
+    loadQuestionAnswers(
+      activeStudent as Omit<StudentAssessmentAnswer, 'questionAnswers'>,
+      activeAssessment
+    );
     return () => {
       //TODO: cleanup above axios fetch
     };
@@ -106,7 +110,9 @@ export default function StudentResponse({
           <KeyboardBackspaceOutlined fontSize="small" />
         </Fab>
         <Typography variant="h6">
-          {`(${activeStudent.matricule}) ${activeStudent.fullname}`}
+          {`(${(activeStudent as StudentAssessmentAnswer).matricule}) ${
+            (activeStudent as StudentAssessmentAnswer).fullname
+          }`}
         </Typography>
 
         <Box
