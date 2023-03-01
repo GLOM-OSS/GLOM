@@ -53,6 +53,7 @@ export interface QuestionAnswer extends Question {
   response: string | null;
   answeredOptionIds: string[];
   teacher_comment: string | null;
+  acquired_mark: number | null;
 }
 
 export interface StudentAssessmentAnswer {
@@ -113,9 +114,9 @@ export interface IGroupAssignment {
 }
 
 export interface IGroupMember
-  extends Pick<Student, 'matricule' | 'last_name' | 'first_name'> {
+  extends Pick<Student, 'annual_student_id' | 'last_name' | 'first_name'> {
   total_score: number;
-  has_approved: boolean;
+  approved_at: Date | null;
 }
 
 export interface IGroupAssignmentDetails extends IGroupAssignment {
@@ -130,8 +131,14 @@ export interface ICorrectedQuestion {
   teacher_comment: string;
 }
 
-export interface ICorrectAnswerDto {
+export interface IStudentAssignmentScore {
+  annual_student_id: string;
+  total_score: number;
+}
+
+export interface ICorrectedSubmission {
   group_code?: string;
   annual_student_id?: string;
   correctedAnswers: ICorrectedQuestion[];
+  givenScores: IStudentAssignmentScore[];
 }
