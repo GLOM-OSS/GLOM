@@ -54,31 +54,21 @@ export default function SubmissionList({
   const [areStudentsLoading, setAreStudentsLoading] = useState<boolean>(false);
   const [studentNotif, setStudentNotif] = useState<useNotification>();
 
-  const loadStudents = (activeAssessment: Assessment) => {
+  const loadStudents = ({ assessment_id }: Assessment) => {
     setAreStudentsLoading(true);
     const notif = new useNotification();
     if (studentNotif) {
       studentNotif.dismiss();
     }
     setStudentNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD assessment submissions
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newSubmissions: SubmissionEntity[] = [
-          {
-            group_code: 'XTG002',
-            number_of_students: 4,
-            is_submitted: false,
-            assessment_id: 'woeid',
-            total_score: 2,
-          },
-        ];
-        setSubmissions(newSubmissions);
+    getAssessmentSubmissions(assessment_id)
+      .then((submissions) => {
+        setSubmissions(submissions);
         setAreStudentsLoading(false);
         notif.dismiss();
         setStudentNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingSubmissions' }),
         });
@@ -88,51 +78,16 @@ export default function SubmissionList({
             <ErrorMessage
               retryFunction={() => loadStudents(activeAssessment)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getStudentsFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getStudentsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
-
-  // const loadStudents = (activeAssessment: Assessment) => {
-  //   setAreStudentsLoading(true);
-  //   const notif = new useNotification();
-  //   if (studentNotif) {
-  //     studentNotif.dismiss();
-  //   }
-  //   setStudentNotif(notif);
-  //   getAssessmentSubmissions(activeAssessment.assessment_id)
-  //     .then((students) => {
-  //       setSubmissions(students);
-  //       setAreStudentsLoading(false);
-  //       notif.dismiss();
-  //       setStudentNotif(undefined);
-  //     })
-  //     .catch((error) => {
-  //       notif.notify({
-  //         render: formatMessage({ id: 'loadingStudents' }),
-  //       });
-  //       notif.update({
-  //         type: 'ERROR',
-  //         render: (
-  //           <ErrorMessage
-  //             retryFunction={() => loadStudents(activeAssessment)}
-  //             notification={notif}
-  //             message={
-  //               error?.message || formatMessage({ id: 'getStudentsFailed' })
-  //             }
-  //           />
-  //         ),
-  //         autoClose: false,
-  //         icon: () => <ReportRounded fontSize="medium" color="error" />,
-  //       });
-  //     });
-  // };
 
   useEffect(() => {
     loadStudents(activeAssessment);

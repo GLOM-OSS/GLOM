@@ -1,8 +1,8 @@
 import { http } from '@squoolr/axios';
 import { CreatePresenceList, PresenceList } from '@squoolr/interfaces';
 
-export async function getAllPresenceLists(presence_list_id: string) {
-  const { data } = await http.get<PresenceList[]>(
+export async function getPresenceListDetails(presence_list_id: string) {
+  const { data } = await http.get<PresenceList>(
     `/presence-lists/${presence_list_id}`
   );
   return data;
