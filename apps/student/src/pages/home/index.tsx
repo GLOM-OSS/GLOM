@@ -33,8 +33,8 @@ import { PaymentDialog } from '../../components/home/paymentDialog';
 import StatCard from '../../components/home/statCard';
 
 export default function Home() {
+  const { annualStudent } = useUser();
   const { formatMessage, formatNumber } = useIntl();
-  const { student } = useUser();
 
   const [areAbsencesLoading, setAreAbsencesLoading] = useState<boolean>(false);
   const [absences, setAbsences] = useState<IDiscipline[]>([]);
@@ -185,7 +185,7 @@ export default function Home() {
       <PaymentDialog
         closeDialog={() => setIsPaymentDialogOpen(false)}
         isDialogOpen={isPaymentdialogOPen}
-        unpaidSemesters={student ? student.activeSemesters : []}
+        unpaidSemesters={annualStudent ? annualStudent.activeSemesters : []}
         totalDue={
           feeSummary ? feeSummary.total_due - feeSummary.registration : 0
         }

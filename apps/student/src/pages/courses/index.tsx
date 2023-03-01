@@ -28,8 +28,8 @@ import {
 } from '../../components/helpers/tables';
 
 export default function Courses() {
+  const { annualStudent } = useUser();
   const { formatMessage } = useIntl();
-  const { student } = useUser();
 
   const [areCoursesLoading, setAreCoursesLoading] = useState<boolean>(false);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -92,7 +92,7 @@ export default function Courses() {
         </InputLabel>
         <Select
           labelId="semester"
-          disabled={!student || areCoursesLoading}
+          disabled={!annualStudent || areCoursesLoading}
           value={activeSemester}
           size="small"
           onChange={(event) => setActiveSemester(Number(event.target.value))}
@@ -107,7 +107,7 @@ export default function Courses() {
           }}
         >
           <MenuItem value={undefined}>{formatMessage({ id: 'all' })}</MenuItem>
-          {[...new Array(student ? student.classroom_level * 2 : 0)].map(
+          {[...new Array(annualStudent ? annualStudent.classroom_level * 2 : 0)].map(
             (_, index) => (
               <MenuItem key={index} value={index + 1}>
                 {index + 1}
