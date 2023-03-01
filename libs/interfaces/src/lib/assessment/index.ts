@@ -140,5 +140,5 @@ export interface ICorrectedSubmission {
   group_code?: string;
   annual_student_id?: string;
   correctedAnswers: ICorrectedQuestion[];
-  givenScores: IStudentAssignmentScore[];
+  givenScores?: IStudentAssignmentScore[];
 }
