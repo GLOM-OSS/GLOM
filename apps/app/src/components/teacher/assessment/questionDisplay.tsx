@@ -1,6 +1,19 @@
 import { DeleteOutlined, EditOutlined } from '@mui/icons-material';
-import { Box, Chip, IconButton, Tooltip, Typography } from '@mui/material';
-import { Question, QuestionOption } from '@squoolr/interfaces';
+import {
+  Box,
+  Chip,
+  IconButton,
+  lighten,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import {
+  ICorrectedQuestion,
+  Question,
+  QuestionAnswer,
+  QuestionOption,
+} from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
 import { FileIcon } from '../coursePlan/fileDialog';
@@ -14,20 +27,31 @@ export default function QuestionDisplay({
     question_answer: qa,
     question_type: qt,
   },
+  question,
   position: p,
   onDelete,
   disabled,
   isResponse = false,
   responses,
   isActivated,
+  getTeacherCorrections,
+  updatedCorrection,
 }: {
-  question: Question;
+  question: Question | QuestionAnswer;
   position: number;
   onDelete: () => void;
   disabled: boolean;
   isResponse?: boolean;
   responses?: string[];
   isActivated: boolean;
+  getTeacherCorrections?: (val: ICorrectedQuestion) => void;
+  updatedCorrection?:
+    | ICorrectedQuestion
+    | {
+        question_id: string;
+        question_mark: number | null;
+        teacher_comment: string | null;
+      };
 }) {
   const { formatMessage } = useIntl();
   const shuffleOptions = (array: QuestionOption[]) => {
@@ -39,6 +63,7 @@ export default function QuestionDisplay({
     }
     return array;
   };
+  const cc = question as QuestionAnswer;
 
   return (
     <Box
@@ -48,7 +73,12 @@ export default function QuestionDisplay({
         columnGap: theme.spacing(2),
         paddingBottom: 1,
         marginBottom: theme.spacing(2),
-        borderBottom: `1px solid ${theme.common.line}`,
+        padding: 2,
+        backgroundColor:
+          !updatedCorrection ||
+          (isResponse && updatedCorrection.question_mark !== null)
+            ? 'initial'
+            : lighten(theme.palette.secondary.main, 0.9),
       }}
     >
       <Typography>{`${p}.`}</Typography>
@@ -126,19 +156,76 @@ export default function QuestionDisplay({
               )}
             </Box>
           ) : qt === 'Structural' ? (
-            <Typography>{qa}</Typography>
-          ) : qa ? (
-            <FileIcon
-              name={`${formatMessage({ id: 'correction' })}.${
-                qa.split('.').slice(-1)[0]
-              }`}
-              resource_ref={qa}
-              resource_type="FILE"
-            />
-          ) : (
+            <Box sx={{ display: 'grid', rowGap: 2 }}>
+              <Typography
+                variant={isResponse ? 'body2' : 'body1'}
+                sx={{ fontStyle: isResponse ? 'italic' : 'normal' }}
+              >
+                {isResponse ? cc.response : qa}
+              </Typography>
+              {isResponse && (
+                <TextField
+                  variant="standard"
+                  fullWidth
+                  color="primary"
+                  multiline
+                  size="small"
+                  value={updatedCorrection?.teacher_comment}
+                  onChange={(event) => {
+                    if (getTeacherCorrections)
+                      getTeacherCorrections({
+                        question_mark: cc.acquired_mark ?? 0,
+                        question_id: cc.question_id,
+                        teacher_comment: event.target.value,
+                      });
+                  }}
+                  placeholder={formatMessage({ id: 'teacherComment' })}
+                />
+              )}
+            </Box>
+          ) : (!isResponse && !qa) || (isResponse && !cc.response) ? (
             <Typography variant="body2" color={theme.palette.error.main}>
               {formatMessage({ id: 'noFileYet' })}
             </Typography>
+          ) : (
+            <Box sx={{ display: 'grid', rowGap: 2 }}>
+              <Box sx={{ justifySelf: 'start' }}>
+                <FileIcon
+                  name={`${
+                    isResponse
+                      ? (cc.response as string).split('.').slice(0, -1).join('')
+                      : formatMessage({ id: 'correction' })
+                  }.${
+                    isResponse
+                      ? (cc.response as string).split('.').slice(-1)[0]
+                      : (qa as string).split('.').slice(-1)[0]
+                  }`}
+                  resource_ref={
+                    isResponse ? (cc.response as string) : (qa as string)
+                  }
+                  resource_type="FILE"
+                />
+              </Box>
+              {isResponse && (
+                <TextField
+                  variant="standard"
+                  fullWidth
+                  color="primary"
+                  multiline
+                  size="small"
+                  value={updatedCorrection?.teacher_comment}
+                  onChange={(event) => {
+                    if (getTeacherCorrections)
+                      getTeacherCorrections({
+                        question_mark: cc.acquired_mark ?? 0,
+                        question_id: cc.question_id,
+                        teacher_comment: event.target.value,
+                      });
+                  }}
+                  placeholder={formatMessage({ id: 'teacherComment' })}
+                />
+              )}
+            </Box>
           )}
           <Box
             sx={{
@@ -148,13 +235,43 @@ export default function QuestionDisplay({
               alignItems: 'end',
             }}
           >
-            <Chip
-              sx={{
-                color: theme.common.offWhite,
-                backgroundColor: theme.common.titleActive,
-              }}
-              label={qm}
-            />
+            {isResponse && qt !== 'MCQ' && cc.response !== null ? (
+              <TextField
+                type="number"
+                size="small"
+                placeholder={formatMessage({ id: 'mark' })}
+                value={updatedCorrection?.question_mark}
+                //TODO: GIVEN MARK SHOULD NOT BE ABOVE qm
+                onChange={(event) => {
+                  const val = Number(event.target.value);
+                  if (val >= 0 && val <= cc.question_mark)
+                    if (getTeacherCorrections)
+                      getTeacherCorrections({
+                        question_mark: val,
+                        question_id: cc.question_id,
+                        teacher_comment: cc.teacher_comment ?? '',
+                      });
+                }}
+                sx={{
+                  width: '80px',
+                }}
+                InputProps={{
+                  endAdornment: `/${qm}`,
+                }}
+              />
+            ) : (
+              <Chip
+                sx={{
+                  color: theme.common.offWhite,
+                  backgroundColor: theme.common.titleActive,
+                }}
+                label={
+                  isResponse && qt !== 'MCQ' && cc.response === null
+                    ? 0
+                    : cc.acquired_mark
+                }
+              />
+            )}
             {!isResponse && !isActivated && (
               <>
                 <Tooltip arrow title={formatMessage({ id: 'edit' })}>
