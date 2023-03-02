@@ -1,5 +1,6 @@
 import { http } from '@squoolr/axios';
 import {
+  ICreatePayment,
   IDiscipline,
   IFeeSummary,
   IPaymentHistory,
@@ -35,10 +36,11 @@ export async function getStudentFeeSummary(annual_student_id?: string) {
   return data;
 }
 
-export async function payStudentFee(annual_student_id?: string) {
-  const { data } = await http.get<IPaymentHistory>(`/students/pay-fee`, {
-    params: { annual_student_id },
-  });
+export async function payStudentFee(newPayment: ICreatePayment) {
+  const { data } = await http.post<IPaymentHistory[]>(
+    `/students/pay-fee`,
+    newPayment
+  );
   return data;
 }
 
