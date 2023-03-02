@@ -84,7 +84,8 @@ export class StudentController {
         HttpStatus.BAD_REQUEST
       );
     return this.studentService.getStudentFeeSummary(
-      annualStudent?.annual_student_id ?? annual_student_id
+      annualStudent?.annual_student_id ?? annual_student_id,
+      annualStudent?.activeSemesters.length ?? 1
     );
   }
 

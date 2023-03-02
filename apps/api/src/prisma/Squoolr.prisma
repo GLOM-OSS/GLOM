@@ -302,10 +302,10 @@ model Student {
 }
 
 model AnnualStudent {
-    annual_student_id String   @id @default(uuid()) @db.VarChar(36)
-    is_active         Boolean  @default(true) @db.TinyInt
-    is_deleted        Boolean  @default(false) @db.TinyInt
-    created_at          DateTime @default(now()) @db.DateTime(0)
+    annual_student_id            String                  @id @default(uuid()) @db.VarChar(36)
+    is_active                    Boolean                 @default(true) @db.TinyInt
+    is_deleted                   Boolean                 @default(false) @db.TinyInt
+    created_at                   DateTime                @default(now()) @db.DateTime(0)
     student_id                   String
     Student                      Student                 @relation(fields: [student_id], references: [student_id], onDelete: Cascade, onUpdate: Cascade)
     annual_classroom_division_id String                  @db.VarChar(36)
@@ -1460,9 +1460,10 @@ enum PaymentReasonEnum {
 model Payment {
     payment_id        String            @id @default(uuid()) @db.VarChar(36)
     amount            Float
+    transaction_id    String            @unique @db.VarChar(45)
     payment_date      DateTime          @db.DateTime(0)
     payment_reason    PaymentReasonEnum
-    semester_number   Int
+    semester_number   Int?
     annual_student_id String            @db.VarChar(36)
     AnnualStudent     AnnualStudent     @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)
     paid_by           String            @db.VarChar(36)
