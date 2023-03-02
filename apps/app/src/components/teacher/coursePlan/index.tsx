@@ -1,4 +1,8 @@
-import { ExpandMore, KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
+import {
+  ExpandMore,
+  KeyboardBackspaceOutlined,
+  ReportRounded,
+} from '@mui/icons-material';
 import {
   Accordion,
   AccordionDetails,
@@ -9,7 +13,7 @@ import {
   Fab,
   lighten,
   Skeleton,
-  Typography
+  Typography,
 } from '@mui/material';
 import {
   addNewFileResources,
@@ -23,7 +27,7 @@ import {
   getCourse,
   getCourseChapters,
   getCourseResources,
-  updateChapter
+  updateChapter,
 } from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
@@ -31,7 +35,7 @@ import {
   Course,
   CreateFile,
   CreateLink,
-  Resource
+  Resource,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -43,7 +47,7 @@ import { RowMenu } from '../../coordinator/CreditUnitLane';
 import ChapterDialog from './chapterDialog';
 import ChapterLane, { ChapterLaneSkeleton } from './chapterLane';
 import FileDialog, { FileIcon } from './fileDialog';
-import FileDisplayDialog from './fileDisplayDialog';
+import FileDisplayDialog, { readableFileFormats } from './fileDisplayDialog';
 import ResourceDialog from './resourceDialog';
 
 export default function CoursePlan() {
@@ -791,13 +795,10 @@ export default function CoursePlan() {
                           key={index}
                           resource_ref={rr}
                           readFile={
-                            // rt === 'FILE' &&
-                            // readableFileFormats.includes(re as string)
-                            //   ? () => setDisplayFile(index)
-                            //   :
                             rt === 'FILE'
-                              ? //  && downloadFormats.includes(re as string)
-                                () => downloadFile(r_id)
+                              ? readableFileFormats.includes(re as string)
+                                ? () => setDisplayFile(index)
+                                : () => downloadFile(r_id)
                               : undefined
                           }
                           name={`${rn}${re ? '.' : ''}${re ?? ''}`}
