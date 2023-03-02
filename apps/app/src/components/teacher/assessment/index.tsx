@@ -38,13 +38,12 @@ export default function Assessments() {
       }),
     });
     createNewAssessment({
-      number_per_group: 1,
       submission_type: 'Individual',
       annual_credit_unit_subject_id: annual_credit_unit_subject_id as string,
       is_assignment: false,
     })
       .then((assessment) => {
-        setActiveAssessment(assessment);
+        setActiveAssessment({ ...assessment, total_mark: 0 });
         notif.update({
           render: formatMessage({ id: 'assessmentCreatedSuccessfully' }),
         });

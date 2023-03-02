@@ -102,7 +102,7 @@ export default function Assignments() {
             id: 'createAssignmentSuccessfull',
           }),
         });
-        setActiveAssessment(newAssingment);
+        setActiveAssessment({ ...newAssingment, total_mark: 0 });
         setAssignmentNotif(undefined);
       })
       .catch((error) => {
