@@ -19,7 +19,10 @@ export class MulterConfigService implements MulterOptionsFactory {
         filename: (req, file, callback) => {
           const now = new Date();
           const fileName = file.originalname.split(' ');
-          let finalName = fileName.join('_').replace('-' || '-', '_').toLowerCase();
+          let finalName = fileName
+            .join('_')
+            .replace('-' || '-', '_')
+            .toLowerCase();
           finalName = `${now.getFullYear()}${now.getMonth()}${now.getDate()}${now.getHours()}${now.getMinutes()}${now.getSeconds()}_${now.getMilliseconds()}_${finalName}`;
           callback(null, finalName);
         },
@@ -27,19 +30,26 @@ export class MulterConfigService implements MulterOptionsFactory {
       fileFilter(req, file, callback) {
         const supportedExtensions = [
           //images
+          'jpg',
           '.png',
           '.jpeg',
           '.gif',
           '.bmp',
           //docs
+          'ppt',
           '.pdf',
           '.csv',
-          '.xsix',
+          '.pptx',
+          '.xslx',
           '.docx',
           //audios & videos
           '.mp3',
           '.mp4',
           '.webm',
+          //archive files
+          'zip',
+          'rar',
+          '7zip',
         ];
         const ext = path.extname(file.originalname).toLowerCase();
         if (!supportedExtensions.includes(ext))
