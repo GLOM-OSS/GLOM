@@ -127,9 +127,9 @@ export default function SessionDetails({
     if (pl_id !== 'new')
       getPresenceListDetails(pl_id)
         .then((presenceList) => {
-          console.log(presenceList);
           setPresenceList(presenceList);
-          if (presenceList?.students) setDisplayStudents(presenceList.students);
+          if (presenceList?.is_published)
+            setDisplayStudents(presenceList.students);
           setIsPresenceListLoading(false);
           notif.dismiss();
           setPresenceNotif(undefined);
