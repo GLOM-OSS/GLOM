@@ -42,7 +42,10 @@ export async function getCourseChapters(
   isNotDone?: boolean
 ) {
   const { data } = await http.get<Chapter[]>(
-    `/courses/${annual_credit_unit_subject_id}/chapters?isNotDone=${isNotDone}`
+    `/courses/${annual_credit_unit_subject_id}/chapters`,
+    {
+      params: { isNotDone },
+    }
   );
   return data;
 }

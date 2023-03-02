@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { EvaluationSubTypeEnum, Prisma } from '@prisma/client';
 import { Assessment, Course, PresenceList, Student } from '@squoolr/interfaces';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { CourseQueryDto } from './course.dto';
 
 @Injectable()
 export class CourseService {
@@ -68,15 +67,11 @@ export class CourseService {
 
   async findAll(
     academic_year_id: string,
-    annual_teacher_id: string,
-    { semester_number }: CourseQueryDto
+    whereInput: Prisma.AnnualCreditUnitSubjectWhereInput
   ) {
     const subects = await this.prismaService.annualCreditUnitSubject.findMany({
       select: this.annualCreditUnitSubjectSelect.select,
-      where: {
-        AnnualTeacher: { annual_teacher_id },
-        AnnualCreditUnit: { semester_number },
-      },
+      where: whereInput,
     });
 
     const classrooms = await this.prismaService.annualClassroom.findMany({
@@ -158,6 +153,7 @@ export class CourseService {
       subject_title,
       annual_credit_unit_subject_id,
       AnnualCreditUnit: {
+        semester_number,
         _count: { AnnualStudentHasCreditUnits: number_of_students },
       },
     } = subject;
@@ -186,6 +182,7 @@ export class CourseService {
       subject_title,
       classroomAcronyms,
       number_of_students,
+      semester: semester_number,
       annual_credit_unit_subject_id,
       has_course_plan: Chapters.length > 0,
       is_ca_available: Boolean(
@@ -233,9 +230,6 @@ export class CourseService {
     annual_credit_unit_subject_id: string,
     isNotDone?: boolean
   ) {
-    // const presenceLists = await this.prismaService.presenceList.findMany({
-    //   where: { annual_credit_unit_subject_id },
-    // });
     const chapters = await this.prismaService.chapter.findMany({
       select: {
         chapter_id: true,

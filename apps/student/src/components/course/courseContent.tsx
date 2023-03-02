@@ -226,7 +226,7 @@ export default function CourseContent({
             id: activeChapter ? 'chapterParts' : 'chapters',
           })}
         </Typography>
-        <Scrollbars autoHide>
+        <Scrollbars autoHeight>
           {isCourseLoading || areChaptersLoading ? (
             <Box sx={{ display: 'grid', rowGap: theme.spacing(2) }}>
               {[...new Array(10)].map((_, index) => (
