@@ -255,6 +255,11 @@ export class AuthService {
       select: {
         student_id: true,
         annual_student_id: true,
+        Student: {
+          select: {
+            Classroom: { select: { classroom_code: true, level: true } },
+          },
+        },
         AnnualStudentHasCreditUnits: {
           distinct: ['semester_number'],
           select: { semester_number: true },
@@ -270,12 +275,17 @@ export class AuthService {
       const {
         student_id,
         annual_student_id,
+        Student: {
+          Classroom: { classroom_code, level: classroom_level },
+        },
         AnnualStudentHasCreditUnits: crediUnits,
       } = annualStudent;
       availableRoles = {
         ...availableRoles,
         annualStudent: {
           student_id,
+          classroom_code,
+          classroom_level,
           annual_student_id,
           activeSemesters: crediUnits.map((_) => _.semester_number),
         },

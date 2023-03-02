@@ -8,8 +8,10 @@ import {
   Student,
 } from '@squoolr/interfaces';
 
-export async function getCourses() {
-  const { data } = await http.get<Course[]>(`/courses/all`);
+export async function getCourses(semester_number?: number) {
+  const { data } = await http.get<Course[]>(`/courses/all`, {
+    params: { semester_number },
+  });
   return data;
 }
 
@@ -40,7 +42,10 @@ export async function getCourseChapters(
   isNotDone?: boolean
 ) {
   const { data } = await http.get<Chapter[]>(
-    `/courses/${annual_credit_unit_subject_id}/chapters?isNotDone=${isNotDone}`
+    `/courses/${annual_credit_unit_subject_id}/chapters`,
+    {
+      params: { isNotDone },
+    }
   );
   return data;
 }

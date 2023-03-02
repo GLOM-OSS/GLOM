@@ -1,24 +1,30 @@
 import {
   ExpandMore,
   KeyboardBackspaceOutlined,
-  ReportRounded
+  ReportRounded,
 } from '@mui/icons-material';
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Box, Fab,
+  Box,
+  Fab,
   lighten,
   Skeleton,
-  Typography
+  Typography,
 } from '@mui/material';
+import {
+  getChapterParts,
+  getChapterResources,
+  getCourseChapters,
+  getCourseResources,
+} from '@squoolr/api-services';
 import { Chapter, Course, Resource } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
-import ResourceDisplay from '../../components/course/resourceDisplay';
 import ChapterLane, { ChapterLaneSkeleton } from './chapterLaneSkeleton';
 import ResourceDisplay from './resourceDisplay';
 
@@ -44,71 +50,40 @@ export default function CourseContent({
       chapterNotif.dismiss();
     }
     setChapterNotif(notif);
-    setTimeout(() => {
-      if (course && !chapter_id) {
-        //TODO: CALL API HERE TO LOAD course chapters
-        // eslint-disable-next-line no-constant-condition
-        if (5 > 4) {
-          const newChapters: Chapter[] = [
-            {
-              annual_credit_unit_subject_id: 'lsiels',
-              chapter_id: 'siesl',
-              chapter_objective: 'Make it rain oooo',
-              chapter_position: 1,
-              chapter_title: 'Intro to course',
-            },
-          ];
-          setChapters(newChapters);
-          setAreChaptersLoading(false);
-          notif.dismiss();
-          setChapterNotif(undefined);
-        } else {
-          notif.notify({
-            render: formatMessage({ id: 'loadingChapters' }),
-          });
-          notif.update({
-            type: 'ERROR',
-            render: (
-              <ErrorMessage
-                retryFunction={() => loadChapters(chapter_id)}
-                notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'getChaptersFailed' })}
-              />
-            ),
-            autoClose: false,
-            icon: () => <ReportRounded fontSize="medium" color="error" />,
-          });
-        }
-      } else if (course && chapter_id) {
-        //TODO: CALL API HERE TO LOAD chapter subchapters
-        // eslint-disable-next-line no-constant-condition
-        if (5 > 4) {
-          const newChapters: Chapter[] = [];
-          setChapters(newChapters);
-          setAreChaptersLoading(false);
-          notif.dismiss();
-          setChapterNotif(undefined);
-        } else {
-          notif.notify({
-            render: formatMessage({ id: 'loadingSubChapters' }),
-          });
-          notif.update({
-            type: 'ERROR',
-            render: (
-              <ErrorMessage
-                retryFunction={() => loadChapters(chapter_id)}
-                notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'getSubChaptersFailed' })}
-              />
-            ),
-            autoClose: false,
-            icon: () => <ReportRounded fontSize="medium" color="error" />,
-          });
-        }
-      }
-    }, 3000);
+    (chapter_id
+      ? getChapterParts(chapter_id)
+      : getCourseChapters(course?.annual_credit_unit_subject_id as string)
+    )
+      .then((chapters) => {
+        setChapters(chapters);
+        setAreChaptersLoading(false);
+        notif.dismiss();
+        setChapterNotif(undefined);
+      })
+      .catch((error) => {
+        notif.notify({
+          render: formatMessage({
+            id: chapter_id ? 'loadingSubChapters' : 'loadingChapters',
+          }),
+        });
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => loadChapters(chapter_id)}
+              notification={notif}
+              message={
+                error?.message ||
+                formatMessage({
+                  id: chapter_id ? 'getSubChaptersFailed' : 'getChaptersFailed',
+                })
+              }
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      });
   };
 
   const [areResourcesLoading, setAreResourcesLoading] = useState<boolean>(true);
@@ -122,105 +97,51 @@ export default function CourseContent({
       resourceNotif.dismiss();
     }
     setResourceNotif(notif);
-    setTimeout(() => {
-      if (course && !chapter_id) {
-        //TODO: CALL API HERE TO LOAD course resources
-        // eslint-disable-next-line no-constant-condition
-        if (5 > 4) {
-          const newResources: Resource[] = [
-            {
-              annual_credit_unit_subject_id: 'sleoe',
-              chapter_id: 'wieol',
-              resource_extension: '.pdf',
-              resource_id: 'iwoe',
-              resource_name: 'Boston riely',
-              resource_ref: 'https://squoolr.com',
-              resource_type: 'FILE',
-            },
-            {
-              annual_credit_unit_subject_id: 'sleoe',
-              chapter_id: 'wieol',
-              resource_extension: '.pdf',
-              resource_id: 'iwoe',
-              resource_name: 'Boston',
-              resource_ref: 'https://squoolr.com',
-              resource_type: 'LINK',
-            },
-            {
-              annual_credit_unit_subject_id: 'sleoe',
-              chapter_id: 'wieol',
-              resource_extension: '.docx',
-              resource_id: 'iwoe',
-              resource_name: "Introduction a l'algorithmique",
-              resource_ref: 'https://squoolr.com',
-              resource_type: 'FILE',
-            },
-            {
-              annual_credit_unit_subject_id: 'sleoe',
-              chapter_id: 'wieol',
-              resource_extension: '.docx',
-              resource_id: 'iwoe',
-              resource_name: "Introduction a l'algorithmique",
-              resource_ref: 'https://squoolr.com',
-              resource_type: 'FILE',
-            },
-          ];
-          setResources(newResources);
-          setAreResourcesLoading(false);
-          notif.dismiss();
-          setResourceNotif(undefined);
-        } else {
-          notif.notify({
-            render: formatMessage({ id: 'loadingCourseResources' }),
-          });
-          notif.update({
-            type: 'ERROR',
-            render: (
-              <ErrorMessage
-                retryFunction={() => loadResources(chapter_id)}
-                notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'getResourcesFailed' })}
-              />
-            ),
-            autoClose: false,
-            icon: () => <ReportRounded fontSize="medium" color="error" />,
-          });
-        }
-      } else if (course && chapter_id) {
-        //TODO: CALL API HERE TO LOAD chapter resources
-        // eslint-disable-next-line no-constant-condition
-        if (5 > 4) {
-          const newResources: Resource[] = [];
-          setResources(newResources);
-          setAreResourcesLoading(false);
-          notif.dismiss();
-          setResourceNotif(undefined);
-        } else {
-          notif.notify({
-            render: formatMessage({ id: 'loadingChapterResources' }),
-          });
-          notif.update({
-            type: 'ERROR',
-            render: (
-              <ErrorMessage
-                retryFunction={() => loadResources(chapter_id)}
-                notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'getChapterResourcesFailed' })}
-              />
-            ),
-            autoClose: false,
-            icon: () => <ReportRounded fontSize="medium" color="error" />,
-          });
-        }
-      }
-    }, 3000);
+    (chapter_id
+      ? getChapterResources(chapter_id)
+      : getCourseResources(course?.annual_credit_unit_subject_id as string)
+    )
+      .then((resources) => {
+        setResources(resources);
+        setAreResourcesLoading(false);
+        notif.dismiss();
+        setResourceNotif(undefined);
+      })
+      .catch((error) => {
+        notif.notify({
+          render: formatMessage({
+            id: chapter_id
+              ? 'loadingChapterResources'
+              : 'loadingCourseResources',
+          }),
+        });
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => loadResources(chapter_id)}
+              notification={notif}
+              message={
+                error?.message ||
+                formatMessage({
+                  id: chapter_id
+                    ? 'getChapterResourcesFailed'
+                    : 'getResourcesFailed',
+                })
+              }
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      });
   };
 
   useEffect(() => {
-    loadChapters(activeChapter ? activeChapter.chapter_id : undefined);
-    loadResources(activeChapter ? activeChapter.chapter_id : undefined);
+    if (course) {
+      loadChapters(activeChapter?.chapter_id);
+      loadResources(activeChapter?.chapter_id);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChapter, course]);
 
@@ -305,7 +226,7 @@ export default function CourseContent({
             id: activeChapter ? 'chapterParts' : 'chapters',
           })}
         </Typography>
-        <Scrollbars autoHide>
+        <Scrollbars autoHeight>
           {isCourseLoading || areChaptersLoading ? (
             <Box sx={{ display: 'grid', rowGap: theme.spacing(2) }}>
               {[...new Array(10)].map((_, index) => (

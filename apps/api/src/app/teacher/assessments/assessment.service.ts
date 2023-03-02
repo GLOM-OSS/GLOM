@@ -27,10 +27,11 @@ import {
   ERR28,
   ERR29,
   ERR30,
+  ERR31,
 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
-import { CorrectAnswerDto, QuestionAnswer } from '../courses/course.dto';
+import { CorrectSubmissionDto, QuestionAnswer } from '../courses/course.dto';
 import {
   AssessmentPostDto,
   QuestionPostDto,
@@ -67,21 +68,25 @@ export class AssessmentService {
 
   async createAssessment(
     {
-      annual_credit_unit_subject_id,
       is_assignment,
+      submission_type,
+      number_per_group,
+      annual_credit_unit_subject_id,
       ...newAssessment
     }: AssessmentPostDto,
     created_by: string
   ) {
     const assessmentInput: Prisma.AssessmentCreateInput = {
       is_assignment,
+      submission_type,
+      number_per_group,
       ...newAssessment,
       AnnualCreditUnitSubject: {
         connect: { annual_credit_unit_subject_id },
       },
       AnnualTeacher: { connect: { annual_teacher_id: created_by } },
     };
-    if (is_assignment) {
+    if (is_assignment && submission_type === 'Group') {
       const assessment_id = randomUUID();
       const annualStudents: Prisma.AnnualStudentTakeAssessmentCreateManyInput[] =
         (
@@ -106,8 +111,13 @@ export class AssessmentService {
           annual_student_id,
           annual_student_take_assessment_id: randomUUID(),
         }));
-      const groupCode = await this.codeGenerator.getGroupCode(
-        annual_credit_unit_subject_id
+
+      const numberOfGroups = Math.ceil(
+        annualStudents.length / number_per_group
+      );
+      const groupCodes = await this.codeGenerator.getGroupCodes(
+        annual_credit_unit_subject_id,
+        numberOfGroups
       );
       return this.prismaService.$transaction([
         this.prismaService.annualStudentTakeAssessment.createMany({
@@ -120,9 +130,13 @@ export class AssessmentService {
             AssignmentGroupMembers: {
               createMany: {
                 data: annualStudents.map(
-                  ({ annual_student_take_assessment_id, ...groupMember }) => ({
+                  (
+                    { annual_student_take_assessment_id, ...groupMember },
+                    index
+                  ) => ({
                     ...groupMember,
-                    group_code: groupCode,
+                    group_code:
+                      groupCodes[Math.floor(index / number_per_group)],
                     annual_student_take_assessment_id,
                   })
                 ),
@@ -473,11 +487,12 @@ export class AssessmentService {
     } else {
       const assignmentGroupMembers =
         await this.prismaService.assignmentGroupMember.findMany({
+          orderBy: { approved_at: 'asc' },
           distinct: ['group_code'],
           select: {
             group_code: true,
             total_score: true,
-            has_submitted: true,
+            approved_at: true,
             assessment_id: true,
             assignment_group_id: true,
           },
@@ -488,9 +503,9 @@ export class AssessmentService {
         by: ['group_code'],
         where: { assessment_id },
       });
-      return assignmentGroupMembers.map(({ has_submitted, ...group }) => ({
+      return assignmentGroupMembers.map(({ approved_at, ...group }) => ({
         ...group,
-        is_submitted: has_submitted,
+        is_submitted: Boolean(approved_at),
         number_of_students: groups.find(
           (_) => _.group_code === group.group_code
         )._count,
@@ -811,7 +826,7 @@ export class AssessmentService {
     }
   }
 
-  async submitStudentAnswers(
+  async submitAssessment(
     annual_student_id: string,
     assessment_id: string,
     studentAnswers: QuestionAnswer[],
@@ -826,7 +841,7 @@ export class AssessmentService {
     const {
       created_at,
       submitted_at,
-      AssignmentGroupMembers: groupIds,
+      AssignmentGroupMembers: groupMembers,
       annual_student_take_assessment_id,
       Assessment: { assessment_date, is_assignment, duration },
     } = await this.prismaService.annualStudentTakeAssessment.findFirstOrThrow({
@@ -842,12 +857,14 @@ export class AssessmentService {
           },
         },
         AssignmentGroupMembers: {
-          select: { group_code: true },
+          select: { group_code: true, approved_at: true },
           where: { assessment_id },
         },
       },
       where: { annual_student_id, assessment_id },
     });
+    if (groupMembers.length > 0 && groupMembers[0].approved_at)
+      throw new HttpException(JSON.stringify(ERR31), HttpStatus.FORBIDDEN);
     if (!is_assignment) {
       const allowedDate = new Date(
         new Date(assessment_date).getTime() + (duration / 8) * 60 * 1000
@@ -876,7 +893,7 @@ export class AssessmentService {
                   AssignmentGroupMembers: {
                     some: {
                       assessment_id,
-                      OR: groupIds.map(({ group_code }) => ({
+                      OR: groupMembers.map(({ group_code }) => ({
                         group_code,
                       })),
                     },
@@ -1010,8 +1027,7 @@ export class AssessmentService {
       await this.prismaService.assignmentGroupMember.findMany({
         select: {
           total_score: true,
-          has_approved: true,
-          has_submitted: true,
+          approved_at: true,
           annual_student_take_assessment_id: true,
           AnnualStudentTakeAssessment: {
             select: this.annualStudentTakeAssessmentSelect,
@@ -1047,12 +1063,12 @@ export class AssessmentService {
       number_of_students: 0,
       total_score: groupMembers.length > 0 ? groupMembers[0].total_score : 0,
       is_submitted: groupMembers.reduce(
-        (isSubmitted, { has_submitted }) => isSubmitted && has_submitted,
+        (isSubmitted, { approved_at }) => isSubmitted && Boolean(approved_at),
         true
       ),
       members: groupMembers.map(
         ({
-          has_approved,
+          approved_at,
           AnnualStudentTakeAssessment: {
             total_score,
             AnnualStudent: {
@@ -1065,7 +1081,7 @@ export class AssessmentService {
             },
           },
         }) => ({
-          has_approved,
+          approved_at,
           first_name,
           last_name,
           annual_student_id,
@@ -1123,14 +1139,14 @@ export class AssessmentService {
     );
   }
 
-  async correctAssignmentAnswers(
+  async correctSubmission(
     assessment_id: string,
     {
       group_code,
       givenScores,
       correctedAnswers,
       annual_student_id,
-    }: CorrectAnswerDto,
+    }: CorrectSubmissionDto,
     corrected_by: string
   ) {
     const { is_assignment, is_published } =
@@ -1143,7 +1159,7 @@ export class AssessmentService {
       throw new HttpException(JSON.stringify(ERR28), HttpStatus.BAD_REQUEST);
     const unapprovedGroupMember =
       await this.prismaService.assignmentGroupMember.findFirst({
-        where: { group_code, assessment_id, has_approved: false },
+        where: { group_code, assessment_id, approved_at: null },
       });
     if (!unapprovedGroupMember)
       throw new HttpException(JSON.stringify(ERR29), HttpStatus.BAD_REQUEST);

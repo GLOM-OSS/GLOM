@@ -3,6 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { DeserializeSessionData } from '../../../utils/types';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
+import { CourseQueryDto } from './course.dto';
 import { CourseService } from './course.service';
 
 @Controller()
@@ -12,12 +13,33 @@ export class CourseController {
   constructor(private courseService: CourseService) {}
 
   @Get('all')
-  async getCourses(@Req() request: Request) {
+  async getCourses(
+    @Req() request: Request,
+    @Query() { semester_number }: CourseQueryDto
+  ) {
     const {
+      annualTeacher,
+      annualStudent,
       activeYear: { academic_year_id },
-      annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
-    return this.courseService.findAll(academic_year_id, annual_teacher_id);
+    return this.courseService.findAll(academic_year_id, {
+      ...(annualTeacher
+        ? {
+            AnnualTeacher: {
+              annual_teacher_id: annualTeacher.annual_teacher_id,
+            },
+          }
+        : annualStudent
+        ? {
+            AnnualCreditUnit: {
+              AnnualStudentHasCreditUnits: {
+                some: { annual_student_id: annualStudent.annual_student_id },
+              },
+            },
+          }
+        : {}),
+      AnnualCreditUnit: { semester_number },
+    });
   }
 
   @Get(':annual_credit_unit_subject_id')

@@ -104,7 +104,7 @@ export class GivenScore {
   total_score: number;
 }
 
-export class CorrectAnswerDto {
+export class CorrectSubmissionDto {
   @IsString()
   @IsOptional()
   @ApiProperty()
@@ -127,4 +127,11 @@ export class CorrectAnswerDto {
   @ValidateNested({ each: true })
   @ApiProperty({ required: false })
   givenScores?: GivenScore[];
+}
+
+export class CourseQueryDto {
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({ required: true })
+  semester_number?: number;
 }

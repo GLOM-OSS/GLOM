@@ -31,6 +31,8 @@ export type PersonnelRole =
   | 'registry'
   | 'coordinator';
 
+export type UserRole = PersonnelRole | 'student';
+
 export interface ClassroomDivisionInterface {
   annual_classroom_division_id: string;
   annual_classroom_id: string;
@@ -69,7 +71,7 @@ export interface User {
   annualRegistry?: {
     annual_registry_id: string;
   };
-  student?: {
+  annualStudent?: {
     annual_student_id: string;
     student_id: string;
     activeSemesters: number[];
@@ -80,10 +82,11 @@ export interface User {
 }
 
 export const getUserRoles = (
-  { annualConfigurator, annualRegistry, annualTeacher, student }: User,
+  { annualConfigurator, annualRegistry, annualTeacher, annualStudent }: User,
   callingApp: 'admin' | 'personnel' | 'student'
-): (PersonnelRole | 'student')[] => {
-  const newRoles: (PersonnelRole | undefined)[] = [
+): UserRole[] => {
+  if (callingApp === 'student' && annualStudent) return ['student'];
+  const newRoles: (UserRole | undefined)[] = [
     annualConfigurator ? 'secretary' : undefined,
     annualRegistry ? 'registry' : undefined,
     annualTeacher ? 'teacher' : undefined,
@@ -92,10 +95,9 @@ export const getUserRoles = (
       ? 'coordinator'
       : undefined,
   ];
-  const Roles: PersonnelRole[] = newRoles.filter(
+  const Roles: UserRole[] = newRoles.filter(
     (_) => _ !== undefined
-  ) as PersonnelRole[];
+  ) as UserRole[];
 
-  if (callingApp === 'student' && student) return ['student'];
   return Roles.sort((a, b) => (a > b ? 1 : -1));
 };

@@ -1,18 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PaymentReasonEnum } from '@prisma/client';
 import {
+  ArrayMaxSize,
+  IsArray,
   IsDateString,
   IsEnum,
   IsNumber,
   IsOptional,
+  IsString,
   IsUUID,
-  Max,
-  Min,
 } from 'class-validator';
 
 export class StudentQueryQto {
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({ required: false })
   major_code?: string;
 
   @IsOptional()
@@ -22,20 +23,29 @@ export class StudentQueryQto {
 
 export class CreatePaymentDto {
   @IsNumber()
+  @ApiProperty()
   amount: number;
 
-  @Min(1)
-  @Max(14)
-  @IsNumber()
-  semester_number: number;
+  @IsArray()
+  @IsOptional()
+  @ArrayMaxSize(14)
+  @ApiProperty({ required: false })
+  semesterNumbers?: number[];
 
+  @ApiProperty()
   @IsEnum(PaymentReasonEnum)
   payment_reason: PaymentReasonEnum;
 
+  @ApiProperty()
   @IsDateString()
   payment_date: Date;
 
+  @IsString()
+  @ApiProperty()
+  transaction_id: string;
+
   @IsUUID()
   @IsOptional()
-  annual_student_id: string;
+  @ApiProperty({ required: false })
+  annual_student_id?: string;
 }

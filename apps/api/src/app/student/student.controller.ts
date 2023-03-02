@@ -4,6 +4,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Post,
   Query,
   Req,
   UseGuards,
@@ -83,13 +84,14 @@ export class StudentController {
         HttpStatus.BAD_REQUEST
       );
     return this.studentService.getStudentFeeSummary(
-      annualStudent?.annual_student_id ?? annual_student_id
+      annualStudent?.annual_student_id ?? annual_student_id,
+      annualStudent?.activeSemesters.length ?? 1
     );
   }
 
-  @Get('pay-fee')
+  @Post('pay-fee')
   @Roles(Role.STUDENT, Role.PARENT)
-  async payFee(
+  async payStudentFee(
     @Req() request: Request,
     @Body() { annual_student_id, ...newPayment }: CreatePaymentDto
   ) {

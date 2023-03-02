@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { signIn } from '@squoolr/api-services';
-import { getUserRoles, PersonnelRole, User, useUser } from '@squoolr/layout';
+import { getUserRoles, User, UserRole, useUser } from '@squoolr/layout';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useFormik } from 'formik';
@@ -86,11 +86,13 @@ export function Signin({
               ? storageActiveRole.split('/')[1]
               : '';
 
-            const routeUrl = userRoles.includes(routeRole as PersonnelRole)
+            const routeUrl = userRoles.includes(routeRole as UserRole)
               ? (storageActiveRole as string)
               : callingApp === 'admin'
               ? '/management'
-              : `${activeRole}/configurations`;
+              : callingApp === 'personnel'
+              ? `${activeRole}/configurations`
+              : `/student/home`;
             navigate(routeUrl);
             userDispatch({ type: 'LOAD_USER', payload: { user } });
             resetForm();

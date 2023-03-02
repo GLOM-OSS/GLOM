@@ -23,7 +23,7 @@ const UserContext = createContext<User & DispatchInterface>({
   person_id: '',
   phone_number: '',
   preferred_lang: 'en',
-  student: {
+  annualStudent: {
     annual_student_id: '',
     student_id: '',
     activeSemesters: [],

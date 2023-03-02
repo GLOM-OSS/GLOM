@@ -20,7 +20,8 @@ export interface IDiscipline {
 export interface ICreatePayment {
   amount: number;
   payment_date: Date;
-  semester_number?: number[];
+  transaction_id: string;
+  semesterNumbers?: number[];
   payment_reason: 'Platform' | 'Fee' | 'Registration';
 }
 export interface IPaymentHistory

@@ -1,7 +1,8 @@
-import { ReportRounded } from '@mui/icons-material';
+import { DoneAllOutlined, ReportRounded } from '@mui/icons-material';
 import {
   Box,
   Button,
+  Chip,
   lighten,
   Skeleton,
   Table,
@@ -11,6 +12,11 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
+import {
+  getStudentAbsences,
+  getStudentFeeSummary,
+  payStudentFee,
+} from '@squoolr/api-services';
 import { ICreatePayment, IDiscipline, IFeeSummary } from '@squoolr/interfaces';
 import { useUser } from '@squoolr/layout';
 import { theme } from '@squoolr/theme';
@@ -28,8 +34,8 @@ import { PaymentDialog } from '../../components/home/paymentDialog';
 import StatCard from '../../components/home/statCard';
 
 export default function Home() {
+  const { annualStudent } = useUser();
   const { formatMessage, formatNumber } = useIntl();
-  const { student } = useUser();
 
   const [areAbsencesLoading, setAreAbsencesLoading] = useState<boolean>(false);
   const [absences, setAbsences] = useState<IDiscipline[]>([]);
@@ -42,16 +48,14 @@ export default function Home() {
       absenceNotif.dismiss();
     }
     setAbsenceNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD student's absences
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newAbsences: IDiscipline[] = [];
-        setAbsences(newAbsences);
+    getStudentAbsences()
+      .then((absences) => {
+        setAbsences(absences);
         setAreAbsencesLoading(false);
         notif.dismiss();
         setAbsenceNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingAbsences' }),
         });
@@ -61,20 +65,26 @@ export default function Home() {
             <ErrorMessage
               retryFunction={() => loadAbsences()}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getAbsencesFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getAbsencesFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [isFeeSummaryLoading, setIsFeeSummaryLoading] =
     useState<boolean>(false);
-  const [feeSummary, setFeeSummary] = useState<IFeeSummary>();
+  const [feeSummary, setFeeSummary] = useState<IFeeSummary>({
+    paymentHistories: [],
+    registration: 0,
+    total_owing: 0,
+    total_paid: 0,
+    total_due: 0,
+  });
   const [feeNotif, setFeeNotif] = useState<useNotification>();
 
   const loadFeeSummary = () => {
@@ -84,44 +94,14 @@ export default function Home() {
       feeNotif.dismiss();
     }
     setFeeNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD student's feeSummary
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newFeeSummary: IFeeSummary = {
-          paymentHistories: [
-            {
-              amount: 10000,
-              payment_date: new Date(),
-              payment_id: 'siel',
-              payment_reason: 'Fee',
-              semester_number: 2,
-            },
-            {
-              amount: 100000,
-              payment_date: new Date(),
-              payment_id: 'siels',
-              payment_reason: 'Platform',
-              semester_number: 2,
-            },
-            {
-              amount: 100000,
-              payment_date: new Date(),
-              payment_id: 'sieals',
-              payment_reason: 'Registration',
-              semester_number: 2,
-            },
-          ],
-          total_due: 30000000,
-          total_owing: 10000000,
-          total_paid: 20000000,
-          registration: 100000,
-        };
-        setFeeSummary(newFeeSummary);
+    getStudentFeeSummary()
+      .then((feeSummary) => {
+        setFeeSummary(feeSummary);
         setIsFeeSummaryLoading(false);
         notif.dismiss();
         setFeeNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingFeeSummary' }),
         });
@@ -131,15 +111,15 @@ export default function Home() {
             <ErrorMessage
               retryFunction={() => loadFeeSummary()}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getFeeSummaryFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getFeeSummaryFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
@@ -176,35 +156,44 @@ export default function Home() {
         id: 'submittingPayment',
       }),
     });
-    setTimeout(() => {
-      //TODO: CALL API HERE TO submit payment with data payment
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        setIsSubmitting(false);
+    payStudentFee(payment)
+      .then((paymentHistories) => {
+        setFeeSummary(({ total_owing, total_paid, ...feeSummary }) => ({
+          ...feeSummary,
+          total_paid: total_paid + payment.amount,
+          total_owing: total_owing - payment.amount,
+          paymentHistories: [
+            ...feeSummary.paymentHistories,
+            ...paymentHistories,
+          ],
+        }));
         notif.update({
           render: formatMessage({
             id: 'paymentSubmissionSuccessfull',
           }),
         });
         setSubmitNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() => submitPayment(payment)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({
-                id: 'paymentSubmissionFailed',
-              })}
+              message={
+                error?.message ||
+                formatMessage({
+                  id: 'paymentSubmissionFailed',
+                })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsSubmitting(false));
   };
 
   return (
@@ -212,10 +201,8 @@ export default function Home() {
       <PaymentDialog
         closeDialog={() => setIsPaymentDialogOpen(false)}
         isDialogOpen={isPaymentdialogOPen}
-        unpaidSemesters={student ? student.activeSemesters : []}
-        totalDue={
-          feeSummary ? feeSummary.total_due - feeSummary.registration : 0
-        }
+        unpaidSemesters={annualStudent ? annualStudent.activeSemesters : []}
+        feeSummary={feeSummary}
         confirm={submitPayment}
       />
       <Box
@@ -362,15 +349,34 @@ export default function Home() {
             <Typography variant="h6">
               {formatMessage({ id: 'paymentHistory' })}
             </Typography>
-            <Button
-              variant="contained"
-              size="small"
-              color="primary"
-              onClick={() => setIsPaymentDialogOpen(true)}
-              disabled={isFeeSummaryLoading || !feeSummary || isSubmitting}
-            >
-              {formatMessage({ id: 'pay' })}
-            </Button>
+            {feeSummary &&
+            feeSummary.total_owing === 0 &&
+            annualStudent &&
+            annualStudent.activeSemesters.length === 0 ? (
+              <Chip
+                color="success"
+                icon={<DoneAllOutlined />}
+                label={formatMessage({ id: 'solvent' })}
+                sx={{
+                  backgroundColor: lighten(theme.palette.success.main, 0.4),
+                }}
+              />
+            ) : (
+              <Button
+                variant="contained"
+                size="small"
+                color="primary"
+                onClick={() => setIsPaymentDialogOpen(true)}
+                disabled={
+                  isFeeSummaryLoading ||
+                  !feeSummary ||
+                  isSubmitting ||
+                  !annualStudent
+                }
+              >
+                {formatMessage({ id: 'pay' })}
+              </Button>
+            )}
           </Box>
           <Scrollbars autoHide>
             <Box sx={{ display: 'grid', rowGap: 2, alignContent: 'start' }}>
@@ -378,9 +384,15 @@ export default function Home() {
                 ? [...new Array(7)].map((_, index) => (
                     <Skeleton height={100} animation="wave" key={index} />
                   ))
-                : feeSummary.paymentHistories.map((payment, index) => (
-                    <PaymentCard key={index} payment={payment} />
-                  ))}
+                : feeSummary.paymentHistories
+                    .sort(
+                      (a, b) =>
+                        new Date(b.payment_date).getTime() -
+                        new Date(a.payment_date).getTime()
+                    )
+                    .map((payment, index) => (
+                      <PaymentCard key={index} payment={payment} />
+                    ))}
             </Box>
           </Scrollbars>
         </Box>

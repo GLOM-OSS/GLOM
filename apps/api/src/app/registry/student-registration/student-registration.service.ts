@@ -1,5 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { AnnualStudent, Person, PrismaPromise, Student } from '@prisma/client';
+import {
+  AnnualStudent,
+  Person,
+  Prisma,
+  PrismaPromise,
+  Student,
+} from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { AUTH404 } from '../../../../src/errors';
@@ -83,7 +89,12 @@ export class StudentRegistrationService {
         email: true,
         person_id: true,
         Logins: {
-          select: { login_id: true, school_id: true, is_parent: true },
+          select: {
+            login_id: true,
+            school_id: true,
+            is_parent: true,
+            Students: { select: { student_id: true, matricule: true } },
+          },
         },
       },
       where: {
@@ -164,6 +175,49 @@ export class StudentRegistrationService {
           },
         };
 
+        const studentId =
+          existingAccounts
+            .find((_) => _.email === person.email)
+            ?.Logins.find((_) => _.school_id === school_id)
+            ?.Students.find((_) => _.matricule === matricule).student_id ??
+          randomUUID();
+        const studentCreateInput: Prisma.StudentCreateInput = {
+          matricule,
+          student_id: studentId,
+          Login: {
+            connect: {
+              person_id_school_id: {
+                school_id,
+                person_id: newStudentPerson.person_id,
+              },
+            },
+          },
+          Classroom: { connect: { classroom_id } },
+          Tutor: {
+            connect: {
+              login_id: tutorLoginId,
+            },
+          },
+        };
+        const annualStudentcreateInput: Prisma.AnnualStudentCreateInput = {
+          Student: {
+            connect: { matricule },
+          },
+          AnnualClassroomDivision: {
+            connect: {
+              annual_classroom_division_id,
+            },
+          },
+          AcademicYear: { connect: { academic_year_id } },
+          AnnualStudentHasCreditUnits: {
+            create: annualCreditUnit.map(
+              ({ annual_credit_unit_id, semester_number }) => ({
+                semester_number,
+                annual_credit_unit_id,
+              })
+            ),
+          },
+        };
         return [
           ...queries,
           this.prismaService.person.upsert({
@@ -188,44 +242,17 @@ export class StudentRegistrationService {
             where: { email: tutor_email },
           }),
           this.prismaService.student.upsert({
-            create: {
-              matricule,
-              Login: {
-                connect: {
-                  person_id_school_id: {
-                    school_id,
-                    person_id: newStudentPerson.person_id,
-                  },
-                },
-              },
-              Classroom: { connect: { classroom_id } },
-              Tutor: {
-                connect: {
-                  login_id: tutorLoginId,
-                },
-              },
-            },
-            update: {},
+            create: studentCreateInput,
+            update: studentCreateInput,
             where: { matricule },
           }),
-          this.prismaService.annualStudent.create({
-            data: {
-              Student: {
-                connect: { matricule },
-              },
-              AnnualClassroomDivision: {
-                connect: {
-                  annual_classroom_division_id,
-                },
-              },
-              AcademicYear: { connect: { academic_year_id } },
-              AnnualStudentHasCreditUnits: {
-                create: annualCreditUnit.map(
-                  ({ annual_credit_unit_id, semester_number }) => ({
-                    semester_number,
-                    annual_credit_unit_id,
-                  })
-                ),
+          this.prismaService.annualStudent.upsert({
+            create: annualStudentcreateInput,
+            update: annualStudentcreateInput,
+            where: {
+              student_id_academic_year_id: {
+                student_id: studentId,
+                academic_year_id,
               },
             },
           }),

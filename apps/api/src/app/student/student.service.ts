@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   IDiscipline,
   IFeeSummary,
+  IPaymentHistory,
   Student as StudentInface,
   StudentDetail,
 } from '@squoolr/interfaces';
@@ -157,7 +158,7 @@ export class StudentService {
                 absences:
                   (new Date(end_time).getTime() -
                     new Date(start_time).getTime()) /
-                  (3.6 * 1e5),
+                  (3.6 * 1e6),
               },
             ]
           : absences,
@@ -165,7 +166,10 @@ export class StudentService {
     );
   }
 
-  async getStudentFeeSummary(annual_student_id: string): Promise<IFeeSummary> {
+  async getStudentFeeSummary(
+    annual_student_id: string,
+    numberOfSemesters: number
+  ): Promise<IFeeSummary> {
     const annualStudent = await this.prismaService.annualStudent.findUnique({
       select: {
         AnnualClassroomDivision: {
@@ -189,9 +193,12 @@ export class StudentService {
       },
     } = annualStudent;
     const paymentHistories = await this.prismaService.payment.findMany({
-      where: { annual_student_id, payment_reason: { not: 'Fee' } },
+      where: { annual_student_id },
     });
-    const total_due = total_fee_due + registration_fee;
+    const total_due =
+      total_fee_due +
+      registration_fee +
+      Number(process.env.PLATFORM_FEE) * numberOfSemesters;
     const total_paid = paymentHistories.reduce(
       (total, { amount }) => total + amount,
       0
@@ -206,15 +213,35 @@ export class StudentService {
   }
 
   async payStudentFee(
-    { annual_student_id, ...newPayment }: CreatePaymentDto,
+    {
+      annual_student_id,
+      transaction_id,
+      semesterNumbers,
+      ...newPayment
+    }: CreatePaymentDto,
     paid_by: string
-  ) {
-    return this.prismaService.payment.create({
-      data: {
-        ...newPayment,
-        AnnualStudent: { connect: { annual_student_id } },
-        Login: { connect: { login_id: paid_by } },
-      },
+  ): Promise<IPaymentHistory[]> {
+    await this.prismaService.payment.createMany({
+      data:
+        semesterNumbers && semesterNumbers.length > 0
+          ? semesterNumbers.map((semester_number) => ({
+              paid_by,
+              ...newPayment,
+              transaction_id,
+              semester_number,
+              annual_student_id,
+            }))
+          : [
+              {
+                paid_by,
+                ...newPayment,
+                transaction_id,
+                annual_student_id,
+              },
+            ],
+    });
+    return this.prismaService.payment.findMany({
+      where: { transaction_id },
     });
   }
 }

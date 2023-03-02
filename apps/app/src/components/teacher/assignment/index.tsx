@@ -1,5 +1,9 @@
 import { ReportRounded } from '@mui/icons-material';
-import { activateAssessment } from '@squoolr/api-services';
+import {
+  activateAssessment,
+  createNewAssessment,
+  getCourse,
+} from '@squoolr/api-services';
 import {
   ActivateAssessment,
   Assessment,
@@ -20,7 +24,9 @@ import StudentResponse from '../assessment/studentResponse';
 import SubmissionList from '../assessment/submissionList';
 import CreateAssignmentDialog from './createAssignmentDialog';
 
-export type SubmissionEntity = Omit<StudentAssessmentAnswer, 'questionAnswers'> | IGroupAssignment
+export type SubmissionEntity =
+  | Omit<StudentAssessmentAnswer, 'questionAnswers'>
+  | IGroupAssignment;
 
 export default function Assignments() {
   const { formatMessage } = useIntl();
@@ -30,35 +36,21 @@ export default function Assignments() {
   const [course, setCourse] = useState<Course>();
   const [courseNotif, setCourseNotif] = useState<useNotification>();
 
-  const loadCourse = (annual_credit_unit_subject_id?: string) => {
+  const loadCourse = (annual_credit_unit_subject_id: string) => {
     setIsCourseLoading(true);
     const notif = new useNotification();
     if (courseNotif) {
       courseNotif.dismiss();
     }
     setCourseNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD course
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newCourse: Course = {
-          annual_credit_unit_subject_id: 'siels',
-          classroomAcronyms: [],
-          has_course_plan: false,
-          is_ca_available: false,
-          is_exam_available: false,
-          is_resit_available: false,
-          objective: 'make it rain',
-          subject_code: 'UC0116',
-          subject_title: "Introduction a l'algorithmique",
-          semester: 2,
-          number_of_students: 40,
-        };
-        setCourse(newCourse);
+    getCourse(annual_credit_unit_subject_id)
+      .then((course) => {
+        setCourse(course);
         setIsCourseLoading(false);
         notif.dismiss();
         setCourseNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingCourse' }),
         });
@@ -68,22 +60,21 @@ export default function Assignments() {
             <ErrorMessage
               retryFunction={() => loadCourse(annual_credit_unit_subject_id)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getCourseFailed' })}
+              message={
+                error?.message || formatMessage({ id: 'getCourseFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [activeAssessment, setActiveAssessment] = useState<Assessment>();
   const [assessmentNotif, setAssessmentNotif] = useState<useNotification>();
   const [showStatistics, setShowStatistics] = useState<boolean>(false);
-  const [activeStudent, setActiveStudent] =
-    useState<SubmissionEntity>();
+  const [activeStudent, setActiveStudent] = useState<SubmissionEntity>();
   const [showResponses, setShowResponses] = useState<boolean>(false);
   const [isActivatingAssessment, setIsActivatingAssessment] =
     useState<boolean>(false);
@@ -92,7 +83,7 @@ export default function Assignments() {
     useState<boolean>(false);
   const [assignmentNotif, setAssignmentNotif] = useState<useNotification>();
 
-  const createAssignment = (assignment: CreateAssessment) => {
+  const createAssignmentHandler = (assignment: CreateAssessment) => {
     setIsCreatingAssignment(true);
     const notif = new useNotification();
     if (assignmentNotif) {
@@ -104,35 +95,35 @@ export default function Assignments() {
         id: 'creatingAssignment',
       }),
     });
-    setTimeout(() => {
-      //TODO: CALL API HERE TO create assignment
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        setIsCreatingAssignment(false);
+    createNewAssessment(assignment)
+      .then(() => {
         notif.update({
           render: formatMessage({
             id: 'createAssignmentSuccessfull',
           }),
         });
         setAssignmentNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={() => createAssignment(assignment)}
+              retryFunction={() => createAssignmentHandler(assignment)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({
-                id: 'createAssignmentFailed',
-              })}
+              message={
+                error?.message ||
+                formatMessage({
+                  id: 'createAssignmentFailed',
+                })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsCreatingAssignment(false));
   };
   const [
     isConfirmActivateAssignmentDialogOpen,
@@ -218,7 +209,7 @@ export default function Assignments() {
       />
       <CreateAssignmentDialog
         closeDialog={() => setIsCreateAssignmentDialogOpen(false)}
-        handleSubmit={createAssignment}
+        handleSubmit={createAssignmentHandler}
         isDialogOpen={isCreateAssignmentDialogOpen}
         totalStudents={
           course && course.number_of_students && !isCourseLoading

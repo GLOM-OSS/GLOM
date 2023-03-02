@@ -69,7 +69,7 @@ function UserContextProvider({
       teacher_id: 'htsl',
       classroomDivisions: ['Hello', 'Yes'],
     },
-    student: {
+    annualStudent: {
       annual_student_id: 'wieo',
       student_id: 'sieosl',
       activeSemesters: [1, 2, 3],

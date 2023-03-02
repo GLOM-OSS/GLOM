@@ -11,6 +11,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  Min,
   ValidateNested,
 } from 'class-validator';
 
@@ -96,9 +97,11 @@ export class AssessmentPostDto {
   @ApiProperty()
   is_assignment: boolean;
 
+  @Min(2)
   @IsNumber()
-  @ApiProperty()
-  number_per_group: number;
+  @IsOptional()
+  @ApiProperty({ required: false })
+  number_per_group?: number;
 
   @IsUUID()
   @ApiProperty()

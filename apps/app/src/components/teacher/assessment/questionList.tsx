@@ -154,7 +154,8 @@ export default function QuestionList({
     resources: {
       id: string;
       file: File;
-    }[]
+    }[],
+    answerFile?: File
   ) => {
     setIsCreatingQuestion(true);
     const notif = new useNotification();
@@ -167,7 +168,8 @@ export default function QuestionList({
     });
     createNewQuestion(
       question,
-      resources.map((_) => _.file)
+      resources.map((_) => _.file),
+      answerFile
     )
       .then((newQuestion) => {
         setQuestions([

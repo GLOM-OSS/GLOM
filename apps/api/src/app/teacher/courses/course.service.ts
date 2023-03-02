@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EvaluationSubTypeEnum, Prisma } from '@prisma/client';
-import { Assessment, Course, PresenceList } from '@squoolr/interfaces';
+import { Assessment, Course, PresenceList, Student } from '@squoolr/interfaces';
 import { PrismaService } from '../../../prisma/prisma.service';
 
 @Injectable()
@@ -65,10 +65,13 @@ export class CourseService {
     });
   constructor(private prismaService: PrismaService) {}
 
-  async findAll(academic_year_id: string, annual_teacher_id: string) {
+  async findAll(
+    academic_year_id: string,
+    whereInput: Prisma.AnnualCreditUnitSubjectWhereInput
+  ) {
     const subects = await this.prismaService.annualCreditUnitSubject.findMany({
       select: this.annualCreditUnitSubjectSelect.select,
-      where: { AnnualTeacher: { annual_teacher_id } },
+      where: whereInput,
     });
 
     const classrooms = await this.prismaService.annualClassroom.findMany({
@@ -120,12 +123,7 @@ export class CourseService {
     });
     const annualCreditUnitSubject =
       await this.prismaService.annualCreditUnitSubject.findUniqueOrThrow({
-        select: {
-          ...this.annualCreditUnitSubjectSelect.select,
-          _count: {
-            select: {},
-          },
-        },
+        select: this.annualCreditUnitSubjectSelect.select,
         where: { annual_credit_unit_subject_id },
       });
     const activeYear = await this.prismaService.academicYear.findUnique({
@@ -155,6 +153,7 @@ export class CourseService {
       subject_title,
       annual_credit_unit_subject_id,
       AnnualCreditUnit: {
+        semester_number,
         _count: { AnnualStudentHasCreditUnits: number_of_students },
       },
     } = subject;
@@ -183,6 +182,7 @@ export class CourseService {
       subject_title,
       classroomAcronyms,
       number_of_students,
+      semester: semester_number,
       annual_credit_unit_subject_id,
       has_course_plan: Chapters.length > 0,
       is_ca_available: Boolean(
@@ -230,9 +230,6 @@ export class CourseService {
     annual_credit_unit_subject_id: string,
     isNotDone?: boolean
   ) {
-    // const presenceLists = await this.prismaService.presenceList.findMany({
-    //   where: { annual_credit_unit_subject_id },
-    // });
     const chapters = await this.prismaService.chapter.findMany({
       select: {
         chapter_id: true,
@@ -347,16 +344,20 @@ export class CourseService {
     );
   }
 
-  async findStudents(annual_credit_unit_subject_id: string) {
+  async findStudents(
+    annual_credit_unit_subject_id: string
+  ): Promise<Student[]> {
     const students = await this.prismaService.annualStudent.findMany({
       select: {
+        is_active: true,
         annual_student_id: true,
         Student: {
           select: {
             matricule: true,
+            Classroom: { select: { classroom_acronym: true } },
             Login: {
               select: {
-                Person: { select: { first_name: true, last_name: true } },
+                Person: true,
               },
             },
           },
@@ -376,17 +377,19 @@ export class CourseService {
     });
     return students.map(
       ({
+        is_active,
         annual_student_id,
         Student: {
           matricule,
-          Login: {
-            Person: { first_name, last_name },
-          },
+          Login: { Person: person },
+          Classroom: { classroom_acronym },
         },
       }) => ({
+        ...person,
         matricule,
+        is_active,
         annual_student_id,
-        fullname: `${first_name} ${last_name}`,
+        classroom_acronym,
       })
     );
   }
