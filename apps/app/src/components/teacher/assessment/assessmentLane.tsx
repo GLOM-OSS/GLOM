@@ -64,7 +64,9 @@ export default function AssessmentLane({
           : formatMessage({ id: 'notAvailable' })}
       </TableCell>
       <TableCell>
-        {et ? formatMessage({ id: isAssignment ? st : et }) : null}
+        {isAssignment
+          ? formatMessage({ id: st })
+          : formatMessage({ id: et ?? 'notAvailable' })}
       </TableCell>
       {!isAssignment && (
         <TableCell>

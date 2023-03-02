@@ -36,7 +36,9 @@ export default function QuestionDisplay({
   isActivated,
   getTeacherCorrections,
   updatedCorrection,
+  isPublished = false,
 }: {
+  isPublished?: boolean;
   question: Question | QuestionAnswer;
   position: number;
   onDelete: () => void;
@@ -158,30 +160,36 @@ export default function QuestionDisplay({
           ) : qt === 'Structural' ? (
             <Box sx={{ display: 'grid', rowGap: 2 }}>
               <Typography
-                variant={isResponse ? 'body2' : 'body1'}
+                variant={'body2'}
                 sx={{ fontStyle: isResponse ? 'italic' : 'normal' }}
               >
                 {isResponse ? cc.response : qa}
               </Typography>
-              {isResponse && (
-                <TextField
-                  variant="standard"
-                  fullWidth
-                  color="primary"
-                  multiline
-                  size="small"
-                  value={updatedCorrection?.teacher_comment}
-                  onChange={(event) => {
-                    if (getTeacherCorrections)
-                      getTeacherCorrections({
-                        question_mark: cc.acquired_mark ?? 0,
-                        question_id: cc.question_id,
-                        teacher_comment: event.target.value,
-                      });
-                  }}
-                  placeholder={formatMessage({ id: 'teacherComment' })}
-                />
-              )}
+              {isResponse &&
+                (isPublished ? (
+                  <Typography variant="body2" sx={{ fontWeight: '300' }}>
+                    {updatedCorrection?.teacher_comment}
+                  </Typography>
+                ) : (
+                  <TextField
+                    variant="standard"
+                    fullWidth
+                    color="primary"
+                    multiline
+                    size="small"
+                    disabled={disabled}
+                    value={updatedCorrection?.teacher_comment}
+                    onChange={(event) => {
+                      if (getTeacherCorrections)
+                        getTeacherCorrections({
+                          question_mark: cc.acquired_mark ?? 0,
+                          question_id: cc.question_id,
+                          teacher_comment: event.target.value,
+                        });
+                    }}
+                    placeholder={formatMessage({ id: 'teacherComment' })}
+                  />
+                ))}
             </Box>
           ) : (!isResponse && !qa) || (isResponse && !cc.response) ? (
             <Typography variant="body2" color={theme.palette.error.main}>
@@ -206,25 +214,31 @@ export default function QuestionDisplay({
                   resource_type="FILE"
                 />
               </Box>
-              {isResponse && (
-                <TextField
-                  variant="standard"
-                  fullWidth
-                  color="primary"
-                  multiline
-                  size="small"
-                  value={updatedCorrection?.teacher_comment}
-                  onChange={(event) => {
-                    if (getTeacherCorrections)
-                      getTeacherCorrections({
-                        question_mark: cc.acquired_mark ?? 0,
-                        question_id: cc.question_id,
-                        teacher_comment: event.target.value,
-                      });
-                  }}
-                  placeholder={formatMessage({ id: 'teacherComment' })}
-                />
-              )}
+              {isResponse &&
+                (isPublished ? (
+                  <Typography variant="body2" sx={{ fontWeight: '300' }}>
+                    {updatedCorrection?.teacher_comment}
+                  </Typography>
+                ) : (
+                  <TextField
+                    variant="standard"
+                    fullWidth
+                    color="primary"
+                    multiline
+                    size="small"
+                    disabled={disabled}
+                    value={updatedCorrection?.teacher_comment}
+                    onChange={(event) => {
+                      if (getTeacherCorrections)
+                        getTeacherCorrections({
+                          question_mark: cc.acquired_mark ?? 0,
+                          question_id: cc.question_id,
+                          teacher_comment: event.target.value,
+                        });
+                    }}
+                    placeholder={formatMessage({ id: 'teacherComment' })}
+                  />
+                ))}
             </Box>
           )}
           <Box
@@ -236,29 +250,42 @@ export default function QuestionDisplay({
             }}
           >
             {isResponse && qt !== 'MCQ' && cc.response !== null ? (
-              <TextField
-                type="number"
-                size="small"
-                placeholder={formatMessage({ id: 'mark' })}
-                value={updatedCorrection?.question_mark}
-                //TODO: GIVEN MARK SHOULD NOT BE ABOVE qm
-                onChange={(event) => {
-                  const val = Number(event.target.value);
-                  if (val >= 0 && val <= cc.question_mark)
-                    if (getTeacherCorrections)
-                      getTeacherCorrections({
-                        question_mark: val,
-                        question_id: cc.question_id,
-                        teacher_comment: cc.teacher_comment ?? '',
-                      });
-                }}
-                sx={{
-                  width: '80px',
-                }}
-                InputProps={{
-                  endAdornment: `/${qm}`,
-                }}
-              />
+              isPublished ? (
+                <Chip
+                  color={
+                    Number(updatedCorrection?.question_mark) < qm * 0.6
+                      ? 'error'
+                      : 'success'
+                  }
+                  sx={{ color: theme.common.offWhite }}
+                  label={`${updatedCorrection?.question_mark} / ${qm}`}
+                />
+              ) : (
+                <TextField
+                  type="number"
+                  size="small"
+                  disabled={disabled}
+                  placeholder={formatMessage({ id: 'mark' })}
+                  value={updatedCorrection?.question_mark}
+                  //TODO: GIVEN MARK SHOULD NOT BE ABOVE qm
+                  onChange={(event) => {
+                    const val = Number(event.target.value);
+                    if (val >= 0 && val <= cc.question_mark)
+                      if (getTeacherCorrections)
+                        getTeacherCorrections({
+                          question_mark: val,
+                          question_id: cc.question_id,
+                          teacher_comment: cc.teacher_comment ?? '',
+                        });
+                  }}
+                  sx={{
+                    width: '80px',
+                  }}
+                  InputProps={{
+                    endAdornment: `/${qm}`,
+                  }}
+                />
+              )
             ) : (
               <Chip
                 sx={{

@@ -235,7 +235,6 @@ export default function Assignments() {
           activeAssessment={activeAssessment}
           activeSubmission={activeStudent}
           onBack={() => setActiveStudent(undefined)}
-          totalMark={activeAssessment.total_mark}
         />
       ) : showResponses ? (
         <SubmissionList

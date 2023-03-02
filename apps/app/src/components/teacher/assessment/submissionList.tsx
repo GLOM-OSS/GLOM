@@ -54,7 +54,7 @@ export default function SubmissionList({
   const [areStudentsLoading, setAreStudentsLoading] = useState<boolean>(false);
   const [studentNotif, setStudentNotif] = useState<useNotification>();
 
-  const loadStudents = ({ assessment_id }: Assessment) => {
+  const loadSubmissions = ({ assessment_id }: Assessment) => {
     setAreStudentsLoading(true);
     const notif = new useNotification();
     if (studentNotif) {
@@ -76,7 +76,7 @@ export default function SubmissionList({
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={() => loadStudents(activeAssessment)}
+              retryFunction={() => loadSubmissions(activeAssessment)}
               notification={notif}
               message={
                 error?.message || formatMessage({ id: 'getStudentsFailed' })
@@ -90,7 +90,7 @@ export default function SubmissionList({
   };
 
   useEffect(() => {
-    loadStudents(activeAssessment);
+    loadSubmissions(activeAssessment);
     return () => {
       //TODO: CLEANUP AXIOS FETCH ABOVE
     };
@@ -380,9 +380,25 @@ export default function SubmissionList({
                   message={formatMessage({ id: 'noSubmissions' })}
                   colSpan={5}
                 />
-              ) : (
-                submissions.map((student, index) =>
-                  activeAssessment.submission_type === 'Individual' ? (
+              ) : activeAssessment.submission_type === 'Individual' ? (
+                (
+                  submissions as Omit<
+                    StudentAssessmentAnswer,
+                    'questionAnswers'
+                  >[]
+                )
+                  .sort((a, b) =>
+                    a.total_score > b.total_score
+                      ? -1
+                      : a.matricule > b.matricule
+                      ? 1
+                      : a.fullname > b.fullname
+                      ? 1
+                      : a.submitted_at > b.submitted_at
+                      ? -1
+                      : 1
+                  )
+                  .map((student, index) => (
                     <StudentLane
                       student={student as StudentAssessmentAnswer}
                       total={activeAssessment.total_mark}
@@ -390,7 +406,21 @@ export default function SubmissionList({
                       onSelect={() => setActiveStudent(student)}
                       key={index}
                     />
-                  ) : (
+                  ))
+              ) : (
+                (submissions as IGroupAssignment[])
+                  .sort((a, b) =>
+                    a.total_score > b.total_score
+                      ? -1
+                      : a.group_code > b.group_code
+                      ? 1
+                      : a.is_submitted > b.is_submitted
+                      ? 1
+                      : a.number_of_students > b.number_of_students
+                      ? 1
+                      : -1
+                  )
+                  .map((student, index) => (
                     <GroupLane
                       group={student as IGroupAssignment}
                       total={activeAssessment.total_mark}
@@ -398,8 +428,7 @@ export default function SubmissionList({
                       onSelect={() => setActiveStudent(student)}
                       key={index}
                     />
-                  )
-                )
+                  ))
               )}
             </TableBody>
           </Table>
