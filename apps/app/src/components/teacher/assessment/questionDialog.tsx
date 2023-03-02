@@ -92,23 +92,31 @@ export default function QuestionDialog({
               question_answer: null,
             };
             onSubmit(submitData, uploadFiles, questionAnswer as File);
+            close();
             break;
           }
           case 'MCQ': {
-            if (options.length > 0) {
-              const submitData: CreateQuestion = {
-                question,
-                assessment_id,
-                question_mark: score,
-                question_type: 'MCQ',
-                question_answer: null,
-                questionOptions: options.map(({ is_answer, option }) => ({
-                  is_answer,
-                  option,
-                })),
-              };
-              onSubmit(submitData, uploadFiles);
-            } else alert(formatMessage({ id: 'questionMustHaveOptions' }));
+            if (options.length > 1) {
+              if (options.find(({ is_answer }) => is_answer)) {
+                const submitData: CreateQuestion = {
+                  question,
+                  assessment_id,
+                  question_mark: score,
+                  question_type: 'MCQ',
+                  question_answer: null,
+                  questionOptions: options.map(({ is_answer, option }) => ({
+                    is_answer,
+                    option,
+                  })),
+                };
+                onSubmit(submitData, uploadFiles);
+                close();
+              } else
+                alert(
+                  formatMessage({ id: 'questionMustHaveAtLeastOneAnswer' })
+                );
+            } else
+              alert(formatMessage({ id: 'questionMustHaveAtLeastTwoOptions' }));
             break;
           }
           case 'Structural': {
@@ -120,10 +128,10 @@ export default function QuestionDialog({
               question_answer: questionAnswer ? (questionAnswer as string) : '',
             };
             onSubmit(submitData, uploadFiles);
+            close();
             break;
           }
         }
-        close();
       } else alert(formatMessage({ id: 'questionMarkMustBeGreaterThanZero' }));
     } else alert(formatMessage({ id: 'fillInQuestion' }));
   };
