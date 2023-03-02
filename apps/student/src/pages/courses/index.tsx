@@ -42,7 +42,7 @@ export default function Courses() {
       courseNotif.dismiss();
     }
     setCourseNotif(notif);
-    getCourses(activeSemester)
+    getCourses(activeSemester === 0 ? undefined : activeSemester)
       .then((courses) => {
         setCourses(courses);
         setAreCoursesLoading(false);
@@ -106,14 +106,14 @@ export default function Courses() {
             },
           }}
         >
-          <MenuItem value={undefined}>{formatMessage({ id: 'all' })}</MenuItem>
-          {[...new Array(annualStudent ? annualStudent.classroom_level * 2 : 0)].map(
-            (_, index) => (
-              <MenuItem key={index} value={index + 1}>
-                {index + 1}
-              </MenuItem>
-            )
-          )}
+          <MenuItem value={0}>{formatMessage({ id: 'all' })}</MenuItem>
+          {[
+            ...new Array(annualStudent ? annualStudent.classroom_level * 2 : 0),
+          ].map((_, index) => (
+            <MenuItem key={index} value={index + 1}>
+              {index + 1}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
       <Scrollbars autoHide>
