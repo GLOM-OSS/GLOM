@@ -309,11 +309,11 @@ export default function QuestionList({
                     })} ${
                       activeAssessment.submission_type === 'Group'
                         ? '(' +
-                          formatNumber(activeAssessment.number_per_group) +
+                          formatNumber(activeAssessment.number_per_group ?? 1) +
                           ' ' +
                           formatMessage({ id: 'perGroup' }) +
                           ')'
-                        : null
+                        : ''
                     }`}
                   />
                 )}
@@ -396,12 +396,12 @@ export default function QuestionList({
                 />
               </Box>
               {activeAssessment.assessment_date &&
-                new Date(
+                (new Date(
                   moment(activeAssessment.assessment_date)
                     .add(activeAssessment.duration, 'minutes')
                     .toLocaleString()
-                ) < new Date() && 
-                (
+                ) < new Date() ||
+                  isAssignment) && (
                   <Button
                     variant="contained"
                     color="primary"
