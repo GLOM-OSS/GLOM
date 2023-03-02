@@ -2,7 +2,7 @@ import { Student } from '../interfaces';
 
 export interface CreateAssessment {
   is_assignment: boolean;
-  number_per_group: number;
+  number_per_group?: number;
   submission_type: 'Individual' | 'Group';
   annual_credit_unit_subject_id: string;
 }
