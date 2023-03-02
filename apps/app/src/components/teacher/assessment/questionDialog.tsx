@@ -90,7 +90,6 @@ export default function QuestionDialog({
               question_mark: score,
               question_type: 'File',
               question_answer: null,
-              questionOptions: [],
             };
             onSubmit(submitData, uploadFiles, questionAnswer as File);
             break;
@@ -119,7 +118,6 @@ export default function QuestionDialog({
               question_mark: score,
               question_type: 'Structural',
               question_answer: questionAnswer ? (questionAnswer as string) : '',
-              questionOptions: [],
             };
             onSubmit(submitData, uploadFiles);
             break;

@@ -266,7 +266,9 @@ export default function QuestionDisplay({
                   backgroundColor: theme.common.titleActive,
                 }}
                 label={
-                  isResponse && qt !== 'MCQ' && cc.response === null
+                  !isResponse
+                    ? qm
+                    : isResponse && qt !== 'MCQ' && cc.response === null
                     ? 0
                     : cc.acquired_mark
                 }

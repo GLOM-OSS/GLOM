@@ -1,18 +1,16 @@
 import { KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
+import { Box, Button, Chip, Fab, TextField, Typography } from '@mui/material';
 import {
-  Box,
-  Button,
-  Chip,
-  Fab, TextField,
-  Typography
-} from '@mui/material';
+  getGroupSumbssionDetails,
+  getStudentAnswers,
+} from '@squoolr/api-services';
 import {
   Assessment,
   ICorrectedQuestion,
   IGroupAssignment,
   IGroupAssignmentDetails,
   QuestionAnswer,
-  StudentAssessmentAnswer
+  StudentAssessmentAnswer,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -35,7 +33,7 @@ export default function StudentResponse({
   totalMark: number;
   activeAssessment: Assessment;
 }) {
-  const { formatMessage, formatDate, formatNumber } = useIntl();
+  const { formatMessage, formatDate } = useIntl();
 
   const [questionAnswers, setQuestionAnswers] = useState<QuestionAnswer[]>([]);
   const [areQuestionAnswersLoading, setAreQuestionAnswersLoading] =
@@ -45,7 +43,7 @@ export default function StudentResponse({
   const [groupDetails, setGroupDetails] = useState<IGroupAssignmentDetails>();
 
   const loadSubmissionDetails = (
-    activeStudent: Omit<StudentAssessmentAnswer, 'questionAnswers'>,
+    activeSubmission: SubmissionEntity,
     assessment: Assessment,
     isGroup: boolean
   ) => {
@@ -56,64 +54,17 @@ export default function StudentResponse({
     }
     setQuestionNotif(notif);
     if (isGroup) {
-      setTimeout(() => {
-        //TODO: CALL API HERE TO LOAD submissionsAnswers
-        // eslint-disable-next-line no-constant-condition
-        if (5 > 4) {
-          const newDetails: IGroupAssignmentDetails = {
-            assessment_id: 'wiels',
-            group_code: 'XTG002',
-            is_published: false,
-            is_submitted: false,
-            members: [
-              {
-                annual_student_id: 'ieos',
-                approved_at: new Date(),
-                first_name: 'Kouatchoua Tchakoumi',
-                last_name: 'Lorrain',
-                total_score: 0,
-              },
-            ],
-            number_of_students: 2,
-            total_score: 10,
-            answers: [
-              {
-                answeredOptionIds: [],
-                assessment_id: 'wieosl',
-                question: 'Make it rain?',
-                question_answer: '',
-                question_id: 'wie',
-                question_mark: 2,
-                question_type: 'Structural',
-                questionOptions: [],
-                questionResources: [],
-                response:
-                  'Taking things into context, we need to make it rain heavily!',
-                teacher_comment: 'Great work',
-                acquired_mark: 2,
-              },
-              {
-                answeredOptionIds: [],
-                assessment_id: 'wieosl',
-                question: 'Make it rain?',
-                question_answer: '',
-                question_id: 'wies',
-                question_mark: 2,
-                question_type: 'Structural',
-                questionOptions: [],
-                questionResources: [],
-                response:
-                  'Taking things into context, we need to make it rain heavily!',
-                teacher_comment: 'Great work',
-                acquired_mark: null,
-              },
-            ],
-          };
-          setGroupDetails(newDetails);
+      getGroupSumbssionDetails(
+        assessment.assessment_id,
+        (activeSubmission as IGroupAssignment).group_code
+      )
+        .then((groupDetails) => {
+          setGroupDetails(groupDetails);
           setAreQuestionAnswersLoading(false);
           notif.dismiss();
           setQuestionNotif(undefined);
-        } else {
+        })
+        .catch((error) => {
           notif.notify({
             render: formatMessage({ id: 'loadingGroupDetails' }),
           });
@@ -122,111 +73,69 @@ export default function StudentResponse({
             render: (
               <ErrorMessage
                 retryFunction={() =>
-                  loadSubmissionDetails(activeStudent, assessment, isGroup)
+                  loadSubmissionDetails(activeSubmission, assessment, isGroup)
                 }
                 notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'getGroupDetailsFailed' })}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'getGroupDetailsFailed' })
+                }
               />
             ),
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        }
-      }, 3000);
-    } else {
-      setTimeout(() => {
-        //TODO: CALL API HERE TO LOAD submissionsAnswers
-        // eslint-disable-next-line no-constant-condition
-        if (5 > 4) {
-          const newSubmissions: QuestionAnswer[] = [
-            {
-              answeredOptionIds: [],
-              assessment_id: 'wieosl',
-              question: 'Make it rain?',
-              question_answer: '',
-              question_id: 'wie',
-              question_mark: 2,
-              question_type: 'Structural',
-              questionOptions: [],
-              questionResources: [],
-              response:
-                'Taking things into context, we need to make it rain heavily!',
-              teacher_comment: 'Great work',
-              acquired_mark: 2,
-            },
-          ];
-          setQuestionAnswers(newSubmissions);
-          setAreQuestionAnswersLoading(false);
-          notif.dismiss();
-          setQuestionNotif(undefined);
-        } else {
-          notif.notify({
-            render: formatMessage({ id: 'loadingQuestionAnswers' }),
-          });
-          notif.update({
-            type: 'ERROR',
-            render: (
-              <ErrorMessage
-                retryFunction={() =>
-                  loadSubmissionDetails(activeStudent, assessment, isGroup)
-                }
-                notification={notif}
-                //TODO: message should come from backend
-                message={formatMessage({ id: 'getQuestionAnswersFailed' })}
-              />
-            ),
-            autoClose: false,
-            icon: () => <ReportRounded fontSize="medium" color="error" />,
-          });
-        }
-      }, 3000);
-    }
+        });
+    } else
+      loadQuestionAnswers(
+        activeSubmission as Omit<StudentAssessmentAnswer, 'questionAnswers'>,
+        assessment
+      );
   };
 
-  // const loadQuestionAnswers = (
-  //   activeStudent: Omit<StudentAssessmentAnswer, 'questionAnswers'>,
-  //   assessment: Assessment
-  // ) => {
-  //   setAreQuestionAnswersLoading(true);
-  //   const notif = new useNotification();
-  //   if (questionNotif) {
-  //     questionNotif.dismiss();
-  //   }
-  //   setQuestionNotif(notif);
-  //   getStudentAnswers(assessment.assessment_id, activeStudent.annual_student_id)
-  //     .then((questionAnswers) => {
-  //       setQuestionAnswers(questionAnswers);
-  //       setAreQuestionAnswersLoading(false);
-  //       notif.dismiss();
-  //       setQuestionNotif(undefined);
-  //     })
-  //     .catch((error) => {
-  //       notif.notify({
-  //         render: formatMessage({ id: 'loadingQuestionAnswers' }),
-  //       });
-  //       notif.update({
-  //         type: 'ERROR',
-  //         render: (
-  //           <ErrorMessage
-  //             retryFunction={() =>
-  //               loadQuestionAnswers(activeStudent, assessment)
-  //             }
-  //             notification={notif}
-  //             message={
-  //               error?.message || formatMessage({ id: 'questionAnswersFailed' })
-  //             }
-  //           />
-  //         ),
-  //         autoClose: false,
-  //         icon: () => <ReportRounded fontSize="medium" color="error" />,
-  //       });
-  //     });
-  // };
+  const loadQuestionAnswers = (
+    activeStudent: Omit<StudentAssessmentAnswer, 'questionAnswers'>,
+    assessment: Assessment
+  ) => {
+    setAreQuestionAnswersLoading(true);
+    const notif = new useNotification();
+    if (questionNotif) {
+      questionNotif.dismiss();
+    }
+    setQuestionNotif(notif);
+    getStudentAnswers(assessment.assessment_id, activeStudent.annual_student_id)
+      .then((questionAnswers) => {
+        setQuestionAnswers(questionAnswers);
+        setAreQuestionAnswersLoading(false);
+        notif.dismiss();
+        setQuestionNotif(undefined);
+      })
+      .catch((error) => {
+        notif.notify({
+          render: formatMessage({ id: 'loadingQuestionAnswers' }),
+        });
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() =>
+                loadQuestionAnswers(activeStudent, assessment)
+              }
+              notification={notif}
+              message={
+                error?.message || formatMessage({ id: 'questionAnswersFailed' })
+              }
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      });
+  };
 
   useEffect(() => {
     loadSubmissionDetails(
-      activeSubmission as Omit<StudentAssessmentAnswer, 'questionAnswers'>,
+      activeSubmission,
       activeAssessment,
       submission_type === 'Group'
     );
@@ -472,7 +381,7 @@ export default function StudentResponse({
               {areQuestionAnswersLoading || !groupDetails ? (
                 <Box>{[...new Array(10)]}</Box>
               ) : (
-                <Box>
+                <Box display="grid" rowGap={theme.spacing(1)}>
                   {groupDetails.members.map(
                     (
                       {
@@ -493,7 +402,7 @@ export default function StudentResponse({
                           alignItems: 'center',
                         }}
                       >
-                        <Typography>{`${fn}`}</Typography>
+                        <Typography>{`${fn} ${ln}`}</Typography>
                         <TextField
                           size="small"
                           value={

@@ -94,7 +94,7 @@ export default function QuestionList({
       //TODO: cleanup above axios fetch
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [activeAssessment]);
 
   const [isDeletingQuestion, setIsDeletingQuestion] = useState<boolean>(false);
 
@@ -175,7 +175,7 @@ export default function QuestionList({
         setQuestions([
           {
             ...newQuestion,
-            questionOptions: question.questionOptions.map(
+            questionOptions: (question.questionOptions ?? []).map(
               ({ is_answer, option }, index) => {
                 return {
                   question_id: newQuestion.question_id,
@@ -392,7 +392,7 @@ export default function QuestionList({
                 <Chip
                   color="success"
                   sx={{ color: theme.common.offWhite }}
-                  label={activeAssessment.total_mark}
+                  label={activeAssessment.total_mark ?? 0}
                 />
               </Box>
               {activeAssessment.assessment_date &&
@@ -400,7 +400,8 @@ export default function QuestionList({
                   moment(activeAssessment.assessment_date)
                     .add(activeAssessment.duration, 'minutes')
                     .toLocaleString()
-                ) < new Date() && (
+                ) < new Date() && 
+                (
                   <Button
                     variant="contained"
                     color="primary"
