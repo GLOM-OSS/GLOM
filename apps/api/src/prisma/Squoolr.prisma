@@ -1282,9 +1282,9 @@ model Question {
 
 model QuestionAudit {
     question_audit_id String        @id @default(uuid()) @db.VarChar(36)
-    question          String        @db.VarChar(190)
+    question          String        @db.LongText
     question_mark     Int
-    question_answer   String?       @db.VarChar(45)
+    question_answer   String?       @db.LongText
     question_type     QuestionType  @default(MCQ)
     is_deleted        Boolean       @default(false) @db.TinyInt
     audited_at        DateTime      @default(now()) @db.DateTime(0)
