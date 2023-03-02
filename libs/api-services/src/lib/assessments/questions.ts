@@ -43,7 +43,12 @@ export async function createNewQuestion(
 
   const { data } = await http.post<
     Omit<Question, 'questionResources' | 'questionOptions'>
-  >(`/assessments/questions/new`, answerFile ? questionFormData : newQuestion);
+  >(
+    `/assessments/questions/new`,
+    answerFile
+      ? questionFormData
+      : { ...newQuestion, question_mark: question_mark.toString() }
+  );
 
   if (files.length === 0) return { ...data, questionResources: [] };
   const formData = new FormData();

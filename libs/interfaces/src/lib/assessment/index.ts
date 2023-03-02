@@ -29,7 +29,7 @@ export interface CreateQuestion {
   assessment_id: string;
   question_answer: string | null;
   question_type: 'MCQ' | 'Structural' | 'File';
-  questionOptions: Omit<CreateQuestionOption, 'question_id'>[];
+  questionOptions?: Omit<CreateQuestionOption, 'question_id'>[];
 }
 
 export interface QuestionOption extends CreateQuestionOption {
