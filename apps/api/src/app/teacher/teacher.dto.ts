@@ -8,6 +8,7 @@ import {
   IsDateString,
   IsEnum,
   IsNumber,
+  IsNumberString,
   IsOptional,
   IsString,
   IsUUID,
@@ -149,8 +150,8 @@ export class QuestionPostDto {
   @ApiProperty()
   question: string;
 
-  @IsNumber()
   @ApiProperty()
+  @IsNumberString()
   question_mark: number;
 
   @IsString()
@@ -168,11 +169,12 @@ export class QuestionPostDto {
   assessment_id: string;
 
   @IsArray()
-  @ApiProperty()
+  @IsOptional()
   @ArrayMinSize(2)
   @ValidateNested({ each: true })
+  @ApiProperty({ required: false })
   @Type(() => CreateQuestionOption)
-  questionOptions: CreateQuestionOption[];
+  questionOptions?: CreateQuestionOption[];
 }
 
 export class QuestionPutDto extends PartialType(

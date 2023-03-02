@@ -60,10 +60,11 @@ export class AssessmentController {
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
     try {
-      return await this.assessmentService.createAssessment(
+      const [assessment] = await this.assessmentService.createAssessment(
         newAssessment,
         annual_teacher_id
       );
+      return assessment;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

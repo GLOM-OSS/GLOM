@@ -111,7 +111,6 @@ export class AssessmentService {
           annual_student_id,
           annual_student_take_assessment_id: randomUUID(),
         }));
-
       const numberOfGroups = Math.ceil(
         annualStudents.length / number_per_group
       );
@@ -120,36 +119,38 @@ export class AssessmentService {
         numberOfGroups
       );
       return this.prismaService.$transaction([
+        this.prismaService.assessment.create({
+          data: { assessment_id, ...assessmentInput },
+        }),
         this.prismaService.annualStudentTakeAssessment.createMany({
           data: annualStudents,
           skipDuplicates: true,
         }),
-        this.prismaService.assessment.create({
-          data: {
-            ...assessmentInput,
-            AssignmentGroupMembers: {
-              createMany: {
-                data: annualStudents.map(
-                  (
-                    { annual_student_take_assessment_id, ...groupMember },
-                    index
-                  ) => ({
-                    ...groupMember,
-                    group_code:
-                      groupCodes[Math.floor(index / number_per_group)],
-                    annual_student_take_assessment_id,
-                  })
-                ),
-                skipDuplicates: true,
+        this.prismaService.assignmentGroupMember.createMany({
+          data: annualStudents.map(
+            (
+              {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                annual_student_id,
+                annual_student_take_assessment_id,
+                ...groupMember
               },
-            },
-          },
+              index
+            ) => ({
+              ...groupMember,
+              group_code: groupCodes[Math.floor(index / number_per_group)],
+              annual_student_take_assessment_id,
+            })
+          ),
+          skipDuplicates: true,
         }),
       ]);
     } else
-      return this.prismaService.assessment.create({
-        data: assessmentInput,
-      });
+      return [
+        await this.prismaService.assessment.create({
+          data: assessmentInput,
+        }),
+      ];
   }
 
   async getAssessment(
@@ -218,10 +219,24 @@ export class AssessmentService {
       );
     if (duration && assessment.submission_type === 'Group')
       throw new HttpException(JSON.stringify(ERR22), HttpStatus.BAD_REQUEST);
+    const {
+      is_deleted,
+      is_published,
+      assessment_date,
+      duration: auditedDuration,
+    } = assessment;
     await this.prismaService.assessment.update({
       data: {
         ...newAssessment,
-        AssessmentAudits: { create: { ...assessment, audited_by: audited_by } },
+        AssessmentAudits: {
+          create: {
+            is_deleted,
+            is_published,
+            assessment_date,
+            audited_by: audited_by,
+            duration: auditedDuration,
+          },
+        },
       },
       where: { assessment_id },
     });
@@ -378,7 +393,6 @@ export class AssessmentService {
       where: {
         assessment_id,
         is_deleted: false,
-        QuestionOptions: { some: { is_deleted: false } },
       },
     });
     return questions.map(
@@ -605,6 +619,7 @@ export class AssessmentService {
       assessment_id,
       question_type,
       questionOptions,
+      question_mark,
       ...questionData
     }: QuestionPostDto,
     created_by: string
@@ -623,9 +638,10 @@ export class AssessmentService {
       data: {
         question_type,
         ...questionData,
+        question_mark: Number(question_mark),
         QuestionOptions: {
           createMany: {
-            data: questionOptions.map(({ is_answer, option }) => ({
+            data: (questionOptions ?? []).map(({ is_answer, option }) => ({
               created_by,
               is_answer,
               option,
@@ -1111,22 +1127,21 @@ export class AssessmentService {
         questionResources,
         question_answer,
       }) => {
-        const {
-          response,
-          teacher_comment,
-          question_mark: acquired_mark,
-        } = answeredQuestionIds.find((_) => _.question_id === question_id);
+        const answer = answeredQuestionIds.find(
+          (_) => _.question_id === question_id
+        );
         return {
           question,
           question_id,
           question_mark,
           assessment_id,
           question_type,
-          acquired_mark,
           question_answer,
           questionResources,
-          response: question_type !== 'MCQ' ? response : null,
-          teacher_comment: question_type !== 'MCQ' ? teacher_comment : null,
+          acquired_mark: answer?.question_mark,
+          response: question_type !== 'MCQ' ? answer?.response : null,
+          teacher_comment:
+            question_type !== 'MCQ' ? answer?.teacher_comment : null,
           questionOptions: question_type === 'MCQ' ? questionOptions : [],
           answeredOptionIds:
             question_type === 'MCQ'
