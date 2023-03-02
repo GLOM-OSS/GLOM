@@ -3,6 +3,7 @@ import { Box, Button, Chip, Fab, TextField, Typography } from '@mui/material';
 import {
   getGroupSumbssionDetails,
   getStudentAnswers,
+  submitCorrection,
 } from '@squoolr/api-services';
 import {
   Assessment,
@@ -37,7 +38,7 @@ export default function StudentResponse({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submissionNotif, setSubmissionNotif] = useState<useNotification>();
 
-  const saveSubmissionHandler = (submission: ICorrectedSubmission) => {
+  const saveCorrectionHandler = (submission: ICorrectedSubmission) => {
     setIsSubmitting(true);
     const notif = new useNotification();
     if (submissionNotif) {
@@ -49,11 +50,8 @@ export default function StudentResponse({
         id: 'savingCorrection',
       }),
     });
-    setTimeout(() => {
-      //TODO: CALL API HERE TO save submission
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        setIsSubmitting(false);
+    submitCorrection(activeAssessment.assessment_id, submission)
+      .then(() => {
         notif.update({
           render: formatMessage({
             id: 'savingCorrectionSuccessfull',
@@ -61,24 +59,27 @@ export default function StudentResponse({
         });
         onBack();
         setSubmissionNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={() => saveSubmissionHandler(submission)}
+              retryFunction={() => saveCorrectionHandler(submission)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({
-                id: 'saveCorrectionFailed',
-              })}
+              message={
+                error?.message ||
+                formatMessage({
+                  id: 'saveCorrectionFailed',
+                })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsSubmitting(false));
   };
 
   const [questionAnswers, setQuestionAnswers] = useState<QuestionAnswer[]>([]);
@@ -431,7 +432,7 @@ export default function StudentResponse({
                       }
                     ),
                   };
-                  saveSubmissionHandler(uploadData);
+                  saveCorrectionHandler(uploadData);
                 } else {
                   const cc = activeSubmission as Omit<
                     StudentAssessmentAnswer,
@@ -442,7 +443,7 @@ export default function StudentResponse({
                     annual_student_id: cc.annual_student_id,
                   };
 
-                  saveSubmissionHandler(uploadData);
+                  saveCorrectionHandler(uploadData);
                 }
               }}
               disabled={
