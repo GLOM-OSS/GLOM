@@ -16,37 +16,82 @@ import {
   Typography,
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/dialogTransition';
-import { ICreatePayment } from '@squoolr/interfaces';
-import { useState } from 'react';
+import { ICreatePayment, IFeeSummary } from '@squoolr/interfaces';
+import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
+import { v4 } from 'uuid';
+
+export type IPaymentReason = 'Fee' | 'Registration' | 'Platform';
 
 export function PaymentDialog({
   isDialogOpen,
   closeDialog,
   confirm,
-  totalDue,
+  feeSummary,
   unpaidSemesters,
 }: {
   isDialogOpen: boolean;
   closeDialog: () => void;
+  feeSummary: IFeeSummary;
   confirm: (data: ICreatePayment) => void;
-  totalDue: number;
   unpaidSemesters: number[];
 }) {
   const { formatMessage, formatNumber } = useIntl();
 
-  const [paymentReason, setPaymentReason] = useState<
-    'Fee' | 'Registration' | 'Platform'
-  >('Fee');
+  const totalDue = feeSummary?.total_due - feeSummary?.registration;
+  const [paymentReason, setPaymentReason] = useState<IPaymentReason>(
+    getPaymentReasons()[0]
+  );
   const [semesters, setSemesters] = useState<number[]>([]);
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<number>(
+    paymentReason === 'Registration'
+      ? (feeSummary?.registration as number)
+      : totalDue
+  );
+
+  useEffect(() => {
+    payAllHandler();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paymentReason]);
 
   const close = () => {
     setAmount(0);
     setSemesters([]);
-    setPaymentReason('Fee');
+    setPaymentReason(getPaymentReasons()[0]);
     closeDialog();
   };
+
+  function getPaymentReasons() {
+    const { registration, total_owing, total_paid } = feeSummary;
+    const returnArray: IPaymentReason[] = [];
+    if (total_paid < registration) {
+      returnArray.push('Registration');
+    }
+    if (unpaidSemesters.length > 0) {
+      returnArray.push('Platform');
+    }
+    if (total_owing > 0) {
+      returnArray.push('Fee');
+    }
+
+    return returnArray;
+  }
+
+  function getTotalPaymentReasonDue() {
+    switch (paymentReason) {
+      case 'Fee':
+        return totalDue;
+      case 'Platform':
+        return unpaidSemesters.length * 2000;
+      case 'Registration':
+        return feeSummary.registration - feeSummary.total_paid;
+    }
+  }
+
+  function payAllHandler() {
+    setAmount(getTotalPaymentReasonDue());
+    if (paymentReason === 'Platform') setSemesters(unpaidSemesters);
+  }
 
   return (
     <Dialog
@@ -60,11 +105,50 @@ export function PaymentDialog({
           id: 'payFee',
         })}
       </DialogTitle>
-      <DialogContent>
+      <DialogContent sx={{ display: 'grid', rowGap: 3 }}>
         <DialogContentText>
           {formatMessage({ id: 'feePaymentDialogMessage' })}
         </DialogContentText>
         <Box sx={{ display: 'grid', rowGap: 1 }}>
+          {getTotalPaymentReasonDue() > amount && (
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: '1fr auto',
+                columnGap: 2,
+                alignItems: 'center',
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: 'auto 1fr',
+                  columnGap: 1,
+                  alignItems: 'center',
+                }}
+              >
+                <Typography>
+                  {formatMessage({ id: 'totalDue' })}
+                  {': '}
+                </Typography>
+                <Typography variant="h6" component="span">
+                  {formatNumber(getTotalPaymentReasonDue(), {
+                    style: 'currency',
+                    currency: 'XAF',
+                  })}
+                </Typography>
+              </Box>
+              <Button
+                size="small"
+                variant="outlined"
+                color="success"
+                sx={{ textTransform: 'none' }}
+                onClick={payAllHandler}
+              >
+                {formatMessage({ id: 'payAll' })}
+              </Button>
+            </Box>
+          )}
           <FormControl>
             <InputLabel id="paymentReason">
               {formatMessage({ id: 'paymentReason' })}
@@ -74,9 +158,7 @@ export function PaymentDialog({
               value={paymentReason}
               size="small"
               onChange={(event) =>
-                setPaymentReason(
-                  event.target.value as 'Platform' | 'Fee' | 'Registration'
-                )
+                setPaymentReason(event.target.value as IPaymentReason)
               }
               input={
                 <OutlinedInput label={formatMessage({ id: 'paymentReason' })} />
@@ -89,11 +171,13 @@ export function PaymentDialog({
                 },
               }}
             >
-              {['fee', 'registration', 'platform'].map((_, index) => (
-                <MenuItem key={index} value={_[0].toUpperCase() + _.slice(1)}>
-                  {_}
-                </MenuItem>
-              ))}
+              {getPaymentReasons()
+                .sort()
+                .map((_, index) => (
+                  <MenuItem key={index} value={_[0].toUpperCase() + _.slice(1)}>
+                    {_}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
           {paymentReason !== 'Platform' ? (
@@ -105,7 +189,14 @@ export function PaymentDialog({
               value={amount}
               onChange={(event) => {
                 const val = Number(event.target.value);
-                if (val > 0 && val <= totalDue) setAmount(val);
+                if (
+                  val > 0 &&
+                  val <=
+                    (paymentReason === 'Fee'
+                      ? totalDue
+                      : feeSummary.registration)
+                )
+                  setAmount(val);
               }}
             />
           ) : (
@@ -149,15 +240,25 @@ export function PaymentDialog({
                     </Box>
                   ))}
                 </Box>
-                <Typography>
-                  {formatMessage({ id: 'totalDue' })}{' '}
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: 'auto 1fr',
+                    columnGap: 1,
+                    alignItems: 'center',
+                  }}
+                >
+                  <Typography>
+                    {formatMessage({ id: 'totalPaying' })}
+                    {': '}
+                  </Typography>
                   <Typography variant="h6" fontWeight="bold" component="span">
                     {formatNumber(2000 * semesters.length, {
                       style: 'currency',
                       currency: 'XAF',
                     })}
                   </Typography>
-                </Typography>
+                </Box>
               </Box>
             </Box>
           )}
@@ -180,9 +281,10 @@ export function PaymentDialog({
           onClick={() => {
             const data: ICreatePayment = {
               amount,
+              transaction_id: v4(),
               payment_date: new Date(),
               payment_reason: paymentReason,
-              semester_number: semesters,
+              semesterNumbers: semesters,
             };
             confirm(data);
             close();

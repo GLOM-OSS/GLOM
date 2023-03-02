@@ -158,7 +158,7 @@ export class StudentService {
                 absences:
                   (new Date(end_time).getTime() -
                     new Date(start_time).getTime()) /
-                  (3.6 * 1e5),
+                  (3.6 * 1e6),
               },
             ]
           : absences,

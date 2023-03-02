@@ -1,7 +1,8 @@
-import { ReportRounded } from '@mui/icons-material';
+import { DoneAllOutlined, ReportRounded } from '@mui/icons-material';
 import {
   Box,
   Button,
+  Chip,
   lighten,
   Skeleton,
   Table,
@@ -77,7 +78,13 @@ export default function Home() {
 
   const [isFeeSummaryLoading, setIsFeeSummaryLoading] =
     useState<boolean>(false);
-  const [feeSummary, setFeeSummary] = useState<IFeeSummary>();
+  const [feeSummary, setFeeSummary] = useState<IFeeSummary>({
+    paymentHistories: [],
+    registration: 0,
+    total_owing: 0,
+    total_paid: 0,
+    total_due: 0,
+  });
   const [feeNotif, setFeeNotif] = useState<useNotification>();
 
   const loadFeeSummary = () => {
@@ -149,8 +156,17 @@ export default function Home() {
         id: 'submittingPayment',
       }),
     });
-    payStudentFee()
-      .then((paymentHistory) => {
+    payStudentFee(payment)
+      .then((paymentHistories) => {
+        setFeeSummary(({ total_owing, total_paid, ...feeSummary }) => ({
+          ...feeSummary,
+          total_paid: total_paid + payment.amount,
+          total_owing: total_owing - payment.amount,
+          paymentHistories: [
+            ...feeSummary.paymentHistories,
+            ...paymentHistories,
+          ],
+        }));
         notif.update({
           render: formatMessage({
             id: 'paymentSubmissionSuccessfull',
@@ -186,9 +202,7 @@ export default function Home() {
         closeDialog={() => setIsPaymentDialogOpen(false)}
         isDialogOpen={isPaymentdialogOPen}
         unpaidSemesters={annualStudent ? annualStudent.activeSemesters : []}
-        totalDue={
-          feeSummary ? feeSummary.total_due - feeSummary.registration : 0
-        }
+        feeSummary={feeSummary}
         confirm={submitPayment}
       />
       <Box
@@ -335,15 +349,34 @@ export default function Home() {
             <Typography variant="h6">
               {formatMessage({ id: 'paymentHistory' })}
             </Typography>
-            <Button
-              variant="contained"
-              size="small"
-              color="primary"
-              onClick={() => setIsPaymentDialogOpen(true)}
-              disabled={isFeeSummaryLoading || !feeSummary || isSubmitting}
-            >
-              {formatMessage({ id: 'pay' })}
-            </Button>
+            {feeSummary &&
+            feeSummary.total_owing === 0 &&
+            annualStudent &&
+            annualStudent.activeSemesters.length === 0 ? (
+              <Chip
+                color="success"
+                icon={<DoneAllOutlined />}
+                label={formatMessage({ id: 'solvent' })}
+                sx={{
+                  backgroundColor: lighten(theme.palette.success.main, 0.4),
+                }}
+              />
+            ) : (
+              <Button
+                variant="contained"
+                size="small"
+                color="primary"
+                onClick={() => setIsPaymentDialogOpen(true)}
+                disabled={
+                  isFeeSummaryLoading ||
+                  !feeSummary ||
+                  isSubmitting ||
+                  !annualStudent
+                }
+              >
+                {formatMessage({ id: 'pay' })}
+              </Button>
+            )}
           </Box>
           <Scrollbars autoHide>
             <Box sx={{ display: 'grid', rowGap: 2, alignContent: 'start' }}>
@@ -351,9 +384,15 @@ export default function Home() {
                 ? [...new Array(7)].map((_, index) => (
                     <Skeleton height={100} animation="wave" key={index} />
                   ))
-                : feeSummary.paymentHistories.map((payment, index) => (
-                    <PaymentCard key={index} payment={payment} />
-                  ))}
+                : feeSummary.paymentHistories
+                    .sort(
+                      (a, b) =>
+                        new Date(b.payment_date).getTime() -
+                        new Date(a.payment_date).getTime()
+                    )
+                    .map((payment, index) => (
+                      <PaymentCard key={index} payment={payment} />
+                    ))}
             </Box>
           </Scrollbars>
         </Box>
