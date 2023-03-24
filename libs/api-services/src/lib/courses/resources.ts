@@ -35,5 +35,6 @@ export async function deleteResource(resource_id: string) {
 }
 
 export async function downloadResource(resource_id: string) {
-  await http.get(`/resources/${resource_id}/download`);
+  const { data } = await http.get(`/resources/${resource_id}/download`);
+  return data;
 }

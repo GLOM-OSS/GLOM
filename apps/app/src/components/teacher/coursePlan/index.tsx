@@ -21,7 +21,6 @@ import {
   createNewChapter,
   deleteChapter,
   deleteResource,
-  downloadResource,
   getChapterParts,
   getChapterResources,
   getCourse,
@@ -519,10 +518,17 @@ export default function CoursePlan() {
   const [activeResource, setActiveResource] = useState<Resource>();
   const [displayFile, setDisplayFile] = useState<number>();
 
-  const downloadFile = (resource_id: string) => {
-    downloadResource(resource_id).then(() => {
-      alert(`downloading ${resource_id}`);
-    });
+  const downloadFile = ({
+    resource_name: rn,
+    resource_extension: re,
+    resource_ref: rr,
+  }: Resource) => {
+    const link = document.createElement('a');
+    link.href = rr;
+    link.setAttribute('download', `${rn}.${re}`);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode?.removeChild(link);
   };
 
   return (
@@ -788,7 +794,6 @@ export default function CoursePlan() {
                         resource_extension: re,
                         resource_type: rt,
                         resource_ref: rr,
-                        resource_id: r_id,
                       } = resource;
                       return (
                         <FileIcon
@@ -798,7 +803,7 @@ export default function CoursePlan() {
                             rt === 'FILE'
                               ? readableFileFormats.includes(re as string)
                                 ? () => setDisplayFile(index)
-                                : () => downloadFile(r_id)
+                                : () => downloadFile(resource)
                               : undefined
                           }
                           name={`${rn}${re ? '.' : ''}${re ?? ''}`}
