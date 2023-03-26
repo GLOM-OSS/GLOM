@@ -59,7 +59,12 @@ export async function getEvaluationTypes() {
 export async function getSubjectParts() {
   const {
     data: { subjectParts },
-  } = await http.get(`/subject-parts`);
+  } = await http.get<{
+    subjectParts: {
+      subject_part_id: string;
+      subject_part_name: 'GUIDED_WORK' | 'PRACTICAL' | 'THEORY';
+    }[];
+  }>(`/subject-parts`);
   return subjectParts;
 }
 export function apiServices(): string {
