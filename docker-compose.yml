@@ -4,7 +4,7 @@ services:
   redis_container:
     image: redis:alpine
     ports:
-      - 6380:6379
+      - 6379:6379
   mysql_container:
     image: mysql
     environment:
@@ -18,7 +18,7 @@ services:
     restart: always
     environment:
       - REDIS_HOST=redis_container
-      - REDIS_PORT=6380
+      - REDIS_PORT=redis_container
       - DATABASE_URL=mysql://root:12345678@mysql_container:3306/squoolr_api_db
       - SALT=12
       - SECURE_PHRASE_LENGTH=5
