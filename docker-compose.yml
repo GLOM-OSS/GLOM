@@ -35,7 +35,7 @@ services:
       - NODE_ENV=production
       - CRYPTJS_SECRET=I_hate_trash
     ports:
-      - "83:8080"
+      - "94:8080"
     depends_on:
       - mysql_container
       - redis_container
@@ -45,7 +45,7 @@ services:
       context: .
     restart: always
     ports:
-      - "84:3000"
+      - "91:3000"
     depends_on:
       - api
   admin:
