@@ -1,3 +1,4 @@
+import { constants } from '@squoolr/constants';
 import { decrypt, encrypt } from '@squoolr/encrypter';
 import axios, { AxiosInstance } from 'axios';
 
@@ -8,7 +9,7 @@ export async function getCurrentIp() {
 
 function axiosInstance(): AxiosInstance {
   const axiosInstance = axios.create({
-    baseURL: process.env['NX_API_BASE_URL'],
+    baseURL: constants.NX_API_BASE_URL,
     withCredentials: true,
   });
   axiosInstance.interceptors.request.use(

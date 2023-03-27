@@ -1,4 +1,5 @@
 import { http } from '@squoolr/axios';
+import { constants } from '@squoolr/constants';
 import {
   ActivateAssessment,
   Assessment,
@@ -58,7 +59,7 @@ export async function getAssessmentQuestions(assessment_id: string) {
     ...question,
     questionResources: question.questionResources.map((resource) => ({
       ...resource,
-      resource_ref: `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}`,
+      resource_ref: `${constants.NX_API_BASE_URL}/${resource.resource_ref}`,
     })),
   }));
 }

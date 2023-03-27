@@ -1,4 +1,5 @@
 import { http } from '@squoolr/axios';
+import { constants } from '@squoolr/constants';
 import {
   Assessment,
   Chapter,
@@ -33,7 +34,7 @@ export async function getCourseResources(
     resource_ref:
       resource.resource_type === 'LINK'
         ? resource.resource_ref
-        : `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}`,
+        : `${constants.NX_API_BASE_URL}/${resource.resource_ref}`,
   }));
 }
 

@@ -1,4 +1,5 @@
 import { http } from '@squoolr/axios';
+import { constants } from '@squoolr/constants';
 import { CreateFile, CreateLink, Resource } from '@squoolr/interfaces';
 
 export async function addNewLinkResource(newLink: CreateLink) {
@@ -26,7 +27,7 @@ export async function addNewFileResources({
   );
   return data.map((resource) => ({
     ...resource,
-    resource_ref: `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}`,
+    resource_ref: `${constants.NX_API_BASE_URL}/${resource.resource_ref}`,
   }));
 }
 

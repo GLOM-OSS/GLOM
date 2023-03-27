@@ -1,4 +1,5 @@
 import { http } from '@squoolr/axios';
+import { constants } from '@squoolr/constants';
 import {
   CreateQuestion,
   EditQuestionInterface,
@@ -14,7 +15,7 @@ export async function getQuestion(question_id: string) {
     ...data,
     questionResources: data.questionResources.map((resource) => ({
       ...resource,
-      resource_ref: `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}`,
+      resource_ref: `${constants.NX_API_BASE_URL}/${resource.resource_ref}`,
     })),
   };
 }
@@ -58,7 +59,7 @@ export async function createNewQuestion(
     ...data,
     questionResources: questionResources.map((resource) => ({
       ...resource,
-      resource_ref: `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}`,
+      resource_ref: `${constants.NX_API_BASE_URL}/${resource.resource_ref}`,
     })),
   };
 }
