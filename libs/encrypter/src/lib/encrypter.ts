@@ -1,8 +1,7 @@
+import { constants } from '@squoolr/constants';
 import { AES as Encrypter, enc } from 'crypto-js';
 
-const CRYPTJS_SECRET = `${
-  process.env['CRYPTJS_SECRET'] ?? process.env['NX_CRYPTJS_SECRET']
-}`;
+const CRYPTJS_SECRET = constants.NX_CRYPTJS_SECRET;
 
 export type ColumnType = string | number | boolean | Date | null;
 export type CustomRecord = Record<string, ColumnType>;
