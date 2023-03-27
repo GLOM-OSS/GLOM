@@ -2,7 +2,7 @@ import { Student } from '../interfaces';
 
 export interface CreateAssessment {
   is_assignment: boolean;
-  number_per_group: number;
+  number_per_group?: number;
   submission_type: 'Individual' | 'Group';
   annual_credit_unit_subject_id: string;
 }
@@ -29,7 +29,7 @@ export interface CreateQuestion {
   assessment_id: string;
   question_answer: string | null;
   question_type: 'MCQ' | 'Structural' | 'File';
-  questionOptions: Omit<CreateQuestionOption, 'question_id'>[];
+  questionOptions?: Omit<CreateQuestionOption, 'question_id'>[];
 }
 
 export interface QuestionOption extends CreateQuestionOption {

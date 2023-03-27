@@ -338,6 +338,7 @@ export default function SessionDetails({
             id: 'createPresenceListSuccess',
           }),
         });
+        back();
       })
       .catch((error) => {
         notif.update({

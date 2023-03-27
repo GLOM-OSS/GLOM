@@ -10,6 +10,7 @@ import {
   QuestionAnswer,
   StudentAssessmentAnswer,
   IGroupAssignmentDetails,
+  ICorrectedSubmission,
 } from '@squoolr/interfaces';
 
 export async function getAssessment(assessment_id: string) {
@@ -74,11 +75,22 @@ export async function getAssessmentSubmissions(assessment_id: string) {
 export async function getGroupSumbssionDetails(
   assessment_id: string,
   group_code: string
-) {
-  const { data } = await http.get<IGroupAssignmentDetails>(
+): Promise<IGroupAssignmentDetails> {
+  const {
+    data: { answers, ...detalis },
+  } = await http.get<IGroupAssignmentDetails>(
     `/assessments/${assessment_id}/${group_code}/details`
   );
-  return data;
+  return {
+    ...detalis,
+    answers: answers.map(({ questionResources, ...answer }) => ({
+      ...answer,
+      questionResources: questionResources.map((resource) => ({
+        ...resource,
+        resource_ref: `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}`,
+      })),
+    })),
+  };
 }
 
 export async function getStudentAnswers(
@@ -101,6 +113,17 @@ export async function getAssessmentStats(
   const { data } = await http.get<AssessmentStatistics>(
     `/assessments/${assessment_id}/statistics`,
     { params: { distribution_interval } }
+  );
+  return data;
+}
+
+export async function submitCorrection(
+  assessment_id: string,
+  correctedSubmission: ICorrectedSubmission
+) {
+  const { data } = await http.post(
+    `/assessments/${assessment_id}/correct`,
+    correctedSubmission
   );
   return data;
 }

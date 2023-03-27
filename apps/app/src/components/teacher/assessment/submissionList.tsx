@@ -14,7 +14,10 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { publishAssessment } from '@squoolr/api-services';
+import {
+  getAssessmentSubmissions,
+  publishAssessment,
+} from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
   Assessment,
@@ -51,7 +54,7 @@ export default function SubmissionList({
   const [areStudentsLoading, setAreStudentsLoading] = useState<boolean>(false);
   const [studentNotif, setStudentNotif] = useState<useNotification>();
 
-  const loadStudents = ({ assessment_id }: Assessment) => {
+  const loadSubmissions = ({ assessment_id }: Assessment) => {
     setAreStudentsLoading(true);
     const notif = new useNotification();
     if (studentNotif) {
@@ -73,7 +76,7 @@ export default function SubmissionList({
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={() => loadStudents(activeAssessment)}
+              retryFunction={() => loadSubmissions(activeAssessment)}
               notification={notif}
               message={
                 error?.message || formatMessage({ id: 'getStudentsFailed' })
@@ -87,7 +90,7 @@ export default function SubmissionList({
   };
 
   useEffect(() => {
-    loadStudents(activeAssessment);
+    loadSubmissions(activeAssessment);
     return () => {
       //TODO: CLEANUP AXIOS FETCH ABOVE
     };

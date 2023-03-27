@@ -1,4 +1,8 @@
-import { ExpandMore, KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
+import {
+  ExpandMore,
+  KeyboardBackspaceOutlined,
+  ReportRounded,
+} from '@mui/icons-material';
 import {
   Accordion,
   AccordionDetails,
@@ -9,7 +13,7 @@ import {
   Fab,
   lighten,
   Skeleton,
-  Typography
+  Typography,
 } from '@mui/material';
 import {
   addNewFileResources,
@@ -17,13 +21,12 @@ import {
   createNewChapter,
   deleteChapter,
   deleteResource,
-  downloadResource,
   getChapterParts,
   getChapterResources,
   getCourse,
   getCourseChapters,
   getCourseResources,
-  updateChapter
+  updateChapter,
 } from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
@@ -31,7 +34,7 @@ import {
   Course,
   CreateFile,
   CreateLink,
-  Resource
+  Resource,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -43,7 +46,7 @@ import { RowMenu } from '../../coordinator/CreditUnitLane';
 import ChapterDialog from './chapterDialog';
 import ChapterLane, { ChapterLaneSkeleton } from './chapterLane';
 import FileDialog, { FileIcon } from './fileDialog';
-import FileDisplayDialog from './fileDisplayDialog';
+import FileDisplayDialog, { readableFileFormats } from './fileDisplayDialog';
 import ResourceDialog from './resourceDialog';
 
 export default function CoursePlan() {
@@ -515,10 +518,17 @@ export default function CoursePlan() {
   const [activeResource, setActiveResource] = useState<Resource>();
   const [displayFile, setDisplayFile] = useState<number>();
 
-  const downloadFile = (resource_id: string) => {
-    downloadResource(resource_id).then(() => {
-      alert(`downloading ${resource_id}`);
-    });
+  const downloadFile = ({
+    resource_name: rn,
+    resource_extension: re,
+    resource_ref: rr,
+  }: Resource) => {
+    const link = document.createElement('a');
+    link.href = rr;
+    link.setAttribute('download', `${rn}.${re}`);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode?.removeChild(link);
   };
 
   return (
@@ -784,20 +794,16 @@ export default function CoursePlan() {
                         resource_extension: re,
                         resource_type: rt,
                         resource_ref: rr,
-                        resource_id: r_id,
                       } = resource;
                       return (
                         <FileIcon
                           key={index}
                           resource_ref={rr}
                           readFile={
-                            // rt === 'FILE' &&
-                            // readableFileFormats.includes(re as string)
-                            //   ? () => setDisplayFile(index)
-                            //   :
                             rt === 'FILE'
-                              ? //  && downloadFormats.includes(re as string)
-                                () => downloadFile(r_id)
+                              ? readableFileFormats.includes(re as string)
+                                ? () => setDisplayFile(index)
+                                : () => downloadFile(resource)
                               : undefined
                           }
                           name={`${rn}${re ? '.' : ''}${re ?? ''}`}

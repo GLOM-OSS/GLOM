@@ -68,18 +68,24 @@ export default function CreateAssignmentDialog({
           const val: CreateAssessment = {
             annual_credit_unit_subject_id:
               annual_credit_unit_subject_id as string,
-            number_per_group: numberPerGoup,
             submission_type: submissionType,
             is_assignment: true,
           };
-          if (submissionType === 'Group' && numberPerGoup > 1) {
+          if (submissionType === 'Individual' && numberPerGoup === 1) {
             handleSubmit(val);
             close();
-          } else alert(formatMessage({ id: 'atLeastTwoPerGroup' }));
-          if (submissionType === 'Individual' && numberPerGoup === 1) {
-            handleSubmit({ ...val, number_per_group: 1 });
+          } else if (submissionType === 'Group' && numberPerGoup > 1) {
+            handleSubmit({ ...val, number_per_group: numberPerGoup });
             close();
-          }
+          } else
+            alert(
+              formatMessage({
+                id:
+                  submissionType === 'Group'
+                    ? 'atLeastTwoPerGroup'
+                    : 'mustBeOnePersonPerSubmission',
+              })
+            );
         }}
       >
         <DialogTitle>
@@ -172,7 +178,7 @@ export default function CreateAssignmentDialog({
             type="submit"
             size="small"
           >
-            {formatMessage({ id: 'activate' })}
+            {formatMessage({ id: 'confirmCreate' })}
           </Button>
         </DialogActions>
       </form>

@@ -43,7 +43,7 @@ function axiosInstance(): AxiosInstance {
     },
     (error) => {
       if (
-        error.response?.data.statusCode === 403 &&
+        error.response?.data?.statusCode === 403 &&
         location.pathname !== '/signin'
       )
         location.href = '/signin';

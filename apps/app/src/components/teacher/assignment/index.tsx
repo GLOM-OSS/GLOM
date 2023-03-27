@@ -96,12 +96,13 @@ export default function Assignments() {
       }),
     });
     createNewAssessment(assignment)
-      .then(() => {
+      .then((newAssingment) => {
         notif.update({
           render: formatMessage({
             id: 'createAssignmentSuccessfull',
           }),
         });
+        setActiveAssessment({ ...newAssingment, total_mark: 0 });
         setAssignmentNotif(undefined);
       })
       .catch((error) => {

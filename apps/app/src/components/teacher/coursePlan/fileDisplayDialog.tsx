@@ -16,17 +16,22 @@ export const readableFileFormats = [
   'jpeg',
   'png',
   'pdf',
-  'xslx',
-  'docx',
+
   'mp4',
   'webm',
   'csv',
-  'ppt',
-  'pptx',
 ];
 
 export const videoFormats = ['mp4', 'webm'];
-export const downloadFormats = ['zip', 'rar', '7zip'];
+export const downloadFormats = [
+  'xslx',
+  'docx',
+  'ppt',
+  'pptx',
+  'zip',
+  'rar',
+  '7zip',
+];
 export const acceptedFileFormats = [...readableFileFormats, ...downloadFormats];
 
 export default function FileDisplayDialog({

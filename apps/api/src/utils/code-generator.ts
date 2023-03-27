@@ -157,16 +157,17 @@ export class CodeGeneratorService {
       await this.prismaService.annualCreditUnitSubject.findUniqueOrThrow({
         where: { annual_credit_unit_subject_id },
       });
-    const numberOfCreatedGroups =
-      await this.prismaService.assignmentGroupMember.count({
+    const numberOfCreatedGroups = (
+      await this.prismaService.assignmentGroupMember.findMany({
         distinct: 'group_code',
         where: { Assessment: { annual_credit_unit_subject_id } },
-      });
-    return new Array(numberOfGroups).map(
+      })
+    ).length;
+    return [...new Array(numberOfGroups)].map(
       (_, index) =>
         `G${this.getNumberString(
           numberOfCreatedGroups + index
-        )}#${subject_code}`
+        )}~${subject_code}`
     );
   }
 }
