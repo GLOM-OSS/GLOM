@@ -22,8 +22,9 @@ import { ERR20, ERR22 } from '../../../../src/errors';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
-import { CorrectSubmissionDto, StudentAnswerDto } from '../courses/course.dto';
 import {
+  CorrectSubmissionDto,
+  StudentAnswerDto,
   AssessmentPostDto,
   AssessmentPutDto,
   PublishAssessmentDto,

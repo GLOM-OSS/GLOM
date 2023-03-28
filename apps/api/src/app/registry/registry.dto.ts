@@ -4,12 +4,14 @@ import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayMinSize,
+  IsArray,
   IsEnum,
-  IsNumber, IsString,
+  IsNumber,
+  IsString,
   IsUUID,
   Max,
   Min,
-  ValidateNested
+  ValidateNested,
 } from 'class-validator';
 
 export class WeightingPutDto {
@@ -74,8 +76,8 @@ export class AcademicProfilePutDto extends PartialType(
 ) {}
 
 export class EvaluationTypeWeighting {
-  @ApiProperty()
   @IsEnum(EvaluationTypeEnum)
+  @ApiProperty({ enum: EvaluationTypeEnum })
   evaluation_type: EvaluationTypeEnum;
 
   @Min(0)
@@ -89,11 +91,12 @@ export class EvaluationTypeWeightingPutDto {
   @ApiProperty()
   minimum_modulation_score: number;
 
-  @ApiProperty()
+  @IsArray()
   @ArrayMaxSize(2)
   @ArrayMinSize(2)
   @ValidateNested({ each: true })
   @Type(() => EvaluationTypeWeighting)
+  @ApiProperty({ type: EvaluationTypeWeighting, isArray: true })
   evaluationTypeWeightings: EvaluationTypeWeighting[];
 }
 
@@ -111,17 +114,17 @@ export class SemesterExamAccess {
   payment_percentage: number;
 }
 export class SemesterExamAccessPutDto {
-  @ApiProperty()
   @ArrayMaxSize(2)
   @ArrayMinSize(2)
   @ValidateNested({ each: true })
   @Type(() => SemesterExamAccess)
+  @ApiProperty({ type: SemesterExamAccess, isArray: true })
   semesterExamAccesses: SemesterExamAccess[];
 }
 
 export class CarryOverSystemPutDto {
-  @ApiProperty()
   @IsEnum(CarryOverSystemEnum)
+  @ApiProperty({ enum: CarryOverSystemEnum })
   carry_over_system: CarryOverSystemEnum;
 }
 

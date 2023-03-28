@@ -21,7 +21,7 @@ export class CreditUnitQuery {
   @ArrayMinSize(1)
   @Type(() => MajorId)
   @ValidateNested({ each: true })
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: MajorId, isArray: true, required: false })
   majorIds?: MajorId[];
 
   @IsNumber()
@@ -90,10 +90,10 @@ export class CreditUnitSubjectPostDto {
   @ApiProperty()
   weighting: number;
 
-  @ApiProperty()
   @ArrayMinSize(1)
   @Type(() => SubjectPart)
   @ValidateNested({ each: true })
+  @ApiProperty({ type: SubjectPart, isArray: true })
   subjectParts: SubjectPart[];
 }
 

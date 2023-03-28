@@ -29,11 +29,11 @@ export class CreatePaymentDto {
   @IsArray()
   @IsOptional()
   @ArrayMaxSize(14)
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: Number, isArray: true, required: false })
   semesterNumbers?: number[];
 
-  @ApiProperty()
   @IsEnum(PaymentReasonEnum)
+  @ApiProperty({ enum: PaymentReasonEnum })
   payment_reason: PaymentReasonEnum;
 
   @ApiProperty()

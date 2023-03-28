@@ -11,6 +11,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
@@ -19,6 +20,7 @@ import { GradeWeightingPostDto, GradeWeightingPutDto } from '../registry.dto';
 import { GradeWeightingService } from './grade-weighting.service';
 
 @Controller()
+@ApiTags('Grade weightings')
 @UseGuards(AuthenticatedGuard)
 export class GradeWeightingController {
   constructor(private gradeWeightingService: GradeWeightingService) {}

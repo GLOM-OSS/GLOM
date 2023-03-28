@@ -20,7 +20,7 @@ import { PersonnelQueryDto, StaffPostData } from '../../configurator.dto';
 import { PersonnelService } from '../personnel.service';
 
 @Controller()
-@ApiTags('Personnel/registries')
+@ApiTags('Registries')
 @Roles(Role.CONFIGURATOR)
 @UseGuards(AuthenticatedGuard)
 export class RegistryController {

@@ -31,8 +31,9 @@ import {
 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
-import { CorrectSubmissionDto, QuestionAnswer } from '../courses/course.dto';
 import {
+  CorrectSubmissionDto,
+  QuestionAnswer,
   AssessmentPostDto,
   QuestionPostDto,
   QuestionPutDto,

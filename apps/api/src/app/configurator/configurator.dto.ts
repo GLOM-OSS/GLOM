@@ -77,9 +77,9 @@ export class MajorPostDto {
   cycle_id: string;
 
   @IsArray()
-  @ApiProperty()
-  @ValidateNested({ each: true })
   @Type(() => ClassroomPost)
+  @ValidateNested({ each: true })
+  @ApiProperty({ type: ClassroomPost, isArray: true })
   classrooms: ClassroomPost[];
 }
 
@@ -242,9 +242,9 @@ export class AcademicYearPostDto {
 }
 
 export class TemplateYearPostDto extends AcademicYearPostDto {
-  @ApiProperty()
   @Type(() => PersonnelTemplate)
   @ValidateNested({ each: true })
+  @ApiProperty({ type: PersonnelTemplate })
   personnelConfig: PersonnelTemplate;
 
   @IsArray()

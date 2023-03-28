@@ -10,6 +10,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { ERR11, ERR12 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
@@ -25,6 +26,7 @@ import {
 import { EvaluationService } from './evaluation.service';
 
 @Controller()
+@ApiTags('Evaluations')
 @UseGuards(AuthenticatedGuard)
 export class EvaluationController {
   constructor(

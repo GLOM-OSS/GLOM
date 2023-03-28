@@ -1,13 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  Contains,
   IsDateString,
-  IsEmail, IsNotEmptyObject,
+  IsEmail,
+  IsNotEmptyObject,
   IsOptional,
   IsPhoneNumber,
-  IsString, registerDecorator,
-  ValidateNested,
-  ValidationOptions
+  IsString, ValidateNested
 } from 'class-validator';
 import { PersonPostDto } from '../app.dto';
 
@@ -38,34 +38,17 @@ export class SchoolPostDto {
 }
 
 export class DemandPostDto {
-  @ApiProperty()
   @IsNotEmptyObject()
   @ValidateNested()
   @Type(() => PersonPostDto)
+  @ApiProperty({ type: PersonPostDto })
   personnel: PersonPostDto;
-  
-  @ApiProperty()
+
   @IsNotEmptyObject()
   @ValidateNested()
   @Type(() => SchoolPostDto)
+  @ApiProperty({ type: SchoolPostDto })
   school: SchoolPostDto;
-}
-
-export function IsValidSubdomain(validationOptions?: ValidationOptions) {
-  return (subdomain, propertyName: string) => {
-    registerDecorator({
-      name: 'IsValidSubdomain',
-      target: subdomain.constructor,
-      propertyName,
-      constraints: [],
-      options: validationOptions,
-      validator: {
-        validate(value) {
-          return typeof value === 'string' && !value.includes('squoolr.com');
-        },
-      },
-    });
-  };
 }
 
 export class DemandValidateDto {
@@ -77,9 +60,10 @@ export class DemandValidateDto {
   @IsOptional()
   rejection_reason?: string;
 
-  @ApiProperty()
+  @IsString()
   @IsOptional()
-  @IsValidSubdomain()
+  @ApiProperty({ required: false })
+  @Contains('squoolr.com')
   subdomain?: string;
 }
 
