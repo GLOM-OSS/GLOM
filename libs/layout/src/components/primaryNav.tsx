@@ -44,7 +44,7 @@ export default function PrimaryNav({
           padding: ` ${theme.spacing(0.5)} ${theme.spacing(1)}`,
           cursor: 'pointer',
         }}
-        onClick={() => navigate('/dashboard')}
+        // onClick={() => navigate('/dashboard')}
       >
         <Tooltip arrow title={formatMessage({ id: 'dashboard' })}>
           <img src={favicon} alt={'Squoolr icon'} width={35} />

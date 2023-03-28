@@ -169,7 +169,7 @@ export default function Students() {
   }, []);
 
   useEffect(() => {
-    if (activeMajor) loadClassrooms(activeMajor.major_id);
+    if (activeMajor) loadClassrooms(activeMajor.major_code);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeMajor]);
 

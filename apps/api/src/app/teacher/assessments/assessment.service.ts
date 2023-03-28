@@ -362,20 +362,21 @@ export class AssessmentService {
     const assessmentEndDate = new Date(
       new Date(assessment_date).getTime() + duration * 60 * 1000
     );
+    const isVisible =
+      !is_student || (is_student && new Date() < assessmentEndDate);
     const questions = await this.prismaService.question.findMany({
       select: {
         question: true,
         question_id: true,
         question_mark: true,
         question_type: true,
-        question_answer: true,
+        question_answer: isVisible,
         QuestionOptions: {
           select: {
             question_option_id: true,
+            is_answer: isVisible,
             question_id: true,
             option: true,
-            is_answer:
-              !is_student || (is_student && new Date() < assessmentEndDate),
           },
           where: { is_deleted: false },
         },
