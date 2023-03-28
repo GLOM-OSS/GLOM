@@ -112,7 +112,7 @@ export class StudentRegistrationService {
       PrismaPromise<Person | Student | AnnualStudent>[]
     >(
       (
-        queries,
+        instructions,
         {
           tutor_address,
           tutor_email,
@@ -219,7 +219,7 @@ export class StudentRegistrationService {
           },
         };
         return [
-          ...queries,
+          ...instructions,
           this.prismaService.person.upsert({
             create: {
               ...newStudentPerson,

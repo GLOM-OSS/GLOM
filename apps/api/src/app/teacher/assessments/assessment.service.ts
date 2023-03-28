@@ -73,7 +73,6 @@ export class AssessmentService {
       submission_type,
       number_per_group,
       annual_credit_unit_subject_id,
-      ...newAssessment
     }: AssessmentPostDto,
     created_by: string
   ) {
@@ -81,7 +80,6 @@ export class AssessmentService {
       is_assignment,
       submission_type,
       number_per_group,
-      ...newAssessment,
       AnnualCreditUnitSubject: {
         connect: { annual_credit_unit_subject_id },
       },
