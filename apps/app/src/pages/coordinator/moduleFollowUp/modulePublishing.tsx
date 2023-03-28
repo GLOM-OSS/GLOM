@@ -12,6 +12,7 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
+import { toast } from 'react-toastify';
 import ActionBar from '../../../components/coordinator/moduleFollowUp/actionBar';
 import ModuleDisplay from '../../../components/coordinator/moduleFollowUp/moduleDisplay';
 import ModuleStatusSkeleton, {
@@ -142,7 +143,11 @@ export default function ModulePublishing() {
             moduleStatus.map((mdl) => {
               const { annual_credit_unit_id: acu_id } = mdl;
               if (acu_id === module.annual_credit_unit_id) {
-                return { ...mdl, is_exam_published: true };
+                return {
+                  ...mdl,
+                  is_resit_published: module.is_exam_published,
+                  is_exam_published: module.is_exam_published ?? true,
+                };
               }
               return mdl;
             })
@@ -155,7 +160,7 @@ export default function ModulePublishing() {
             type: 'ERROR',
             render: (
               <ErrorMessage
-                retryFunction={() => publishModule}
+                retryFunction={() => publishModule(module)}
                 notification={notif}
                 message={
                   error?.message || formatMessage({ id: 'validatingFailed' })
@@ -165,12 +170,12 @@ export default function ModulePublishing() {
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        });
+        })
+        .finally(() => setIsPublishing(false));
     } else {
-      alert(
+      toast.error(
         'availability percentage must be 100 for publications to be possible.'
       );
-      //TODO: CHANGE THIS TO TOAST MESSAGE
     }
   };
 
@@ -179,9 +184,10 @@ export default function ModulePublishing() {
       <ConfirmDeleteDialog
         closeDialog={() => setIsConfirmPublishDialogOpen(false)}
         confirm={() =>
-          activeModule ? publishModule(activeModule) : alert('no active module')
+          activeModule
+            ? publishModule(activeModule)
+            : toast.error('no active module')
         }
-        // TODO: CHANGE ALERT ABOVE TO TOAST
         dialogMessage={'confirmModulePublishingMessage'}
         isDialogOpen={isConfirmPublishDialogOpen}
         dialogTitle={'confirmModulePublishing'}
@@ -217,7 +223,10 @@ export default function ModulePublishing() {
             moduleStatus.map((module, index) => (
               <ModuleDisplay
                 module={module}
-                disabled={isPublishing}
+                disabled={
+                  isPublishing ||
+                  (module.is_exam_published && module.is_resit_published)
+                }
                 open={
                   module.annual_credit_unit_id ===
                   activeModule?.annual_credit_unit_id
