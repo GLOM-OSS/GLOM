@@ -1,7 +1,7 @@
 import {
   FileDownloadOutlined,
   ReportRounded,
-  WarningOutlined
+  WarningOutlined,
 } from '@mui/icons-material';
 import {
   Box,
@@ -12,13 +12,13 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Typography
+  Typography,
 } from '@mui/material';
 import {
   getClassrooms,
   getMajors,
   getStudents,
-  importNewStudents
+  importNewStudents,
 } from '@squoolr/api-services';
 import { Classroom, Major, Student } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
@@ -30,7 +30,7 @@ import FilterBar from '../../../components/registry/students/filterBar';
 import StudentLane from '../../../components/registry/students/studentLane';
 import {
   NoTableElement,
-  TableLaneSkeleton
+  TableLaneSkeleton,
 } from '../../../components/teacher/courseLane';
 import ConfirmImportDialog from './confirmImportDialog';
 
@@ -54,7 +54,6 @@ export default function Students() {
     setStudentNotif(notif);
     getStudents(major_code, classroom_code)
       .then((students) => {
-        console.log(students)
         setStudents(students);
         setAreStudentsLoading(false);
         notif.dismiss();
@@ -178,7 +177,7 @@ export default function Students() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeMajor, activeClassroomCode]);
 
-  function uploadFile(files: FileList, activeMajorId: string) {
+  function uploadFile(files: FileList, activeMajor: Major) {
     setIsImportDialogOpen(false);
     setIsImporting(true);
     if (importNotif) importNotif.dismiss();
@@ -187,9 +186,9 @@ export default function Students() {
     notif.notify({
       render: formatMessage({ id: 'importingStudents' }),
     });
-    importNewStudents(activeMajorId, files[0])
+    importNewStudents(activeMajor.major_id, files[0])
       .then(() => {
-        loadStudents(activeMajorId);
+        loadStudents(activeMajor.major_code);
         notif.update({
           render: formatMessage({
             id: 'studentsImportedSuccessfully',
@@ -201,7 +200,7 @@ export default function Students() {
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={() => uploadFile(files, activeMajorId)}
+              retryFunction={() => uploadFile(files, activeMajor)}
               notification={notif}
               message={
                 error?.message || formatMessage({ id: 'csvCreationFailed' })
@@ -221,7 +220,7 @@ export default function Students() {
         closeDialog={() => setIsImportDialogOpen(false)}
         confirm={(files: FileList) => {
           if (activeMajor) {
-            uploadFile(files, activeMajor.major_id);
+            uploadFile(files, activeMajor);
           } else {
             const notif = new useNotification();
             notif.notify({ render: formatMessage({ id: 'displayingError' }) });

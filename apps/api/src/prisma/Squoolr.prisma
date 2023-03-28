@@ -1389,13 +1389,16 @@ model AnnualStudentAnswerQuestionAudit {
 }
 
 model AnnualStudentHasCreditUnit {
-    annual_student_has_credit_unit_id String                             @id @default(uuid()) @db.VarChar(36)
+    annual_student_has_credit_unit_id String           @id @default(uuid()) @db.VarChar(36)
     semester_number                   Int
-    annual_student_id                 String                             @db.VarChar(36)
-    AnnualStudent                     AnnualStudent                      @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)
-    annual_credit_unit_id             String                             @db.VarChar(36)
-    AnnualCreditUnit                  AnnualCreditUnit                   @relation(fields: [annual_credit_unit_id], references: [annual_credit_unit_id], onDelete: Cascade, onUpdate: Cascade)
-    PresenceListHasCreditUnitStudent  PresenceListHasCreditUnitStudent[]
+    annual_student_id                 String           @db.VarChar(36)
+    AnnualStudent                     AnnualStudent    @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_credit_unit_id             String           @db.VarChar(36)
+    AnnualCreditUnit                  AnnualCreditUnit @relation(fields: [annual_credit_unit_id], references: [annual_credit_unit_id], onDelete: Cascade, onUpdate: Cascade)
+
+    PresenceListHasCreditUnitStudent PresenceListHasCreditUnitStudent[]
+
+    @@unique([annual_student_id, annual_credit_unit_id])
 }
 
 model PresenceList {
