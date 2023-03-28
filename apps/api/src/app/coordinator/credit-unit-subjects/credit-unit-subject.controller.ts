@@ -53,13 +53,21 @@ export class CreditUnitSubjectController {
     @Req() request: Request,
     @Body() newCreditUnitSubject: CreditUnitSubjectPostDto
   ) {
-    const {
-      annualTeacher: { annual_teacher_id },
-    } = request.user as DeserializeSessionData;
-    return this.creditUnitSubjectService.createCreditUnitSubject(
-      newCreditUnitSubject,
-      annual_teacher_id
-    );
+    try {
+      const {
+        annualTeacher: { annual_teacher_id },
+      } = request.user as DeserializeSessionData;
+      return this.creditUnitSubjectService.createCreditUnitSubject(
+        newCreditUnitSubject,
+        annual_teacher_id
+      );
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        'Ooops, something went wrong !!!',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
   }
 
   @Put('/:annual_credit_unit_subject_id/edit')

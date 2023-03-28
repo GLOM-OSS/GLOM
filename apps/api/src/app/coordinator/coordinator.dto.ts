@@ -2,6 +2,7 @@ import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
+  IsInt,
   IsNumber,
   IsOptional,
   IsString,
@@ -59,8 +60,8 @@ export class SubjectPart {
   @IsString()
   subject_part_id: string;
 
+  @IsInt()
   @ApiProperty()
-  @IsNumber()
   number_of_hours: number;
 
   @ApiProperty()
