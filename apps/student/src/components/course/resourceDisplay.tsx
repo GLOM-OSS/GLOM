@@ -1,8 +1,11 @@
 import { Box, Skeleton, Typography } from '@mui/material';
 import { Resource } from '@squoolr/interfaces';
+import { useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
-import { FileIcon } from './fileIcon';
+import { FileIcon } from './fileDialog';
+import FileDisplayDialog, { readableFileFormats } from './fileDisplayDialog';
+// import { FileIcon } from './fileIcon';
 
 export default function ResourceDisplay({
   areResourcesLoading,
@@ -13,75 +16,92 @@ export default function ResourceDisplay({
 }) {
   const { formatMessage } = useIntl();
 
-  const downloadFile = (resource_id: string) => {
-    //TODO: CALL API HERE TO DOWNLOAD FILE
-    alert(`downloading ${resource_id}`);
+  const [displayFile, setDisplayFile] = useState<number>();
+
+  const downloadFile = ({
+    resource_name: rn,
+    resource_extension: re,
+    resource_ref: rr,
+  }: Resource) => {
+    const link = document.createElement('a');
+    link.href = rr;
+    link.setAttribute('download', `${rn}.${re}`);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode?.removeChild(link);
   };
 
   return (
-    <Scrollbars autoHide>
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns:
-            !areResourcesLoading && resources.length === 0
-              ? '1fr'
-              : 'repeat(auto-fill, minmax(100px, 1fr))',
-          columnGap: 3,
-          rowGap: 3,
-          alignContent:
-            !areResourcesLoading && resources.length === 0
-              ? 'center'
-              : 'initial',
-          justifyContent:
-            !areResourcesLoading && resources.length === 0
-              ? 'center'
-              : 'initial',
-        }}
-      >
-        {areResourcesLoading ? (
-          [...new Array(10)].map((_, index) => (
-            <Skeleton
-              key={index}
-              height="100px"
-              width="100px"
-              animation="wave"
-            />
-          ))
-        ) : resources.length === 0 ? (
-          <Typography textAlign="center">
-            {formatMessage({ id: 'noRessoursesAvailable' })}
-          </Typography>
-        ) : (
-          resources.map((resource, index) => {
-            const {
-              resource_name: rn,
-              resource_extension: re,
-              resource_type: rt,
-              resource_ref: rr,
-              resource_id: r_id,
-            } = resource;
-            return (
-              <FileIcon
+    <>
+      {displayFile !== undefined && (
+        <FileDisplayDialog
+          closeDialog={() => setDisplayFile(undefined)}
+          isDialogOpen={displayFile !== undefined}
+          resources={resources}
+          activeResource={displayFile}
+        />
+      )}
+      <Scrollbars autoHide>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns:
+              !areResourcesLoading && resources.length === 0
+                ? '1fr'
+                : 'repeat(auto-fill, minmax(100px, 1fr))',
+            columnGap: 3,
+            rowGap: 3,
+            alignContent:
+              !areResourcesLoading && resources.length === 0
+                ? 'center'
+                : 'initial',
+            justifyContent:
+              !areResourcesLoading && resources.length === 0
+                ? 'center'
+                : 'initial',
+          }}
+        >
+          {areResourcesLoading ? (
+            [...new Array(10)].map((_, index) => (
+              <Skeleton
                 key={index}
-                resource_ref={rr}
-                readFile={
-                  // rt === 'FILE' &&
-                  // readableFileFormats.includes(re as string)
-                  //   ? () => setDisplayFile(index)
-                  //   :
-                  rt === 'FILE'
-                    ? //  && downloadFormats.includes(re as string)
-                      () => downloadFile(r_id)
-                    : undefined
-                }
-                name={`${rn}${re ? '.' : ''}${re ?? ''}`}
-                resource_type={rt}
+                height="100px"
+                width="100px"
+                animation="wave"
               />
-            );
-          })
-        )}
-      </Box>
-    </Scrollbars>
+            ))
+          ) : resources.length === 0 ? (
+            <Typography textAlign="center">
+              {formatMessage({ id: 'noRessoursesAvailable' })}
+            </Typography>
+          ) : (
+            resources.map((resource, index) => {
+              const {
+                resource_name: rn,
+                resource_extension: re,
+                resource_type: rt,
+                resource_ref: rr,
+                // resource_id: r_id,
+              } = resource;
+              return (
+                <FileIcon
+                  key={index}
+                  resource_ref={rr}
+                  readFile={
+                    rt === 'FILE'
+                      ? readableFileFormats.includes(re as string)
+                        ? () => setDisplayFile(index)
+                        : () => downloadFile(resource)
+                      : undefined
+                  }
+                  name={`${rn}${re ? '.' : ''}${re ?? ''}`}
+                  resource_type={rt}
+                />
+              );
+            })
+          )}
+        </Box>
+      </Scrollbars>
+    </>
   );
 }
