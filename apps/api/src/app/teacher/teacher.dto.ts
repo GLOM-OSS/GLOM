@@ -1,4 +1,9 @@
-import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  OmitType,
+  PartialType,
+} from '@nestjs/swagger';
 import { QuestionType, SubmissionType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
@@ -19,7 +24,7 @@ import {
 export class QuestionAnswer {
   @IsString()
   @IsOptional()
-  @ApiProperty()
+  @ApiPropertyOptional()
   response?: string;
 
   @IsUUID()
@@ -28,8 +33,8 @@ export class QuestionAnswer {
 
   @IsUUID()
   @IsOptional()
-  @ApiProperty()
-  answered_option_id?: string;
+  @ApiPropertyOptional()
+  answered_option_ids?: string[];
 }
 export class StudentAnswerDto {
   @IsArray()
