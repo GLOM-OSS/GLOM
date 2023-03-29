@@ -239,7 +239,9 @@ export default function QuestionDisplay({
                     onChange={(event) => {
                       if (getTeacherCorrections)
                         getTeacherCorrections({
-                          question_mark: cc.acquired_mark ?? 0,
+                          question_mark: updatedCorrection
+                            ? updatedCorrection.question_mark ?? 0
+                            : cc.acquired_mark ?? 0,
                           question_id: cc.question_id,
                           teacher_comment: event.target.value,
                         });
@@ -289,7 +291,9 @@ export default function QuestionDisplay({
                         getTeacherCorrections({
                           question_mark: val,
                           question_id: cc.question_id,
-                          teacher_comment: cc.teacher_comment ?? '',
+                          teacher_comment: updatedCorrection
+                            ? updatedCorrection.teacher_comment ?? ''
+                            : cc.teacher_comment ?? '',
                         });
                   }}
                   sx={{
