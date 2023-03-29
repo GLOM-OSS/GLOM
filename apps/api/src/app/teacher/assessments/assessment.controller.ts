@@ -255,15 +255,15 @@ export class AssessmentController {
     const {
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
-    // try {
+    try {
       return await this.assessmentService.correctSubmission(
         assessment_id,
         newCorrection,
         annual_teacher_id
       );
-    // } catch (error) {
-    //   throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    // }
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Roles(Role.TEACHER)

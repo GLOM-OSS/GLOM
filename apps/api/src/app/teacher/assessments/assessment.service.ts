@@ -587,24 +587,22 @@ export class AssessmentService {
     let starting_bounds = 0;
     let ending_bounds = distribution_interval; //5 by default
     const bestScore = studentMarks[studentMarks.length - 1].total_score;
-    do {
+    while (starting_bounds <= bestScore) {
       const portion = studentMarks.filter(
         ({ total_score }) =>
-          starting_bounds < total_score && total_score < ending_bounds
+          starting_bounds <= total_score && total_score < ending_bounds
       );
       scoreDistributions.push({
         number_of_students: portion.length,
         average_score: portion.reduce(
-          (avg, _) => avg + _.total_score / portion.length,
+          (avg, _) =>
+            avg + _.total_score / (portion.length === 0 ? 1 : portion.length),
           0
         ),
       });
       starting_bounds = ending_bounds;
-      ending_bounds =
-        ending_bounds + distribution_interval > bestScore
-          ? bestScore
-          : ending_bounds + distribution_interval;
-    } while (ending_bounds < bestScore);
+      ending_bounds = ending_bounds + distribution_interval;
+    }
 
     return {
       scoreDistributions,
