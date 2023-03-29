@@ -2,13 +2,15 @@ import {
   Body,
   Controller,
   HttpException,
-  HttpStatus, Post,
+  HttpStatus,
+  Post,
   Req,
   UploadedFile,
   UseGuards,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Readable } from 'stream';
 import { ERR20 } from '../../../errors';
@@ -19,11 +21,12 @@ import { AuthenticatedGuard } from '../../auth/auth.guard';
 import { ImportOptionsDto } from '../registry.dto';
 import {
   StudentImportInterface,
-  StudentRegistrationService
+  StudentRegistrationService,
 } from './student-registration.service';
 
 @Controller()
 @UseGuards(AuthenticatedGuard)
+@ApiTags('Student Registrations')
 export class StudentRegistrationController {
   constructor(private studentRegistrationService: StudentRegistrationService) {}
 

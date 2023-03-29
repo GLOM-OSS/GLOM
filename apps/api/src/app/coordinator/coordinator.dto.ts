@@ -2,6 +2,7 @@ import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
+  IsInt,
   IsNumber,
   IsOptional,
   IsString,
@@ -21,7 +22,7 @@ export class CreditUnitQuery {
   @ArrayMinSize(1)
   @Type(() => MajorId)
   @ValidateNested({ each: true })
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: MajorId, isArray: true, required: false })
   majorIds?: MajorId[];
 
   @IsNumber()
@@ -59,8 +60,8 @@ export class SubjectPart {
   @IsString()
   subject_part_id: string;
 
+  @IsInt()
   @ApiProperty()
-  @IsNumber()
   number_of_hours: number;
 
   @ApiProperty()
@@ -90,10 +91,10 @@ export class CreditUnitSubjectPostDto {
   @ApiProperty()
   weighting: number;
 
-  @ApiProperty()
   @ArrayMinSize(1)
   @Type(() => SubjectPart)
   @ValidateNested({ each: true })
+  @ApiProperty({ type: SubjectPart, isArray: true })
   subjectParts: SubjectPart[];
 }
 

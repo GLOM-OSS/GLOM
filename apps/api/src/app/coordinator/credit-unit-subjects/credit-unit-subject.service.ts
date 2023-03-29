@@ -33,7 +33,7 @@ export class CreditUnitSubjectService {
       );
     const subjects = await this.prismaService.annualCreditUnitSubject.findMany({
       select: { weighting: true },
-      where: { annual_credit_unit_id },
+      where: { annual_credit_unit_id, is_deleted: false },
     });
     const totalWeight = subjects.reduce(
       (total, { weighting }) => total + weighting,

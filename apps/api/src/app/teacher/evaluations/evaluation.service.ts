@@ -1,24 +1,59 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { EvaluationHasStudent, EvaluationSubTypeEnum } from '@prisma/client';
+import {
+  EvaluationHasStudent,
+  EvaluationSubTypeEnum,
+  Prisma
+} from '@prisma/client';
+import { CodeGeneratorService } from 'apps/api/src/utils/code-generator';
 import { AUTH404, ERR13, ERR15, ERR16 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   EvaluationQueryDto,
   EvaluationsQeuryDto,
-  StudentMark,
+  StudentMark
 } from '../teacher.dto';
 
 @Injectable()
 export class EvaluationService {
-  private evaluationSelect = {
+  private evaluationSelect = Prisma.validator<Prisma.EvaluationSelect>()({
     evaluation_id: true,
     examination_date: true,
     published_at: true,
     anonimated_at: true,
     AnnualCreditUnitSubject: { select: { subject_title: true } },
     AnnualEvaluationSubType: { select: { evaluation_sub_type_name: true } },
-  };
-  constructor(private prismaService: PrismaService) {}
+  });
+  private evaluationHasStudentSelect =
+    Prisma.validator<Prisma.EvaluationHasStudentSelect>()({
+      evaluation_has_student_id: true,
+      anonymity_code: true,
+      mark: true,
+      created_at: true,
+      annual_student_id: true,
+      EvaluationHasStudentAudits: {
+        take: 1,
+        select: { audited_at: true },
+        orderBy: { audited_at: 'desc' },
+      },
+      AnnualStudent: {
+        select: {
+          Student: {
+            select: {
+              matricule: true,
+              Login: {
+                select: {
+                  Person: { select: { first_name: true, last_name: true } },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  constructor(
+    private prismaService: PrismaService,
+    private codeGenerator: CodeGeneratorService
+  ) {}
 
   private transformEvaluation(evaluation: {
     anonimated_at: Date;
@@ -113,36 +148,67 @@ export class EvaluationService {
   }
 
   async getEvaluationHasStudents(evaluation_id: string) {
-    const evaluationHasStudents =
-      await this.prismaService.evaluationHasStudent.findMany({
-        select: {
-          evaluation_has_student_id: true,
-          anonymity_code: true,
-          mark: true,
-          created_at: true,
-          EvaluationHasStudentAudits: {
-            take: 1,
-            select: { audited_at: true },
-            orderBy: { audited_at: 'desc' },
-          },
-          AnnualStudent: {
-            select: {
-              Student: {
-                select: {
-                  matricule: true,
-                  Login: {
-                    select: {
-                      Person: { select: { first_name: true, last_name: true } },
-                    },
-                  },
-                },
+    const {
+      AnnualCreditUnitSubject: { annual_credit_unit_subject_id },
+    } = await this.prismaService.evaluation.findUniqueOrThrow({
+      select: {
+        AnnualCreditUnitSubject: {
+          select: { annual_credit_unit_subject_id: true },
+        },
+      },
+      where: { evaluation_id },
+    });
+    const annualStudents = await this.prismaService.annualStudent.findMany({
+      select: {
+        annual_student_id: true,
+        Student: {
+          select: {
+            matricule: true,
+            Login: {
+              select: {
+                Person: { select: { first_name: true, last_name: true } },
               },
             },
           },
         },
+      },
+      where: {
+        AnnualStudentHasCreditUnits: {
+          some: {
+            AnnualCreditUnit: {
+              AnnualCreditUnitSubjects: {
+                some: { annual_credit_unit_subject_id },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const evaluationHasStudents =
+      await this.prismaService.evaluationHasStudent.findMany({
+        select: this.evaluationHasStudentSelect,
         where: { evaluation_id, is_editable: true },
       });
-    return evaluationHasStudents.map(
+    const newStudents = annualStudents.filter(
+      (_) =>
+        !evaluationHasStudents.find(
+          ({ annual_student_id }) => _.annual_student_id === annual_student_id
+        )
+    );
+    await this.prismaService.evaluationHasStudent.createMany({
+      data: newStudents.map(({ annual_student_id }) => ({
+        evaluation_id,
+        annual_student_id,
+        anonymity_code: this.codeGenerator.getAnonymityCode(),
+      })),
+    });
+    const newEvaluationHasStudents =
+      await this.prismaService.evaluationHasStudent.findMany({
+        select: this.evaluationHasStudentSelect,
+        where: { evaluation_id, is_editable: true },
+      });
+    return newEvaluationHasStudents.map(
       ({
         evaluation_has_student_id,
         anonymity_code,
@@ -182,6 +248,7 @@ export class EvaluationService {
       select: {
         examination_date: true,
         anonimated_at: true,
+        annual_credit_unit_subject_id: true,
         AnnualEvaluationSubType: { select: { evaluation_sub_type_name: true } },
       },
       where: {
@@ -203,6 +270,7 @@ export class EvaluationService {
         HttpStatus.NOT_FOUND
       );
     const {
+      annual_credit_unit_subject_id,
       AnnualEvaluationSubType: { evaluation_sub_type_name: sub_type },
     } = evaluation;
     if (
@@ -219,6 +287,19 @@ export class EvaluationService {
       !evaluation.anonimated_at
     )
       throw new HttpException(JSON.stringify(ERR16), HttpStatus.EARLYHINTS);
+    const annualStudents = await this.prismaService.annualStudent.findMany({
+      where: {
+        AnnualStudentHasCreditUnits: {
+          some: {
+            AnnualCreditUnit: {
+              AnnualCreditUnitSubjects: {
+                some: { annual_credit_unit_subject_id },
+              },
+            },
+          },
+        },
+      },
+    });
 
     await this.prismaService.evaluation.update({
       data: {
@@ -226,6 +307,14 @@ export class EvaluationService {
           ? {
               anonimated_at: new Date(anonimated_at),
               anonimated_by: audited_by,
+              EvaluationHasStudents: {
+                createMany: {
+                  data: annualStudents.map(({ annual_student_id }) => ({
+                    annual_student_id,
+                    anonymity_code: this.codeGenerator.getAnonymityCode(),
+                  })),
+                },
+              },
             }
           : {}),
         ...(published_at

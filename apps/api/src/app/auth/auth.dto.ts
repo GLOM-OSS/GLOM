@@ -16,3 +16,13 @@ export class ResetPasswordDto {
   @IsEmail()
   email: string;
 }
+
+export class SignInDto {
+  @ApiProperty()
+  @IsEmail()
+  email: string;
+
+  @ApiProperty()
+  @IsString()
+  password: string;
+}

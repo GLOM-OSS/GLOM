@@ -10,6 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { randomUUID } from 'crypto';
 import { Request } from 'express';
 import { ERR20 } from '../../errors';
 import { DeserializeSessionData, Role } from '../../utils/types';
@@ -105,6 +106,7 @@ export class StudentController {
     try {
       return this.studentService.payStudentFee(
         {
+          transaction_id: randomUUID(),
           annual_student_id:
             annualStudent.annual_student_id ?? annual_student_id,
           ...newPayment,

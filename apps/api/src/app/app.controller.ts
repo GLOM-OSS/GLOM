@@ -4,8 +4,9 @@ import {
   HttpException,
   HttpStatus,
   Put,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { Role } from '../utils/types';
 import { Roles } from './app.decorator';
 
@@ -52,6 +53,7 @@ export class AppController {
   }
 
   @Roles(Role.ADMIN)
+  @ApiExcludeEndpoint()
   @UseGuards(AuthenticatedGuard)
   @Put('clear-unused-sessions-logs')
   async clearLogs() {

@@ -195,3 +195,11 @@ export const ERR31 = {
   en: `Sorry, you can't submit after approval.`,
   fr: `Désolé, vous ne pouvez soumettre apres approbation.`,
 };
+export const ERR32 = {
+  en: `Sorry, this module was already published.`,
+  fr: `Désolé, ce module a déjà été publié.`,
+};
+export const ERR33 = {
+  en: `Sorry, module marks avability must be a  100 percentage.`,
+  fr: `Désolé, Les notes de module doivent être de 100 %.`,
+};

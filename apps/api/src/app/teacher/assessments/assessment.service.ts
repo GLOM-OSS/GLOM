@@ -31,8 +31,9 @@ import {
 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
-import { CorrectSubmissionDto, QuestionAnswer } from '../courses/course.dto';
 import {
+  CorrectSubmissionDto,
+  QuestionAnswer,
   AssessmentPostDto,
   QuestionPostDto,
   QuestionPutDto,
@@ -72,7 +73,6 @@ export class AssessmentService {
       submission_type,
       number_per_group,
       annual_credit_unit_subject_id,
-      ...newAssessment
     }: AssessmentPostDto,
     created_by: string
   ) {
@@ -80,7 +80,6 @@ export class AssessmentService {
       is_assignment,
       submission_type,
       number_per_group,
-      ...newAssessment,
       AnnualCreditUnitSubject: {
         connect: { annual_credit_unit_subject_id },
       },
@@ -363,20 +362,21 @@ export class AssessmentService {
     const assessmentEndDate = new Date(
       new Date(assessment_date).getTime() + duration * 60 * 1000
     );
+    const isVisible =
+      !is_student || (is_student && new Date() < assessmentEndDate);
     const questions = await this.prismaService.question.findMany({
       select: {
         question: true,
         question_id: true,
         question_mark: true,
         question_type: true,
-        question_answer: true,
+        question_answer: isVisible,
         QuestionOptions: {
           select: {
             question_option_id: true,
+            is_answer: isVisible,
             question_id: true,
             option: true,
-            is_answer:
-              !is_student || (is_student && new Date() < assessmentEndDate),
           },
           where: { is_deleted: false },
         },
@@ -954,7 +954,7 @@ export class AssessmentService {
     }[] = [];
     const studentAnswerQuestionCreateInputs: Prisma.AnnualStudentAnswerQuestionCreateManyInput[] =
       [];
-    studentAnswers.forEach(({ question_id, answered_option_id, response }) => {
+    studentAnswers.forEach(({ question_id, answered_option_ids, response }) => {
       const {
         question_type,
         question_mark,
@@ -974,36 +974,46 @@ export class AssessmentService {
       }
       const questionMark =
         question_type === 'MCQ'
-          ? questionOptions.find((_) => _.is_answer)?.question_option_id ===
-            answered_option_id
+          ? questionOptions
+              .filter((_) => _.is_answer)
+              ?.reduce(
+                (hadItRight, _) =>
+                  hadItRight &&
+                  answered_option_ids.includes(_.question_option_id),
+                true
+              )
             ? question_mark
             : 0
           : null;
       totalScore += questionMark ?? 0;
-      const newQuestionAnswer = {
-        response,
-        question_id,
-        answered_option_id,
-        question_mark: questionMark,
-        annual_student_take_assessment_id,
-      };
       const question = auditedQuestions.find(
         (_) => _.question_id === question_id
       );
       if (question)
-        studentAnswerQuestionUpdateQueries.push({
-          data: {
+        studentAnswerQuestionUpdateQueries.push(
+          ...answered_option_ids.map((answered_option_id) => ({
+            data: {
+              response,
+              QuestionOption: {
+                connect: { question_option_id: answered_option_id },
+              },
+              AnnualStudentTakeAssessment: {
+                connect: { annual_student_take_assessment_id },
+              },
+            },
+            id: question.annual_student_answer_question_id,
+          }))
+        );
+      else
+        studentAnswerQuestionCreateInputs.push(
+          ...answered_option_ids.map((answered_option_id) => ({
             response,
-            QuestionOption: {
-              connect: { question_option_id: answered_option_id },
-            },
-            AnnualStudentTakeAssessment: {
-              connect: { annual_student_take_assessment_id },
-            },
-          },
-          id: question.annual_student_answer_question_id,
-        });
-      else studentAnswerQuestionCreateInputs.push(newQuestionAnswer);
+            question_id,
+            answered_option_id,
+            question_mark: questionMark,
+            annual_student_take_assessment_id,
+          }))
+        );
     });
 
     await this.prismaService.$transaction([

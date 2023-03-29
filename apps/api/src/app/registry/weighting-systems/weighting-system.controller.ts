@@ -9,6 +9,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
@@ -20,6 +21,7 @@ import {
 import { WeightingSystemService } from './weighting-system.service';
 
 @Controller()
+@ApiTags('Weighting Systems')
 @UseGuards(AuthenticatedGuard)
 export class WeightingSystemController {
   constructor(private weightingSystemService: WeightingSystemService) {}

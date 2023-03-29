@@ -175,7 +175,6 @@ export class CourseService {
       ({ AnnualEvaluationSubType: { evaluation_sub_type_name } }) =>
         evaluation_sub_type_name === EvaluationSubTypeEnum.RESIT
     );
-
     return {
       objective,
       subject_code,
@@ -198,7 +197,8 @@ export class CourseService {
         )?.published_at
       ),
       is_resit_available: Boolean(
-        activeYearEndDate ?? resitEvaluation
+        activeYearEndDate ??
+          (resitEvaluation && resitEvaluation.examination_date)
           ? (new Date(resitEvaluation.examination_date) < new Date() &&
               resitEvaluation.EvaluationHasStudents.length === 0) ??
               resitEvaluation.published_at

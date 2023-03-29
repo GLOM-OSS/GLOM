@@ -15,6 +15,10 @@ export class CodeGeneratorService {
       : `${number}`;
   }
 
+  getAnonymityCode() {
+    return Math.random().toString(36).slice(2).toUpperCase();
+  }
+
   async getYearCode(
     school_id: string,
     starting_year: number,

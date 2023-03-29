@@ -9,16 +9,18 @@ import {
   Post,
   Put,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
-import { DeserializeSessionData, Role } from '../../../utils/types';
+import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { AuthenticatedGuard } from '../../auth/auth.guard';
-import { AcademicProfileService } from './academic-profile.service';
-import { AcademicProfilePostDto, AcademicProfilePutDto } from '../registry.dto';
+import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
+import { AuthenticatedGuard } from '../../auth/auth.guard';
+import { AcademicProfilePostDto, AcademicProfilePutDto } from '../registry.dto';
+import { AcademicProfileService } from './academic-profile.service';
 
 @Controller()
+@ApiTags('Academic Profiles')
 @UseGuards(AuthenticatedGuard)
 export class AcademicProfileController {
   constructor(private academicProfileService: AcademicProfileService) {}

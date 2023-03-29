@@ -112,7 +112,7 @@ export class StudentRegistrationService {
       PrismaPromise<Person | Student | AnnualStudent>[]
     >(
       (
-        queries,
+        instructions,
         {
           tutor_address,
           tutor_email,
@@ -210,16 +210,19 @@ export class StudentRegistrationService {
           },
           AcademicYear: { connect: { academic_year_id } },
           AnnualStudentHasCreditUnits: {
-            create: annualCreditUnit.map(
-              ({ annual_credit_unit_id, semester_number }) => ({
-                semester_number,
-                annual_credit_unit_id,
-              })
-            ),
+            createMany: {
+              data: annualCreditUnit.map(
+                ({ annual_credit_unit_id, semester_number }) => ({
+                  semester_number,
+                  annual_credit_unit_id,
+                })
+              ),
+              skipDuplicates: true,
+            },
           },
         };
         return [
-          ...queries,
+          ...instructions,
           this.prismaService.person.upsert({
             create: {
               ...newStudentPerson,

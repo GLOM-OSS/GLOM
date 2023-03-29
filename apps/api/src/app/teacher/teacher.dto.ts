@@ -1,4 +1,9 @@
-import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  OmitType,
+  PartialType,
+} from '@nestjs/swagger';
 import { QuestionType, SubmissionType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
@@ -15,6 +20,78 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+
+export class QuestionAnswer {
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional()
+  response?: string;
+
+  @IsUUID()
+  @ApiProperty()
+  question_id: string;
+
+  @IsUUID()
+  @IsOptional()
+  @ApiPropertyOptional()
+  answered_option_ids?: string[];
+}
+export class StudentAnswerDto {
+  @IsArray()
+  @Type(() => QuestionAnswer)
+  @ValidateNested({ each: true })
+  @ApiProperty({ isArray: true, type: QuestionAnswer })
+  answers: QuestionAnswer[];
+}
+
+export class CorrectedQuestion {
+  @IsUUID()
+  @ApiProperty()
+  question_id: string;
+
+  @IsNumber()
+  @ApiProperty()
+  question_mark: number;
+
+  @IsString()
+  @ApiProperty()
+  teacher_comment: string;
+}
+
+export class GivenScore {
+  @IsUUID()
+  @ApiProperty()
+  annual_student_id: string;
+
+  @IsNumber()
+  @ApiProperty()
+  total_score: number;
+}
+
+export class CorrectSubmissionDto {
+  @IsString()
+  @IsOptional()
+  @ApiProperty()
+  group_code?: string;
+
+  @IsUUID()
+  @IsOptional()
+  @ApiProperty()
+  annual_student_id?: string;
+
+  @IsArray()
+  @Type(() => CorrectedQuestion)
+  @ValidateNested({ each: true })
+  @ApiProperty({ type: CorrectedQuestion, isArray: true })
+  correctedAnswers: CorrectedQuestion[];
+
+  @IsArray()
+  @IsOptional()
+  @Type(() => GivenScore)
+  @ValidateNested({ each: true })
+  @ApiProperty({ type: GivenScore, isArray: true, required: false })
+  givenScores?: GivenScore[];
+}
 
 export class EvaluationQueryDto {
   @IsUUID()
@@ -73,10 +150,10 @@ export class StudentMark {
 
 export class EvaluationMarkDto {
   @IsArray()
-  @ApiProperty()
   @ArrayMinSize(1)
   @Type(() => StudentMark)
   @ValidateNested({ each: true })
+  @ApiProperty({ isArray: true, type: StudentMark })
   studentMarks: StudentMark[];
 
   @IsBoolean()
@@ -91,7 +168,7 @@ export class EvaluationMarkDto {
 export class AssessmentPostDto {
   @IsOptional()
   @IsEnum(SubmissionType)
-  @ApiProperty({ required: false })
+  @ApiProperty({ enum: SubmissionType, required: false })
   submission_type?: SubmissionType;
 
   @IsBoolean()
@@ -161,7 +238,7 @@ export class QuestionPostDto {
 
   @IsOptional()
   @IsEnum(QuestionType)
-  @ApiProperty({ required: false })
+  @ApiProperty({ enum: QuestionType, required: false })
   question_type?: QuestionType;
 
   @IsUUID()
@@ -172,8 +249,8 @@ export class QuestionPostDto {
   @IsOptional()
   @ArrayMinSize(2)
   @ValidateNested({ each: true })
-  @ApiProperty({ required: false })
   @Type(() => CreateQuestionOption)
+  @ApiProperty({ type: CreateQuestionOption, isArray: true, required: false })
   questionOptions?: CreateQuestionOption[];
 }
 
@@ -194,12 +271,14 @@ export class QuestionPutDto extends PartialType(
   @ApiProperty()
   @Type(() => QuestionOption)
   @ValidateNested({ each: true })
+  @ApiProperty({ type: QuestionOption, isArray: true })
   editedOptions: QuestionOption[];
 
   @IsArray()
   @ApiProperty()
-  @Type(() => CreateQuestionOption)
   @ValidateNested({ each: true })
+  @Type(() => CreateQuestionOption)
+  @ApiProperty({ type: CreateQuestionOption, isArray: true })
   newOptions: CreateQuestionOption[];
 }
 

@@ -71,7 +71,9 @@ model PersonAudit {
     last_name          String              @db.VarChar(50)
     phone_number       String              @db.VarChar(15)
     birthdate          DateTime            @db.DateTime(0)
+    birthplace         String?             @db.VarChar(45)
     gender             Gender
+    nationality        String?             @db.VarChar(45)
     national_id_number String              @db.VarChar(15)
     address            String?             @db.VarChar(100)
     longitude          Int?
@@ -79,6 +81,11 @@ model PersonAudit {
     email              String              @db.VarChar(50)
     preferred_lang     Lang
     image_ref          String?             @db.VarChar(50)
+    home_region        String?             @db.VarChar(45)
+    religion           String?             @db.VarChar(45)
+    handicap           String              @default("None") @db.VarChar(45)
+    civil_status       CivilStatusEnum     @default(Single)
+    employment_status  EmploymentStatus?
     audited_at         DateTime            @default(now()) @db.DateTime(0)
     person_id          String              @db.VarChar(36)
     Person             Person              @relation(fields: [person_id], references: [person_id], onDelete: Cascade, onUpdate: Cascade)
@@ -1263,9 +1270,9 @@ enum QuestionType {
 
 model Question {
     question_id     String        @id @default(uuid()) @db.VarChar(36)
-    question        String        @db.VarChar(190)
+    question        String        @db.LongText
     question_mark   Int
-    question_answer String?       @db.VarChar(45)
+    question_answer String?       @db.LongText
     question_type   QuestionType  @default(MCQ)
     is_deleted      Boolean       @default(false) @db.TinyInt
     created_at      DateTime      @default(now()) @db.DateTime(0)
@@ -1310,7 +1317,7 @@ model QuestionResource {
 
 model QuestionOption {
     question_option_id String        @id @default(uuid()) @db.VarChar(36)
-    option             String        @db.VarChar(45)
+    option             String        @db.TinyText
     is_answer          Boolean       @db.TinyInt
     is_deleted         Boolean       @default(false) @db.TinyInt
     created_at         DateTime      @default(now()) @db.DateTime(0)
@@ -1325,7 +1332,7 @@ model QuestionOption {
 
 model QuestionOptionAudit {
     question_option__audit_id String         @id @default(uuid()) @db.VarChar(36)
-    option                    String         @db.VarChar(45)
+    option                    String         @db.TinyText
     is_answer                 Boolean        @db.TinyInt
     is_deleted                Boolean        @default(false) @db.TinyInt
     audited_at                DateTime       @default(now()) @db.DateTime(0)
@@ -1356,8 +1363,8 @@ model AnnualStudentTakeAssessment {
 model AnnualStudentAnswerQuestion {
     annual_student_answer_question_id String                      @id @default(uuid()) @db.VarChar(36)
     question_mark                     Int
-    response                          String?                     @db.VarChar(45)
-    teacher_comment                   String?                     @db.VarChar(45)
+    response                          String?                     @db.LongText
+    teacher_comment                   String?                     @db.LongText
     question_id                       String                      @db.VarChar(36)
     Question                          Question                    @relation(fields: [question_id], references: [question_id], onDelete: Cascade, onUpdate: Cascade)
     answered_option_id                String?                     @db.VarChar(36)
@@ -1372,7 +1379,7 @@ model AnnualStudentAnswerQuestion {
 
 model AnnualStudentAnswerQuestionAudit {
     annual_student_answer_question_audit_id String                      @id @default(uuid()) @db.VarChar(36)
-    response                                String                      @db.VarChar(45)
+    response                                String                      @db.LongText
     annual_student_answer_question_id       String                      @db.VarChar(36)
     AnnualStudentAnswerQuestion             AnnualStudentAnswerQuestion @relation(fields: [annual_student_answer_question_id], references: [annual_student_answer_question_id], onDelete: Cascade, onUpdate: Cascade)
     previous_auditer                        String                      @db.VarChar(36)
@@ -1382,13 +1389,16 @@ model AnnualStudentAnswerQuestionAudit {
 }
 
 model AnnualStudentHasCreditUnit {
-    annual_student_has_credit_unit_id String                             @id @default(uuid()) @db.VarChar(36)
+    annual_student_has_credit_unit_id String           @id @default(uuid()) @db.VarChar(36)
     semester_number                   Int
-    annual_student_id                 String                             @db.VarChar(36)
-    AnnualStudent                     AnnualStudent                      @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)
-    annual_credit_unit_id             String                             @db.VarChar(36)
-    AnnualCreditUnit                  AnnualCreditUnit                   @relation(fields: [annual_credit_unit_id], references: [annual_credit_unit_id], onDelete: Cascade, onUpdate: Cascade)
-    PresenceListHasCreditUnitStudent  PresenceListHasCreditUnitStudent[]
+    annual_student_id                 String           @db.VarChar(36)
+    AnnualStudent                     AnnualStudent    @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_credit_unit_id             String           @db.VarChar(36)
+    AnnualCreditUnit                  AnnualCreditUnit @relation(fields: [annual_credit_unit_id], references: [annual_credit_unit_id], onDelete: Cascade, onUpdate: Cascade)
+
+    PresenceListHasCreditUnitStudent PresenceListHasCreditUnitStudent[]
+
+    @@unique([annual_student_id, annual_credit_unit_id])
 }
 
 model PresenceList {

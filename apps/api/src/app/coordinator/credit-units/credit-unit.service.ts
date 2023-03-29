@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { EvaluationSubTypeEnum, Prisma } from '@prisma/client';
-import { UEMajor } from '@squoolr/interfaces';
-import { AUTH404 } from '../../../errors';
+import { CreditUnitMarkStatus, UEMajor } from '@squoolr/interfaces';
+import { AUTH404, ERR32, ERR33 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { EvaluationsQeuryDto } from '../../teacher/teacher.dto';
 import { CreditUnitPostDto, CreditUnitQuery } from '../coordinator.dto';
@@ -156,16 +156,19 @@ export class CreditUnitService {
       major_code,
       ...evaluationQuery
     }: EvaluationsQeuryDto
-  ) {
+  ): Promise<CreditUnitMarkStatus[]> {
     const annualCreditUnits =
       await this.prismaService.annualCreditUnit.findMany({
         select: {
           credit_points: true,
           credit_unit_code: true,
           credit_unit_name: true,
+          is_exam_published: true,
+          is_resit_published: true,
           annual_credit_unit_id: true,
           AnnualCreditUnitSubjects: {
             select: {
+              objective: true,
               subject_code: true,
               subject_title: true,
               annual_credit_unit_subject_id: true,
@@ -228,10 +231,7 @@ export class CreditUnitService {
           }
         );
         const totalAvailableMarks = subjectMarkStatus.reduce(
-          (
-            total,
-            { is_exam_available, is_ca_available }
-          ) => {
+          (total, { is_exam_available, is_ca_available }) => {
             if (is_ca_available) total++;
             if (is_exam_available) total++;
             return total;
@@ -249,26 +249,31 @@ export class CreditUnitService {
   }
 
   async publishCreditUnit(annual_credit_unit_id: string, published_by: string) {
-    const creditUnit = await this.prismaService.annualCreditUnit.findUnique({
-      select: {
-        is_deleted: true,
-        credit_points: true,
-        semester_number: true,
-        credit_unit_code: true,
-        credit_unit_name: true,
-        is_exam_published: true,
-        is_resit_published: true,
-      },
-      where: { annual_credit_unit_id },
-    });
-    if (
-      !creditUnit ||
-      (creditUnit.is_exam_published && creditUnit.is_resit_published)
-    )
-      throw new HttpException(
-        JSON.stringify(AUTH404('Credit Unit')),
-        HttpStatus.NOT_FOUND
-      );
+    const { academic_year_id, ...creditUnit } =
+      await this.prismaService.annualCreditUnit.findUniqueOrThrow({
+        select: {
+          is_deleted: true,
+          credit_points: true,
+          semester_number: true,
+          credit_unit_code: true,
+          academic_year_id: true,
+          credit_unit_name: true,
+          is_exam_published: true,
+          is_resit_published: true,
+        },
+        where: { annual_credit_unit_id },
+      });
+    if (creditUnit.is_exam_published && creditUnit.is_resit_published)
+      throw new HttpException(JSON.stringify(ERR32), HttpStatus.NOT_FOUND);
+    const availabilities = await this.getCreditUnitMarkStatus(
+      academic_year_id,
+      { annual_credit_unit_id }
+    );
+    const { availability_percentage } = availabilities.find(
+      (_) => _.annual_credit_unit_id === annual_credit_unit_id
+    );
+    if (availability_percentage !== 100)
+      throw new HttpException(JSON.stringify(ERR33), HttpStatus.BAD_REQUEST);
 
     await this.prismaService.annualCreditUnit.update({
       data: {

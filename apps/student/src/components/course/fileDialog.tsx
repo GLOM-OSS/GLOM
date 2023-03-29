@@ -8,17 +8,18 @@ import {
   MovieOutlined,
   PictureAsPdfOutlined,
   TextSnippetOutlined,
-  TopicOutlined
+  TopicOutlined,
 } from '@mui/icons-material';
 import {
-  Box, Button,
+  Box,
+  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
   Tooltip,
-  Typography
+  Typography,
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { CreateFile } from '@squoolr/interfaces';
@@ -30,7 +31,7 @@ import { useParams } from 'react-router';
 import {
   acceptedFileFormats,
   downloadFormats,
-  readableFileFormats
+  readableFileFormats,
 } from './fileDisplayDialog';
 
 export function FileIcon({
@@ -120,24 +121,12 @@ export function FileIcon({
     }
   }
   const { formatMessage } = useIntl();
-  return (
+  return rt === 'LINK' ? (
     <Box
-      {...(rt === 'LINK'
-        ? { component: 'a', href: { rr }, rel: 'noreferrer', target: '_blank' }
-        : {
-            onClick: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-              event.stopPropagation();
-              return rt === 'FILE' && readableFileFormats.includes(ext)
-                ? readFile
-                  ? readFile()
-                  : alert('openFileFailed')
-                : rt === 'FILE' && downloadFormats.includes(ext)
-                ? readFile
-                  ? readFile()
-                  : alert('failedLoadingFileDownload')
-                : null;
-            },
-          })}
+      component="a"
+      href={rr}
+      rel="noreferrer"
+      target="_blank"
       sx={{
         '&:hover': { '& .delete': { visibility: 'visible' } },
         display: 'grid',
@@ -151,12 +140,7 @@ export function FileIcon({
       {deleteResource && (
         <Tooltip
           className="delete"
-          sx={{
-            position: 'absolute',
-            top: -5,
-            right: 3,
-            visibility: 'hidden',
-          }}
+          sx={{ position: 'absolute', top: -5, right: 3, visibility: 'hidden' }}
           arrow
           title={formatMessage({ id: 'delete' })}
         >
@@ -171,7 +155,63 @@ export function FileIcon({
           </IconButton>
         </Tooltip>
       )}
-      {rt === 'LINK' ? <InsertLinkOutlined sx={{ fontSize: 50 }} /> : icon}
+      <InsertLinkOutlined sx={{ fontSize: 50 }} />
+      <Typography
+        variant="caption"
+        sx={{
+          width: '100px',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          textAlign: 'center',
+        }}
+      >
+        {name}
+      </Typography>
+    </Box>
+  ) : (
+    <Box
+      sx={{
+        '&:hover': { '& .delete': { visibility: 'visible' } },
+        display: 'grid',
+        justifyItems: 'center',
+        position: 'relative',
+        textDecoration: 'none',
+        color: 'inherit',
+        cursor: 'pointer',
+      }}
+      onClick={(event) => {
+        event.stopPropagation();
+        return rt === 'FILE' && readableFileFormats.includes(ext)
+          ? readFile
+            ? readFile()
+            : alert('openFileFailed')
+          : rt === 'FILE' && downloadFormats.includes(ext)
+          ? readFile
+            ? readFile()
+            : alert('failedLoadingFileDownload')
+          : null;
+      }}
+    >
+      {deleteResource && (
+        <Tooltip
+          className="delete"
+          sx={{ position: 'absolute', top: -5, right: 3, visibility: 'hidden' }}
+          arrow
+          title={formatMessage({ id: 'delete' })}
+        >
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              deleteResource();
+            }}
+          >
+            <CancelOutlined color="error" fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      )}
+      {icon}
       <Typography
         variant="caption"
         sx={{

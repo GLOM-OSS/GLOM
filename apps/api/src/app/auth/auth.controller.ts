@@ -5,6 +5,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Logger,
   Post,
   Put,
   Req,
@@ -21,7 +22,7 @@ import {
 } from '../../utils/types';
 import { AcademicYearQueryDto } from '../app.dto';
 import { AcademicYearService } from '../configurator/academic-year/academic-year.service';
-import { NewPasswordDto, ResetPasswordDto } from './auth.dto';
+import { NewPasswordDto, ResetPasswordDto, SignInDto } from './auth.dto';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { GoogleGuard } from './google/google.guard';
@@ -39,7 +40,8 @@ export class AuthController {
 
   @Post('signin')
   @UseGuards(LocalGuard)
-  async userSignIn(@Req() request: Request) {
+  async userSignIn(@Req() request: Request, @Body() login: SignInDto) {
+    Logger.debug(`Successfully login ${login.email} !!!`);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { created_at, cookie_age, roles, job_name, school_id, ...user } =
       request.user as DeserializeSessionData & PassportSession;
@@ -146,7 +148,9 @@ export class AuthController {
   @UseGuards(AuthenticatedGuard)
   async getUser(@Req() request: Request) {
     const email = request.query.email as string;
-    return { user: email ? await this.authService.getUser(email) : request.user };
+    return {
+      user: email ? await this.authService.getUser(email) : request.user,
+    };
   }
 
   @Get('google-signin')
