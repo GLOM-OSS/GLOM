@@ -117,12 +117,12 @@ export default function Presences() {
   const [activeSession, setActiveSession] = useState<PresenceList>();
 
   useEffect(() => {
-    if (annual_credit_unit_subject_id) {
+    if (annual_credit_unit_subject_id && !activeSession) {
       loadPresences(annual_credit_unit_subject_id);
       loadSubjectDetail(annual_credit_unit_subject_id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [annual_credit_unit_subject_id]);
+  }, [annual_credit_unit_subject_id, activeSession]);
   return !activeSession ? (
     <Box
       sx={{

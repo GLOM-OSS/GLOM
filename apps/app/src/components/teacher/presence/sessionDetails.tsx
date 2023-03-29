@@ -70,6 +70,7 @@ export default function SessionDetails({
     setNotDoneChapterNotif(notif);
     getCourseChapters(annual_credit_unit_subject_id, true)
       .then((chapters) => {
+        console.log(chapters);
         setNotDoneChapters(chapters);
         setAreNotDoneChaptersLoading(false);
         notif.dismiss();
@@ -279,8 +280,8 @@ export default function SessionDetails({
     });
     reinitialisePresenceList(pl_id)
       .then(() => {
-        setIsRenitialising(false);
         reset();
+        setIsRenitialising(false);
         setRemovedChapterIds([]);
         setRemovedStudentIds([]);
         CL = [];
@@ -289,6 +290,7 @@ export default function SessionDetails({
           render: formatMessage({ id: 'reinitialisePresenceListSuccess' }),
         });
         setReinitialiseNotif(undefined);
+        back();
       })
       .catch((error) => {
         notif.update({
@@ -329,7 +331,6 @@ export default function SessionDetails({
     });
     createPresenceList(presenceList)
       .then((newPresenceList) => {
-        setIsSubmitting(false);
         setRemovedChapterIds([]);
         setRemovedStudentIds([]);
         reset(newPresenceList);
@@ -360,7 +361,8 @@ export default function SessionDetails({
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      });
+      })
+      .finally(() => setIsSubmitting(false));
   };
 
   const updatePresenceListHandler = (
