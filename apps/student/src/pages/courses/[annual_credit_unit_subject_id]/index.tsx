@@ -4,10 +4,11 @@ import { getCourse } from '@squoolr/api-services';
 import { Course } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import CourseContent from 'apps/student/src/components/course/courseContent';
+import CourseContent from '../../../components/course/courseContent';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';
+import Assessments from '../../../components/assessment';
 
 export default function CourseDetails() {
   const { annual_credit_unit_subject_id } = useParams();
@@ -123,7 +124,7 @@ export default function CourseDetails() {
       {tabValue === 0 && (
         <CourseContent course={course} isCourseLoading={isCourseLoading} />
       )}
-      {tabValue === 1 && <Typography>Assessment loading</Typography>}
+      {tabValue === 1 && <Assessments />}
     </Box>
   );
 }

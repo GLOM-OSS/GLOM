@@ -142,3 +142,9 @@ export interface ICorrectedSubmission {
   correctedAnswers: ICorrectedQuestion[];
   givenScores?: IStudentAssignmentScore[];
 }
+
+export interface IQuestionStudentResponse {
+  response: string | null;
+  answered_option_id: string[];
+  question_id: string;
+}
