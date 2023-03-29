@@ -62,15 +62,16 @@ export function PaymentDialog({
   };
 
   function getPaymentReasons() {
-    const { registration, total_owing, total_paid } = feeSummary;
+    const { registration, total_owing, paymentHistories } = feeSummary;
     const returnArray: IPaymentReason[] = [];
-    if (total_paid < registration) {
-      returnArray.push('Registration');
-    }
     if (unpaidSemesters.length > 0) {
       returnArray.push('Platform');
     }
-    if (total_owing > 0) {
+    const isRegistrationPaid = Boolean(
+      paymentHistories.find((_) => _.payment_reason === 'Registration')
+    );
+    if (!isRegistrationPaid) returnArray.push('Registration');
+    if ((isRegistrationPaid ? total_owing : total_owing - registration) > 0) {
       returnArray.push('Fee');
     }
 
@@ -80,11 +81,11 @@ export function PaymentDialog({
   function getTotalPaymentReasonDue() {
     switch (paymentReason) {
       case 'Fee':
-        return totalDue;
+        return totalDue - unpaidSemesters.length * 2000;
       case 'Platform':
         return unpaidSemesters.length * 2000;
       case 'Registration':
-        return feeSummary.registration - feeSummary.total_paid;
+        return feeSummary.registration;
     }
   }
 

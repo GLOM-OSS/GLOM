@@ -12,7 +12,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 import { Request } from 'express';
-import { ERR20 } from '../../errors';
+import { ERR20, ERR35 } from '../../errors';
 import { DeserializeSessionData, Role } from '../../utils/types';
 import { Roles } from '../app.decorator';
 import { AuthenticatedGuard } from '../auth/auth.guard';
@@ -94,7 +94,8 @@ export class StudentController {
   @Roles(Role.STUDENT, Role.PARENT)
   async payStudentFee(
     @Req() request: Request,
-    @Body() { annual_student_id, ...newPayment }: CreatePaymentDto
+    @Body()
+    { annual_student_id, semesterNumbers, ...newPayment }: CreatePaymentDto
   ) {
     const { annualStudent, preferred_lang, login_id } =
       request.user as DeserializeSessionData;
@@ -103,13 +104,19 @@ export class StudentController {
         ERR20('student id')[preferred_lang],
         HttpStatus.BAD_REQUEST
       );
+    if (
+      newPayment.payment_reason === 'Platform' &&
+      (!semesterNumbers || semesterNumbers.length === 0)
+    )
+      throw new HttpException(JSON.stringify(ERR35), HttpStatus.BAD_REQUEST);
     try {
       return this.studentService.payStudentFee(
         {
+          ...newPayment,
+          semesterNumbers,
           transaction_id: randomUUID(),
           annual_student_id:
             annualStudent.annual_student_id ?? annual_student_id,
-          ...newPayment,
         },
         login_id
       );

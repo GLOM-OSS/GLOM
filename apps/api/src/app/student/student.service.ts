@@ -6,7 +6,7 @@ import {
   Student as StudentInface,
   StudentDetail,
 } from '@squoolr/interfaces';
-import { AUTH404 } from '../../errors';
+import { AUTH404, ERR34 } from '../../errors';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreatePaymentDto, StudentQueryQto } from './student.dto';
 
@@ -221,12 +221,51 @@ export class StudentService {
     }: CreatePaymentDto,
     paid_by: string
   ): Promise<IPaymentHistory[]> {
+    const {
+      AnnualStudentHasCreditUnits: distinctSemesters,
+      AnnualClassroomDivision: {
+        AnnualClassroom: { registration_fee, total_fee_due },
+      },
+    } = await this.prismaService.annualStudent.findUniqueOrThrow({
+      select: {
+        AnnualClassroomDivision: {
+          select: {
+            AnnualClassroom: {
+              select: { registration_fee: true, total_fee_due: true },
+            },
+          },
+        },
+        AnnualStudentHasCreditUnits: {
+          distinct: 'semester_number',
+        },
+      },
+      where: { annual_student_id },
+    });
+    const {
+      _sum: { amount },
+    } = await this.prismaService.payment.aggregate({
+      _sum: {
+        amount: true,
+      },
+      where: { annual_student_id },
+    });
+    const amountDue =
+      Number(process.env.PLATFORM_FEE) * distinctSemesters.length +
+      registration_fee +
+      total_fee_due -
+      amount;
+    if (newPayment.amount > amountDue)
+      throw new HttpException(
+        JSON.stringify(ERR34(amountDue)),
+        HttpStatus.BAD_REQUEST
+      );
     await this.prismaService.payment.createMany({
       data:
-        semesterNumbers && semesterNumbers.length > 0
+        newPayment.payment_reason === 'Platform'
           ? semesterNumbers.map((semester_number) => ({
               paid_by,
               ...newPayment,
+              amount: newPayment.amount / semesterNumbers.length,
               transaction_id,
               semester_number,
               annual_student_id,

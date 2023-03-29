@@ -200,6 +200,14 @@ export const ERR32 = {
   fr: `Désolé, ce module a déjà été publié.`,
 };
 export const ERR33 = {
-  en: `Sorry, module marks avability must be a  100 percentage.`,
+  en: `Sorry, module marks availability must be a  100 percentage.`,
   fr: `Désolé, Les notes de module doivent être de 100 %.`,
+};
+export const ERR34 = (amountDue: number) => ({
+  en: `Sorry, payment cannot excede the amount due: ${amountDue}.`,
+  fr: `Désolé, Le paiement ne peut exceder le montant du: ${amountDue}.`,
+});
+export const ERR35 = {
+  en: `Semester number are required for plateform fee payment.`,
+  fr: `Le numéro de semestre est requis pour le paiement des frais de la plateforme.`,
 };

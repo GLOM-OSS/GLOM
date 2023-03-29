@@ -1470,7 +1470,7 @@ enum PaymentReasonEnum {
 model Payment {
     payment_id        String            @id @default(uuid()) @db.VarChar(36)
     amount            Float
-    transaction_id    String            @unique @db.VarChar(45)
+    transaction_id    String            @db.VarChar(45)
     payment_date      DateTime          @db.DateTime(0)
     payment_reason    PaymentReasonEnum
     semester_number   Int?
