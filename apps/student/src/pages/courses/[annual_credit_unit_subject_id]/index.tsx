@@ -4,7 +4,7 @@ import { getCourse } from '@squoolr/api-services';
 import { Course } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import CourseContent from 'apps/student/src/components/course/courseContent';
+import CourseContent from '../../../components/course/courseContent';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';
