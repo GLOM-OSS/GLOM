@@ -17,6 +17,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  Max,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -143,6 +144,8 @@ export class StudentMark {
   @ApiProperty()
   evaluation_has_student_id: string;
 
+  @Min(0)
+  @Max(20)
   @IsNumber()
   @ApiProperty()
   mark: number;

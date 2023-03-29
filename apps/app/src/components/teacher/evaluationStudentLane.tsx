@@ -5,6 +5,7 @@ import {
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
+import { toast } from 'react-toastify';
 
 export function EvaluationStudentLane({
   student: {
@@ -145,7 +146,8 @@ export function AnonimatedStudentLane({
             disabled={disabled}
             onChange={(event) => {
               const newMark = Number(event.target.value);
-              if (newMark > 20) alert('markCannotBeGreatedThan20');
+              if (newMark > 20) toast.error('markCannotBeGreatedThan20');
+              if (newMark < 0) toast.error('markCannotBeSmallerThan0');
               else changeMark(newMark, student);
             }}
           />
