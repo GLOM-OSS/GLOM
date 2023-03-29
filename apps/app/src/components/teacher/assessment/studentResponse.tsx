@@ -223,27 +223,38 @@ export default function StudentResponse({
   >([]);
 
   const computeTotalMark = () => {
-    if (groupDetails) {
-      const modifiedQuestionIds = teacherCorrections.map(
-        ({ question_id }) => question_id
-      );
+    const modifiedQuestionIds = teacherCorrections.map(
+      ({ question_id }) => question_id
+    );
 
+    const modifiedTotalMark = teacherCorrections.reduce(
+      (total, { question_mark }) => total + question_mark,
+      0
+    );
+
+    if (groupDetails) {
       const unModifiedQuestions = groupDetails.answers.filter(
         ({ question_id }) => !modifiedQuestionIds.includes(question_id)
       );
 
       const unModifiedTotalMark = unModifiedQuestions.reduce(
-        (total, { acquired_mark }) => Number(acquired_mark) + total,
-        0
-      );
-      const modifiedTotalMark = teacherCorrections.reduce(
-        (total, { question_mark }) => total + question_mark,
+        (total, { acquired_mark }) => Number(acquired_mark ?? 0) + total,
         0
       );
 
       return unModifiedTotalMark + modifiedTotalMark;
+    } else {
+      const unModifiedQuestions = questionAnswers.filter(
+        ({ question_id }) => !modifiedQuestionIds.includes(question_id)
+      );
+
+      const unModifiedTotalMark = unModifiedQuestions.reduce(
+        (total, { acquired_mark }) => Number(acquired_mark ?? 0) + total,
+        0
+      );
+
+      return modifiedTotalMark + unModifiedTotalMark;
     }
-    return 0;
   };
 
   useEffect(() => {
