@@ -211,3 +211,7 @@ export const ERR35 = {
   en: `Semester number are required for plateform fee payment.`,
   fr: `Le numéro de semestre est requis pour le paiement des frais de la plateforme.`,
 };
+export const ERR36 = {
+  en: `Sorry, You already took this assessment.`,
+  fr: `Désolé, vous avez déjà pris cette examen.`,
+};

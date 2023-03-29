@@ -28,6 +28,7 @@ import {
   ERR29,
   ERR30,
   ERR31,
+  ERR36,
 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
@@ -360,10 +361,11 @@ export class AssessmentService {
       );
     const { assessment_date, duration } = assessment;
     const assessmentEndDate = new Date(
-      new Date(assessment_date).getTime() + duration * 60 * 1000
+      new Date(assessment_date).getTime() +
+        (duration + duration / 8) * 60 * 1000
     );
     const isVisible =
-      !is_student || (is_student && new Date() < assessmentEndDate);
+      !is_student || (is_student && new Date() > assessmentEndDate);
     const questions = await this.prismaService.question.findMany({
       select: {
         question: true,
@@ -824,6 +826,21 @@ export class AssessmentService {
         JSON.stringify(AUTH404('Assessment')),
         HttpStatus.NOT_FOUND
       );
+    const { assessment_date, duration } = assessment;
+    const allowedDate = new Date(
+      new Date(assessment_date).getTime() + (duration / 8) * 60 * 1000
+    );
+    console.log({ assessment_date, allowedDate, now: new Date() });
+    if (new Date(assessment_date) > new Date() || allowedDate < new Date())
+      throw new HttpException(JSON.stringify(ERR21), HttpStatus.EARLYHINTS);
+    const studentTakeAssessment =
+      await this.prismaService.annualStudentTakeAssessment.findUnique({
+        where: {
+          annual_student_id_assessment_id: { annual_student_id, assessment_id },
+        },
+      });
+    if (!assessment.is_assignment && studentTakeAssessment)
+      throw new HttpException(JSON.stringify(ERR36), HttpStatus.NOT_ACCEPTABLE);
     if (assessment.submission_type === 'Individual') {
       await this.prismaService.annualStudentTakeAssessment.create({
         data: {
@@ -832,13 +849,6 @@ export class AssessmentService {
           AnnualStudent: { connect: { annual_student_id } },
         },
       });
-
-      const { assessment_date, duration } = assessment;
-      const allowedDate = new Date(
-        new Date(assessment_date).getTime() + (duration / 8) * 60 * 1000
-      );
-      if (allowedDate < new Date())
-        throw new HttpException(JSON.stringify(ERR21), HttpStatus.EARLYHINTS);
     }
   }
 
@@ -855,14 +865,12 @@ export class AssessmentService {
       annual_student_answer_question_id: string;
     }[] = [];
     const {
-      created_at,
       submitted_at,
       AssignmentGroupMembers: groupMembers,
       annual_student_take_assessment_id,
       Assessment: { assessment_date, is_assignment, duration },
     } = await this.prismaService.annualStudentTakeAssessment.findFirstOrThrow({
       select: {
-        created_at: true,
         submitted_at: true,
         annual_student_take_assessment_id: true,
         Assessment: {
@@ -880,13 +888,14 @@ export class AssessmentService {
       where: { annual_student_id, assessment_id },
     });
     if (groupMembers.length > 0 && groupMembers[0].approved_at)
-      throw new HttpException(JSON.stringify(ERR31), HttpStatus.FORBIDDEN);
+      throw new HttpException(JSON.stringify(ERR31), HttpStatus.NOT_ACCEPTABLE);
     if (!is_assignment) {
       const allowedDate = new Date(
-        new Date(assessment_date).getTime() + (duration / 8) * 60 * 1000
+        new Date(assessment_date).getTime() + duration * 60 * 1000
       );
-      if (allowedDate < new Date(created_at))
+      if (allowedDate < new Date())
         throw new HttpException(JSON.stringify(ERR21), HttpStatus.EARLYHINTS);
+
       if (submitted_at)
         throw new HttpException(JSON.stringify(ERR25), HttpStatus.BAD_REQUEST);
     } else {
@@ -941,7 +950,6 @@ export class AssessmentService {
         }
       );
     }
-
     const assessmentQuestions = await this.getAssessmentQuestions(
       assessment_id,
       false
@@ -973,46 +981,59 @@ export class AssessmentService {
         response = responseFile.fieldname;
       }
       const questionMark =
-        question_type === 'MCQ'
-          ? questionOptions
-              .filter((_) => _.is_answer)
-              ?.reduce(
-                (hadItRight, _) =>
-                  hadItRight &&
-                  answered_option_ids.includes(_.question_option_id),
-                true
-              )
-            ? question_mark
-            : 0
-          : null;
+        question_type === 'MCQ' &&
+        questionOptions
+          ?.filter((_) => _.is_answer)
+          ?.reduce(
+            (hadItRight, _) =>
+              hadItRight && answered_option_ids.includes(_.question_option_id),
+            true
+          )
+          ? question_mark
+          : 0;
       totalScore += questionMark ?? 0;
       const question = auditedQuestions.find(
         (_) => _.question_id === question_id
       );
       if (question)
         studentAnswerQuestionUpdateQueries.push(
-          ...answered_option_ids.map((answered_option_id) => ({
-            data: {
-              response,
-              QuestionOption: {
-                connect: { question_option_id: answered_option_id },
-              },
-              AnnualStudentTakeAssessment: {
-                connect: { annual_student_take_assessment_id },
-              },
-            },
-            id: question.annual_student_answer_question_id,
-          }))
+          ...(question_type === 'MCQ'
+            ? answered_option_ids.map((answered_option_id) => ({
+                data: {
+                  QuestionOption: {
+                    connect: { question_option_id: answered_option_id },
+                  },
+                  AnnualStudentTakeAssessment: {
+                    connect: { annual_student_take_assessment_id },
+                  },
+                },
+                id: question.annual_student_answer_question_id,
+              }))
+            : [
+                {
+                  data: { response },
+                  id: question.annual_student_answer_question_id,
+                },
+              ])
         );
       else
         studentAnswerQuestionCreateInputs.push(
-          ...answered_option_ids.map((answered_option_id) => ({
-            response,
-            question_id,
-            answered_option_id,
-            question_mark: questionMark,
-            annual_student_take_assessment_id,
-          }))
+          ...(question_type === 'MCQ'
+            ? answered_option_ids.map((answered_option_id) => ({
+                response,
+                question_id,
+                answered_option_id,
+                question_mark: questionMark,
+                annual_student_take_assessment_id,
+              }))
+            : [
+                {
+                  response,
+                  question_id,
+                  question_mark: questionMark,
+                  annual_student_take_assessment_id,
+                },
+              ])
         );
     });
 
@@ -1125,7 +1146,7 @@ export class AssessmentService {
   private getQuestionAnswerObjects(
     assessment_id: string,
     questions: Question[],
-    answeredQuestionIds: AnnualStudentAnswerQuestion[]
+    answeredQuestions: AnnualStudentAnswerQuestion[]
   ): IQuestionAnswer[] {
     return questions.map(
       ({
@@ -1137,7 +1158,7 @@ export class AssessmentService {
         questionResources,
         question_answer,
       }) => {
-        const answer = answeredQuestionIds.find(
+        const answer = answeredQuestions.find(
           (_) => _.question_id === question_id
         );
         return {
@@ -1155,7 +1176,7 @@ export class AssessmentService {
           questionOptions: question_type === 'MCQ' ? questionOptions : [],
           answeredOptionIds:
             question_type === 'MCQ'
-              ? answeredQuestionIds
+              ? answeredQuestions
                   .filter((_) => _.question_id === question_id)
                   .map((_) => _.answered_option_id)
               : [],
@@ -1186,15 +1207,16 @@ export class AssessmentService {
       await this.prismaService.assignmentGroupMember.findFirst({
         where: { group_code, assessment_id, approved_at: null },
       });
-    if (!unapprovedGroupMember)
+    if (is_assignment && !unapprovedGroupMember)
       throw new HttpException(JSON.stringify(ERR29), HttpStatus.BAD_REQUEST);
-
     const groupMembers =
       await this.prismaService.annualStudentTakeAssessment.findMany({
         where: {
           assessment_id,
           annual_student_id,
-          AssignmentGroupMembers: { some: { group_code } },
+          ...(group_code
+            ? { AssignmentGroupMembers: { some: { group_code } } }
+            : {}),
         },
       });
     const studentQuestions =
@@ -1207,13 +1229,16 @@ export class AssessmentService {
         },
       });
     const totalScore = studentQuestions.reduce(
-      (total, { question_id, question_mark }) =>
-        total +
-          correctedAnswers.find((_) => _.question_id === question_id)
-            ?.question_mark ?? question_mark,
+      (total, { question_id, question_mark }) => {
+        const correction = correctedAnswers.find(
+          (_) => _.question_id === question_id
+        );
+        return total + (correction ? correction.question_mark : question_mark);
+      },
       0
     );
-    return this.prismaService.$transaction([
+    console.log({ correctedAnswers, studentQuestions, totalScore });
+    return await this.prismaService.$transaction([
       ...correctedAnswers.map(
         ({ question_id, question_mark, teacher_comment }) =>
           this.prismaService.annualStudentAnswerQuestion.updateMany({
@@ -1226,10 +1251,14 @@ export class AssessmentService {
             },
           })
       ),
-      this.prismaService.assignmentGroupMember.updateMany({
-        data: { total_score: totalScore },
-        where: { group_code, assessment_id },
-      }),
+      ...(group_code
+        ? [
+            this.prismaService.assignmentGroupMember.updateMany({
+              data: { total_score: totalScore },
+              where: { group_code, assessment_id },
+            }),
+          ]
+        : []),
       ...(givenScores
         ? givenScores.map(({ annual_student_id, total_score }) =>
             this.prismaService.annualStudentTakeAssessment.update({

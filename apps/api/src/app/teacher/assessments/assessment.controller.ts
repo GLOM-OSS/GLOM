@@ -6,6 +6,7 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -141,7 +142,7 @@ export class AssessmentController {
     const { annualStudent } = request.user as DeserializeSessionData;
     return this.assessmentService.getAssessmentQuestions(
       assessment_id,
-      annualStudent as unknown as boolean
+      Boolean(annualStudent)
     );
   }
 
@@ -204,22 +205,15 @@ export class AssessmentController {
   }
 
   @Roles(Role.STUDENT)
-  @Post(':assessment_id/take')
+  @Patch(':assessment_id/take')
   async takeAssessment(
     @Req() request: Request,
-    @Param('assessment_id') assessment_id: string,
-    @Query('annual_student_id') annual_student_id: string
+    @Param('assessment_id') assessment_id: string
   ) {
-    const { annualStudent, preferred_lang } =
-      request.user as DeserializeSessionData;
-    if (!annualStudent && !annual_student_id)
-      throw new HttpException(
-        ERR20('student id')[preferred_lang],
-        HttpStatus.BAD_REQUEST
-      );
+    const { annualStudent } = request.user as DeserializeSessionData;
     try {
       return this.assessmentService.takeAssessment(
-        annualStudent?.annual_student_id ?? annual_student_id,
+        annualStudent?.annual_student_id,
         assessment_id
       );
     } catch (error) {
@@ -240,7 +234,7 @@ export class AssessmentController {
       annualStudent: { annual_student_id },
     } = request.user as DeserializeSessionData;
     try {
-      return this.assessmentService.submitAssessment(
+      return await this.assessmentService.submitAssessment(
         annual_student_id,
         assessment_id,
         answers,
@@ -261,15 +255,15 @@ export class AssessmentController {
     const {
       annualTeacher: { annual_teacher_id },
     } = request.user as DeserializeSessionData;
-    try {
-      return this.assessmentService.correctSubmission(
+    // try {
+      return await this.assessmentService.correctSubmission(
         assessment_id,
         newCorrection,
         annual_teacher_id
       );
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    // } catch (error) {
+    //   throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    // }
   }
 
   @Roles(Role.TEACHER)

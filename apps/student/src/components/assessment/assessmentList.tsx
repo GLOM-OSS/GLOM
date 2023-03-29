@@ -1,14 +1,13 @@
-import { AddOutlined, ReportRounded } from '@mui/icons-material';
+import { ReportRounded } from '@mui/icons-material';
 import {
   Box,
-  Button,
   lighten,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-  Typography,
+  Typography
 } from '@mui/material';
 import { getCourseAssessments } from '@squoolr/api-services';
 import { Assessment } from '@squoolr/interfaces';
@@ -22,7 +21,6 @@ import { NoTableElement, TableLaneSkeleton } from '../helpers/tables';
 import AssessmentLane from './assessmentLane';
 
 export default function AssessmentList({
-  createAssessment,
   isCreatingAssessment,
   setActiveAssessment,
   isAssignment = false,
@@ -40,88 +38,52 @@ export default function AssessmentList({
     useState<boolean>(false);
   const [assessmentNotif, setAssessmentNotif] = useState<useNotification>();
 
-  // const loadAssessments = (
-  //   annual_credit_unit_subject_id: string,
-  //   isAssignment: boolean
-  // ) => {
-  //   setAreAssessmentsLoading(true);
-  //   const notif = new useNotification();
-  //   if (assessmentNotif) {
-  //     assessmentNotif.dismiss();
-  //   }
-  //   setAssessmentNotif(notif);
-  //   getCourseAssessments(annual_credit_unit_subject_id, isAssignment)
-  //     .then((assessments) => {
-  //       setAssessments(assessments);
-  //       setAreAssessmentsLoading(false);
-  //       notif.dismiss();
-  //       setAssessmentNotif(undefined);
-  //     })
-  //     .catch((error) => {
-  //       notif.notify({
-  //         render: formatMessage({
-  //           id: isAssignment ? 'loadingAssignments' : 'loadingAssessments',
-  //         }),
-  //       });
-  //       notif.update({
-  //         type: 'ERROR',
-  //         render: (
-  //           <ErrorMessage
-  //             retryFunction={() =>
-  //               loadAssessments(annual_credit_unit_subject_id, isAssignment)
-  //             }
-  //             notification={notif}
-  //             message={
-  //               error?.message ||
-  //               formatMessage({
-  //                 id: isAssignment
-  //                   ? 'getAssignmentsFailed'
-  //                   : 'getAssessmentsFailed',
-  //               })
-  //             }
-  //           />
-  //         ),
-  //         autoClose: false,
-  //         icon: () => <ReportRounded fontSize="medium" color="error" />,
-  //       });
-  //     });
-  // };
-
-  function loadAssessments(
+  const loadAssessments = (
     annual_credit_unit_subject_id: string,
     isAssignment: boolean
-  ) {
-    //TODO: CALL API TO LOAD ASSESSMENTS
-    setAssessments([
-      {
-        annual_credit_unit_subject_id: '',
-        assessment_date: new Date(),
-        assessment_id: '',
-        chapter_id: '',
-        created_at: new Date(),
-        duration: 3,
-        evaluation_sub_type_name: 'oei',
-        is_assignment: false,
-        is_published: false,
-        submission_type: 'Individual',
-        total_mark: 20,
-        number_per_group: 1,
-      },
-      {
-        annual_credit_unit_subject_id: '',
-        assessment_date: new Date('03/28/2023 22:51:20'),
-        assessment_id: '',
-        chapter_id: '',
-        created_at: new Date(),
-        duration: 2,
-        evaluation_sub_type_name: 'siel',
-        is_assignment: false,
-        is_published: false,
-        submission_type: 'Individual',
-        total_mark: 2,
-      },
-    ]);
-  }
+  ) => {
+    setAreAssessmentsLoading(true);
+    const notif = new useNotification();
+    if (assessmentNotif) {
+      assessmentNotif.dismiss();
+    }
+    setAssessmentNotif(notif);
+    getCourseAssessments(annual_credit_unit_subject_id, isAssignment)
+      .then((assessments) => {
+        setAssessments(assessments);
+        setAreAssessmentsLoading(false);
+        notif.dismiss();
+        setAssessmentNotif(undefined);
+      })
+      .catch((error) => {
+        notif.notify({
+          render: formatMessage({
+            id: isAssignment ? 'loadingAssignments' : 'loadingAssessments',
+          }),
+        });
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() =>
+                loadAssessments(annual_credit_unit_subject_id, isAssignment)
+              }
+              notification={notif}
+              message={
+                error?.message ||
+                formatMessage({
+                  id: isAssignment
+                    ? 'getAssignmentsFailed'
+                    : 'getAssessmentsFailed',
+                })
+              }
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      });
+  };
 
   useEffect(() => {
     loadAssessments(annual_credit_unit_subject_id as string, isAssignment);

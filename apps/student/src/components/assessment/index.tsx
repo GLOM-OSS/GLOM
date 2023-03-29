@@ -25,7 +25,11 @@ export default function Assessments() {
 
   const takeAssessmentHandler = (assessment: Assessment) => {
     takeAssessment(assessment.assessment_id)
-      .then(() => setActiveAssessment(assessment))
+      .then(() => {
+        setActiveAssessment(assessment);
+        setActiveAssessment(assessment);
+        setPendingConfirm(undefined);
+      })
       .catch((error) => toast.error(error.message));
   };
 
@@ -36,11 +40,7 @@ export default function Assessments() {
           setIsConfirmStartAssessementDialogOpen(false);
           setPendingConfirm(undefined);
         }}
-        confirm={() => {
-          takeAssessmentHandler(pendingConfirm as Assessment);
-          setActiveAssessment(pendingConfirm);
-          setPendingConfirm(undefined);
-        }}
+        confirm={() => takeAssessmentHandler(pendingConfirm as Assessment)}
         dialogMessage={'confirmStartAssessmentMessage'}
         isDialogOpen={isConfirmStartAssessmentDialogOpen}
         confirmButton={'startAssessment'}

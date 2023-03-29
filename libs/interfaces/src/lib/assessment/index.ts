@@ -145,6 +145,6 @@ export interface ICorrectedSubmission {
 
 export interface IQuestionStudentResponse {
   response: string | null;
-  answered_option_id: string[];
+  answered_option_ids: string[];
   question_id: string;
 }

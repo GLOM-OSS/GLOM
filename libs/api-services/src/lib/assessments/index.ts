@@ -11,6 +11,7 @@ import {
   StudentAssessmentAnswer,
   IGroupAssignmentDetails,
   ICorrectedSubmission,
+  IQuestionStudentResponse,
 } from '@squoolr/interfaces';
 
 export async function getAssessment(assessment_id: string) {
@@ -114,6 +115,20 @@ export async function getAssessmentStats(
     `/assessments/${assessment_id}/statistics`,
     { params: { distribution_interval } }
   );
+  return data;
+}
+
+export async function takeAssessment(assessment_id: string) {
+  await http.patch(`/assessments/${assessment_id}/take`);
+}
+
+export async function submitStudentAnswers(
+  assessment_id: string,
+  studentResponses: IQuestionStudentResponse[]
+) {
+  const { data } = await http.post(`/assessments/${assessment_id}/submit`, {
+    answers: studentResponses,
+  });
   return data;
 }
 

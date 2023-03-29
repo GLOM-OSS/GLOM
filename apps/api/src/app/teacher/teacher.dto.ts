@@ -32,7 +32,7 @@ export class QuestionAnswer {
   @ApiProperty()
   question_id: string;
 
-  @IsUUID()
+  @IsArray()
   @IsOptional()
   @ApiPropertyOptional()
   answered_option_ids?: string[];

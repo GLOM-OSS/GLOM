@@ -9,6 +9,10 @@ import {
   Typography,
 } from '@mui/material';
 import {
+  getAssessmentQuestions,
+  submitStudentAnswers,
+} from '@squoolr/api-services';
+import {
   Assessment,
   IQuestionStudentResponse,
   Question,
@@ -38,80 +42,40 @@ export default function QuestionList({
     useState<boolean>(false);
   const [questionNotif, setQuestionNotif] = useState<useNotification>();
 
-  // const loadQuestions = (assessment_id: string) => {
-  //   setAreQuestionsLoading(true);
-  //   const notif = new useNotification();
-  //   if (questionNotif) {
-  //     questionNotif.dismiss();
-  //   }
-  //   setQuestionNotif(notif);
-  //   getAssessmentQuestions(assessment_id)
-  //     .then((questions) => {
-  //       setQuestions(questions);
-  //       setAreQuestionsLoading(false);
-  //       notif.dismiss();
-  //       setQuestionNotif(undefined);
-  //     })
-  //     .catch((error) => {
-  //       notif.notify({
-  //         render: formatMessage({ id: 'loadingQuestions' }),
-  //       });
-  //       notif.update({
-  //         type: 'ERROR',
-  //         render: (
-  //           <ErrorMessage
-  //             retryFunction={() => loadQuestions(assessment_id)}
-  //             notification={notif}
-  //             message={
-  //               error?.message || formatMessage({ id: 'getQuestionsFailed' })
-  //             }
-  //           />
-  //         ),
-  //         autoClose: false,
-  //         icon: () => <ReportRounded fontSize="medium" color="error" />,
-  //       });
-  //     });
-  // };
-
-  function loadQuestions(assessment_id: string) {
-    //TODO: CALL API TO LOAD QUESTIONS
-    const questions: Question[] = [
-      {
-        assessment_id: 'wiw',
-        question: 'What is your full name',
-        question_answer: '',
-        question_id: 'owie',
-        question_mark: 2,
-        question_type: 'MCQ',
-        questionResources: [],
-        questionOptions: [
-          {
-            is_answer: false,
-            option: 'hello',
-            question_id: 'oswie',
-            question_option_id: 'ei',
-          },
-          {
-            is_answer: true,
-            option: 'hello workd',
-            question_id: 'owie',
-            question_option_id: 'eis',
-          },
-        ],
-      },
-      {
-        assessment_id: 'wiw',
-        question: 'What is your full name',
-        question_answer: 'Hello world, lets make things happen again',
-        question_id: 'owife',
-        question_mark: 2,
-        question_type: 'Structural',
-        questionResources: [],
-        questionOptions: [],
-      },
-    ];
-    setQuestions(questions);
-  }
+  const loadQuestions = (assessment_id: string) => {
+    setAreQuestionsLoading(true);
+    const notif = new useNotification();
+    if (questionNotif) {
+      questionNotif.dismiss();
+    }
+    setQuestionNotif(notif);
+    getAssessmentQuestions(assessment_id)
+      .then((questions) => {
+        setQuestions(questions);
+        setAreQuestionsLoading(false);
+        notif.dismiss();
+        setQuestionNotif(undefined);
+      })
+      .catch((error) => {
+        notif.notify({
+          render: formatMessage({ id: 'loadingQuestions' }),
+        });
+        notif.update({
+          type: 'ERROR',
+          render: (
+            <ErrorMessage
+              retryFunction={() => loadQuestions(assessment_id)}
+              notification={notif}
+              message={
+                error?.message || formatMessage({ id: 'getQuestionsFailed' })
+              }
+            />
+          ),
+          autoClose: false,
+          icon: () => <ReportRounded fontSize="medium" color="error" />,
+        });
+      });
+  };
 
   useEffect(() => {
     if (activeAssessment) loadQuestions(activeAssessment.assessment_id);
@@ -147,7 +111,7 @@ export default function QuestionList({
   function getAssessmentEndTime() {
     const { assessment_date, duration } = activeAssessment;
     if (!assessment_date || !duration) return Infinity;
-    return duration * 60000 + assessment_date.getTime();
+    return duration * 60000 + new Date(assessment_date).getTime();
   }
 
   const [days, hours, minutes, seconds] = useCountdown(
@@ -170,10 +134,8 @@ export default function QuestionList({
       }),
     });
     setActiveAssessment(undefined);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO submit assessment here
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
+    submitStudentAnswers(activeAssessment.assessment_id, response)
+      .then(() => {
         setIsSubmitting(false);
         notif.update({
           render: formatMessage({
@@ -181,24 +143,26 @@ export default function QuestionList({
           }),
         });
         setSubmissionNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() => submitAssessment(response)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({
-                id: 'submittAssessmentFailed',
-              })}
+              message={
+                error?.message ||
+                formatMessage({
+                  id: 'submittAssessmentFailed',
+                })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   }
 
   useEffect(() => {
@@ -215,13 +179,13 @@ export default function QuestionList({
             return {
               question_id,
               response: question_answer,
-              answered_option_id: [],
+              answered_option_ids: [],
             };
           else
             return {
               question_id,
               response: null,
-              answered_option_id: questionOptions
+              answered_option_ids: questionOptions
                 .filter(({ is_answer }) => is_answer)
                 .map(({ question_option_id }) => question_option_id),
             };
@@ -253,13 +217,13 @@ export default function QuestionList({
                 return {
                   question_id,
                   response: question_answer,
-                  answered_option_id: [],
+                  answered_option_ids: [],
                 };
               else
                 return {
                   question_id,
                   response: null,
-                  answered_option_id: questionOptions
+                  answered_option_ids: questionOptions
                     .filter(({ is_answer }) => is_answer)
                     .map(({ question_option_id }) => question_option_id),
                 };
