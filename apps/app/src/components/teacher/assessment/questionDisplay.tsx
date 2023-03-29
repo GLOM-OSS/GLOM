@@ -166,9 +166,17 @@ export default function QuestionDisplay({
                 {isResponse ? cc.response : qa}
               </Typography>
               {isResponse &&
-                (isPublished ? (
-                  <Typography variant="body2" sx={{ fontWeight: '300' }}>
-                    {updatedCorrection?.teacher_comment}
+                (isPublished || !cc.response ? (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: '300',
+                      color: !cc.response ? theme.palette.error.main : '',
+                    }}
+                  >
+                    {!cc.response
+                      ? formatMessage({ id: 'studentDidNotAnswer' })
+                      : updatedCorrection?.teacher_comment}
                   </Typography>
                 ) : (
                   <TextField
@@ -249,8 +257,14 @@ export default function QuestionDisplay({
               alignItems: 'end',
             }}
           >
-            {isResponse && qt !== 'MCQ' && cc.response !== null ? (
-              isPublished ? (
+            {isResponse && qt !== 'MCQ' ? (
+              !cc.response ? (
+                <Chip
+                  color="error"
+                  sx={{ color: theme.common.offWhite }}
+                  label={`0 / ${qm}`}
+                />
+              ) : isPublished ? (
                 <Chip
                   color={
                     Number(updatedCorrection?.question_mark) < qm * 0.6
@@ -292,13 +306,7 @@ export default function QuestionDisplay({
                   color: theme.common.offWhite,
                   backgroundColor: theme.common.titleActive,
                 }}
-                label={
-                  !isResponse
-                    ? qm
-                    : isResponse && qt !== 'MCQ' && cc.response === null
-                    ? 0
-                    : cc.acquired_mark
-                }
+                label={!isResponse ? qm : cc.acquired_mark}
               />
             )}
             {!isResponse && !isActivated && (
