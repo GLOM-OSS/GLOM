@@ -8,6 +8,7 @@ import CourseContent from '../../../components/course/courseContent';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';
+import Assessments from '../../../components/assessment';
 
 export default function CourseDetails() {
   const { annual_credit_unit_subject_id } = useParams();
@@ -123,7 +124,7 @@ export default function CourseDetails() {
       {tabValue === 0 && (
         <CourseContent course={course} isCourseLoading={isCourseLoading} />
       )}
-      {tabValue === 1 && <Typography>Assessment loading</Typography>}
+      {tabValue === 1 && <Assessments />}
     </Box>
   );
 }
