@@ -69,7 +69,7 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     const redisClient = createClient({
       legacyMode: true,
-      url: `redis://${process.env.REDIS_HOST}`,
+      url: `redis://${process.env.REDIS_HOST}:6379`,
     });
     redisClient.connect().catch((message) => Logger.error(message));
     const RedisStore = connectRedis(session);
