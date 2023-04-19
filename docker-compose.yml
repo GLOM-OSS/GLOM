@@ -5,11 +5,12 @@ services:
     image: redis:alpine
     ports:
       - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning
   mysql_container:
     image: mysql
     environment:
       - MYSQL_ROOT_PASSWORD=12345678
-      - MYSQL_DATABASE=skeleton_db
+      - MYSQL_DATABASE=squoolr_api_db
     command: mysqld --sql_mode=""
   api:
     build:
