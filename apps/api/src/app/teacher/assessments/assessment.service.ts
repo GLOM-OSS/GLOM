@@ -4,7 +4,7 @@ import {
   Assessment,
   EvaluationHasStudent,
   Prisma,
-  PrismaPromise,
+  PrismaPromise
 } from '@prisma/client';
 import {
   Assessment as IAssessment,
@@ -12,14 +12,13 @@ import {
   IGroupAssignmentDetails,
   Question,
   QuestionAnswer as IQuestionAnswer,
-  StudentAssessmentAnswer,
+  StudentAssessmentAnswer
 } from '@squoolr/interfaces';
 import { randomUUID } from 'crypto';
 import {
   AUTH404,
   ERR18,
-  ERR21,
-  ERR22,
+  ERR21, ERR23,
   ERR24,
   ERR25,
   ERR26,
@@ -28,16 +27,14 @@ import {
   ERR29,
   ERR30,
   ERR31,
-  ERR36,
+  ERR36
 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CodeGeneratorService } from '../../../utils/code-generator';
 import {
-  CorrectSubmissionDto,
-  QuestionAnswer,
-  AssessmentPostDto,
-  QuestionPostDto,
-  QuestionPutDto,
+  AssessmentPostDto, CorrectSubmissionDto,
+  QuestionAnswer, QuestionPostDto,
+  QuestionPutDto
 } from '../teacher.dto';
 
 @Injectable()
@@ -218,7 +215,7 @@ export class AssessmentService {
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     if (duration && assessment.submission_type === 'Group')
-      throw new HttpException(JSON.stringify(ERR22), HttpStatus.BAD_REQUEST);
+      throw new HttpException(JSON.stringify(ERR23), HttpStatus.BAD_REQUEST);
     const {
       is_deleted,
       is_published,
@@ -227,6 +224,7 @@ export class AssessmentService {
     } = assessment;
     await this.prismaService.assessment.update({
       data: {
+        duration,
         ...newAssessment,
         AssessmentAudits: {
           create: {

@@ -11,7 +11,7 @@ import {
   TableHead,
   TableRow,
   Tooltip,
-  Typography,
+  Typography
 } from '@mui/material';
 import {
   addNewCreditUnitSubject,
@@ -19,13 +19,13 @@ import {
   getCreditUnitDetails,
   getCreditUnitSubjects,
   getSubjectParts,
-  updateCreditUnitSubject,
+  updateCreditUnitSubject
 } from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
   CreateCreditUnitSubject,
   CreditUnit,
-  CreditUnitSubject,
+  CreditUnitSubject
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -37,7 +37,7 @@ import { RowMenu } from '../../components/coordinator/CreditUnitLane';
 import SubjectDialog from '../../components/coordinator/subjectDialog';
 import SubjectLane, {
   DisplaySubject,
-  SubjectSkeleton,
+  SubjectSkeleton
 } from '../../components/coordinator/subjectLane';
 
 export default function SubjectManagement() {
@@ -326,7 +326,7 @@ export default function SubjectManagement() {
             ...subjects.map((_) =>
               _.annual_credit_unit_subject_id ===
               subject.annual_credit_unit_subject_id
-                ? subject
+                ? { ...subject, main_teacher_fullname }
                 : _
             ),
           ]);
