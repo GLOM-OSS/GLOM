@@ -1,9 +1,9 @@
 import { useReducer, useContext, Reducer } from 'react';
-import { User, UserAction } from '../lib/interfaces';
+import { IUser, UserAction } from '@squoolr/interfaces';
 import UserContext, { DispatchInterface } from './userContext';
 
-const userReducer: Reducer<User & DispatchInterface, UserAction> = (
-  state: User & DispatchInterface,
+const userReducer: Reducer<IUser & DispatchInterface, UserAction> = (
+  state: IUser & DispatchInterface,
   action: UserAction
 ) => {
   switch (action.type) {
@@ -42,7 +42,7 @@ function UserContextProvider({
 }: {
   children: JSX.Element;
 }): JSX.Element {
-  const initialState: User & DispatchInterface = {
+  const initialState: IUser & DispatchInterface = {
     activeYear: {
       academic_year_id: '',
       ending_date: new Date('2003-10-12'),
@@ -82,7 +82,7 @@ function UserContextProvider({
 
   const [userState, userDispatch] = useReducer(userReducer, initialState);
   const value = {
-    ...(userState as User),
+    ...(userState as IUser),
     userDispatch,
   };
 

@@ -1,9 +1,10 @@
 import { LayersOutlined, SettingsSuggestOutlined } from '@mui/icons-material';
-import { MainLayout, NavItem } from '@squoolr/layout';
-import { injectIntl, IntlShape } from 'react-intl';
+import { INavItem } from '@squoolr/interfaces';
+import { MainLayout } from '@squoolr/layout';
+import { IntlShape, injectIntl } from 'react-intl';
 
 function AdminLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
-  const navItems: NavItem[] = [
+  const navItems: INavItem[] = [
     {
       id: 1,
       Icon: LayersOutlined,

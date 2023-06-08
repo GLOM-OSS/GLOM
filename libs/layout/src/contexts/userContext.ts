@@ -1,11 +1,11 @@
 import React, { createContext } from 'react';
-import { UserAction, User } from '../lib/interfaces';
+import { UserAction, IUser } from '@squoolr/interfaces';
 
 export interface DispatchInterface {
   userDispatch: React.Dispatch<UserAction>;
 }
 
-const UserContext = createContext<User & DispatchInterface>({
+const UserContext = createContext<IUser & DispatchInterface>({
   activeYear: {
     academic_year_id: '',
     ending_date: new Date('2003-10-12'),
@@ -28,7 +28,7 @@ const UserContext = createContext<User & DispatchInterface>({
     student_id: '',
     activeSemesters: [],
     classroom_code: '',
-    classroom_level: 0
+    classroom_level: 0,
   },
   userDispatch: () => null,
 });

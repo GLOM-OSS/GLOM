@@ -1,5 +1,5 @@
+import { INavItem, UserRole } from '@squoolr/interfaces';
 import UserContextProvider from '../contexts/UserContextProvider';
-import { NavItem, PersonnelRole } from './interfaces';
 import Layout from './layout';
 
 export function MainLayout({
@@ -7,8 +7,8 @@ export function MainLayout({
   callingApp,
 }: {
   navItems: {
-    role: PersonnelRole | 'administrator' | 'student';
-    navItems: NavItem[];
+    role: UserRole;
+    navItems: INavItem[];
   }[];
   callingApp: 'admin' | 'personnel' | 'student';
 }) {

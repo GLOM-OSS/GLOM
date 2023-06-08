@@ -1,4 +1,5 @@
 import { http } from '@squoolr/axios';
+import { AcademicYearInterface, IUser } from '@squoolr/interfaces';
 
 /**
  * Sign in admin, student or personnel
@@ -6,8 +7,11 @@ import { http } from '@squoolr/axios';
  * @param password user password
  * @returns return user info serialized by the passed type T
  */
-export async function signIn<T>(email: string, password: string) {
-  const { data } = await http.post<T>(`auth/signin`, {
+export async function signIn(email: string, password: string) {
+  const { data } = await http.post<{
+    user: IUser;
+    academic_years: AcademicYearInterface[];
+  }>(`auth/signin`, {
     email,
     password,
   });

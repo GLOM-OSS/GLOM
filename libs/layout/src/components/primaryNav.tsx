@@ -3,7 +3,7 @@ import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
 import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router';
-import { NavItem } from '../lib/interfaces';
+import { INavItem } from '@squoolr/interfaces';
 import favicon from '../lib/logo.png';
 import PrimaryNavItem from './PrimaryNavItem';
 
@@ -17,10 +17,10 @@ export default function PrimaryNav({
 }: {
   isLoggingOut: boolean;
   isLogoutDialogOpen: boolean;
-  navItems: NavItem[];
-  setActiveNavItem: (navItem: NavItem) => void;
+  navItems: INavItem[];
+  setActiveNavItem: (navItem: INavItem) => void;
   openLogoutDialog: () => void;
-  activeNavItem?: NavItem;
+  activeNavItem?: INavItem;
 }) {
   const navigate = useNavigate();
   const intl = useIntl();

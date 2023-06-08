@@ -1,28 +1,27 @@
 import { SvgIconTypeMap } from '@mui/material';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
-import { AcademicYearInterface } from '@squoolr/interfaces';
 
-export interface NavChild {
+export interface INavChild {
   title: string;
   route: string;
   page_title: string;
 }
 
-export interface NavItem {
+export interface INavItem {
   id: number;
   Icon: OverridableComponent<SvgIconTypeMap<unknown, 'svg'>> & {
     muiName: string;
   };
   title: string;
   route: string;
-  children: NavChild[];
+  children: INavChild[];
 }
 
 export type Gender = 'Male' | 'Female';
 export type Lang = 'en' | 'fr';
 
 export type UserAction =
-  | { type: 'LOAD_USER'; payload: { user: User } }
+  | { type: 'LOAD_USER'; payload: { user: IUser } }
   | { type: 'CLEAR_USER' };
 
 export type PersonnelRole =
@@ -33,15 +32,15 @@ export type PersonnelRole =
 
 export type UserRole = PersonnelRole | 'student' | 'administrator';
 
-export interface ClassroomDivisionInterface {
-  annual_classroom_division_id: string;
-  annual_classroom_id: string;
-  classroom_name: string;
-  classroom_short_name: string;
-  classroom_code: string;
+export interface AcademicYearInterface {
+  academic_year_id: string;
+  code: string;
+  starting_date: Date;
+  ending_date: Date;
+  year_status: 'inactive' | 'finished' | 'active';
 }
 
-export interface User {
+export interface IUser {
   person_id: string;
   first_name: string;
   last_name: string;
@@ -80,25 +79,3 @@ export interface User {
   };
   activeYear: AcademicYearInterface;
 }
-
-export const getUserRoles = (
-  { annualConfigurator, annualRegistry, annualTeacher, annualStudent }: User,
-  callingApp: 'admin' | 'personnel' | 'student'
-): UserRole[] => {
-  if (callingApp === 'student' && annualStudent) return ['student'];
-  if (callingApp === 'admin') return ['administrator'];
-  const newRoles: (UserRole | undefined)[] = [
-    annualConfigurator ? 'secretary' : undefined,
-    annualRegistry ? 'registry' : undefined,
-    annualTeacher ? 'teacher' : undefined,
-    annualTeacher?.classroomDivisions &&
-    annualTeacher.classroomDivisions.length > 0
-      ? 'coordinator'
-      : undefined,
-  ];
-  const Roles: UserRole[] = newRoles.filter(
-    (_) => _ !== undefined
-  ) as UserRole[];
-
-  return Roles.sort((a, b) => (a > b ? 1 : -1));
-};

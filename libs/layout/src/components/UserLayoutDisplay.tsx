@@ -11,7 +11,7 @@ import { theme } from '@squoolr/theme';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useUser } from '../contexts/UserContextProvider';
-import { UserRole } from '../lib/interfaces';
+import { UserRole } from '@squoolr/interfaces';
 
 export default function UserLayoutDisplay({
   selectRole,

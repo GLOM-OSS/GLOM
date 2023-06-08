@@ -1,4 +1,5 @@
 export * from './assessment';
+export * from './auth';
 export * from './course';
 export * from './evaluation';
 export * from './presence-list';
@@ -84,6 +85,14 @@ export interface Classroom {
   annual_coordinator_id: string;
 }
 
+export interface ClassroomDivisionInterface {
+  annual_classroom_division_id: string;
+  annual_classroom_id: string;
+  classroom_name: string;
+  classroom_short_name: string;
+  classroom_code: string;
+}
+
 export type RoleShort = 'Te' | 'Se' | 'S.A.' | 'Co';
 export interface Personnel extends Omit<Person, 'password'> {
   login_id: string;
@@ -105,12 +114,4 @@ export interface TemplateOptions {
     reuse_coordinators?: boolean;
     reuse_teachers?: boolean;
   };
-}
-
-export interface AcademicYearInterface {
-  academic_year_id: string;
-  code: string;
-  starting_date: Date;
-  ending_date: Date;
-  year_status: 'inactive' | 'finished' | 'active';
 }
