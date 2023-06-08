@@ -1,6 +1,6 @@
 import { SvgIconTypeMap } from '@mui/material';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
-import { AcademicYearInterface } from '@squoolr/auth';
+import { AcademicYearInterface } from '@squoolr/interfaces';
 
 export interface NavChild {
   title: string;
@@ -31,7 +31,7 @@ export type PersonnelRole =
   | 'registry'
   | 'coordinator';
 
-export type UserRole = PersonnelRole | 'student';
+export type UserRole = PersonnelRole | 'student' | 'administrator';
 
 export interface ClassroomDivisionInterface {
   annual_classroom_division_id: string;
@@ -86,6 +86,7 @@ export const getUserRoles = (
   callingApp: 'admin' | 'personnel' | 'student'
 ): UserRole[] => {
   if (callingApp === 'student' && annualStudent) return ['student'];
+  if (callingApp === 'admin') return ['administrator'];
   const newRoles: (UserRole | undefined)[] = [
     annualConfigurator ? 'secretary' : undefined,
     annualRegistry ? 'registry' : undefined,

@@ -20,10 +20,8 @@ import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router';
 import * as Yup from 'yup';
 import favicon from './logo.png';
-import {
-  AcademicYearInterface,
-  SelectAcademicYearDialog,
-} from './selectAcademicYear';
+import { SelectAcademicYearDialog } from 'libs/layout/src/lib/selectAcademicYear';
+import { AcademicYearInterface } from '@squoolr/interfaces';
 
 export function Signin({
   callingApp,

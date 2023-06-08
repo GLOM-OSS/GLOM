@@ -19,7 +19,7 @@ import {
   getClassrooms,
   templateAcademicYear
 } from '@squoolr/api-services';
-import { AcademicYearInterface } from '@squoolr/auth';
+import { AcademicYearInterface } from '@squoolr/interfaces';
 import { useUser } from '@squoolr/layout';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';

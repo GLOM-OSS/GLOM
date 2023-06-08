@@ -34,6 +34,7 @@ import {
   NavItem,
   PersonnelRole,
   User,
+  UserRole,
 } from './interfaces';
 
 export function Layout({
@@ -57,17 +58,15 @@ export function Layout({
   const intl = useIntl();
   const { formatMessage } = intl;
 
-  const handleSwapRole = (newRole: PersonnelRole | 'student') => {
+  const handleSwapRole = (newRole: UserRole) => {
     setActiveRole(newRole);
     localStorage.setItem('activeRole', newRole);
   };
 
   const { userDispatch } = useUser();
 
-  const [userRoles, setUserRoles] = useState<(PersonnelRole | 'student')[]>([]);
-  const [activeRole, setActiveRole] = useState<
-    PersonnelRole | 'administrator' | 'student'
-  >();
+  const [userRoles, setUserRoles] = useState<UserRole[]>([]);
+  const [activeRole, setActiveRole] = useState<UserRole>();
 
   const [roleNavigationItems, setRoleNavigationItems] = useState<NavItem[]>([]);
 
@@ -134,6 +133,7 @@ export function Layout({
           },
         });
         const Roles = getUserRoles(user as User, callingApp);
+        console.log(Roles);
         if (Roles.length === 0) navigate('/');
         setUserRoles(Roles);
 
@@ -291,7 +291,7 @@ export function Layout({
           <UserLayoutDisplay
             userRoles={userRoles}
             activeRole={activeRole}
-            selectRole={(newRole: PersonnelRole | 'student') =>
+            selectRole={(newRole: UserRole) =>
               handleSwapRole(newRole)
             }
           />

@@ -18,14 +18,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { getAcademicYearRoles } from '@squoolr/api-services';
 import { useUser } from '@squoolr/layout';
+import { AcademicYearInterface } from '@squoolr/interfaces';
 
-export interface AcademicYearInterface {
-  academic_year_id: string;
-  code: string;
-  starting_date: Date;
-  ending_date: Date;
-  year_status: 'inactive' | 'finished' | 'active';
-}
+
 
 export function SelectAcademicYearDialog({
   academicYears,
