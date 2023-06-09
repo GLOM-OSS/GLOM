@@ -98,7 +98,7 @@ export class AuthController {
     @Req() request: Request,
     @Body() { email }: ResetPasswordDto
   ) {
-    const squoolr_client = new URL(request.headers.origin).hostname;
+    const squoolr_client = new URL(request.headers.origin).host;
     const { reset_password_id } = await this.authService.resetPassword(
       email,
       squoolr_client
@@ -113,7 +113,7 @@ export class AuthController {
     @Req() request: Request,
     @Body() { reset_password_id, new_password }: NewPasswordDto
   ) {
-    const squoolr_client = new URL(request.headers.origin).hostname;
+    const squoolr_client = new URL(request.headers.origin).host;
     await this.authService.setNewPassword(
       reset_password_id,
       new_password,

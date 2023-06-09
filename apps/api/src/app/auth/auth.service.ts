@@ -108,10 +108,7 @@ export class AuthService {
   }
 
   async validateLogin(request: Request, login: Omit<Login, 'password'>) {
-    const origin =
-      process.env.NODE_ENV === 'production'
-        ? new URL(request.headers.origin).hostname
-        : request.headers.origin;
+    const origin = new URL(request.headers.origin).host;
     const { login_id, school_id, is_personnel, is_parent, cookie_age } = login;
 
     let user: Omit<PassportSession, 'log_id'> = {
@@ -194,26 +191,22 @@ export class AuthService {
     return (
       (role === Role.ADMIN &&
         origin ===
-          (env === 'production'
-            ? `admin.squoolr.com`
-            : 'http://localhost:4202')) ||
+          (env === 'production' ? process.env.ADMIN_URL : 'localhost:4202')) ||
       (role === Role.PARENT &&
         origin ===
-          (env === 'production'
-            ? `parent.squoolr.com`
-            : 'http://localhost:4203')) ||
+          (env === 'production' ? `parent.squoolr.com` : 'localhost:4203')) ||
       (role === Role.STUDENT &&
         origin ===
           (env === 'production'
             ? `${subdomain}.squoolr.com`
-            : 'http://localhost:4200')) ||
+            : 'localhost:4200')) ||
       (role !== Role.ADMIN &&
         role !== Role.PARENT &&
         role !== Role.STUDENT &&
         origin ===
           (env === 'production'
             ? `admin.${subdomain}.squoolr.com`
-            : 'http://localhost:4201'))
+            : 'localhost:4201'))
     );
   }
 

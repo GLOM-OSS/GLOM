@@ -60,7 +60,6 @@ export class AuthenticatedGuard implements CanActivate {
 
   async authenticateUser(request: Request, metaRoles: Role[]) {
     const user = request.user as DeserializeSessionData;
-    const squoolr_client = request.headers.origin; //new URL(request.headers.origin).hostname;
     const {
       session: {
         passport: {
@@ -80,7 +79,7 @@ export class AuthenticatedGuard implements CanActivate {
 
     const userClientCorrect = this.authService.isClientCorrect(
       user,
-      squoolr_client
+      new URL(request.headers.origin).host
     );
     if (!userHasTheAcess || !userClientCorrect)
       throw new HttpException(AUTH05['fr'], HttpStatus.FORBIDDEN);
