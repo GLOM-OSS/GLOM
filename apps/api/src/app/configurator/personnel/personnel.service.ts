@@ -458,12 +458,20 @@ export class PersonnelService {
 
   async resetPassword(email: string, squoolr_client: string, reset_by: string) {
     const login = await this.loginService.findFirst({
+      select: { login_id: true, School: { select: { subdomain: true } } },
       where: {
         Person: { email },
-        // School: { subdomain: `admin.${squoolr_client}.squoolr.com` }, //TODO uncomment this line on production
+        School:
+          process.env.NODE_ENV === 'production' &&
+          squoolr_client !== process.env.ADMIN_URL
+            ? { subdomain: squoolr_client }
+            : undefined,
       },
     });
-    if (login) {
+    if (
+      login &&
+      squoolr_client === `admin.${login.School.subdomain}.squoolr.com`
+    ) {
       const resetPasswords = await this.prismaService.resetPassword.count({
         where: { OR: { is_valid: true, expires_at: { gt: new Date() } } },
       });
@@ -480,7 +488,7 @@ export class PersonnelService {
           },
         },
       });
-
+      console.log({ reset_password_id });
       return { reset_password_id };
     }
     throw new HttpException(AUTH404('Email')['fr'], HttpStatus.NOT_FOUND);

@@ -412,26 +412,36 @@ export class AuthService {
     new_password: string,
     squoolr_client: string
   ) {
-    const login = await this.loginService.findFirst({
-      where: {
-        School:
-          squoolr_client !== process.env.ADMIN_URL
-            ? { subdomain: squoolr_client }
-            : undefined,
-        ResetPasswords: {
-          some: {
-            reset_password_id,
-            is_valid: true,
-            expires_at: { gte: new Date() },
+    const resetPassword = await this.resetPasswordService.findFirst({
+      include: {
+        Login: {
+          select: {
+            cookie_age: true,
+            is_deleted: true,
+            is_personnel: true,
+            password: true,
+            login_id: true,
           },
         },
       },
+      where: {
+        Login: {
+          School:
+            process.env.NODE_ENV === 'production' &&
+            squoolr_client !== process.env.ADMIN_URL
+              ? { subdomain: squoolr_client }
+              : undefined,
+        },
+        is_valid: true,
+        reset_password_id,
+        expires_at: { gte: new Date() },
+      },
     });
-    if (login) {
+    if (resetPassword) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { created_at, person_id, school_id, ...data } = login;
+      const { Login: login } = resetPassword;
       return await this.prismaService.$transaction([
-        this.loginAuditService.create({ data }),
+        this.loginAuditService.create({ data: login }),
         this.loginService.update({
           data: {
             password: bcrypt.hashSync(new_password, Number(process.env.SALT)),
