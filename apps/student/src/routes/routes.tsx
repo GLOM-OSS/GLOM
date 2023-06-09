@@ -1,7 +1,7 @@
 import { Typography } from '@mui/material';
 import { Navigate } from 'react-router';
-import ForgotPassword from '../pages/forgotPassword';
-import NewPassword from '../pages/newPassword';
+import ForgotPasswordPage from '../pages/forgotPassword';
+import NewPasswordPage from '../pages/newPassword';
 import SigninPage from '../pages/signin';
 import AppLayout from '../pages/layout';
 import Home from '../pages/home';
@@ -15,11 +15,11 @@ export const routes = [
   },
   {
     path: '/forgot-password',
-    element: <ForgotPassword />,
+    element: <ForgotPasswordPage />,
   },
   {
     path: 'forgot-password/:reset_password_id/new-password',
-    element: <NewPassword />,
+    element: <NewPasswordPage />,
   },
   {
     path: '/dashboard',
