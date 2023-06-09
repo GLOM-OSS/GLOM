@@ -543,7 +543,19 @@ export class AuthService {
   }
 
   async getUser(email: string) {
-    return this.personService.findUnique({ where: { email } });
+    return this.personService.findUnique({
+      select: {
+        first_name: true,
+        last_name: true,
+        email: true,
+        phone_number: true,
+        national_id_number: true,
+        gender: true,
+        address: true,
+        birthdate: true,
+      },
+      where: { email },
+    });
   }
 
   async verifyPrivateCode(
