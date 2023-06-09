@@ -3,7 +3,6 @@ import {
   Box,
   Chip,
   Fab,
-  lighten,
   Skeleton,
   Table,
   TableBody,
@@ -11,7 +10,8 @@ import {
   TableHead,
   TableRow,
   Tooltip,
-  Typography
+  Typography,
+  lighten,
 } from '@mui/material';
 import {
   addNewCreditUnitSubject,
@@ -19,13 +19,13 @@ import {
   getCreditUnitDetails,
   getCreditUnitSubjects,
   getSubjectParts,
-  updateCreditUnitSubject
+  updateCreditUnitSubject,
 } from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
   CreateCreditUnitSubject,
   CreditUnit,
-  CreditUnitSubject
+  CreditUnitSubject,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -37,7 +37,7 @@ import { RowMenu } from '../../components/coordinator/CreditUnitLane';
 import SubjectDialog from '../../components/coordinator/subjectDialog';
 import SubjectLane, {
   DisplaySubject,
-  SubjectSkeleton
+  SubjectSkeleton,
 } from '../../components/coordinator/subjectLane';
 
 export default function SubjectManagement() {
@@ -270,7 +270,6 @@ export default function SubjectManagement() {
           notif.update({
             render: formatMessage({ id: 'deletedSuccessfully' }),
           });
-          setIsManagingSubject(false);
           setSubjects(
             subjects.filter(
               ({ annual_credit_unit_subject_id: acu }) =>
@@ -295,7 +294,8 @@ export default function SubjectManagement() {
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        });
+        })
+        .finally(() => setIsManagingSubject(false));
     }
   };
 
@@ -347,7 +347,8 @@ export default function SubjectManagement() {
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        });
+        })
+        .finally(() => setIsManagingSubject(false));
     } else {
       notif.notify({ render: formatMessage({ id: 'creatingSubject' }) });
       const submitData =
