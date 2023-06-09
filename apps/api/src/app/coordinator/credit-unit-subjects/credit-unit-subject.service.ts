@@ -213,7 +213,18 @@ export class CreditUnitSubjectService {
           (_) => _.subject_part_id === oldPart.subject_part_id
         )
       )
-      .map((part) => ({ ...part, audited_by: audited_by }));
+      .map(
+        ({
+          number_of_hours,
+          annual_teacher_id,
+          annual_credit_unit_has_subject_part_id,
+        }) => ({
+          number_of_hours,
+          annual_teacher_id,
+          annual_credit_unit_has_subject_part_id,
+          audited_by: audited_by,
+        })
+      );
 
     let updateTransactionInstruction: PrismaPromise<Prisma.BatchPayload>[] = [];
     if (updatedSubjectParts.length > 0)
