@@ -1,7 +1,10 @@
-import React from 'react'
+import { useRouter } from 'next/router';
+import React, { useEffect } from 'react';
 
 export default function Pricing() {
-  return (
-    <div>Pricing</div>
-  )
+  const { push } = useRouter();
+  useEffect(() => {
+    push('/demand');
+  }, [push]);
+  return <div>Pricing</div>;
 }

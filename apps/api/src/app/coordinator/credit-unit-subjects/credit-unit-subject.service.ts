@@ -33,7 +33,7 @@ export class CreditUnitSubjectService {
       );
     const subjects = await this.prismaService.annualCreditUnitSubject.findMany({
       select: { weighting: true },
-      where: { annual_credit_unit_id },
+      where: { annual_credit_unit_id, is_deleted: false },
     });
     const totalWeight = subjects.reduce(
       (total, { weighting }) => total + weighting,
@@ -213,7 +213,18 @@ export class CreditUnitSubjectService {
           (_) => _.subject_part_id === oldPart.subject_part_id
         )
       )
-      .map((part) => ({ ...part, audited_by: audited_by }));
+      .map(
+        ({
+          number_of_hours,
+          annual_teacher_id,
+          annual_credit_unit_has_subject_part_id,
+        }) => ({
+          number_of_hours,
+          annual_teacher_id,
+          annual_credit_unit_has_subject_part_id,
+          audited_by: audited_by,
+        })
+      );
 
     let updateTransactionInstruction: PrismaPromise<Prisma.BatchPayload>[] = [];
     if (updatedSubjectParts.length > 0)

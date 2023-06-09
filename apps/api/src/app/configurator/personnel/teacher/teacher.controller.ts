@@ -25,7 +25,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { PersonnelService } from '../personnel.service';
 
 @Controller()
-@ApiTags('Personnel/teachers')
+@ApiTags('Teachers')
 @UseGuards(AuthenticatedGuard)
 export class TeacherController {
   constructor(

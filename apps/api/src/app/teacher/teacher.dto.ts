@@ -1,16 +1,98 @@
-import { ApiProperty, OmitType } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  OmitType,
+  PartialType,
+} from '@nestjs/swagger';
+import { QuestionType, SubmissionType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
   IsDateString,
+  IsEnum,
   IsNumber,
+  IsNumberString,
   IsOptional,
   IsString,
   IsUUID,
+  Max,
+  Min,
   ValidateNested,
 } from 'class-validator';
+
+export class QuestionAnswer {
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional()
+  response?: string;
+
+  @IsUUID()
+  @ApiProperty()
+  question_id: string;
+
+  @IsArray()
+  @IsOptional()
+  @ApiPropertyOptional()
+  answered_option_ids?: string[];
+}
+export class StudentAnswerDto {
+  @IsArray()
+  @Type(() => QuestionAnswer)
+  @ValidateNested({ each: true })
+  @ApiProperty({ isArray: true, type: QuestionAnswer })
+  answers: QuestionAnswer[];
+}
+
+export class CorrectedQuestion {
+  @IsUUID()
+  @ApiProperty()
+  question_id: string;
+
+  @IsNumber()
+  @ApiProperty()
+  question_mark: number;
+
+  @IsString()
+  @ApiProperty()
+  teacher_comment: string;
+}
+
+export class GivenScore {
+  @IsUUID()
+  @ApiProperty()
+  annual_student_id: string;
+
+  @IsNumber()
+  @ApiProperty()
+  total_score: number;
+}
+
+export class CorrectSubmissionDto {
+  @IsString()
+  @IsOptional()
+  @ApiProperty()
+  group_code?: string;
+
+  @IsUUID()
+  @IsOptional()
+  @ApiProperty()
+  annual_student_id?: string;
+
+  @IsArray()
+  @Type(() => CorrectedQuestion)
+  @ValidateNested({ each: true })
+  @ApiProperty({ type: CorrectedQuestion, isArray: true })
+  correctedAnswers: CorrectedQuestion[];
+
+  @IsArray()
+  @IsOptional()
+  @Type(() => GivenScore)
+  @ValidateNested({ each: true })
+  @ApiProperty({ type: GivenScore, isArray: true, required: false })
+  givenScores?: GivenScore[];
+}
 
 export class EvaluationQueryDto {
   @IsUUID()
@@ -62,6 +144,8 @@ export class StudentMark {
   @ApiProperty()
   evaluation_has_student_id: string;
 
+  @Min(0)
+  @Max(20)
   @IsNumber()
   @ApiProperty()
   mark: number;
@@ -69,10 +153,10 @@ export class StudentMark {
 
 export class EvaluationMarkDto {
   @IsArray()
-  @ApiProperty()
   @ArrayMinSize(1)
   @Type(() => StudentMark)
   @ValidateNested({ each: true })
+  @ApiProperty({ isArray: true, type: StudentMark })
   studentMarks: StudentMark[];
 
   @IsBoolean()
@@ -84,14 +168,38 @@ export class EvaluationMarkDto {
   private_code: string;
 }
 
-export class AssessmentPutDto {
+export class AssessmentPostDto {
+  @IsOptional()
+  @IsEnum(SubmissionType)
+  @ApiProperty({ enum: SubmissionType, required: false })
+  submission_type?: SubmissionType;
+
+  @IsBoolean()
+  @ApiProperty()
+  is_assignment: boolean;
+
+  @Min(2)
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  number_per_group?: number;
+
+  @IsUUID()
+  @ApiProperty()
+  annual_credit_unit_subject_id: string;
+}
+
+export class AssessmentPutDto extends PartialType(
+  OmitType(AssessmentPostDto, ['annual_credit_unit_subject_id'])
+) {
   @ApiProperty()
   @IsDateString()
   assessment_date: Date;
 
   @IsNumber()
-  @ApiProperty()
-  duration: number;
+  @IsOptional()
+  @ApiProperty({ required: false })
+  duration?: number;
 }
 
 export class PublishAssessmentDto {
@@ -122,33 +230,36 @@ export class QuestionPostDto {
   @ApiProperty()
   question: string;
 
-  @IsNumber()
   @ApiProperty()
+  @IsNumberString()
   question_mark: number;
 
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  question_answer?: string;
+
+  @IsOptional()
+  @IsEnum(QuestionType)
+  @ApiProperty({ enum: QuestionType, required: false })
+  question_type?: QuestionType;
+
   @IsUUID()
-  @ApiProperty()
+  @ApiProperty({ required: false })
   assessment_id: string;
 
   @IsArray()
-  @ApiProperty()
+  @IsOptional()
   @ArrayMinSize(2)
   @ValidateNested({ each: true })
   @Type(() => CreateQuestionOption)
-  questionOptions: CreateQuestionOption[];
+  @ApiProperty({ type: CreateQuestionOption, isArray: true, required: false })
+  questionOptions?: CreateQuestionOption[];
 }
 
-export class QuestionPutDto {
-  @IsString()
-  @IsOptional()
-  @ApiProperty()
-  question?: string;
-
-  @IsNumber()
-  @IsOptional()
-  @ApiProperty()
-  question_mark?: number;
-
+export class QuestionPutDto extends PartialType(
+  OmitType(QuestionPostDto, ['assessment_id', 'questionOptions'])
+) {
   @IsArray()
   @ApiProperty()
   @IsString({ each: true })
@@ -163,12 +274,14 @@ export class QuestionPutDto {
   @ApiProperty()
   @Type(() => QuestionOption)
   @ValidateNested({ each: true })
+  @ApiProperty({ type: QuestionOption, isArray: true })
   editedOptions: QuestionOption[];
 
   @IsArray()
   @ApiProperty()
-  @Type(() => QuestionOption)
   @ValidateNested({ each: true })
+  @Type(() => CreateQuestionOption)
+  @ApiProperty({ type: CreateQuestionOption, isArray: true })
   newOptions: CreateQuestionOption[];
 }
 
@@ -229,11 +342,13 @@ export class PresenceListChapter {
   chapter_title: string;
 }
 
-export class PresenceListPutDto extends OmitType(PresenceListPostDto, [
-  'studentIds',
-  'chapterIds',
-  'annual_credit_unit_subject_id',
-]) {
+export class PresenceListPutDto extends PartialType(
+  OmitType(PresenceListPostDto, [
+    'studentIds',
+    'chapterIds',
+    'annual_credit_unit_subject_id',
+  ])
+) {
   @IsArray()
   @ApiProperty()
   @IsString({ each: true })

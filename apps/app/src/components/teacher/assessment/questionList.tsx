@@ -32,16 +32,19 @@ import QuestionSkeleton from './questionSkeleton';
 
 export default function QuestionList({
   activeAssessment,
+  activeAssessment: { is_assignment: isAssignment },
   setActiveAssessment,
   setIsActivateAssessmentDialogOpen,
   isActivatingAssessment,
   onShowResponses,
+  confirmPublishAssignment,
 }: {
   setActiveAssessment: (val: Assessment | undefined) => void;
   activeAssessment: Assessment;
   setIsActivateAssessmentDialogOpen: (val: boolean) => void;
   isActivatingAssessment: boolean;
   onShowResponses: () => void;
+  confirmPublishAssignment?: () => void;
 }) {
   const { formatMessage, formatDate, formatNumber } = useIntl();
 
@@ -50,14 +53,14 @@ export default function QuestionList({
     useState<boolean>(false);
   const [questionNotif, setQuestionNotif] = useState<useNotification>();
 
-  const loadQuestions = () => {
+  const loadQuestions = (assessment_id: string) => {
     setAreQuestionsLoading(true);
     const notif = new useNotification();
     if (questionNotif) {
       questionNotif.dismiss();
     }
     setQuestionNotif(notif);
-    getAssessmentQuestions(activeAssessment?.assessment_id as string)
+    getAssessmentQuestions(assessment_id)
       .then((questions) => {
         setQuestions(questions);
         setAreQuestionsLoading(false);
@@ -72,7 +75,7 @@ export default function QuestionList({
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={loadQuestions}
+              retryFunction={() => loadQuestions(assessment_id)}
               notification={notif}
               message={
                 error?.message || formatMessage({ id: 'getQuestionsFailed' })
@@ -86,12 +89,12 @@ export default function QuestionList({
   };
 
   useEffect(() => {
-    loadQuestions();
+    if (activeAssessment) loadQuestions(activeAssessment.assessment_id);
     return () => {
       //TODO: cleanup above axios fetch
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [activeAssessment]);
 
   const [isDeletingQuestion, setIsDeletingQuestion] = useState<boolean>(false);
 
@@ -151,7 +154,8 @@ export default function QuestionList({
     resources: {
       id: string;
       file: File;
-    }[]
+    }[],
+    answerFile?: File
   ) => {
     setIsCreatingQuestion(true);
     const notif = new useNotification();
@@ -164,13 +168,14 @@ export default function QuestionList({
     });
     createNewQuestion(
       question,
-      resources.map((_) => _.file)
+      resources.map((_) => _.file),
+      answerFile
     )
       .then((newQuestion) => {
         setQuestions([
           {
             ...newQuestion,
-            questionOptions: question.questionOptions.map(
+            questionOptions: (question.questionOptions ?? []).map(
               ({ is_answer, option }, index) => {
                 return {
                   question_id: newQuestion.question_id,
@@ -230,6 +235,7 @@ export default function QuestionList({
         closeDialog={() => setIsQuestionDialogOpen(false)}
         isDialogOpen={isQuestionDialogOpen}
         onSubmit={createQuestion}
+        isAssignment={isAssignment}
       />
 
       <Box
@@ -256,13 +262,13 @@ export default function QuestionList({
             }}
           >
             <Tooltip arrow title={formatMessage({ id: 'back' })}>
-              <Button
-                onClick={() => setActiveAssessment(undefined)}
-                variant="contained"
+              <Fab
                 color="primary"
                 size="small"
-                startIcon={<KeyboardBackspaceOutlined />}
-              />
+                onClick={() => setActiveAssessment(undefined)}
+              >
+                <KeyboardBackspaceOutlined fontSize="small" />
+              </Fab>
             </Tooltip>
             {activeAssessment.assessment_date ? (
               <Box
@@ -290,17 +296,43 @@ export default function QuestionList({
                     }
                   )}
                 />
-                <Chip
-                  sx={{
-                    backgroundColor: lighten(theme.palette.primary.main, 0.93),
-                  }}
-                  label={formatNumber(activeAssessment.duration as number, {
-                    style: 'unit',
-                    unit: 'minute',
-                    unitDisplay: 'short',
-                  })}
-                />
-                {activeAssessment.evaluation_sub_type_name && (
+                {isAssignment && (
+                  <Chip
+                    sx={{
+                      backgroundColor: lighten(
+                        theme.palette.primary.main,
+                        0.93
+                      ),
+                    }}
+                    label={`${formatMessage({
+                      id: activeAssessment.submission_type,
+                    })} ${
+                      activeAssessment.submission_type === 'Group'
+                        ? '(' +
+                          formatNumber(activeAssessment.number_per_group ?? 1) +
+                          ' ' +
+                          formatMessage({ id: 'perGroup' }) +
+                          ')'
+                        : ''
+                    }`}
+                  />
+                )}
+                {!isAssignment && (
+                  <Chip
+                    sx={{
+                      backgroundColor: lighten(
+                        theme.palette.primary.main,
+                        0.93
+                      ),
+                    }}
+                    label={formatNumber(activeAssessment.duration as number, {
+                      style: 'unit',
+                      unit: 'minute',
+                      unitDisplay: 'short',
+                    })}
+                  />
+                )}
+                {activeAssessment.evaluation_sub_type_name && !isAssignment && (
                   <Chip
                     sx={{
                       backgroundColor: lighten(
@@ -316,7 +348,11 @@ export default function QuestionList({
               </Box>
             ) : questions.length > 0 ? (
               <Button
-                onClick={() => setIsActivateAssessmentDialogOpen(true)}
+                onClick={() =>
+                  isAssignment && confirmPublishAssignment
+                    ? confirmPublishAssignment()
+                    : setIsActivateAssessmentDialogOpen(true)
+                }
                 variant="contained"
                 color="primary"
                 sx={{ textTransform: 'none' }}
@@ -327,7 +363,11 @@ export default function QuestionList({
                   isCreatingQuestion
                 }
               >
-                {formatMessage({ id: 'activateAssessment' })}
+                {formatMessage({
+                  id: isAssignment
+                    ? 'activateAssignment'
+                    : 'activateAssessment',
+                })}
               </Button>
             ) : (
               <Typography></Typography>
@@ -352,15 +392,16 @@ export default function QuestionList({
                 <Chip
                   color="success"
                   sx={{ color: theme.common.offWhite }}
-                  label={activeAssessment.total_mark}
+                  label={activeAssessment.total_mark ?? 0}
                 />
               </Box>
               {activeAssessment.assessment_date &&
-                new Date(
+                (new Date(
                   moment(activeAssessment.assessment_date)
                     .add(activeAssessment.duration, 'minutes')
                     .toLocaleString()
-                ) < new Date() && (
+                ) < new Date() ||
+                  isAssignment) && (
                   <Button
                     variant="contained"
                     color="primary"
@@ -377,18 +418,22 @@ export default function QuestionList({
           </Box>
         </Box>
         <Box sx={{ height: '100%', position: 'relative' }}>
-          <Tooltip arrow title={formatMessage({ id: `newSubject` })}>
-            <Fab
-              disabled={
-                areQuestionsLoading || isCreatingQuestion || isDeletingQuestion
-              }
-              onClick={() => setIsQuestionDialogOpen(true)}
-              color="primary"
-              sx={{ position: 'absolute', bottom: 16, right: 24 }}
-            >
-              <AddRounded />
-            </Fab>
-          </Tooltip>
+          {!activeAssessment.assessment_date && (
+            <Tooltip arrow title={formatMessage({ id: `newQuestion` })}>
+              <Fab
+                disabled={
+                  areQuestionsLoading ||
+                  isCreatingQuestion ||
+                  isDeletingQuestion
+                }
+                onClick={() => setIsQuestionDialogOpen(true)}
+                color="primary"
+                sx={{ position: 'absolute', bottom: 16, right: 24 }}
+              >
+                <AddRounded />
+              </Fab>
+            </Tooltip>
+          )}
           <Scrollbars autoHide>
             {areQuestionsLoading ? (
               [...new Array(10)].map((_, index) => (
@@ -403,6 +448,7 @@ export default function QuestionList({
                 <QuestionDisplay
                   disabled={isCreatingQuestion || isDeletingQuestion}
                   question={question}
+                  isActivated={activeAssessment.assessment_date ? true : false}
                   position={index + 1}
                   //   onEdit={() => setEditableQuestion(question)}
                   onDelete={() => {

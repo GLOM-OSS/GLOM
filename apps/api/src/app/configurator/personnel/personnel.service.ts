@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Person } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { AUTH04, AUTH404, AUTH501, ERR03 } from '../../../errors';
@@ -458,17 +458,25 @@ export class PersonnelService {
 
   async resetPassword(email: string, squoolr_client: string, reset_by: string) {
     const login = await this.loginService.findFirst({
+      select: { login_id: true, School: { select: { subdomain: true } } },
       where: {
         Person: { email },
-        // School: { subdomain: `admin.${squoolr_client}.squoolr.com` }, //TODO uncomment this line on production
+        School:
+          process.env.NODE_ENV === 'production' &&
+          squoolr_client !== process.env.ADMIN_URL
+            ? { subdomain: squoolr_client }
+            : undefined,
       },
     });
-    if (login) {
+    if (
+      login &&
+      squoolr_client === `admin.${login.School.subdomain}.squoolr.com`
+    ) {
       const resetPasswords = await this.prismaService.resetPassword.count({
         where: { OR: { is_valid: true, expires_at: { gt: new Date() } } },
       });
       if (resetPasswords === 1)
-        throw new HttpException(AUTH04['Fr'], HttpStatus.NOT_FOUND);
+        throw new HttpException(AUTH04['fr'], HttpStatus.NOT_FOUND);
       const { reset_password_id } = await this.resetPasswordService.create({
         data: {
           Login: { connect: { login_id: login.login_id } },
@@ -480,10 +488,10 @@ export class PersonnelService {
           },
         },
       });
-
+      console.log({ reset_password_id });
       return { reset_password_id };
     }
-    throw new HttpException(AUTH404('Email')['Fr'], HttpStatus.NOT_FOUND);
+    throw new HttpException(AUTH404('Email')['fr'], HttpStatus.NOT_FOUND);
   }
 
   async addNewStaff(
@@ -519,6 +527,23 @@ export class PersonnelService {
       role
     );
 
+    const userAgrs = Prisma.validator<Prisma.LoginArgs>()({
+      select: {
+        Person: {
+          select: {
+            first_name: true,
+            last_name: true,
+            email: true,
+            phone_number: true,
+            national_id_number: true,
+            gender: true,
+            address: true,
+            birthdate: true,
+          },
+        },
+      },
+    });
+
     const data = {
       matricule,
       Login: {
@@ -544,7 +569,7 @@ export class PersonnelService {
       },
     };
     let staff: {
-      Login: { Person: Person };
+      Login: Prisma.LoginGetPayload<typeof userAgrs>;
       annual_registry_id?: string;
       annual_configurator_id?: string;
       matricule: string;
@@ -567,7 +592,7 @@ export class PersonnelService {
       }
       staff = await this.annualConfiguratorService.create({
         select: {
-          Login: { select: { Person: true } },
+          Login: userAgrs,
           annual_configurator_id: true,
           matricule: true,
         },
@@ -591,7 +616,7 @@ export class PersonnelService {
       }
       staff = await this.annualRegistryService.create({
         select: {
-          Login: { select: { Person: true } },
+          Login: userAgrs,
           annual_registry_id: true,
           matricule: true,
         },
@@ -609,6 +634,7 @@ export class PersonnelService {
     } = staff;
     return {
       ...Person,
+      login_id,
       personnel_code,
       roles: await this.getRoles(login_id),
       last_connected: await this.getLastLog(login_id),

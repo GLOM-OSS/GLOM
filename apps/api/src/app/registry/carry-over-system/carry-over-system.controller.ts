@@ -14,8 +14,10 @@ import { Request } from 'express';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { CarryOverSystemPutDto } from '../registry.dto';
 import { Roles } from '../../app.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller()
+@ApiTags('Carry over systems')
 @UseGuards(AuthenticatedGuard)
 export class CarryOverSystemController {
   constructor(private carryOverSystemService: CarryOverSystemService) {}

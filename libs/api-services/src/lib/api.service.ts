@@ -18,6 +18,7 @@ export * from './hall-accesses';
 export * from './majors';
 export * from './personnel';
 export * from './presence-lists';
+export * from './students';
 export * from './weighting-system';
 
 export async function getCycles() {
@@ -36,9 +37,9 @@ export async function getTeacherTypes() {
 
 export async function getTeachingGrades() {
   const {
-    data: { teacherGrades },
+    data: { teachingGrades },
   } = await http.get(`/teaching-grades`);
-  return teacherGrades;
+  return teachingGrades;
 }
 
 export async function getWeightingGrades() {
@@ -58,7 +59,12 @@ export async function getEvaluationTypes() {
 export async function getSubjectParts() {
   const {
     data: { subjectParts },
-  } = await http.get(`/subject-parts`);
+  } = await http.get<{
+    subjectParts: {
+      subject_part_id: string;
+      subject_part_name: 'GUIDED_WORK' | 'PRACTICAL' | 'THEORY';
+    }[];
+  }>(`/subject-parts`);
   return subjectParts;
 }
 export function apiServices(): string {

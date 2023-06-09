@@ -1,3 +1,4 @@
+import { constants } from '@squoolr/constants';
 import { decrypt, encrypt } from '@squoolr/encrypter';
 import axios, { AxiosInstance } from 'axios';
 
@@ -8,7 +9,7 @@ export async function getCurrentIp() {
 
 function axiosInstance(): AxiosInstance {
   const axiosInstance = axios.create({
-    baseURL: process.env['NX_API_BASE_URL'],
+    baseURL: constants.NX_API_BASE_URL,
     withCredentials: true,
   });
   axiosInstance.interceptors.request.use(
@@ -17,7 +18,7 @@ function axiosInstance(): AxiosInstance {
         ...request,
         headers: {
           ...request.headers,
-          lang: 'Fr',
+          lang: 'fr',
         },
         params: request.params ? { data: encrypt(request.params) } : undefined,
         data:
@@ -42,7 +43,7 @@ function axiosInstance(): AxiosInstance {
     },
     (error) => {
       if (
-        error.response?.data.statusCode === 403 &&
+        error.response?.data?.statusCode === 403 &&
         location.pathname !== '/signin'
       )
         location.href = '/signin';

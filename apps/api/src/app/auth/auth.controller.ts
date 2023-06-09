@@ -5,6 +5,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Logger,
   Post,
   Put,
   Req,
@@ -21,7 +22,7 @@ import {
 } from '../../utils/types';
 import { AcademicYearQueryDto } from '../app.dto';
 import { AcademicYearService } from '../configurator/academic-year/academic-year.service';
-import { NewPasswordDto, ResetPasswordDto } from './auth.dto';
+import { NewPasswordDto, ResetPasswordDto, SignInDto } from './auth.dto';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { GoogleGuard } from './google/google.guard';
@@ -39,7 +40,8 @@ export class AuthController {
 
   @Post('signin')
   @UseGuards(LocalGuard)
-  async userSignIn(@Req() request: Request) {
+  async userSignIn(@Req() request: Request, @Body() login: SignInDto) {
+    Logger.debug(`Successfully login ${login.email} !!!`);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { created_at, cookie_age, roles, job_name, school_id, ...user } =
       request.user as DeserializeSessionData & PassportSession;
@@ -96,7 +98,7 @@ export class AuthController {
     @Req() request: Request,
     @Body() { email }: ResetPasswordDto
   ) {
-    const squoolr_client = new URL(request.headers.origin).hostname;
+    const squoolr_client = new URL(request.headers.origin).host;
     const { reset_password_id } = await this.authService.resetPassword(
       email,
       squoolr_client
@@ -111,7 +113,7 @@ export class AuthController {
     @Req() request: Request,
     @Body() { reset_password_id, new_password }: NewPasswordDto
   ) {
-    const squoolr_client = new URL(request.headers.origin).hostname;
+    const squoolr_client = new URL(request.headers.origin).host;
     await this.authService.setNewPassword(
       reset_password_id,
       new_password,
@@ -129,7 +131,7 @@ export class AuthController {
       return request.session.destroy(async (err) => {
         if (err)
           throw new HttpException(
-            AUTH500['Fr'],
+            AUTH500['fr'],
             HttpStatus.INTERNAL_SERVER_ERROR
           );
         await this.prismaService.log.update({
@@ -146,7 +148,9 @@ export class AuthController {
   @UseGuards(AuthenticatedGuard)
   async getUser(@Req() request: Request) {
     const email = request.query.email as string;
-    return { user: email ? await this.authService.getUser(email) : request.user };
+    return {
+      user: email ? await this.authService.getUser(email) : request.user,
+    };
   }
 
   @Get('google-signin')

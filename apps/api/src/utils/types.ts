@@ -44,6 +44,9 @@ export type DesirializeRoles = {
   school_id?: string;
   annualStudent?: {
     annual_student_id: string;
+    activeSemesters: number[];
+    classroom_code: string,
+    classroom_level: number,
     student_id: string;
   }; //Student
   //Personnel

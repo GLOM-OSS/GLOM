@@ -1,4 +1,5 @@
 export * from './assessment';
+export * from './auth';
 export * from './course';
 export * from './evaluation';
 export * from './presence-list';
@@ -20,6 +21,7 @@ export interface Person {
   home_region?: string;
   phone_number: string;
   gender: 'Male' | 'Female';
+  preferred_lang?: 'fr' | 'en';
   national_id_number: string;
   civil_status?: 'Married' | 'Single' | 'Divorced';
   employment_status?: 'Employed' | 'Unemployed' | 'SelfEmployed';
@@ -81,6 +83,14 @@ export interface Classroom {
   registration_fee: number;
   total_fee_due: number;
   annual_coordinator_id: string;
+}
+
+export interface ClassroomDivisionInterface {
+  annual_classroom_division_id: string;
+  annual_classroom_id: string;
+  classroom_name: string;
+  classroom_short_name: string;
+  classroom_code: string;
 }
 
 export type RoleShort = 'Te' | 'Se' | 'S.A.' | 'Co';

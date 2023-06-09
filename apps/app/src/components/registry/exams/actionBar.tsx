@@ -6,8 +6,7 @@ import {
   OutlinedInput,
   Select,
 } from '@mui/material';
-import { Major } from '@squoolr/api-services';
-import { CreditUnit, CreditUnitSubject } from '@squoolr/interfaces';
+import { CreditUnit, CreditUnitSubject, Major } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
 

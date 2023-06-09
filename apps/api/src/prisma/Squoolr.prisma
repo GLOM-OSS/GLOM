@@ -15,8 +15,8 @@ enum Gender {
 }
 
 enum Lang {
-    En
-    Fr
+    en
+    fr
 
     @@map("preferred_lang_enum")
 }
@@ -51,7 +51,7 @@ model Person {
     longitude          Int?
     latitude           Int?
     email              String            @unique @db.VarChar(50)
-    preferred_lang     Lang              @default(Fr)
+    preferred_lang     Lang              @default(fr)
     image_ref          String?           @db.VarChar(50)
     home_region        String?           @db.VarChar(45)
     religion           String?           @db.VarChar(45)
@@ -71,7 +71,9 @@ model PersonAudit {
     last_name          String              @db.VarChar(50)
     phone_number       String              @db.VarChar(15)
     birthdate          DateTime            @db.DateTime(0)
+    birthplace         String?             @db.VarChar(45)
     gender             Gender
+    nationality        String?             @db.VarChar(45)
     national_id_number String              @db.VarChar(15)
     address            String?             @db.VarChar(100)
     longitude          Int?
@@ -79,6 +81,11 @@ model PersonAudit {
     email              String              @db.VarChar(50)
     preferred_lang     Lang
     image_ref          String?             @db.VarChar(50)
+    home_region        String?             @db.VarChar(45)
+    religion           String?             @db.VarChar(45)
+    handicap           String              @default("None") @db.VarChar(45)
+    civil_status       CivilStatusEnum     @default(Single)
+    employment_status  EmploymentStatus?
     audited_at         DateTime            @default(now()) @db.DateTime(0)
     person_id          String              @db.VarChar(36)
     Person             Person              @relation(fields: [person_id], references: [person_id], onDelete: Cascade, onUpdate: Cascade)
@@ -229,6 +236,7 @@ model Login {
     AnnualRegistries     AnnualRegistry[]
     AnnualTeachers       AnnualTeacher[]
     SchoolDemandAudits   SchoolDemandAudit[]
+    Payment              Payment[]
 
     @@unique([person_id, school_id])
 }
@@ -304,6 +312,7 @@ model AnnualStudent {
     annual_student_id            String                  @id @default(uuid()) @db.VarChar(36)
     is_active                    Boolean                 @default(true) @db.TinyInt
     is_deleted                   Boolean                 @default(false) @db.TinyInt
+    created_at                   DateTime                @default(now()) @db.DateTime(0)
     student_id                   String
     Student                      Student                 @relation(fields: [student_id], references: [student_id], onDelete: Cascade, onUpdate: Cascade)
     annual_classroom_division_id String                  @db.VarChar(36)
@@ -314,6 +323,9 @@ model AnnualStudent {
     EvaluationHasStudents        EvaluationHasStudent[]
     AnnualStudentTakeAssessments AnnualStudentTakeAssessment[]
     AnnualStudentHasCreditUnits  AnnualStudentHasCreditUnit[]
+    Payments                     Payment[]
+
+    @@unique([student_id, academic_year_id])
 }
 
 model AnnualRegistry {
@@ -321,6 +333,7 @@ model AnnualRegistry {
     is_deleted         Boolean            @default(false) @db.TinyInt
     matricule          String             @db.VarChar(75)
     private_code       String             @db.VarChar(75)
+    added_at           DateTime           @default(now()) @db.DateTime(0)
     academic_year_id   String             @db.VarChar(36)
     AcademicYear       AcademicYear       @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
     added_by           String
@@ -450,6 +463,7 @@ model AnnualTeacher {
     DeletedPresenceListHasChapters              PresenceListHasChapter[]              @relation(name: "DeletedBy_AnnualTeacher")
     CreatedPresenceListHasCreditUnitStudents    PresenceListHasCreditUnitStudent[]    @relation(name: "CreatedBy_AnnualTeacher")
     DeletedPresenceListHasCreditUnitStudents    PresenceListHasCreditUnitStudent[]    @relation(name: "DeletedBy_AnnualTeacher")
+    AnnualStudentAnswerQuestions                AnnualStudentAnswerQuestion[]
 
     @@unique([login_id, academic_year_id])
 }
@@ -1201,12 +1215,22 @@ model RessourceAudit {
     AnnualTeacher      AnnualTeacher @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
+enum SubmissionType {
+    Individual
+    Group
+
+    @@map("submission_type_enum")
+}
+
 model Assessment {
     assessment_id                 String                  @id @default(uuid()) @db.VarChar(36)
     assessment_date               DateTime?               @db.DateTime(0)
-    duration                      Int?
+    duration                      Int? //in minutes
+    is_assignment                 Boolean                 @default(false) @db.TinyInt
     is_published                  Boolean                 @default(false) @db.TinyInt
     is_deleted                    Boolean                 @default(false) @db.TinyInt
+    number_per_group              Int                     @default(1)
+    submission_type               SubmissionType          @default(Individual)
     created_at                    DateTime                @default(now()) @db.DateTime(0)
     annual_credit_unit_subject_id String                  @db.VarChar(36)
     AnnualCreditUnitSubject       AnnualCreditUnitSubject @relation(fields: [annual_credit_unit_subject_id], references: [annual_credit_unit_subject_id], onDelete: Cascade, onUpdate: Cascade)
@@ -1220,6 +1244,7 @@ model Assessment {
     AssessmentAudits             AssessmentAudit[]
     Questions                    Question[]
     AnnualStudentTakeAssessments AnnualStudentTakeAssessment[]
+    AssignmentGroupMembers       AssignmentGroupMember[]
 }
 
 model AssessmentAudit {
@@ -1235,27 +1260,39 @@ model AssessmentAudit {
     AnnualTeacher       AnnualTeacher @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-model Question {
-    question_id   String        @id @default(uuid()) @db.VarChar(36)
-    question      String        @db.VarChar(190)
-    question_mark Int
-    is_deleted    Boolean       @default(false) @db.TinyInt
-    created_at    DateTime      @default(now()) @db.DateTime(0)
-    assessment_id String        @db.VarChar(36)
-    Assessment    Assessment    @relation(fields: [assessment_id], references: [assessment_id], onDelete: Cascade, onUpdate: Cascade)
-    created_by    String        @db.VarChar(36)
-    AnnualTeacher AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+enum QuestionType {
+    MCQ
+    File
+    Structural
 
-    QuestionAudits             QuestionAudit[]
-    QuestionOptions            QuestionOption[]
-    QuestionResources          QuestionResource[]
-    AnnualStudentAnswerOptions AnnualStudentAnswerOption[]
+    @@map("question_type_enum")
+}
+
+model Question {
+    question_id     String        @id @default(uuid()) @db.VarChar(36)
+    question        String        @db.LongText
+    question_mark   Float
+    question_answer String?       @db.LongText
+    question_type   QuestionType  @default(MCQ)
+    is_deleted      Boolean       @default(false) @db.TinyInt
+    created_at      DateTime      @default(now()) @db.DateTime(0)
+    assessment_id   String        @db.VarChar(36)
+    Assessment      Assessment    @relation(fields: [assessment_id], references: [assessment_id], onDelete: Cascade, onUpdate: Cascade)
+    created_by      String        @db.VarChar(36)
+    AnnualTeacher   AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+
+    QuestionAudits               QuestionAudit[]
+    QuestionOptions              QuestionOption[]
+    QuestionResources            QuestionResource[]
+    AnnualStudentAnswerQuestions AnnualStudentAnswerQuestion[]
 }
 
 model QuestionAudit {
     question_audit_id String        @id @default(uuid()) @db.VarChar(36)
-    question          String        @db.VarChar(190)
-    question_mark     Int
+    question          String        @db.LongText
+    question_mark     Float
+    question_answer   String?       @db.LongText
+    question_type     QuestionType  @default(MCQ)
     is_deleted        Boolean       @default(false) @db.TinyInt
     audited_at        DateTime      @default(now()) @db.DateTime(0)
     question_id       String        @db.VarChar(36)
@@ -1280,7 +1317,7 @@ model QuestionResource {
 
 model QuestionOption {
     question_option_id String        @id @default(uuid()) @db.VarChar(36)
-    option             String        @db.VarChar(45)
+    option             String        @db.TinyText
     is_answer          Boolean       @db.TinyInt
     is_deleted         Boolean       @default(false) @db.TinyInt
     created_at         DateTime      @default(now()) @db.DateTime(0)
@@ -1289,13 +1326,13 @@ model QuestionOption {
     created_by         String        @db.VarChar(36)
     AnnualTeacher      AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 
-    QuestionOptionAudits       QuestionOptionAudit[]
-    AnnualStudentAnswerOptions AnnualStudentAnswerOption[]
+    QuestionOptionAudits         QuestionOptionAudit[]
+    AnnualStudentAnswerQuestions AnnualStudentAnswerQuestion[]
 }
 
 model QuestionOptionAudit {
     question_option__audit_id String         @id @default(uuid()) @db.VarChar(36)
-    option                    String         @db.VarChar(45)
+    option                    String         @db.TinyText
     is_answer                 Boolean        @db.TinyInt
     is_deleted                Boolean        @default(false) @db.TinyInt
     audited_at                DateTime       @default(now()) @db.DateTime(0)
@@ -1307,34 +1344,61 @@ model QuestionOptionAudit {
 
 model AnnualStudentTakeAssessment {
     annual_student_take_assessment_id String        @id @default(uuid()) @db.VarChar(36)
-    total_score                       Int
-    submitted_at                      DateTime      @default(now()) @db.DateTime(0)
+    total_score                       Float
+    submitted_at                      DateTime?     @db.DateTime(0)
+    created_at                        DateTime      @default(now()) @db.DateTime(0)
     annual_student_id                 String        @db.VarChar(36)
     AnnualStudent                     AnnualStudent @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)
     assessment_id                     String        @db.VarChar(36)
     Assessment                        Assessment    @relation(fields: [assessment_id], references: [assessment_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AnnualStudentAnswerOptions AnnualStudentAnswerOption[]
+    AnnualStudentAnswerQuestions          AnnualStudentAnswerQuestion[]
+    LastAnnualStudentAnswerQuestionAudits AnnualStudentAnswerQuestionAudit[] @relation(name: "Previously_AuditedBy_AnnualStudent")
+    AnnualStudentAnswerQuestionAudits     AnnualStudentAnswerQuestionAudit[] @relation(name: "AuditedBy_AnnualStudent")
+    AssignmentGroupMembers                AssignmentGroupMember[]
+
+    @@unique([annual_student_id, assessment_id])
 }
 
-model AnnualStudentAnswerOption {
+model AnnualStudentAnswerQuestion {
     annual_student_answer_question_id String                      @id @default(uuid()) @db.VarChar(36)
+    question_mark                     Float
+    response                          String?                     @db.LongText
+    teacher_comment                   String?                     @db.LongText
     question_id                       String                      @db.VarChar(36)
     Question                          Question                    @relation(fields: [question_id], references: [question_id], onDelete: Cascade, onUpdate: Cascade)
-    answered_option_id                String                      @db.VarChar(36)
-    QuestionOption                    QuestionOption              @relation(fields: [answered_option_id], references: [question_option_id], onDelete: Cascade, onUpdate: Cascade)
+    answered_option_id                String?                     @db.VarChar(36)
+    QuestionOption                    QuestionOption?             @relation(fields: [answered_option_id], references: [question_option_id], onDelete: Cascade, onUpdate: Cascade)
     annual_student_take_assessment_id String                      @db.VarChar(36)
     AnnualStudentTakeAssessment       AnnualStudentTakeAssessment @relation(fields: [annual_student_take_assessment_id], references: [annual_student_take_assessment_id], onDelete: Cascade, onUpdate: Cascade)
+    corrected_by                      String?                     @db.VarChar(36)
+    AnnualTeacher                     AnnualTeacher?              @relation(fields: [corrected_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+
+    AnnualStudentAnswerQuestionAudits AnnualStudentAnswerQuestionAudit[]
+}
+
+model AnnualStudentAnswerQuestionAudit {
+    annual_student_answer_question_audit_id String                      @id @default(uuid()) @db.VarChar(36)
+    response                                String                      @db.LongText
+    annual_student_answer_question_id       String                      @db.VarChar(36)
+    AnnualStudentAnswerQuestion             AnnualStudentAnswerQuestion @relation(fields: [annual_student_answer_question_id], references: [annual_student_answer_question_id], onDelete: Cascade, onUpdate: Cascade)
+    previous_auditer                        String                      @db.VarChar(36)
+    PreviousAnnualStudentTakeAssessment     AnnualStudentTakeAssessment @relation(name: "Previously_AuditedBy_AnnualStudent", fields: [previous_auditer], references: [annual_student_take_assessment_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by                              String                      @db.VarChar(36)
+    AuditedByAnnualStudentTakeAssessment    AnnualStudentTakeAssessment @relation(name: "AuditedBy_AnnualStudent", fields: [audited_by], references: [annual_student_take_assessment_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model AnnualStudentHasCreditUnit {
-    annual_student_has_credit_unit_id String                             @id @default(uuid()) @db.VarChar(36)
+    annual_student_has_credit_unit_id String           @id @default(uuid()) @db.VarChar(36)
     semester_number                   Int
-    annual_student_id                 String                             @db.VarChar(36)
-    AnnualStudent                     AnnualStudent                      @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)
-    annual_credit_unit_id             String                             @db.VarChar(36)
-    AnnualCreditUnit                  AnnualCreditUnit                   @relation(fields: [annual_credit_unit_id], references: [annual_credit_unit_id], onDelete: Cascade, onUpdate: Cascade)
-    PresenceListHasCreditUnitStudent  PresenceListHasCreditUnitStudent[]
+    annual_student_id                 String           @db.VarChar(36)
+    AnnualStudent                     AnnualStudent    @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_credit_unit_id             String           @db.VarChar(36)
+    AnnualCreditUnit                  AnnualCreditUnit @relation(fields: [annual_credit_unit_id], references: [annual_credit_unit_id], onDelete: Cascade, onUpdate: Cascade)
+
+    PresenceListHasCreditUnitStudent PresenceListHasCreditUnitStudent[]
+
+    @@unique([annual_student_id, annual_credit_unit_id])
 }
 
 model PresenceList {
@@ -1393,4 +1457,40 @@ model PresenceListHasCreditUnitStudent {
     deleted_at                          DateTime?                  @db.DateTime(0)
     deleted_by                          String?                    @db.VarChar(36)
     DeletedByAnnualTeacher              AnnualTeacher?             @relation(name: "DeletedBy_AnnualTeacher", fields: [deleted_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+enum PaymentReasonEnum {
+    Fee
+    Platform
+    Registration
+
+    @@map("payement_reason_enum")
+}
+
+model Payment {
+    payment_id        String            @id @default(uuid()) @db.VarChar(36)
+    amount            Float
+    transaction_id    String            @db.VarChar(45)
+    payment_date      DateTime          @db.DateTime(0)
+    payment_reason    PaymentReasonEnum
+    semester_number   Int?
+    annual_student_id String            @db.VarChar(36)
+    AnnualStudent     AnnualStudent     @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)
+    paid_by           String            @db.VarChar(36)
+    Login             Login             @relation(fields: [paid_by], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+    created_at        DateTime          @default(now()) @db.DateTime(0)
+}
+
+model AssignmentGroupMember {
+    assignment_group_id               String                      @id @default(uuid()) @db.VarChar(36)
+    total_score                       Int                         @default(0)
+    group_code                        String                      @db.VarChar(45)
+    approved_at                       DateTime?                   @db.DateTime(0)
+    created_at                        DateTime                    @default(now()) @db.DateTime(0)
+    assessment_id                     String                      @db.VarChar(36)
+    Assessment                        Assessment                  @relation(fields: [assessment_id], references: [assessment_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_student_take_assessment_id String                      @db.VarChar(36)
+    AnnualStudentTakeAssessment       AnnualStudentTakeAssessment @relation(fields: [annual_student_take_assessment_id], references: [annual_student_take_assessment_id], onDelete: Cascade, onUpdate: Cascade)
+
+    @@unique([annual_student_take_assessment_id, assessment_id])
 }

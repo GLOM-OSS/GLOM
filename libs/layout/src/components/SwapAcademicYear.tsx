@@ -1,7 +1,8 @@
 import { ReportRounded } from '@mui/icons-material';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import { getAcademicYears as fetchAcademicYears } from '@squoolr/api-services';
-import { AcademicYearInterface, SelectAcademicYearDialog } from '@squoolr/auth';
+import { SelectAcademicYearDialog } from '../lib/selectAcademicYear';
+import { AcademicYearInterface } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';

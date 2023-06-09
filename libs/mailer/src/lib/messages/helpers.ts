@@ -3,7 +3,7 @@ import { messages } from './';
 
 export const formatMessage = (
   messageId: string,
-  lang: 'En' | 'Fr',
+  lang: 'en' | 'fr',
   options: HelperOptions
 ) => {
   return options.fn(messages[messageId][lang]);

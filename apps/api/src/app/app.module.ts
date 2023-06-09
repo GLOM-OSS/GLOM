@@ -13,6 +13,9 @@ import { createClient } from 'redis';
 // import * as csurf from 'csurf';
 import helmet from 'helmet';
 
+import * as shell from 'shelljs';
+import { MulterFileModule } from '../multer/multer.module';
+import { MulterConfigService } from '../multer/multer.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AppController } from './app.controller';
 import { AppInterceptor } from './app.interceptor';
@@ -23,9 +26,8 @@ import { ConfiguratorModule } from './configurator/configurator.module';
 import { CoordinatorModule } from './coordinator/coordinator.module';
 import { DemandModule } from './demand/demand.module';
 import { RegistryModule } from './registry/registry.module';
+import { StudentModule } from './student/student.module';
 import { TeacherModule } from './teacher/teacher.module';
-import { MulterFileModule } from '../multer/multer.module';
-import { MulterConfigService } from '../multer/multer.service';
 
 @Module({
   imports: [
@@ -48,6 +50,7 @@ import { MulterConfigService } from '../multer/multer.service';
     CoordinatorModule,
     RegistryModule,
     TeacherModule,
+    StudentModule,
   ],
   controllers: [AppController],
   providers: [
@@ -66,10 +69,16 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     const redisClient = createClient({
       legacyMode: true,
-      url: `redis://${process.env.REDIS_HOST}`,
+      url: `redis://${process.env.REDIS_HOST}:6379`,
     });
     redisClient.connect().catch((message) => Logger.error(message));
     const RedisStore = connectRedis(session);
+
+    if (process.env.NODE_ENV === 'production') {
+      console.log(process.env.DATABASE_URL);
+      shell.exec(`npx prisma migrate dev --name deploy`);
+      shell.exec(`npx prisma migrate deploy`);
+    }
 
     consumer
       .apply(
@@ -78,7 +87,6 @@ export class AppModule implements NestModule {
           store: new RedisStore({
             client: redisClient,
             host: process.env.REDIS_HOST,
-            port: Number(process.env.REDIS_PORT),
           }),
           secret: process.env.SESSION_SECRET,
           genid: () => randomUUID(),

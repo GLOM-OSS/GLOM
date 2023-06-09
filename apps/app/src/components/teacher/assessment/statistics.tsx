@@ -1,12 +1,11 @@
 import { KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
 import {
   Box,
-  Button,
+  Fab,
   InputAdornment,
   lighten,
   Skeleton,
   TextField,
-  Tooltip,
   Typography,
 } from '@mui/material';
 import { getAssessmentStats } from '@squoolr/api-services';
@@ -105,17 +104,16 @@ export default function Statistics({
           columnGap: theme.spacing(2),
         }}
       >
-        <Tooltip arrow title={formatMessage({ id: 'back' })}>
-          <Button
-            onClick={onClose}
-            variant="contained"
-            color="primary"
-            size="small"
-            startIcon={<KeyboardBackspaceOutlined />}
-          />
-        </Tooltip>
+        <Fab
+          color="primary"
+          aria-label={formatMessage({ id: 'back' })}
+          size="small"
+          onClick={onClose}
+        >
+          <KeyboardBackspaceOutlined fontSize="small" />
+        </Fab>
         <Typography variant="h6">
-          {formatMessage({ id: 'assessmentStatistics' })}
+          {formatMessage({ id: 'statistics' })}
         </Typography>
         <TextField
           required

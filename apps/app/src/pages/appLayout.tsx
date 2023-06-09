@@ -1,11 +1,17 @@
-import { GradingRounded, InventoryOutlined, LayersOutlined, PeopleAltOutlined } from '@mui/icons-material';
-import { MainLayout, NavItem } from '@squoolr/layout';
-import { injectIntl, IntlShape } from 'react-intl';
+import {
+  GradingRounded,
+  InventoryOutlined,
+  LayersOutlined,
+  PeopleAltOutlined,
+} from '@mui/icons-material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { INavItem } from '@squoolr/interfaces';
+import { MainLayout } from '@squoolr/layout';
+import { IntlShape, injectIntl } from 'react-intl';
 
 function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
-  const coordinatorNavItems: NavItem[] = [
+  const coordinatorNavItems: INavItem[] = [
     {
       id: 1,
       Icon: LayersOutlined,
@@ -33,7 +39,7 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
       ],
     },
   ];
-  const navItems: NavItem[] = [
+  const navItems: INavItem[] = [
     {
       id: 1,
       Icon: LayersOutlined,
@@ -64,7 +70,7 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
     },
   ];
 
-  const registryNavItems: NavItem[] = [
+  const registryNavItems: INavItem[] = [
     {
       id: 1,
       Icon: LayersOutlined,
@@ -111,7 +117,7 @@ function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {
     },
   ];
 
-  const teacherNavItems: NavItem[] = [
+  const teacherNavItems: INavItem[] = [
     {
       id: 1,
       Icon: LayersOutlined,

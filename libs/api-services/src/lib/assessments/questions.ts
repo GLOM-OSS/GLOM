@@ -1,4 +1,5 @@
 import { http } from '@squoolr/axios';
+import { constants } from '@squoolr/constants';
 import {
   CreateQuestion,
   EditQuestionInterface,
@@ -14,18 +15,41 @@ export async function getQuestion(question_id: string) {
     ...data,
     questionResources: data.questionResources.map((resource) => ({
       ...resource,
-      resource_ref: `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}`,
+      resource_ref: `${constants.NX_API_BASE_URL}/${resource.resource_ref}`,
     })),
   };
 }
 
 export async function createNewQuestion(
   newQuestion: CreateQuestion,
-  files: File[]
+  files: File[],
+  answerFile?: File
 ) {
+  const {
+    assessment_id,
+    question,
+    question_mark,
+    question_type,
+    question_answer,
+  } = newQuestion;
+  const questionFormData = new FormData();
+  if (answerFile) {
+    questionFormData.append('question', question);
+    questionFormData.append('assessment_id', assessment_id);
+    questionFormData.append('question_type', question_type);
+    questionFormData.append('question_mark', question_mark.toString());
+    questionFormData.append('answerFile', answerFile, answerFile.name);
+    questionFormData.append('question_answer', question_answer as string);
+  }
+
   const { data } = await http.post<
     Omit<Question, 'questionResources' | 'questionOptions'>
-  >(`/assessments/questions/new`, newQuestion);
+  >(
+    `/assessments/questions/new`,
+    answerFile
+      ? questionFormData
+      : { ...newQuestion, question_mark: question_mark.toString() }
+  );
 
   if (files.length === 0) return { ...data, questionResources: [] };
   const formData = new FormData();
@@ -40,7 +64,7 @@ export async function createNewQuestion(
     ...data,
     questionResources: questionResources.map((resource) => ({
       ...resource,
-      resource_ref: `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}`,
+      resource_ref: `${constants.NX_API_BASE_URL}/${resource.resource_ref}`,
     })),
   };
 }

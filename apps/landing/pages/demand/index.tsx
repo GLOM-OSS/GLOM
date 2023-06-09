@@ -135,9 +135,14 @@ export default function Demand() {
       institute_phone: school_phone_number,
       institute_short_name: school_acronym,
     } = schoolFormik.values;
-    const { birthdate, confirm_password, phone_number, ...person } = adminFormik.values;
+    const { birthdate, confirm_password, phone_number, ...person } =
+      adminFormik.values;
     makeNewDemand({
-      personnel: { birthdate: birthdate, phone_number: phone_number, ...person },
+      personnel: {
+        birthdate: birthdate,
+        phone_number: phone_number,
+        ...person,
+      },
       school: {
         initial_year_starts_at,
         initial_year_ends_at,
@@ -327,10 +332,12 @@ export default function Demand() {
                 size="medium"
                 label={formatMessage({ id: 'phone_number' })}
                 error={
-                  adminFormik.touched.phone_number && Boolean(adminFormik.errors.phone_number)
+                  adminFormik.touched.phone_number &&
+                  Boolean(adminFormik.errors.phone_number)
                 }
                 helperText={
-                  adminFormik.touched.phone_number && adminFormik.errors.phone_number
+                  adminFormik.touched.phone_number &&
+                  adminFormik.errors.phone_number
                 }
                 {...adminFormik.getFieldProps('phone_number')}
               />
@@ -878,7 +885,7 @@ export default function Demand() {
             justifyItems: 'center',
           }}
         >
-          <Box sx={{ display: 'grid', justifyItems: 'center' }}>
+          <Box sx={{ textAlign: 'center', padding: 1 }}>
             <Image
               src="/demand_illustration.png"
               alt={formatMessage({ id: 'skyRocketYourSchool' })}

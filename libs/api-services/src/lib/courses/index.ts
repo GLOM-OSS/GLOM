@@ -1,4 +1,5 @@
 import { http } from '@squoolr/axios';
+import { constants } from '@squoolr/constants';
 import {
   Assessment,
   Chapter,
@@ -8,8 +9,10 @@ import {
   Student,
 } from '@squoolr/interfaces';
 
-export async function getCourses() {
-  const { data } = await http.get<Course[]>(`/courses/all`);
+export async function getCourses(semester_number?: number) {
+  const { data } = await http.get<Course[]>(`/courses/all`, {
+    params: { semester_number },
+  });
   return data;
 }
 
@@ -31,22 +34,34 @@ export async function getCourseResources(
     resource_ref:
       resource.resource_type === 'LINK'
         ? resource.resource_ref
-        : `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}`,
+        : `${constants.NX_API_BASE_URL}/${resource.resource_ref}`,
   }));
 }
 
-export async function getCourseChapters(annual_credit_unit_subject_id: string) {
+export async function getCourseChapters(
+  annual_credit_unit_subject_id: string,
+  isNotDone?: boolean
+) {
   const { data } = await http.get<Chapter[]>(
-    `/courses/${annual_credit_unit_subject_id}/chapters`
+    `/courses/${annual_credit_unit_subject_id}/chapters`,
+    {
+      params: { isNotDone },
+    }
   );
   return data;
 }
 
 export async function getCourseAssessments(
-  annual_credit_unit_subject_id: string
+  annual_credit_unit_subject_id: string,
+  is_assignment = false
 ) {
   const { data } = await http.get<Assessment[]>(
-    `/courses/${annual_credit_unit_subject_id}/assessments`
+    `/courses/${annual_credit_unit_subject_id}/assessments`,
+    {
+      params: {
+        is_assignment,
+      },
+    }
   );
   return data;
 }

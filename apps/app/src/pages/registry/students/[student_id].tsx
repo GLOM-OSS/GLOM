@@ -1,24 +1,22 @@
 import { KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
 import {
-  Box,
-  Button,
-  Chip,
+  Box, Chip,
+  Fab,
   lighten,
-  Skeleton,
-  Tooltip,
-  Typography,
+  Skeleton, Typography
 } from '@mui/material';
+import { getStudentDetails } from '@squoolr/api-services';
 import { StudentDetail } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import DetailLine from 'apps/app/src/components/registry/students/detailLine';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useNavigate, useParams } from 'react-router';
+import DetailLine from '../../../components/registry/students/detailLine';
 
 export default function StudentDetails() {
   const { formatMessage, formatDate } = useIntl();
-  const { student_id } = useParams();
+  const { student_id: annual_student_id } = useParams();
   const navigate = useNavigate();
 
   const [isStudentDetailLoading, setIsStudentDetailLoading] =
@@ -27,45 +25,21 @@ export default function StudentDetails() {
   const [studentDetailNotif, setStudentDetailNotif] =
     useState<useNotification>();
 
-  const loadStudentDetails = (student_id: string) => {
+  const loadStudentDetails = (annual_student_id: string) => {
     setIsStudentDetailLoading(true);
     const notif = new useNotification();
     if (studentDetailNotif) {
       studentDetailNotif.dismiss();
     }
     setStudentDetailNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD student detail with data student_id
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newStudentDetail: StudentDetail = {
-          annual_student_id: 'sieodsl',
-          birthdate: new Date(),
-          classroom_acronym: 'IRT3',
-          email: 'nguemeteulriche@gmail.com',
-          first_name: 'Ulriche Gaella',
-          gender: 'Female',
-          is_active: true,
-          last_name: 'Mache Nguemete',
-          matricule: '18C005',
-          national_id_number: '000310122',
-          phone_number: '693256789',
-          preferred_lang: 'en',
-          tutorInfo: {
-            birthdate: new Date(),
-            email: 'lorraintchakoumi@gmail.com',
-            first_name: 'Lorrain',
-            gender: 'Male',
-            last_name: 'Kouatchoua Tchakoumi',
-            national_id_number: '000316122',
-            phone_number: '681382151',
-          },
-        };
-        setStudentDetail(newStudentDetail);
+    getStudentDetails(annual_student_id)
+      .then((studentDetails) => {
+        setStudentDetail(studentDetails);
         setIsStudentDetailLoading(false);
         notif.dismiss();
         setStudentDetailNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingStudentDetail' }),
         });
@@ -73,21 +47,22 @@ export default function StudentDetails() {
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={() => loadStudentDetails(student_id)}
+              retryFunction={() => loadStudentDetails(annual_student_id)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getStudentDetailFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'getStudentDetailFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
-    loadStudentDetails(student_id as string);
+    loadStudentDetails(annual_student_id as string);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -101,15 +76,14 @@ export default function StudentDetails() {
           columnGap: 2,
         }}
       >
-        <Tooltip arrow title={formatMessage({ id: 'back' })}>
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            onClick={() => navigate('/registry/student-management/students')}
-            startIcon={<KeyboardBackspaceOutlined fontSize="large" />}
-          />
-        </Tooltip>
+        <Fab
+          color="primary"
+          aria-label={formatMessage({ id: 'back' })}
+          size="small"
+          onClick={() => navigate('/registry/student-management/students')}
+        >
+          <KeyboardBackspaceOutlined fontSize="small" />
+        </Fab>
         <Typography variant="h6">
           {isStudentDetailLoading ? (
             <Skeleton animation="wave" width={100} />

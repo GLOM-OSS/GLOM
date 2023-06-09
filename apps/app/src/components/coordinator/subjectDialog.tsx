@@ -10,7 +10,8 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { getTeachers, Personnel } from '@squoolr/api-services';
+import { getTeachers } from '@squoolr/api-services';
+import { Personnel } from '@squoolr/interfaces';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
@@ -43,7 +44,7 @@ export default function SubjectDialog({
     practical: 0,
     subject_code: '',
     subject_title: '',
-    theory: 0.1,
+    theory: 0,
     weighting: 0.1,
     annual_teacher_id: '',
   };
@@ -127,17 +128,14 @@ export default function SubjectDialog({
     guided_work: Yup.number().min(0, formatMessage({ id: 'minAllowedValue1' })),
     theory: Yup.number()
       .required(formatMessage({ id: 'required' }))
-      .min(0.1, formatMessage({ id: 'minAllowedValue1' })),
+      .min(0, formatMessage({ id: 'minAllowedValue1' })),
     practical: Yup.number().min(0, formatMessage({ id: 'minAllowedValue1' })),
     subject_code: Yup.string().required(formatMessage({ id: 'required' })),
     subject_title: Yup.string().required(formatMessage({ id: 'required' })),
     annual_teacher_id: Yup.string().required(formatMessage({ id: 'required' })),
     weighting: Yup.number()
       .required(formatMessage({ id: 'required' }))
-      .max(
-        getMaxAllowedWeighting(),
-        formatMessage({ id: 'maxAllowedValue' })
-      )
+      .max(getMaxAllowedWeighting(), formatMessage({ id: 'maxAllowedValue' }))
       .min(0.1, formatMessage({ id: 'minAllowedValue0' })),
   });
 

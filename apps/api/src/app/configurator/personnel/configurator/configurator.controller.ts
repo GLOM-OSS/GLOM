@@ -20,7 +20,7 @@ import { PersonnelQueryDto, StaffPostData } from '../../configurator.dto';
 import { PersonnelService } from '../personnel.service';
 
 @Controller()
-@ApiTags('Personnel/configurators')
+@ApiTags('Configurators')
 @UseGuards(AuthenticatedGuard)
 export class ConfiguratorController {
   constructor(private personnelService: PersonnelService) {}

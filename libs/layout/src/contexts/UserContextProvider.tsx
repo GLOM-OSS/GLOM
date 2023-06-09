@@ -1,9 +1,9 @@
 import { useReducer, useContext, Reducer } from 'react';
-import { User, UserAction } from '../lib/interfaces';
+import { IUser, UserAction } from '@squoolr/interfaces';
 import UserContext, { DispatchInterface } from './userContext';
 
-const userReducer: Reducer<User & DispatchInterface, UserAction> = (
-  state: User & DispatchInterface,
+const userReducer: Reducer<IUser & DispatchInterface, UserAction> = (
+  state: IUser & DispatchInterface,
   action: UserAction
 ) => {
   switch (action.type) {
@@ -26,7 +26,7 @@ const userReducer: Reducer<User & DispatchInterface, UserAction> = (
         national_id_number: '',
         person_id: '',
         phone_number: '',
-        preferred_lang: 'Fr',
+        preferred_lang: 'fr',
       };
     }
     case 'LOAD_USER': {
@@ -42,7 +42,7 @@ function UserContextProvider({
 }: {
   children: JSX.Element;
 }): JSX.Element {
-  const initialState: User & DispatchInterface = {
+  const initialState: IUser & DispatchInterface = {
     activeYear: {
       academic_year_id: '',
       ending_date: new Date('2003-10-12'),
@@ -59,7 +59,7 @@ function UserContextProvider({
     national_id_number: '',
     person_id: '',
     phone_number: '',
-    preferred_lang: 'En',
+    preferred_lang: 'en',
     annualConfigurator: { annual_configurator_id: 'lsk', is_sudo: false },
     annualRegistry: { annual_registry_id: 'lsk' },
     annualTeacher: {
@@ -69,13 +69,20 @@ function UserContextProvider({
       teacher_id: 'htsl',
       classroomDivisions: ['Hello', 'Yes'],
     },
+    annualStudent: {
+      annual_student_id: 'wieo',
+      student_id: 'sieosl',
+      activeSemesters: [1, 2, 3],
+      classroom_code: 'IRT3',
+      classroom_level: 3,
+    },
 
     userDispatch: () => null,
   };
 
   const [userState, userDispatch] = useReducer(userReducer, initialState);
   const value = {
-    ...(userState as User),
+    ...(userState as IUser),
     userDispatch,
   };
 

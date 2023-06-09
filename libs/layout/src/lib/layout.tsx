@@ -16,37 +16,41 @@ import {
   Typography,
 } from '@mui/material';
 import { getUser, logOut } from '@squoolr/api-services';
+import {
+  INavItem,
+  IUser,
+  INavChild,
+  PersonnelRole,
+  UserRole,
+} from '@squoolr/interfaces';
 import { theme, useLanguage } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router';
-import LogoutDialog from '../components/logoutDialog';
-import PrimaryNav from '../components/primaryNav';
 import SecondaryNavItem from '../components/SecondaryNavItem';
 import SwapAcademicYear from '../components/SwapAcademicYear';
 import UserLayoutDisplay from '../components/UserLayoutDisplay';
+import LogoutDialog from '../components/logoutDialog';
+import PrimaryNav from '../components/primaryNav';
 import { useUser } from '../contexts/UserContextProvider';
-import {
-  getUserRoles,
-  NavChild,
-  NavItem,
-  PersonnelRole,
-  User,
-} from './interfaces';
+import { getUserRoles } from './helpers';
 
 export function Layout({
   navItems,
   callingApp,
 }: {
-  navItems: { role: PersonnelRole | 'administrator'; navItems: NavItem[] }[];
-  callingApp: 'admin' | 'personnel';
+  navItems: {
+    role: UserRole;
+    navItems: INavItem[];
+  }[];
+  callingApp: 'admin' | 'personnel' | 'student';
 }) {
-  const [activeNavItem, setActiveNavItem] = useState<NavItem>();
+  const [activeNavItem, setActiveNavItem] = useState<INavItem>();
   const [isSecondaryNavOpen, setIsSecondaryNavOpen] = useState<boolean>(false);
   const [activeSecondaryNavItem, setActiveSecondaryNavItem] =
-    useState<NavChild>();
+    useState<INavChild>();
   const { activeYear } = useUser();
 
   const navigate = useNavigate();
@@ -54,19 +58,19 @@ export function Layout({
   const intl = useIntl();
   const { formatMessage } = intl;
 
-  const handleSwapRole = (newRole: PersonnelRole) => {
+  const handleSwapRole = (newRole: UserRole) => {
     setActiveRole(newRole);
     localStorage.setItem('activeRole', newRole);
   };
 
   const { userDispatch } = useUser();
 
-  const [userRoles, setUserRoles] = useState<PersonnelRole[]>([]);
-  const [activeRole, setActiveRole] = useState<
-    PersonnelRole | 'administrator'
-  >();
+  const [userRoles, setUserRoles] = useState<UserRole[]>([]);
+  const [activeRole, setActiveRole] = useState<UserRole>();
 
-  const [roleNavigationItems, setRoleNavigationItems] = useState<NavItem[]>([]);
+  const [roleNavigationItems, setRoleNavigationItems] = useState<INavItem[]>(
+    []
+  );
 
   useEffect(() => {
     const RoleNavItems = navItems.find(({ role }) => role === activeRole);
@@ -112,7 +116,7 @@ export function Layout({
               ? `/${pathname.join('/')}`
               : `${children[0].route}`
           );
-        } else {
+        } else if (callingApp !== 'admin') {
           navigate(
             `/${activeRole}/${activeNavItem.route}/${children[0].route}`
           );
@@ -130,7 +134,8 @@ export function Layout({
             user,
           },
         });
-        const Roles = getUserRoles(user as User);
+        const Roles = getUserRoles(user as IUser, callingApp);
+        console.log(Roles);
         if (Roles.length === 0) navigate('/');
         setUserRoles(Roles);
 
@@ -141,10 +146,12 @@ export function Layout({
         setActiveRole(
           callingApp === 'admin'
             ? 'administrator'
+            : callingApp === 'student'
+            ? 'student'
             : Roles.includes(routeRole as PersonnelRole)
-            ? (routeRole as PersonnelRole | 'administrator')
-            : Roles.includes(storageActiveRole as PersonnelRole)
-            ? (storageActiveRole as PersonnelRole | 'administrator')
+            ? (routeRole as PersonnelRole)
+            : Roles.includes(storageActiveRole as UserRole)
+            ? (storageActiveRole as UserRole)
             : Roles[0]
         );
       })
@@ -158,7 +165,7 @@ export function Layout({
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
         localStorage.setItem('previousRoute', location.pathname); //TODO; remove in production
-        setActiveRole('teacher'); //TODO: REMOVE IN PRODUCTION
+        setActiveRole('student'); //TODO: REMOVE IN PRODUCTION
         // navigate('/');
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -169,7 +176,7 @@ export function Layout({
   useEffect(() => {
     languageDispatch({
       type:
-        localStorage.getItem('squoolr_active_language') === 'En'
+        localStorage.getItem('squoolr_active_language') === 'en'
           ? 'USE_ENGLISH'
           : 'USE_FRENCH',
     });
@@ -239,7 +246,7 @@ export function Layout({
           isLogoutDialogOpen={isConfirmLogoutDialogOpen}
           navItems={roleNavigationItems}
           openLogoutDialog={() => setIsConfirmLogoutDialogOpen(true)}
-          setActiveNavItem={(navItem: NavItem) => {
+          setActiveNavItem={(navItem: INavItem) => {
             const { children, route } = navItem;
             setActiveNavItem(navItem);
             setActiveSecondaryNavItem(
@@ -286,7 +293,7 @@ export function Layout({
           <UserLayoutDisplay
             userRoles={userRoles}
             activeRole={activeRole}
-            selectRole={(newRole: PersonnelRole) => handleSwapRole(newRole)}
+            selectRole={(newRole: UserRole) => handleSwapRole(newRole)}
           />
           <Typography variant="body2" sx={{ color: theme.common.label }}>
             {activeNavItem ? formatMessage({ id: activeNavItem.title }) : null}
@@ -448,7 +455,7 @@ export function Layout({
                               .length -
                               2
                               ? 400
-                              : 200,
+                              : 300,
                           color:
                             location.pathname.split('/').filter((_) => _ !== '')
                               .length - 2

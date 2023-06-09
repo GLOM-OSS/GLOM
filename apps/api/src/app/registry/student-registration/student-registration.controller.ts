@@ -1,17 +1,16 @@
 import {
+  Body,
   Controller,
-  Get,
   HttpException,
   HttpStatus,
-  Param,
   Post,
-  Query,
   Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Readable } from 'stream';
 import { ERR20 } from '../../../errors';
@@ -19,7 +18,7 @@ import { readAndProcessFile } from '../../../utils/csv-parser';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
 import { AuthenticatedGuard } from '../../auth/auth.guard';
-import { StudentQueryQto } from '../registry.dto';
+import { ImportOptionsDto } from '../registry.dto';
 import {
   StudentImportInterface,
   StudentRegistrationService,
@@ -27,30 +26,16 @@ import {
 
 @Controller()
 @UseGuards(AuthenticatedGuard)
+@ApiTags('Student Registrations')
 export class StudentRegistrationController {
   constructor(private studentRegistrationService: StudentRegistrationService) {}
 
-  @Get('all')
-  async findStudents(@Req() request: Request, @Query() query: StudentQueryQto) {
-    const {
-      activeYear: { academic_year_id },
-    } = request.user as DeserializeSessionData;
-    return this.studentRegistrationService.getStudents(academic_year_id, query);
-  }
-
-  @Get(':annual_student_id/details')
-  async findStudentDetalis(
-    @Param('annual_student_id') annual_student_id: string
-  ) {
-    return this.studentRegistrationService.getStudentDetails(annual_student_id);
-  }
-
-  @Post(':major_id/imports')
+  @Post('/imports')
   @Roles(Role.REGISTRY)
   @UseInterceptors(FileInterceptor('students'))
   async importStudents(
     @Req() request: Request,
-    @Param('major_id') major_id: string,
+    @Body() { major_id }: ImportOptionsDto,
     @UploadedFile() file: Express.Multer.File
   ) {
     const {
@@ -96,7 +81,7 @@ export class StudentRegistrationController {
           columns,
           Readable.from(file.buffer)
         );
-      return this.studentRegistrationService.registerNewStudents({
+      return this.studentRegistrationService.registerImportedStudents({
         school_id,
         academic_year_id,
         major_id,

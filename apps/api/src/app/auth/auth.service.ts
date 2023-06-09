@@ -103,15 +103,12 @@ export class AuthService {
     throw new UnauthorizedException({
       statusCode: HttpStatus.UNAUTHORIZED,
       error: 'Unauthorized access',
-      message: AUTH401['Fr'],
+      message: AUTH401['fr'],
     });
   }
 
   async validateLogin(request: Request, login: Omit<Login, 'password'>) {
-    const origin =
-      process.env.NODE_ENV === 'production'
-        ? new URL(request.headers.origin).hostname
-        : request.headers.origin;
+    const origin = new URL(request.headers.origin).host;
     const { login_id, school_id, is_personnel, is_parent, cookie_age } = login;
 
     let user: Omit<PassportSession, 'log_id'> = {
@@ -139,7 +136,7 @@ export class AuthService {
       throw new UnauthorizedException({
         statusCode: HttpStatus.UNAUTHORIZED,
         error: 'Unauthorized access',
-        message: AUTH401['Fr'],
+        message: AUTH401['fr'],
       });
     } else if (school_id) {
       const school = await this.schoolService.findFirst({
@@ -153,7 +150,7 @@ export class AuthService {
           throw new UnauthorizedException({
             statusCode: HttpStatus.UNAUTHORIZED,
             error: 'Unauthorized access',
-            message: AUTH401['Fr'],
+            message: AUTH401['fr'],
           }); //someone attempting to be a student
       } else if (
         !is_personnel ||
@@ -162,14 +159,14 @@ export class AuthService {
         throw new UnauthorizedException({
           statusCode: HttpStatus.UNAUTHORIZED,
           error: 'Unauthorized access',
-          message: AUTH401['Fr'],
+          message: AUTH401['fr'],
         }); //someone attempting to be a personnel
     } else {
       if (!this.checkOrigin(origin, Role.ADMIN))
         throw new UnauthorizedException({
           statusCode: HttpStatus.UNAUTHORIZED,
           error: 'Unauthorized access',
-          message: AUTH401['Fr'],
+          message: AUTH401['fr'],
         }); //attempting to be an admin
       user = {
         ...user,
@@ -194,26 +191,22 @@ export class AuthService {
     return (
       (role === Role.ADMIN &&
         origin ===
-          (env === 'production'
-            ? `admin.squoolr.com`
-            : 'http://localhost:4202')) ||
+          (env === 'production' ? process.env.ADMIN_URL : 'localhost:4202')) ||
       (role === Role.PARENT &&
         origin ===
-          (env === 'production'
-            ? `parent.squoolr.com`
-            : 'http://localhost:4203')) ||
+          (env === 'production' ? `parent.squoolr.com` : 'localhost:4203')) ||
       (role === Role.STUDENT &&
         origin ===
           (env === 'production'
             ? `${subdomain}.squoolr.com`
-            : 'http://localhost:4200')) ||
+            : 'localhost:4200')) ||
       (role !== Role.ADMIN &&
         role !== Role.PARENT &&
         role !== Role.STUDENT &&
         origin ===
           (env === 'production'
             ? `admin.${subdomain}.squoolr.com`
-            : 'http://localhost:4201'))
+            : 'localhost:4201'))
     );
   }
 
@@ -252,6 +245,19 @@ export class AuthService {
 
     //check for annual student
     const annualStudent = await this.annualStudentService.findFirst({
+      select: {
+        student_id: true,
+        annual_student_id: true,
+        Student: {
+          select: {
+            Classroom: { select: { classroom_code: true, level: true } },
+          },
+        },
+        AnnualStudentHasCreditUnits: {
+          distinct: ['semester_number'],
+          select: { semester_number: true },
+        },
+      },
       where: {
         academic_year_id,
         is_deleted: false,
@@ -259,10 +265,23 @@ export class AuthService {
       },
     });
     if (annualStudent) {
-      const { annual_student_id, student_id } = annualStudent;
+      const {
+        student_id,
+        annual_student_id,
+        Student: {
+          Classroom: { classroom_code, level: classroom_level },
+        },
+        AnnualStudentHasCreditUnits: crediUnits,
+      } = annualStudent;
       availableRoles = {
         ...availableRoles,
-        annualStudent: { annual_student_id, student_id },
+        annualStudent: {
+          student_id,
+          classroom_code,
+          classroom_level,
+          annual_student_id,
+          activeSemesters: crediUnits.map((_) => _.semester_number),
+        },
       };
       userRoles.push({
         user_id: annualStudent.annual_student_id,
@@ -373,7 +392,7 @@ export class AuthService {
         where: { OR: { is_valid: true, expires_at: { gt: new Date() } } },
       });
       if (resetPasswords === 1)
-        throw new HttpException(AUTH04['Fr'], HttpStatus.NOT_FOUND);
+        throw new HttpException(AUTH04['fr'], HttpStatus.NOT_FOUND);
       const { reset_password_id } = await this.resetPasswordService.create({
         data: {
           Login: { connect: { login_id: login.login_id } },
@@ -385,7 +404,7 @@ export class AuthService {
 
       return { reset_password_id };
     }
-    throw new HttpException(AUTH404('Email')['Fr'], HttpStatus.NOT_FOUND);
+    throw new HttpException(AUTH404('Email')['fr'], HttpStatus.NOT_FOUND);
   }
 
   async setNewPassword(
@@ -393,26 +412,36 @@ export class AuthService {
     new_password: string,
     squoolr_client: string
   ) {
-    const login = await this.loginService.findFirst({
-      where: {
-        School:
-          squoolr_client !== process.env.ADMIN_URL
-            ? { subdomain: squoolr_client }
-            : undefined,
-        ResetPasswords: {
-          some: {
-            reset_password_id,
-            is_valid: true,
-            expires_at: { gte: new Date() },
+    const resetPassword = await this.resetPasswordService.findFirst({
+      include: {
+        Login: {
+          select: {
+            cookie_age: true,
+            is_deleted: true,
+            is_personnel: true,
+            password: true,
+            login_id: true,
           },
         },
       },
+      where: {
+        Login: {
+          School:
+            process.env.NODE_ENV === 'production' &&
+            squoolr_client !== process.env.ADMIN_URL
+              ? { subdomain: squoolr_client }
+              : undefined,
+        },
+        is_valid: true,
+        reset_password_id,
+        expires_at: { gte: new Date() },
+      },
     });
-    if (login) {
+    if (resetPassword) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { created_at, person_id, school_id, ...data } = login;
+      const { Login: login } = resetPassword;
       return await this.prismaService.$transaction([
-        this.loginAuditService.create({ data }),
+        this.loginAuditService.create({ data: login }),
         this.loginService.update({
           data: {
             password: bcrypt.hashSync(new_password, Number(process.env.SALT)),
@@ -425,7 +454,7 @@ export class AuthService {
         }),
       ]);
     }
-    throw new HttpException(sAUTH404['Fr'], HttpStatus.NOT_FOUND);
+    throw new HttpException(sAUTH404['fr'], HttpStatus.NOT_FOUND);
   }
 
   async deserializeUser(
@@ -517,7 +546,19 @@ export class AuthService {
   }
 
   async getUser(email: string) {
-    return this.personService.findUnique({ where: { email } });
+    return this.personService.findUnique({
+      select: {
+        first_name: true,
+        last_name: true,
+        email: true,
+        phone_number: true,
+        national_id_number: true,
+        gender: true,
+        address: true,
+        birthdate: true,
+      },
+      where: { email },
+    });
   }
 
   async verifyPrivateCode(

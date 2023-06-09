@@ -8,6 +8,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { DeserializeSessionData, Role } from '../../../utils/types';
 import { Roles } from '../../app.decorator';
@@ -16,6 +17,7 @@ import { SemesterExamAccessPutDto } from '../registry.dto';
 import { HallAccessService } from './hall-access.service';
 
 @Controller()
+@ApiTags('Hall Accesses')
 @UseGuards(AuthenticatedGuard)
 export class HallAccessController {
   constructor(private evaluationService: HallAccessService) {}
@@ -48,5 +50,4 @@ export class HallAccessController {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
   }
-  
 }

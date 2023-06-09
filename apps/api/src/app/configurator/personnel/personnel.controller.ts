@@ -88,7 +88,7 @@ export class PersonnelController {
     const {
       annualConfigurator: { annual_configurator_id },
     } = request.user as DeserializeSessionData;
-    const squoolr_client = new URL(request.headers.origin).hostname;
+    const squoolr_client = new URL(request.headers.origin).host;
 
     try {
       const { reset_password_id } = await this.personnelService.resetPassword(

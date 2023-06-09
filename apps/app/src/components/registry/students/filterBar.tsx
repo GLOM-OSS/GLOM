@@ -6,7 +6,7 @@ import {
   OutlinedInput,
   Select,
 } from '@mui/material';
-import { Classroom, UEMajor } from '@squoolr/interfaces';
+import { Classroom, Major } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
 
@@ -21,9 +21,9 @@ export default function FilterBar({
   handleImport,
 }: {
   disabled: boolean;
-  majors: UEMajor[];
-  activeMajor?: UEMajor;
-  setActiveMajor: (major: UEMajor) => void;
+  majors: Major[];
+  activeMajor?: Major;
+  setActiveMajor: (major: Major) => void;
   classrooms: Classroom[];
   activeClassroom?: string;
   setActiveClassroom: (classroom_acronym?: string) => void;

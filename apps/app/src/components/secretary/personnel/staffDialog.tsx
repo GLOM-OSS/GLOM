@@ -89,7 +89,9 @@ export default function StaffDialog({
     initialValues,
     validationSchema,
     onSubmit: (values, { resetForm }) => {
-      handleConfirm(values, isEditDialog ? 'edit' : 'create');
+      if (isEditDialog)
+        handleConfirm({ ...activePersonnel, ...values }, 'edit');
+      else handleConfirm(values, 'create');
       resetForm();
       closeDialog();
     },
@@ -157,13 +159,13 @@ export default function StaffDialog({
             error={Boolean(formik.touched.email && formik.errors.email)}
             helperText={formik.touched.email && formik.errors.email}
             {...formik.getFieldProps('email')}
-            onChange={(e) => {
+            onBlur={(e) => {
               const email = e.target.value;
               if (email !== '')
                 getUser(e.target.value).then((person) => {
                   if (person) formik.setValues(person);
                 });
-              formik.handleChange(e);
+              formik.handleBlur(e);
             }}
           />
           <TextField

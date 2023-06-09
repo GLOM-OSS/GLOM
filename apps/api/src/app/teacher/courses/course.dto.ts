@@ -1,5 +1,11 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import {
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min
+} from 'class-validator';
 
 export class ChapterPostDto {
   @IsString()
@@ -46,4 +52,11 @@ export class LinkPostDto extends ResourceOwner {
   @IsString()
   @ApiProperty({ required: false })
   resource_name: string;
+}
+
+export class CourseQueryDto {
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({ required: true })
+  semester_number?: number;
 }

@@ -1,15 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   AnnualStudent,
-  Person, PrismaPromise,
-  Student
+  Person,
+  Prisma,
+  PrismaPromise,
+  Student,
 } from '@prisma/client';
-import { Student as StudentInface, StudentDetail } from '@squoolr/interfaces';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { AUTH404 } from '../../../../src/errors';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { StudentQueryQto } from '../registry.dto';
 
 export interface StudentImportInterface {
   matricule: string;
@@ -43,90 +43,7 @@ export interface StudentImportInterface {
 export class StudentRegistrationService {
   constructor(private prismaService: PrismaService) {}
 
-  async getStudents(
-    academic_year_id: string,
-    { classroom_code, major_code }: StudentQueryQto
-  ): Promise<StudentInface[]> {
-    const annualStudents = await this.prismaService.annualStudent.findMany({
-      select: {
-        is_active: true,
-        annual_student_id: true,
-        Student: {
-          select: { matricule: true, Login: { select: { Person: true } } },
-        },
-        AnnualClassroomDivision: {
-          select: { AnnualClassroom: { select: { classroom_acronym: true } } },
-        },
-      },
-      where: {
-        academic_year_id,
-        AnnualClassroomDivision: {
-          AnnualClassroom: {
-            classroom_code,
-            Classroom: { Major: { major_code } },
-          },
-        },
-      },
-    });
-    return annualStudents.map(
-      ({
-        is_active,
-        annual_student_id,
-        Student: {
-          matricule,
-          Login: { Person: person },
-        },
-        AnnualClassroomDivision: {
-          AnnualClassroom: { classroom_acronym },
-        },
-      }) => ({
-        matricule,
-        ...person,
-        is_active,
-        annual_student_id,
-        classroom_acronym,
-      })
-    );
-  }
-
-  async getStudentDetails(
-    annual_student_id: string
-  ): Promise<StudentDetail | null> {
-    const annualStudent = await this.prismaService.annualStudent.findUnique({
-      select: {
-        annual_student_id: true,
-        Student: {
-          select: {
-            matricule: true,
-            Tutor: { select: { Person: true } },
-            Login: { select: { Person: true } },
-          },
-        },
-      },
-      where: {
-        annual_student_id,
-      },
-    });
-    if (annualStudent) {
-      const {
-        annual_student_id,
-        Student: {
-          matricule,
-          Login: { Person: person },
-          Tutor: { Person: tutorInfo },
-        },
-      } = annualStudent;
-      return {
-        matricule,
-        ...person,
-        tutorInfo,
-        annual_student_id,
-      };
-    }
-    return null;
-  }
-
-  async registerNewStudents({
+  async registerImportedStudents({
     academic_year_id,
     importedStudentData,
     major_id,
@@ -172,7 +89,12 @@ export class StudentRegistrationService {
         email: true,
         person_id: true,
         Logins: {
-          select: { login_id: true, school_id: true, is_parent: true },
+          select: {
+            login_id: true,
+            school_id: true,
+            is_parent: true,
+            Students: { select: { student_id: true, matricule: true } },
+          },
         },
       },
       where: {
@@ -190,7 +112,7 @@ export class StudentRegistrationService {
       PrismaPromise<Person | Student | AnnualStudent>[]
     >(
       (
-        queries,
+        instructions,
         {
           tutor_address,
           tutor_email,
@@ -253,8 +175,54 @@ export class StudentRegistrationService {
           },
         };
 
+        const studentId =
+          existingAccounts
+            .find((_) => _.email === person.email)
+            ?.Logins.find((_) => _.school_id === school_id)
+            ?.Students.find((_) => _.matricule === matricule).student_id ??
+          randomUUID();
+        const studentCreateInput: Prisma.StudentCreateInput = {
+          matricule,
+          student_id: studentId,
+          Login: {
+            connect: {
+              person_id_school_id: {
+                school_id,
+                person_id: newStudentPerson.person_id,
+              },
+            },
+          },
+          Classroom: { connect: { classroom_id } },
+          Tutor: {
+            connect: {
+              login_id: tutorLoginId,
+            },
+          },
+        };
+        const annualStudentcreateInput: Prisma.AnnualStudentCreateInput = {
+          Student: {
+            connect: { matricule },
+          },
+          AnnualClassroomDivision: {
+            connect: {
+              annual_classroom_division_id,
+            },
+          },
+          AcademicYear: { connect: { academic_year_id } },
+          AnnualStudentHasCreditUnits: {
+            createMany: {
+              data: annualCreditUnit.map(
+                ({ annual_credit_unit_id, semester_number }) => ({
+                  semester_number,
+                  annual_credit_unit_id,
+                })
+              ),
+              skipDuplicates: true,
+            },
+          },
+        };
         return [
-          ...queries,
+          ...instructions,
           this.prismaService.person.upsert({
             create: {
               ...newStudentPerson,
@@ -277,44 +245,17 @@ export class StudentRegistrationService {
             where: { email: tutor_email },
           }),
           this.prismaService.student.upsert({
-            create: {
-              matricule,
-              Login: {
-                connect: {
-                  person_id_school_id: {
-                    school_id,
-                    person_id: newStudentPerson.person_id,
-                  },
-                },
-              },
-              Classroom: { connect: { classroom_id } },
-              Tutor: {
-                connect: {
-                  login_id: tutorLoginId,
-                },
-              },
-            },
-            update: {},
+            create: studentCreateInput,
+            update: studentCreateInput,
             where: { matricule },
           }),
-          this.prismaService.annualStudent.create({
-            data: {
-              Student: {
-                connect: { matricule },
-              },
-              AnnualClassroomDivision: {
-                connect: {
-                  annual_classroom_division_id,
-                },
-              },
-              AcademicYear: { connect: { academic_year_id } },
-              AnnualStudentHasCreditUnits: {
-                create: annualCreditUnit.map(
-                  ({ annual_credit_unit_id, semester_number }) => ({
-                    semester_number,
-                    annual_credit_unit_id,
-                  })
-                ),
+          this.prismaService.annualStudent.upsert({
+            create: annualStudentcreateInput,
+            update: annualStudentcreateInput,
+            where: {
+              student_id_academic_year_id: {
+                student_id: studentId,
+                academic_year_id,
               },
             },
           }),

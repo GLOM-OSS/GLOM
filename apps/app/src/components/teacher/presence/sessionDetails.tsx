@@ -16,6 +16,14 @@ import {
   Typography,
 } from '@mui/material';
 import { MobileDatePicker, TimePicker } from '@mui/x-date-pickers';
+import {
+  createPresenceList,
+  getCourseChapters,
+  getCourseStudents,
+  getPresenceListDetails,
+  reinitialisePresenceList,
+  updatePresenceList,
+} from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
 import {
   CreatePresenceList,
@@ -34,15 +42,7 @@ import { NoTableElement } from '../courseLane';
 import PresenceStudentLane from './presenceStudentLane';
 
 export default function SessionDetails({
-  session: {
-    presence_list_date: pld,
-    start_time: s_time,
-    end_time: e_time,
-    is_published: ip,
-    chapters: c,
-    students: s,
-    presence_list_id: pl_id,
-  },
+  session,
   reset,
   back,
 }: {
@@ -68,16 +68,15 @@ export default function SessionDetails({
       notDoneChapterNotif.dismiss();
     }
     setNotDoneChapterNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD subject's notDoneChapters with data annual_credit_unit_subject_id
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newChapters: PresenceListChapter[] = [];
-        setNotDoneChapters(newChapters);
+    getCourseChapters(annual_credit_unit_subject_id, true)
+      .then((chapters) => {
+        console.log(chapters);
+        setNotDoneChapters(chapters);
         setAreNotDoneChaptersLoading(false);
         notif.dismiss();
         setNotDoneChapterNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingNotDoneChapters' }),
         });
@@ -89,20 +88,78 @@ export default function SessionDetails({
                 loadNotDoneChapters(annual_credit_unit_subject_id)
               }
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getNotDoneChaptersFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'getNotDoneChaptersFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
+  };
+
+  const [
+    {
+      presence_list_id: pl_id,
+      presence_list_date: pld,
+      start_time: s_time,
+      end_time: e_time,
+      is_published: ip,
+      chapters: c,
+      students: s,
+    },
+    setPresenceList,
+  ] = useState<PresenceList>(session);
+  const [displayStudents, setDisplayStudents] = useState<Student[]>(s);
+
+  const [presenceNotif, setPresenceNotif] = useState<useNotification>();
+  const [isPresenceListLoading, setIsPresenceListLoading] =
+    useState<boolean>(false);
+
+  const loadPresenceDetails = () => {
+    setIsPresenceListLoading(true);
+    const notif = new useNotification();
+    if (presenceNotif) {
+      presenceNotif.dismiss();
+    }
+    setPresenceNotif(notif);
+    if (pl_id !== 'new')
+      getPresenceListDetails(pl_id)
+        .then((presenceList) => {
+          setPresenceList(presenceList);
+          if (presenceList?.is_published)
+            setDisplayStudents(presenceList.students);
+          setIsPresenceListLoading(false);
+          notif.dismiss();
+          setPresenceNotif(undefined);
+        })
+        .catch((error) => {
+          notif.notify({
+            render: formatMessage({ id: 'loadingPresenceLists' }),
+          });
+          notif.update({
+            type: 'ERROR',
+            render: (
+              <ErrorMessage
+                retryFunction={() => loadPresenceDetails()}
+                notification={notif}
+                message={
+                  error?.message ||
+                  formatMessage({ id: 'getPresenceListsFailed' })
+                }
+              />
+            ),
+            autoClose: false,
+            icon: () => <ReportRounded fontSize="medium" color="error" />,
+          });
+        });
   };
 
   const [areSubjectStudentsLoading, setAreSubjectStudentsLoading] =
     useState<boolean>(false);
-  const [subjectStudents, setSubjectStudents] = useState<Student[]>([]);
+
   const [subjectStudentNotif, setSubjectStudentNotif] =
     useState<useNotification>();
 
@@ -113,31 +170,14 @@ export default function SessionDetails({
       subjectStudentNotif.dismiss();
     }
     setSubjectStudentNotif(notif);
-    setTimeout(() => {
-      //TODO: CALL API HERE TO LOAD student's offering subject (subjectStudents) with data annual_credit_unit_subject_id
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newStudents: Student[] = [
-          {
-            annual_student_id: 'sieodsl',
-            birthdate: new Date(),
-            classroom_acronym: 'IRT3',
-            email: 'nguemeteulriche@gmail.com',
-            first_name: 'Ulriche Gaella',
-            gender: 'Female',
-            is_active: true,
-            last_name: 'Mache Nguemete',
-            matricule: '18C005',
-            national_id_number: '000310122',
-            phone_number: '693256789',
-            preferred_lang: 'fr',
-          },
-        ];
-        setSubjectStudents(newStudents);
+    getCourseStudents(annual_credit_unit_subject_id)
+      .then((students) => {
+        setDisplayStudents(students);
         setAreSubjectStudentsLoading(false);
         notif.dismiss();
         setSubjectStudentNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.notify({
           render: formatMessage({ id: 'loadingStudents' }),
         });
@@ -149,33 +189,28 @@ export default function SessionDetails({
                 loadSubjectStudents(annual_credit_unit_subject_id)
               }
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'getSubjectStudentsFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'getSubjectStudentsFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   useEffect(() => {
-    if (!ip) {
-      loadSubjectStudents(annual_credit_unit_subject_id as string);
-      loadNotDoneChapters(annual_credit_unit_subject_id as string);
+    if (annual_credit_unit_subject_id) {
+      if (!ip) {
+        loadNotDoneChapters(annual_credit_unit_subject_id);
+        loadSubjectStudents(annual_credit_unit_subject_id);
+      }
+      loadPresenceDetails();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const [displayStudents, setDisplayStudents] = useState<Student[]>(s);
-
-  useEffect(() => {
-    if (!ip) {
-      setDisplayStudents(subjectStudents);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subjectStudents]);
+  }, [annual_credit_unit_subject_id]);
 
   const [addedChapterIds, setAddedChapterIds] = useState<string[]>([]);
   const [addedStudentIds, setAddedStudentIds] = useState<string[]>([]);
@@ -243,14 +278,10 @@ export default function SessionDetails({
     notif.notify({
       render: formatMessage({ id: 'reinitialisingPresenceList' }),
     });
-    setTimeout(() => {
-      //TODO: CALL API HERE TO reinitialise presence list with data presenceList
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newStudents: Student[] = [];
-        setSubjectStudents(newStudents);
-        setIsRenitialising(false);
+    reinitialisePresenceList(pl_id)
+      .then(() => {
         reset();
+        setIsRenitialising(false);
         setRemovedChapterIds([]);
         setRemovedStudentIds([]);
         CL = [];
@@ -259,22 +290,25 @@ export default function SessionDetails({
           render: formatMessage({ id: 'reinitialisePresenceListSuccess' }),
         });
         setReinitialiseNotif(undefined);
-      } else {
+        back();
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() => reinitialise(presenceList)}
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({ id: 'reinitialisePresenceListFailed' })}
+              message={
+                error?.message ||
+                formatMessage({ id: 'reinitialisePresenceListFailed' })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -295,38 +329,19 @@ export default function SessionDetails({
         id: shouldPublish ? 'publishingPresenceList' : 'savingPresenceList',
       }),
     });
-    setTimeout(() => {
-      //TODO: CALL API HERE TO create and or publish presence list with data presenceList
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newStudents: Student[] = [];
-        setSubjectStudents(newStudents);
-        setIsSubmitting(false);
+    createPresenceList(presenceList)
+      .then((newPresenceList) => {
         setRemovedChapterIds([]);
         setRemovedStudentIds([]);
-        const { end_time, start_time, presence_list_date } = presenceList;
-        //TODO: should contain the newly created presenceList
-        const newPresenceList: PresenceList = {
-          chapters: [],
-          end_time,
-          is_published: true,
-          presence_list_date,
-          presence_list_id: 'wieos',
-          start_time,
-          students: [],
-          subject_code: 'wiels',
-          subject_title: "Introduction a l'algorithmique",
-        };
         reset(newPresenceList);
         notif.update({
           render: formatMessage({
-            id: shouldPublish
-              ? 'publishPresenceListSuccess'
-              : 'savePresenceListSuccess',
+            id: 'createPresenceListSuccess',
           }),
         });
-        setSubmitNotif(undefined);
-      } else {
+        back();
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
@@ -335,22 +350,22 @@ export default function SessionDetails({
                 createNewPresenceList(presenceList, shouldPublish)
               }
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({
-                id: shouldPublish
-                  ? 'publishPresenceListFailed'
-                  : 'savePresenceListFailed',
-              })}
+              message={
+                error?.message ||
+                formatMessage({
+                  id: 'createPresenceListFailed',
+                })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      })
+      .finally(() => setIsSubmitting(false));
   };
 
-  const updatePresenceList = (
+  const updatePresenceListHandler = (
     presenceList: UpdatePresenceList,
     shouldPublish: boolean
   ) => {
@@ -365,29 +380,13 @@ export default function SessionDetails({
         id: shouldPublish ? 'publishingPresenceList' : 'savingPresenceList',
       }),
     });
-    setTimeout(() => {
-      //TODO: CALL API HERE TO update and or publish presence list with data presenceList
-      // eslint-disable-next-line no-constant-condition
-      if (5 > 4) {
-        const newStudents: Student[] = [];
-        setSubjectStudents(newStudents);
+    updatePresenceList(pl_id, presenceList, shouldPublish)
+      .then(() => {
         setIsSubmitting(false);
         setRemovedChapterIds([]);
         setRemovedStudentIds([]);
         const { end_time, start_time, presence_list_date } = presenceList;
-        const newPresenceList: PresenceList = {
-          chapters: [],
-          end_time,
-          is_published: true,
-          presence_list_date,
-          presence_list_id: 'wieos',
-          start_time,
-          students: [],
-          subject_code: 'wiels',
-          subject_title: "Introduction a l'algorithmique",
-        };
-
-        reset(newPresenceList);
+        reset({ ...session, end_time, start_time, presence_list_date });
         notif.update({
           render: formatMessage({
             id: shouldPublish
@@ -396,28 +395,30 @@ export default function SessionDetails({
           }),
         });
         setSubmitNotif(undefined);
-      } else {
+      })
+      .catch((error) => {
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
               retryFunction={() =>
-                updatePresenceList(presenceList, shouldPublish)
+                updatePresenceListHandler(presenceList, shouldPublish)
               }
               notification={notif}
-              //TODO: message should come from backend
-              message={formatMessage({
-                id: shouldPublish
-                  ? 'publishPresenceListFailed'
-                  : 'savePresenceListFailed',
-              })}
+              message={
+                error?.message ||
+                formatMessage({
+                  id: shouldPublish
+                    ? 'publishPresenceListFailed'
+                    : 'savePresenceListFailed',
+                })
+              }
             />
           ),
           autoClose: false,
           icon: () => <ReportRounded fontSize="medium" color="error" />,
         });
-      }
-    }, 3000);
+      });
   };
 
   const save = (shouldPublish: boolean, presence_list_id?: string) => {
@@ -431,7 +432,7 @@ export default function SessionDetails({
         removedStudentIds,
         start_time: startTime,
       };
-      updatePresenceList(newPresenceList, shouldPublish);
+      updatePresenceListHandler(newPresenceList, shouldPublish);
     } else {
       const newPresenceList: CreatePresenceList = {
         annual_credit_unit_subject_id: String(annual_credit_unit_subject_id),
@@ -539,7 +540,9 @@ export default function SessionDetails({
                       if (newValue) setSessionDate(newValue);
                     }}
                     disabled={
-                      areNotDoneChaptersLoading || areSubjectStudentsLoading
+                      areNotDoneChaptersLoading ||
+                      isPresenceListLoading ||
+                      areSubjectStudentsLoading
                     }
                     renderInput={(params) => (
                       <TextField {...params} color="primary" size="small" />

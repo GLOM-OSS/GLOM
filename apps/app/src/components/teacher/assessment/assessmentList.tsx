@@ -8,7 +8,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Typography
+  Typography,
 } from '@mui/material';
 import { getCourseAssessments } from '@squoolr/api-services';
 import { Assessment } from '@squoolr/interfaces';
@@ -25,10 +25,12 @@ export default function AssessmentList({
   createAssessment,
   isCreatingAssessment,
   setActiveAssessment,
+  isAssignment = false,
 }: {
   createAssessment: () => void;
   isCreatingAssessment: boolean;
   setActiveAssessment: (assessment: Assessment) => void;
+  isAssignment?: boolean;
 }) {
   const { formatMessage } = useIntl();
   const { annual_credit_unit_subject_id } = useParams();
@@ -38,14 +40,17 @@ export default function AssessmentList({
     useState<boolean>(false);
   const [assessmentNotif, setAssessmentNotif] = useState<useNotification>();
 
-  const loadAssessments = () => {
+  const loadAssessments = (
+    annual_credit_unit_subject_id: string,
+    isAssignment: boolean
+  ) => {
     setAreAssessmentsLoading(true);
     const notif = new useNotification();
     if (assessmentNotif) {
       assessmentNotif.dismiss();
     }
     setAssessmentNotif(notif);
-    getCourseAssessments(annual_credit_unit_subject_id as string)
+    getCourseAssessments(annual_credit_unit_subject_id, isAssignment)
       .then((assessments) => {
         setAssessments(assessments);
         setAreAssessmentsLoading(false);
@@ -54,16 +59,25 @@ export default function AssessmentList({
       })
       .catch((error) => {
         notif.notify({
-          render: formatMessage({ id: 'loadingAssessments' }),
+          render: formatMessage({
+            id: isAssignment ? 'loadingAssignments' : 'loadingAssessments',
+          }),
         });
         notif.update({
           type: 'ERROR',
           render: (
             <ErrorMessage
-              retryFunction={() => loadAssessments()}
+              retryFunction={() =>
+                loadAssessments(annual_credit_unit_subject_id, isAssignment)
+              }
               notification={notif}
               message={
-                error?.message || formatMessage({ id: 'getAssessmentsFailed' })
+                error?.message ||
+                formatMessage({
+                  id: isAssignment
+                    ? 'getAssignmentsFailed'
+                    : 'getAssessmentsFailed',
+                })
               }
             />
           ),
@@ -74,12 +88,24 @@ export default function AssessmentList({
   };
 
   useEffect(() => {
-    loadAssessments();
+    loadAssessments(annual_credit_unit_subject_id as string, isAssignment);
     return () => {
       //TODO: cleanup axios call above
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const ll = [
+    'number',
+    'createdAt',
+    'evaluationDate',
+    'evaluationType',
+    'duration',
+  ];
+
+  const kk = ['number', 'creationDate', 'dueDate', 'submissionType'];
+
+  const displayTableHeader = isAssignment ? kk : ll;
 
   return (
     <Box
@@ -97,7 +123,7 @@ export default function AssessmentList({
         }}
       >
         <Typography variant="h6">
-          {formatMessage({ id: 'assessments' })}
+          {formatMessage({ id: isAssignment ? 'assignments' : 'assessments' })}
         </Typography>
         <Button
           onClick={createAssessment}
@@ -114,7 +140,9 @@ export default function AssessmentList({
             />
           }
         >
-          {formatMessage({ id: 'newAssessment' })}
+          {formatMessage({
+            id: isAssignment ? 'newAssignment' : 'newAssessment',
+          })}
         </Button>
       </Box>
       <Scrollbars autoHide>
@@ -125,13 +153,7 @@ export default function AssessmentList({
             }}
           >
             <TableRow>
-              {[
-                'number',
-                'createdAt',
-                'evaluationType',
-                'evaluationDate',
-                'duration',
-              ].map((val, index) => (
+              {displayTableHeader.map((val, index) => (
                 <TableCell key={index}>{formatMessage({ id: val })}</TableCell>
               ))}
             </TableRow>
@@ -139,12 +161,16 @@ export default function AssessmentList({
           <TableBody>
             {areAssessmentsLoading ? (
               [...new Array(10)].map((_, index) => (
-                <TableLaneSkeleton cols={5} key={index} />
+                <TableLaneSkeleton cols={isAssignment ? 4 : 5} key={index} />
               ))
             ) : assessments.length === 0 ? (
               <NoTableElement
-                message={formatMessage({ id: 'noAssessmentsAvailableYet' })}
-                colSpan={5}
+                message={formatMessage({
+                  id: isAssignment
+                    ? 'noAssignmentAvailableYet'
+                    : 'noAssessmentsAvailableYet',
+                })}
+                colSpan={isAssignment ? 4 : 5}
               />
             ) : (
               assessments.map((assessment, index) => (
@@ -153,6 +179,7 @@ export default function AssessmentList({
                   assessment={assessment}
                   position={index + 1}
                   onSelect={() => setActiveAssessment(assessment)}
+                  isAssignment={isAssignment}
                   key={index}
                 />
               ))

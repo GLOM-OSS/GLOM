@@ -12,12 +12,12 @@ import enMessages from './languages/en-us';
 
 const App = ({ children }: { children: React.ReactNode }) => {
   const { activeLanguage } = useLanguage();
-  const activeMessages = activeLanguage === 'Fr' ? frMessages : enMessages;
+  const activeMessages = activeLanguage === 'fr' ? frMessages : enMessages;
   return (
     <IntlProvider
       messages={activeMessages}
       locale={activeLanguage}
-      defaultLocale="Fr"
+      defaultLocale="fr"
     >
       <ThemeProvider theme={theme}>
         <ToastContainer

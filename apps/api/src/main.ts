@@ -12,20 +12,27 @@ import { AppModule } from './app/app.module';
 import { HttpExceptionFilter } from './errors/http-exception.filter';
 
 async function bootstrap() {
+  const origin =
+    process.env.NODE_ENV === 'production'
+      ? ['https://squoolr.com', /\.squoolr\.com$/]
+      : [
+          'http://localhost:3000', //landing
+          'http://localhost:4200', //student
+          'http://localhost:4201', //personnel
+          'http://localhost:4202', //admin
+        ];
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: {
-      origin:
-        process.env.NODE_ENV === 'production'
-          ? ['https://squoolr.com', /\.squoolr\.com$/]
-          : [
-              'http://localhost:4200', //student
-              'http://localhost:4201', //personnel
-              'http://localhost:4202', //admin
-            ],
+      origin,
       credentials: true,
     },
   });
-  app.useStaticAssets('uploads');
+  app.useStaticAssets('uploads', {
+    setHeaders(res) {
+      //TODO change cors restriction from * to <origin>
+      res.set('Access-Control-Allow-Origin', '*');
+    },
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       forbidNonWhitelisted: true,

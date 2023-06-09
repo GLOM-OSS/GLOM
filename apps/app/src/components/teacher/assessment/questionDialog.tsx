@@ -7,7 +7,12 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
   IconButton,
+  InputLabel,
+  MenuItem,
+  OutlinedInput,
+  Select,
   TextField,
   Tooltip,
   Typography,
@@ -18,6 +23,7 @@ import { theme } from '@squoolr/theme';
 import { useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';
+import { acceptedFileFormats } from '../coursePlan/fileDisplayDialog';
 
 export default function QuestionDialog({
   isDialogOpen,
@@ -25,14 +31,17 @@ export default function QuestionDialog({
   closeDialog,
   assessment_id,
   onSubmit,
+  isAssignment = false,
 }: {
   isDialogOpen: boolean;
+  isAssignment?: boolean;
   onSubmit: (
     val: CreateQuestion,
     res: {
       id: string;
       file: File;
-    }[]
+    }[],
+    answerFile?: File
   ) => void;
   //   handleSubmit: (value: ActivateAssessment) => void;
   closeDialog: () => void;
@@ -40,6 +49,11 @@ export default function QuestionDialog({
 }) {
   const { formatMessage } = useIntl();
 
+  const [activeQuestionType, setActiveQuestionType] = useState<
+    'MCQ' | 'Structural' | 'File'
+  >('MCQ');
+
+  const [questionAnswer, setQuestionAnswer] = useState<string | File>();
   const [question, setQuestion] = useState<string>('');
   const [score, setScore] = useState<number>(0);
   const [options, setOptions] = useState<
@@ -67,22 +81,58 @@ export default function QuestionDialog({
 
   const submitQuestion = () => {
     if (question) {
-      if (options.length > 0) {
-        if (score > 0) {
-          const submitData: CreateQuestion = {
-            assessment_id,
-            question,
-            question_mark: score,
-            questionOptions: options.map(({ is_answer, option }) => ({
-              is_answer,
-              option,
-            })),
-          };
-          onSubmit(submitData, uploadFiles);
-          close();
-        } else
-          alert(formatMessage({ id: 'questionMarkMustBeGreaterThanZero' }));
-      } else alert(formatMessage({ id: 'questionMustHaveOptions' }));
+      if (score > 0) {
+        switch (activeQuestionType) {
+          case 'File': {
+            const submitData: CreateQuestion = {
+              question,
+              assessment_id,
+              question_mark: score,
+              question_type: 'File',
+              question_answer: null,
+            };
+            onSubmit(submitData, uploadFiles, questionAnswer as File);
+            close();
+            break;
+          }
+          case 'MCQ': {
+            if (options.length > 1) {
+              if (options.find(({ is_answer }) => is_answer)) {
+                const submitData: CreateQuestion = {
+                  question,
+                  assessment_id,
+                  question_mark: score,
+                  question_type: 'MCQ',
+                  question_answer: null,
+                  questionOptions: options.map(({ is_answer, option }) => ({
+                    is_answer,
+                    option,
+                  })),
+                };
+                onSubmit(submitData, uploadFiles);
+                close();
+              } else
+                alert(
+                  formatMessage({ id: 'questionMustHaveAtLeastOneAnswer' })
+                );
+            } else
+              alert(formatMessage({ id: 'questionMustHaveAtLeastTwoOptions' }));
+            break;
+          }
+          case 'Structural': {
+            const submitData: CreateQuestion = {
+              question,
+              assessment_id,
+              question_mark: score,
+              question_type: 'Structural',
+              question_answer: questionAnswer ? (questionAnswer as string) : '',
+            };
+            onSubmit(submitData, uploadFiles);
+            close();
+            break;
+          }
+        }
+      } else alert(formatMessage({ id: 'questionMarkMustBeGreaterThanZero' }));
     } else alert(formatMessage({ id: 'fillInQuestion' }));
   };
 
@@ -101,9 +151,58 @@ export default function QuestionDialog({
         }}
       >
         <DialogTitle>
-          {formatMessage({
-            id: 'createQuestion',
-          })}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'auto auto 1fr',
+              columnGap: 2,
+              alignItems: 'center',
+            }}
+          >
+            <Typography variant="h6">
+              {formatMessage({
+                id: 'createQuestion',
+              })}
+            </Typography>
+            <FormControl>
+              <InputLabel id="questionType">
+                {formatMessage({ id: 'questionType' })}
+              </InputLabel>
+              <Select
+                labelId="questionType"
+                value={activeQuestionType}
+                sx={{ minWidth: '200px' }}
+                size="small"
+                onChange={(event) => {
+                  setActiveQuestionType(
+                    event.target.value as 'MCQ' | 'Structural' | 'File'
+                  );
+                  setQuestionAnswer(undefined);
+                }}
+                input={
+                  <OutlinedInput
+                    label={formatMessage({ id: 'questionType' })}
+                  />
+                }
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 48 * 4.5 + 8,
+                    },
+                  },
+                }}
+              >
+                {(isAssignment
+                  ? ['MCQ', 'Structural', 'File']
+                  : ['MCQ', 'Structural']
+                ).map((_, index) => (
+                  <MenuItem key={index} value={_}>
+                    {formatMessage({ id: _ })}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
         </DialogTitle>
         <DialogContent
           sx={{
@@ -294,20 +393,54 @@ export default function QuestionDialog({
                 </Box>
               );
             })}
-            <Button
-              variant="text"
-              color="primary"
-              size="small"
-              onClick={() =>
-                setOptions([
-                  ...options,
-                  { is_answer: false, option: '', id: crypto.randomUUID() },
-                ])
-              }
-              sx={{ justifySelf: 'end', textTransform: 'none' }}
-            >
-              {formatMessage({ id: 'addOption' })}
-            </Button>
+            {activeQuestionType === 'MCQ' ? (
+              <Button
+                variant="text"
+                color="primary"
+                size="small"
+                onClick={() =>
+                  setOptions([
+                    ...options,
+                    { is_answer: false, option: '', id: crypto.randomUUID() },
+                  ])
+                }
+                sx={{ justifySelf: 'end', textTransform: 'none' }}
+              >
+                {formatMessage({ id: 'addOption' })}
+              </Button>
+            ) : activeQuestionType === 'Structural' ? (
+              <TextField
+                multiline
+                rows={4}
+                placeholder={formatMessage({ id: 'questionAnswer' })}
+                value={questionAnswer}
+                onChange={(event) => setQuestionAnswer(event.target.value)}
+              />
+            ) : questionAnswer ? (
+              <Typography color={theme.palette.success.main}>
+                {formatMessage({ id: 'responseFileAdded' })}
+              </Typography>
+            ) : (
+              <Box>
+                <input
+                  id="add-answer-button"
+                  accept={acceptedFileFormats.map((_) => `.${_}`).join(',')}
+                  type="file"
+                  hidden
+                  onChange={(event) => {
+                    const tt = event.target.files;
+                    if (tt) {
+                      setQuestionAnswer(tt[0]);
+                    }
+                  }}
+                />
+                <label htmlFor="add-answer-button">
+                  <Button variant="outlined" color="primary" component="span">
+                    {formatMessage({ id: 'addAnswerFile' })}
+                  </Button>
+                </label>
+              </Box>
+            )}
           </Box>
         </DialogContent>
         <DialogActions>

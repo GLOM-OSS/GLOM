@@ -1,8 +1,22 @@
 import { DeleteOutlined, EditOutlined } from '@mui/icons-material';
-import { Box, Chip, IconButton, Tooltip, Typography } from '@mui/material';
-import { Question, QuestionOption } from '@squoolr/interfaces';
+import {
+  Box,
+  Chip,
+  IconButton,
+  lighten,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import {
+  ICorrectedQuestion,
+  Question,
+  QuestionAnswer,
+  QuestionOption,
+} from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
+import { FileIcon } from '../coursePlan/fileDialog';
 
 export default function QuestionDisplay({
   question: {
@@ -10,19 +24,36 @@ export default function QuestionDisplay({
     questionOptions: qo,
     questionResources: qr,
     question_mark: qm,
+    question_answer: qa,
+    question_type: qt,
   },
+  question,
   position: p,
   onDelete,
   disabled,
   isResponse = false,
   responses,
+  isActivated,
+  getTeacherCorrections,
+  updatedCorrection,
+  isPublished = false,
 }: {
-  question: Question;
+  isPublished?: boolean;
+  question: Question | QuestionAnswer;
   position: number;
   onDelete: () => void;
   disabled: boolean;
   isResponse?: boolean;
   responses?: string[];
+  isActivated: boolean;
+  getTeacherCorrections?: (val: ICorrectedQuestion) => void;
+  updatedCorrection?:
+    | ICorrectedQuestion
+    | {
+        question_id: string;
+        question_mark: number | null;
+        teacher_comment: string | null;
+      };
 }) {
   const { formatMessage } = useIntl();
   const shuffleOptions = (array: QuestionOption[]) => {
@@ -34,6 +65,7 @@ export default function QuestionDisplay({
     }
     return array;
   };
+  const cc = question as QuestionAnswer;
 
   return (
     <Box
@@ -43,7 +75,12 @@ export default function QuestionDisplay({
         columnGap: theme.spacing(2),
         paddingBottom: 1,
         marginBottom: theme.spacing(2),
-        borderBottom: `1px solid ${theme.common.line}`,
+        padding: 2,
+        backgroundColor:
+          !updatedCorrection ||
+          (isResponse && updatedCorrection.question_mark !== null)
+            ? 'initial'
+            : lighten(theme.palette.secondary.main, 0.9),
       }}
     >
       <Typography>{`${p}.`}</Typography>
@@ -88,37 +125,132 @@ export default function QuestionDisplay({
             columnGap: theme.spacing(2),
           }}
         >
-          <Box
-            sx={{
-              display: 'grid',
-              gridAutoFlow: 'column',
-              alignItems: 'center',
-              justifyContent: 'start',
-              columnGap: theme.spacing(1),
-              marginTop: theme.spacing(0.5),
-            }}
-          >
-            {(isResponse ? qo : shuffleOptions(qo)).map(
-              ({ is_answer, option, question_option_id }, index) =>
-                is_answer ? (
-                  <Chip
-                    color="success"
-                    size="small"
-                    label={`${String.fromCharCode(65 + index)}. ${option}`}
-                  />
-                ) : responses?.includes(question_option_id) ? (
-                  <Chip
-                    color="error"
-                    size="small"
-                    label={`${String.fromCharCode(65 + index)}. ${option}`}
-                  />
+          {qt === 'MCQ' ? (
+            <Box
+              sx={{
+                display: 'grid',
+                gridAutoFlow: 'column',
+                alignItems: 'center',
+                justifyContent: 'start',
+                columnGap: theme.spacing(1),
+                marginTop: theme.spacing(0.5),
+              }}
+            >
+              {(isResponse ? qo : shuffleOptions(qo)).map(
+                ({ is_answer, option, question_option_id }, index) =>
+                  is_answer ? (
+                    <Chip
+                      color="success"
+                      size="small"
+                      label={`${String.fromCharCode(65 + index)}. ${option}`}
+                    />
+                  ) : responses?.includes(question_option_id) ? (
+                    <Chip
+                      color="error"
+                      size="small"
+                      label={`${String.fromCharCode(65 + index)}. ${option}`}
+                    />
+                  ) : (
+                    <Typography>{`${String.fromCharCode(
+                      65 + index
+                    )}. ${option}`}</Typography>
+                  )
+              )}
+            </Box>
+          ) : qt === 'Structural' ? (
+            <Box sx={{ display: 'grid', rowGap: 2 }}>
+              <Typography
+                variant={'body2'}
+                sx={{ fontStyle: isResponse ? 'italic' : 'normal' }}
+              >
+                {isResponse ? cc.response : qa}
+              </Typography>
+              {isResponse &&
+                (isPublished || !cc.response ? (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: '300',
+                      color: !cc.response ? theme.palette.error.main : '',
+                    }}
+                  >
+                    {!cc.response
+                      ? formatMessage({ id: 'studentDidNotAnswer' })
+                      : updatedCorrection?.teacher_comment}
+                  </Typography>
                 ) : (
-                  <Typography>{`${String.fromCharCode(
-                    65 + index
-                  )}. ${option}`}</Typography>
-                )
-            )}
-          </Box>
+                  <TextField
+                    variant="standard"
+                    fullWidth
+                    color="primary"
+                    multiline
+                    size="small"
+                    disabled={disabled}
+                    value={updatedCorrection?.teacher_comment}
+                    onChange={(event) => {
+                      if (getTeacherCorrections)
+                        getTeacherCorrections({
+                          question_mark: cc.acquired_mark ?? 0,
+                          question_id: cc.question_id,
+                          teacher_comment: event.target.value,
+                        });
+                    }}
+                    placeholder={formatMessage({ id: 'teacherComment' })}
+                  />
+                ))}
+            </Box>
+          ) : (!isResponse && !qa) || (isResponse && !cc.response) ? (
+            <Typography variant="body2" color={theme.palette.error.main}>
+              {formatMessage({ id: 'noFileYet' })}
+            </Typography>
+          ) : (
+            <Box sx={{ display: 'grid', rowGap: 2 }}>
+              <Box sx={{ justifySelf: 'start' }}>
+                <FileIcon
+                  name={`${
+                    isResponse
+                      ? (cc.response as string).split('.').slice(0, -1).join('')
+                      : formatMessage({ id: 'correction' })
+                  }.${
+                    isResponse
+                      ? (cc.response as string).split('.').slice(-1)[0]
+                      : (qa as string).split('.').slice(-1)[0]
+                  }`}
+                  resource_ref={
+                    isResponse ? (cc.response as string) : (qa as string)
+                  }
+                  resource_type="FILE"
+                />
+              </Box>
+              {isResponse &&
+                (isPublished ? (
+                  <Typography variant="body2" sx={{ fontWeight: '300' }}>
+                    {updatedCorrection?.teacher_comment}
+                  </Typography>
+                ) : (
+                  <TextField
+                    variant="standard"
+                    fullWidth
+                    color="primary"
+                    multiline
+                    size="small"
+                    disabled={disabled}
+                    value={updatedCorrection?.teacher_comment}
+                    onChange={(event) => {
+                      if (getTeacherCorrections)
+                        getTeacherCorrections({
+                          question_mark: updatedCorrection
+                            ? updatedCorrection.question_mark ?? 0
+                            : cc.acquired_mark ?? 0,
+                          question_id: cc.question_id,
+                          teacher_comment: event.target.value,
+                        });
+                    }}
+                    placeholder={formatMessage({ id: 'teacherComment' })}
+                  />
+                ))}
+            </Box>
+          )}
           <Box
             sx={{
               display: 'grid',
@@ -127,14 +259,61 @@ export default function QuestionDisplay({
               alignItems: 'end',
             }}
           >
-            <Chip
-              sx={{
-                color: theme.common.offWhite,
-                backgroundColor: theme.common.titleActive,
-              }}
-              label={qm}
-            />
-            {!isResponse && (
+            {isResponse && qt !== 'MCQ' ? (
+              !cc.response ? (
+                <Chip
+                  color="error"
+                  sx={{ color: theme.common.offWhite }}
+                  label={`0 / ${qm}`}
+                />
+              ) : isPublished ? (
+                <Chip
+                  color={
+                    Number(updatedCorrection?.question_mark) < qm * 0.6
+                      ? 'error'
+                      : 'success'
+                  }
+                  sx={{ color: theme.common.offWhite }}
+                  label={`${updatedCorrection?.question_mark} / ${qm}`}
+                />
+              ) : (
+                <TextField
+                  type="number"
+                  size="small"
+                  disabled={disabled}
+                  placeholder={formatMessage({ id: 'mark' })}
+                  value={updatedCorrection?.question_mark}
+                  //TODO: GIVEN MARK SHOULD NOT BE ABOVE qm
+                  onChange={(event) => {
+                    const val = Number(event.target.value);
+                    if (val >= 0 && val <= cc.question_mark)
+                      if (getTeacherCorrections)
+                        getTeacherCorrections({
+                          question_mark: val,
+                          question_id: cc.question_id,
+                          teacher_comment: updatedCorrection
+                            ? updatedCorrection.teacher_comment ?? ''
+                            : cc.teacher_comment ?? '',
+                        });
+                  }}
+                  sx={{
+                    width: '80px',
+                  }}
+                  InputProps={{
+                    endAdornment: `/${qm}`,
+                  }}
+                />
+              )
+            ) : (
+              <Chip
+                sx={{
+                  color: theme.common.offWhite,
+                  backgroundColor: theme.common.titleActive,
+                }}
+                label={!isResponse ? qm : cc.acquired_mark}
+              />
+            )}
+            {!isResponse && !isActivated && (
               <>
                 <Tooltip arrow title={formatMessage({ id: 'edit' })}>
                   <IconButton size="small" disabled={disabled}>

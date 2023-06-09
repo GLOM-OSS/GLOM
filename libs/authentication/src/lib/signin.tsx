@@ -1,29 +1,27 @@
 import {
+  EmailRounded,
+  LockPersonRounded,
+  ReportRounded,
+} from '@mui/icons-material';
+import {
   Box,
   Button,
   InputAdornment,
   TextField,
   Typography,
 } from '@mui/material';
-import {
-  EmailRounded,
-  LockPersonRounded,
-  ReportRounded,
-} from '@mui/icons-material';
-import { theme } from '@squoolr/theme';
-import { useIntl } from 'react-intl';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import { useState } from 'react';
-import { Routes, useNavigate } from 'react-router';
-import favicon from './logo.png';
-import { ErrorMessage, useNotification } from '@squoolr/toast';
-import {
-  AcademicYearInterface,
-  SelectAcademicYearDialog,
-} from './selectAcademicYear';
 import { signIn } from '@squoolr/api-services';
-import { getUserRoles, PersonnelRole, User, useUser } from '@squoolr/layout';
+import { getUserRoles, useUser } from '@squoolr/layout';
+import { theme } from '@squoolr/theme';
+import { ErrorMessage, useNotification } from '@squoolr/toast';
+import { useFormik } from 'formik';
+import { useState } from 'react';
+import { useIntl } from 'react-intl';
+import { useNavigate } from 'react-router';
+import * as Yup from 'yup';
+import favicon from './logo.png';
+import { SelectAcademicYearDialog } from 'libs/layout/src/lib/selectAcademicYear';
+import {  IUser, UserRole, AcademicYearInterface } from '@squoolr/interfaces';
 
 export function Signin({
   callingApp,
@@ -64,7 +62,7 @@ export function Signin({
       newNotification.notify({
         render: formatMessage({ id: 'signingUserIn' }),
       });
-      signIn<{ user: User; academic_years: AcademicYearInterface[] }>(
+      signIn(
         values.email,
         values.password
       )
@@ -77,18 +75,22 @@ export function Signin({
             setAcademicYears(academic_years);
             setIsAcademicYearDialogOpen(true);
           } else {
-            const userRoles =getUserRoles(user)
+            const userRoles = getUserRoles(user, callingApp);
             const activeRole = userRoles[0];
 
             let storageActiveRole = localStorage.getItem('previousRoute');
             storageActiveRole = storageActiveRole ?? null;
-            const routeRole = storageActiveRole? storageActiveRole.split('/')[1]:'';
+            const routeRole = storageActiveRole
+              ? storageActiveRole.split('/')[1]
+              : '';
 
-            const routeUrl =
-              userRoles.includes(routeRole as PersonnelRole)? storageActiveRole as string:
-              (callingApp === 'admin'
-                ? '/management'
-                : `${activeRole}/configurations`);
+            const routeUrl = userRoles.includes(routeRole as UserRole)
+              ? (storageActiveRole as string)
+              : callingApp === 'admin'
+              ? '/management'
+              : callingApp === 'personnel'
+              ? `${activeRole}/configurations`
+              : `/student/home`;
             navigate(routeUrl);
             userDispatch({ type: 'LOAD_USER', payload: { user } });
             resetForm();

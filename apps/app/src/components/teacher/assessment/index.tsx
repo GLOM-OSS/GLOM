@@ -1,16 +1,15 @@
 import { ReportRounded } from '@mui/icons-material';
-import {
-  activateAssessment,
-  createNewAssessment
-} from '@squoolr/api-services';
+import { activateAssessment, createNewAssessment } from '@squoolr/api-services';
 import {
   ActivateAssessment,
-  Assessment, StudentAssessmentAnswer
+  Assessment,
+  StudentAssessmentAnswer,
 } from '@squoolr/interfaces';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';
+import { SubmissionEntity } from '../assignment';
 import ActivateAssessmentDialog from './activateAssessmentDialog';
 import AssessmentList from './assessmentList';
 import QuestionList from './questionList';
@@ -38,9 +37,13 @@ export default function Assessments() {
         id: 'creatingAssessment',
       }),
     });
-    createNewAssessment(annual_credit_unit_subject_id as string)
+    createNewAssessment({
+      submission_type: 'Individual',
+      annual_credit_unit_subject_id: annual_credit_unit_subject_id as string,
+      is_assignment: false,
+    })
       .then((assessment) => {
-        setActiveAssessment(assessment);
+        setActiveAssessment({ ...assessment, total_mark: 0 });
         notif.update({
           render: formatMessage({ id: 'assessmentCreatedSuccessfully' }),
         });
@@ -73,7 +76,7 @@ export default function Assessments() {
     useState<boolean>(false);
 
   const activateAssessmentHandler = (activateData: {
-    duration: number;
+    duration: number | null;
     assessment_date: Date;
     assessment_time: Date;
     evaluation_id: string;
@@ -128,8 +131,7 @@ export default function Assessments() {
 
   const [showResponses, setShowResponses] = useState<boolean>(false);
 
-  const [activeStudent, setActiveStudent] =
-    useState<Omit<StudentAssessmentAnswer, 'questionAnswers'>>();
+  const [activeStudent, setActiveStudent] = useState<SubmissionEntity>();
   const [showStatistics, setShowStatistics] = useState<boolean>(false);
 
   return (
@@ -160,9 +162,8 @@ export default function Assessments() {
       ) : activeStudent ? (
         <StudentResponse
           activeAssessment={activeAssessment}
-          activeStudent={activeStudent}
+          activeSubmission={activeStudent}
           onBack={() => setActiveStudent(undefined)}
-          totalMark={activeAssessment.total_mark}
         />
       ) : showResponses ? (
         <SubmissionList

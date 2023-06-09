@@ -1,13 +1,13 @@
 import { Box, lighten, Typography } from '@mui/material';
 import { theme } from '@squoolr/theme';
 import { NavLink } from 'react-router-dom';
-import { NavChild } from '../lib/interfaces';
+import { INavChild } from '@squoolr/interfaces';
 
 export default function SecondaryNavItem({
   item: { route, title },
   onClick
 }: {
-  item: NavChild;
+  item: INavChild;
   onClick:()=>void
 }) {
   return (

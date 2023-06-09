@@ -11,16 +11,16 @@ import { theme } from '@squoolr/theme';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useUser } from '../contexts/UserContextProvider';
-import { PersonnelRole } from '../lib/interfaces';
+import { UserRole } from '@squoolr/interfaces';
 
 export default function UserLayoutDisplay({
   selectRole,
   activeRole,
   userRoles,
 }: {
-  selectRole: (item: PersonnelRole) => void;
-  activeRole?: PersonnelRole | 'administrator';
-  userRoles: PersonnelRole[];
+  selectRole: (item: UserRole) => void;
+  activeRole?: UserRole;
+  userRoles: UserRole[];
 }) {
   const intl = useIntl();
   const { formatMessage } = intl;

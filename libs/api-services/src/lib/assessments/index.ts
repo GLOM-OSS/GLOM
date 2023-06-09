@@ -1,11 +1,17 @@
 import { http } from '@squoolr/axios';
+import { constants } from '@squoolr/constants';
 import {
   ActivateAssessment,
   Assessment,
   AssessmentStatistics,
+  IGroupAssignment,
+  CreateAssessment,
   Question,
   QuestionAnswer,
   StudentAssessmentAnswer,
+  IGroupAssignmentDetails,
+  ICorrectedSubmission,
+  IQuestionStudentResponse,
 } from '@squoolr/interfaces';
 
 export async function getAssessment(assessment_id: string) {
@@ -13,12 +19,11 @@ export async function getAssessment(assessment_id: string) {
   return data;
 }
 
-export async function createNewAssessment(
-  annual_credit_unit_subject_id: string
-) {
-  const { data } = await http.post<Assessment>(`/assessments/new`, {
-    annual_credit_unit_subject_id,
-  });
+export async function createNewAssessment(newAssessment: CreateAssessment) {
+  const { data } = await http.post<Assessment>(
+    `/assessments/new`,
+    newAssessment
+  );
   return data;
 }
 
@@ -56,16 +61,37 @@ export async function getAssessmentQuestions(assessment_id: string) {
     ...question,
     questionResources: question.questionResources.map((resource) => ({
       ...resource,
-      resource_ref: `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}`,
+      resource_ref: `${constants.NX_API_BASE_URL}/${resource.resource_ref}`,
     })),
   }));
 }
 
-export async function getStudentAssessmentMarks(assessment_id: string) {
-  const { data } = await http.get<StudentAssessmentAnswer[]>(
-    `/assessments/${assessment_id}/marks`
-  );
+export async function getAssessmentSubmissions(assessment_id: string) {
+  const { data } = await http.get<
+    (StudentAssessmentAnswer | IGroupAssignment)[]
+  >(`/assessments/${assessment_id}/submissions`);
   return data;
+}
+
+export async function getGroupSumbssionDetails(
+  assessment_id: string,
+  group_code: string
+): Promise<IGroupAssignmentDetails> {
+  const {
+    data: { answers, ...detalis },
+  } = await http.get<IGroupAssignmentDetails>(
+    `/assessments/${assessment_id}/${group_code}/details`
+  );
+  return {
+    ...detalis,
+    answers: answers.map(({ questionResources, ...answer }) => ({
+      ...answer,
+      questionResources: questionResources.map((resource) => ({
+        ...resource,
+        resource_ref: `${process.env['NX_API_BASE_URL']}/${resource.resource_ref}`,
+      })),
+    })),
+  };
 }
 
 export async function getStudentAnswers(
@@ -73,7 +99,10 @@ export async function getStudentAnswers(
   annual_student_id: string
 ) {
   const { data } = await http.get<QuestionAnswer[]>(
-    `/assessments/${assessment_id}/${annual_student_id}/answers`
+    `/assessments/${assessment_id}/answers`,
+    {
+      params: { annual_student_id },
+    }
   );
   return data;
 }
@@ -85,6 +114,31 @@ export async function getAssessmentStats(
   const { data } = await http.get<AssessmentStatistics>(
     `/assessments/${assessment_id}/statistics`,
     { params: { distribution_interval } }
+  );
+  return data;
+}
+
+export async function takeAssessment(assessment_id: string) {
+  await http.patch(`/assessments/${assessment_id}/take`);
+}
+
+export async function submitStudentAnswers(
+  assessment_id: string,
+  studentResponses: IQuestionStudentResponse[]
+) {
+  const { data } = await http.post(`/assessments/${assessment_id}/submit`, {
+    answers: studentResponses,
+  });
+  return data;
+}
+
+export async function submitCorrection(
+  assessment_id: string,
+  correctedSubmission: ICorrectedSubmission
+) {
+  const { data } = await http.post(
+    `/assessments/${assessment_id}/correct`,
+    correctedSubmission
   );
   return data;
 }

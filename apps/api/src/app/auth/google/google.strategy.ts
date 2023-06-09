@@ -39,7 +39,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     throw new UnauthorizedException({
       statusCode: HttpStatus.UNAUTHORIZED,
       error: 'Unauthorized access',
-      message: AUTH01['Fr'],
+      message: AUTH01['fr'],
     });
   }
 }

@@ -1,15 +1,15 @@
 import { Box, Tooltip } from '@mui/material';
+import { INavItem } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
-import { NavItem } from '../lib/interfaces';
 
 export default function PrimaryNavItem({
   navItem: { Icon, title, id },
   activeNavItem,
   handleSelect,
 }: {
-  navItem: NavItem;
-  activeNavItem?: NavItem;
+  navItem: INavItem;
+  activeNavItem?: INavItem;
   handleSelect: () => void;
 }) {
   const intl = useIntl();

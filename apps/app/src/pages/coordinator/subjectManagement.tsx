@@ -3,7 +3,6 @@ import {
   Box,
   Chip,
   Fab,
-  lighten,
   Skeleton,
   Table,
   TableBody,
@@ -12,12 +11,14 @@ import {
   TableRow,
   Tooltip,
   Typography,
+  lighten,
 } from '@mui/material';
 import {
   addNewCreditUnitSubject,
   deleteCreditUnitSubject,
   getCreditUnitDetails,
   getCreditUnitSubjects,
+  getSubjectParts,
   updateCreditUnitSubject,
 } from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
@@ -47,20 +48,23 @@ export default function SubjectManagement() {
   const [areSubjectsLoading, setAreSubjectsLoading] = useState<boolean>(false);
   const [subjectNotif, setSubjectNotif] = useState<useNotification>();
 
+  const [subjectParts, setSubjectParts] = useState<{
+    theory_id: string;
+    pratical_id: string;
+    guided_work_id: string;
+  }>();
+
   const transformCreditUnitSubjectToDisplaySubject = (
     s: CreditUnitSubject
   ): DisplaySubject => {
     const theory = s.subjectParts.find(
-      ({ subject_part_id: sp_id }) =>
-        sp_id === process.env['NX_THEORY_SUBJECT_PART_ID']
+      ({ subject_part_id: sp_id }) => sp_id === subjectParts?.theory_id
     );
     const p = s.subjectParts.find(
-      ({ subject_part_id: sp_id }) =>
-        sp_id === process.env['NX_PRACTICAL_SUBJECT_PART_ID']
+      ({ subject_part_id: sp_id }) => sp_id === subjectParts?.pratical_id
     );
     const gw = s.subjectParts.find(
-      ({ subject_part_id: sp_id }) =>
-        sp_id === process.env['NX_GUIDED_WORK_SUBJECT_PART_ID']
+      ({ subject_part_id: sp_id }) => sp_id === subjectParts?.guided_work_id
     );
     return {
       annual_credit_unit_id: s.annual_credit_unit_id,
@@ -92,21 +96,17 @@ export default function SubjectManagement() {
         {
           annual_teacher_id: s.annual_teacher_id as string,
           number_of_hours: s.theory,
-          subject_part_id: process.env['NX_THEORY_SUBJECT_PART_ID'] as string,
+          subject_part_id: subjectParts?.theory_id as string,
         },
         {
           annual_teacher_id: s.annual_teacher_id as string,
           number_of_hours: s.practical,
-          subject_part_id: process.env[
-            'NX_PRACTICAL_SUBJECT_PART_ID'
-          ] as string,
+          subject_part_id: subjectParts?.pratical_id as string,
         },
         {
           annual_teacher_id: s.annual_teacher_id as string,
           number_of_hours: s.guided_work,
-          subject_part_id: process.env[
-            'NX_GUIDED_WORK_SUBJECT_PART_ID'
-          ] as string,
+          subject_part_id: subjectParts?.guided_work_id as string,
         },
       ],
       weighting: s.weighting,
@@ -127,21 +127,17 @@ export default function SubjectManagement() {
         {
           annual_teacher_id: s.annual_teacher_id as string,
           number_of_hours: s.theory,
-          subject_part_id: process.env['NX_THEORY_SUBJECT_PART_ID'] as string,
+          subject_part_id: subjectParts?.theory_id as string,
         },
         {
           annual_teacher_id: s.annual_teacher_id as string,
           number_of_hours: s.practical,
-          subject_part_id: process.env[
-            'NX_PRACTICAL_SUBJECT_PART_ID'
-          ] as string,
+          subject_part_id: subjectParts?.pratical_id as string,
         },
         {
           annual_teacher_id: s.annual_teacher_id as string,
           number_of_hours: s.guided_work,
-          subject_part_id: process.env[
-            'NX_GUIDED_WORK_SUBJECT_PART_ID'
-          ] as string,
+          subject_part_id: subjectParts?.guided_work_id as string,
         },
       ],
       weighting: s.weighting,
@@ -157,7 +153,19 @@ export default function SubjectManagement() {
     setSubjectNotif(notif);
     if (annual_credit_unit_id)
       getCreditUnitSubjects(annual_credit_unit_id)
-        .then((creditUnitSubjects) => {
+        .then(async (creditUnitSubjects) => {
+          const subjectParts = await getSubjectParts();
+          setSubjectParts({
+            theory_id: subjectParts.find(
+              (_) => _.subject_part_name === 'THEORY'
+            )?.subject_part_id as string,
+            pratical_id: subjectParts.find(
+              (_) => _.subject_part_name === 'PRACTICAL'
+            )?.subject_part_id as string,
+            guided_work_id: subjectParts.find(
+              (_) => _.subject_part_name === 'GUIDED_WORK'
+            )?.subject_part_id as string,
+          });
           setSubjects(
             creditUnitSubjects.map((subject) =>
               transformCreditUnitSubjectToDisplaySubject(subject)
@@ -262,7 +270,6 @@ export default function SubjectManagement() {
           notif.update({
             render: formatMessage({ id: 'deletedSuccessfully' }),
           });
-          setIsManagingSubject(false);
           setSubjects(
             subjects.filter(
               ({ annual_credit_unit_subject_id: acu }) =>
@@ -287,7 +294,8 @@ export default function SubjectManagement() {
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        });
+        })
+        .finally(() => setIsManagingSubject(false));
     }
   };
 
@@ -318,9 +326,9 @@ export default function SubjectManagement() {
             ...subjects.map((_) =>
               _.annual_credit_unit_subject_id ===
               subject.annual_credit_unit_subject_id
-                ? subject
+                ? { ...subject, main_teacher_fullname }
                 : _
-            )
+            ),
           ]);
           setActionnedSubject(undefined);
         })
@@ -339,7 +347,8 @@ export default function SubjectManagement() {
             autoClose: false,
             icon: () => <ReportRounded fontSize="medium" color="error" />,
           });
-        });
+        })
+        .finally(() => setIsManagingSubject(false));
     } else {
       notif.notify({ render: formatMessage({ id: 'creatingSubject' }) });
       const submitData =
