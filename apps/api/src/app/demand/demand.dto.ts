@@ -1,13 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  Contains,
   IsDateString,
   IsEmail,
   IsNotEmptyObject,
   IsOptional,
   IsPhoneNumber,
-  IsString, ValidateNested
+  IsString,
+  NotContains,
+  ValidateNested
 } from 'class-validator';
 import { PersonPostDto } from '../app.dto';
 
@@ -62,8 +63,8 @@ export class DemandValidateDto {
 
   @IsString()
   @IsOptional()
+  @NotContains('squoolr.com')
   @ApiProperty({ required: false })
-  @Contains('squoolr.com')
   subdomain?: string;
 }
 
