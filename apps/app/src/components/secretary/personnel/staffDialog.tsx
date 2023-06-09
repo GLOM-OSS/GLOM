@@ -89,7 +89,9 @@ export default function StaffDialog({
     initialValues,
     validationSchema,
     onSubmit: (values, { resetForm }) => {
-      handleConfirm(values, isEditDialog ? 'edit' : 'create');
+      if (isEditDialog)
+        handleConfirm({ ...activePersonnel, ...values }, 'edit');
+      else handleConfirm(values, 'create');
       resetForm();
       closeDialog();
     },
