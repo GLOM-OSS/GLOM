@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Person } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { AUTH04, AUTH404, AUTH501, ERR03 } from '../../../errors';
@@ -519,6 +519,23 @@ export class PersonnelService {
       role
     );
 
+    const userAgrs = Prisma.validator<Prisma.LoginArgs>()({
+      select: {
+        Person: {
+          select: {
+            first_name: true,
+            last_name: true,
+            email: true,
+            phone_number: true,
+            national_id_number: true,
+            gender: true,
+            address: true,
+            birthdate: true,
+          },
+        },
+      },
+    });
+
     const data = {
       matricule,
       Login: {
@@ -544,7 +561,7 @@ export class PersonnelService {
       },
     };
     let staff: {
-      Login: { Person: Person };
+      Login: Prisma.LoginGetPayload<typeof userAgrs>;
       annual_registry_id?: string;
       annual_configurator_id?: string;
       matricule: string;
@@ -567,7 +584,7 @@ export class PersonnelService {
       }
       staff = await this.annualConfiguratorService.create({
         select: {
-          Login: { select: { Person: true } },
+          Login: userAgrs,
           annual_configurator_id: true,
           matricule: true,
         },
@@ -591,7 +608,7 @@ export class PersonnelService {
       }
       staff = await this.annualRegistryService.create({
         select: {
-          Login: { select: { Person: true } },
+          Login: userAgrs,
           annual_registry_id: true,
           matricule: true,
         },
@@ -609,6 +626,7 @@ export class PersonnelService {
     } = staff;
     return {
       ...Person,
+      login_id,
       personnel_code,
       roles: await this.getRoles(login_id),
       last_connected: await this.getLastLog(login_id),

@@ -107,7 +107,7 @@ export class TeacherService {
     );
     //TODO NodeMailer send generated password and private code
     console.log({ password });
-    
+
     const {
       annual_teacher_id,
       Login: { Person },
@@ -115,7 +115,22 @@ export class TeacherService {
       select: {
         annual_teacher_id: true,
         Teacher: { select: { matricule: true } },
-        Login: { select: { Person: true } },
+        Login: {
+          select: {
+            Person: {
+              select: {
+                first_name: true,
+                last_name: true,
+                email: true,
+                phone_number: true,
+                national_id_number: true,
+                gender: true,
+                address: true,
+                birthdate: true,
+              },
+            },
+          },
+        },
       },
       data: {
         hourly_rate,
