@@ -18,11 +18,16 @@ import Personnel from '../pages/secretary/personnel';
 import SigninPage from '../pages/signin';
 import TeacherCourses from '../pages/teacher';
 import CourseDetails from '../pages/teacher/[annual_credit_unit_subject_id]';
+import NewPasswordPage from '../pages/newPassword';
 
 export const routes = [
   {
     path: '/',
     element: <SigninPage />,
+  },
+  {
+    path: '/forgot-password/:reset_password_id/new-password',
+    element: <NewPasswordPage />,
   },
   {
     path: '/dashboard',
