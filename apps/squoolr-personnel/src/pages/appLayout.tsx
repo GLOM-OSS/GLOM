@@ -7,7 +7,7 @@ import {
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { INavItem } from '@squoolr/interfaces';
-import { MainLayout } from '@squoolr/layout';
+import { MainLayout } from '@squoolr/squoolr-layout';
 import { IntlShape, injectIntl } from 'react-intl';
 
 function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {

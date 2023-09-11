@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { signIn } from '@squoolr/api-services';
-import { getUserRoles, useUser } from '@squoolr/layout';
+import { getUserRoles, useUser } from '@squoolr/squoolr-layout';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useFormik } from 'formik';
@@ -21,7 +21,7 @@ import { useNavigate } from 'react-router';
 import * as Yup from 'yup';
 import favicon from './logo.png';
 import { SelectAcademicYearDialog } from 'libs/layout/src/lib/selectAcademicYear';
-import {  IUser, UserRole, AcademicYearInterface } from '@squoolr/interfaces';
+import { IUser, UserRole, AcademicYearInterface } from '@squoolr/interfaces';
 
 export function Signin({
   callingApp,
@@ -62,10 +62,7 @@ export function Signin({
       newNotification.notify({
         render: formatMessage({ id: 'signingUserIn' }),
       });
-      signIn(
-        values.email,
-        values.password
-      )
+      signIn(values.email, values.password)
         .then(({ user, academic_years }) => {
           newNotification.update({
             render: formatMessage({ id: 'signinSuccess' }),

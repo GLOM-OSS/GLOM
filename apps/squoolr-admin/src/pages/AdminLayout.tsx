@@ -1,6 +1,6 @@
 import { LayersOutlined, SettingsSuggestOutlined } from '@mui/icons-material';
 import { INavItem } from '@squoolr/interfaces';
-import { MainLayout } from '@squoolr/layout';
+import { MainLayout } from '@squoolr/squoolr-layout';
 import { IntlShape, injectIntl } from 'react-intl';
 
 function AdminLayout({ intl: { formatMessage } }: { intl: IntlShape }) {

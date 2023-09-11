@@ -18,7 +18,7 @@ import {
   payStudentFee,
 } from '@squoolr/api-services';
 import { ICreatePayment, IDiscipline, IFeeSummary } from '@squoolr/interfaces';
-import { useUser } from '@squoolr/layout';
+import { useUser } from '@squoolr/squoolr-layout';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';

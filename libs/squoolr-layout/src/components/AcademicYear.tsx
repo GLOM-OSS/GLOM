@@ -18,14 +18,16 @@ export default function AcademicYear({
   handleSelectAcademicYear: (academic_year_id: string) => void;
   selectedAcademicYearId: string;
 }) {
-  const intl = useIntl()
-  const {formatMessage, formatDate} = intl
+  const intl = useIntl();
+  const { formatMessage, formatDate } = intl;
 
   return (
     <Box
       component={Button}
       onClick={() =>
-        selectedAcademicYearId !=='' ? null : handleSelectAcademicYear(academic_year_id)
+        selectedAcademicYearId !== ''
+          ? null
+          : handleSelectAcademicYear(academic_year_id)
       }
       fullWidth
       sx={{
@@ -38,9 +40,10 @@ export default function AcademicYear({
         marginTop: theme.spacing(3),
         color: theme.common.titleActive,
         justifyItems: 'start',
-        backgroundColor: selectedAcademicYearId === academic_year_id
-          ? lighten(theme.palette.secondary.main, 0.9)
-          : 'initial',
+        backgroundColor:
+          selectedAcademicYearId === academic_year_id
+            ? lighten(theme.palette.secondary.main, 0.9)
+            : 'initial',
       }}
     >
       <Typography>{code}</Typography>

@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/layout/src",
+  "sourceRoot": "libs/squoolr-layout/src",
   "projectType": "library",
   "tags": [],
   "targets": {
@@ -8,14 +8,14 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/layout/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["libs/squoolr-layout/**/*.{ts,tsx,js,jsx}"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/layout"],
+      "outputs": ["coverage/libs/squoolr-layout"],
       "options": {
-        "jestConfig": "libs/layout/jest.config.ts",
+        "jestConfig": "libs/squoolr-layout/jest.config.ts",
         "passWithNoTests": true
       }
     }

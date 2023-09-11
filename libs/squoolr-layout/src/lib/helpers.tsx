@@ -1,4 +1,4 @@
-import { IUser, UserRole } from "@squoolr/interfaces";
+import { IUser, UserRole } from '@squoolr/interfaces';
 
 export const getUserRoles = (
   { annualConfigurator, annualRegistry, annualTeacher, annualStudent }: IUser,

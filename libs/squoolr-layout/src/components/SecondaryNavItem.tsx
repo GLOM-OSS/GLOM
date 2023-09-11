@@ -5,10 +5,10 @@ import { INavChild } from '@squoolr/interfaces';
 
 export default function SecondaryNavItem({
   item: { route, title },
-  onClick
+  onClick,
 }: {
   item: INavChild;
-  onClick:()=>void
+  onClick: () => void;
 }) {
   return (
     <Box
