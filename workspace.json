@@ -3,8 +3,6 @@
   "version": 2,
   "projects": {
     "api-services": "libs/api-services",
-    "app": "apps/app",
-    "app-e2e": "apps/app-e2e",
     "authentication": "libs/authentication",
     "axios": "libs/axios",
     "constants": "libs/constants",
@@ -18,6 +16,8 @@
     "squoolr-admin": "apps/squoolr-admin",
     "squoolr-admin-e2e": "apps/squoolr-admin-e2e",
     "squoolr-api": "apps/squoolr-api",
+    "squoolr-personnel": "apps/squoolr-personnel",
+    "squoolr-personnel-e2e": "apps/squoolr-personnel-e2e",
     "student": "apps/student",
     "student-e2e": "apps/student-e2e",
     "tasks": "libs/tasks",

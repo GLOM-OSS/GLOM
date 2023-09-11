@@ -1,0 +1,83 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/squoolr-personnel/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "dist/apps/squoolr-personnel",
+        "index": "apps/squoolr-personnel/src/index.html",
+        "baseHref": "/",
+        "main": "apps/squoolr-personnel/src/main.tsx",
+        "polyfills": "apps/squoolr-personnel/src/polyfills.ts",
+        "tsConfig": "apps/squoolr-personnel/tsconfig.app.json",
+        "assets": [
+          "apps/squoolr-personnel/src/favicon.ico",
+          "apps/squoolr-personnel/src/assets"
+        ],
+        "styles": ["apps/squoolr-personnel/src/styles.css"],
+        "scripts": [],
+        "webpackConfig": "@nrwl/react/plugins/webpack"
+      },
+      "configurations": {
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": true,
+          "vendorChunk": true
+        },
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/squoolr-personnel/src/environments/environment.ts",
+              "with": "apps/squoolr-personnel/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "squoolr-personnel:build",
+        "hmr": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "squoolr-personnel:build:development"
+        },
+        "production": {
+          "buildTarget": "squoolr-personnel:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/squoolr-personnel/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/squoolr-personnel"],
+      "options": {
+        "jestConfig": "apps/squoolr-personnel/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}
