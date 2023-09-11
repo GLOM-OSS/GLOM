@@ -9,6 +9,7 @@
     "dto": "libs/dto",
     "encrypter": "libs/encrypter",
     "interfaces": "libs/interfaces",
+    "lynkr-api": "apps/lynkr-api",
     "lynkr-landing": "apps/lynkr-landing",
     "lynkr-landing-e2e": "apps/lynkr-landing-e2e",
     "mailer": "libs/mailer",
