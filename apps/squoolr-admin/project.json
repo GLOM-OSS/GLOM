@@ -1,0 +1,83 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/squoolr-admin/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "dist/apps/squoolr-admin",
+        "index": "apps/squoolr-admin/src/index.html",
+        "baseHref": "/",
+        "main": "apps/squoolr-admin/src/main.tsx",
+        "polyfills": "apps/squoolr-admin/src/polyfills.ts",
+        "tsConfig": "apps/squoolr-admin/tsconfig.app.json",
+        "assets": [
+          "apps/squoolr-admin/src/favicon.ico",
+          "apps/squoolr-admin/src/assets"
+        ],
+        "styles": ["apps/squoolr-admin/src/styles.css"],
+        "scripts": [],
+        "webpackConfig": "@nrwl/react/plugins/webpack"
+      },
+      "configurations": {
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": true,
+          "vendorChunk": true
+        },
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/squoolr-admin/src/environments/environment.ts",
+              "with": "apps/squoolr-admin/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "squoolr-admin:build",
+        "hmr": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "squoolr-admin:build:development"
+        },
+        "production": {
+          "buildTarget": "squoolr-admin:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/squoolr-admin/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/squoolr-admin"],
+      "options": {
+        "jestConfig": "apps/squoolr-admin/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}
