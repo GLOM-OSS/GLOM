@@ -3,7 +3,6 @@
   "version": 2,
   "projects": {
     "api-services": "libs/api-services",
-    "authentication": "libs/authentication",
     "axios": "libs/axios",
     "constants": "libs/constants",
     "dialog-transition": "libs/dialog-transition",
@@ -13,6 +12,7 @@
     "squoolr-admin": "apps/squoolr-admin",
     "squoolr-admin-e2e": "apps/squoolr-admin-e2e",
     "squoolr-api": "apps/squoolr-api",
+    "squoolr-auth": "libs/squoolr-auth",
     "squoolr-landing": "apps/squoolr-landing",
     "squoolr-landing-e2e": "apps/squoolr-landing-e2e",
     "squoolr-layout": "libs/squoolr-layout",

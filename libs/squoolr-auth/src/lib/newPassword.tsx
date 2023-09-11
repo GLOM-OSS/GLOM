@@ -17,8 +17,8 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { setNewPassword } from '@squoolr/api-services';
 
 export function NewPassword() {
-  const intl = useIntl()
-  const {formatMessage} = intl
+  const intl = useIntl();
+  const { formatMessage } = intl;
   const initialValues: { confirmPassword: string; password: string } = {
     confirmPassword: '',
     password: '',

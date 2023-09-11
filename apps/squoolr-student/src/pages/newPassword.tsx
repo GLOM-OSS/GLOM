@@ -1,4 +1,4 @@
-import { NewPassword } from '@squoolr/auth';
+import { NewPassword } from '@squoolr/squoolr-auth';
 
 function NewPasswordPage() {
   return <NewPassword />;
