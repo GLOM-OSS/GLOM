@@ -1,18 +1,18 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/landing-e2e/src",
+  "sourceRoot": "apps/squoolr-landing-e2e/src",
   "projectType": "application",
   "targets": {
     "e2e": {
       "executor": "@nrwl/cypress:cypress",
       "options": {
-        "cypressConfig": "apps/landing-e2e/cypress.config.ts",
-        "devServerTarget": "landing:serve:development",
+        "cypressConfig": "apps/squoolr-landing-e2e/cypress.config.ts",
+        "devServerTarget": "squoolr-landing:serve:development",
         "testingType": "e2e"
       },
       "configurations": {
         "production": {
-          "devServerTarget": "landing:serve:production"
+          "devServerTarget": "squoolr-landing:serve:production"
         }
       }
     },
@@ -20,10 +20,10 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/landing-e2e/**/*.{js,ts}"]
+        "lintFilePatterns": ["apps/squoolr-landing-e2e/**/*.{js,ts}"]
       }
     }
   },
   "tags": [],
-  "implicitDependencies": ["landing"]
+  "implicitDependencies": ["squoolr-landing"]
 }

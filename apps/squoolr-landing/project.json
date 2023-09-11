@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/landing",
+  "sourceRoot": "apps/squoolr-landing",
   "projectType": "application",
   "targets": {
     "build": {
@@ -8,12 +8,12 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "root": "apps/landing",
-        "outputPath": "dist/apps/landing"
+        "root": "apps/squoolr-landing",
+        "outputPath": "dist/apps/squoolr-landing"
       },
       "configurations": {
         "development": {
-          "outputPath": "apps/landing"
+          "outputPath": "apps/squoolr-landing"
         },
         "production": {}
       }
@@ -22,16 +22,16 @@
       "executor": "@nrwl/next:server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "landing:build",
+        "buildTarget": "squoolr-landing:build",
         "dev": true
       },
       "configurations": {
         "development": {
-          "buildTarget": "landing:build:development",
+          "buildTarget": "squoolr-landing:build:development",
           "dev": true
         },
         "production": {
-          "buildTarget": "landing:build:production",
+          "buildTarget": "squoolr-landing:build:production",
           "dev": false
         }
       }
@@ -39,14 +39,14 @@
     "export": {
       "executor": "@nrwl/next:export",
       "options": {
-        "buildTarget": "landing:build:production"
+        "buildTarget": "squoolr-landing:build:production"
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/landing"],
+      "outputs": ["coverage/apps/squoolr-landing"],
       "options": {
-        "jestConfig": "apps/landing/jest.config.ts",
+        "jestConfig": "apps/squoolr-landing/jest.config.ts",
         "passWithNoTests": true
       }
     },
@@ -54,7 +54,7 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/landing/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["apps/squoolr-landing/**/*.{ts,tsx,js,jsx}"]
       }
     }
   },
