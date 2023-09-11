@@ -7,6 +7,7 @@
     "confirm-dialogs": "libs/confirm-dialogs",
     "constants": "libs/constants",
     "encrypter": "libs/encrypter",
+    "glom-request": "libs/glom-request",
     "interfaces": "libs/interfaces",
     "mailer": "libs/mailer",
     "squoolr-admin": "apps/squoolr-admin",
