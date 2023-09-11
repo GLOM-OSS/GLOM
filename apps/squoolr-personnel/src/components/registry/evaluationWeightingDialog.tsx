@@ -18,7 +18,7 @@ import {
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { getCycles, getEvaluationTypeWeighting } from '@squoolr/api-services';
-import { DialogTransition } from '@squoolr/dialogTransition';
+import { DialogTransition } from '@squoolr/confirm-dialogs';
 import {
   Cycle,
   EvaluationType,

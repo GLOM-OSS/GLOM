@@ -7,7 +7,7 @@ import {
   TextField,
 } from '@mui/material';
 import { DesktopTimePicker, MobileDatePicker } from '@mui/x-date-pickers';
-import { DialogTransition } from '@squoolr/dialogTransition';
+import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { ActivateAssessment } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import dayjs from 'dayjs';

@@ -13,7 +13,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { DialogTransition } from '@squoolr/dialogTransition';
+import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { CreateAssessment } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useEffect, useState } from 'react';

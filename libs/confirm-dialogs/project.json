@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/dialog-transition/src",
+  "sourceRoot": "libs/confirm-dialogs/src",
   "projectType": "library",
   "tags": [],
   "targets": {
@@ -8,14 +8,14 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/dialog-transition/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["libs/confirm-dialogs/**/*.{ts,tsx,js,jsx}"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/dialog-transition"],
+      "outputs": ["coverage/libs/confirm-dialogs"],
       "options": {
-        "jestConfig": "libs/dialog-transition/jest.config.ts",
+        "jestConfig": "libs/confirm-dialogs/jest.config.ts",
         "passWithNoTests": true
       }
     }

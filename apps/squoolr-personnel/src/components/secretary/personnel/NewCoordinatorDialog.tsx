@@ -19,7 +19,7 @@ import {
   getClassrooms as fetchClassrooms,
   getTeachers as fetchTeachers,
 } from '@squoolr/api-services';
-import { DialogTransition } from '@squoolr/dialogTransition';
+import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { theme } from '@squoolr/theme';
 import {
   ErrorMessage,

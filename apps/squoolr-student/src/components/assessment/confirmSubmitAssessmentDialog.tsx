@@ -6,7 +6,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from '@mui/material';
-import { DialogTransition } from '@squoolr/dialogTransition';
+import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
 

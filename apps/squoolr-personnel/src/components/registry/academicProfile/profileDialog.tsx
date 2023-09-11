@@ -9,7 +9,7 @@ import {
   lighten,
   TextField,
 } from '@mui/material';
-import { DialogTransition } from '@squoolr/dialogTransition';
+import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { AcademicProfile } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useFormik } from 'formik';

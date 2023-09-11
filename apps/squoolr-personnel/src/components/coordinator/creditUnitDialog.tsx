@@ -7,7 +7,7 @@ import {
   MenuItem,
   TextField,
 } from '@mui/material';
-import { DialogTransition } from '@squoolr/dialogTransition';
+import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { CreditUnit, UEMajor } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useFormik } from 'formik';

@@ -9,7 +9,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { DialogTransition } from '@squoolr/dialogTransition';
+import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { theme } from '@squoolr/theme';
 import { useFormik } from 'formik';
 import { useIntl } from 'react-intl';

@@ -17,8 +17,8 @@
     "paths": {
       "@squoolr/api-services": ["libs/api-services/src/index.ts"],
       "@squoolr/axios": ["libs/axios/src/index.ts"],
+      "@squoolr/confirm-dialogs": ["libs/confirm-dialogs/src/index.ts"],
       "@squoolr/constants": ["libs/constants/src/index.ts"],
-      "@squoolr/dialogTransition": ["libs/dialog-transition/src/index.ts"],
       "@squoolr/encrypter": ["libs/encrypter/src/index.ts"],
       "@squoolr/interfaces": ["libs/interfaces/src/index.ts"],
       "@squoolr/mailer": ["libs/mailer/src/index.ts"],

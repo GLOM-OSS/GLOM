@@ -9,7 +9,7 @@ import {
   TextField,
 } from '@mui/material';
 import { getWeightingGrades } from '@squoolr/api-services';
-import { DialogTransition } from '@squoolr/dialogTransition';
+import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { Grade, GradeWeighting } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';

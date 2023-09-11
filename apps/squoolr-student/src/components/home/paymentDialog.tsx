@@ -15,7 +15,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { DialogTransition } from '@squoolr/dialogTransition';
+import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { ICreatePayment, IFeeSummary } from '@squoolr/interfaces';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';

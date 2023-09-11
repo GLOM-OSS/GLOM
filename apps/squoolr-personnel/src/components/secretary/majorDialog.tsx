@@ -16,7 +16,7 @@ import {
   getDepartments,
   getMajorDetails,
 } from '@squoolr/api-services';
-import { DialogTransition } from '@squoolr/dialogTransition';
+import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { CycleName } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';

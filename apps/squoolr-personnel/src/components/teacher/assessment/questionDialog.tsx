@@ -17,7 +17,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { DialogTransition } from '@squoolr/dialogTransition';
+import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { CreateQuestion } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useState } from 'react';

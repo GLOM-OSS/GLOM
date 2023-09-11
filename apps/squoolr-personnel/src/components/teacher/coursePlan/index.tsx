@@ -28,7 +28,7 @@ import {
   getCourseResources,
   updateChapter,
 } from '@squoolr/api-services';
-import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
+import { ConfirmDeleteDialog } from '@squoolr/confirm-dialogs';
 import {
   Chapter,
   Course,

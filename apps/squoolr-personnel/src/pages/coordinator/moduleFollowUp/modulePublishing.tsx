@@ -5,7 +5,7 @@ import {
   getCreditUnitMarkStatus,
   publishCreditUnit,
 } from '@squoolr/api-services';
-import { ConfirmDeleteDialog } from '@squoolr/dialogTransition';
+import { ConfirmDeleteDialog } from '@squoolr/confirm-dialogs';
 import { CreditUnitMarkStatus, UEMajor } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
