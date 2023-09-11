@@ -6,9 +6,12 @@
 /out-tsc
 
 # dependencies
+uploads
+migrations
 node_modules
 
 # IDEs and editors
+.env
 /.idea
 .project
 .classpath
