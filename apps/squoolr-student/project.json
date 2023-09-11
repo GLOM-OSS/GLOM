@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/student/src",
+  "sourceRoot": "apps/squoolr-student/src",
   "projectType": "application",
   "targets": {
     "build": {
@@ -9,14 +9,17 @@
       "defaultConfiguration": "production",
       "options": {
         "compiler": "babel",
-        "outputPath": "dist/apps/student",
-        "index": "apps/student/src/index.html",
+        "outputPath": "dist/apps/squoolr-student",
+        "index": "apps/squoolr-student/src/index.html",
         "baseHref": "/",
-        "main": "apps/student/src/main.tsx",
-        "polyfills": "apps/student/src/polyfills.ts",
-        "tsConfig": "apps/student/tsconfig.app.json",
-        "assets": ["apps/student/src/favicon.ico", "apps/student/src/assets"],
-        "styles": ["apps/student/src/styles.css"],
+        "main": "apps/squoolr-student/src/main.tsx",
+        "polyfills": "apps/squoolr-student/src/polyfills.ts",
+        "tsConfig": "apps/squoolr-student/tsconfig.app.json",
+        "assets": [
+          "apps/squoolr-student/src/favicon.ico",
+          "apps/squoolr-student/src/assets"
+        ],
+        "styles": ["apps/squoolr-student/src/styles.css"],
         "scripts": [],
         "webpackConfig": "@nrwl/react/plugins/webpack"
       },
@@ -30,8 +33,8 @@
         "production": {
           "fileReplacements": [
             {
-              "replace": "apps/student/src/environments/environment.ts",
-              "with": "apps/student/src/environments/environment.prod.ts"
+              "replace": "apps/squoolr-student/src/environments/environment.ts",
+              "with": "apps/squoolr-student/src/environments/environment.prod.ts"
             }
           ],
           "optimization": true,
@@ -47,15 +50,15 @@
       "executor": "@nrwl/web:dev-server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "student:build",
+        "buildTarget": "squoolr-student:build",
         "hmr": true
       },
       "configurations": {
         "development": {
-          "buildTarget": "student:build:development"
+          "buildTarget": "squoolr-student:build:development"
         },
         "production": {
-          "buildTarget": "student:build:production",
+          "buildTarget": "squoolr-student:build:production",
           "hmr": false
         }
       }
@@ -64,14 +67,14 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/student/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["apps/squoolr-student/**/*.{ts,tsx,js,jsx}"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/student"],
+      "outputs": ["coverage/apps/squoolr-student"],
       "options": {
-        "jestConfig": "apps/student/jest.config.ts",
+        "jestConfig": "apps/squoolr-student/jest.config.ts",
         "passWithNoTests": true
       }
     }

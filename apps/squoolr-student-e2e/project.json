@@ -1,18 +1,18 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/student-e2e/src",
+  "sourceRoot": "apps/squoolr-student-e2e/src",
   "projectType": "application",
   "targets": {
     "e2e": {
       "executor": "@nrwl/cypress:cypress",
       "options": {
-        "cypressConfig": "apps/student-e2e/cypress.config.ts",
-        "devServerTarget": "student:serve:development",
+        "cypressConfig": "apps/squoolr-student-e2e/cypress.config.ts",
+        "devServerTarget": "squoolr-student:serve:development",
         "testingType": "e2e"
       },
       "configurations": {
         "production": {
-          "devServerTarget": "student:serve:production"
+          "devServerTarget": "squoolr-student:serve:production"
         }
       }
     },
@@ -20,10 +20,10 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/student-e2e/**/*.{js,ts}"]
+        "lintFilePatterns": ["apps/squoolr-student-e2e/**/*.{js,ts}"]
       }
     }
   },
   "tags": [],
-  "implicitDependencies": ["student"]
+  "implicitDependencies": ["squoolr-student"]
 }

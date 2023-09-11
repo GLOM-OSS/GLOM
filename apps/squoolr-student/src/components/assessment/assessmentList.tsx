@@ -7,7 +7,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Typography
+  Typography,
 } from '@mui/material';
 import { getCourseAssessments } from '@squoolr/api-services';
 import { Assessment } from '@squoolr/interfaces';

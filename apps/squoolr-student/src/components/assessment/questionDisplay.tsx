@@ -6,12 +6,12 @@ import {
   lighten,
   TextField,
   Tooltip,
-  Typography
+  Typography,
 } from '@mui/material';
 import {
   ICorrectedQuestion,
   Question,
-  QuestionAnswer
+  QuestionAnswer,
 } from '@squoolr/interfaces';
 import { theme } from '@squoolr/theme';
 import { useIntl } from 'react-intl';
