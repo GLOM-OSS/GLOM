@@ -2,7 +2,6 @@
   "$schema": "./node_modules/nx/schemas/workspace-schema.json",
   "version": 2,
   "projects": {
-    "api": "apps/api",
     "api-services": "libs/api-services",
     "app": "apps/app",
     "app-e2e": "apps/app-e2e",
@@ -18,6 +17,7 @@
     "mailer": "libs/mailer",
     "squoolr-admin": "apps/squoolr-admin",
     "squoolr-admin-e2e": "apps/squoolr-admin-e2e",
+    "squoolr-api": "apps/squoolr-api",
     "student": "apps/student",
     "student-e2e": "apps/student-e2e",
     "tasks": "libs/tasks",
