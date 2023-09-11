@@ -1,13 +1,13 @@
 import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    InputAdornment,
-    TextField,
-    Typography
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  InputAdornment,
+  TextField,
+  Typography,
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/dialogTransition';
 import { theme } from '@squoolr/theme';
@@ -54,7 +54,7 @@ export default function ValidateDemandDialog({
       <DialogTitle>{formatMessage({ id: 'validateDemand' })}</DialogTitle>
       <form onSubmit={formik.handleSubmit}>
         <DialogContent>
-          <DialogContentText sx={{marginBottom:theme.spacing(2)}}>
+          <DialogContentText sx={{ marginBottom: theme.spacing(2) }}>
             {formatMessage({ id: 'confirmValidationMessage' })}
           </DialogContentText>
           <TextField

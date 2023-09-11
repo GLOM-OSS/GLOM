@@ -29,10 +29,10 @@ export default function Demand({
         justifyItems: 'start',
       }}
     >
-      <Typography sx={{...theme.typography.body2}}>{code}</Typography>
-      <Typography sx={{...theme.typography.body2}}>{school_name}</Typography>
-      <Typography sx={{...theme.typography.body2}}>{email}</Typography>
-      <Typography sx={{...theme.typography.body2}}>{phone_number}</Typography>
+      <Typography sx={{ ...theme.typography.body2 }}>{code}</Typography>
+      <Typography sx={{ ...theme.typography.body2 }}>{school_name}</Typography>
+      <Typography sx={{ ...theme.typography.body2 }}>{email}</Typography>
+      <Typography sx={{ ...theme.typography.body2 }}>{phone_number}</Typography>
       <Chip
         sx={{
           justifySelf: 'center',
