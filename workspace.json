@@ -8,6 +8,8 @@
     "constants": "libs/constants",
     "encrypter": "libs/encrypter",
     "interfaces": "libs/interfaces",
+    "lynkr-landing": "apps/lynkr-landing",
+    "lynkr-landing-e2e": "apps/lynkr-landing-e2e",
     "mailer": "libs/mailer",
     "squoolr-admin": "apps/squoolr-admin",
     "squoolr-admin-e2e": "apps/squoolr-admin-e2e",
