@@ -1,4 +1,4 @@
-import { createTheme } from '@mui/material/styles';
+import { Theme, ThemeOptions, createTheme } from '@mui/material/styles';
 import React from 'react';
 
 // thin: 100
@@ -93,120 +93,127 @@ declare module '@mui/material/styles' {
 
 const BACKGROUND = '#FAFAFD';
 
-export const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#0B77DB',
+export function generateTheme(newTheme?: ThemeOptions): Theme {
+  return createTheme({
+    ...{
+      palette: {
+        primary: {
+          main: '#0B77DB',
+        },
+        secondary: {
+          main: '#9E4CEB',
+        },
+        error: {
+          main: '#DD0303',
+        },
+        success: {
+          main: '#5CB360',
+        },
+        warning: {
+          main: '#F59300',
+        },
+      },
+      common: {
+        titleActive: '#172B4D',
+        body: '#2F3A45',
+        label: '#6E6D7A',
+        placeholder: '#A0A3BD',
+        line: '#D1D5DB',
+        inputBackground: '#F4F5F7',
+        background: BACKGROUND,
+        offWhite: '#FFFFFF',
+        dialogBackground: BACKGROUND,
+      },
+      typography: {
+        fontFamily: ['Inter', 'sans-serif'].join(','),
+        h1: {
+          fontSize: '36px',
+          lineHeight: '44px',
+          letterSpacing: '-2%',
+          paddingBottom: '10px',
+          fontWeight: 700,
+        },
+        h2: {
+          fontWeight: 700,
+          fontSize: '30px',
+          lineHeight: '36px',
+          letterSpacing: '-2%',
+          paddingBottom: '10px',
+        },
+        h3: {
+          fontWeight: 600,
+          fontSize: '24px',
+          lineHeight: '32px',
+          letterSpacing: '-1.75%',
+          paddingBottom: '10px',
+        },
+        h4: {
+          fontWeight: 500,
+          fontSize: '20px',
+          lineHeight: '24px',
+          letterSpacing: '-1.5%',
+          paddingBottom: '10px',
+        },
+        h5: {
+          fontWeight: 600,
+          fontSize: '18px',
+          lineHeight: '20px',
+          letterSpacing: '-1.5%',
+          paddingBottom: '10px',
+        },
+        body1: {
+          fontSize: '1rem',
+          fontWeight: 400,
+        },
+        body2: {
+          fontSize: '0.875rem',
+          fontWeight: 400,
+        },
+        caption: {
+          fontSize: '0.75rem',
+          fontWeight: 300,
+        },
+      },
+      breakpoints: {
+        values: {
+          mobile: 0,
+          tablet: 744,
+          laptop: 992,
+          desktop: 1200,
+        },
+      },
+      components: {
+        // MuiButton: {
+        //   styleOverrides: {
+        //     root: ({ theme }) => ({
+        //       borderRadius: '100px',
+        //       textTransform: 'none',
+        //       '&.MuiButton-containedPrimary:hover': {
+        //         backgroundColor: theme.palette.primary.light,
+        //       },
+        //       '&.MuiButton-containedSecondary': {
+        //         color: theme.palette.primary.main,
+        //         backgroundColor:
+        //           theme.palette.mode === 'light'
+        //             ? 'rgba(99, 95, 199, 0.1)'
+        //             : 'white',
+        //       },
+        //       '&.MuiButton-containedSecondary:hover': {
+        //         backgroundColor:
+        //           theme.palette.mode === 'light'
+        //             ? 'rgba(99, 95, 199, 0.25)'
+        //             : 'white',
+        //       },
+        //       '&.MuiButton-containedError:hover': {
+        //         backgroundColor: theme.palette.error.light,
+        //       },
+        //     }),
+        //   },
+        // },
+      },
     },
-    secondary: {
-      main: '#9E4CEB',
-    },
-    error: {
-      main: '#DD0303',
-    },
-    success: {
-      main: '#5CB360',
-    },
-    warning: {
-      main: '#F59300',
-    },
-  },
-  common: {
-    titleActive: '#172B4D',
-    body: '#2F3A45',
-    label: '#6E6D7A',
-    placeholder: '#A0A3BD',
-    line: '#D1D5DB',
-    inputBackground: '#F4F5F7',
-    background: BACKGROUND,
-    offWhite: '#FFFFFF',
-    dialogBackground: BACKGROUND,
-  },
-  typography: {
-    fontFamily: ['Inter', 'sans-serif'].join(','),
-    h1: {
-      fontSize: '36px',
-      lineHeight: '44px',
-      letterSpacing: '-2%',
-      paddingBottom: '10px',
-      fontWeight: 700,
-    },
-    h2: {
-      fontWeight: 700,
-      fontSize: '30px',
-      lineHeight: '36px',
-      letterSpacing: '-2%',
-      paddingBottom: '10px',
-    },
-    h3: {
-      fontWeight: 600,
-      fontSize: '24px',
-      lineHeight: '32px',
-      letterSpacing: '-1.75%',
-      paddingBottom: '10px',
-    },
-    h4: {
-      fontWeight: 500,
-      fontSize: '20px',
-      lineHeight: '24px',
-      letterSpacing: '-1.5%',
-      paddingBottom: '10px',
-    },
-    h5: {
-      fontWeight: 600,
-      fontSize: '18px',
-      lineHeight: '20px',
-      letterSpacing: '-1.5%',
-      paddingBottom: '10px',
-    },
-    body1: {
-      fontSize: '1rem',
-      fontWeight: 400,
-    },
-    body2: {
-      fontSize: '0.875rem',
-      fontWeight: 400,
-    },
-    caption: {
-      fontSize: '0.75rem',
-      fontWeight: 300,
-    },
-  },
-  breakpoints: {
-    values: {
-      mobile: 0,
-      tablet: 744,
-      laptop: 992,
-      desktop: 1200,
-    },
-  },
-  components: {
-    // MuiButton: {
-    //   styleOverrides: {
-    //     root: ({ theme }) => ({
-    //       borderRadius: '100px',
-    //       textTransform: 'none',
-    //       '&.MuiButton-containedPrimary:hover': {
-    //         backgroundColor: theme.palette.primary.light,
-    //       },
-    //       '&.MuiButton-containedSecondary': {
-    //         color: theme.palette.primary.main,
-    //         backgroundColor:
-    //           theme.palette.mode === 'light'
-    //             ? 'rgba(99, 95, 199, 0.1)'
-    //             : 'white',
-    //       },
-    //       '&.MuiButton-containedSecondary:hover': {
-    //         backgroundColor:
-    //           theme.palette.mode === 'light'
-    //             ? 'rgba(99, 95, 199, 0.25)'
-    //             : 'white',
-    //       },
-    //       '&.MuiButton-containedError:hover': {
-    //         backgroundColor: theme.palette.error.light,
-    //       },
-    //     }),
-    //   },
-    // },
-  },
-});
+    ...newTheme,
+  });
+}
+
+export const theme = generateTheme();
