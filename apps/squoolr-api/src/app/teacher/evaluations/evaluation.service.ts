@@ -4,7 +4,7 @@ import {
   EvaluationSubTypeEnum,
   Prisma,
 } from '@prisma/client';
-import { CodeGeneratorService } from 'apps/api/src/utils/code-generator';
+import { CodeGeneratorService } from '../../../utils/code-generator';
 import { AUTH404, ERR13, ERR15, ERR16 } from '../../../errors';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {

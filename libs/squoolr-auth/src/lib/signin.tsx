@@ -11,7 +11,8 @@ import {
   Typography,
 } from '@mui/material';
 import { signIn } from '@squoolr/api-services';
-import { getUserRoles, useUser } from '@squoolr/squoolr-layout';
+import { AcademicYearInterface, UserRole } from '@squoolr/interfaces';
+import { SelectAcademicYearDialog, getUserRoles, useUser } from '@squoolr/squoolr-layout';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useFormik } from 'formik';
@@ -20,8 +21,6 @@ import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router';
 import * as Yup from 'yup';
 import favicon from './logo.png';
-import { SelectAcademicYearDialog } from 'libs/layout/src/lib/selectAcademicYear';
-import { IUser, UserRole, AcademicYearInterface } from '@squoolr/interfaces';
 
 export function Signin({
   callingApp,

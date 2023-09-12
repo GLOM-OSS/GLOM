@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { CodeGeneratorService } from 'apps/api/src/utils/code-generator';
+import { CodeGeneratorService } from '../../../../utils/code-generator';
 import { PersonnelService } from '../personnel.service';
 import { RegistryController } from './registry.controller';
 
