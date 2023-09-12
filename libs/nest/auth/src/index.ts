@@ -1,1 +1,1 @@
-export * from './lib/nest-auth.module';
+export * from './lib/glom-auth.module';
