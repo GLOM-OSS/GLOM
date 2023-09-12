@@ -3,9 +3,11 @@ import Head from 'next/head';
 import { Box } from '@mui/material';
 import { useEffect, useState } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
+import '../public/styles/root.scss';
 import '../public/styles/global.scss';
 import '../public/styles/notifGlobalStyles.css';
 import '../public/styles/reset.css';
+import { SquoolrThemeProvider } from '@squoolr/theme';
 
 function CustomApp({ Component, pageProps }: AppProps) {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
@@ -27,7 +29,7 @@ function CustomApp({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    <>
+    <SquoolrThemeProvider>
       <Head>
         <title>LYNKR</title>
         <link
@@ -43,14 +45,13 @@ function CustomApp({ Component, pageProps }: AppProps) {
           height: '100vh',
           display: 'grid',
           gridAutoFlow: 'column',
-          justifyContent: 'center',
         }}
       >
         <Box sx={{ minWidth: { tablet: '48vw', mobile: '100vw' } }}>
           <Component {...pageProps} />
         </Box>
       </main>
-    </>
+    </SquoolrThemeProvider>
   );
 }
 
