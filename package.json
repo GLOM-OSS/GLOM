@@ -5,7 +5,10 @@
   "scripts": {
     "start": "nx serve",
     "build": "nx build",
-    "test": "nx test"
+    "test": "nx test",
+    "prisma:dev": "prisma migrate dev --schema",
+    "prisma:deploy": "prisma migrate deploy --schema",
+    "prisma:merge:lynkr-api": "cat libs/nest/auth/src/glom-auth.prisma apps/lynkr-api/src/prisma/lynkr.prisma > schemas/lynkr.prisma"
   },
   "private": true,
   "dependencies": {
@@ -124,8 +127,5 @@
     "ts-jest": "28.0.5",
     "ts-node": "10.9.1",
     "typescript": "~4.7.2"
-  },
-  "prisma": {
-    "schema": "apps/api/src/prisma/Squoolr.prisma"
   }
 }
