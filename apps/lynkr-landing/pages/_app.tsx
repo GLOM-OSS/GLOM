@@ -1,10 +1,11 @@
 import { AppProps } from 'next/app';
 import Head from 'next/head';
-import './styles.css';
-
 import { Box } from '@mui/material';
 import { useEffect, useState } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
+import '../public/styles/global.scss';
+import '../public/styles/notifGlobalStyles.css';
+import '../public/styles/reset.css';
 
 function CustomApp({ Component, pageProps }: AppProps) {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
