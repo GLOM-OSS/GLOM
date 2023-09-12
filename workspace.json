@@ -13,6 +13,7 @@
     "lynkr-landing": "apps/lynkr-landing",
     "lynkr-landing-e2e": "apps/lynkr-landing-e2e",
     "mailer": "libs/mailer",
+    "nest-auth": "libs/nest/auth",
     "request": "libs/request",
     "squoolr-admin": "apps/squoolr-admin",
     "squoolr-admin-e2e": "apps/squoolr-admin-e2e",
