@@ -1,0 +1,46 @@
+<html lang='en'>
+
+  <head>
+    <meta charset='UTF-8' />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Driving school registration</title>
+    <style>
+      h1 { color: blueviolet; } .cover{ background-image:
+      {{coverImage}}; } li { list-style: none; }
+    </style>
+  </head>
+  <body>
+    <div class='cover'>
+      <img width='150' height='100' src={{logo}} alt='draivway.com' />
+      <h1> Driving school registration </h1>
+    </div>
+    <div>
+      <p>{{email_tille}}</p>
+      <p>
+        Welcome to draivway.com, we are send you this email to confirm that your
+        demand has been successfuly forwarded to draivway administrators width
+        the following informations
+        <ul>
+          <li>Driving school name: {{school_name}}</li>
+          <li>Driving school location: {{school_location}}</li>
+          <li>Head of agence name: {{owner_name}}</li>
+          <li>Head of agence email: {{owner_email}}</li>
+        </ul>
+      </p>
+      <p>{{message}}</p>
+      <p>
+        An email will be send to you to confirm the creation of your driving
+        school on our plateform. Stay tune !
+        <br />
+        For any other isssues
+        <a href='mailto:issues@draivway.com'> contact us </a>
+      </p>
+      <p>
+        <button>
+          Thank you for trusting us
+        </button>
+      </p>
+    </div>
+  </body>
+</html>

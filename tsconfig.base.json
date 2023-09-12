@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@glom/nest-auth": ["libs/nest/auth/src/index.ts"],
       "@glom/request": ["libs/request/src/index.ts"],
       "@squoolr/api-services": ["libs/api-services/src/index.ts"],
       "@squoolr/axios": ["libs/axios/src/index.ts"],
@@ -23,7 +24,7 @@
       "@squoolr/dto": ["libs/dto/src/index.ts"],
       "@squoolr/encrypter": ["libs/encrypter/src/index.ts"],
       "@squoolr/interfaces": ["libs/interfaces/src/index.ts"],
-      "@squoolr/mailer": ["libs/mailer/src/index.ts"],
+      "@squoolr/nest-mailer": ["libs/nest/mailer/src/index.ts"],
       "@squoolr/squoolr-auth": ["libs/squoolr-auth/src/index.ts"],
       "@squoolr/squoolr-layout": ["libs/squoolr-layout/src/index.ts"],
       "@squoolr/tasks": ["libs/tasks/src/index.ts"],

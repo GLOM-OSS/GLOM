@@ -1,20 +1,20 @@
 {
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/mailer/src",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/nest/mailer/src",
   "projectType": "library",
   "targets": {
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/mailer/**/*.ts"]
+        "lintFilePatterns": ["libs/nest/mailer/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/mailer"],
+      "outputs": ["coverage/libs/nest/mailer"],
       "options": {
-        "jestConfig": "libs/mailer/jest.config.ts",
+        "jestConfig": "libs/nest/mailer/jest.config.ts",
         "passWithNoTests": true
       }
     }

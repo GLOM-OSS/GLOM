@@ -1,7 +1,7 @@
 /* eslint-disable */
 export default {
-  displayName: 'mailer',
-  preset: '../../jest.preset.js',
+  displayName: 'nest-mailer',
+  preset: '../../../jest.preset.js',
   globals: {
     'ts-jest': {
       tsconfig: '<rootDir>/tsconfig.spec.json',
@@ -12,5 +12,5 @@ export default {
     '^.+\\.[tj]s$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/libs/mailer',
+  coverageDirectory: '../../../coverage/libs/nest/mailer',
 };
