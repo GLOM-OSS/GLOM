@@ -1,4 +1,4 @@
-import { ForgotPassword } from '@squoolr/squoolr-auth';
+import { ForgotPassword } from '@squoolr/auth';
 
 function ForgotPasswordPage() {
   return <ForgotPassword />;

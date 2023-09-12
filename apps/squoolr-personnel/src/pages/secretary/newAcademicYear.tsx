@@ -20,7 +20,7 @@ import {
   templateAcademicYear,
 } from '@squoolr/api-services';
 import { AcademicYearInterface } from '@squoolr/interfaces';
-import { useUser } from '@squoolr/squoolr-layout';
+import { useUser } from '@squoolr/layout';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import moment from 'moment';

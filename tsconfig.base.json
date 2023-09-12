@@ -26,8 +26,8 @@
       "@squoolr/interfaces": ["libs/interfaces/src/index.ts"],
       "@squoolr/nest-mailer": ["libs/nest/mailer/src/index.ts"],
       "@squoolr/nest-tasks": ["libs/nest/tasks/src/index.ts"],
-      "@squoolr/squoolr-auth": ["libs/squoolr-auth/src/index.ts"],
-      "@squoolr/squoolr-layout": ["libs/squoolr-layout/src/index.ts"],
+      "@squoolr/auth": ["libs/squoolr-auth/src/index.ts"],
+      "@squoolr/layout": ["libs/squoolr-layout/src/index.ts"],
       "@squoolr/theme": ["libs/theme/src/index.ts"],
       "@squoolr/toast": ["libs/toast/src/index.ts"],
       "@squoolr/utils": ["libs/utils/src/index.ts"]

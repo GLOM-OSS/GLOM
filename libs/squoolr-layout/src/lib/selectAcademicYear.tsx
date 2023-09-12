@@ -17,7 +17,7 @@ import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { getAcademicYearRoles } from '@squoolr/api-services';
-import { useUser } from '@squoolr/squoolr-layout';
+import { useUser } from '@squoolr/layout';
 import { AcademicYearInterface } from '@squoolr/interfaces';
 
 export function SelectAcademicYearDialog({

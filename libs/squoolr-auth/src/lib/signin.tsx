@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { signIn } from '@squoolr/api-services';
 import { AcademicYearInterface, UserRole } from '@squoolr/interfaces';
-import { SelectAcademicYearDialog, getUserRoles, useUser } from '@squoolr/squoolr-layout';
+import { SelectAcademicYearDialog, getUserRoles, useUser } from '@squoolr/layout';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useFormik } from 'formik';

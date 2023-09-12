@@ -1,4 +1,4 @@
-import { Signin } from '@squoolr/squoolr-auth';
+import { Signin } from '@squoolr/auth';
 
 function SigninPage() {
   return <Signin callingApp="personnel" />;

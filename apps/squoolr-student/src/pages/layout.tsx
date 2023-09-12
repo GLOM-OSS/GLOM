@@ -2,7 +2,7 @@ import { LayersOutlined } from '@mui/icons-material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { INavItem } from '@squoolr/interfaces';
-import { MainLayout } from '@squoolr/squoolr-layout';
+import { MainLayout } from '@squoolr/layout';
 import { injectIntl, IntlShape } from 'react-intl';
 
 function AppLayout({ intl: { formatMessage } }: { intl: IntlShape }) {

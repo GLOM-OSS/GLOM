@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { getCourses } from '@squoolr/api-services';
 import { Course } from '@squoolr/interfaces';
-import { useUser } from '@squoolr/squoolr-layout';
+import { useUser } from '@squoolr/layout';
 import { theme } from '@squoolr/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
