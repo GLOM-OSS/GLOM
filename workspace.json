@@ -14,6 +14,7 @@
     "lynkr-landing-e2e": "apps/lynkr-landing-e2e",
     "nest-auth": "libs/nest/auth",
     "nest-mailer": "libs/nest/mailer",
+    "nest-tasks": "libs/nest/tasks",
     "request": "libs/request",
     "squoolr-admin": "apps/squoolr-admin",
     "squoolr-admin-e2e": "apps/squoolr-admin-e2e",
@@ -26,7 +27,6 @@
     "squoolr-personnel-e2e": "apps/squoolr-personnel-e2e",
     "squoolr-student": "apps/squoolr-student",
     "squoolr-student-e2e": "apps/squoolr-student-e2e",
-    "tasks": "libs/tasks",
     "theme": "libs/theme",
     "toast": "libs/toast",
     "utils": "libs/utils"

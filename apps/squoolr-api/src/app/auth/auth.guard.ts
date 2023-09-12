@@ -6,7 +6,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { TasksService } from '@squoolr/tasks';
+import { TasksService } from '@squoolr/nest-tasks';
 import { Request } from 'express';
 import { AUTH05, ERR14, sAUTH403 } from '../../errors';
 import { DeserializeSessionData, Role } from '../../utils/types';

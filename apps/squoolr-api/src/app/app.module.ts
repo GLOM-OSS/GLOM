@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { TasksModule } from '@squoolr/tasks';
+import { TasksModule } from '@squoolr/nest-tasks';
 
 import * as connectRedis from 'connect-redis';
 import { randomUUID } from 'crypto';

@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AcademicYearStatus, Login } from '@prisma/client';
-import { CronJobEvents, TasksService } from '@squoolr/tasks';
+import { CronJobEvents, TasksService } from '@squoolr/nest-tasks';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { AUTH02, AUTH04, AUTH401, AUTH404, sAUTH404 } from '../../errors';
