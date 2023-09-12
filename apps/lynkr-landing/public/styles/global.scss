@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+body,
+#__next,
+html {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif !important;
+  background-color: var(--color-background);
+  color: var(--titleActive);
+}
+
+.container--x {
+  width: 100%;
+  max-width: 1276px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  margin: 0 auto;
+  background-color: red;
+}
+
+.stripe-card {
+  border: 1px solid #232792;
+  border-radius: 4px;
+  padding: 4px 6px;
+}
+
+.p1,
+.p1--space,
+.p2,
+.p2--space,
+.p4 {
+  font-weight: 600;
+  color: var(--label);
+}
+.p1,
+.p1--space {
+  font-size: 18px;
+  line-height: 28px;
+}
+
+.p1--space {
+  line-height: 32px;
+}
+
+.p2,
+.p2--space {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.p2--space {
+  line-height: 28px;
+}
+
+.p3,
+.p3--space,
+.table {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--label);
+}
+
+.p3--space {
+  line-height: 24px;
+}
+
+.p4 {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.label1 {
+  font-size: 12px;
+  line-height: 12px;
+  letter-spacing: 5%;
+}
+
+.label2 {
+  font-size: 10px;
+  line-height: 10px;
+  letter-spacing: 5%;
+}
+
+.title-landing-page {
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 70px;
+  letter-spacing: -1.75%;
+  padding-bottom: var(--paragraph-spacing);
+  color: var(--color-primary) #172b4d;
+}
+
+.h1--mobile {
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 36px;
+  letter-spacing: -2%;
+  padding-bottom: var(--paragraph-spacing);
+}
+
+.h2--mobile {
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 28px;
+  letter-spacing: -2%;
+  padding-bottom: var(--paragraph-spacing);
+}
+
+.h3--mobile {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 24px;
+  letter-spacing: -1.75%;
+  padding-bottom: var(--paragraph-spacing);
+}
+
+.h4--mobile,
+.h5--mobile {
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: -1.5%;
+  padding-bottom: 10px;
+  font-size: 18px;
+}
+
+.h5--mobile {
+  font-size: 16px;
+}
+
+.table {
+  font-weight: 400;
+}
