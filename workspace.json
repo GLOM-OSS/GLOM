@@ -14,6 +14,7 @@
     "lynkr-landing-e2e": "apps/lynkr-landing-e2e",
     "nest-auth": "libs/nest/auth",
     "nest-mailer": "libs/nest/mailer",
+    "nest-prisma": "libs/nest/prisma",
     "nest-tasks": "libs/nest/tasks",
     "request": "libs/request",
     "squoolr-admin": "apps/squoolr-admin",
