@@ -105,41 +105,59 @@ export const theme = createTheme({
       main: '#DD0303',
     },
     success: {
-      main: '#00BA88',
+      main: '#5CB360',
+    },
+    warning: {
+      main: '#F59300',
     },
   },
   common: {
-    line: '#D9DBE9',
+    titleActive: '#172B4D',
+    body: '#2F3A45',
+    label: '#6E6D7A',
+    placeholder: '#A0A3BD',
+    line: '#D1D5DB',
     inputBackground: '#F4F5F7',
     background: BACKGROUND,
     offWhite: '#FFFFFF',
-    placeholder: '#A0A3BD',
-    label: '#6E6D7A',
-    body: '#2F3A45',
-    titleActive: '#172B4D',
     dialogBackground: BACKGROUND,
   },
   typography: {
-    fontFamily: ['Poppins','Montserrat', 'Roboto', 'serif'].join(','),
+    fontFamily: ['Inter', 'sans-serif'].join(','),
     h1: {
-      fontSize: '3.5rem',
+      fontSize: '36px',
+      lineHeight: '44px',
+      letterSpacing: '-2%',
+      paddingBottom: '10px',
       fontWeight: 700,
     },
     h2: {
-      fontSize: '3rem',
       fontWeight: 700,
+      fontSize: '30px',
+      lineHeight: '36px',
+      letterSpacing: '-2%',
+      paddingBottom: '10px',
     },
     h3: {
-      fontSize: '2.5rem',
-      fontWeight: 500,
+      fontWeight: 600,
+      fontSize: '24px',
+      lineHeight: '32px',
+      letterSpacing: '-1.75%',
+      paddingBottom: '10px',
     },
     h4: {
-      fontSize: '2rem',
       fontWeight: 500,
+      fontSize: '20px',
+      lineHeight: '24px',
+      letterSpacing: '-1.5%',
+      paddingBottom: '10px',
     },
     h5: {
-      fontSize: '1.5rem',
-      fontWeight: 500,
+      fontWeight: 600,
+      fontSize: '18px',
+      lineHeight: '20px',
+      letterSpacing: '-1.5%',
+      paddingBottom: '10px',
     },
     body1: {
       fontSize: '1rem',
@@ -162,6 +180,33 @@ export const theme = createTheme({
       desktop: 1200,
     },
   },
+  components: {
+    // MuiButton: {
+    //   styleOverrides: {
+    //     root: ({ theme }) => ({
+    //       borderRadius: '100px',
+    //       textTransform: 'none',
+    //       '&.MuiButton-containedPrimary:hover': {
+    //         backgroundColor: theme.palette.primary.light,
+    //       },
+    //       '&.MuiButton-containedSecondary': {
+    //         color: theme.palette.primary.main,
+    //         backgroundColor:
+    //           theme.palette.mode === 'light'
+    //             ? 'rgba(99, 95, 199, 0.1)'
+    //             : 'white',
+    //       },
+    //       '&.MuiButton-containedSecondary:hover': {
+    //         backgroundColor:
+    //           theme.palette.mode === 'light'
+    //             ? 'rgba(99, 95, 199, 0.25)'
+    //             : 'white',
+    //       },
+    //       '&.MuiButton-containedError:hover': {
+    //         backgroundColor: theme.palette.error.light,
+    //       },
+    //     }),
+    //   },
+    // },
+  },
 });
-
-// export default theme;
