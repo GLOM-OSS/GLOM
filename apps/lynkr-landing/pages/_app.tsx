@@ -7,7 +7,7 @@ import '../public/styles/root.scss';
 import '../public/styles/global.scss';
 import '../public/styles/notifGlobalStyles.css';
 import '../public/styles/reset.css';
-import { SquoolrThemeProvider } from '@squoolr/theme';
+import { GlomThemeProvider } from '@squoolr/theme';
 
 function CustomApp({ Component, pageProps }: AppProps) {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
@@ -29,7 +29,7 @@ function CustomApp({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    <SquoolrThemeProvider>
+    <GlomThemeProvider>
       <Head>
         <title>LYNKR</title>
         <link
@@ -51,7 +51,7 @@ function CustomApp({ Component, pageProps }: AppProps) {
           <Component {...pageProps} />
         </Box>
       </main>
-    </SquoolrThemeProvider>
+    </GlomThemeProvider>
   );
 }
 
