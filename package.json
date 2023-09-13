@@ -8,7 +8,7 @@
     "test": "nx test",
     "prisma:dev": "prisma migrate dev --schema",
     "prisma:deploy": "prisma migrate deploy --schema",
-    "prisma:merge:lynkr-api": "cat libs/nest/auth/src/glom-auth.prisma apps/lynkr-api/src/prisma/lynkr.prisma > schemas/lynkr.prisma"
+    "prisma:merge:lynkr-api": "cat libs/nest/auth/src/glom-auth.prisma apps/lynkr-api/src/prisma/lynkr.prisma > schemas/lynkr/lynkr.prisma"
   },
   "private": true,
   "dependencies": {
@@ -108,6 +108,7 @@
     "@typescript-eslint/parser": "~5.33.1",
     "babel-jest": "28.1.1",
     "cypress": "^10.7.0",
+    "dotenv-cli": "^7.3.0",
     "eslint": "~8.15.0",
     "eslint-config-next": "12.2.5",
     "eslint-config-prettier": "8.1.0",
