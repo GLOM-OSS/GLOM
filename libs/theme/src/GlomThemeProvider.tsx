@@ -37,7 +37,7 @@ const App = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export function SquoolrThemeProvider({
+export function GlomThemeProvider({
   children,
 }: {
   children: React.ReactNode;
@@ -49,4 +49,4 @@ export function SquoolrThemeProvider({
   );
 }
 
-export default SquoolrThemeProvider;
+export default GlomThemeProvider;
