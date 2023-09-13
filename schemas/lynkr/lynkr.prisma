@@ -52,16 +52,9 @@ model PersonAudit {
     person          Person   @relation(fields: [person_id], references: [person_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-enum RoleEnum {
-    Admin
-    Client
-    Developer
-    Accountant
-}
-
 model Role {
     role_id    String   @id @default(uuid()) @db.VarChar(36)
-    role_name  RoleEnum @unique
+    role_name  String   @unique
     origin     String   @db.VarChar(45) ///admin.lynkr.net
     created_at DateTime @default(now()) @db.DateTime(0)
     created_by String?  @db.VarChar(36)
@@ -73,7 +66,7 @@ model Role {
 
 model RoleAudit {
     role_audit_id String   @id @default(uuid()) @db.VarChar(36)
-    role_name     RoleEnum
+    role_name     String
     audited_at    DateTime @default(now()) @db.DateTime(0)
     role_id       String   @db.VarChar(36)
     role          Role     @relation(fields: [role_id], references: [role_id], onDelete: Cascade, onUpdate: Cascade)
