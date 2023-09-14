@@ -1,15 +1,18 @@
-import { ThemeProvider, CssBaseline } from '@mui/material';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import { Theme } from '@mui/material/styles';
 import React from 'react';
-import { theme } from './theme';
-import { Flip, ToastContainer } from 'react-toastify';
 import { IntlProvider } from 'react-intl';
+import { Flip, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LanguageContextProvider, {
   useLanguage,
 } from './contexts/language/LanguageContextProvider';
-import frMessages from './languages/fr';
+import AppThemeContextProvider, {
+  useAppTheme,
+} from './contexts/themeContext/AppThemeContextProvider';
 import enMessages from './languages/en-us';
+import frMessages from './languages/fr';
+import { theme } from './theme';
 
 const App = ({
   children,
@@ -20,6 +23,8 @@ const App = ({
 }) => {
   const { activeLanguage } = useLanguage();
   const activeMessages = activeLanguage === 'fr' ? frMessages : enMessages;
+  const { themeDispatch } = useAppTheme();
+  themeDispatch({ payload: newTheme ?? theme });
   return (
     <IntlProvider
       messages={activeMessages}
@@ -59,7 +64,9 @@ export function GlomThemeProvider({
 }) {
   return (
     <LanguageContextProvider>
-      <App newTheme={theme}>{children}</App>
+      <AppThemeContextProvider>
+        <App newTheme={theme}>{children}</App>
+      </AppThemeContextProvider>
     </LanguageContextProvider>
   );
 }
