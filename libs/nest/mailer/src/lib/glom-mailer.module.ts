@@ -1,12 +1,12 @@
 import { MailerModule as NestMailerModule } from '@nestjs-modules/mailer';
 import { HttpModule } from '@nestjs/axios';
 import { Global, Module } from '@nestjs/common';
-import { ILoginOptions } from './mailer.interface';
-import { MailerService } from './mailer.service';
+import { ILoginOptions } from './glom-mailer.interface';
+import { GlomMailerService } from './glom-mailer.service';
 
 @Global()
 @Module({})
-export class MailerModule {
+export class GlomMailerModule {
   /**
    * This is a Custom mailer module implementation of the `@nestjs-modules/mailer` package.
    *
@@ -15,7 +15,7 @@ export class MailerModule {
   static forRoot(mailerOptions: ILoginOptions) {
     const { templatesDir, user, host, pass } = mailerOptions;
     return {
-      module: MailerModule,
+      module: GlomMailerModule,
       imports: [
         HttpModule.register({ baseURL: templatesDir }),
         NestMailerModule.forRoot({
@@ -27,8 +27,8 @@ export class MailerModule {
           },
         }),
       ],
-      providers: [MailerService],
-      exports: [MailerService],
+      providers: [GlomMailerService],
+      exports: [GlomMailerService],
     };
   }
 }

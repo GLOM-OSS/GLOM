@@ -1,23 +1,23 @@
 import {
+  MailerService,
   ISendMailOptions,
-  MailerService as Mailer,
 } from '@nestjs-modules/mailer';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import * as Handlebars from 'handlebars';
 
-import { IPlainTemplate, ISendMailPayload } from './mailer.interface';
+import { IPlainTemplate, ISendMailPayload } from './glom-mailer.interface';
 
 @Injectable()
-export class MailerService {
+export class GlomMailerService {
   constructor(
-    private readonly mailerService: Mailer,
+    private readonly mailerService: MailerService,
     private readonly httpService: HttpService
   ) {}
 
   async sendEmail({
     to,
-    from = 'PAY.XAFSHOP LLC support@xafshop.com',
+    from = 'LYNKR support@lynkr.net',
     subject,
     template,
     template: { template_name, messages },
@@ -30,7 +30,7 @@ export class MailerService {
         (template as IPlainTemplate).messages.message
       }</p>
         <div style="background-color: #232792; padding: 12px; color: #ffff;">
-            <a href="https://pay.xafshop.com">Xafpay</a>, Get the best conversion rates for no cost.
+            <a href="https://pay.xafshop.com">Xafpay</a>, Get the best throughput at low cost.
         </div>
       </div>`,
     };
@@ -49,13 +49,13 @@ export class MailerService {
       } catch (error) {
         Logger.error(
           `Failed to compile template: ${error}`,
-          MailerService.name
+          GlomMailerService.name
         );
       }
     }
 
     const result = await this.mailerService.sendMail(mailObject);
-    Logger.log(result, MailerService.name);
+    Logger.log(result, GlomMailerService.name);
     return result;
   }
 }

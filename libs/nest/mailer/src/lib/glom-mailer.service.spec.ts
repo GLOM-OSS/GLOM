@@ -1,19 +1,19 @@
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
-import { MailerModule } from './mailer.module';
-import { MailerService } from './mailer.service';
+import { GlomMailerModule } from './glom-mailer.module';
+import { GlomMailerService } from './glom-mailer.service';
 
 describe('MailerService', () => {
-  let service: MailerService;
+  let service: GlomMailerService;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [MailerService],
+      providers: [GlomMailerService],
       imports: [
         HttpModule,
         ConfigModule.forRoot(),
-        MailerModule.forRoot({
+        GlomMailerModule.forRoot({
           authType: 'Login',
           user: String(process.env['APP_EMAIL']),
           host: String(process.env['EMAIL_HOST']),
@@ -23,7 +23,7 @@ describe('MailerService', () => {
       ],
     }).compile();
 
-    service = module.get(MailerService);
+    service = module.get(GlomMailerService);
   });
 
   it('should be defined', () => {
