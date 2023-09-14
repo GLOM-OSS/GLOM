@@ -1,4 +1,5 @@
 import { ThemeProvider, CssBaseline } from '@mui/material';
+import { Theme } from '@mui/material/styles';
 import React from 'react';
 import { theme } from './theme';
 import { Flip, ToastContainer } from 'react-toastify';
@@ -10,7 +11,13 @@ import LanguageContextProvider, {
 import frMessages from './languages/fr';
 import enMessages from './languages/en-us';
 
-const App = ({ children }: { children: React.ReactNode }) => {
+const App = ({
+  children,
+  newTheme,
+}: {
+  children: React.ReactNode;
+  newTheme?: Theme;
+}) => {
   const { activeLanguage } = useLanguage();
   const activeMessages = activeLanguage === 'fr' ? frMessages : enMessages;
   return (
@@ -19,7 +26,7 @@ const App = ({ children }: { children: React.ReactNode }) => {
       locale={activeLanguage}
       defaultLocale="fr"
     >
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={newTheme ?? theme}>
         <ToastContainer
           position="top-right"
           autoClose={1000}
@@ -37,14 +44,22 @@ const App = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+/**
+ *
+ * @param {Theme} theme - the new theme to overright the base GLOM theme
+ * @param {React.ReactNode} children - children that'll consume the provided theme
+ * @returns {JSX.Element}
+ */
 export function GlomThemeProvider({
   children,
+  theme,
 }: {
   children: React.ReactNode;
+  theme?: Theme;
 }) {
   return (
     <LanguageContextProvider>
-      <App>{children}</App>
+      <App newTheme={theme}>{children}</App>
     </LanguageContextProvider>
   );
 }

@@ -27,7 +27,7 @@ declare module '@mui/material/styles' {
     };
   }
   interface ThemeOptions {
-    common: {
+    common?: {
       line: React.CSSProperties['color'];
       inputBackground: React.CSSProperties['color'];
       background: React.CSSProperties['color'];
@@ -95,8 +95,8 @@ const BACKGROUND = '#FAFAFD';
 
 export function generateTheme(newTheme?: ThemeOptions): Theme {
   return createTheme({
-    ...{
-      palette: {
+    palette: {
+      ...{
         primary: {
           main: '#0B77DB',
         },
@@ -113,7 +113,10 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
           main: '#F59300',
         },
       },
-      common: {
+      ...newTheme?.palette,
+    },
+    common: {
+      ...{
         titleActive: '#172B4D',
         body: '#2F3A45',
         label: '#6E6D7A',
@@ -124,7 +127,10 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
         offWhite: '#FFFFFF',
         dialogBackground: BACKGROUND,
       },
-      typography: {
+      ...newTheme?.common,
+    },
+    typography: {
+      ...{
         fontFamily: ['Inter', 'sans-serif'].join(','),
         h1: {
           fontSize: '36px',
@@ -174,45 +180,49 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
           fontWeight: 300,
         },
       },
-      breakpoints: {
-        values: {
+      ...newTheme?.typography,
+    },
+    breakpoints: {
+      values: {
+        ...{
           mobile: 0,
           tablet: 744,
           laptop: 992,
           desktop: 1200,
         },
-      },
-      components: {
-        // MuiButton: {
-        //   styleOverrides: {
-        //     root: ({ theme }) => ({
-        //       borderRadius: '100px',
-        //       textTransform: 'none',
-        //       '&.MuiButton-containedPrimary:hover': {
-        //         backgroundColor: theme.palette.primary.light,
-        //       },
-        //       '&.MuiButton-containedSecondary': {
-        //         color: theme.palette.primary.main,
-        //         backgroundColor:
-        //           theme.palette.mode === 'light'
-        //             ? 'rgba(99, 95, 199, 0.1)'
-        //             : 'white',
-        //       },
-        //       '&.MuiButton-containedSecondary:hover': {
-        //         backgroundColor:
-        //           theme.palette.mode === 'light'
-        //             ? 'rgba(99, 95, 199, 0.25)'
-        //             : 'white',
-        //       },
-        //       '&.MuiButton-containedError:hover': {
-        //         backgroundColor: theme.palette.error.light,
-        //       },
-        //     }),
-        //   },
-        // },
+        ...newTheme?.breakpoints?.values,
       },
     },
-    ...newTheme,
+    components: {
+      // FOR EVERY COMPONENT, DESTRUCTURE AND ADD ...newTheme?.components?.componentName
+      // MuiButton: {
+      //   styleOverrides: {
+      //     root: ({ theme }) => ({
+      //       borderRadius: '100px',
+      //       textTransform: 'none',
+      //       '&.MuiButton-containedPrimary:hover': {
+      //         backgroundColor: theme.palette.primary.light,
+      //       },
+      //       '&.MuiButton-containedSecondary': {
+      //         color: theme.palette.primary.main,
+      //         backgroundColor:
+      //           theme.palette.mode === 'light'
+      //             ? 'rgba(99, 95, 199, 0.1)'
+      //             : 'white',
+      //       },
+      //       '&.MuiButton-containedSecondary:hover': {
+      //         backgroundColor:
+      //           theme.palette.mode === 'light'
+      //             ? 'rgba(99, 95, 199, 0.25)'
+      //             : 'white',
+      //       },
+      //       '&.MuiButton-containedError:hover': {
+      //         backgroundColor: theme.palette.error.light,
+      //       },
+      //     }),
+      //   },
+      // },
+    },
   });
 }
 
