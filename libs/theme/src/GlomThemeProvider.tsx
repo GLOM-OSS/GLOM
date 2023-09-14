@@ -1,6 +1,6 @@
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { Theme } from '@mui/material/styles';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { IntlProvider } from 'react-intl';
 import { Flip, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -24,7 +24,12 @@ const App = ({
   const { activeLanguage } = useLanguage();
   const activeMessages = activeLanguage === 'fr' ? frMessages : enMessages;
   const { themeDispatch } = useAppTheme();
-  themeDispatch({ payload: newTheme ?? theme });
+
+  useEffect(() => {
+    themeDispatch({ payload: newTheme ?? theme });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <IntlProvider
       messages={activeMessages}
