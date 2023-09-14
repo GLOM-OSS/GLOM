@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import type { GlomPrismaServiceOptions } from './glom-prisma.type.d';
 
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit {
+export class GlomPrismaService extends PrismaClient implements OnModuleInit {
   constructor(prismaConfig: GlomPrismaServiceOptions) {
     const { log_level, seedASync, seedSync } = prismaConfig;
     super({ log: log_level });

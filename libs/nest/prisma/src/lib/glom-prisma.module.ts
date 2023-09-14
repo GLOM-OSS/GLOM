@@ -1,5 +1,5 @@
 import { Logger, Module, Provider } from '@nestjs/common';
-import { PrismaService } from './glom-prisma.service';
+import { GlomPrismaService } from './glom-prisma.service';
 import { GlomPrismaModuleOptions } from './glom-prisma.type.d';
 
 @Module({})
@@ -13,14 +13,14 @@ export class GlomPrismaModule {
     seedASync,
   }: GlomPrismaModuleOptions) {
     const prismaProdiver: Provider = {
-      provide: PrismaService,
-      useValue: new PrismaService({ log_level, seedSync, seedASync }),
+      provide: GlomPrismaService,
+      useValue: new GlomPrismaService({ log_level, seedSync, seedASync }),
     };
     return {
       global,
       module: GlomPrismaModule,
       exports: [prismaProdiver],
-      prodiers: [prismaProdiver],
+      providers: [prismaProdiver],
     };
   }
 }
