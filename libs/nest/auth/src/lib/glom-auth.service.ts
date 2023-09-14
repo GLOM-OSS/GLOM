@@ -1,4 +1,4 @@
-import { PrismaService } from '@glom/prisma';
+import { GlomPrismaService } from '@glom/prisma';
 import {
   ConflictException,
   HttpException,
@@ -11,13 +11,13 @@ import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { SignUpDto, UserEntity } from './glom-auth.dto';
 import { User } from './glom-auth.type';
-import { MailerService, resetPasswordMessages } from '@glom/nest-mailer';
+import { GlomMailerService, resetPasswordMessages } from '@glom/nest-mailer';
 
 @Injectable()
 export class GlomAuthService {
   constructor(
-    private prismaService: PrismaService,
-    private mailerService: MailerService
+    private prismaService: GlomPrismaService,
+    private mailerService: GlomMailerService
   ) {}
 
   async validateUser(
@@ -196,5 +196,17 @@ export class GlomAuthService {
 
   async getRole(role_id: string) {
     return await this.prismaService.role.findUnique({ where: { role_id } });
+  }
+
+  async findOne(loginId: string): Promise<User | null> {
+    const user = await this.prismaService.login.findFirst({
+      select: { login_id: true, role_id: true, person: true },
+      where: { login_id: loginId, is_active: true },
+    });
+    if (user) {
+      const { person, ...login } = user;
+      return { ...login, ...person };
+    }
+    return null;
   }
 }
