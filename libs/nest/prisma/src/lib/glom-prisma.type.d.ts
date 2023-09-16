@@ -1,13 +1,11 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 
 export type GlomPrismaServiceOptions = {
-  seedSync: () => void;
-  seedASync?: () => Promise<void>;
-  log_level: (Prisma.LogLevel | Prisma.LogDefinition)[];
+  seedSync?: (prisma: PrismaClient) => void;
+  seedASync?: (prisma: PrismaClient) => Promise<void>;
+  log_level?: (Prisma.LogLevel | Prisma.LogDefinition)[];
 };
 
-export type GlomPrismaModuleOptions = Partial<
-  GlomPrismaServiceOptions & {
-    global: boolean;
-  }
->;
+export type GlomPrismaModuleOptions = GlomPrismaServiceOptions & {
+  global?: boolean;
+};
