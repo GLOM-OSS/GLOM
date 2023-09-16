@@ -11,6 +11,7 @@ import type { User } from './glom-auth.type.d';
 import { GlomPrismaModule, GlomPrismaService } from '@glom/prisma';
 import { LocalStrategy } from './local/local.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AUTH_ROLES, GlomAuthSeeder } from './glom-auth.seed';
 
 describe('AuthService', () => {
   const CLIENT_ORIGIN = 'localhost:4200';
@@ -35,34 +36,34 @@ describe('AuthService', () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GlomAuthService, LocalStrategy],
+      providers: [
+        GlomAuthService,
+        LocalStrategy,
+        GlomAuthSeeder,
+        {
+          provide: AUTH_ROLES,
+          useValue: [
+            { origin: process.env.CLIENT_ORIGIN, role_name: 'Client' },
+            {
+              origin: process.env.ADMIN_ORIGIN,
+              role_name: 'Admin',
+            },
+            {
+              origin: process.env.MERCHANT_ORIGIN,
+              role_name: 'Merchant',
+            },
+            {
+              origin: process.env.TECHNICIAN_ORIGIN,
+              role_name: 'Technician',
+            },
+          ],
+        },
+      ],
       imports: [
         ConfigModule.forRoot({
           envFilePath: 'lynkr.env',
         }),
-        GlomPrismaModule.forRoot({
-          async seedASync(prisma) {
-            const count = await prisma.role.count();
-            if (count === 0)
-              await prisma.role.createMany({
-                data: [
-                  { origin: process.env.CLIENT_ORIGIN, role_name: 'Client' },
-                  {
-                    origin: process.env.ADMIN_ORIGIN,
-                    role_name: 'Admin',
-                  },
-                  {
-                    origin: process.env.MERCHANT_ORIGIN,
-                    role_name: 'Merchant',
-                  },
-                  {
-                    origin: process.env.TECHNICIAN_ORIGIN,
-                    role_name: 'Technician',
-                  },
-                ],
-              });
-          },
-        }),
+        GlomPrismaModule.forRoot(),
         GlomMailerModule.forRoot({
           authType: 'Login',
           user: process.env.APP_EMAIL,
@@ -74,7 +75,7 @@ describe('AuthService', () => {
     }).compile();
     service = module.get<GlomAuthService>(GlomAuthService);
     prisma = module.get<GlomPrismaService>(GlomPrismaService);
-    
+
     //test data
     const { login_id, ...person } = user;
     await prisma.login.create({
