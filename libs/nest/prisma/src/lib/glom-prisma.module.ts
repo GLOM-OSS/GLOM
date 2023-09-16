@@ -4,18 +4,18 @@ import { GlomPrismaModuleOptions } from './glom-prisma.type.d';
 
 @Module({})
 export class GlomPrismaModule {
-  static forRoot(glomPrismaOptions?: GlomPrismaModuleOptions) {
-    const { global, ...options } = glomPrismaOptions;
-    const providers: Provider[] = [];
-    if (glomPrismaOptions) {
-      const prismaProdiver: Provider = {
+  static forRoot(
+    glomPrismaOptions: GlomPrismaModuleOptions = { isGlobal: false }
+  ) {
+    const { isGlobal, ...options } = glomPrismaOptions;
+    const providers: Provider[] = [
+      {
         provide: GlomPrismaService,
         useValue: new GlomPrismaService(options),
-      };
-      providers.push(prismaProdiver);
-    }
+      },
+    ];
     return {
-      global,
+      global: isGlobal,
       exports: providers,
       providers: providers,
       module: GlomPrismaModule,

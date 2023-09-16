@@ -7,5 +7,5 @@ export type GlomPrismaServiceOptions = {
 };
 
 export type GlomPrismaModuleOptions = GlomPrismaServiceOptions & {
-  global?: boolean;
+  isGlobal?: boolean;
 };
