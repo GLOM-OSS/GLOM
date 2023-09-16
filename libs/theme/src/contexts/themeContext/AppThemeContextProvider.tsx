@@ -37,11 +37,20 @@ function AppThemeContextProvider({
 
 export default AppThemeContextProvider;
 
-export const useAppTheme = () => {
+export const useTheme = () => {
   const context = useContext(AppThemeContext);
   if (!context) {
     throw new Error(
       'useAppTheme must be used as a descendant of ThemeContextProvider'
     );
-  } else return context;
+  } else return context.theme;
 };
+
+export function useDispatchTheme() {
+  const context = useContext(AppThemeContext);
+  if (!context) {
+    throw new Error(
+      'useAppTheme must be used as a descendant of ThemeContextProvider'
+    );
+  } else return context.themeDispatch;
+}
