@@ -1,3 +1,4 @@
+import { GlomMailerService, resetPasswordMessages } from '@glom/nest-mailer';
 import { GlomPrismaService } from '@glom/prisma';
 import {
   ConflictException,
@@ -11,14 +12,17 @@ import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { SignUpDto, UserEntity } from './glom-auth.dto';
 import { User } from './glom-auth.type';
-import { GlomMailerService, resetPasswordMessages } from '@glom/nest-mailer';
+import { GlomAuthSeeder } from './glom-auth.seed';
 
 @Injectable()
 export class GlomAuthService {
   constructor(
     private prismaService: GlomPrismaService,
-    private mailerService: GlomMailerService
-  ) {}
+    private mailerService: GlomMailerService,
+    private glomAuthSedder: GlomAuthSeeder
+  ) {
+    this.glomAuthSedder.getSeederStatus();
+  }
 
   async validateUser(
     request: Request,
