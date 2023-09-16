@@ -8,7 +8,7 @@ import LanguageContextProvider, {
   useLanguage,
 } from './contexts/language/LanguageContextProvider';
 import AppThemeContextProvider, {
-  useAppTheme,
+  useDispatchTheme
 } from './contexts/themeContext/AppThemeContextProvider';
 import enMessages from './languages/en-us';
 import frMessages from './languages/fr';
@@ -23,7 +23,7 @@ const App = ({
 }) => {
   const { activeLanguage } = useLanguage();
   const activeMessages = activeLanguage === 'fr' ? frMessages : enMessages;
-  const { themeDispatch } = useAppTheme();
+  const themeDispatch = useDispatchTheme();
 
   useEffect(() => {
     themeDispatch({ payload: newTheme ?? theme });
