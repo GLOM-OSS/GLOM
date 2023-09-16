@@ -195,33 +195,36 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
     },
     components: {
       // FOR EVERY COMPONENT, DESTRUCTURE AND ADD ...newTheme?.components?.componentName
-      // MuiButton: {
-      //   styleOverrides: {
-      //     root: ({ theme }) => ({
-      //       borderRadius: '100px',
-      //       textTransform: 'none',
-      //       '&.MuiButton-containedPrimary:hover': {
-      //         backgroundColor: theme.palette.primary.light,
-      //       },
-      //       '&.MuiButton-containedSecondary': {
-      //         color: theme.palette.primary.main,
-      //         backgroundColor:
-      //           theme.palette.mode === 'light'
-      //             ? 'rgba(99, 95, 199, 0.1)'
-      //             : 'white',
-      //       },
-      //       '&.MuiButton-containedSecondary:hover': {
-      //         backgroundColor:
-      //           theme.palette.mode === 'light'
-      //             ? 'rgba(99, 95, 199, 0.25)'
-      //             : 'white',
-      //       },
-      //       '&.MuiButton-containedError:hover': {
-      //         backgroundColor: theme.palette.error.light,
-      //       },
-      //     }),
-      //   },
-      // },
+      MuiButton: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            borderRadius: '8px',
+            textTransform: 'none',
+            padding: '12px 8px',
+            fontWeight: 'var(--semiBold)',
+            lineHeight: '14px',
+            // '&.MuiButton-containedPrimary:hover': {
+            //   backgroundColor: theme.palette.primary.light,
+            // },
+            // '&.MuiButton-containedSecondary': {
+            //   color: theme.palette.primary.main,
+            //   backgroundColor:
+            //     theme.palette.mode === 'light'
+            //       ? 'rgba(99, 95, 199, 0.1)'
+            //       : 'white',
+            // },
+            // '&.MuiButton-containedSecondary:hover': {
+            //   backgroundColor:
+            //     theme.palette.mode === 'light'
+            //       ? 'rgba(99, 95, 199, 0.25)'
+            //       : 'white',
+            // },
+            // '&.MuiButton-containedError:hover': {
+            //   backgroundColor: theme.palette.error.light,
+            // },
+          }),
+        },
+      },
     },
   });
 }
