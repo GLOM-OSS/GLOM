@@ -35,7 +35,7 @@ import { TeacherModule } from './teacher/teacher.module';
       ttl: 60,
       limit: 10,
     }),
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ envFilePath: 'squoolr.env' }),
     PassportModule.register({
       session: true,
     }),
