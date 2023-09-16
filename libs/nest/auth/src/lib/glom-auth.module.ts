@@ -5,6 +5,7 @@ import { GlomMailerModule } from '@glom/nest-mailer';
 import { LocalStrategy } from './local/local.strategy';
 import { GlomAuthModuleOptions } from './glom-auth.type';
 import { AUTH_ROLES, GlomAuthSeeder } from './glom-auth.seed';
+import { GlomAuthController } from './glom-auth.controller';
 
 @Module({})
 export class GlomAuthModule {
@@ -24,6 +25,7 @@ export class GlomAuthModule {
           useValue: roles,
         },
       ],
+      controllers: [GlomAuthController],
       imports: useGlobalDeps
         ? []
         : [
