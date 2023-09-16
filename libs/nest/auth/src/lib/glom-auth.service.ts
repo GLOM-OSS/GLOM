@@ -120,9 +120,9 @@ export class GlomAuthService {
     const { reset_password_id } = await this.prismaService.resetPassword.create(
       {
         data: {
-          expires_at: new Date(Date.now() + 2 * 60 * 60 * 1000),
-          admin: { connect: { login_id: resetBy } },
           login: { connect: { login_id } },
+          expires_at: new Date(Date.now() + 2 * 60 * 60 * 1000),
+          ...(resetBy ? { admin: { connect: { login_id: resetBy } } } : {}),
         },
       }
     );
