@@ -13,6 +13,7 @@
     "lynkr-landing": "apps/lynkr-landing",
     "lynkr-landing-e2e": "apps/lynkr-landing-e2e",
     "nest-auth": "libs/nest/auth",
+    "nest-exceptions": "libs/nest/exceptions",
     "nest-mailer": "libs/nest/mailer",
     "nest-prisma": "libs/nest/prisma",
     "nest-tasks": "libs/nest/tasks",
