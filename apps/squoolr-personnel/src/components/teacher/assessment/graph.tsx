@@ -1,6 +1,6 @@
 import { Skeleton } from '@mui/material';
 import { ScoreDistribution } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { random } from '@squoolr/utils';
 import Chart, { ChartItem } from 'chart.js/auto';
 import { useEffect } from 'react';

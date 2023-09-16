@@ -1,6 +1,6 @@
 import { LogoutRounded } from '@mui/icons-material';
 import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router';
 import { INavItem } from '@squoolr/interfaces';

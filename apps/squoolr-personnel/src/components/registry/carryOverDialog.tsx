@@ -12,7 +12,7 @@ import {
 import { getCarryOverSystem } from '@squoolr/api-services';
 import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { CarryOver, CarryOverSystem } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';

@@ -121,9 +121,9 @@ export const website = {
   failedToReject:
     "Quelque chose n'a pas fonctionné lors du rejet de la demande. Veuillez réessayer !",
   product: 'Produit',
-  pricing: 'Prix',
-  features: 'Features',
-  contactUs: 'Contact Us',
+  pricing: 'Facturation',
+  features: 'Fontionalités',
+  contactUs: 'Contactez Nous',
   verifyDemandStatus: "Vérifier l'état de la demande",
   createSchool: 'Créer une école',
   swapLanguage: 'Échanger la langue',
@@ -323,4 +323,13 @@ export const website = {
   noCoordinator:
     "Il n'existe pas encore de personnel de cette catégorie. Cliquez sur 'Ajouter un coordinateur' ci-dessus pour commencer !",
   newAcademicYear: 'Nouvelle année académique',
+
+  howItWorks: 'Fontionnement',
+  ourClients: 'Nos Clients',
+  offerBundle: 'Offrir un forfait',
+  signIn: 'Se connecter ',
+  onboardMerchant: 'Devenir Marchand',
+  faq: 'FAQ',
+  changeToEn: 'English',
+  changeToFr: 'Francais',
 };

@@ -1,5 +1,5 @@
 import { Box, Tab, Tabs } from '@mui/material';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import Assessments from '../../components/teacher/assessment';

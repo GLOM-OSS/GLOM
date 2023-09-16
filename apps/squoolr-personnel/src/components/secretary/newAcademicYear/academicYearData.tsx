@@ -1,6 +1,6 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { MobileDatePicker } from '@mui/x-date-pickers';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useFormik } from 'formik';
 import { useEffect } from 'react';
 import { useIntl } from 'react-intl';

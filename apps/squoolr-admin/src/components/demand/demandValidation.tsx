@@ -12,7 +12,7 @@ import {
   getDemandInfo,
   validateDemand as validateSchoolDemand,
 } from '@squoolr/api-services';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';

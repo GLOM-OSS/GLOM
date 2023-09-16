@@ -1,5 +1,5 @@
 import { CacheProvider, EmotionCache } from '@emotion/react';
-import { SquoolrThemeProvider, useLanguage } from '@squoolr/theme';
+import { SquoolrThemeProvider, useLanguage } from '@glom/theme';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useEffect } from 'react';

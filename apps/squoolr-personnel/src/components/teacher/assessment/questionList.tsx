@@ -20,7 +20,7 @@ import {
 } from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/confirm-dialogs';
 import { Assessment, CreateQuestion, Question } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import moment from 'moment';
 import { useEffect, useState } from 'react';

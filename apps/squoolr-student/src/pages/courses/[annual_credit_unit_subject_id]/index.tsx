@@ -2,7 +2,7 @@ import { ReportRounded } from '@mui/icons-material';
 import { Box, Skeleton, Tab, Tabs, Typography } from '@mui/material';
 import { getCourse } from '@squoolr/api-services';
 import { Course } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import CourseContent from '../../../components/course/courseContent';
 import { useEffect, useState } from 'react';

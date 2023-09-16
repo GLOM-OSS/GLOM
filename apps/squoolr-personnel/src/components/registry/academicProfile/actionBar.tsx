@@ -1,7 +1,7 @@
 import { KeyboardArrowDownOutlined } from '@mui/icons-material';
 import { Chip, lighten, Skeleton } from '@mui/material';
 import { CreateWeightingSystem } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import SwapWeightingSystemMenu from '../swapWeightingSystemMenu';

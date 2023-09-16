@@ -1,7 +1,7 @@
 import { ReportRounded } from '@mui/icons-material';
 import { Box, lighten, Skeleton, Typography } from '@mui/material';
 import { getClassrooms } from '@squoolr/api-services';
-import { theme, useLanguage } from '@squoolr/theme';
+import { theme, useLanguage } from '@glom/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { random } from '@squoolr/utils';
 import { useEffect, useState } from 'react';

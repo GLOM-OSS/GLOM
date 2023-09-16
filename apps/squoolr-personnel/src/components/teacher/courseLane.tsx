@@ -1,6 +1,6 @@
 import { Chip, lighten, Skeleton, TableCell, TableRow } from '@mui/material';
 import { Course } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router';
 

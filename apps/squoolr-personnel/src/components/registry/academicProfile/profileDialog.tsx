@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { AcademicProfile } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useFormik } from 'formik';
 import { useIntl } from 'react-intl';
 import * as Yup from 'yup';

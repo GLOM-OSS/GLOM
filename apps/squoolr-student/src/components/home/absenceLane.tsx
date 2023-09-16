@@ -1,6 +1,6 @@
 import { TableCell, TableRow, Typography } from '@mui/material';
 import { IDiscipline } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useIntl } from 'react-intl';
 
 export default function AbsenceLane({

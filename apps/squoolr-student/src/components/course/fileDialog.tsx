@@ -23,7 +23,7 @@ import {
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { CreateFile } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useIntl } from 'react-intl';

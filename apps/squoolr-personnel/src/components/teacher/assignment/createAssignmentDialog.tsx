@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { CreateAssessment } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';

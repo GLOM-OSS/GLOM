@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/confirm-dialogs';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 

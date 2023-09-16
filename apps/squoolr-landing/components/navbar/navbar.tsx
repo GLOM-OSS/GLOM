@@ -7,7 +7,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { theme, useLanguage } from '@squoolr/theme';
+import { theme, useLanguage } from '@glom/theme';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';

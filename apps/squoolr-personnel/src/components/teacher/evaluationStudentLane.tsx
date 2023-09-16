@@ -3,7 +3,7 @@ import {
   AnonimatedEvaluationHasStudent,
   EvaluationHasStudent,
 } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useIntl } from 'react-intl';
 import { toast } from 'react-toastify';
 

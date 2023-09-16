@@ -25,7 +25,7 @@ import {
   resetTeacherCode,
 } from '@squoolr/api-services';
 import { Personnel as PersonnelData } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import {
   ErrorMessage,
   filterNotificationUsage,

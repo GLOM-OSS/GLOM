@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/confirm-dialogs';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useIntl } from 'react-intl';
 
 export default function LogoutDialog({

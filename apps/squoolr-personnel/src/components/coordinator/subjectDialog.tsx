@@ -13,7 +13,7 @@ import {
 import { getTeachers } from '@squoolr/api-services';
 import { Personnel } from '@squoolr/interfaces';
 import { DialogTransition } from '@squoolr/confirm-dialogs';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';

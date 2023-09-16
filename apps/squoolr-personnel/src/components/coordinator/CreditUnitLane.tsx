@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { CreditUnit } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router';
 

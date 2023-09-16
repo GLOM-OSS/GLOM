@@ -7,7 +7,7 @@ import {
   Select,
 } from '@mui/material';
 import { UEMajor } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useIntl } from 'react-intl';
 
 export default function ActionBar({

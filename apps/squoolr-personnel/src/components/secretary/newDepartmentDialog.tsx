@@ -8,7 +8,7 @@ import {
   TextField,
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/confirm-dialogs';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { generateShort } from '@squoolr/utils';
 import { useFormik } from 'formik';
 import { useState } from 'react';

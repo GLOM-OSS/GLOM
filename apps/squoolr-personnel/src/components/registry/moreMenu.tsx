@@ -1,5 +1,5 @@
 import { Box, Menu, MenuItem } from '@mui/material';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useIntl } from 'react-intl';
 
 export default function MoreMenu({

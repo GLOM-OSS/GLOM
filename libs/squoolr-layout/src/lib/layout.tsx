@@ -23,7 +23,7 @@ import {
   PersonnelRole,
   UserRole,
 } from '@squoolr/interfaces';
-import { theme, useLanguage } from '@squoolr/theme';
+import { theme, useLanguage } from '@glom/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';

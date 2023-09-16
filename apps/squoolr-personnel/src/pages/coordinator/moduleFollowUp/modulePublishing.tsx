@@ -7,7 +7,7 @@ import {
 } from '@squoolr/api-services';
 import { ConfirmDeleteDialog } from '@squoolr/confirm-dialogs';
 import { CreditUnitMarkStatus, UEMajor } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';

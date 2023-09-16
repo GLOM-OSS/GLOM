@@ -6,7 +6,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useIntl } from 'react-intl';
 
 export default function RegistryConfig({

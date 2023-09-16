@@ -3,7 +3,7 @@ import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import { getAcademicYears as fetchAcademicYears } from '@squoolr/api-services';
 import { SelectAcademicYearDialog } from '../lib/selectAcademicYear';
 import { AcademicYearInterface } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';

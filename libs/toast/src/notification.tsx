@@ -1,5 +1,5 @@
 import { Box, Button, Typography, CircularProgress } from '@mui/material';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { DoneAllRounded } from '@mui/icons-material';
 import { v4 as uuidv4 } from 'uuid';
 import { Id, toast } from 'react-toastify';

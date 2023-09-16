@@ -1,6 +1,6 @@
 import { TableCell, TableRow } from '@mui/material';
 import { AnonimatedEvaluationHasStudent } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 
 export default function AnonimationStudentLane({
   student: { anonymity_code: ac, fullname: fn, matricule: m },

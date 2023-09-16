@@ -10,7 +10,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { random } from '@squoolr/utils';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';

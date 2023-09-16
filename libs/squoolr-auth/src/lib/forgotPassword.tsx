@@ -6,7 +6,7 @@ import {
   Typography,
 } from '@mui/material';
 import { EmailRounded, ReportRounded } from '@mui/icons-material';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useIntl } from 'react-intl';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';

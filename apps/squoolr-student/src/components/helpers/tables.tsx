@@ -1,5 +1,5 @@
 import { Skeleton, TableCell, TableRow } from '@mui/material';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 
 export function NoTableElement({
   colSpan = 6,

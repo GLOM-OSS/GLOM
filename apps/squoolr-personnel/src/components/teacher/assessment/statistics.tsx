@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { getAssessmentStats } from '@squoolr/api-services';
 import { Assessment, AssessmentStatistics } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';

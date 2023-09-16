@@ -1,5 +1,5 @@
 import { Box, lighten, Typography } from '@mui/material';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { NavLink } from 'react-router-dom';
 import { INavChild } from '@squoolr/interfaces';
 

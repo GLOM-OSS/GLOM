@@ -16,7 +16,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { CreateWeightingSystem, Cycle } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import MoreMenu from './moreMenu';

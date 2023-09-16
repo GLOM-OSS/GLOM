@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Chapter } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useIntl } from 'react-intl';
 
 export function ChapterLaneSkeleton() {

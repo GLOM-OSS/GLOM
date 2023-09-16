@@ -1,5 +1,5 @@
 import { Box, Button, lighten, TextField, Typography } from '@mui/material';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';

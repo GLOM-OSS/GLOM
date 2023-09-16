@@ -1,5 +1,5 @@
 import { Box, lighten, Skeleton, Typography } from '@mui/material';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 
 export default function StatCard({
   title,

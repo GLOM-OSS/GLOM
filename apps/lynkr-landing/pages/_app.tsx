@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { GlomThemeProvider } from '@squoolr/theme';
+import { GlomThemeProvider } from '@glom/theme';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';

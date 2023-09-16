@@ -7,7 +7,7 @@ import {
   Typography,
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/confirm-dialogs';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useIntl } from 'react-intl';
 import AcademicYear from '../components/AcademicYear';
 import favicon from './logo.png';

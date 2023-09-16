@@ -20,7 +20,7 @@ import {
   getTeachers as fetchTeachers,
 } from '@squoolr/api-services';
 import { DialogTransition } from '@squoolr/confirm-dialogs';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import {
   ErrorMessage,
   filterNotificationUsage,

@@ -9,7 +9,7 @@ import {
 import { DesktopTimePicker, MobileDatePicker } from '@mui/x-date-pickers';
 import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { ActivateAssessment } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';

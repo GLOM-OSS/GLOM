@@ -7,7 +7,7 @@ import {
   Typography,
 } from '@mui/material';
 import { checkDemandStatus } from '@squoolr/api-services';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';

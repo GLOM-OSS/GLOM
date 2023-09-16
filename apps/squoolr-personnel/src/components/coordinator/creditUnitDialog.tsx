@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { CreditUnit, UEMajor } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';

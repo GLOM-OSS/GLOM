@@ -1,7 +1,7 @@
 import { CancelOutlined, CheckCircleOutline } from '@mui/icons-material';
 import { TableCell, TableRow, Tooltip } from '@mui/material';
 import { Course } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useIntl } from 'react-intl';
 
 export default function ModuleDisplaySubjectLane({

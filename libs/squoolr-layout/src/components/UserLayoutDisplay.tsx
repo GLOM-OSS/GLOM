@@ -7,7 +7,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useUser } from '../contexts/UserContextProvider';

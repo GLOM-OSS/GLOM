@@ -1,6 +1,6 @@
 import { Box, Button, Chip, lighten, Typography } from '@mui/material';
 import { AcademicYearInterface } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useIntl } from 'react-intl';
 
 export default function AcademicYear({

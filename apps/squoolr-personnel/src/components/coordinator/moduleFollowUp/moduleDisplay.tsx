@@ -20,7 +20,7 @@ import {
   Typography,
 } from '@mui/material';
 import { CreditUnitMarkStatus } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useIntl } from 'react-intl';
 import ModuleDisplaySubjectLane from './moduleDisplaySubjectLane';
 

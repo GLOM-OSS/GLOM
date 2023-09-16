@@ -1,6 +1,6 @@
 import { Checkbox, TableCell, TableRow } from '@mui/material';
 import { Student } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 
 export default function PresenceStudentLane({
   student: { matricule: m, first_name: fn, last_name: ln },

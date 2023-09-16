@@ -7,7 +7,7 @@ import {
   TableCell,
   TableRow,
 } from '@mui/material';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import React from 'react';
 
 export function PersonnelRowSkeleton({ index }: { index: number }) {

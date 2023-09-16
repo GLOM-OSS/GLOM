@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { Chapter } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useFormik } from 'formik';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router';

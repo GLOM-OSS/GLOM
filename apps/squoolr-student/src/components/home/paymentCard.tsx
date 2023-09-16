@@ -1,6 +1,6 @@
 import { Box, lighten, Typography } from '@mui/material';
 import { IPaymentHistory } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { useIntl } from 'react-intl';
 
 export default function PaymentCard({

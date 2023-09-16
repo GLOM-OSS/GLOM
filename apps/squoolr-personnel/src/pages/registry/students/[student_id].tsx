@@ -2,7 +2,7 @@ import { KeyboardBackspaceOutlined, ReportRounded } from '@mui/icons-material';
 import { Box, Chip, Fab, lighten, Skeleton, Typography } from '@mui/material';
 import { getStudentDetails } from '@squoolr/api-services';
 import { StudentDetail } from '@squoolr/interfaces';
-import { theme } from '@squoolr/theme';
+import { theme } from '@glom/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
