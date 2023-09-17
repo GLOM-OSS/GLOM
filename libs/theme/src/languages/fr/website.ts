@@ -332,4 +332,7 @@ export const website = {
   faq: 'FAQ',
   changeToEn: 'English',
   changeToFr: 'Francais',
+
+  menu: 'Menu',
+  byGLOM: 'Par GLOM',
 };

@@ -317,4 +317,7 @@ export const website = {
   faq: 'FAQ',
   changeToEn: 'Anglais',
   changeToFr: 'French',
+
+  menu: 'Menu',
+  byGLOM: 'By GLOM',
 };
