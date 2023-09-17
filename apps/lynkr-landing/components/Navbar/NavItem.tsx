@@ -10,8 +10,12 @@ export interface INavItem {
 }
 
 export function NavItem({ route, title, handleLink }: INavItem) {
-  const { pathname } = useRouter();
+  const { pathname, asPath: url } = useRouter();
   const theme = useTheme();
+
+  const isSectionActive = url.split('/').filter((_) => _ !== '')[0] === route;
+  const isRouteActive =
+    pathname.split('/').filter((_) => _ !== '')[0] === route;
 
   return (
     <Typography
@@ -31,12 +35,8 @@ export function NavItem({ route, title, handleLink }: INavItem) {
           bottom: '-5px',
           height: '3px',
           content: '""',
-          width:
-            pathname === route ||
-            `/${pathname.split('/').filter((_) => _ !== '')[0]}` === route
-              ? '100%'
-              : 0,
-          backgroundColor: theme.palette.secondary.main,
+          width: isRouteActive || isSectionActive ? '100%' : 0,
+          backgroundColor: theme.palette.primary.main,
           borderRadius: '5px',
         },
         '&:hover::before': {
@@ -44,10 +44,7 @@ export function NavItem({ route, title, handleLink }: INavItem) {
           width: '100%',
           backgroundColor:
             theme.palette[
-              pathname === route ||
-              `/${pathname.split('/').filter((_) => _ !== '')[0]}` === route
-                ? 'primary'
-                : 'secondary'
+              isRouteActive || isSectionActive ? 'secondary' : 'primary'
             ].main,
         },
       }}
