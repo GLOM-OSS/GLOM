@@ -203,6 +203,10 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
             padding: '12px 8px',
             fontWeight: 'var(--semiBold)',
             lineHeight: '14px',
+            '&.MuiButton-colorInherit.MuiButton-outlined ': {
+              border: `1px solid ${theme.common.line}`,
+              color: theme.common.body,
+            },
             // '&.MuiButton-containedPrimary:hover': {
             //   backgroundColor: theme.palette.primary.light,
             // },
