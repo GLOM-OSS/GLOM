@@ -1,5 +1,5 @@
 import { AppBar, Box } from '@mui/material';
-import Navbar, { ElevationScroll } from '../components/Navbar';
+import Navbar, { ElevationScroll } from '../components/Navbar/Navbar';
 import { useTheme } from '@glom/theme';
 
 export function Index() {

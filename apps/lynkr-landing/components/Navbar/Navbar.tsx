@@ -1,7 +1,7 @@
 import { ReactElement, cloneElement } from 'react';
-import DesktopNav from './Navbar/DesktopNav';
-import MobileNav from './Navbar/MobileNav';
-import { INavItem } from './Navbar/NavItem';
+import DesktopNav from './DesktopNav';
+import MobileNav from './MobileNav';
+import { INavItem } from './NavItem';
 
 export function ElevationScroll({ children }: { children: ReactElement }) {
   return cloneElement(children, {
