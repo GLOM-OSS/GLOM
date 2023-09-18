@@ -2,17 +2,20 @@ import { GlomMailerService, resetPasswordMessages } from '@glom/nest-mailer';
 import { GlomPrismaService } from '@glom/prisma';
 import {
   ConflictException,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
   PreconditionFailedException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { excludeKeys } from '@squoolr/utils';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
+import { Profile } from 'passport';
 import { SignUpDto, UserEntity } from './glom-auth.dto';
-import { User } from './glom-auth.type';
 import { GlomAuthSeeder } from './glom-auth.seed';
+import { RoleCheckOptions, User } from './glom-auth.type';
 
 @Injectable()
 export class GlomAuthService {
@@ -37,7 +40,7 @@ export class GlomAuthService {
       const { logins, ...personData } = person;
       const origin = new URL(request.headers.origin).host;
       const user = logins.find((_) => bcrypt.compareSync(password, _.password));
-      if (user && (await this.isAuthorized(origin, user.role_id))) {
+      if (user && (await this.isAuthorized(origin, { roleId: user.role_id }))) {
         if (!user.is_active)
           throw new PreconditionFailedException('Inactive account found.');
         return excludeKeys({ ...user, ...personData }, [
@@ -67,13 +70,9 @@ export class GlomAuthService {
    * @param allowRoles authorised roles for the routes requested.
    * @returns returns a boolean
    */
-  async isAuthorized(
-    origin: string,
-    userRoleId?: string,
-    allowRoles?: string[]
-  ) {
+  async isAuthorized(origin: string, { roleId, allowRoles }: RoleCheckOptions) {
     const role = await this.prismaService.role.findFirst({
-      where: { role_id: userRoleId, origin },
+      where: { role_id: roleId, origin },
     });
     return role && (allowRoles ? allowRoles.includes(role.role_name) : true);
   }
@@ -104,7 +103,6 @@ export class GlomAuthService {
       login_id,
       role_id,
       ...registeredPerson,
-      created_at: new Date(registeredPerson.created_at).getTime(),
     };
   }
 

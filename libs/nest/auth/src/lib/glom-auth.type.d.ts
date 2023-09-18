@@ -1,4 +1,6 @@
 import { Person, Prisma } from '@prisma/client';
+import { Profile } from 'passport';
+
 type OptionalPropertyOf<T extends object> = Exclude<
   {
     [K in keyof T]: T extends Record<K, T[K]> ? never : K;
@@ -27,3 +29,10 @@ export type GlomAuthModuleOptions = {
    */
   roles: Prisma.RoleCreateManyInput[];
 };
+
+export type RoleCheckOptions = { roleId?: string; allowRoles?: string[] } & (
+  | {
+      roleId: string;
+    }
+  | { allowRoles: string[] }
+);

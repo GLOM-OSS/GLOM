@@ -29,7 +29,10 @@ export class AuthenticatedGuard implements CanActivate {
         context.getHandler(),
         context.getClass(),
       ]);
-      return await this.authService.isAuthorized(origin, role_id, roles);
+      return await this.authService.isAuthorized(origin, {
+        roleId: role_id,
+        allowRoles: roles,
+      });
     }
     return isAuthenticated;
   }
