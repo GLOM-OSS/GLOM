@@ -1,6 +1,7 @@
 import { GlomMailerModule } from '@glom/nest-mailer';
 import { GlomPrismaModule } from '@glom/prisma';
 import { DynamicModule, Module } from '@nestjs/common';
+import { ClsModule } from 'nestjs-cls';
 import { GlomAuthController } from './glom-auth.controller';
 import { AUTH_ROLES, GlomAuthSeeder } from './glom-auth.seed';
 import { GlomAuthService } from './glom-auth.service';
@@ -14,6 +15,19 @@ export class GlomAuthModule {
     roles,
     useGlobalDeps,
   }: GlomAuthModuleOptions): DynamicModule {
+    const ClsDynamicModule = ClsModule.forRoot({
+      global: true,
+      middleware: {
+        // automatically mount the
+        // ClsMiddleware for all routes
+        mount: true,
+        // and use the setup method to
+        // provide default store values.
+        setup: (cls, req) => {
+          cls.set('refererUrl', req.body['referer-url']);
+        },
+      },
+    });
     return {
       module: GlomAuthModule,
       exports: [GlomAuthService],
@@ -28,8 +42,9 @@ export class GlomAuthModule {
       ],
       controllers: [GlomAuthController],
       imports: useGlobalDeps
-        ? [ThirdParthiesModule]
+        ? [ClsDynamicModule, ThirdParthiesModule]
         : [
+            ClsDynamicModule,
             ThirdParthiesModule,
             GlomPrismaModule.forRoot(),
             GlomMailerModule.forRoot({
