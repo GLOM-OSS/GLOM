@@ -1,11 +1,12 @@
+import { GlomMailerModule } from '@glom/nest-mailer';
 import { GlomPrismaModule } from '@glom/prisma';
 import { DynamicModule, Module } from '@nestjs/common';
-import { GlomAuthService } from './glom-auth.service';
-import { GlomMailerModule } from '@glom/nest-mailer';
-import { LocalStrategy } from './local/local.strategy';
-import { GlomAuthModuleOptions } from './glom-auth.type';
-import { AUTH_ROLES, GlomAuthSeeder } from './glom-auth.seed';
 import { GlomAuthController } from './glom-auth.controller';
+import { AUTH_ROLES, GlomAuthSeeder } from './glom-auth.seed';
+import { GlomAuthService } from './glom-auth.service';
+import { GlomAuthModuleOptions } from './glom-auth.type';
+import { LocalStrategy } from './local/local.strategy';
+import { ThirdParthiesModule } from './third-parthies/third-parthies.module';
 
 @Module({})
 export class GlomAuthModule {
@@ -27,8 +28,9 @@ export class GlomAuthModule {
       ],
       controllers: [GlomAuthController],
       imports: useGlobalDeps
-        ? []
+        ? [ThirdParthiesModule]
         : [
+            ThirdParthiesModule,
             GlomPrismaModule.forRoot(),
             GlomMailerModule.forRoot({
               authType: 'Login',
