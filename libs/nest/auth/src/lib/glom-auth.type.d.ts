@@ -36,3 +36,10 @@ export type RoleCheckOptions = { roleId?: string; allowRoles?: string[] } & (
     }
   | { allowRoles: string[] }
 );
+
+export { Profile as GoogleProfile } from 'passport-google-oauth20';
+export type GlomStrategy = 'google' | 'github' | 'facebook';
+export type GlomStrategyProfile = {
+  strategy: GlomStrategy;
+  profile: Profile;
+};

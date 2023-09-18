@@ -106,6 +106,48 @@ export class GlomAuthService {
     };
   }
 
+  async authenticateUser(
+    request: Request,
+    profile: Profile
+  ): Promise<UserEntity> {
+    let user: UserEntity = null;
+    const origin = new URL(request.headers.origin).host;
+
+    const login = await this.prismaService.login.findFirst({
+      select: { login_id: true, role_id: true, is_active: true, person: true },
+      where: { person: { email: profile.username } },
+    });
+    const role = await this.prismaService.role.findFirst({
+      where: { origin },
+    });
+    const {
+      name: { familyName, givenName },
+      username,
+    } = profile;
+    if (!login && (await this.isAuthorized(origin, { allowRoles: ['Client'] })))
+      user = await this.registerUser(
+        {
+          email: username,
+          first_name: givenName,
+          last_name: familyName,
+          preferred_lang: profile['_json']['locale'] ?? 'en',
+          password: Math.random().toString(16).split('.')[1],
+        },
+        role.role_name
+      );
+    else if (
+      login.is_active &&
+      (await this.isAuthorized(origin, { roleId: login.role_id }))
+    )
+      user = {
+        ...login.person,
+        role_id: login.role_id,
+        login_id: login.login_id,
+      };
+    else throw new UnauthorizedException();
+    return user;
+  }
+
   async resetPassword(email: string, origin: string, resetBy?: string) {
     const {
       login_id,
