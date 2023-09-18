@@ -10,7 +10,7 @@ import { GlomMailerModule } from '@glom/nest-mailer';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: 'lynkr.env',
+      envFilePath: '.env.lynkr',
     }),
     GlomPrismaModule.forRoot({
       isGlobal: true,
@@ -24,6 +24,7 @@ import { GlomMailerModule } from '@glom/nest-mailer';
     }),
     GlomAuthModule.forRoot({
       useGlobalDeps: true,
+      strategies: ['google', 'facebook'],
       roles: [
         { origin: process.env.CLIENT_ORIGIN, role_name: 'Client' },
         {
