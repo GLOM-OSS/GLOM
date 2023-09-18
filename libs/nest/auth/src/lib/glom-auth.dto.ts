@@ -133,10 +133,10 @@ export class UserEntity extends OmitType(SignUpDto, ['password']) {
 
   @IsNumber()
   @ApiProperty({
-    description: 'Account creation datetime in milleseconds.',
-    example: Date.now(),
+    description: 'Account creation datetime.',
+    example: new Date(),
   })
-  created_at: number;
+  created_at: Date;
 }
 
 export class ChangePasswordDto {
