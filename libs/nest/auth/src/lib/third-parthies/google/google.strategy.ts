@@ -3,16 +3,12 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { Profile, Strategy } from 'passport-google-oauth20';
 import { GlomAuthService } from '../../glom-auth.service';
-import { GlomStrategy } from '../../glom-auth.type';
 
 @Injectable()
-export class GoogleStrategy extends PassportStrategy(
-  Strategy,
-  'google' as GlomStrategy
-) {
+export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(private authService: GlomAuthService) {
     super({
-      callbackURL: `${process.env.NX_API_BASE_URL}/auth/redirect`,
+      callbackURL: `${process.env.NX_API_BASE_URL}/auth/third-parthies/google/callback`,
       clientSecret: process.env.GOOGLE_SECRET,
       clientID: process.env.GOOGLE_CLIENT_ID,
       scope: ['email', 'profile'],
