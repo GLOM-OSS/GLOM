@@ -1,4 +1,4 @@
-import { Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -16,6 +16,9 @@ import { ClsService } from 'nestjs-cls';
 
 @ApiTags('Authentication')
 @Controller('auth/third-parthies')
+@ApiUnauthorizedResponse({
+  description: 'Unauthorized request. incorrect email or password',
+})
 @ApiBadRequestResponse({
   description:
     'Bad request. This often happens when the request payload it not respected.',
@@ -32,9 +35,6 @@ export class ThirdParthiesController {
     summary:
       'Google authentication. It redirects the provided callback on sucessfully authentication.',
   })
-  @ApiUnauthorizedResponse({
-    description: 'Unauthorized request. incorrect email or password',
-  })
   async googleAuth(@Req() req: Request) {
     return req.user;
   }
@@ -44,6 +44,25 @@ export class ThirdParthiesController {
   @ApiExcludeEndpoint()
   @ApiResponse({ status: 201, type: UserEntity })
   async googleCallback(@Res() res: Response) {
+    const refererUrl = this.clsService.get()['refererUrl'];
+    return res.redirect(refererUrl);
+  }
+
+  @Get('facebook')
+  @UseGuards(GoogleGuard)
+  @ApiOperation({
+    summary:
+      'Facebook authentication. It redirects the provided callback on sucessfully authentication.',
+  })
+  async facebookAuth(@Req() req: Request) {
+    return req.user;
+  }
+
+  @Get('facebook/callback')
+  @UseGuards(GoogleGuard)
+  @ApiExcludeEndpoint()
+  @ApiResponse({ status: 201, type: UserEntity })
+  async facebookCallback(@Res() res: Response) {
     const refererUrl = this.clsService.get()['refererUrl'];
     return res.redirect(refererUrl);
   }
