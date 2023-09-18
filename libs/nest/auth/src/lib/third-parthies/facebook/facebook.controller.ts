@@ -15,7 +15,7 @@ import { ClsService } from 'nestjs-cls';
 import { FacebookGuard } from './facebook.guard';
 
 @Controller()
-@ApiTags('Facebook Authentication')
+@ApiTags('Authentication')
 @ApiUnauthorizedResponse({
   description: 'Unauthorized request. incorrect email or password',
 })

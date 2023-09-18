@@ -15,7 +15,7 @@ import { Request, Response } from 'express';
 import { ClsService } from 'nestjs-cls';
 
 @Controller()
-@ApiTags('Google Authentication')
+@ApiTags('Authentication')
 @ApiUnauthorizedResponse({
   description: 'Unauthorized request. incorrect email or password',
 })
