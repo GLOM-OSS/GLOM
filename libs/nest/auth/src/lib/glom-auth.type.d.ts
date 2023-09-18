@@ -28,6 +28,11 @@ export type GlomAuthModuleOptions = {
    * ]
    */
   roles: Prisma.RoleCreateManyInput[];
+  /**
+   * Third parthy strategies you want this module to implement.
+   * Local strategy does not require this option to be passed
+   */
+  strategies?: GlomStrategy[];
 };
 
 export type RoleCheckOptions = { roleId?: string; allowRoles?: string[] } & (
@@ -43,3 +48,8 @@ export type GlomStrategyProfile = {
   strategy: GlomStrategy;
   profile: Profile;
 };
+
+export type ThirdParthiesModuleOptions = Omit<
+  GlomAuthModuleOptions,
+  'useGlobalDeps'
+>;

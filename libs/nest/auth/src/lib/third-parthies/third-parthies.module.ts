@@ -1,16 +1,17 @@
-import { DynamicModule, Module, Type } from '@nestjs/common';
-import { GlomStrategy } from '../glom-auth.type';
+import { DynamicModule, Module, Provider, Type } from '@nestjs/common';
+import { GlomStrategy, ThirdParthiesModuleOptions } from '../glom-auth.type';
 import { FacebookModule } from './facebook/facebook.module';
 import { GoogleModule } from './google/google.module';
 import { RouterModule } from '@nestjs/core';
+import { AUTH_ROLES, GlomAuthSeeder } from '../glom-auth.seed';
+import { GlomAuthService } from '../glom-auth.service';
 
 @Module({})
 export class ThirdParthiesModule {
   static forRoot({
+    roles,
     strategies,
-  }: {
-    strategies: GlomStrategy[];
-  }): DynamicModule {
+  }: ThirdParthiesModuleOptions): DynamicModule {
     const thirdPartiesModules: {
       strategy: GlomStrategy;
       module: Type<any>;
@@ -24,7 +25,18 @@ export class ThirdParthiesModule {
         module: FacebookModule,
       },
     ];
+    const services: Provider[] = [
+      GlomAuthSeeder,
+      GlomAuthService,
+      {
+        provide: AUTH_ROLES,
+        useValue: roles,
+      },
+    ];
     return {
+      global: true,
+      exports: services,
+      providers: services,
       module: ThirdParthiesModule,
       imports: [
         ...thirdPartiesModules

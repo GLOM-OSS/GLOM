@@ -13,8 +13,13 @@ import { ThirdParthiesModule } from './third-parthies/third-parthies.module';
 export class GlomAuthModule {
   static forRoot({
     roles,
+    strategies,
     useGlobalDeps,
   }: GlomAuthModuleOptions): DynamicModule {
+    const ThirdParthiesDynamicModule = ThirdParthiesModule.forRoot({
+      strategies: strategies ?? [],
+      roles,
+    });
     const ClsDynamicModule = ClsModule.forRoot({
       global: true,
       middleware: {
@@ -42,10 +47,10 @@ export class GlomAuthModule {
       ],
       controllers: [GlomAuthController],
       imports: useGlobalDeps
-        ? [ClsDynamicModule, ThirdParthiesModule]
+        ? [ClsDynamicModule, ThirdParthiesDynamicModule]
         : [
             ClsDynamicModule,
-            ThirdParthiesModule,
+            ThirdParthiesDynamicModule,
             GlomPrismaModule.forRoot(),
             GlomMailerModule.forRoot({
               authType: 'Login',
