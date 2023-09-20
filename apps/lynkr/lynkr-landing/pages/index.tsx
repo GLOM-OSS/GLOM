@@ -14,7 +14,9 @@ export function Index() {
       >
         <Typography className="h1--mobile">Lynkr</Typography>
         <Typography className="p1--space">Lynkr number 2</Typography>
-        <Button color='secondary' variant='contained'>Hello</Button>
+        <Button color="secondary" variant="contained">
+          Hello
+        </Button>
       </Box>
     </Box>
   );

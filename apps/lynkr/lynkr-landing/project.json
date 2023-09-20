@@ -1,7 +1,7 @@
 {
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "name": "lynkr-landing",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/lynkr-landing",
+  "sourceRoot": "apps/lynkr/lynkr-landing",
   "projectType": "application",
   "targets": {
     "build": {
@@ -9,12 +9,12 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "root": "apps/lynkr-landing",
-        "outputPath": "dist/apps/lynkr-landing"
+        "root": "apps/lynkr/lynkr-landing",
+        "outputPath": "dist/apps/lynkr/lynkr-landing"
       },
       "configurations": {
         "development": {
-          "outputPath": "apps/lynkr-landing"
+          "outputPath": "apps/lynkr/lynkr-landing"
         },
         "production": {}
       }
@@ -23,16 +23,16 @@
       "executor": "@nrwl/next:server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "lynkr-landing:build",
+        "buildTarget": "lynkr-lynkr-landing:build",
         "dev": true
       },
       "configurations": {
         "development": {
-          "buildTarget": "lynkr-landing:build:development",
+          "buildTarget": "lynkr-lynkr-landing:build:development",
           "dev": true
         },
         "production": {
-          "buildTarget": "lynkr-landing:build:production",
+          "buildTarget": "lynkr-lynkr-landing:build:production",
           "dev": false
         }
       }
@@ -40,14 +40,14 @@
     "export": {
       "executor": "@nrwl/next:export",
       "options": {
-        "buildTarget": "lynkr-landing:build:production"
+        "buildTarget": "lynkr-lynkr-landing:build:production"
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/lynkr-landing"],
+      "outputs": ["coverage/apps/lynkr/lynkr-landing"],
       "options": {
-        "jestConfig": "apps/lynkr-landing/jest.config.ts",
+        "jestConfig": "apps/lynkr/lynkr-landing/jest.config.ts",
         "passWithNoTests": true
       }
     },
@@ -55,7 +55,7 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/lynkr-landing/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["apps/lynkr/lynkr-landing/**/*.{ts,tsx,js,jsx}"]
       }
     }
   },
