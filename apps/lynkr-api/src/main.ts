@@ -11,7 +11,21 @@ import { GlomExceptionsFilter } from '@glom/execeptions';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const origin =
+    process.env.NODE_ENV === 'production'
+      ? ['https://lynkr.net', /\.lynkr\.net$/]
+      : [
+          'http://localhost:3000', //landing
+          'http://localhost:4200', //client
+          'http://localhost:4201', //technician
+          'http://localhost:4202', //admin
+        ];
+  const app = await NestFactory.create(AppModule, {
+    cors: {
+      origin,
+      credentials: true,
+    },
+  });
   app.useGlobalFilters(new GlomExceptionsFilter());
 
   app.useGlobalPipes(
@@ -26,7 +40,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('docs', app, document);
 
   const port = process.env.APP_PORT || 3333;
   await app.listen(port);
