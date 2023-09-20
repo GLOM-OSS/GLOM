@@ -1,16 +1,16 @@
 {
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/lynkr/lynkr-api/src",
+  "sourceRoot": "apps/lynkr/api/src",
   "projectType": "application",
   "targets": {
     "build": {
       "executor": "@nrwl/node:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/apps/lynkr/lynkr-api",
-        "main": "apps/lynkr/lynkr-api/src/main.ts",
-        "tsConfig": "apps/lynkr/lynkr-api/tsconfig.app.json",
-        "assets": ["apps/lynkr/lynkr-api/src/assets"]
+        "outputPath": "dist/apps/lynkr/api",
+        "main": "apps/lynkr/api/src/main.ts",
+        "tsConfig": "apps/lynkr/api/tsconfig.app.json",
+        "assets": ["apps/lynkr/api/src/assets"]
       },
       "configurations": {
         "production": {
@@ -19,8 +19,8 @@
           "inspect": false,
           "fileReplacements": [
             {
-              "replace": "apps/lynkr/lynkr-api/src/environments/environment.ts",
-              "with": "apps/lynkr/lynkr-api/src/environments/environment.prod.ts"
+              "replace": "apps/lynkr/api/src/environments/environment.ts",
+              "with": "apps/lynkr/api/src/environments/environment.prod.ts"
             }
           ]
         }
@@ -29,11 +29,11 @@
     "serve": {
       "executor": "@nrwl/node:node",
       "options": {
-        "buildTarget": "lynkr-lynkr-api:build"
+        "buildTarget": "lynkr-api:build"
       },
       "configurations": {
         "production": {
-          "buildTarget": "lynkr-lynkr-api:build:production"
+          "buildTarget": "lynkr-api:build:production"
         }
       }
     },
@@ -41,14 +41,14 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/lynkr/lynkr-api/**/*.ts"]
+        "lintFilePatterns": ["apps/lynkr/api/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/lynkr/lynkr-api"],
+      "outputs": ["coverage/apps/lynkr/api"],
       "options": {
-        "jestConfig": "apps/lynkr/lynkr-api/jest.config.ts",
+        "jestConfig": "apps/lynkr/api/jest.config.ts",
         "passWithNoTests": true
       }
     },

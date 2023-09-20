@@ -1,6 +1,6 @@
 /* eslint-disable */
 export default {
-  displayName: 'lynkr-lynkr-api',
+  displayName: 'lynkr-api',
   preset: '../../../jest.preset.js',
   globals: {
     'ts-jest': {
@@ -12,5 +12,5 @@ export default {
     '^.+\\.[tj]s$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../../coverage/apps/lynkr/lynkr-api',
+  coverageDirectory: '../../../coverage/apps/lynkr/api',
 };
