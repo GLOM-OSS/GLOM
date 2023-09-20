@@ -5,12 +5,16 @@
   "targets": {
     "build": {
       "executor": "@nrwl/node:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/apps/lynkr-api",
         "main": "apps/lynkr-api/src/main.ts",
         "tsConfig": "apps/lynkr-api/tsconfig.app.json",
-        "assets": ["apps/lynkr-api/src/assets"]
+        "assets": [
+          "apps/lynkr-api/src/assets"
+        ]
       },
       "configurations": {
         "production": {
@@ -39,17 +43,31 @@
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["apps/lynkr-api/**/*.ts"]
+        "lintFilePatterns": [
+          "apps/lynkr-api/**/*.ts"
+        ]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/lynkr-api"],
+      "outputs": [
+        "coverage/apps/lynkr-api"
+      ],
       "options": {
         "jestConfig": "apps/lynkr-api/jest.config.ts",
         "passWithNoTests": true
+      }
+    },
+    "swagger": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "npx openapi-typescript http://localhost:8000/docs-yaml --output libs/dto/src/lib/lynkr.ts"
+        ]
       }
     }
   },
