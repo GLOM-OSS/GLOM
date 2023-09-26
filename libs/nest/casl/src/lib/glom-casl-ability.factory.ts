@@ -1,11 +1,7 @@
 import { AbilityBuilder, ExtractSubjectType, PureAbility } from '@casl/ability';
 import { PrismaQuery, Subjects, createPrismaAbility } from '@casl/prisma';
 import { Inject, Injectable, RequestMethod } from '@nestjs/common';
-import {
-  GlomAbilityConfig,
-  GlomCaslModuleOptions,
-  PrismaModel,
-} from './glom-casl.type';
+import { GlomAbilityConfig, PrismaModel } from './glom-casl.type';
 
 export enum Action {
   Manage = 'manage',
@@ -14,10 +10,12 @@ export enum Action {
   Update = 'update',
   Delete = 'delete',
 }
-type AppSubjects<T extends PrismaModel> = Subjects<Partial<Record<string, T>>>;
-type TAppAbility<T extends PrismaModel> = PureAbility<
+export type AppSubjects<T extends PrismaModel> = Subjects<
+  Partial<Record<string, T>>
+>;
+export type AppAbility<T extends PrismaModel> = PureAbility<
   [string, AppSubjects<T>],
-  PrismaQuery
+  PrismaQuery<T>
 >;
 
 export const GLOM_ABILITIES = 'GLOM_ABILITIES';
@@ -38,8 +36,8 @@ export class GlomCaslAbilityFactory<T extends PrismaModel> {
     @Inject(GLOM_ABILITIES)
     private readonly glomAbilities: GlomAbilityConfig<T>[]
   ) {}
-  createForUser(user: Record<string, string | string[]>) {
-    const { can, cannot, build } = new AbilityBuilder<TAppAbility<T>>(
+  createForUser(user: Partial<T & { roles: string[] }>) {
+    const { can, cannot, build } = new AbilityBuilder<AppAbility<T>>(
       createPrismaAbility
     );
     this.glomAbilities.forEach(({ ressources, criterials, roleName }) => {
