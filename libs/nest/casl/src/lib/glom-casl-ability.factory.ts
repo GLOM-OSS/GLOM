@@ -14,7 +14,7 @@ export type AppSubjects<T extends PrismaModel> = Subjects<
   Partial<Record<string, T>>
 >;
 export type AppAbility<T extends PrismaModel> = PureAbility<
-  [string, AppSubjects<T>],
+  [Action, AppSubjects<T>],
   PrismaQuery<T>
 >;
 

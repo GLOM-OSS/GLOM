@@ -1,6 +1,6 @@
 import { RequestMethod } from '@nestjs/common';
 import { Login, Person } from '@prisma/client';
-import { GlomCaslAbilityFactory } from './glom-casl-ability.factory';
+import { Action, GlomCaslAbilityFactory } from './glom-casl-ability.factory';
 
 type Subjects = Person | Login;
 describe('GlomCaslAbilityFactory', () => {
@@ -54,18 +54,18 @@ describe('GlomCaslAbilityFactory', () => {
   it('should check user abilities without roleName not criterials', () => {
     const abilities = glomCaslAbility.createForUser({});
     expect(abilities).toBeDefined();
-    expect(abilities.can('manage', '/auth')).toBeTruthy();
-    expect(abilities.can('manage', '/products')).toBeFalsy();
-    expect(abilities.can('read', '/products')).toBeTruthy();
+    expect(abilities.can(Action.Manage, '/auth')).toBeTruthy();
+    expect(abilities.can(Action.Manage, '/products')).toBeFalsy();
+    expect(abilities.can(Action.Read, '/products')).toBeTruthy();
   });
 
   it('should check user abilities with roleName', () => {
     const abilities = glomCaslAbility.createForUser({ roles: ['Admin'] });
     expect(abilities).toBeDefined();
-    expect(abilities.can('manage', '/auth')).toBeTruthy();
-    expect(abilities.can('read', '/products')).toBeTruthy();
-    expect(abilities.can('update', '/products')).toBeFalsy();
-    expect(abilities.can('manage', '/users')).toBeTruthy();
+    expect(abilities.can(Action.Manage, '/auth')).toBeTruthy();
+    expect(abilities.can(Action.Read, '/products')).toBeTruthy();
+    expect(abilities.can(Action.Update, '/products')).toBeFalsy();
+    expect(abilities.can(Action.Manage, '/users')).toBeTruthy();
   });
 
   it('should check user abilities with roleName and criterials', () => {
@@ -74,8 +74,8 @@ describe('GlomCaslAbilityFactory', () => {
       is_active: true,
     });
     expect(abilities).toBeDefined();
-    expect(abilities.can('manage', '/auth')).toBeTruthy();
-    expect(abilities.can('manage', '/products')).toBeTruthy();
-    expect(abilities.can('read', '/users')).toBeFalsy();
+    expect(abilities.can(Action.Manage, '/auth')).toBeTruthy();
+    expect(abilities.can(Action.Manage, '/products')).toBeTruthy();
+    expect(abilities.can(Action.Read, '/users')).toBeFalsy();
   });
 });
