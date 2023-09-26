@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@glom/casl": ["libs/nest/casl/src/index.ts"],
       "@glom/execeptions": ["libs/nest/exceptions/src/index.ts"],
       "@glom/nest-auth": ["libs/nest/auth/src/index.ts"],
       "@glom/nest-mailer": ["libs/nest/mailer/src/index.ts"],
