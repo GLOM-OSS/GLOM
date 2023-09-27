@@ -2,10 +2,11 @@ import { AbilityBuilder } from '@casl/ability';
 import { createPrismaAbility } from '@casl/prisma';
 import { Inject, Injectable, RequestMethod } from '@nestjs/common';
 import {
+  AbilityCriterial,
   GlomAbilityConfig,
   GlomAppAbility,
   GlomAppActorModel,
-  GlomAppSubjectType
+  GlomAppSubjectType,
 } from './glom-casl.type';
 
 export enum Action {
@@ -37,17 +38,20 @@ export class GlomCaslAbilityFactory<
     @Inject(GLOM_ABILITIES)
     private readonly glomAbilities: GlomAbilityConfig<T, S>[]
   ) {}
-  createForUser(user: Partial<T & { roles: string[] }>) {
-    const { can, cannot, build } = new AbilityBuilder<GlomAppAbility<T, S>>(
+  createForUser(user: AbilityCriterial<T> & { userRoles?: string[] }) {
+    const { can, build } = new AbilityBuilder<GlomAppAbility<T, S>>(
       createPrismaAbility
     );
     this.glomAbilities.forEach(({ ressources, criterials, roleName }) => {
-      const isUserAble = Object.keys(criterials ?? {}).reduce((isAble, key) => {
-        return isAble && user[key] === criterials[key];
-      }, true);
+      const isUserAble =
+        !criterials ||
+        Object.keys(criterials).reduce((isAble, key) => {
+          const criterialKey = key as keyof typeof criterials;
+          return isAble && user[criterialKey] === criterials[criterialKey];
+        }, true);
       if (
         isUserAble &&
-        (!roleName || (roleName && user['roles']?.includes(roleName)))
+        (!roleName || (roleName && user['userRoles']?.includes(roleName)))
       ) {
         ressources.forEach(({ method, subject }) => {
           can(methodActions[method], subject as GlomAppSubjectType);
