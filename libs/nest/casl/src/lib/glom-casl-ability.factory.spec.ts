@@ -2,8 +2,8 @@ import { RequestMethod } from '@nestjs/common';
 import { Login, Person } from '@prisma/client';
 import { Action, GlomCaslAbilityFactory } from './glom-casl-ability.factory';
 
-type Subjects = 'Auth' | 'Products' | 'Users';
-type Actors = (Person & { kind: 'Person' }) | (Login & { kind: 'Login' });
+type Actors = Person | Login;
+type Subjects = 'AuthController' | 'ProductsController' | 'UsersController';
 
 describe('GlomCaslAbilityFactory', () => {
   let glomCaslAbility: GlomCaslAbilityFactory<Actors, Subjects>;
@@ -13,11 +13,11 @@ describe('GlomCaslAbilityFactory', () => {
       {
         ressources: [
           {
-            subject: 'Auth',
+            subject: 'AuthController',
             method: RequestMethod.ALL,
           },
           {
-            subject: 'Products',
+            subject: 'ProductsController',
             method: RequestMethod.GET,
           },
         ],
@@ -26,7 +26,7 @@ describe('GlomCaslAbilityFactory', () => {
         roleName: 'Admin',
         ressources: [
           {
-            subject: 'Users',
+            subject: 'UsersController',
             method: RequestMethod.ALL,
           },
         ],
@@ -35,7 +35,7 @@ describe('GlomCaslAbilityFactory', () => {
         roleName: 'Client',
         ressources: [
           {
-            subject: 'Products',
+            subject: 'ProductsController',
             method: RequestMethod.ALL,
           },
         ],
@@ -56,28 +56,28 @@ describe('GlomCaslAbilityFactory', () => {
   it('should check user abilities without roleName not criterials', () => {
     const abilities = glomCaslAbility.createForUser({});
     expect(abilities).toBeDefined();
-    expect(abilities.can(Action.Manage, 'Auth')).toBeTruthy();
-    expect(abilities.can(Action.Manage, 'Products')).toBeFalsy();
-    expect(abilities.can(Action.Read, 'Products')).toBeTruthy();
+    expect(abilities.can(Action.Manage, 'AuthController')).toBeTruthy();
+    expect(abilities.can(Action.Manage, 'ProductsController')).toBeFalsy();
+    expect(abilities.can(Action.Read, 'ProductsController')).toBeTruthy();
   });
 
   it('should check user abilities with roleName', () => {
-    const abilities = glomCaslAbility.createForUser({ roles: ['Admin'] });
+    const abilities = glomCaslAbility.createForUser({ userRoles: ['Admin'] });
     expect(abilities).toBeDefined();
-    expect(abilities.can(Action.Manage, 'Auth')).toBeTruthy();
-    expect(abilities.can(Action.Read, 'Products')).toBeTruthy();
-    expect(abilities.can(Action.Update, 'Products')).toBeFalsy();
-    expect(abilities.can(Action.Manage, 'Users')).toBeTruthy();
+    expect(abilities.can(Action.Manage, 'AuthController')).toBeTruthy();
+    expect(abilities.can(Action.Read, 'ProductsController')).toBeTruthy();
+    expect(abilities.can(Action.Update, 'ProductsController')).toBeFalsy();
+    expect(abilities.can(Action.Manage, 'UsersController')).toBeTruthy();
   });
 
   it('should check user abilities with roleName and criterials', () => {
     const abilities = glomCaslAbility.createForUser({
-      roles: ['Client'],
+      userRoles: ['Client'],
       is_active: true,
     });
     expect(abilities).toBeDefined();
-    expect(abilities.can(Action.Manage, 'Auth')).toBeTruthy();
-    expect(abilities.can(Action.Manage, 'Products')).toBeTruthy();
-    expect(abilities.can(Action.Read, 'Users')).toBeFalsy();
+    expect(abilities.can(Action.Manage, 'AuthController')).toBeTruthy();
+    expect(abilities.can(Action.Manage, 'ProductsController')).toBeTruthy();
+    expect(abilities.can(Action.Read, 'UsersController')).toBeFalsy();
   });
 });
