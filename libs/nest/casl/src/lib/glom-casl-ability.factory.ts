@@ -1,7 +1,12 @@
-import { AbilityBuilder, ExtractSubjectType, PureAbility } from '@casl/ability';
-import { PrismaQuery, Subjects, createPrismaAbility } from '@casl/prisma';
+import { AbilityBuilder } from '@casl/ability';
+import { createPrismaAbility } from '@casl/prisma';
 import { Inject, Injectable, RequestMethod } from '@nestjs/common';
-import { GlomAbilityConfig, ActorModel } from './glom-casl.type';
+import {
+  GlomAbilityConfig,
+  GlomAppAbility,
+  GlomAppActorModel,
+  GlomAppSubjectType
+} from './glom-casl.type';
 
 export enum Action {
   Manage = 'manage',
@@ -10,13 +15,6 @@ export enum Action {
   Update = 'update',
   Delete = 'delete',
 }
-export type AppSubjects<T extends ActorModel, S extends string> = Subjects<
-  Record<S extends string ? S: string, T>
->;
-export type AppAbility<T extends ActorModel, S extends string> = PureAbility<
-  [Action, AppSubjects<T, S>],
-  PrismaQuery<T>
->;
 
 export const GLOM_ABILITIES = 'GLOM_ABILITIES';
 export const methodActions: Record<RequestMethod, Action> = {
@@ -31,13 +29,16 @@ export const methodActions: Record<RequestMethod, Action> = {
 };
 
 @Injectable()
-export class GlomCaslAbilityFactory<T extends ActorModel, S extends string> {
+export class GlomCaslAbilityFactory<
+  T extends GlomAppActorModel,
+  S extends string
+> {
   constructor(
     @Inject(GLOM_ABILITIES)
     private readonly glomAbilities: GlomAbilityConfig<T, S>[]
   ) {}
   createForUser(user: Partial<T & { roles: string[] }>) {
-    const { can, cannot, build } = new AbilityBuilder<AppAbility<T, S>>(
+    const { can, cannot, build } = new AbilityBuilder<GlomAppAbility<T, S>>(
       createPrismaAbility
     );
     this.glomAbilities.forEach(({ ressources, criterials, roleName }) => {
@@ -49,15 +50,14 @@ export class GlomCaslAbilityFactory<T extends ActorModel, S extends string> {
         (!roleName || (roleName && user['roles']?.includes(roleName)))
       ) {
         ressources.forEach(({ method, subject }) => {
-          can(methodActions[method], subject as ExtractSubjectType<AppSubjects<T, S>>);
+          can(methodActions[method], subject as GlomAppSubjectType);
         });
       }
     });
 
     return build({
       // Read https://casl.js.org/v5/en/guide/subject-type-detection#use-classes-as-subject-types for details
-      detectSubjectType: (item) =>
-        item.constructor as ExtractSubjectType<AppSubjects<T, S>>,
+      detectSubjectType: (item) => item.constructor as GlomAppSubjectType,
     });
   }
 }
