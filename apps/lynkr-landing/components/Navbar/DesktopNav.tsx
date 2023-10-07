@@ -1,4 +1,4 @@
-import { useLanguage } from '@glom/theme';
+import { useLanguage, useTheme } from '@glom/theme';
 import globe from '@iconify/icons-fluent/globe-48-regular';
 import { Icon } from '@iconify/react';
 import { Box, Button, IconButton, Tooltip } from '@mui/material';
@@ -10,12 +10,14 @@ import { INavItem, NavItem } from './NavItem';
 export default function DesktopNav({ navLinks }: { navLinks: INavItem[] }) {
   const { formatMessage } = useIntl();
   const { push } = useRouter();
+  const theme = useTheme();
   const { activeLanguage, languageDispatch } = useLanguage();
 
   return (
     <Box
       component="nav"
       sx={{
+        backgroundColor: theme.common.offWhite,
         padding: '15px 119px',
         display: {
           desktop: 'grid',

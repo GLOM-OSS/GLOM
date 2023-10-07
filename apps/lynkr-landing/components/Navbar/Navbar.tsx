@@ -2,10 +2,16 @@ import { ReactElement, cloneElement } from 'react';
 import DesktopNav from './DesktopNav';
 import MobileNav from './MobileNav';
 import { INavItem } from './NavItem';
+import { useScrollTrigger } from '@mui/material';
 
 export function ElevationScroll({ children }: { children: ReactElement }) {
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 0,
+  });
+
   return cloneElement(children, {
-    elevation: 0,
+    elevation: trigger ? 4 : 0,
   });
 }
 

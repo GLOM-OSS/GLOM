@@ -200,9 +200,15 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
           root: ({ theme }) => ({
             borderRadius: '8px',
             textTransform: 'none',
-            padding: '12px 8px',
             fontWeight: 'var(--semiBold)',
             lineHeight: '14px',
+            '&.MuiButton-sizeSmall': {
+              fontSize: '12px',
+              lineHeight: '12px',
+              padding: '12px',
+            },
+            '&.MuiButton-sizeMedium': { padding: '12px 16px' },
+            '&.MuiButton-sizeLarge': { padding: '12px 20px' },
             '&.MuiButton-colorInherit.MuiButton-outlined ': {
               border: `1px solid ${theme.common.line}`,
               color: theme.common.body,
