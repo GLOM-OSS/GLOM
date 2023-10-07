@@ -1,26 +1,24 @@
 import { Logger, Module, Provider } from '@nestjs/common';
-import { PrismaService } from './glom-prisma.service';
+import { GlomPrismaService } from './glom-prisma.service';
 import { GlomPrismaModuleOptions } from './glom-prisma.type.d';
 
 @Module({})
 export class GlomPrismaModule {
-  static forRoot({
-    global = false,
-    log_level = ['query', 'error'],
-    seedSync = () => {
-      Logger.debug('Nothing to seed !!!', GlomPrismaModule.name);
-    },
-    seedASync,
-  }: GlomPrismaModuleOptions) {
-    const prismaProdiver: Provider = {
-      provide: PrismaService,
-      useValue: new PrismaService({ log_level, seedSync, seedASync }),
-    };
+  static forRoot(
+    glomPrismaOptions: GlomPrismaModuleOptions = { isGlobal: false }
+  ) {
+    const { isGlobal, ...options } = glomPrismaOptions;
+    const providers: Provider[] = [
+      {
+        provide: GlomPrismaService,
+        useValue: new GlomPrismaService(options),
+      },
+    ];
     return {
-      global,
+      global: isGlobal,
+      exports: providers,
+      providers: providers,
       module: GlomPrismaModule,
-      exports: [prismaProdiver],
-      prodiers: [prismaProdiver],
     };
   }
 }

@@ -10,10 +10,9 @@ uploads
 migrations
 node_modules
 uploads
-.env
 
 # IDEs and editors
-.env
+.env.*
 /.idea
 .project
 .classpath

@@ -1,0 +1,65 @@
+{
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/lynkr/api/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/lynkr/api",
+        "main": "apps/lynkr/api/src/main.ts",
+        "tsConfig": "apps/lynkr/api/tsconfig.app.json",
+        "assets": ["apps/lynkr/api/src/assets"]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "fileReplacements": [
+            {
+              "replace": "apps/lynkr/api/src/environments/environment.ts",
+              "with": "apps/lynkr/api/src/environments/environment.prod.ts"
+            }
+          ]
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/node:node",
+      "options": {
+        "buildTarget": "lynkr-api:build"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "lynkr-api:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/lynkr/api/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/lynkr/api"],
+      "options": {
+        "jestConfig": "apps/lynkr/api/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "swagger": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "npx openapi-typescript http://localhost:8000/docs-yaml --output libs/dto/src/lib/lynkr.ts"
+        ]
+      }
+    }
+  },
+  "tags": []
+}

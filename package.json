@@ -8,10 +8,12 @@
     "test": "nx test",
     "prisma:dev": "prisma migrate dev --schema",
     "prisma:deploy": "prisma migrate deploy --schema",
-    "prisma:merge:lynkr-api": "cat libs/nest/auth/src/glom-auth.prisma apps/lynkr-api/src/prisma/lynkr.prisma > schemas/lynkr.prisma"
+    "prisma:merge:lynkr-api": "cat libs/nest/auth/src/glom-auth.prisma apps/lynkr-api/src/prisma/lynkr.prisma > schemas/lynkr/lynkr.prisma"
   },
   "private": true,
   "dependencies": {
+    "@casl/ability": "^6.5.0",
+    "@casl/prisma": "^1.4.1",
     "@cyntler/react-doc-viewer": "^1.10.3",
     "@emotion/cache": "^11.10.3",
     "@emotion/react": "^11.10.4",
@@ -23,8 +25,9 @@
     "@mui/material": "^5.10.5",
     "@mui/x-date-pickers": "^5.0.2",
     "@nestjs-modules/mailer": "^1.8.1",
+    "@nestjs/axios": "^3.0.0",
     "@nestjs/common": "^9.0.0",
-    "@nestjs/config": "^2.2.0",
+    "@nestjs/config": "^2.3.4",
     "@nestjs/core": "^9.0.0",
     "@nestjs/passport": "^9.0.0",
     "@nestjs/platform-express": "^9.2.1",
@@ -53,10 +56,12 @@
     "helmet": "^6.0.0",
     "moment": "^2.29.4",
     "multer": "^1.4.5-lts.1",
+    "nestjs-cls": "^3.5.1",
     "next": "12.2.5",
     "nodemailer": "^6.7.8",
     "nodemailer-express-handlebars": "^5.0.0",
     "passport": "^0.6.0",
+    "passport-facebook": "^3.0.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
     "rc-scrollbars": "^1.1.6",
@@ -78,6 +83,7 @@
     "yup": "^0.32.11"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.0.2",
     "@nestjs/schematics": "^9.0.0",
     "@nestjs/testing": "^9.0.0",
     "@nrwl/cli": "14.7.4",
@@ -96,7 +102,7 @@
     "@types/cron": "^2.0.0",
     "@types/crypto-js": "^4.1.1",
     "@types/csurf": "^1.11.2",
-    "@types/express-session": "^1.17.5",
+    "@types/express-session": "^1.17.7",
     "@types/jest": "28.1.1",
     "@types/multer": "^1.4.7",
     "@types/node": "16.11.7",
@@ -111,6 +117,7 @@
     "@typescript-eslint/parser": "~5.33.1",
     "babel-jest": "28.1.1",
     "cypress": "^10.7.0",
+    "dotenv-cli": "^7.3.0",
     "eslint": "~8.15.0",
     "eslint-config-next": "12.2.5",
     "eslint-config-prettier": "8.1.0",
@@ -129,6 +136,6 @@
     "react-test-renderer": "18.2.0",
     "ts-jest": "28.0.5",
     "ts-node": "10.9.1",
-    "typescript": "~4.7.2"
+    "typescript": "~4.9.5"
   }
 }
