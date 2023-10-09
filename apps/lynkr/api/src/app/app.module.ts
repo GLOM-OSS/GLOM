@@ -5,12 +5,12 @@ import { AppService } from './app.service';
 import { GlomAuthModule } from '@glom/nest-auth';
 import { GlomPrismaModule } from '@glom/prisma';
 import { GlomMailerModule } from '@glom/nest-mailer';
+import { RoleEnum } from './app.decorators';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env.lynkr',
     }),
     GlomPrismaModule.forRoot({
       isGlobal: true,
@@ -22,22 +22,25 @@ import { GlomMailerModule } from '@glom/nest-mailer';
       pass: process.env.EMAIL_PASS,
       templatesDir: `${process.env.NX_API_BASE_URL}/templates`,
     }),
-    GlomAuthModule.forRoot({
+    GlomAuthModule.forRoot<RoleEnum>({
       useGlobalDeps: true,
       strategies: ['google', 'facebook'],
       roles: [
-        { origin: process.env.CLIENT_ORIGIN, role_name: 'Client' },
         {
+          role_name: RoleEnum.Client,
+          origin: process.env.CLIENT_ORIGIN,
+        },
+        {
+          role_name: RoleEnum.Admin,
           origin: process.env.ADMIN_ORIGIN,
-          role_name: 'Admin',
         },
         {
+          role_name: RoleEnum.Merchant,
           origin: process.env.MERCHANT_ORIGIN,
-          role_name: 'Merchant',
         },
         {
+          role_name: RoleEnum.Technician,
           origin: process.env.TECHNICIAN_ORIGIN,
-          role_name: 'Technician',
         },
       ],
     }),
