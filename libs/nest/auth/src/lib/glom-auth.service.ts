@@ -14,18 +14,14 @@ import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { Profile } from 'passport';
 import { SignUpDto, UserEntity } from './glom-auth.dto';
-import { GlomAuthSeeder } from './glom-auth.seed';
 import { RoleCheckOptions, User } from './glom-auth.type';
 
 @Injectable()
 export class GlomAuthService {
   constructor(
     private prismaService: GlomPrismaService,
-    private mailerService: GlomMailerService,
-    private glomAuthSedder: GlomAuthSeeder
-  ) {
-    this.glomAuthSedder.getSeederStatus();
-  }
+    private mailerService: GlomMailerService
+  ) {}
 
   async validateUser(
     request: Request,

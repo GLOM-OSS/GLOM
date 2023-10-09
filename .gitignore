@@ -7,11 +7,11 @@
 
 # dependencies
 uploads
-migrations
 node_modules
 uploads
 
 # IDEs and editors
+.env
 .env.*
 /.idea
 .project

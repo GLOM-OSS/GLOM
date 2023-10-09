@@ -1,5 +1,5 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { GlomAuthModuleOptions } from './glom-auth.type';
+import { AppRole, GlomAuthModuleOptions } from './glom-auth.type';
 import { Inject, Logger, LoggerService } from '@nestjs/common';
 import { GlomAuthService } from './glom-auth.service';
 
@@ -14,17 +14,14 @@ export class GlomAuthSeeder {
   public seedItems: { item: string; status: keyof typeof loggerType }[] = [];
   constructor(
     prismaService: GlomPrismaService,
-    @Inject(AUTH_ROLES) roles: GlomAuthModuleOptions['roles']
+    @Inject(AUTH_ROLES) roles: AppRole<string>[]
   ) {
     this.seedRoles(prismaService, roles).catch((error) =>
       Logger.error(error, GlomAuthService.name)
     );
   }
 
-  private async seedRoles(
-    prisma: GlomPrismaService,
-    roles: GlomAuthModuleOptions['roles']
-  ) {
+  private async seedRoles(prisma: GlomPrismaService, roles: AppRole<string>[]) {
     const count = await prisma.role.count();
     if (count === 0)
       await prisma.role.createMany({

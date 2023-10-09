@@ -11,11 +11,11 @@ import { ThirdParthiesModule } from './third-parthies/third-parthies.module';
 
 @Module({})
 export class GlomAuthModule {
-  static forRoot({
+  static forRoot<R>({
     roles,
     strategies,
     useGlobalDeps,
-  }: GlomAuthModuleOptions): DynamicModule {
+  }: GlomAuthModuleOptions<R>): DynamicModule {
     const ThirdParthiesDynamicModule = ThirdParthiesModule.forRoot({
       strategies: strategies ?? [],
       roles,
