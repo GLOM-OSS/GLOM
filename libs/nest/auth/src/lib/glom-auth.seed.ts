@@ -10,11 +10,11 @@ const loggerType: Record<'New' | 'Failed' | 'Done', keyof LoggerService> = {
   Failed: 'error',
 };
 
-export class GlomAuthSeeder {
+export class GlomAuthSeeder<R extends string> {
   public seedItems: { item: string; status: keyof typeof loggerType }[] = [];
   constructor(
     prismaService: GlomPrismaService,
-    @Inject(AUTH_ROLES) roles: GlomAuthModuleOptions['roles']
+    @Inject(AUTH_ROLES) roles: GlomAuthModuleOptions<R>['roles']
   ) {
     this.seedRoles(prismaService, roles).catch((error) =>
       Logger.error(error, GlomAuthService.name)
@@ -23,7 +23,7 @@ export class GlomAuthSeeder {
 
   private async seedRoles(
     prisma: GlomPrismaService,
-    roles: GlomAuthModuleOptions['roles']
+    roles: GlomAuthModuleOptions<R>['roles']
   ) {
     const count = await prisma.role.count();
     if (count === 0)

@@ -13,7 +13,12 @@ export type User = Person & {
   login_id: string;
 };
 
-export type GlomAuthModuleOptions = {
+export type AppRole<R> = {
+  role_name: R;
+  origin: string;
+};
+
+export type GlomAuthModuleOptions<R> = {
   /**
    * If set to `true`, this module will attempt to used glom's externally declared `prisma` and `mailer` modules.
    * This can be usefull if you globally imported these modules in your app root modules.
@@ -27,7 +32,7 @@ export type GlomAuthModuleOptions = {
    *  {origin: 'https://admin.exemple.com', role_name: 'Admin'},
    * ]
    */
-  roles: Prisma.RoleCreateManyInput[];
+  roles: AppRole<R>[];
   /**
    * Third parthy strategies you want this module to implement.
    * Local strategy does not require this option to be passed
