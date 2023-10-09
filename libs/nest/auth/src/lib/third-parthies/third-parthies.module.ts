@@ -1,10 +1,10 @@
 import { DynamicModule, Module, Provider, Type } from '@nestjs/common';
+import { RouterModule } from '@nestjs/core';
+import { AUTH_ROLES } from '../glom-auth.seed';
+import { GlomAuthService } from '../glom-auth.service';
 import { GlomStrategy, ThirdParthiesModuleOptions } from '../glom-auth.type';
 import { FacebookModule } from './facebook/facebook.module';
 import { GoogleModule } from './google/google.module';
-import { RouterModule } from '@nestjs/core';
-import { AUTH_ROLES, GlomAuthSeeder } from '../glom-auth.seed';
-import { GlomAuthService } from '../glom-auth.service';
 
 @Module({})
 export class ThirdParthiesModule {
@@ -26,7 +26,6 @@ export class ThirdParthiesModule {
       },
     ];
     const services: Provider[] = [
-      GlomAuthSeeder,
       GlomAuthService,
       {
         provide: AUTH_ROLES,
