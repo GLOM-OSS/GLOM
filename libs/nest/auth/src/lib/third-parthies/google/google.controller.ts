@@ -29,7 +29,7 @@ import { ClsService } from 'nestjs-cls';
 export class GoogleController {
   constructor(private clsService: ClsService) {}
 
-  @Post()
+  @Get()
   @UseGuards(GoogleGuard)
   @ApiOperation({
     summary:

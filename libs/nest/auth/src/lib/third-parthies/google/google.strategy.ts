@@ -8,7 +8,7 @@ import { GlomAuthService } from '../../glom-auth.service';
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(private authService: GlomAuthService) {
     super({
-      callbackURL: `${process.env.NX_API_BASE_URL}/auth/third-parthies/google/callback`,
+      callbackURL: `${process.env.NX_API_BASE_URL}/auth/google/callback`,
       clientSecret: process.env.GOOGLE_SECRET,
       clientID: process.env.GOOGLE_CLIENT_ID,
       scope: ['email', 'profile'],
@@ -18,10 +18,12 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 
   async validate(request: Request, _a: string, _r: string, profile: Profile) {
     const {
-      _json: { email_verified },
+      _json: { email_verified, email },
     } = profile;
-    console.log(profile);
     if (!email_verified) throw new UnauthorizedException();
-    return this.authService.authenticateUser(request, profile);
+    return this.authService.authenticateUser(request, {
+      ...profile,
+      username: email,
+    });
   }
 }
