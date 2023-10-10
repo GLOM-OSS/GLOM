@@ -21,6 +21,7 @@
       "@glom/nest-mailer": ["libs/nest/mailer/src/index.ts"],
       "@glom/nest-tasks": ["libs/nest/tasks/src/index.ts"],
       "@glom/prisma": ["libs/nest/prisma/src/index.ts"],
+      "@glom/redis": ["libs/nest/redis/src/index.ts"],
       "@glom/request": ["libs/request/src/index.ts"],
       "@glom/theme": ["libs/theme/src/index.ts"],
       "@squoolr/api-services": ["libs/api-services/src/index.ts"],
