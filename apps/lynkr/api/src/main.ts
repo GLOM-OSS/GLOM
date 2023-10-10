@@ -5,10 +5,12 @@
 
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+import { GlomExceptionsFilter } from '@glom/execeptions';
 
 import { AppModule } from './app/app.module';
-import { GlomExceptionsFilter } from '@glom/execeptions';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const origin =
@@ -20,7 +22,7 @@ async function bootstrap() {
           'http://localhost:4201', //technician
           'http://localhost:4202', //admin
         ];
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: {
       origin,
       credentials: true,
