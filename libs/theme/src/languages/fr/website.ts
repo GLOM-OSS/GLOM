@@ -345,7 +345,7 @@ export const website = {
     'Gérez vos forfaits, vendez votre internet, déconnectez les clients impayés, recevez votre argent sans avoir à gérer les tickets et les complications des clients',
 
   partners: 'Partenaires',
-  en: 'Anglais',
+  en: 'English',
   fr: 'Français',
   getEarlyAccess: 'Accès anticipé',
 };
