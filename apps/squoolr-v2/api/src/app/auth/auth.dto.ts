@@ -35,12 +35,6 @@ export class SignInDto {
   password: string;
 }
 
-export class AcademicYearQueryDto {
-  @ApiProperty()
-  @IsString()
-  academic_year_id: string;
-}
-
 export class PersonPostDto {
   @ApiProperty()
   @IsString()
