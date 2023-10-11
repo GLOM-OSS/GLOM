@@ -13,8 +13,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import path = require('path');
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
-
+  const origin =
+    process.env.NODE_ENV === 'production' ? /\.squoolr\.com$/ : /localhost:420/;
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    cors: {
+      origin,
+      credentials: true,
+    },
+  });
   app.useStaticAssets(path.join(__dirname, './assets'));
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
