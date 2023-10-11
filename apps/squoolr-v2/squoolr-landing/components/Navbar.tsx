@@ -1,3 +1,4 @@
+import { useActiveLanguage, useDispatchLanguage, useTheme } from '@glom/theme';
 import list from '@iconify/icons-fluent/list-28-filled';
 import { Icon } from '@iconify/react';
 import {
@@ -15,9 +16,9 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { ReactElement, cloneElement } from 'react';
+import { ReactElement, cloneElement, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { useActiveLanguage, useDispatchLanguage, useTheme } from '@glom/theme';
+import { SideNav } from './navigation/SideNav';
 
 export function ElevationScroll({ children }: { children: ReactElement }) {
   const trigger = useScrollTrigger({
@@ -57,6 +58,53 @@ const landingNavElements: INavItem[] = [
   { item: 'faq', route: '#faq' },
 ];
 
+export function LogoHolder({ size }: { size?: number }) {
+  const { push } = useRouter();
+  const theme = useTheme();
+  return (
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: 'auto 1fr',
+        alignItems: 'center',
+        justifySelf: 'start',
+        cursor: 'pointer',
+      }}
+      onClick={() => push('/')}
+    >
+      <Box sx={{ display: { mobile: 'none', laptop: 'block' } }}>
+        <Image
+          src="/logo.png"
+          alt="Squoolr logo"
+          height={size ?? 68}
+          width={size ?? 68}
+        />
+      </Box>
+      <Box sx={{ display: { mobile: 'block', laptop: 'none' } }}>
+        <Image
+          src="/logo.png"
+          alt="Squoolr logo"
+          height={size ?? 36}
+          width={size ?? 36}
+        />
+      </Box>
+      <Typography
+        variant="h3"
+        sx={{
+          fontWeight: 'bold',
+          color: '#12192C',
+          fontSize: {
+            laptop: theme.typography.h3.fontSize,
+            mobile: theme.typography.h4.fontSize,
+          },
+        }}
+      >
+        Squoolr
+      </Typography>
+    </Box>
+  );
+}
+
 export default function Navbar() {
   const { formatMessage } = useIntl();
   const { push, pathname, asPath } = useRouter();
@@ -64,93 +112,90 @@ export default function Navbar() {
   const changeLanguage = useDispatchLanguage();
   const activeLanguage = useActiveLanguage();
 
+  const [isSideNavOpen, setIsSideNavOpen] = useState<boolean>(false);
+
   return (
-    <Box
-      sx={{
-        display: 'grid',
-        gridTemplateColumns: {
-          mobile: '1fr auto auto',
-          desktop: 'auto 1fr auto auto',
-        },
-        justifyItems: 'center',
-        columnGap: 1,
-        alignItems: 'center',
-        padding: {
-          mobile: '16px',
-          desktop: '11px 118px',
-        },
-        backgroundColor: '#EDF2FB',
-      }}
-    >
+    <>
+      <SideNav
+        navItems={landingNavElements}
+        close={() => setIsSideNavOpen(false)}
+        open={isSideNavOpen}
+      />
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: 'auto 1fr',
-          alignItems: 'center',
-          justifySelf: 'start',
-          cursor: 'pointer',
-        }}
-        onClick={() => push('/')}
-      >
-        <Image src="/logo.png" alt="Squoolr logo" height={68} width={68} />
-        <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#12192C' }}>
-          Squoolr
-        </Typography>
-      </Box>
-      <Box
-        sx={{
-          display: {
-            desktop: 'grid',
-            mobile: 'none',
-            gridAutoFlow: 'column',
-            columnGap: '40px',
-            alignItems: 'center',
+          gridTemplateColumns: {
+            mobile: '1fr auto auto',
+            desktop: 'auto 1fr auto auto',
           },
+          justifyItems: 'center',
+          columnGap: 1,
+          alignItems: 'center',
+          padding: {
+            mobile: '16px',
+            desktop: '11px 118px',
+          },
+          backgroundColor: '#EDF2FB',
         }}
       >
-        {landingNavElements.map(({ item, route }, index) => (
-          <Typography
-            key={index}
-            sx={{
-              position: 'relative',
-              transition: '0.2s',
-              cursor: 'pointer',
-              '& a': {
-                textDecoration: 'none',
-              },
-              '&::before': {
+        <LogoHolder />
+        <Box
+          sx={{
+            display: {
+              desktop: 'grid',
+              mobile: 'none',
+              gridAutoFlow: 'column',
+              columnGap: '40px',
+              alignItems: 'center',
+            },
+          }}
+        >
+          {landingNavElements.map(({ item, route }, index) => (
+            <Typography
+              onClick={() => {
+                scrollToSection(route);
+                push(route);
+              }}
+              key={index}
+              sx={{
+                position: 'relative',
                 transition: '0.2s',
-                position: 'absolute',
-                left: '0px',
-                bottom: '-5px',
-                height: '3px',
-                content: '""',
-                width:
-                  pathname === route ||
-                  `/${pathname.split('/').filter((_) => _ !== '')[0]}` ===
-                    route ||
-                  asPath.includes(route)
-                    ? '100%'
-                    : 0,
-                backgroundColor: theme.palette.primary.main,
-                borderRadius: '5px',
-              },
-              '&:hover::before': {
-                transition: '0.2s',
-                width: '100%',
-                backgroundColor:
-                  theme.palette[
+                cursor: 'pointer',
+                '& a': {
+                  textDecoration: 'none',
+                },
+                '&::before': {
+                  transition: '0.2s',
+                  position: 'absolute',
+                  left: '0px',
+                  bottom: '-5px',
+                  height: '3px',
+                  content: '""',
+                  width:
                     pathname === route ||
                     `/${pathname.split('/').filter((_) => _ !== '')[0]}` ===
                       route ||
                     asPath.includes(route)
-                      ? 'secondary'
-                      : 'primary'
-                  ].main,
-              },
-            }}
-          >
-            <Link href={route}>
+                      ? '100%'
+                      : 0,
+                  backgroundColor: theme.palette.primary.main,
+                  borderRadius: '5px',
+                },
+                '&:hover::before': {
+                  transition: '0.2s',
+                  width: '100%',
+                  backgroundColor:
+                    theme.palette[
+                      pathname === route ||
+                      `/${pathname.split('/').filter((_) => _ !== '')[0]}` ===
+                        route ||
+                      asPath.includes(route)
+                        ? 'secondary'
+                        : 'primary'
+                    ].main,
+                },
+              }}
+            >
               <Typography
                 component="span"
                 className="p3"
@@ -158,106 +203,104 @@ export default function Navbar() {
               >
                 {formatMessage({ id: item })}
               </Typography>
-            </Link>
-          </Typography>
-        ))}
-        <Typography
-          sx={{
-            position: 'relative',
-            transition: '0.2s',
-            cursor: 'pointer',
-            '& a': {
-              textDecoration: 'none',
-            },
-            '&::before': {
-              transition: '0.2s',
-              position: 'absolute',
-              left: '0px',
-              bottom: '-5px',
-              height: '3px',
-              content: '""',
-              width: 0,
-              backgroundColor: theme.palette.primary.main,
-              borderRadius: '5px',
-            },
-            '&:hover::before': {
-              transition: '0.2s',
-              width: '100%',
-              backgroundColor: theme.palette['primary'].main,
-            },
-          }}
-        >
+            </Typography>
+          ))}
           <Typography
-            component="span"
-            className="p3"
-            sx={{ color: 'var(--body)', textAlign: 'center' }}
-            onClick={() => alert('hello')}
+            sx={{
+              position: 'relative',
+              transition: '0.2s',
+              cursor: 'pointer',
+              '&::before': {
+                transition: '0.2s',
+                position: 'absolute',
+                left: '0px',
+                bottom: '-5px',
+                height: '3px',
+                content: '""',
+                width: 0,
+                backgroundColor: theme.palette.primary.main,
+                borderRadius: '5px',
+              },
+              '&:hover::before': {
+                transition: '0.2s',
+                width: '100%',
+                backgroundColor: theme.palette['primary'].main,
+              },
+            }}
           >
-            {formatMessage({ id: 'contactUs' })}
+            <Typography
+              component="span"
+              className="p3"
+              sx={{ color: 'var(--body)', textAlign: 'center' }}
+              onClick={() => alert('hello')}
+            >
+              {formatMessage({ id: 'contactUs' })}
+            </Typography>
           </Typography>
-        </Typography>
-      </Box>
-      <FormControl
-        fullWidth
-        sx={{
-          '& .MuiSelect-select': {
-            paddingTop: 1,
-            paddingBottom: 1,
-          },
-        }}
-      >
-        <Select
-          value={activeLanguage}
-          onChange={() => {
-            changeLanguage({
-              type:
-                capitalize(activeLanguage) === 'En'
-                  ? 'USE_FRENCH'
-                  : 'USE_ENGLISH',
-            });
+        </Box>
+        <FormControl
+          fullWidth
+          sx={{
+            '& .MuiSelect-select': {
+              paddingTop: 1,
+              paddingBottom: 1,
+            },
           }}
         >
-          <MenuItem value={'en'}>{formatMessage({ id: 'en' })}</MenuItem>
-          <MenuItem value={'fr'}>{formatMessage({ id: 'fr' })}</MenuItem>
-        </Select>
-      </FormControl>
-      <Tooltip arrow title={formatMessage({ id: 'menu' })}>
-        <IconButton
+          <Select
+            value={activeLanguage}
+            onChange={() => {
+              changeLanguage({
+                type:
+                  capitalize(activeLanguage) === 'En'
+                    ? 'USE_FRENCH'
+                    : 'USE_ENGLISH',
+              });
+            }}
+          >
+            <MenuItem value={'en'}>{formatMessage({ id: 'en' })}</MenuItem>
+            <MenuItem value={'fr'}>{formatMessage({ id: 'fr' })}</MenuItem>
+          </Select>
+        </FormControl>
+        <Tooltip arrow title={formatMessage({ id: 'menu' })}>
+          <IconButton
+            sx={{
+              display: {
+                mobile: 'block',
+                desktop: 'none',
+              },
+            }}
+            size="small"
+            onClick={() => setIsSideNavOpen(true)}
+          >
+            <Icon
+              icon={list}
+              style={{
+                height: '32px',
+                width: '32px',
+                color: 'black',
+              }}
+            />
+          </IconButton>
+        </Tooltip>
+        <Box
           sx={{
             display: {
-              mobile: 'block',
-              desktop: 'none',
+              mobile: 'none',
+              desktop: 'grid',
             },
+            gridAutoFlow: 'column',
+            gap: 1,
           }}
-          size="small"
         >
-          <Icon
-            icon={list}
-            style={{
-              height: '32px',
-              width: '32px',
-              color: 'black',
-            }}
-          />
-        </IconButton>
-      </Tooltip>
-      <Box
-        sx={{
-          display: {
-            mobile: 'none',
-            desktop: 'grid',
-          },
-          gridAutoFlow: 'column',
-          gap: 1,
-        }}
-      >
-        <Button variant="text" color="primary" sx={{ fontSize: '16px' }}>
-          {formatMessage({ id: 'verifyDemandStatus' })}
-        </Button>
-        <Button variant="contained" color="primary">
-          {formatMessage({ id: 'getEarlyAccess' })}
-        </Button>
+          <Button variant="text" color="primary" sx={{ fontSize: '16px' }}>
+            {formatMessage({ id: 'verifyDemandStatus' })}
+          </Button>
+          <Button variant="contained" color="primary">
+            {formatMessage({ id: 'getEarlyAccess' })}
+          </Button>
+        </Box>
       </Box>
-    </Box>
+    </>
   );
 }
