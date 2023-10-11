@@ -348,4 +348,11 @@ export const website = {
   en: 'English',
   fr: 'Français',
   getEarlyAccess: 'Accès anticipé',
+
+  unlockYourInstitutionsPotential:
+    'Débloquez le potentiel de votre institution',
+  squoolrLandingSubtitle:
+    'Outils innovants pour le succès de votre institution : Personnalisez et mettez en œuvre en un clic !',
+  getEarlyAccessNow: 'Accès anticipé',
+  scrollToSeeMore: 'Défilez pour plus',
 };

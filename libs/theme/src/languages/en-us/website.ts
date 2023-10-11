@@ -332,4 +332,10 @@ export const website = {
   en: 'English',
   fr: 'Français',
   getEarlyAccess: 'Get Early Access',
+
+  unlockYourInstitutionsPotential: 'Unlock your institutions potential',
+  squoolrLandingSubtitle:
+    'Innovative Tools for institutional Success: Customize and Implement with a click!',
+  getEarlyAccessNow: 'Get Early Access Now',
+  scrollToSeeMore: 'Scroll to see more',
 };
