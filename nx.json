@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "npmScope": "squoolr",
+  "npmScope": "glom",
   "affected": {
     "defaultBase": "master"
   },
@@ -60,5 +60,5 @@
       }
     }
   },
-  "defaultProject": "squoolr-landing"
+  "defaultProject": "lynkr-landing"
 }
