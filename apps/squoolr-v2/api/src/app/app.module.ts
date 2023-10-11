@@ -6,12 +6,14 @@ import { InjectRedis, Redis, RedisModule } from '@nestjs-modules/ioredis';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PassportModule } from '@nestjs/passport';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 
 import * as session from 'express-session';
 import RedisStore from 'connect-redis';
 import * as passport from 'passport';
 import { randomUUID } from 'crypto';
+import { AppMiddleware } from './app.middleware';
+import { AppInterceptor } from './app.interceptor';
 
 @Module({
   imports: [
@@ -27,7 +29,14 @@ import { randomUUID } from 'crypto';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AppInterceptor,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   constructor(@InjectRedis() private readonly redis: Redis) {}
@@ -47,7 +56,8 @@ export class AppModule implements NestModule {
           },
         }),
         passport.initialize(),
-        passport.session()
+        passport.session(),
+        AppMiddleware
       )
       .forRoutes('*');
   }
