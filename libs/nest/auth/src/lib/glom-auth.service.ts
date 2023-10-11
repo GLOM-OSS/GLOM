@@ -182,7 +182,6 @@ export class GlomAuthService {
         template_name: 'default',
       },
     });
-    return { reset_password_id };
   }
 
   async setNewPassword(
