@@ -15,7 +15,6 @@ import {
   useScrollTrigger,
 } from '@mui/material';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ReactElement, cloneElement, useState } from 'react';
 import { useIntl } from 'react-intl';
@@ -135,7 +134,7 @@ export default function Navbar() {
               columnGap: 1,
               alignItems: 'center',
               padding: {
-                mobile: '16px',
+                mobile: '11px 16px',
                 desktop: '11px 118px',
               },
               backgroundColor: '#EDF2FB',
