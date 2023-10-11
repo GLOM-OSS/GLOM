@@ -8,13 +8,14 @@ import { GlomAuthService } from './glom-auth.service';
 import { GlomAuthModuleOptions } from './glom-auth.type';
 import { LocalStrategy } from './local/local.strategy';
 import { ThirdParthiesModule } from './third-parthies/third-parthies.module';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({})
 export class GlomAuthModule {
   static forRoot<R>({
     roles,
     strategies,
-    useGlobalDeps,
+    omitModuleDeps,
   }: GlomAuthModuleOptions<R>): DynamicModule {
     const ThirdParthiesDynamicModule = ThirdParthiesModule.forRoot({
       strategies: strategies ?? [],
@@ -46,20 +47,25 @@ export class GlomAuthModule {
         },
       ],
       controllers: [GlomAuthController],
-      imports: useGlobalDeps
-        ? [ClsDynamicModule, ThirdParthiesDynamicModule]
-        : [
-            ClsDynamicModule,
-            ThirdParthiesDynamicModule,
-            GlomPrismaModule.forRoot(),
-            GlomMailerModule.forRoot({
-              authType: 'Login',
-              user: process.env.APP_EMAIL,
-              host: process.env.EMAIL_HOST,
-              pass: process.env.EMAIL_PASS,
-              templatesDir: `${process.env.NX_API_BASE_URL}/templates`,
-            }),
-          ],
+      imports: [
+        PassportModule.register({
+          session: true,
+        }),
+        ClsDynamicModule,
+        ThirdParthiesDynamicModule,
+        ...(omitModuleDeps
+          ? []
+          : [
+              GlomPrismaModule.forRoot(),
+              GlomMailerModule.forRoot({
+                authType: 'Login',
+                user: process.env.APP_EMAIL,
+                host: process.env.EMAIL_HOST,
+                pass: process.env.EMAIL_PASS,
+                templatesDir: `${process.env.NX_API_BASE_URL}/templates`,
+              }),
+            ]),
+      ],
     };
   }
 }
