@@ -327,4 +327,9 @@ export const website = {
   projectHeadline: 'Sell Internet Over WiFi With No Hassles Or Complications',
   projectSubtitle:
     'Manage your bundles, sell your internet, disconnect unpaid clients, receive your money without dealing with tickets and client complications',
+
+  partners: 'Partners',
+  en: 'English',
+  fr: 'Français',
+  getEarlyAccess: 'Get Early Access',
 };
