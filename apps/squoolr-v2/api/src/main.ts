@@ -3,7 +3,7 @@
  * This is only a minimal backend to get started.
  */
 
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
@@ -11,6 +11,7 @@ import { AppModule } from './app/app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import path = require('path');
+import { GlomExceptionsFilter } from '@glom/execeptions';
 
 async function bootstrap() {
   const origin =
@@ -21,6 +22,15 @@ async function bootstrap() {
       credentials: true,
     },
   });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      forbidNonWhitelisted: true,
+      whitelist: true,
+    })
+  );
+  app.useGlobalFilters(new GlomExceptionsFilter());
+
   app.useStaticAssets(path.join(__dirname, './assets'));
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
