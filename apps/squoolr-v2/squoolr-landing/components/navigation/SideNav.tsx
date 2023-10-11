@@ -2,7 +2,7 @@ import { useTheme } from '@glom/theme';
 import { Box, Button, Drawer, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useIntl } from 'react-intl';
-import { LogoHolder } from '../Navbar';
+import { LogoHolder } from './Navbar';
 import NavItem from './NavItem';
 
 interface INavItem {
