@@ -1,7 +1,6 @@
-import { Box, Button, Typography } from '@mui/material';
 import arrowRight from '@iconify/icons-fluent/arrow-right-48-regular';
 import { Icon } from '@iconify/react';
-import Head from 'next/head';
+import { Box, Button, Typography } from '@mui/material';
 import { useIntl } from 'react-intl';
 
 export default function Hero() {
