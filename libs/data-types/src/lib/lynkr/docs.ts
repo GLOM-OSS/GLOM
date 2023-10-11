@@ -3,41 +3,40 @@
  * Do not make direct changes to the file.
  */
 
-
 export interface paths {
-  "/": {
-    get: operations["AppController_getData"];
+  '/': {
+    get: operations['AppController_getData'];
   };
-  "/auth/sign-in": {
+  '/auth/sign-in': {
     /** Sign in to authenticate a user */
-    post: operations["GlomAuthController_signIn"];
+    post: operations['GlomAuthController_signIn'];
   };
-  "/auth/sign-up": {
+  '/auth/sign-up': {
     /** Create a new user */
-    post: operations["GlomAuthController_signUp"];
+    post: operations['GlomAuthController_signUp'];
   };
-  "/auth/reset-password": {
+  '/auth/reset-password': {
     /** Request a reset password id for reset link */
-    post: operations["GlomAuthController_resetPassword"];
+    post: operations['GlomAuthController_resetPassword'];
   };
-  "/auth/new-password": {
+  '/auth/new-password': {
     /** Set new password with the  previously requested `reset_password_id` */
-    post: operations["GlomAuthController_setNewPassword"];
+    post: operations['GlomAuthController_setNewPassword'];
   };
-  "/auth/reset-password/{reset_password_id}/cancel": {
+  '/auth/reset-password/{reset_password_id}/cancel': {
     /** Cancel a request password request */
-    patch: operations["GlomAuthController_cancelResetPasswordRequest"];
+    patch: operations['GlomAuthController_cancelResetPasswordRequest'];
   };
-  "/auth/log-out": {
-    delete: operations["GlomAuthController_logOut"];
+  '/auth/log-out': {
+    delete: operations['GlomAuthController_logOut'];
   };
-  "/auth/google": {
+  '/auth/google': {
     /** Google authentication. It redirects the provided callback on sucessfully authentication. */
-    get: operations["GoogleController_googleAuth"];
+    get: operations['GoogleController_googleAuth'];
   };
-  "/auth/facebook": {
+  '/auth/facebook': {
     /** Facebook authentication. It redirects the provided callback on sucessfully authentication. */
-    get: operations["FacebookController_facebookAuth"];
+    get: operations['FacebookController_facebookAuth'];
   };
 }
 
@@ -63,7 +62,7 @@ export interface components {
        * @default en
        * @enum {string}
        */
-      preferred_lang: "en" | "fr";
+      preferred_lang: 'en' | 'fr';
       /** @description Valid user phone number */
       phone_number?: string;
       /**
@@ -76,7 +75,7 @@ export interface components {
        * @example Male
        * @enum {string}
        */
-      gender?: "Male" | "Female" | "Other";
+      gender?: 'Male' | 'Female' | 'Other';
       /** @description Valid user address */
       address?: string;
       /**
@@ -111,7 +110,7 @@ export interface components {
       /** @description User last name */
       last_name: string;
       /** @enum {string} */
-      preferred_lang: "en" | "fr";
+      preferred_lang: 'en' | 'fr';
       /** @description Valid user phone number */
       phone_number?: string;
       /**
@@ -124,7 +123,7 @@ export interface components {
        * @example Male
        * @enum {string}
        */
-      gender?: "Male" | "Female" | "Other";
+      gender?: 'Male' | 'Female' | 'Other';
       /** @description Valid user address */
       address?: string;
     };
@@ -151,7 +150,6 @@ export type $defs = Record<string, never>;
 export type external = Record<string, never>;
 
 export interface operations {
-
   AppController_getData: {
     responses: {
       200: {
@@ -163,13 +161,13 @@ export interface operations {
   GlomAuthController_signIn: {
     requestBody: {
       content: {
-        "application/json": components["schemas"]["SignInDto"];
+        'application/json': components['schemas']['SignInDto'];
       };
     };
     responses: {
       201: {
         content: {
-          "application/json": components["schemas"]["UserEntity"];
+          'application/json': components['schemas']['UserEntity'];
         };
       };
       /** @description Bad request. This often happens when the request payload it not respected. */
@@ -194,13 +192,13 @@ export interface operations {
   GlomAuthController_signUp: {
     requestBody: {
       content: {
-        "application/json": components["schemas"]["SignUpDto"];
+        'application/json': components['schemas']['SignUpDto'];
       };
     };
     responses: {
       201: {
         content: {
-          "application/json": components["schemas"]["UserEntity"];
+          'application/json': components['schemas']['UserEntity'];
         };
       };
       /** @description Bad request. This often happens when the request payload it not respected. */
@@ -221,7 +219,7 @@ export interface operations {
   GlomAuthController_resetPassword: {
     requestBody: {
       content: {
-        "application/json": components["schemas"]["ResetPasswordEmail"];
+        'application/json': components['schemas']['ResetPasswordEmail'];
       };
     };
     responses: {
@@ -243,7 +241,7 @@ export interface operations {
   GlomAuthController_setNewPassword: {
     requestBody: {
       content: {
-        "application/json": components["schemas"]["ResetPasswordDto"];
+        'application/json': components['schemas']['ResetPasswordDto'];
       };
     };
     responses: {

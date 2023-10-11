@@ -1,7 +1,7 @@
 import {
-    SchemaCreateResponseBody,
-    SchemaRequestBody,
-    SchemaRequestParams
+  SchemaCreateResponseBody,
+  SchemaRequestBody,
+  SchemaRequestParams,
 } from '../api-helper';
 import { operations } from './docs';
 

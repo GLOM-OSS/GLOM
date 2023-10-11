@@ -16,6 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "@glom/casl": ["libs/nest/casl/src/index.ts"],
+      "@glom/data-types": ["libs/data-types/src/index.ts"],
       "@glom/execeptions": ["libs/nest/exceptions/src/index.ts"],
       "@glom/nest-auth": ["libs/nest/auth/src/index.ts"],
       "@glom/nest-mailer": ["libs/nest/mailer/src/index.ts"],
@@ -29,7 +30,6 @@
       "@squoolr/axios": ["libs/axios/src/index.ts"],
       "@squoolr/confirm-dialogs": ["libs/confirm-dialogs/src/index.ts"],
       "@squoolr/constants": ["libs/constants/src/index.ts"],
-      "@squoolr/dto": ["libs/dto/src/index.ts"],
       "@squoolr/encrypter": ["libs/encrypter/src/index.ts"],
       "@squoolr/interfaces": ["libs/interfaces/src/index.ts"],
       "@squoolr/layout": ["libs/squoolr-layout/src/index.ts"],
