@@ -157,10 +157,13 @@ export default function Navbar() {
                 push(route);
               }}
               key={index}
+              className="p3"
               sx={{
                 position: 'relative',
                 transition: '0.2s',
                 cursor: 'pointer',
+                color: 'var(--body) !important',
+                textAlign: 'center',
                 '& a': {
                   textDecoration: 'none',
                 },
@@ -196,20 +199,18 @@ export default function Navbar() {
                 },
               }}
             >
-              <Typography
-                component="span"
-                className="p3"
-                sx={{ color: 'var(--body)', textAlign: 'center' }}
-              >
-                {formatMessage({ id: item })}
-              </Typography>
+              {formatMessage({ id: item })}
             </Typography>
           ))}
           <Typography
+            className="p3"
+            onClick={() => alert('hello')}
             sx={{
               position: 'relative',
               transition: '0.2s',
               cursor: 'pointer',
+              color: 'var(--body)',
+              textAlign: 'center',
               '&::before': {
                 transition: '0.2s',
                 position: 'absolute',
@@ -228,14 +229,7 @@ export default function Navbar() {
               },
             }}
           >
-            <Typography
-              component="span"
-              className="p3"
-              sx={{ color: 'var(--body)', textAlign: 'center' }}
-              onClick={() => alert('hello')}
-            >
-              {formatMessage({ id: 'contactUs' })}
-            </Typography>
+            {formatMessage({ id: 'contactUs' })}
           </Typography>
         </Box>
         <FormControl
