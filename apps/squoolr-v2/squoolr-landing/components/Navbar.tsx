@@ -154,7 +154,7 @@ export default function Navbar() {
               <Typography
                 component="span"
                 className="p3"
-                sx={{ color: 'var(--body)' }}
+                sx={{ color: 'var(--body)', textAlign: 'center' }}
               >
                 {formatMessage({ id: item })}
               </Typography>
@@ -190,7 +190,7 @@ export default function Navbar() {
           <Typography
             component="span"
             className="p3"
-            sx={{ color: 'var(--body)' }}
+            sx={{ color: 'var(--body)', textAlign: 'center' }}
             onClick={() => alert('hello')}
           >
             {formatMessage({ id: 'contactUs' })}
@@ -245,8 +245,10 @@ export default function Navbar() {
         sx={{
           display: {
             mobile: 'none',
-            desktop: 'block',
+            desktop: 'grid',
           },
+          gridAutoFlow: 'column',
+          gap: 1,
         }}
       >
         <Button variant="text" color="primary" sx={{ fontSize: '16px' }}>
