@@ -33,7 +33,7 @@ export interface paths {
   };
   "/auth/google": {
     /** Google authentication. It redirects the provided callback on sucessfully authentication. */
-    post: operations["GoogleController_googleAuth"];
+    get: operations["GoogleController_googleAuth"];
   };
   "/auth/facebook": {
     /** Facebook authentication. It redirects the provided callback on sucessfully authentication. */
@@ -81,23 +81,23 @@ export interface components {
       address?: string;
       /**
        * @description User role. The default role is `Client`. Each role gives direct access to a particular origin(allow subdomains).
-       * @example 58545be9-25a1-49f5-9274-beede8e9a734
+       * @example ba18ace9-c3d2-433f-8d95-aff8739eb7ff
        */
       role_id: string;
       /**
        * @description User login id
-       * @example d45d73ac-181f-46be-bae5-5b5bf32d9cb6
+       * @example a835761e-63c4-44b8-85ec-e249c6826135
        */
       login_id: string;
       /**
        * @description User person id
-       * @example 368b81d5-5564-44ce-89cd-95fc2bb80a58
+       * @example c8840590-e171-40a7-8d2c-0815c64a70df
        */
       person_id: string;
       /**
        * Format: date-time
        * @description Account creation datetime.
-       * @example "2023-09-20T10:52:33.359Z"
+       * @example "2023-10-11T01:23:45.412Z"
        */
       created_at: string;
     };
@@ -128,9 +128,9 @@ export interface components {
       /** @description Valid user address */
       address?: string;
     };
-    ResetPasswordID: {
-      /** @description Generated reset password id */
-      reset_password_id: string;
+    ResetPasswordEmail: {
+      /** @description Valid user email */
+      email: string;
     };
     ResetPasswordDto: {
       /** @description Reset password id return from `/reset-password` */
@@ -219,11 +219,15 @@ export interface operations {
   };
   /** Request a reset password id for reset link */
   GlomAuthController_resetPassword: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ResetPasswordEmail"];
+      };
+    };
     responses: {
-      201: {
-        content: {
-          "application/json": components["schemas"]["ResetPasswordID"];
-        };
+      /** @description OK */
+      204: {
+        content: never;
       };
       /** @description Bad request. This often happens when the request payload it not respected. */
       400: {
@@ -297,7 +301,7 @@ export interface operations {
   /** Google authentication. It redirects the provided callback on sucessfully authentication. */
   GoogleController_googleAuth: {
     responses: {
-      201: {
+      200: {
         content: never;
       };
       /** @description Bad request. This often happens when the request payload it not respected. */
