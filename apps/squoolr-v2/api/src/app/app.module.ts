@@ -1,19 +1,19 @@
+import { InjectRedis, Redis, RedisModule } from '@nestjs-modules/ioredis';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { PassportModule } from '@nestjs/passport';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { InjectRedis, Redis, RedisModule } from '@nestjs-modules/ioredis';
+
+import RedisStore from 'connect-redis';
+import { randomUUID } from 'crypto';
+import * as session from 'express-session';
+import * as passport from 'passport';
 
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { PassportModule } from '@nestjs/passport';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-
-import * as session from 'express-session';
-import RedisStore from 'connect-redis';
-import * as passport from 'passport';
-import { randomUUID } from 'crypto';
-import { AppMiddleware } from './app.middleware';
 import { AppInterceptor } from './app.interceptor';
+import { AppMiddleware } from './app.middleware';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
