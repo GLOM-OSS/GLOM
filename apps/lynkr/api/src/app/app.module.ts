@@ -1,11 +1,17 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { GlomAuthModule } from '@glom/nest-auth';
-import { GlomPrismaModule } from '@glom/prisma';
-import { GlomMailerModule } from '@glom/nest-mailer';
 import { RoleEnum } from './app.decorators';
+import { AppService } from './app.service';
+
+import { GlomAuthModule } from '@glom/nest-auth';
+import { GlomMailerModule } from '@glom/nest-mailer';
+import { GlomPrismaModule } from '@glom/prisma';
+
+import { randomUUID } from 'crypto';
+import * as session from 'express-session';
+import * as passport from 'passport';
 
 @Module({
   imports: [
@@ -23,7 +29,7 @@ import { RoleEnum } from './app.decorators';
       templatesDir: `${process.env.NX_API_BASE_URL}/templates`,
     }),
     GlomAuthModule.forRoot<RoleEnum>({
-      useGlobalDeps: true,
+      omitModuleDeps: true,
       strategies: ['google', 'facebook'],
       roles: [
         {
@@ -48,4 +54,24 @@ import { RoleEnum } from './app.decorators';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(
+        session({
+          name: process.env.SESSION_NAME,
+          secret: process.env.SESSION_SECRET,
+          genid: () => randomUUID(),
+          saveUninitialized: false,
+          resave: false,
+          rolling: true,
+          cookie: {
+            maxAge: 60 * 60 * 1000, //60 minutes of inativity,
+          },
+        }),
+        passport.initialize(),
+        passport.session()
+      )
+      .forRoutes('*');
+  }
+}
