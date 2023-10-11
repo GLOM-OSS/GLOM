@@ -9,6 +9,7 @@ import { GlomAuthModuleOptions } from './glom-auth.type';
 import { LocalStrategy } from './local/local.strategy';
 import { ThirdParthiesModule } from './third-parthies/third-parthies.module';
 import { PassportModule } from '@nestjs/passport';
+import { GlomAuthSerializer } from './glom-auth.serializer';
 
 @Module({})
 export class GlomAuthModule {
@@ -41,6 +42,7 @@ export class GlomAuthModule {
         LocalStrategy,
         GlomAuthSeeder,
         GlomAuthService,
+        GlomAuthSerializer,
         {
           provide: AUTH_ROLES,
           useValue: roles,
