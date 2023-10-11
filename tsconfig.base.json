@@ -30,7 +30,7 @@
       "@squoolr/axios": ["libs/axios/src/index.ts"],
       "@squoolr/confirm-dialogs": ["libs/confirm-dialogs/src/index.ts"],
       "@squoolr/constants": ["libs/constants/src/index.ts"],
-      "@squoolr/encrypter": ["libs/encrypter/src/index.ts"],
+      "@glom/encrypter": ["libs/encrypter/src/index.ts"],
       "@squoolr/interfaces": ["libs/interfaces/src/index.ts"],
       "@squoolr/layout": ["libs/squoolr-layout/src/index.ts"],
       "@squoolr/toast": ["libs/toast/src/index.ts"],

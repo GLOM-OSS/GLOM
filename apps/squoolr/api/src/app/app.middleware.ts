@@ -1,5 +1,5 @@
 import { NestMiddleware } from '@nestjs/common';
-import { decrypt } from '@squoolr/encrypter';
+import { decrypt } from '@glom/encrypter';
 import { Request } from 'express';
 
 export class AppMiddleware implements NestMiddleware {

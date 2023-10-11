@@ -22,7 +22,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { encrypt } from '@squoolr/encrypter';
+import { encrypt } from '@glom/encrypter';
 import { Request, Response } from 'express';
 import {
   ResetPasswordDto,

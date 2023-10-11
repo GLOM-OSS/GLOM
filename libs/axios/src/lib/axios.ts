@@ -1,5 +1,5 @@
 import { constants } from '@squoolr/constants';
-import { decrypt, encrypt } from '@squoolr/encrypter';
+import { decrypt, encrypt } from '@glom/encrypter';
 import axios, { AxiosInstance } from 'axios';
 
 export async function getCurrentIp() {
