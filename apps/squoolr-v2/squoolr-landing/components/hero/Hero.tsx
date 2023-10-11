@@ -12,48 +12,61 @@ export default function Hero() {
       sx={{
         position: 'relative',
         padding: {
-          mobile: '170px 16px',
+          mobile: '100px 16px',
           desktop: '170px 16px 0 16px',
         },
         display: 'grid',
-        gridTemplateColumns: '0.4fr 1fr',
+        gridTemplateColumns: { desktop: '0.4fr 1fr', mobile: '1fr' },
         alignItems: 'start',
-        columnGap: 3,
+        gap: 3,
       }}
     >
       <Box sx={{ position: 'relative' }}>
         <Box
           sx={{
             display: 'grid',
-            rowGap: 4,
-            position: 'absolute',
+            rowGap: { mobile: 2, desktop: 4 },
+            position: { desktop: 'absolute', mobile: 'initial' },
             left: 0,
             top: '90px',
+            justifyContent: { desktop: 'stretch', mobile: 'center' },
           }}
         >
           <Typography
             className="title-landing-page"
-            sx={{ color: 'var(--titleActive)', textAlign: 'start !important' }}
+            sx={{
+              color: 'var(--titleActive)',
+              textAlign: { mobile: 'initial', desktop: 'start !important' },
+            }}
           >
             {formatMessage({ id: 'unlockYourInstitutionsPotential' })}
           </Typography>
-          <Typography className="p1--space">
+          <Typography
+            className="p1--space"
+            sx={{
+              textAlign: { mobile: 'center', desktop: 'initial' },
+              width: { mobile: '80%', desktop: 'initial' },
+              justifySelf: { mobile: 'center', desktop: 'initial' },
+            }}
+          >
             {formatMessage({ id: 'squoolrLandingSubtitle' })}
           </Typography>
           <Button
             color="primary"
             variant="contained"
             endIcon={<Icon icon={arrowRight} />}
+            sx={{ justifySelf: { mobile: 'center', desktop: 'initial' } }}
           >
             {formatMessage({ id: 'getEarlyAccessNow' })}
           </Button>
         </Box>
       </Box>
       <Box sx={{ height: '100%' }}>
-        <img
+        <Box
+          component="img"
           src="/hero_image.png"
-          style={{
-            marginTop: '-40px',
+          sx={{
+            marginTop: { mobile: 0, desktop: '-40px' },
             width: '100%',
           }}
         />
@@ -64,7 +77,7 @@ export default function Hero() {
         endIcon={<Icon icon={arrowRight} rotate={1} />}
         sx={{
           position: 'absolute',
-          bottom: '70px',
+          bottom: { mobile: 0, desktop: '70px' },
           left: '50%',
           transform: 'translate(-50%, -50%)',
           animation: 'floatAndBounce 3s infinite',
