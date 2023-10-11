@@ -343,4 +343,9 @@ export const website = {
     "Vendre de l'Internet par WiFi sans problème ni complication",
   projectSubtitle:
     'Gérez vos forfaits, vendez votre internet, déconnectez les clients impayés, recevez votre argent sans avoir à gérer les tickets et les complications des clients',
+
+  partners: 'Partenaires',
+  en: 'Anglais',
+  fr: 'Français',
+  getEarlyAccess: 'Accès anticipé',
 };
