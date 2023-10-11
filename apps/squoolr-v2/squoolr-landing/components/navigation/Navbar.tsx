@@ -15,7 +15,6 @@ import {
   useScrollTrigger,
 } from '@mui/material';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ReactElement, cloneElement, useState } from 'react';
 import { useIntl } from 'react-intl';
