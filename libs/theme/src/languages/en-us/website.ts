@@ -338,4 +338,6 @@ export const website = {
     'Innovative Tools for institutional Success: Customize and Implement with a click!',
   getEarlyAccessNow: 'Get Early Access Now',
   scrollToSeeMore: 'Scroll to see more',
+  theyTrustUs: 'They Trust Us',
+  partnerSectionSubtitle: 'Relying on Our Expertise',
 };
