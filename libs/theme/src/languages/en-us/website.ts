@@ -380,4 +380,11 @@ export const website = {
     'For All Sizes: Squoolr empowers institutions, big and small, with equal efficiency and excellence.',
   frequentlyAskedQuestions: 'Frequently Asked Questions',
   frequentlyAskedQuestionsSubtitle: 'Answers to You common Queries',
+
+  resources: 'Resources',
+  privacyPolicy: 'Privacy Policy',
+  phone: 'Phone',
+  products: 'Products',
+  getInTouch: 'Get in touch',
+  termsOfUse: 'Terms of Use',
 };

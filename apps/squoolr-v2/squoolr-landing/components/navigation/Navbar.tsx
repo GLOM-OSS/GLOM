@@ -58,7 +58,13 @@ const landingNavElements: INavItem[] = [
   { item: 'faq', route: '#faq' },
 ];
 
-export function LogoHolder({ size }: { size?: number }) {
+export function LogoHolder({
+  size,
+  color = '#12192C',
+}: {
+  size?: number;
+  color?: string;
+}) {
   const { push } = useRouter();
   const theme = useTheme();
   return (
@@ -92,7 +98,7 @@ export function LogoHolder({ size }: { size?: number }) {
         variant="h3"
         sx={{
           fontWeight: 'bold',
-          color: '#12192C',
+          color,
           fontSize: {
             laptop: theme.typography.h3.fontSize,
             mobile: theme.typography.h4.fontSize,
