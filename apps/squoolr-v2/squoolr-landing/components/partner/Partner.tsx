@@ -9,7 +9,6 @@ export default function Partner() {
       component="section"
       id="partners"
       sx={{
-        position: 'relative',
         padding: {
           mobile: '100px 16px',
           desktop: '170px 16px 0 16px',
