@@ -100,16 +100,4 @@ export class AuthController {
       user: email ? await this.authService.getUser(email) : request.user,
     };
   }
-
-  @Get('google')
-  @UseGuards(GoogleGuard)
-  async googleSignIn() {
-    // google authentication will redirect
-  }
-
-  @Get('redirect')
-  @UseGuards(GoogleGuard)
-  async googleSignInRedirect(@Req() request: Request) {
-    return request.user;
-  }
 }
