@@ -35,6 +35,8 @@ import { TasksModule } from '@glom/nest-tasks';
     GlomPrismaModule.forRoot({
       isGlobal: true,
     }),
+    TasksModule,
+    AuthModule,
     DemandModule,
     AcademicYearsModule,
   ],
