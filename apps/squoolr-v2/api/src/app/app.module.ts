@@ -14,6 +14,11 @@ import { AppController } from './app.controller';
 import { AppInterceptor } from './app.interceptor';
 import { AppMiddleware } from './app.middleware';
 import { AppService } from './app.service';
+import { DemandModule } from './demand/demand.module';
+import { GlomPrismaModule } from '@glom/prisma';
+import { AcademicYearsModule } from './academic-years/academic-years.module';
+import { AuthModule } from './auth/auth.module';
+import { TasksModule } from '@glom/nest-tasks';
 
 @Module({
   imports: [
@@ -27,6 +32,11 @@ import { AppService } from './app.service';
         url: process.env.REDIS_URL,
       },
     }),
+    GlomPrismaModule.forRoot({
+      isGlobal: true,
+    }),
+    DemandModule,
+    AcademicYearsModule,
   ],
   controllers: [AppController],
   providers: [
