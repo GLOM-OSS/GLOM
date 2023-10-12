@@ -16,7 +16,6 @@ import { PassportUser, User } from './auth';
 import { NewPasswordDto, ResetPasswordDto, SignInDto } from './auth.dto';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
-import { GoogleGuard } from './google/google.guard';
 import { LocalGuard } from './local/local.guard';
 
 @ApiBearerAuth()
