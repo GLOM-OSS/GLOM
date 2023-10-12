@@ -1,8 +1,9 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsDateString,
   IsEmail,
+  IsEnum,
   IsNotEmptyObject,
   IsOptional,
   IsPhoneNumber,
@@ -11,6 +12,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { PersonPostDto } from '../auth/auth.dto';
+import { SchoolDemandStatus } from '@prisma/client';
 
 export class CreateSchoolDto {
   @ApiProperty()
@@ -36,6 +38,10 @@ export class CreateSchoolDto {
   @ApiProperty()
   @IsDateString()
   initial_year_ends_at: Date;
+
+  constructor(props: CreateSchoolDto) {
+    Object.assign(this, props);
+  }
 }
 
 export class SubmitDemandDto {
@@ -71,4 +77,23 @@ export class QueryDemandStatusDto {
   @ApiProperty()
   @IsString()
   school_demand_code: string;
+}
+
+export class GetSchoolDemandsResponse extends OmitType(CreateSchoolDto, [
+  'school_acronym',
+  'initial_year_ends_at',
+  'initial_year_starts_at',
+]) {
+  @ApiProperty()
+  @IsString()
+  school_code: string;
+
+  @ApiProperty()
+  @IsEnum(SchoolDemandStatus)
+  school_demand_status: SchoolDemandStatus;
+
+  constructor(props: GetSchoolDemandsResponse) {
+    super();
+    Object.assign(this, props);
+  }
 }

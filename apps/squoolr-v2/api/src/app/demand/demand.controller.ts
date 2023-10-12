@@ -10,17 +10,19 @@ import {
   Req,
 } from '@nestjs/common';
 import {
+  ApiOkResponse,
   ApiOperation,
   ApiResponse,
-  ApiTags
+  ApiTags,
 } from '@nestjs/swagger';
 import { Request } from 'express';
 import { User } from '../auth/auth.d';
 import { IsPublic, Role, Roles } from '../auth/auth.decorator';
 import {
+  GetSchoolDemandsResponse,
   QueryDemandStatusDto,
   SubmitDemandDto,
-  ValidateDemandDto,
+  ValidateDemandDto
 } from './demand.dto';
 import { DemandService } from './demand.service';
 
@@ -31,8 +33,16 @@ export class DemandController {
   constructor(private demandService: DemandService) {}
 
   @Get('all')
+  @ApiOkResponse({ type: [GetSchoolDemandsResponse] })
   async getAllDemands() {
-    return { school_demands: await this.demandService.findAll() };
+    const demands = await this.demandService.findAll();
+    return demands.map(
+      (demand) =>
+        new GetSchoolDemandsResponse({
+          ...demand,
+          school_demand_status: demand.demand_status,
+        })
+    );
   }
 
   @Get(':school_code/details')
