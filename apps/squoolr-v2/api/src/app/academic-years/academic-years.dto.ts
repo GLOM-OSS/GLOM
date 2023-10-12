@@ -4,15 +4,8 @@ import {
   IsArray,
   IsBoolean,
   IsDateString,
-  IsString,
   ValidateNested,
 } from 'class-validator';
-
-export class AcademicYearQueryDto {
-  @ApiProperty()
-  @IsString()
-  academic_year_id: string;
-}
 
 export class PersonnelTemplate {
   @IsBoolean()

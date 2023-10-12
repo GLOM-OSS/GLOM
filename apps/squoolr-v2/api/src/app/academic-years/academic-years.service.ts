@@ -10,12 +10,13 @@ import {
   CarryOverSystemEnum,
   EvaluationSubTypeEnum,
   EvaluationTypeEnum,
-  Prisma
+  Prisma,
 } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
-import { ActiveYear } from '../auth/auth';
+import { ActiveYear, DesirializeRoles, UserRole } from '../auth/auth';
 import { AcademicYearPostDto, TemplateYearPostDto } from './academic-years.dto';
+import { Role } from '../auth/auth.decorator';
 
 @Injectable()
 export class AcademicYearsService {
@@ -451,6 +452,172 @@ export class AcademicYearsService {
     );
 
     return academic_years;
+  }
+
+  async retrieveRoles(
+    login_id: string,
+    academic_year_id: string
+  ): Promise<{ roles: UserRole[]; desirializedRoles: DesirializeRoles }> {
+    const retrivedRoles: UserRole[] = [];
+    const { school_id } = await this.prismaService.login.findUnique({
+      where: { login_id },
+    });
+
+    if (!school_id)
+      return { roles: [], desirializedRoles: {} as DesirializeRoles };
+    const { started_at, ended_at, starts_at, ends_at, year_code, year_status } =
+      await this.prismaService.academicYear.findFirst({
+        where: {
+          academic_year_id,
+          is_deleted: false,
+        },
+      });
+
+    let desirializedRoles: DesirializeRoles = {
+      login_id,
+      school_id,
+      activeYear: {
+        year_code,
+        year_status,
+        academic_year_id,
+        starting_date:
+          year_status !== AcademicYearStatus.INACTIVE ? started_at : starts_at,
+        ending_date:
+          year_status !== AcademicYearStatus.FINISHED ? ends_at : ended_at,
+      },
+    };
+
+    //check for annual student
+    const annualStudent = await this.prismaService.annualStudent.findFirst({
+      select: {
+        student_id: true,
+        annual_student_id: true,
+        Student: {
+          select: {
+            Classroom: { select: { classroom_code: true, level: true } },
+          },
+        },
+        AnnualStudentHasCreditUnits: {
+          distinct: ['semester_number'],
+          select: { semester_number: true },
+        },
+      },
+      where: {
+        academic_year_id,
+        is_deleted: false,
+        Student: { login_id },
+      },
+    });
+    if (annualStudent) {
+      const {
+        student_id,
+        annual_student_id,
+        Student: {
+          Classroom: { classroom_code, level: classroom_level },
+        },
+        AnnualStudentHasCreditUnits: crediUnits,
+      } = annualStudent;
+      desirializedRoles = {
+        ...desirializedRoles,
+        annualStudent: {
+          student_id,
+          classroom_code,
+          classroom_level,
+          annual_student_id,
+          activeSemesters: crediUnits.map((_) => _.semester_number),
+        },
+      };
+      retrivedRoles.push({
+        user_id: annualStudent.annual_student_id,
+        role: Role.STUDENT,
+      });
+    } else {
+      //check for annual configurator
+      const annualConfigurator =
+        await this.prismaService.annualConfigurator.findFirst({
+          where: {
+            login_id,
+            academic_year_id,
+            is_deleted: false,
+          },
+        });
+      if (annualConfigurator) {
+        const { annual_configurator_id, is_sudo } = annualConfigurator;
+        desirializedRoles = {
+          ...desirializedRoles,
+          annualConfigurator: { annual_configurator_id, is_sudo },
+        };
+        retrivedRoles.push({
+          user_id: annualConfigurator.annual_configurator_id,
+          role: Role.CONFIGURATOR,
+        });
+      }
+
+      //check for annual registry
+      const annualRegistry = await this.prismaService.annualRegistry.findFirst({
+        where: {
+          login_id,
+          academic_year_id,
+          is_deleted: false,
+        },
+      });
+      if (annualRegistry) {
+        const { annual_registry_id } = annualRegistry;
+        desirializedRoles = {
+          ...desirializedRoles,
+          annualRegistry: { annual_registry_id },
+        };
+        retrivedRoles.push({
+          user_id: annualRegistry.annual_registry_id,
+          role: Role.REGISTRY,
+        });
+      }
+
+      //check for annual teacher
+      const annualTeacher = await this.prismaService.annualTeacher.findFirst({
+        where: {
+          academic_year_id,
+          is_deleted: false,
+          login_id,
+        },
+      });
+      if (annualTeacher) {
+        const {
+          annual_teacher_id,
+          has_signed_convention,
+          hourly_rate,
+          origin_institute,
+          teacher_id,
+        } = annualTeacher;
+        retrivedRoles.push({
+          user_id: annual_teacher_id,
+          role: Role.TEACHER,
+        });
+        const classroomDivisions =
+          await this.prismaService.annualClassroomDivision.findMany({
+            where: { annual_coordinator_id: annual_teacher_id },
+          });
+        if (classroomDivisions.length > 0)
+          retrivedRoles.push({
+            user_id: annual_teacher_id,
+            role: Role.COORDINATOR,
+          });
+        desirializedRoles = {
+          ...desirializedRoles,
+          annualTeacher: {
+            classroomDivisions: classroomDivisions.map(
+              ({ annual_classroom_division_id: id }) => id
+            ),
+            annual_teacher_id,
+            has_signed_convention,
+            hourly_rate,
+            origin_institute,
+            teacher_id,
+          },
+        };
+      }
+    }
+    return { desirializedRoles, roles: retrivedRoles };
   }
 
   private async buildAcademicYearDefaultCreateInput(

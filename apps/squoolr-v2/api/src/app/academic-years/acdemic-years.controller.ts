@@ -2,25 +2,27 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
+  Patch,
   Post,
-  Req,
-  UseGuards,
+  Req
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { AcademicYearsService } from './academic-years.service';
+import { DesirializeRoles, User } from '../auth/auth';
 import { Role, Roles } from '../auth/auth.decorator';
 import { AcademicYearPostDto, TemplateYearPostDto } from './academic-years.dto';
-import { User } from '../auth/auth';
+import { AcademicYearsService } from './academic-years.service';
+// import { AuthService } from '../auth/auth.service';
 
 @ApiTags('Academic Years')
 @Controller('academic-years')
 // @UseGuards(AuthenticatedGuard)
 export class AcademicYearsController {
-  constructor(private academicYearService: AcademicYearsService) {}
+  constructor(
+    // private authService: AuthService,
+    private academicYearService: AcademicYearsService
+  ) {}
 
   @Get('/all')
   async getAcademicYears(@Req() request: Request) {
@@ -47,6 +49,19 @@ export class AcademicYearsController {
         annual_configurator_id
       ),
     };
+  }
+
+  @Patch(':academic_year_id/choose')
+  async chooseActiveAcademicYear(
+    @Req() request: Request,
+    @Param('academic_year_id') academic_year_id: string
+  ): Promise<DesirializeRoles> {
+    const { login_id } = request.session.passport.user;
+    const { desirializedRoles, roles } =
+      await this.academicYearService.retrieveRoles(login_id, academic_year_id);
+
+    // await this.authService.updateSession(request, { roles, academic_year_id });
+    return desirializedRoles;
   }
 
   @Post(':template_year_id/template')
