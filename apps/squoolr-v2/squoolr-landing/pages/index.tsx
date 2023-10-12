@@ -3,6 +3,7 @@ import Navbar from '../components/navigation/Navbar';
 import Hero from '../components/hero/Hero';
 import Partner from '../components/partner/Partner';
 import Faq from '../components/faq/Faq';
+import { Footer } from '../components/footer/Footer';
 
 export function Index() {
   return (
@@ -18,6 +19,7 @@ export function Index() {
         <Hero />
         <Partner />
         <Faq />
+        <Footer />
       </Box>
     </Box>
   );
