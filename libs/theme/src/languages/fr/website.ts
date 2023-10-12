@@ -401,4 +401,11 @@ export const website = {
     'Pour toutes tailles : Squoolr renforce les institutions, petites et grandes, avec une efficacité et une excellence égales.',
   frequentlyAskedQuestions: 'Questions Fréquemment Posées',
   frequentlyAskedQuestionsSubtitle: 'Réponses à Vos Questions Courantes',
+
+  resources: 'Ressources',
+  privacyPolicy: 'Politique de Confidentialité',
+  phone: 'Téléphone',
+  products: 'Produits',
+  getInTouch: 'Contactez-nous',
+  termsOfUse: "Conditions d'Utilisation",
 };
