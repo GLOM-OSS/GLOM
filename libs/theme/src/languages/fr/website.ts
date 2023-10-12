@@ -355,4 +355,7 @@ export const website = {
     'Outils innovants pour le succès de votre institution : Personnalisez et mettez en œuvre en un clic !',
   getEarlyAccessNow: 'Accès anticipé',
   scrollToSeeMore: 'Défilez pour plus',
+
+  theyTrustUs: 'Ils Nous Font Confiance',
+  partnerSectionSubtitle: 'Ils Comptent sur Notre Expertise',
 };
