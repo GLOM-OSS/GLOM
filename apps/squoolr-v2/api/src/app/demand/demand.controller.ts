@@ -19,10 +19,11 @@ import { Request } from 'express';
 import { User } from '../auth/auth.d';
 import { IsPublic, Role, Roles } from '../auth/auth.decorator';
 import {
-  GetSchoolDemandsResponse,
+  SchoolEntity,
   QueryDemandStatusDto,
   SubmitDemandDto,
-  ValidateDemandDto
+  ValidateDemandDto,
+  DemandDetails,
 } from './demand.dto';
 import { DemandService } from './demand.service';
 
@@ -33,23 +34,15 @@ export class DemandController {
   constructor(private demandService: DemandService) {}
 
   @Get('all')
-  @ApiOkResponse({ type: [GetSchoolDemandsResponse] })
+  @ApiOkResponse({ type: [SchoolEntity] })
   async getAllDemands() {
-    const demands = await this.demandService.findAll();
-    return demands.map(
-      (demand) =>
-        new GetSchoolDemandsResponse({
-          ...demand,
-          school_demand_status: demand.demand_status,
-        })
-    );
+    return this.demandService.findAll();
   }
 
   @Get(':school_code/details')
+  @ApiOkResponse({ type: DemandDetails })
   async getDemandDetails(@Param('school_code') school_code: string) {
-    return {
-      school_demand: await this.demandService.findOne(school_code),
-    };
+    return this.demandService.findDetails(school_code);
   }
 
   @Post('new')

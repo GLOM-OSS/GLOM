@@ -1,15 +1,16 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { GlomPrismaService } from '@glom/prisma';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CarryOverSystemEnum, SchoolDemandStatus } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
-import { SubmitDemandDto, ValidateDemandDto } from './demand.dto';
-import { GlomPrismaService } from '@glom/prisma';
+import {
+  DemandDetails,
+  SchoolEntity,
+  SubmitDemandDto,
+  ValidateDemandDto,
+} from './demand.dto';
+import { PersonEntity } from '../auth/auth.dto';
 
 @Injectable()
 export class DemandService {
@@ -18,43 +19,45 @@ export class DemandService {
     private codeGenerator: CodeGeneratorFactory
   ) {}
 
-  async findOne(school_code: string) {
+  async findDetails(school_code: string) {
     const schoolData = await this.prismaService.school.findFirst({
-      select: {
-        school_name: true,
-        school_email: true,
-        school_phone_number: true,
+      include: {
         Person: true,
         SchoolDemand: { select: { demand_status: true } },
       },
       where: { school_code },
     });
-    if (schoolData) {
-      const {
-        Person: person,
-        SchoolDemand: { demand_status },
-        ...school
-      } = schoolData;
-      return { school: { ...school, demand_status }, person };
-    }
+    if (!schoolData) throw new NotFoundException('School demand not found');
+    const {
+      Person: person,
+      SchoolDemand: { demand_status },
+      ...school
+    } = schoolData;
+    return new DemandDetails({
+      person,
+      school: {
+        ...school,
+        school_code,
+        school_demand_status: demand_status,
+      },
+    });
   }
 
   async findAll() {
     const schools = await this.prismaService.school.findMany({
-      select: {
-        school_email: true,
-        school_code: true,
-        school_name: true,
-        school_phone_number: true,
+      include: {
         SchoolDemand: {
           select: { demand_status: true },
         },
       },
     });
-    return schools.map(({ SchoolDemand: { demand_status }, ...school }) => ({
-      demand_status,
-      ...school,
-    }));
+    return schools.map(
+      ({ SchoolDemand: { demand_status }, ...school }) =>
+        new SchoolEntity({
+          ...school,
+          school_demand_status: demand_status,
+        })
+    );
   }
 
   async create({ school, personnel }: SubmitDemandDto) {

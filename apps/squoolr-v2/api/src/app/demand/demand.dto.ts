@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Exclude, Transform, Type } from 'class-transformer';
 import {
   IsDateString,
   IsEmail,
@@ -11,7 +11,7 @@ import {
   NotContains,
   ValidateNested,
 } from 'class-validator';
-import { PersonPostDto } from '../auth/auth.dto';
+import { PersonEntity, PersonPostDto } from '../auth/auth.dto';
 import { SchoolDemandStatus } from '@prisma/client';
 
 export class CreateSchoolDto {
@@ -79,7 +79,7 @@ export class QueryDemandStatusDto {
   school_demand_code: string;
 }
 
-export class GetSchoolDemandsResponse extends OmitType(CreateSchoolDto, [
+export class SchoolEntity extends OmitType(CreateSchoolDto, [
   'school_acronym',
   'initial_year_ends_at',
   'initial_year_starts_at',
@@ -92,8 +92,22 @@ export class GetSchoolDemandsResponse extends OmitType(CreateSchoolDto, [
   @IsEnum(SchoolDemandStatus)
   school_demand_status: SchoolDemandStatus;
 
-  constructor(props: GetSchoolDemandsResponse) {
+  constructor(props: SchoolEntity) {
     super();
+    Object.assign(this, props);
+  }
+}
+
+export class DemandDetails {
+  @ApiProperty({ type: SchoolEntity })
+  @Transform(({ value }) => new SchoolEntity(value))
+  school: SchoolEntity;
+
+  @ApiProperty({ type: PersonEntity })
+  @Transform(({ value }) => new PersonEntity(value))
+  person: PersonEntity;
+
+  constructor(props: DemandDetails) {
     Object.assign(this, props);
   }
 }
