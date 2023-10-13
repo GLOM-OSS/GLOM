@@ -37,6 +37,21 @@ enum EmploymentStatus {
     @@map("employment_status_enum")
 }
 
+enum InquiryType {
+    Default
+    EarlyAccess
+
+    @@map("inquiry_type_enum")
+}
+
+model Inquiry {
+    inquiry_id String      @id @default(uuid()) @db.VarChar(36)
+    email      String      @db.VarChar(45)
+    message    String?     @db.Text
+    type       InquiryType
+    created_at DateTime    @db.DateTime(0)
+}
+
 model Person {
     person_id          String            @id @default(uuid()) @db.VarChar(36)
     first_name         String            @db.VarChar(50)
@@ -60,6 +75,7 @@ model Person {
     employment_status  EmploymentStatus?
     lead_funnel        String
     created_at         DateTime          @default(now()) @db.DateTime(0)
+
     Schools      School[]
     PersonAudits PersonAudit[]
     Logins       Login[]
@@ -143,7 +159,7 @@ model SchoolAudit {
 
 enum SchoolDemandStatus {
     PENDING
-    PROGRESS
+    PROCESSING
     REJECTED
     VALIDATED
 
