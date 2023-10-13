@@ -16,7 +16,7 @@ import {
   IsStrongPassword,
 } from 'class-validator';
 
-export class NewPasswordDto {
+export class SetNewPasswordDto {
   @ApiProperty()
   @IsString()
   reset_password_id: string;
@@ -42,7 +42,7 @@ export class SignInDto {
   password: string;
 }
 
-export class PersonPostDto {
+export class CreatePersonDto {
   @ApiProperty()
   @IsString()
   first_name: string;
@@ -84,13 +84,13 @@ export class PersonPostDto {
   @ApiProperty()
   lead_funnel: string;
 
-  constructor(props: PersonPostDto) {
+  constructor(props: CreatePersonDto) {
     Object.assign(this, props);
   }
 }
 
 export class PersonEntity
-  extends OmitType(PersonPostDto, ['password'])
+  extends OmitType(CreatePersonDto, ['password'])
   implements Person
 {
   @ApiProperty({ nullable: true })
@@ -99,29 +99,29 @@ export class PersonEntity
   @ApiProperty()
   person_id: string;
 
-  @ApiProperty()
-  birthplace: string;
+  @ApiProperty({ nullable: true })
+  birthplace: string | null;
 
   @ApiProperty()
   nationality: string;
 
-  @ApiProperty()
-  longitude: number;
+  @ApiProperty({ nullable: true })
+  longitude: number | null;
 
-  @ApiProperty()
-  latitude: number;
+  @ApiProperty({ nullable: true })
+  latitude: number | null;
 
   @ApiProperty({ enum: Lang })
   preferred_lang: Lang;
 
-  @ApiProperty()
-  image_ref: string;
+  @ApiProperty({ nullable: true })
+  image_ref: string | null;
 
-  @ApiProperty()
-  home_region: string;
+  @ApiProperty({ nullable: true })
+  home_region: string | null;
 
-  @ApiProperty()
-  religion: string;
+  @ApiProperty({ nullable: true })
+  religion: string | null;
 
   @ApiProperty()
   handicap: string;
@@ -129,8 +129,8 @@ export class PersonEntity
   @ApiProperty({ enum: CivilStatusEnum })
   civil_status: CivilStatusEnum;
 
-  @ApiProperty({ enum: EmploymentStatus })
-  employment_status: EmploymentStatus;
+  @ApiProperty({ enum: EmploymentStatus, nullable: true })
+  employment_status: EmploymentStatus | null;
 
   @ApiProperty()
   created_at: Date;

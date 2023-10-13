@@ -13,7 +13,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { PassportUser, User } from './auth';
-import { NewPasswordDto, ResetPasswordDto, SignInDto } from './auth.dto';
+import { SetNewPasswordDto, ResetPasswordDto, SignInDto } from './auth.dto';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { LocalGuard } from './local/local.guard';
@@ -66,7 +66,7 @@ export class AuthController {
   @Post('new-password')
   async setNewPassword(
     @Req() request: Request,
-    @Body() { reset_password_id, new_password }: NewPasswordDto
+    @Body() { reset_password_id, new_password }: SetNewPasswordDto
   ) {
     const squoolr_client = new URL(request.headers.origin).host;
     await this.authService.setNewPassword(
