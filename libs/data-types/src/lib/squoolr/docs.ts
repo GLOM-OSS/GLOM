@@ -3,40 +3,61 @@
  * Do not make direct changes to the file.
  */
 
+
 export interface paths {
-  '/': {
-    get: operations['AppController_getData'];
+  "/": {
+    get: operations["AppController_getData"];
   };
-  '/auth/sign-in': {
-    /** Sign in to authenticate a user */
-    post: operations['GlomAuthController_signIn'];
+  "/auth/signin": {
+    post: operations["AuthController_signIn"];
   };
-  '/auth/sign-up': {
-    /** Create a new user */
-    post: operations['GlomAuthController_signUp'];
+  "/auth/reset-password": {
+    post: operations["AuthController_resetPassword"];
   };
-  '/auth/reset-password': {
-    /** Request a reset password id for reset link */
-    post: operations['GlomAuthController_resetPassword'];
+  "/auth/new-password": {
+    post: operations["AuthController_setNewPassword"];
   };
-  '/auth/new-password': {
-    /** Set new password with the  previously requested `reset_password_id` */
-    post: operations['GlomAuthController_setNewPassword'];
+  "/auth/log-out": {
+    delete: operations["AuthController_logOut"];
   };
-  '/auth/reset-password/{reset_password_id}/cancel': {
-    /** Cancel a request password request */
-    patch: operations['GlomAuthController_cancelResetPasswordRequest'];
+  "/auth/user": {
+    get: operations["AuthController_getUser"];
   };
-  '/auth/log-out': {
-    delete: operations['GlomAuthController_logOut'];
+  "/demands/all": {
+    get: operations["DemandController_getAllDemands"];
   };
-  '/auth/google': {
-    /** Google authentication. It redirects the provided callback on sucessfully authentication. */
-    get: operations['GoogleController_googleAuth'];
+  "/demands/{school_code}": {
+    get: operations["DemandController_getDemandStatus"];
   };
-  '/auth/facebook': {
-    /** Facebook authentication. It redirects the provided callback on sucessfully authentication. */
-    get: operations['FacebookController_facebookAuth'];
+  "/demands/{school_code}/details": {
+    get: operations["DemandController_getDemandDetails"];
+  };
+  "/demands/new": {
+    post: operations["DemandController_submitDemand"];
+  };
+  "/demands/validate": {
+    put: operations["DemandController_validateDemand"];
+  };
+  "/demands/{school_code}/status": {
+    put: operations["DemandController_updateDemandStatus"];
+  };
+  "/academic-years/all": {
+    get: operations["AcademicYearsController_getAcademicYears"];
+  };
+  "/academic-years/new": {
+    post: operations["AcademicYearsController_createAcademicYear"];
+  };
+  "/academic-years/{academic_year_id}/choose": {
+    patch: operations["AcademicYearsController_chooseActiveAcademicYear"];
+  };
+  "/academic-years/{template_year_id}/template": {
+    post: operations["AcademicYearsController_templateAcademicYear"];
+  };
+  "/inquiries/all": {
+    get: operations["InquiriesController_getAllInquiries"];
+  };
+  "/inquiries/new": {
+    post: operations["InquiriesController_createInquiry"];
   };
 }
 
@@ -45,97 +66,129 @@ export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
     SignInDto: {
-      /** @description Valid user email */
       email: string;
-      /** @description Strong password */
       password: string;
-    };
-    UserEntity: {
-      /** @description Valid user email */
-      email: string;
-      /** @description User first name */
-      first_name: string;
-      /** @description User last name */
-      last_name: string;
-      /**
-       * @description User preffered language.
-       * @default en
-       * @enum {string}
-       */
-      preferred_lang: 'en' | 'fr';
-      /** @description Valid user phone number */
-      phone_number?: string;
-      /**
-       * Format: date-time
-       * @description User date of birth
-       */
-      birth_date?: string;
-      /**
-       * @description User gender
-       * @example Male
-       * @enum {string}
-       */
-      gender?: 'Male' | 'Female' | 'Other';
-      /** @description Valid user address */
-      address?: string;
-      /**
-       * @description User role. The default role is `Client`. Each role gives direct access to a particular origin(allow subdomains).
-       * @example ba18ace9-c3d2-433f-8d95-aff8739eb7ff
-       */
-      role_id: string;
-      /**
-       * @description User login id
-       * @example a835761e-63c4-44b8-85ec-e249c6826135
-       */
-      login_id: string;
-      /**
-       * @description User person id
-       * @example c8840590-e171-40a7-8d2c-0815c64a70df
-       */
-      person_id: string;
-      /**
-       * Format: date-time
-       * @description Account creation datetime.
-       * @example "2023-10-11T01:23:45.412Z"
-       */
-      created_at: string;
-    };
-    SignUpDto: {
-      /** @description Valid user email */
-      email: string;
-      /** @description Strong password */
-      password: string;
-      /** @description User first name */
-      first_name: string;
-      /** @description User last name */
-      last_name: string;
-      /** @enum {string} */
-      preferred_lang: 'en' | 'fr';
-      /** @description Valid user phone number */
-      phone_number?: string;
-      /**
-       * Format: date-time
-       * @description User date of birth
-       */
-      birth_date?: string;
-      /**
-       * @description User gender
-       * @example Male
-       * @enum {string}
-       */
-      gender?: 'Male' | 'Female' | 'Other';
-      /** @description Valid user address */
-      address?: string;
-    };
-    ResetPasswordEmail: {
-      /** @description Valid user email */
-      email: string;
     };
     ResetPasswordDto: {
-      /** @description Reset password id return from `/reset-password` */
+      email: string;
+    };
+    SetNewPasswordDto: {
       reset_password_id: string;
-      /** @description New password. It must be a strong password */
       new_password: string;
+    };
+    SchoolEntity: {
+      school_name: string;
+      school_acronym: string;
+      school_email: string;
+      school_phone_number: string;
+      school_code: string;
+      /** @enum {string} */
+      school_demand_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED";
+      school_rejection_reason: string;
+    };
+    PersonEntity: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone_number: string;
+      /** Format: date-time */
+      birthdate: string;
+      /** @enum {string} */
+      gender: "Male" | "Female";
+      address?: string | null;
+      national_id_number: string;
+      lead_funnel: string;
+      person_id: string;
+      birthplace: string | null;
+      nationality: string;
+      longitude: number | null;
+      latitude: number | null;
+      /** @enum {string} */
+      preferred_lang: "en" | "fr";
+      image_ref: string | null;
+      home_region: string | null;
+      religion: string | null;
+      handicap: string;
+      /** @enum {string} */
+      civil_status: "Married" | "Single" | "Divorced";
+      /** @enum {string|null} */
+      employment_status: "Employed" | "Unemployed" | "SelfEmployed" | null;
+      /** Format: date-time */
+      created_at: string;
+    };
+    DemandDetails: {
+      school: components["schemas"]["SchoolEntity"];
+      person: components["schemas"]["PersonEntity"];
+    };
+    CreatePersonDto: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone_number: string;
+      /** Format: date-time */
+      birthdate: string;
+      /** @enum {string} */
+      gender: "Male" | "Female";
+      address?: string;
+      national_id_number: string;
+      password: string;
+      lead_funnel: string;
+    };
+    CreateSchoolDto: {
+      school_name: string;
+      school_acronym: string;
+      school_email: string;
+      school_phone_number: string;
+      /** Format: date-time */
+      initial_year_starts_at: string;
+      /** Format: date-time */
+      initial_year_ends_at: string;
+    };
+    SubmitDemandDto: {
+      personnel: components["schemas"]["CreatePersonDto"];
+      school: components["schemas"]["CreateSchoolDto"];
+    };
+    ValidateDemandDto: {
+      school_code: string;
+      rejection_reason?: string;
+      subdomain?: string;
+    };
+    CreateAcademicYearDto: {
+      /** Format: date-time */
+      starts_at: string;
+      /** Format: date-time */
+      ends_at: string;
+    };
+    TemplatePersonnelDto: {
+      reuse_configurators: boolean;
+      reuse_registries: boolean;
+      reuse_coordinators: boolean;
+      reuse_teachers: boolean;
+    };
+    TemplateAcademicYearDto: {
+      /** Format: date-time */
+      starts_at: string;
+      /** Format: date-time */
+      ends_at: string;
+      personnelConfig: components["schemas"]["TemplatePersonnelDto"];
+      classroomCodes: string[];
+      reuse_coordinators_configs: boolean;
+      reuse_registries_configs: boolean;
+    };
+    InquiryEntity: {
+      email: string;
+      message: string;
+      /** @enum {string} */
+      type: "Default" | "EarlyAccess";
+      inquiry_id: string;
+      /** Format: date-time */
+      created_at: string;
+    };
+    CreateInquiryDto: {
+      email: string;
+      message: string;
+      /** @enum {string} */
+      type: "Default" | "EarlyAccess";
     };
   };
   responses: never;
@@ -150,6 +203,7 @@ export type $defs = Record<string, never>;
 export type external = Record<string, never>;
 
 export interface operations {
+
   AppController_getData: {
     responses: {
       200: {
@@ -157,182 +211,199 @@ export interface operations {
       };
     };
   };
-  /** Sign in to authenticate a user */
-  GlomAuthController_signIn: {
+  AuthController_signIn: {
     requestBody: {
       content: {
-        'application/json': components['schemas']['SignInDto'];
+        "application/json": components["schemas"]["SignInDto"];
       };
     };
     responses: {
       201: {
-        content: {
-          'application/json': components['schemas']['UserEntity'];
-        };
-      };
-      /** @description Bad request. This often happens when the request payload it not respected. */
-      400: {
-        content: never;
-      };
-      /** @description Unauthorized request. incorrect email or password */
-      401: {
-        content: never;
-      };
-      /** @description Precondition failed, user account must be activated before signing in. */
-      412: {
-        content: never;
-      };
-      /** @description Internal server error. An unexpected exception was thrown */
-      500: {
         content: never;
       };
     };
   };
-  /** Create a new user */
-  GlomAuthController_signUp: {
+  AuthController_resetPassword: {
     requestBody: {
       content: {
-        'application/json': components['schemas']['SignUpDto'];
+        "application/json": components["schemas"]["ResetPasswordDto"];
       };
     };
     responses: {
       201: {
+        content: never;
+      };
+    };
+  };
+  AuthController_setNewPassword: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SetNewPasswordDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: never;
+      };
+    };
+  };
+  AuthController_logOut: {
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  AuthController_getUser: {
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  DemandController_getAllDemands: {
+    responses: {
+      200: {
         content: {
-          'application/json': components['schemas']['UserEntity'];
+          "application/json": components["schemas"]["SchoolEntity"][];
         };
       };
-      /** @description Bad request. This often happens when the request payload it not respected. */
-      400: {
-        content: never;
-      };
-      /** @description Conflict, user email is already registered with another account. */
-      409: {
-        content: never;
-      };
-      /** @description Internal server error. An unexpected exception was thrown */
-      500: {
-        content: never;
-      };
     };
   };
-  /** Request a reset password id for reset link */
-  GlomAuthController_resetPassword: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ResetPasswordEmail'];
-      };
-    };
-    responses: {
-      /** @description OK */
-      204: {
-        content: never;
-      };
-      /** @description Bad request. This often happens when the request payload it not respected. */
-      400: {
-        content: never;
-      };
-      /** @description Internal server error. An unexpected exception was thrown */
-      500: {
-        content: never;
-      };
-    };
-  };
-  /** Set new password with the  previously requested `reset_password_id` */
-  GlomAuthController_setNewPassword: {
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ResetPasswordDto'];
-      };
-    };
-    responses: {
-      /** @description OK */
-      204: {
-        content: never;
-      };
-      /** @description Bad request. This often happens when the request payload it not respected. */
-      400: {
-        content: never;
-      };
-      /** @description Internal server error. An unexpected exception was thrown */
-      500: {
-        content: never;
-      };
-    };
-  };
-  /** Cancel a request password request */
-  GlomAuthController_cancelResetPasswordRequest: {
+  DemandController_getDemandStatus: {
     parameters: {
       path: {
-        reset_password_id: string;
+        school_code: string;
       };
     };
     responses: {
-      /** @description OK */
-      204: {
-        content: never;
-      };
-      /** @description Bad request. This often happens when the request payload it not respected. */
-      400: {
-        content: never;
-      };
-      /** @description Internal server error. An unexpected exception was thrown */
-      500: {
-        content: never;
+      200: {
+        content: {
+          "application/json": components["schemas"]["SchoolEntity"];
+        };
       };
     };
   };
-  GlomAuthController_logOut: {
+  DemandController_getDemandDetails: {
+    parameters: {
+      path: {
+        school_code: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["DemandDetails"];
+        };
+      };
+    };
+  };
+  DemandController_submitDemand: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SubmitDemandDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["SchoolEntity"];
+        };
+      };
+    };
+  };
+  DemandController_validateDemand: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ValidateDemandDto"];
+      };
+    };
     responses: {
       200: {
         content: never;
       };
-      /** @description Bad request. This often happens when the request payload it not respected. */
-      400: {
-        content: never;
-      };
-      /** @description Internal server error. An unexpected exception was thrown */
-      500: {
-        content: never;
-      };
     };
   };
-  /** Google authentication. It redirects the provided callback on sucessfully authentication. */
-  GoogleController_googleAuth: {
+  DemandController_updateDemandStatus: {
+    parameters: {
+      path: {
+        school_code: string;
+      };
+    };
     responses: {
       200: {
         content: never;
       };
-      /** @description Bad request. This often happens when the request payload it not respected. */
-      400: {
-        content: never;
-      };
-      /** @description Unauthorized request. incorrect email or password */
-      401: {
-        content: never;
-      };
-      /** @description Internal server error. An unexpected exception was thrown */
-      500: {
-        content: never;
-      };
     };
   };
-  /** Facebook authentication. It redirects the provided callback on sucessfully authentication. */
-  FacebookController_facebookAuth: {
+  AcademicYearsController_getAcademicYears: {
     responses: {
       200: {
         content: never;
       };
-      /** @description Bad request. This often happens when the request payload it not respected. */
-      400: {
+    };
+  };
+  AcademicYearsController_createAcademicYear: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateAcademicYearDto"];
+      };
+    };
+    responses: {
+      201: {
         content: never;
       };
-      /** @description Unauthorized request. incorrect email or password */
-      401: {
+    };
+  };
+  AcademicYearsController_chooseActiveAcademicYear: {
+    parameters: {
+      path: {
+        academic_year_id: string;
+      };
+    };
+    responses: {
+      200: {
         content: never;
       };
-      /** @description Internal server error. An unexpected exception was thrown */
-      500: {
+    };
+  };
+  AcademicYearsController_templateAcademicYear: {
+    parameters: {
+      path: {
+        template_year_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["TemplateAcademicYearDto"];
+      };
+    };
+    responses: {
+      201: {
         content: never;
+      };
+    };
+  };
+  InquiriesController_getAllInquiries: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["InquiryEntity"][];
+        };
+      };
+    };
+  };
+  InquiriesController_createInquiry: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateInquiryDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["InquiryEntity"];
+        };
       };
     };
   };
