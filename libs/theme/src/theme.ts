@@ -135,9 +135,10 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
         h1: {
           fontSize: '36px',
           lineHeight: '44px',
-          letterSpacing: '-2%',
+          letterSpacing: '-0.72px',
           paddingBottom: '10px',
           fontWeight: 700,
+          color: 'var(--titleActive)',
         },
         h2: {
           fontWeight: 700,

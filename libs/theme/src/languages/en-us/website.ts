@@ -327,4 +327,64 @@ export const website = {
   projectHeadline: 'Sell Internet Over WiFi With No Hassles Or Complications',
   projectSubtitle:
     'Manage your bundles, sell your internet, disconnect unpaid clients, receive your money without dealing with tickets and client complications',
+
+  partners: 'Partners',
+  en: 'English',
+  fr: 'Français',
+  getEarlyAccess: 'Get Early Access',
+
+  unlockYourInstitutionsPotential: 'Unlock your institutions potential',
+  squoolrLandingSubtitle:
+    'Innovative Tools for institutional Success: Customize and Implement with a click!',
+  getEarlyAccessNow: 'Get Early Access Now',
+  scrollToSeeMore: 'Scroll to see more',
+  theyTrustUs: 'They Trust Us',
+  partnerSectionSubtitle: 'Relying on Our Expertise',
+
+  technologyForAllSchoolSizes: 'Technology For All School Sizes',
+  technologyForAllSchoolSizesSubtitle:
+    "Our comprehensive solution revolutionizing your institution's daily operations, Squoolr offers seamless accessibility for administrators, teachers, students, accountants, and parents. From enrollment to reporting, it consolidates all aspects of your institution. Eliminate paperwork and duplication, work from anywhere with Squoolr's user-friendly interfaces.The Next Era is here! Join Squoolr today and experience efficient and transparent institution management.",
+  howCanSquoolrHelpOurSchool:
+    'What is Squoolr, and how can it help our institution?',
+  howCanSquoolrHelpOurSchoolAnswer:
+    'Squoolr: Your Partner for Institutional Excellence! Boost growth and efficiency without extra costs.',
+  whatAreSquoolrFunctionalities:
+    'What specific functionalities does Squoolr offer for university management?',
+  whatAreSquoolrFunctionalitiesAnswer:
+    'Squoolr Features: Student, course, grade management, timetables, accounting, and seamless communication.',
+  isSquoolrConfigurable:
+    'Is Squoolr customizable to adapt to the unique needs of our institution?',
+  isSquoolrConfigurableAnswer:
+    'Yes, Squoolr is fully customizable to meet your specific needs.',
+  howDoWeHandleDataSecurity:
+    "How does Squoolr ensure the security of our institution's data?",
+  howDoWeHandleDataSecurityAnswer:
+    'Data Security Excellence: Squoolr ensures end-to-end encryption for your peace of mind.',
+  canSquoolrIntegrateExternally:
+    'Can we integrate Squoolr with other systems or software we already use?',
+  canSquoolrIntegrateExternallyAnswer:
+    'Seamless Integration: Squoolr integrates with ease, and our support team is here to guide you.',
+  squoolrClientService:
+    'How does technical support and training work for our administrative team?',
+  squoolrClientServiceAnswer:
+    'Our Commitment: 24/7 tech support and comprehensive training to ensure your success.',
+  squoolrCost: 'What are the costs associated with using Squoolr?',
+  squoolrCostAnswer:
+    'Cost-Effective: Base functionalities (student, course and mark management) are free; additional features cost 1000 frs per student per year.',
+  canWeTestSquoolr: 'Can we test Squoolr before making a purchase decision?',
+  canWeTestSquoolrAnswer:
+    'Test Squoolr for Free: Try our base functionalities (student, course and mark management) before committing.',
+  canSquoolrSupportAllSchoolSizes:
+    'Is Squoolr suitable for both small and large institutions?',
+  canSquoolrSupportAllSchoolSizesAnswer:
+    'For All Sizes: Squoolr empowers institutions, big and small, with equal efficiency and excellence.',
+  frequentlyAskedQuestions: 'Frequently Asked Questions',
+  frequentlyAskedQuestionsSubtitle: 'Answers to You common Queries',
+
+  resources: 'Resources',
+  privacyPolicy: 'Privacy Policy',
+  phone: 'Phone',
+  products: 'Products',
+  getInTouch: 'Get in touch',
+  termsOfUse: 'Terms of Use',
 };

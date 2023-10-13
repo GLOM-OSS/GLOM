@@ -343,4 +343,69 @@ export const website = {
     "Vendre de l'Internet par WiFi sans problème ni complication",
   projectSubtitle:
     'Gérez vos forfaits, vendez votre internet, déconnectez les clients impayés, recevez votre argent sans avoir à gérer les tickets et les complications des clients',
+
+  partners: 'Partenaires',
+  en: 'English',
+  fr: 'Français',
+  getEarlyAccess: 'Accès anticipé',
+
+  unlockYourInstitutionsPotential:
+    'Débloquez le potentiel de votre institution',
+  squoolrLandingSubtitle:
+    'Outils innovants pour le succès de votre institution : Personnalisez et mettez en œuvre en un clic !',
+  getEarlyAccessNow: 'Accès anticipé',
+  scrollToSeeMore: 'Défilez pour plus',
+
+  theyTrustUs: 'Ils Nous Font Confiance',
+  partnerSectionSubtitle: 'Ils Comptent sur Notre Expertise',
+
+  technologyForAllSchoolSizes:
+    "La Technologie pour Toutes les Tailles d'Écoles",
+  technologyForAllSchoolSizesSubtitle:
+    "Notre solution complète révolutionne les opérations quotidiennes de votre institution. Squoolr offre une accessibilité transparente aux administrateurs, enseignants, étudiants, comptables et parents. De l'inscription aux rapports, il consolide tous les aspects de votre institution. Éliminez les paperasses et les duplications, travaillez de n'importe où grâce aux interfaces conviviales de Squoolr. La prochaine ère est arrivée ! Rejoignez Squoolr aujourd'hui et découvrez une gestion institutionnelle efficace et transparente.",
+
+  howCanSquoolrHelpOurSchool:
+    "Qu'est-ce que Squoolr et comment peut-il aider notre institution?",
+  howCanSquoolrHelpOurSchoolAnswer:
+    "Squoolr : Votre partenaire pour l'excellence institutionnelle ! Stimulez la croissance et l'efficacité sans coûts supplémentaires.",
+  whatAreSquoolrFunctionalities:
+    "Quelles fonctionnalités spécifiques offre Squoolr pour la gestion d'une université?",
+  whatAreSquoolrFunctionalitiesAnswer:
+    'Fonctionnalités de Squoolr : gestion des étudiants, des cours, des notes, des emplois du temps, de la comptabilité et communication fluide.',
+  isSquoolrConfigurable:
+    "Squoolr est-il personnalisable pour s'adapter aux besoins uniques de notre institution?",
+  isSquoolrConfigurableAnswer:
+    'Oui, Squoolr est entièrement personnalisable pour répondre à vos besoins spécifiques.',
+  howDoWeHandleDataSecurity:
+    'Comment Squoolr assure-t-il la sécurité des données de notre institution?',
+  howDoWeHandleDataSecurityAnswer:
+    "Excellence en sécurité des données : Squoolr garantit un chiffrement de bout en bout pour votre tranquillité d'esprit.",
+  canSquoolrIntegrateExternally:
+    "Pouvons-nous intégrer Squoolr avec d'autres systèmes ou logiciels que nous utilisons déjà?",
+  canSquoolrIntegrateExternallyAnswer:
+    "Intégration transparente : Squoolr s'intègre facilement, et notre équipe de support est là pour vous guider.",
+  squoolrClientService:
+    'Comment fonctionne le support technique et la formation pour notre équipe administrative?',
+  squoolrClientServiceAnswer:
+    'Notre engagement : Support technique 24/7 et formation complète pour garantir votre succès.',
+  squoolrCost: "Quels sont les coûts associés à l'utilisation de Squoolr?",
+  squoolrCostAnswer:
+    'Économique : Les fonctionnalités de base (gestion des étudiants, des cours et des notes) sont gratuites ; les fonctionnalités supplémentaires coûtent 1000 francs par étudiant par an.',
+  canWeTestSquoolr:
+    "Pouvons-nous tester Squoolr avant de prendre une décision d'achat?",
+  canWeTestSquoolrAnswer:
+    'Testez Squoolr gratuitement : Essayez nos fonctionnalités de base (gestion des étudiants, des cours et des notes) avant de vous engager.',
+  canSquoolrSupportAllSchoolSizes:
+    'Squoolr convient-il aux petites et grandes institutions?',
+  canSquoolrSupportAllSchoolSizesAnswer:
+    'Pour toutes tailles : Squoolr renforce les institutions, petites et grandes, avec une efficacité et une excellence égales.',
+  frequentlyAskedQuestions: 'Questions Fréquemment Posées',
+  frequentlyAskedQuestionsSubtitle: 'Réponses à Vos Questions Courantes',
+
+  resources: 'Ressources',
+  privacyPolicy: 'Politique de Confidentialité',
+  phone: 'Téléphone',
+  products: 'Produits',
+  getInTouch: 'Contactez-nous',
+  termsOfUse: "Conditions d'Utilisation",
 };
