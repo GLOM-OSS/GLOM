@@ -236,7 +236,7 @@ export class DemandService {
     const { demand_status, rejection_reason } = demand;
     await this.prismaService.schoolDemand.update({
       data: {
-        demand_status: SchoolDemandStatus.PROGRESS,
+        demand_status: SchoolDemandStatus.PROCESSING,
         SchoolDemandAudits: {
           create: {
             demand_status,
