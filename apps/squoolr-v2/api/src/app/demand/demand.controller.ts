@@ -6,24 +6,20 @@ import {
   Param,
   Post,
   Put,
-  Query,
-  Req,
+  Req
 } from '@nestjs/common';
 import {
+  ApiCreatedResponse,
   ApiOkResponse,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
+  ApiTags
 } from '@nestjs/swagger';
 import { Request } from 'express';
-import { User } from '../auth/auth.d';
 import { IsPublic, Role, Roles } from '../auth/auth.decorator';
 import {
-  SchoolEntity,
-  QueryDemandStatusDto,
-  SubmitDemandDto,
-  ValidateDemandDto,
   DemandDetails,
+  SchoolEntity,
+  SubmitDemandDto,
+  ValidateDemandDto
 } from './demand.dto';
 import { DemandService } from './demand.service';
 
@@ -35,26 +31,33 @@ export class DemandController {
 
   @Get('all')
   @ApiOkResponse({ type: [SchoolEntity] })
-  async getAllDemands() {
+  getAllDemands() {
     return this.demandService.findAll();
+  }
+
+  @IsPublic()
+  @Get(':school_code')
+  @ApiOkResponse({ type: SchoolEntity })
+  getDemandStatus(@Param('school_code') schoolCode: string) {
+    return this.demandService.findOne(schoolCode);
   }
 
   @Get(':school_code/details')
   @ApiOkResponse({ type: DemandDetails })
-  async getDemandDetails(@Param('school_code') school_code: string) {
-    return this.demandService.findDetails(school_code);
+  getDemandDetails(@Param('school_code') schoolCode: string) {
+    return this.demandService.findDetails(schoolCode);
   }
 
-  @Post('new')
   @IsPublic()
-  async submitDemand(@Body() schoolDemandPayload: SubmitDemandDto) {
-    return {
-      school_demand_code: await this.demandService.create(schoolDemandPayload),
-    };
+  @Post('new')
+  @ApiCreatedResponse({ type: SchoolEntity })
+  submitDemand(@Body() schoolDemandPayload: SubmitDemandDto) {
+    return this.demandService.create(schoolDemandPayload);
   }
 
   @Put('validate')
-  async validateDemand(
+  @ApiOkResponse()
+  validateDemand(
     @Req() request: Request,
     @Body() validatedDemand: ValidateDemandDto
   ) {
@@ -63,29 +66,22 @@ export class DemandController {
       throw new BadRequestException(
         'rejection_reason and subdomain cannot coexist'
       );
-    await this.demandService.validateDemand(
+    return this.demandService.validateDemand(
       validatedDemand,
       request.user['login_id']
     );
   }
 
-  @Get('status')
-  @IsPublic()
-  @ApiOperation({ summary: 'Check your school demand status' })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
-  async getDemandStatus(@Query() { school_demand_code }: QueryDemandStatusDto) {
-    return {
-      demand_status: await this.demandService.getStatus(school_demand_code),
-    };
-  }
-
   @Put(':school_code/status')
+  @ApiOkResponse()
   // @UseGuards(AuthenticatedGuard)
-  async updateDemandStatus(
+  updateDemandStatus(
     @Req() request: Request,
-    @Param('school_code') school_code: string
+    @Param('school_code') schoolCode: string
   ) {
-    const { login_id } = request.user as User;
-    await this.demandService.updateStatus(school_code, login_id);
+    return this.demandService.updateStatus(
+      schoolCode,
+      request.user['login_id']
+    );
   }
 }

@@ -73,24 +73,19 @@ export class ValidateDemandDto {
   subdomain?: string;
 }
 
-export class QueryDemandStatusDto {
-  @ApiProperty()
-  @IsString()
-  school_demand_code: string;
-}
-
 export class SchoolEntity extends OmitType(CreateSchoolDto, [
   'school_acronym',
   'initial_year_ends_at',
   'initial_year_starts_at',
 ]) {
   @ApiProperty()
-  @IsString()
   school_code: string;
 
-  @ApiProperty()
-  @IsEnum(SchoolDemandStatus)
+  @ApiProperty({ enum: SchoolDemandStatus })
   school_demand_status: SchoolDemandStatus;
+
+  @ApiProperty()
+  school_rejection_reason: string;
 
   constructor(props: SchoolEntity) {
     super();
