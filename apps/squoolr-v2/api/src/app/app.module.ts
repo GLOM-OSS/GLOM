@@ -1,7 +1,12 @@
 import { InjectRedis, Redis, RedisModule } from '@nestjs-modules/ioredis';
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
@@ -20,6 +25,7 @@ import { AcademicYearsModule } from './academic-years/academic-years.module';
 import { AuthModule } from './auth/auth.module';
 import { TasksModule } from '@glom/nest-tasks';
 import { InquiriesModule } from './inquiries/inquiries.module';
+import { GlomExceptionsFilter } from '@glom/execeptions';
 
 @Module({
   imports: [
@@ -45,11 +51,22 @@ import { InquiriesModule } from './inquiries/inquiries.module';
   controllers: [AppController],
   providers: [
     AppService,
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
     {
       provide: APP_INTERCEPTOR,
       useClass: AppInterceptor,
     },
+    {
+      provide: APP_FILTER,
+      useClass: GlomExceptionsFilter,
+    },
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({
+        forbidNonWhitelisted: true,
+        whitelist: true,
+      }),
+    },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
 export class AppModule implements NestModule {
