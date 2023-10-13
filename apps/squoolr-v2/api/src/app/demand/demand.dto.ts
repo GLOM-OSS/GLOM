@@ -74,7 +74,6 @@ export class ValidateDemandDto {
 }
 
 export class SchoolEntity extends OmitType(CreateSchoolDto, [
-  'school_acronym',
   'initial_year_ends_at',
   'initial_year_starts_at',
 ]) {
@@ -88,7 +87,7 @@ export class SchoolEntity extends OmitType(CreateSchoolDto, [
   school_rejection_reason: string;
 
   constructor(props: SchoolEntity) {
-    super();
+    super(props);
     Object.assign(this, props);
   }
 }
