@@ -1,7 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { InquiriesService } from './inquiries.service';
-import { InquiryEntity } from './inquiries.dto';
+import { CreateInquiryDto, InquiryEntity } from './inquiries.dto';
 
 @ApiTags('Inquiries')
 @Controller('inquiries')
@@ -12,5 +12,11 @@ export class InquiriesController {
   @ApiOkResponse({ type: [InquiryEntity] })
   getAllInquiries() {
     return this.inquiriesService.findAll();
+  }
+
+  @Post('new')
+  @ApiCreatedResponse({ type: InquiryEntity })
+  createInquiry(@Body() createInquiry: CreateInquiryDto) {
+    return this.inquiriesService.create(createInquiry);
   }
 }
