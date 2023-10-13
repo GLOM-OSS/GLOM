@@ -11,7 +11,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { DesirializeRoles, User } from '../auth/auth';
 import { Role, Roles } from '../auth/auth.decorator';
-import { AcademicYearPostDto, TemplateYearPostDto } from './academic-years.dto';
+import { CreateAcademicYearDto, TemplateAcademicYearDto } from './academic-years.dto';
 import { AcademicYearsService } from './academic-years.service';
 // import { AuthService } from '../auth/auth.service';
 
@@ -36,7 +36,7 @@ export class AcademicYearsController {
   @Roles(Role.CONFIGURATOR)
   async createAcademicYear(
     @Req() request: Request,
-    @Body() newAcademicYear: AcademicYearPostDto
+    @Body() newAcademicYear: CreateAcademicYearDto
   ) {
     const {
       school_id,
@@ -68,7 +68,7 @@ export class AcademicYearsController {
   @Roles(Role.CONFIGURATOR)
   async templateAcademicYear(
     @Req() request: Request,
-    @Body() templateOptions: TemplateYearPostDto,
+    @Body() templateOptions: TemplateAcademicYearDto,
     @Param('template_year_id') template_year_id: string
   ) {
     const {

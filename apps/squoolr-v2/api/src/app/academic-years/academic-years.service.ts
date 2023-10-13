@@ -14,9 +14,13 @@ import {
 } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
-import { ActiveYear, DesirializeRoles, UserRole } from '../auth/auth';
-import { AcademicYearPostDto, TemplateYearPostDto } from './academic-years.dto';
+import { DesirializeRoles, UserRole } from '../auth/auth';
 import { Role } from '../auth/auth.decorator';
+import {
+  AcademicYearEntity,
+  CreateAcademicYearDto,
+  TemplateAcademicYearDto,
+} from './academic-years.dto';
 
 @Injectable()
 export class AcademicYearsService {
@@ -27,7 +31,7 @@ export class AcademicYearsService {
 
   async create(
     school_id: string,
-    { starts_at, ends_at }: AcademicYearPostDto,
+    { starts_at, ends_at }: CreateAcademicYearDto,
     added_by: string
   ) {
     if (starts_at > ends_at)
@@ -106,7 +110,7 @@ export class AcademicYearsService {
       },
       reuse_coordinators_configs,
       reuse_registries_configs,
-    }: TemplateYearPostDto,
+    }: TemplateAcademicYearDto,
     added_by: string
   ) {
     if (starts_at > ends_at)
@@ -356,102 +360,49 @@ export class AcademicYearsService {
   }
 
   async findAll(login_id: string) {
-    const select = {
-      AcademicYear: {
-        select: {
-          year_code: true,
-          started_at: true,
-          ended_at: true,
-          year_status: true,
-          starts_at: true,
-          ends_at: true,
-          academic_year_id: true,
-        },
-      },
-    };
     //check for annual student
     const annualStudents = await this.prismaService.annualStudent.findMany({
-      select,
+      select: { AcademicYear: true },
       where: { Student: { login_id }, is_deleted: false },
     });
     if (annualStudents.length > 0) {
       return annualStudents.map(
-        ({
-          AcademicYear: {
-            academic_year_id,
-            year_code,
-            ended_at,
-            ends_at,
-            started_at,
-            starts_at,
-            year_status,
-          },
-        }) => ({
-          year_code,
-          year_status,
-          academic_year_id,
-          starting_date:
-            year_status !== AcademicYearStatus.INACTIVE
-              ? started_at
-              : starts_at,
-          ending_date:
-            year_status !== AcademicYearStatus.FINISHED ? ends_at : ended_at,
-        })
+        ({ AcademicYear: academicYear }) => new AcademicYearEntity(academicYear)
       );
     }
 
     //check for annual configurators
     const annualConfigurators =
       await this.prismaService.annualConfigurator.findMany({
-        select,
+        select: { AcademicYear: true },
         where: { login_id, is_deleted: false },
       });
 
     //check for annual registry
     const annualRegistries = await this.prismaService.annualRegistry.findMany({
-      select,
+      select: { AcademicYear: true },
       where: { login_id, is_deleted: false },
     });
 
     //check for annual teachers
     const annualTeachers = await this.prismaService.annualTeacher.findMany({
-      select,
+      select: { AcademicYear: true },
       where: { login_id, is_deleted: false },
     });
 
-    const academic_years: ActiveYear[] = [];
-
-    [...annualConfigurators, ...annualRegistries, ...annualTeachers].forEach(
-      ({
-        AcademicYear: {
-          academic_year_id,
-          year_code,
-          ended_at,
-          ends_at,
-          started_at,
-          starts_at,
-          year_status,
-        },
-      }) => {
-        if (
-          !academic_years.find((_) => _.academic_year_id === academic_year_id)
-        ) {
-          academic_years.push({
-            year_code,
-            year_status,
-            academic_year_id,
-            starting_date:
-              year_status !== AcademicYearStatus.INACTIVE
-                ? started_at
-                : starts_at,
-            ending_date:
-              year_status !== AcademicYearStatus.FINISHED ? ends_at : ended_at,
-          });
-        }
-      }
+    return [
+      ...annualTeachers,
+      ...annualRegistries,
+      ...annualConfigurators,
+    ].reduce<AcademicYearEntity[]>(
+      (academicYears, { AcademicYear: academicYear }) =>
+        academicYears.find(
+          (_) => _.academic_year_id === academicYear.academic_year_id
+        )
+          ? academicYears
+          : [...academicYears, new AcademicYearEntity(academicYear)],
+      []
     );
-
-    return academic_years;
   }
 
   async retrieveRoles(

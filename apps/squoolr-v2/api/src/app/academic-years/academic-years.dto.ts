@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { AcademicYear, AcademicYearStatus } from '@prisma/client';
+import { Exclude, Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
@@ -7,7 +8,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-export class PersonnelTemplate {
+export class TemplatePersonnelDto {
   @IsBoolean()
   @ApiProperty()
   reuse_configurators?: boolean;
@@ -25,7 +26,7 @@ export class PersonnelTemplate {
   reuse_teachers?: boolean;
 }
 
-export class AcademicYearPostDto {
+export class CreateAcademicYearDto {
   @ApiProperty()
   @IsDateString()
   starts_at: Date;
@@ -33,13 +34,17 @@ export class AcademicYearPostDto {
   @ApiProperty()
   @IsDateString()
   ends_at: Date;
+
+  constructor(props: CreateAcademicYearDto) {
+    Object.assign(this, props);
+  }
 }
 
-export class TemplateYearPostDto extends AcademicYearPostDto {
-  @Type(() => PersonnelTemplate)
+export class TemplateAcademicYearDto extends CreateAcademicYearDto {
+  @Type(() => TemplatePersonnelDto)
   @ValidateNested({ each: true })
-  @ApiProperty({ type: PersonnelTemplate })
-  personnelConfig: PersonnelTemplate;
+  @ApiProperty({ type: TemplatePersonnelDto })
+  personnelConfig: TemplatePersonnelDto;
 
   @IsArray()
   @ApiProperty()
@@ -52,4 +57,41 @@ export class TemplateYearPostDto extends AcademicYearPostDto {
   @IsBoolean()
   @ApiProperty()
   reuse_registries_configs?: boolean;
+}
+
+export class AcademicYearEntity
+  extends CreateAcademicYearDto
+  implements AcademicYear
+{
+  @ApiProperty()
+  academic_year_id: string;
+
+  @ApiProperty()
+  year_code: string;
+
+  @ApiProperty()
+  started_at: Date | null;
+
+  @ApiProperty()
+  ended_at: Date | null;
+
+  @ApiProperty({ enum: AcademicYearStatus })
+  year_status: AcademicYearStatus;
+
+  @ApiProperty()
+  school_id: string;
+
+  @ApiProperty()
+  created_at: Date;
+
+  @Exclude()
+  is_deleted: boolean;
+
+  @Exclude()
+  created_by: string;
+
+  constructor(props: AcademicYearEntity) {
+    super(props);
+    Object.assign(this, props);
+  }
 }
