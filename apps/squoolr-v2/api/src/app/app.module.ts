@@ -19,6 +19,7 @@ import { GlomPrismaModule } from '@glom/prisma';
 import { AcademicYearsModule } from './academic-years/academic-years.module';
 import { AuthModule } from './auth/auth.module';
 import { TasksModule } from '@glom/nest-tasks';
+import { InquiriesModule } from './inquiries/inquiries.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { TasksModule } from '@glom/nest-tasks';
     AuthModule,
     DemandModule,
     AcademicYearsModule,
+    InquiriesModule,
   ],
   controllers: [AppController],
   providers: [
