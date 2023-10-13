@@ -14,7 +14,6 @@ import {
   SubmitDemandDto,
   ValidateDemandDto,
 } from './demand.dto';
-import { PersonEntity } from '../auth/auth.dto';
 
 @Injectable()
 export class DemandService {
