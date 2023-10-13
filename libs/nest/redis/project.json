@@ -1,20 +1,21 @@
 {
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/dto/src",
+  "name": "nest-redis",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/nest/redis/src",
   "projectType": "library",
   "targets": {
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/dto/**/*.ts"]
+        "lintFilePatterns": ["libs/nest/redis/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/dto"],
+      "outputs": ["coverage/libs/nest/redis"],
       "options": {
-        "jestConfig": "libs/dto/jest.config.ts",
+        "jestConfig": "libs/nest/redis/jest.config.ts",
         "passWithNoTests": true
       }
     }

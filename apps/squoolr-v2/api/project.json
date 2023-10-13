@@ -1,0 +1,60 @@
+{
+  "name": "squoolr-v2-api",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/squoolr-v2/api/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/squoolr-v2/api",
+        "main": "apps/squoolr-v2/api/src/main.ts",
+        "tsConfig": "apps/squoolr-v2/api/tsconfig.app.json",
+        "assets": ["apps/squoolr-v2/api/src/assets"]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "fileReplacements": [
+            {
+              "replace": "apps/squoolr-v2/api/src/environments/environment.ts",
+              "with": "apps/squoolr-v2/api/src/environments/environment.prod.ts"
+            }
+          ]
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/js:node",
+      "options": {
+        "buildTarget": "squoolr-v2-api:build"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "squoolr-v2-api:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/squoolr-v2/api/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/squoolr-v2/api"],
+      "options": {
+        "jestConfig": "apps/squoolr-v2/api/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

@@ -23,7 +23,7 @@ export type GlomAuthModuleOptions<R> = {
    * If set to `true`, this module will attempt to used glom's externally declared `prisma` and `mailer` modules.
    * This can be usefull if you globally imported these modules in your app root modules.
    */
-  useGlobalDeps: boolean;
+  omitModuleDeps: boolean;
   /**
    * Application roles. This roles will  automatical seed into database
    * @example

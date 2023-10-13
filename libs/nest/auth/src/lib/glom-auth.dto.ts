@@ -1,4 +1,9 @@
-import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  OmitType,
+  PickType,
+} from '@nestjs/swagger';
 import { Gender, Lang } from '@prisma/client';
 import {
   IsDateString,
@@ -92,13 +97,7 @@ export class ResetPasswordDto {
   new_password: string;
 }
 
-export class ResetPasswordID {
-  @IsUUID()
-  @ApiProperty({
-    description: 'Generated reset password id',
-  })
-  reset_password_id: string;
-}
+export class ResetPasswordEmail extends PickType(SignInDto, ['email']) {}
 
 export class UserEntity extends OmitType(SignUpDto, ['password']) {
   @IsUUID()

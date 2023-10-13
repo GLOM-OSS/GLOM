@@ -22,11 +22,11 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { encrypt } from '@squoolr/encrypter';
+import { encrypt } from '@glom/encrypter';
 import { Request, Response } from 'express';
 import {
   ResetPasswordDto,
-  ResetPasswordID,
+  ResetPasswordEmail,
   SignInDto,
   SignUpDto,
   UserEntity,
@@ -81,14 +81,14 @@ export class GlomAuthController {
   }
 
   @Post('reset-password')
-  @ApiResponse({ status: 201, type: ResetPasswordID })
+  @ApiNoContentResponse({ description: 'OK' })
   @ApiOperation({
     summary: 'Request a reset password id for reset link',
   })
   async resetPassword(
     @Req() request: Request,
-    @Body('email') email: string
-  ): Promise<ResetPasswordID> {
+    @Body() { email }: ResetPasswordEmail
+  ) {
     const origin = new URL(request.headers.origin).host;
     return await this.glomAuthService.resetPassword(email, origin);
   }

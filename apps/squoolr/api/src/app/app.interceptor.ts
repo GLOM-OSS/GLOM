@@ -5,7 +5,7 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
-import { encrypt } from '@squoolr/encrypter';
+import { encrypt } from '@glom/encrypter';
 
 @Injectable()
 export class AppInterceptor<T> implements NestInterceptor<T, string> {
