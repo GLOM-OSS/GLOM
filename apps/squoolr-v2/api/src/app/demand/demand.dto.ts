@@ -11,7 +11,7 @@ import {
   NotContains,
   ValidateNested,
 } from 'class-validator';
-import { PersonEntity, PersonPostDto } from '../auth/auth.dto';
+import { PersonEntity, CreatePersonDto } from '../auth/auth.dto';
 import { SchoolDemandStatus } from '@prisma/client';
 
 export class CreateSchoolDto {
@@ -47,9 +47,9 @@ export class CreateSchoolDto {
 export class SubmitDemandDto {
   @IsNotEmptyObject()
   @ValidateNested()
-  @Type(() => PersonPostDto)
-  @ApiProperty({ type: PersonPostDto })
-  personnel: PersonPostDto;
+  @Type(() => CreatePersonDto)
+  @ApiProperty({ type: CreatePersonDto })
+  personnel: CreatePersonDto;
 
   @IsNotEmptyObject()
   @ValidateNested()
