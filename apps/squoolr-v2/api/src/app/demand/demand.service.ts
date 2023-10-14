@@ -17,10 +17,6 @@ import {
 
 @Injectable()
 export class DemandService {
-  readonly queryAttrs = Prisma.validator<Prisma.SchoolSelect>()({
-    SchoolDemand: { select: { demand_status: true, rejection_reason: true } },
-  });
-
   constructor(
     private prismaService: GlomPrismaService,
     private codeGenerator: CodeGeneratorFactory
@@ -28,15 +24,22 @@ export class DemandService {
 
   async findOne(school_code: string) {
     const school = await this.prismaService.school.findUnique({
-      include: this.queryAttrs,
+      include: { SchoolDemand: true },
       where: { school_code },
     });
     if (!school) throw new NotFoundException('School demand not found');
     const {
-      SchoolDemand: { demand_status, rejection_reason },
+      SchoolDemand: {
+        demand_status,
+        rejection_reason,
+        referral_code,
+        paid_amount,
+      },
     } = school;
     return new SchoolEntity({
       ...school,
+      paid_amount,
+      referral_code,
       school_demand_status: demand_status,
       school_rejection_reason: rejection_reason,
     });
@@ -44,13 +47,18 @@ export class DemandService {
 
   async findDetails(school_code: string) {
     const schoolData = await this.prismaService.school.findUnique({
-      include: { ...this.queryAttrs, Person: true },
+      include: { SchoolDemand: true, Person: true },
       where: { school_code },
     });
     if (!schoolData) throw new NotFoundException('School demand not found');
     const {
       Person: person,
-      SchoolDemand: { demand_status, rejection_reason },
+      SchoolDemand: {
+        demand_status,
+        rejection_reason,
+        referral_code,
+        paid_amount,
+      },
       ...school
     } = schoolData;
     return new DemandDetails({
@@ -58,6 +66,8 @@ export class DemandService {
       school: {
         ...school,
         school_code,
+        paid_amount,
+        referral_code,
         school_demand_status: demand_status,
         school_rejection_reason: rejection_reason,
       },
@@ -66,12 +76,22 @@ export class DemandService {
 
   async findAll() {
     const schools = await this.prismaService.school.findMany({
-      include: this.queryAttrs,
+      include: { SchoolDemand: true },
     });
     return schools.map(
-      ({ SchoolDemand: { demand_status, rejection_reason }, ...school }) =>
+      ({
+        SchoolDemand: {
+          demand_status,
+          rejection_reason,
+          paid_amount,
+          referral_code,
+        },
+        ...school
+      }) =>
         new SchoolEntity({
           ...school,
+          paid_amount,
+          referral_code,
           school_demand_status: demand_status,
           school_rejection_reason: rejection_reason,
         })
@@ -81,18 +101,19 @@ export class DemandService {
   async create({
     school: {
       school_email,
-      initial_year_ends_at,
-      initial_year_starts_at,
+      initial_year_ends_at: ends_at,
+      initial_year_starts_at: starts_at,
       school_phone_number,
       school_name,
       school_acronym,
+      paid_amount,
+      referral_code,
+      lead_funnel,
     },
-    personnel: { password, phone_number, ...person },
+    configurator: { password, phone_number, ...person },
   }: SubmitDemandDto) {
     const academic_year_id = randomUUID();
     const annual_configurator_id = randomUUID();
-    const ends_at = new Date(initial_year_ends_at);
-    const starts_at = new Date(initial_year_starts_at);
     const year_code = await this.codeGenerator.getYearCode(
       starts_at.getFullYear(),
       ends_at.getFullYear()
@@ -107,13 +128,14 @@ export class DemandService {
           school_acronym,
           school_phone_number,
           school_name,
+          lead_funnel,
           Person: {
             connectOrCreate: {
               create: { ...person, phone_number },
               where: { email: person.email },
             },
           },
-          SchoolDemand: { create: {} },
+          SchoolDemand: { create: { referral_code, paid_amount } },
         },
       }),
       this.prismaService.annualConfigurator.create({
@@ -179,6 +201,8 @@ export class DemandService {
     ]);
     return new SchoolEntity({
       ...school,
+      paid_amount,
+      referral_code,
       school_rejection_reason: null,
       school_demand_status: 'PENDING',
     });
@@ -189,17 +213,17 @@ export class DemandService {
     audited_by: string
   ) {
     const schoolDemand = await this.prismaService.schoolDemand.findFirst({
-      select: {
-        school_demand_id: true,
-        demand_status: true,
-        rejection_reason: true,
-      },
       where: {
         School: { school_code },
       },
     });
     if (!schoolDemand) throw new NotFoundException('School demand');
-
+    const {
+      demand_status,
+      rejection_reason: reason,
+      referral_code,
+      paid_amount,
+    } = schoolDemand;
     await this.prismaService.schoolDemand.update({
       data: {
         rejection_reason,
@@ -211,9 +235,11 @@ export class DemandService {
         },
         SchoolDemandAudits: {
           create: {
-            rejection_reason: schoolDemand.rejection_reason,
-            demand_status: schoolDemand.demand_status,
             audited_by,
+            paid_amount,
+            referral_code,
+            demand_status,
+            rejection_reason: reason,
           },
         },
       },
@@ -222,29 +248,26 @@ export class DemandService {
   }
 
   async updateStatus(school_code: string, audited_by: string) {
-    const demand = await this.prismaService.schoolDemand.findFirst({
-      select: {
-        school_demand_id: true,
-        demand_status: true,
-        rejection_reason: true,
-      },
+    const schoolDemand = await this.prismaService.schoolDemand.findFirst({
       where: { School: { school_code } },
     });
-    if (!demand) throw new NotFoundException('School demand');
+    if (!schoolDemand) throw new NotFoundException('School demand');
 
-    const { demand_status, rejection_reason } = demand;
+    const { demand_status, referral_code, rejection_reason, school_demand_id } =
+      schoolDemand;
     await this.prismaService.schoolDemand.update({
       data: {
         demand_status: SchoolDemandStatus.PROCESSING,
         SchoolDemandAudits: {
           create: {
+            audited_by,
+            referral_code,
             demand_status,
             rejection_reason,
-            audited_by,
           },
         },
       },
-      where: { school_demand_id: demand.school_demand_id },
+      where: { school_demand_id },
     });
   }
 }
