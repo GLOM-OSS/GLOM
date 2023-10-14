@@ -12,13 +12,12 @@ import { GlomPrismaModule } from './glom-prisma.module';
 export class GlomPrismaService extends PrismaClient implements OnModuleInit {
   constructor({
     log_level = ['query', 'error'],
-    seedSync = () => {
+    seedData = () => {
       Logger.debug('Nothing to seed !!!', GlomPrismaModule.name);
     },
-    seedASync,
   }: GlomPrismaServiceOptions) {
     super({ log: log_level });
-    (seedASync ?? seedSync)(this);
+    seedData(this);
   }
 
   async onModuleInit() {
