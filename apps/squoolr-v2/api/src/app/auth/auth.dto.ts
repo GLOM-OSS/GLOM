@@ -6,7 +6,7 @@ import {
   Lang,
   Person,
 } from '@prisma/client';
-import { Exclude } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import {
   IsDateString,
   IsEmail,
@@ -60,6 +60,7 @@ export class CreatePersonDto {
   phone_number: string;
 
   @ApiProperty()
+  @Transform(({ value }) => new Date(value))
   @IsDateString()
   birthdate: Date;
 
@@ -79,10 +80,6 @@ export class CreatePersonDto {
   @ApiProperty()
   @IsStrongPassword()
   password: string;
-
-  @IsString()
-  @ApiProperty()
-  lead_funnel: string;
 
   constructor(props: CreatePersonDto) {
     Object.assign(this, props);
@@ -133,6 +130,7 @@ export class PersonEntity
   employment_status: EmploymentStatus | null;
 
   @ApiProperty()
+  @Transform(({ value }) => new Date(value))
   created_at: Date;
 
   constructor(props: PersonEntity) {
