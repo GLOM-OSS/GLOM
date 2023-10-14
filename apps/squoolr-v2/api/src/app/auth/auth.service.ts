@@ -1,3 +1,5 @@
+import { CronJobEvents, TasksService } from '@glom/nest-tasks';
+import { GlomPrismaService } from '@glom/prisma';
 import {
   ConflictException,
   HttpException,
@@ -6,14 +8,12 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { AcademicYearStatus, Login } from '@prisma/client';
-import { CronJobEvents, TasksService } from '@glom/nest-tasks';
+import { Login } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
-import { User, DesirializeRoles, PassportUser, UserRole } from './auth';
-import { GlomPrismaService } from '@glom/prisma';
-import { Role } from './auth.decorator';
 import { AcademicYearsService } from '../academic-years/academic-years.service';
+import { DesirializeSession, PassportUser, User } from './auth';
+import { Role } from './auth.decorator';
 
 @Injectable()
 export class AuthService {
@@ -155,7 +155,7 @@ export class AuthService {
   }
 
   async updateUserRoles(request: Request, login_id: string) {
-    let desirializedRoles: DesirializeRoles | null = null;
+    let desirializedRoles: DesirializeSession | null = null;
     const academicYears = await this.academicYearService.findAll(login_id);
     const numberOfAcademicYear = academicYears.length;
     if (numberOfAcademicYear === 0)

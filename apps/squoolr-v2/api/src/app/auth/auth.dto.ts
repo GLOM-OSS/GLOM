@@ -1,12 +1,18 @@
-import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import {
+  ApiProperty,
+  ApiPropertyOptional,
+  OmitType,
+  PickType,
+} from '@nestjs/swagger';
+import {
+  AcademicYearStatus,
   CivilStatusEnum,
   EmploymentStatus,
   Gender,
   Lang,
   Person,
 } from '@prisma/client';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsDateString,
   IsEmail,
@@ -15,6 +21,7 @@ import {
   IsString,
   IsStrongPassword,
 } from 'class-validator';
+import { ActiveYear, DesirializeSession } from './auth';
 
 export class SetNewPasswordDto {
   @ApiProperty()
@@ -138,3 +145,132 @@ export class PersonEntity
     Object.assign(this, props);
   }
 }
+
+class StudentSessionData {
+  @ApiProperty()
+  annual_student_id: string;
+
+  @ApiProperty()
+  activeSemesters: number[];
+
+  @ApiProperty()
+  classroom_code: string;
+
+  @ApiProperty()
+  classroom_level: number;
+
+  @ApiProperty()
+  student_id: string;
+
+  constructor(props: StudentSessionData) {
+    Object.assign(this, props);
+  }
+}
+
+export class ConfiguratorSessionData {
+  @ApiProperty()
+  annual_configurator_id: string;
+
+  @ApiProperty()
+  is_sudo: boolean;
+
+  constructor(props: ConfiguratorSessionData) {
+    Object.assign(this, props);
+  }
+}
+
+export class TeacherSessionData {
+  @ApiProperty()
+  annual_teacher_id: string;
+
+  @ApiProperty()
+  hourly_rate: number;
+
+  @ApiProperty()
+  origin_institute: string;
+
+  @ApiProperty()
+  has_signed_convention: boolean;
+
+  @ApiProperty()
+  classroomDivisions: string[];
+
+  @ApiProperty()
+  teacher_id: string;
+
+  constructor(props: TeacherSessionData) {
+    Object.assign(this, props);
+  }
+}
+
+export class RegistrySessionData {
+  @ApiProperty()
+  annual_registry_id: string;
+
+  constructor(props: ConfiguratorSessionData) {
+    Object.assign(this, props);
+  }
+}
+
+export class ActiveYearSessionData implements ActiveYear {
+  @ApiProperty()
+  academic_year_id: string;
+
+  @ApiProperty()
+  starting_date: Date;
+
+  @ApiProperty()
+  ending_date: Date;
+
+  @ApiProperty({ enum: AcademicYearStatus })
+  year_status: AcademicYearStatus;
+
+  @ApiProperty()
+  year_code: string;
+
+  constructor(props: ActiveYearSessionData) {
+    Object.assign(this, props);
+  }
+}
+export class User extends PersonEntity implements DesirializeSession {
+  @ApiProperty()
+  login_id: string;
+
+  @ApiProperty()
+  school_id?: string;
+
+  @ApiProperty()
+  tutorStudentIds?: string[];
+
+  @ApiProperty()
+  @Type(() => ActiveYearSessionData)
+  @Transform(({ value }) => new ActiveYearSessionData(value))
+  activeYear?: ActiveYearSessionData;
+
+  @ApiProperty()
+  @Type(() => StudentSessionData)
+  @Transform(({ value }) => new StudentSessionData(value))
+  annualStudent?: StudentSessionData;
+
+  @Type(() => ConfiguratorSessionData)
+  annualConfigurator?: ConfiguratorSessionData;
+
+  @Type(() => TeacherSessionData)
+  @Transform(({ value }) => new TeacherSessionData(value))
+  annualTeacher?: TeacherSessionData;
+
+  @Type(() => RegistrySessionData)
+  @Transform(({ value }) => new RegistrySessionData(value))
+  annualRegistry?: RegistrySessionData;
+}
+
+export class DesirializedRoles extends PickType(User, [
+  'login_id',
+  'school_id',
+  'activeYear',
+  'tutorStudentIds',
+  'annualConfigurator',
+  'annualRegistry',
+  'annualStudent',
+  'annualTeacher',
+]) {}
