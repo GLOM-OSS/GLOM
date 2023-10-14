@@ -56,8 +56,20 @@ model PlatformSettings {
     platform_settings_id String   @id @default(uuid()) @db.VarChar(36)
     onboarding_fee       Float
     created_at           DateTime @default(now()) @db.DateTime(0)
-    created_by           String   @db.VarChar(36)
-    Login                Login    @relation(fields: [created_by], references: [login_id], onUpdate: Cascade, onDelete: Cascade)
+    created_by           String?  @db.VarChar(36)
+    Login                Login?   @relation(fields: [created_by], references: [login_id], onUpdate: Cascade, onDelete: Cascade)
+
+    PlatformSettingsAudits PlatformSettingsAudit[]
+}
+
+model PlatformSettingsAudit {
+    platform_settings_audit_id String           @id @default(uuid()) @db.VarChar(36)
+    onboarding_fee             Float
+    created_at                 DateTime         @default(now()) @db.DateTime(0)
+    platform_settings_id       String           @db.VarChar(36)
+    PlatformSettings           PlatformSettings @relation(fields: [platform_settings_id], references: [platform_settings_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by                 String           @db.VarChar(36)
+    Login                      Login            @relation(fields: [audited_by], references: [login_id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model Person {
@@ -255,18 +267,19 @@ model Login {
     school_id    String?  @db.VarChar(36)
     School       School?  @relation(fields: [school_id], references: [school_id], onDelete: Cascade, onUpdate: Cascade)
 
-    LoginAudits          LoginAudit[]
-    ResetPasswords       ResetPassword[]
-    AnnualConfigurators  AnnualConfigurator[]
-    AdminResetPasswwords ResetPassword[]      @relation("Admin_Generated_ResetPassword")
-    Logs                 Log[]
-    Students             Student[]            @relation(name: "Student_Login")
-    Tutors               Student[]            @relation(name: "Tutor_Login")
-    AnnualRegistries     AnnualRegistry[]
-    AnnualTeachers       AnnualTeacher[]
-    SchoolDemandAudits   SchoolDemandAudit[]
-    Payment              Payment[]
-    PlatformSettings     PlatformSettings[]
+    LoginAudits            LoginAudit[]
+    ResetPasswords         ResetPassword[]
+    AnnualConfigurators    AnnualConfigurator[]
+    AdminResetPasswwords   ResetPassword[]         @relation("Admin_Generated_ResetPassword")
+    Logs                   Log[]
+    Students               Student[]               @relation(name: "Student_Login")
+    Tutors                 Student[]               @relation(name: "Tutor_Login")
+    AnnualRegistries       AnnualRegistry[]
+    AnnualTeachers         AnnualTeacher[]
+    SchoolDemandAudits     SchoolDemandAudit[]
+    Payment                Payment[]
+    PlatformSettings       PlatformSettings[]
+    PlatformSettingsAudits PlatformSettingsAudit[]
 
     @@unique([person_id, school_id])
 }
