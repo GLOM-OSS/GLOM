@@ -1,18 +1,15 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Req
-} from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
+import { ApiExcludeEndpoint, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { DesirializeRoles, User } from '../auth/auth';
+import { DesirializeSession, User } from '../auth/auth';
 import { Role, Roles } from '../auth/auth.decorator';
-import { CreateAcademicYearDto, TemplateAcademicYearDto } from './academic-years.dto';
+import {
+  AcademicYearEntity,
+  CreateAcademicYearDto,
+  TemplateAcademicYearDto,
+} from './academic-years.dto';
 import { AcademicYearsService } from './academic-years.service';
+import { DesirializedRoles } from '../auth/auth.dto';
 // import { AuthService } from '../auth/auth.service';
 
 @ApiTags('Academic Years')
@@ -25,6 +22,7 @@ export class AcademicYearsController {
   ) {}
 
   @Get('/all')
+  @ApiOkResponse({ type: [AcademicYearEntity] })
   async getAcademicYears(@Req() request: Request) {
     const { login_id } = request.session.passport.user;
     return {
@@ -34,6 +32,7 @@ export class AcademicYearsController {
 
   @Post('/new')
   @Roles(Role.CONFIGURATOR)
+  @ApiOkResponse({ type: AcademicYearEntity })
   async createAcademicYear(
     @Req() request: Request,
     @Body() newAcademicYear: CreateAcademicYearDto
@@ -42,20 +41,19 @@ export class AcademicYearsController {
       school_id,
       annualConfigurator: { annual_configurator_id },
     } = request.user as User;
-    return {
-      academic_year_id: await this.academicYearService.create(
-        school_id,
-        newAcademicYear,
-        annual_configurator_id
-      ),
-    };
+    return this.academicYearService.create(
+      school_id,
+      newAcademicYear,
+      annual_configurator_id
+    );
   }
 
   @Patch(':academic_year_id/choose')
+  @ApiOkResponse({ type: DesirializedRoles })
   async chooseActiveAcademicYear(
     @Req() request: Request,
     @Param('academic_year_id') academic_year_id: string
-  ): Promise<DesirializeRoles> {
+  ) {
     const { login_id } = request.session.passport.user;
     const { desirializedRoles, roles } =
       await this.academicYearService.retrieveRoles(login_id, academic_year_id);
@@ -64,8 +62,9 @@ export class AcademicYearsController {
     return desirializedRoles;
   }
 
-  @Post(':template_year_id/template')
+  @ApiExcludeEndpoint()
   @Roles(Role.CONFIGURATOR)
+  @Post(':template_year_id/template')
   async templateAcademicYear(
     @Req() request: Request,
     @Body() templateOptions: TemplateAcademicYearDto,
