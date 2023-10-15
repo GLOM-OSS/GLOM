@@ -4,6 +4,7 @@ import Hero from '../components/hero/Hero';
 import Partner from '../components/partner/Partner';
 import Faq from '../components/faq/Faq';
 import { Footer } from '../components/footer/Footer';
+import Features from '../components/features/Features';
 
 export function Index() {
   return (
@@ -17,6 +18,7 @@ export function Index() {
         }}
       >
         <Hero />
+        <Features />
         <Partner />
         <Faq />
         <Footer />
