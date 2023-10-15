@@ -387,4 +387,20 @@ export const website = {
   products: 'Products',
   getInTouch: 'Get in touch',
   termsOfUse: 'Terms of Use',
+
+  comingSoon: 'Soon',
+  courseManagement: 'Course Management',
+  courseManagementDescription:
+    'Squoolr introduces an advanced course management system that facilitates interactions between students and teachers. From assignments and submissions to evaluations, grading, and result publication, our flexible, user-friendly system fosters communication and enhances understanding of course materials.',
+  gradingAndResultPublication: 'Grading & Result Publication',
+  gradingAndResultPublicationDescription:
+    'Our platform streamlines grading by allowing teachers to enter evaluation marks, reducing administrative delays. Every institution can configure its grading system to their preferences, and we calculate results instantly, making them available with a simple click.',
+  andMoreFeatures: 'And More...',
+  andMoreFeaturesDescription:
+    "Through our streamlined processes, Squoolr offers institutions the flexibility to request special features, whether they are ideas we've considered or ones we haven't thought of yet. Squoolr transforms your ambitious management aspirations into reality!",
+  configurationsDescription:
+    "We understand at Squoolr,  that every institution is distinct, with its own set of requirements and objectives. That's why we offer unparalleled customization, allowing you to tailor the platform to perfectly align with your institution's unique needs. Whether you're small, huge, or anything in between, Squoolr fits effortlessly to your workflows. From customizing user roles and permissions to designing personalized report templates, our platform exists to reflect your institution's identity.",
+  previous: 'Previous',
+  ourComprehensiveSolution: 'Our Comprehensive Solution',
+ourComprehensiveSolutionSubtitle:"As your institution grows and evolves, we with you. We understand the dynamic nature of educational environments, and our platform is designed to scale effortlessly to meet your expanding needs. Whether you experience an increase in student enrollment, add new departments, or introduce additional courses, we remains the reliable partner to accommodate your growth. With the ability to request for customized features and functionalities, we ensure that Squoolr keeps pace with the changing landscape of education. You can rest assured that Squoolr will continue to support and empower your institution as it aims for higher heights of success."
 };

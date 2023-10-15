@@ -408,4 +408,22 @@ export const website = {
   products: 'Produits',
   getInTouch: 'Contactez-nous',
   termsOfUse: "Conditions d'Utilisation",
+
+  comingSoon: 'Bientôt',
+  courseManagement: 'Gestion des Cours',
+  courseManagementDescription:
+    'Squoolr introduit un système de gestion de cours avancé qui facilite les interactions entre étudiants et enseignants. Des devoirs et soumissions aux évaluations, aux notations et à la publication des résultats, notre système flexible et convivial favorise la communication et améliore la compréhension des matières de cours.',
+  gradingAndResultPublication: 'Notation et Publication des Résultats',
+  gradingAndResultPublicationDescription:
+    "Notre plateforme simplifie la notation en permettant aux enseignants de saisir les notes d'évaluation, réduisant ainsi les retards administratifs. Chaque institution peut configurer son système de notation selon ses préférences, et nous calculons les résultats instantanément, les mettant à disposition en un simple clic.",
+  andMoreFeatures: 'Et Plus Encore...',
+  andMoreFeaturesDescription:
+    "Grâce à nos processus rationalisés, Squoolr offre aux institutions la flexibilité de demander des fonctionnalités spéciales, que ce soient des idées que nous avons envisagées ou des idées auxquelles nous n'avons pas encore pensé. Squoolr transforme vos aspirations ambitieuses en matière de gestion en réalité !",
+  configurationsDescription:
+    "Nous comprenons chez Squoolr que chaque institution est unique, avec ses propres exigences et objectifs. C'est pourquoi nous offrons une personnalisation inégalée, vous permettant d'ajuster la plateforme pour qu'elle corresponde parfaitement aux besoins uniques de votre institution. Que vous soyez petit, grand, ou quelque part entre les deux, Squoolr s'intègre sans effort à vos flux de travail. De la personnalisation des rôles et des permissions des utilisateurs à la conception de modèles de rapports personnalisés, notre plateforme existe pour refléter l'identité de votre institution.",
+  previous: 'Précédent',
+
+  ourComprehensiveSolution: 'Notre Solution Complète',
+  ourComprehensiveSolutionSubtitle:
+    "Au fur et à mesure que votre institution grandit et évolue, nous grandissons avec vous. Nous comprenons la nature dynamique des environnements éducatifs, et notre plateforme est conçue pour s'adapter facilement à vos besoins croissants. Que vous connaissiez une augmentation des inscriptions d'étudiants, ajoutiez de nouveaux départements ou introduisiez des cours supplémentaires, nous restons le partenaire fiable pour accompagner votre croissance. Avec la possibilité de demander des fonctionnalités personnalisées, nous nous assurons que Squoolr continue de suivre l'évolution du paysage de l'éducation. Vous pouvez être assuré que Squoolr continuera de soutenir et d'habiliter votre institution alors qu'elle vise des sommets plus élevés de réussite.",
 };
