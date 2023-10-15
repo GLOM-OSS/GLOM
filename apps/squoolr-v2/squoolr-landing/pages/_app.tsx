@@ -12,16 +12,14 @@ import AOS from 'aos';
 import { useEffect } from 'react';
 
 function CustomApp({ Component, pageProps }: AppProps) {
-  useEffect(
-    () =>
-      AOS.init({
-        offset: 200,
-        duration: 600,
-        easing: 'ease-in-sine',
-        delay: 100,
-      }),
-    []
-  );
+  useEffect(() => {
+    AOS.init({
+      offset: 200,
+      duration: 600,
+      easing: 'ease-in-sine',
+      delay: 100,
+    });
+  }, []);
 
   return (
     <GlomThemeProvider defaultLang="en">
