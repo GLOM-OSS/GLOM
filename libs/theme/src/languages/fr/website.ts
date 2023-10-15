@@ -426,4 +426,9 @@ export const website = {
   ourComprehensiveSolution: 'Notre Solution Complète',
   ourComprehensiveSolutionSubtitle:
     "Au fur et à mesure que votre institution grandit et évolue, nous grandissons avec vous. Nous comprenons la nature dynamique des environnements éducatifs, et notre plateforme est conçue pour s'adapter facilement à vos besoins croissants. Que vous connaissiez une augmentation des inscriptions d'étudiants, ajoutiez de nouveaux départements ou introduisiez des cours supplémentaires, nous restons le partenaire fiable pour accompagner votre croissance. Avec la possibilité de demander des fonctionnalités personnalisées, nous nous assurons que Squoolr continue de suivre l'évolution du paysage de l'éducation. Vous pouvez être assuré que Squoolr continuera de soutenir et d'habiliter votre institution alors qu'elle vise des sommets plus élevés de réussite.",
+
+  pageNotFound: 'Page non trouvée',
+  missingPage:
+    "Cette page est introuvable ou vous n'avez pas assemblé le lien correctement !",
+  goHome: "Retourner à l'accueil",
 };
