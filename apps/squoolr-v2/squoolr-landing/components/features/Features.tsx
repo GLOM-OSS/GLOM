@@ -1,18 +1,16 @@
 import { useTheme } from '@glom/theme';
+import left from '@iconify/icons-fluent/arrow-left-20-filled';
+import { Icon } from '@iconify/react';
 import {
   Box,
-  Button,
   Divider,
   IconButton,
-  Tooltip,
-  Typography,
+  Tooltip
 } from '@mui/material';
 import { useState } from 'react';
-import FeaturesHeader from './FeaturesHeader';
-import FeatureCard from './FeatureCard';
 import { useIntl } from 'react-intl';
-import { Icon } from '@iconify/react';
-import left from '@iconify/icons-fluent/arrow-left-20-filled';
+import FeatureCard from './FeatureCard';
+import FeaturesHeader from './FeaturesHeader';
 
 export interface IFeature {
   title: string;

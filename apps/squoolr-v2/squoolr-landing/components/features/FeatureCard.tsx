@@ -1,7 +1,7 @@
 import { useTheme } from '@glom/theme';
-import { Box, Button, Fade, Grow, Typography } from '@mui/material';
-import { IFeature } from './Features';
+import { Box, Button, Fade, Typography } from '@mui/material';
 import { useIntl } from 'react-intl';
+import { IFeature } from './Features';
 
 export default function FeatureCard({
   feature: { description, image, isComingSoon, title },
