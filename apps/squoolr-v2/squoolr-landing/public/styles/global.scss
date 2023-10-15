@@ -113,6 +113,18 @@ body {
   }
 }
 
+.title2-landing-page {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 56px;
+  letter-spacing: -0.23px;
+  @media (max-width: $desktop) {
+    font-size: 30px;
+    line-height: 36px;
+    letter-spacing: -0.28px;
+  }
+}
+
 .h1--mobile {
   font-weight: 700;
   font-size: 30px;

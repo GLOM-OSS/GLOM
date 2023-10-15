@@ -7,8 +7,22 @@ import '../public/styles/global.scss';
 import '../public/styles/notifGlobalStyles.css';
 import '../public/styles/reset.css';
 import '../public/styles/root.scss';
+import 'aos/dist/aos.css';
+import AOS from 'aos';
+import { useEffect } from 'react';
 
 function CustomApp({ Component, pageProps }: AppProps) {
+  useEffect(
+    () =>
+      AOS.init({
+        offset: 200,
+        duration: 600,
+        easing: 'ease-in-sine',
+        delay: 100,
+      }),
+    []
+  );
+
   return (
     <GlomThemeProvider defaultLang="en">
       <Head>
