@@ -5,6 +5,7 @@ import { GlomThemeProvider } from '@glom/theme';
 import 'react-toastify/dist/ReactToastify.css';
 import '../public/styles/global.scss';
 import '../public/styles/notifGlobalStyles.css';
+import '../public/styles/phoneNumberStyles.css';
 import '../public/styles/reset.css';
 import '../public/styles/root.scss';
 import 'aos/dist/aos.css';
