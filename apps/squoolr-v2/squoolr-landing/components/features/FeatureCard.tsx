@@ -6,9 +6,11 @@ import { IFeature } from './Features';
 export default function FeatureCard({
   feature: { description, image, isComingSoon, title },
   isActive,
+  openEarlyAccess,
 }: {
   feature: IFeature;
   isActive: boolean;
+  openEarlyAccess: () => void;
 }) {
   const theme = useTheme();
   const { formatMessage } = useIntl();
@@ -76,6 +78,7 @@ export default function FeatureCard({
             size="large"
             color="primary"
             sx={{ justifySelf: 'start' }}
+            onClick={openEarlyAccess}
           >
             {formatMessage({ id: 'getEarlyAccess' })}
           </Button>

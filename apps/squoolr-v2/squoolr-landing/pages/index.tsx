@@ -10,6 +10,8 @@ import { useState } from 'react';
 
 export function Index() {
   const [isContactUsDialogOpen, setIsContactUsDialogOpen] =
+    useState<boolean>(false);
+  const [isEarlyAccesDialogOpen, setIsEarlyAccesDialogOpen] =
     useState<boolean>(true);
 
   return (
@@ -18,7 +20,15 @@ export function Index() {
         closeDialog={() => setIsContactUsDialogOpen(false)}
         open={isContactUsDialogOpen}
       />
-      <Navbar openContactUs={()=>setIsContactUsDialogOpen(true)} />
+      <ContactUs
+        closeDialog={() => setIsEarlyAccesDialogOpen(false)}
+        open={isEarlyAccesDialogOpen}
+        usage="EarlyAccess"
+      />
+      <Navbar
+        openContactUs={() => setIsContactUsDialogOpen(true)}
+        openEarlyAccess={() => setIsEarlyAccesDialogOpen(true)}
+      />
       <Box
         sx={{
           height: '100%',
@@ -26,11 +36,14 @@ export function Index() {
           margin: '0 auto',
         }}
       >
-        <Hero />
-        <Features />
+        <Hero openEarlyAccess={() => setIsEarlyAccesDialogOpen(true)} />
+        <Features openEarlyAccess={() => setIsEarlyAccesDialogOpen(true)} />
         <Partner />
         <Faq />
-        <Footer />
+        <Footer
+          openContactUs={() => setIsContactUsDialogOpen(true)}
+          openEarlyAccess={() => setIsEarlyAccesDialogOpen(true)}
+        />
       </Box>
     </Box>
   );

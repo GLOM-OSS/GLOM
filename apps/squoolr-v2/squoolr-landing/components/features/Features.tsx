@@ -1,12 +1,7 @@
 import { useTheme } from '@glom/theme';
 import left from '@iconify/icons-fluent/arrow-left-20-filled';
 import { Icon } from '@iconify/react';
-import {
-  Box,
-  Divider,
-  IconButton,
-  Tooltip
-} from '@mui/material';
+import { Box, Divider, IconButton, Tooltip } from '@mui/material';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import FeatureCard from './FeatureCard';
@@ -19,7 +14,11 @@ export interface IFeature {
   image: string;
 }
 
-export default function Features() {
+export default function Features({
+  openEarlyAccess,
+}: {
+  openEarlyAccess: () => void;
+}) {
   const theme = useTheme();
   const { formatMessage } = useIntl();
   const [activeCard, setActiveCard] = useState<number>(1);
@@ -88,6 +87,7 @@ export default function Features() {
             key={index}
             feature={feature}
             isActive={activeCard === index + 1}
+            openEarlyAccess={openEarlyAccess}
           />
         ))}
         <Box

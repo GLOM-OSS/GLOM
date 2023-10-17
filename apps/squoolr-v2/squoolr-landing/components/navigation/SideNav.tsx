@@ -15,11 +15,13 @@ export function SideNav({
   close,
   navItems,
   openContactUs,
+  openEarlyAccess,
 }: {
   close: () => void;
   open: boolean;
   navItems: INavItem[];
   openContactUs: () => void;
+  openEarlyAccess: () => void;
 }) {
   const { push } = useRouter();
 
@@ -104,7 +106,11 @@ export function SideNav({
               <Button variant="text" color="primary" size="small">
                 {formatMessage({ id: 'verifyDemandStatus' })}
               </Button>
-              <Button variant="contained" color="primary">
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={openEarlyAccess}
+              >
                 {formatMessage({ id: 'getEarlyAccess' })}
               </Button>
             </Box>

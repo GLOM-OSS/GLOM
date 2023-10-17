@@ -4,7 +4,13 @@ import { useIntl } from 'react-intl';
 import { LogoHolder } from '../navigation/Navbar';
 import { YouTube, LinkedIn, Facebook, Twitter } from '@mui/icons-material';
 
-export function Footer() {
+export function Footer({
+  openContactUs,
+  openEarlyAccess,
+}: {
+  openContactUs: () => void;
+  openEarlyAccess: () => void;
+}) {
   const theme = useTheme();
   const { formatMessage } = useIntl();
 
@@ -71,6 +77,16 @@ export function Footer() {
               </Typography>
               <Typography
                 component="a"
+                href={'https://lynkr.net'}
+                style={{
+                  fontSize: '12px',
+                  lineHeight: '160%',
+                }}
+              >
+                Lynkr
+              </Typography>
+              <Typography
+                component="a"
                 href={'/'}
                 style={{
                   fontSize: '12px',
@@ -132,6 +148,7 @@ export function Footer() {
                   fontSize: '12px',
                   lineHeight: '160%',
                 }}
+                onClick={openEarlyAccess}
               >
                 {formatMessage({ id: 'getEarlyAccess' })}
               </Typography>
@@ -141,6 +158,7 @@ export function Footer() {
                   fontSize: '12px',
                   lineHeight: '160%',
                 }}
+                onClick={openContactUs}
               >
                 {formatMessage({
                   id: 'contactUs',

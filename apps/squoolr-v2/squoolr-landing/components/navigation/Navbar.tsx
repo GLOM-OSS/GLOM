@@ -113,8 +113,10 @@ export function LogoHolder({
 
 export default function Navbar({
   openContactUs,
+  openEarlyAccess,
 }: {
   openContactUs: () => void;
+  openEarlyAccess: () => void;
 }) {
   const { formatMessage } = useIntl();
   const { push, pathname, asPath } = useRouter();
@@ -131,6 +133,7 @@ export default function Navbar({
         close={() => setIsSideNavOpen(false)}
         open={isSideNavOpen}
         openContactUs={openContactUs}
+        openEarlyAccess={openEarlyAccess}
       />
       <ElevationScroll>
         <AppBar color="default">
@@ -304,7 +307,11 @@ export default function Navbar({
               <Button variant="text" color="primary" sx={{ fontSize: '16px' }}>
                 {formatMessage({ id: 'verifyDemandStatus' })}
               </Button>
-              <Button variant="contained" color="primary">
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={openEarlyAccess}
+              >
                 {formatMessage({ id: 'getEarlyAccess' })}
               </Button>
             </Box>
