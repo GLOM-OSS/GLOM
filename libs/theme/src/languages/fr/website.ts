@@ -437,4 +437,7 @@ export const website = {
     'Des questions ou des remarques ? Écrivez-nous un message !',
   writeYourMessageHere: 'Écrivez votre message ici',
   message: 'Message',
+  earlyAccessSubtitle:
+    "Découvrez l'innovation de première main - Rejoignez notre programme d'accès anticipé",
+  yourName: 'Votre nom',
 };

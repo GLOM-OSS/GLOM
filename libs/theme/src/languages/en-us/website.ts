@@ -414,4 +414,8 @@ export const website = {
   contactUsSubtitle: 'Any questions or remarks? Just write us a message!',
   writeYourMessageHere: 'Write your message here',
   message: 'Message',
+
+  earlyAccessSubtitle:
+    'Experience Innovation Firsthand - Join Our Early Access Program',
+  yourName: 'Your name',
 };
