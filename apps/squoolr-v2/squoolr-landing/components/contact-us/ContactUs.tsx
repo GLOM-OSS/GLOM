@@ -4,7 +4,7 @@ import { useTheme } from '@glom/theme';
 import { Box, Button, Dialog, TextField, Typography } from '@mui/material';
 import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import * as Yup from 'yup';
 
@@ -23,6 +23,10 @@ export default function ContactUs({
   const { formatMessage } = useIntl();
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (open) setIsSubmitting(false);
+  }, [open]);
 
   const initialValues: ICreateContactUs = {
     email: '',
@@ -49,6 +53,7 @@ export default function ContactUs({
       alert(JSON.stringify(values));
       setIsSubmitting(true);
       resetForm();
+      closeDialog();
     },
   });
 
