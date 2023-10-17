@@ -431,4 +431,10 @@ export const website = {
   missingPage:
     "Cette page est introuvable ou vous n'avez pas assemblé le lien correctement !",
   goHome: "Retourner à l'accueil",
+
+  requiredField: 'Champ obligatoire !',
+  contactUsSubtitle:
+    'Des questions ou des remarques ? Écrivez-nous un message !',
+  writeYourMessageHere: 'Écrivez votre message ici',
+  message: 'Message',
 };

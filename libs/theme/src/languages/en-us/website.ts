@@ -409,4 +409,9 @@ export const website = {
   missingPage:
     'This page is missing or you did not assemble the link correctly!',
   goHome: 'Go home',
+
+  requiredField: 'Required field!',
+  contactUsSubtitle: 'Any questions or remarks? Just write us a message!',
+  writeYourMessageHere: 'Write your message here',
+  message: 'Message',
 };
