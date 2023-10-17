@@ -111,7 +111,11 @@ export function LogoHolder({
   );
 }
 
-export default function Navbar() {
+export default function Navbar({
+  openContactUs,
+}: {
+  openContactUs: () => void;
+}) {
   const { formatMessage } = useIntl();
   const { push, pathname, asPath } = useRouter();
   const theme = useTheme();
@@ -126,6 +130,7 @@ export default function Navbar() {
         navItems={landingNavElements}
         close={() => setIsSideNavOpen(false)}
         open={isSideNavOpen}
+        openContactUs={openContactUs}
       />
       <ElevationScroll>
         <AppBar color="default">
@@ -213,12 +218,12 @@ export default function Navbar() {
               ))}
               <Typography
                 className="p3"
-                onClick={() => alert('hello')}
+                onClick={openContactUs}
                 sx={{
                   position: 'relative',
                   transition: '0.2s',
                   cursor: 'pointer',
-                  color: 'var(--body)',
+                  color: 'var(--body) !important',
                   textAlign: 'center',
                   '&::before': {
                     transition: '0.2s',

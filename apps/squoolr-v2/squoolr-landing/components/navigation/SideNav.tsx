@@ -14,10 +14,12 @@ export function SideNav({
   open,
   close,
   navItems,
+  openContactUs,
 }: {
   close: () => void;
   open: boolean;
   navItems: INavItem[];
+  openContactUs: () => void;
 }) {
   const { push } = useRouter();
 
@@ -87,6 +89,7 @@ export function SideNav({
               route="ttt"
               handleLink={() => {
                 close();
+                openContactUs();
               }}
             />
           </Box>
