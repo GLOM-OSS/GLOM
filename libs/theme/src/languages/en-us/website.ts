@@ -418,4 +418,7 @@ export const website = {
   earlyAccessSubtitle:
     'Experience Innovation Firsthand - Join Our Early Access Program',
   yourName: 'Your name',
+
+  createYourSchool: 'Create Your School',
+  useFeatureNow: 'Use Feature Now',
 };

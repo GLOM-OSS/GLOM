@@ -440,4 +440,6 @@ export const website = {
   earlyAccessSubtitle:
     "Découvrez l'innovation de première main - Rejoignez notre programme d'accès anticipé",
   yourName: 'Votre nom',
+  createYourSchool: 'Créez votre école',
+  useFeatureNow: 'Utilisez la fonction maintenant',
 };
