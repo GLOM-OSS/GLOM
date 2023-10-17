@@ -15,9 +15,11 @@ interface ICreateContactUs extends CreateInquiryPayload {
 export default function ContactUs({
   open,
   closeDialog,
+  usage = 'Default',
 }: {
   open: boolean;
   closeDialog: () => void;
+  usage?: 'Default' | 'EarlyAccess';
 }) {
   const theme = useTheme();
   const { formatMessage } = useIntl();
@@ -85,16 +87,23 @@ export default function ContactUs({
           <Typography
             variant="h1"
             className="h1--mobile"
-            sx={{ paddingBottom: 0 }}
+            sx={{ paddingBottom: 0, textAlign: 'center' }}
           >
-            {formatMessage({ id: 'contactUs' })}
+            {formatMessage({
+              id: usage === 'Default' ? 'contactUs' : 'getEarlyAccessNow',
+            })}
           </Typography>
           <Typography
             variant="h4"
             className="h4--mobile"
             sx={{ color: theme.common.label, textAlign: 'center' }}
           >
-            {formatMessage({ id: 'contactUsSubtitle' })}
+            {formatMessage({
+              id:
+                usage === 'Default'
+                  ? `contactUsSubtitle`
+                  : 'earlyAccessSubtitle',
+            })}
           </Typography>
         </Box>
       </Box>
@@ -121,10 +130,18 @@ export default function ContactUs({
         <TextField
           fullWidth
           required
-          label={formatMessage({ id: 'message' })}
-          placeholder={formatMessage({ id: 'writeYourMessageHere' })}
+          label={formatMessage({
+            id: usage === 'Default' ? 'message' : 'yourName',
+          })}
+          placeholder={
+            usage === 'Default'
+              ? formatMessage({
+                  id: 'writeYourMessageHere',
+                })
+              : 'Mr. John Doe'
+          }
           variant="outlined"
-          multiline
+          multiline={usage === 'Default'}
           rows={5}
           error={formik.touched.message && Boolean(formik.errors.message)}
           helperText={formik.touched.message && formik.errors.message}
