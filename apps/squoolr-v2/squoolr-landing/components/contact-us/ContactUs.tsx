@@ -139,7 +139,7 @@ export default function ContactUs({
           size="large"
           disabled={isSubmitting}
         >
-          Submit
+          {formatMessage({ id: 'submit' })}
         </Button>
       </Box>
     </Dialog>
