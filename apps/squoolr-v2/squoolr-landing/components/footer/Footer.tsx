@@ -3,15 +3,19 @@ import { Box, Typography } from '@mui/material';
 import { useIntl } from 'react-intl';
 import { LogoHolder } from '../navigation/Navbar';
 import { YouTube, LinkedIn, Facebook, Twitter } from '@mui/icons-material';
+import { useRouter } from 'next/router';
 
 export function Footer({
   openContactUs,
   openEarlyAccess,
+  canDemand = false,
 }: {
   openContactUs: () => void;
   openEarlyAccess: () => void;
+  canDemand?: boolean;
 }) {
   const theme = useTheme();
+  const { push } = useRouter();
   const { formatMessage } = useIntl();
 
   return (
@@ -142,6 +146,18 @@ export function Footer({
               {formatMessage({ id: 'resources' })}
             </Typography>
             <Box sx={{ display: 'grid', rowGap: 1 }}>
+              {canDemand && (
+                <Typography
+                  sx={{
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    lineHeight: '160%',
+                  }}
+                  onClick={() => push('/demand')}
+                >
+                  {formatMessage({ id: 'createYourSchool' })}
+                </Typography>
+              )}
               <Typography
                 sx={{
                   cursor: 'pointer',

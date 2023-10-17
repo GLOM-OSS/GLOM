@@ -28,6 +28,7 @@ export function Index() {
       <Navbar
         openContactUs={() => setIsContactUsDialogOpen(true)}
         openEarlyAccess={() => setIsEarlyAccesDialogOpen(true)}
+        canDemand={false}
       />
       <Box
         sx={{
@@ -41,6 +42,7 @@ export function Index() {
         <Partner />
         <Faq />
         <Footer
+          canDemand={false}
           openContactUs={() => setIsContactUsDialogOpen(true)}
           openEarlyAccess={() => setIsEarlyAccesDialogOpen(true)}
         />

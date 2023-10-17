@@ -114,9 +114,11 @@ export function LogoHolder({
 export default function Navbar({
   openContactUs,
   openEarlyAccess,
+  canDemand = false,
 }: {
   openContactUs: () => void;
   openEarlyAccess: () => void;
+  canDemand?: boolean;
 }) {
   const { formatMessage } = useIntl();
   const { push, pathname, asPath } = useRouter();
@@ -304,15 +306,25 @@ export default function Navbar({
                 gap: 1,
               }}
             >
-              <Button variant="text" color="primary" sx={{ fontSize: '16px' }}>
-                {formatMessage({ id: 'verifyDemandStatus' })}
-              </Button>
+              {canDemand && (
+                <Button
+                  variant="text"
+                  color="primary"
+                  sx={{ fontSize: '16px' }}
+                >
+                  {formatMessage({ id: 'verifyDemandStatus' })}
+                </Button>
+              )}
               <Button
                 variant="contained"
                 color="primary"
-                onClick={openEarlyAccess}
+                onClick={() =>
+                  canDemand ? push('/demand') : openEarlyAccess()
+                }
               >
-                {formatMessage({ id: 'getEarlyAccess' })}
+                {formatMessage({
+                  id: canDemand ? 'createYourSchool' : 'getEarlyAccess',
+                })}
               </Button>
             </Box>
           </Box>

@@ -43,13 +43,13 @@ export default function Features({
         id: 'configurationsDescription',
       }),
       image: 'feature_configuration.png',
-      isComingSoon: false,
+      isComingSoon: true,
       title: formatMessage({ id: 'configurations' }),
     },
     {
       description: formatMessage({ id: 'andMoreFeaturesDescription' }),
       image: 'more.png',
-      isComingSoon: false,
+      isComingSoon: true,
       title: formatMessage({ id: 'andMoreFeatures' }),
     },
   ];
