@@ -111,7 +111,15 @@ export function LogoHolder({
   );
 }
 
-export default function Navbar() {
+export default function Navbar({
+  openContactUs,
+  openEarlyAccess,
+  canDemand = false,
+}: {
+  openContactUs: () => void;
+  openEarlyAccess: () => void;
+  canDemand?: boolean;
+}) {
   const { formatMessage } = useIntl();
   const { push, pathname, asPath } = useRouter();
   const theme = useTheme();
@@ -126,6 +134,8 @@ export default function Navbar() {
         navItems={landingNavElements}
         close={() => setIsSideNavOpen(false)}
         open={isSideNavOpen}
+        openContactUs={openContactUs}
+        openEarlyAccess={openEarlyAccess}
       />
       <ElevationScroll>
         <AppBar color="default">
@@ -213,12 +223,12 @@ export default function Navbar() {
               ))}
               <Typography
                 className="p3"
-                onClick={() => alert('hello')}
+                onClick={openContactUs}
                 sx={{
                   position: 'relative',
                   transition: '0.2s',
                   cursor: 'pointer',
-                  color: 'var(--body)',
+                  color: 'var(--body) !important',
                   textAlign: 'center',
                   '&::before': {
                     transition: '0.2s',
@@ -296,11 +306,25 @@ export default function Navbar() {
                 gap: 1,
               }}
             >
-              <Button variant="text" color="primary" sx={{ fontSize: '16px' }}>
-                {formatMessage({ id: 'verifyDemandStatus' })}
-              </Button>
-              <Button variant="contained" color="primary">
-                {formatMessage({ id: 'getEarlyAccess' })}
+              {canDemand && (
+                <Button
+                  variant="text"
+                  color="primary"
+                  sx={{ fontSize: '16px' }}
+                >
+                  {formatMessage({ id: 'verifyDemandStatus' })}
+                </Button>
+              )}
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() =>
+                  canDemand ? push('/demand') : openEarlyAccess()
+                }
+              >
+                {formatMessage({
+                  id: canDemand ? 'createYourSchool' : 'getEarlyAccess',
+                })}
               </Button>
             </Box>
           </Box>

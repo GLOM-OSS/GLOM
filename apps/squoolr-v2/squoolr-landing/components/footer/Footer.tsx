@@ -3,9 +3,19 @@ import { Box, Typography } from '@mui/material';
 import { useIntl } from 'react-intl';
 import { LogoHolder } from '../navigation/Navbar';
 import { YouTube, LinkedIn, Facebook, Twitter } from '@mui/icons-material';
+import { useRouter } from 'next/router';
 
-export function Footer() {
+export function Footer({
+  openContactUs,
+  openEarlyAccess,
+  canDemand = false,
+}: {
+  openContactUs: () => void;
+  openEarlyAccess: () => void;
+  canDemand?: boolean;
+}) {
   const theme = useTheme();
+  const { push } = useRouter();
   const { formatMessage } = useIntl();
 
   return (
@@ -71,6 +81,16 @@ export function Footer() {
               </Typography>
               <Typography
                 component="a"
+                href={'https://lynkr.net'}
+                style={{
+                  fontSize: '12px',
+                  lineHeight: '160%',
+                }}
+              >
+                Lynkr
+              </Typography>
+              <Typography
+                component="a"
                 href={'/'}
                 style={{
                   fontSize: '12px',
@@ -126,12 +146,25 @@ export function Footer() {
               {formatMessage({ id: 'resources' })}
             </Typography>
             <Box sx={{ display: 'grid', rowGap: 1 }}>
+              {canDemand && (
+                <Typography
+                  sx={{
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    lineHeight: '160%',
+                  }}
+                  onClick={() => push('/demand')}
+                >
+                  {formatMessage({ id: 'createYourSchool' })}
+                </Typography>
+              )}
               <Typography
                 sx={{
                   cursor: 'pointer',
                   fontSize: '12px',
                   lineHeight: '160%',
                 }}
+                onClick={openEarlyAccess}
               >
                 {formatMessage({ id: 'getEarlyAccess' })}
               </Typography>
@@ -141,6 +174,7 @@ export function Footer() {
                   fontSize: '12px',
                   lineHeight: '160%',
                 }}
+                onClick={openContactUs}
               >
                 {formatMessage({
                   id: 'contactUs',

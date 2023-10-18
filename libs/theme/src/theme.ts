@@ -236,6 +236,26 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
           }),
         },
       },
+      MuiDialog: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            '& .MuiPaper-root': {
+              borderRadius: 0,
+              backgroundColor: theme.common.background,
+            },
+          }),
+        },
+      },
+      MuiDialogTitle: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            '&.MuiDialogTitle-root': {
+              ...theme.typography.h1,
+              paddingBottom: '24px',
+            },
+          }),
+        },
+      },
     },
   });
 }

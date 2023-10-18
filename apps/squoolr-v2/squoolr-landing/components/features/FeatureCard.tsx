@@ -2,15 +2,19 @@ import { useTheme } from '@glom/theme';
 import { Box, Button, Fade, Typography } from '@mui/material';
 import { useIntl } from 'react-intl';
 import { IFeature } from './Features';
+import { useRouter } from 'next/router';
 
 export default function FeatureCard({
   feature: { description, image, isComingSoon, title },
   isActive,
+  openEarlyAccess,
 }: {
   feature: IFeature;
   isActive: boolean;
+  openEarlyAccess: () => void;
 }) {
   const theme = useTheme();
+  const { push } = useRouter();
   const { formatMessage } = useIntl();
 
   return (
@@ -76,8 +80,11 @@ export default function FeatureCard({
             size="large"
             color="primary"
             sx={{ justifySelf: 'start' }}
+            onClick={() => (isComingSoon ? openEarlyAccess() : push('/demand'))}
           >
-            {formatMessage({ id: 'getEarlyAccess' })}
+            {formatMessage({
+              id: isComingSoon ? 'getEarlyAccess' : 'useFeatureNow',
+            })}
           </Button>
         </Box>
         <img
