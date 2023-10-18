@@ -10,7 +10,9 @@ import '../public/styles/reset.css';
 import '../public/styles/root.scss';
 import 'aos/dist/aos.css';
 import AOS from 'aos';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import ContactUs from '../components/contact-us/ContactUs';
+import Navbar from '../components/navigation/Navbar';
 
 function CustomApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
@@ -21,6 +23,11 @@ function CustomApp({ Component, pageProps }: AppProps) {
       delay: 100,
     });
   }, []);
+
+  const [isContactUsDialogOpen, setIsContactUsDialogOpen] =
+    useState<boolean>(false);
+  const [isEarlyAccesDialogOpen, setIsEarlyAccesDialogOpen] =
+    useState<boolean>(false);
 
   return (
     <GlomThemeProvider defaultLang="en">
@@ -35,8 +42,33 @@ function CustomApp({ Component, pageProps }: AppProps) {
           backgroundColor: '#FAFAFD',
         }}
       >
-        <Box>
-          <Component {...pageProps} />
+        <ContactUs
+          closeDialog={() => setIsContactUsDialogOpen(false)}
+          open={isContactUsDialogOpen}
+        />
+        <ContactUs
+          closeDialog={() => setIsEarlyAccesDialogOpen(false)}
+          open={isEarlyAccesDialogOpen}
+          usage="EarlyAccess"
+        />
+        <Navbar
+          openContactUs={() => setIsContactUsDialogOpen(true)}
+          openEarlyAccess={() => setIsEarlyAccesDialogOpen(true)}
+          canDemand={false}
+        />
+        <Box
+          sx={{
+            height: '100%',
+            maxWidth: '1700px',
+            margin: '0 auto',
+            width:'100%'
+          }}
+        >
+          <Component
+            {...pageProps}
+            setIsContactUsDialogOpen={setIsContactUsDialogOpen}
+            setIsEarlyAccesDialogOpen={setIsEarlyAccesDialogOpen}
+          />
         </Box>
       </Box>
     </GlomThemeProvider>
