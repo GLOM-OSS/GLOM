@@ -12,7 +12,7 @@ export function Index() {
   const [isContactUsDialogOpen, setIsContactUsDialogOpen] =
     useState<boolean>(false);
   const [isEarlyAccesDialogOpen, setIsEarlyAccesDialogOpen] =
-    useState<boolean>(true);
+    useState<boolean>(false);
 
   return (
     <Box>
