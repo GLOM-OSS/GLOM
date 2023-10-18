@@ -22,9 +22,12 @@ export function Index() {
         <HeroSection />
       </Box>
 
+
       <Box component="section" id="features" sx={{ pt: 10.5 }}>
         <FeatureSection />
       </Box>
+
+
     </Box>
   );
 }
