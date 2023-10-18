@@ -23,14 +23,6 @@ async function bootstrap() {
     },
   });
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      forbidNonWhitelisted: true,
-      whitelist: true,
-    })
-  );
-  app.useGlobalFilters(new GlomExceptionsFilter());
-
   app.useStaticAssets(path.join(__dirname, './assets'));
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()

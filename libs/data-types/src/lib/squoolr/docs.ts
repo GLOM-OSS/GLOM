@@ -8,6 +8,9 @@ export interface paths {
   "/": {
     get: operations["AppController_getData"];
   };
+  "/platform-settings": {
+    get: operations["AppController_getPlatformSettings"];
+  };
   "/auth/signin": {
     post: operations["AuthController_signIn"];
   };
@@ -50,9 +53,6 @@ export interface paths {
   "/academic-years/{academic_year_id}/choose": {
     patch: operations["AcademicYearsController_chooseActiveAcademicYear"];
   };
-  "/academic-years/{template_year_id}/template": {
-    post: operations["AcademicYearsController_templateAcademicYear"];
-  };
   "/inquiries/all": {
     get: operations["InquiriesController_getAllInquiries"];
   };
@@ -65,6 +65,12 @@ export type webhooks = Record<string, never>;
 
 export interface components {
   schemas: {
+    PlatformSettingsEntity: {
+      platform_settings_id: string;
+      onboarding_fee: number;
+      /** Format: date-time */
+      created_at: string;
+    };
     SignInDto: {
       email: string;
       password: string;
@@ -80,6 +86,9 @@ export interface components {
       school_name: string;
       school_acronym: string;
       school_email: string;
+      lead_funnel: string;
+      paid_amount: number;
+      referral_code: string;
       school_phone_number: string;
       school_code: string;
       /** @enum {string} */
@@ -97,7 +106,6 @@ export interface components {
       gender: "Male" | "Female";
       address?: string | null;
       national_id_number: string;
-      lead_funnel: string;
       person_id: string;
       birthplace: string | null;
       nationality: string;
@@ -132,12 +140,14 @@ export interface components {
       address?: string;
       national_id_number: string;
       password: string;
-      lead_funnel: string;
     };
     CreateSchoolDto: {
       school_name: string;
       school_acronym: string;
       school_email: string;
+      lead_funnel: string;
+      paid_amount: number;
+      referral_code: string;
       school_phone_number: string;
       /** Format: date-time */
       initial_year_starts_at: string;
@@ -145,7 +155,7 @@ export interface components {
       initial_year_ends_at: string;
     };
     SubmitDemandDto: {
-      personnel: components["schemas"]["CreatePersonDto"];
+      configurator: components["schemas"]["CreatePersonDto"];
       school: components["schemas"]["CreateSchoolDto"];
     };
     ValidateDemandDto: {
@@ -153,27 +163,52 @@ export interface components {
       rejection_reason?: string;
       subdomain?: string;
     };
+    AcademicYearEntity: {
+      /** Format: date-time */
+      starts_at: string;
+      /** Format: date-time */
+      ends_at: string;
+      academic_year_id: string;
+      year_code: string;
+      /** Format: date-time */
+      started_at: string;
+      /** Format: date-time */
+      ended_at: string;
+      /** @enum {string} */
+      year_status: "INACTIVE" | "ACTIVE" | "FINISHED";
+      school_id: string;
+      /** Format: date-time */
+      created_at: string;
+    };
     CreateAcademicYearDto: {
       /** Format: date-time */
       starts_at: string;
       /** Format: date-time */
       ends_at: string;
     };
-    TemplatePersonnelDto: {
-      reuse_configurators: boolean;
-      reuse_registries: boolean;
-      reuse_coordinators: boolean;
-      reuse_teachers: boolean;
+    ActiveYearSessionData: {
+      academic_year_id: string;
+      /** Format: date-time */
+      starting_date: string;
+      /** Format: date-time */
+      ending_date: string;
+      /** @enum {string} */
+      year_status: "INACTIVE" | "ACTIVE" | "FINISHED";
+      year_code: string;
     };
-    TemplateAcademicYearDto: {
-      /** Format: date-time */
-      starts_at: string;
-      /** Format: date-time */
-      ends_at: string;
-      personnelConfig: components["schemas"]["TemplatePersonnelDto"];
-      classroomCodes: string[];
-      reuse_coordinators_configs: boolean;
-      reuse_registries_configs: boolean;
+    StudentSessionData: {
+      annual_student_id: string;
+      activeSemesters: string[];
+      classroom_code: string;
+      classroom_level: number;
+      student_id: string;
+    };
+    DesirializedRoles: {
+      login_id: string;
+      school_id: string;
+      tutorStudentIds: string[];
+      activeYear: components["schemas"]["ActiveYearSessionData"];
+      annualStudent: components["schemas"]["StudentSessionData"];
     };
     InquiryEntity: {
       email: string;
@@ -208,6 +243,15 @@ export interface operations {
     responses: {
       200: {
         content: never;
+      };
+    };
+  };
+  AppController_getPlatformSettings: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["PlatformSettingsEntity"];
+        };
       };
     };
   };
@@ -339,7 +383,9 @@ export interface operations {
   AcademicYearsController_getAcademicYears: {
     responses: {
       200: {
-        content: never;
+        content: {
+          "application/json": components["schemas"]["AcademicYearEntity"][];
+        };
       };
     };
   };
@@ -350,8 +396,10 @@ export interface operations {
       };
     };
     responses: {
-      201: {
-        content: never;
+      200: {
+        content: {
+          "application/json": components["schemas"]["AcademicYearEntity"];
+        };
       };
     };
   };
@@ -363,24 +411,9 @@ export interface operations {
     };
     responses: {
       200: {
-        content: never;
-      };
-    };
-  };
-  AcademicYearsController_templateAcademicYear: {
-    parameters: {
-      path: {
-        template_year_id: string;
-      };
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["TemplateAcademicYearDto"];
-      };
-    };
-    responses: {
-      201: {
-        content: never;
+        content: {
+          "application/json": components["schemas"]["DesirializedRoles"];
+        };
       };
     };
   };

@@ -14,13 +14,14 @@ import {
 } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
-import { DesirializeRoles, UserRole } from '../auth/auth';
+import { DesirializeSession, UserRole } from '../auth/auth';
 import { Role } from '../auth/auth.decorator';
 import {
   AcademicYearEntity,
   CreateAcademicYearDto,
   TemplateAcademicYearDto,
 } from './academic-years.dto';
+import { DesirializedRoles } from '../auth/auth.dto';
 
 @Injectable()
 export class AcademicYearsService {
@@ -36,7 +37,7 @@ export class AcademicYearsService {
   ) {
     if (starts_at > ends_at)
       throw new BadRequestException('Invalid date range');
-    const academicYear = await this.prismaService.academicYear.findFirst({
+    const existingYear = await this.prismaService.academicYear.findFirst({
       where: {
         OR: {
           ends_at: {
@@ -48,7 +49,7 @@ export class AcademicYearsService {
         },
       },
     });
-    if (academicYear) throw new ConflictException('Conflicting academic years');
+    if (existingYear) throw new ConflictException('Conflicting academic years');
     const { matricule, login_id } =
       await this.prismaService.annualConfigurator.findUnique({
         select: { matricule: true, login_id: true },
@@ -64,7 +65,7 @@ export class AcademicYearsService {
       AnnualSemesterExamAcess,
       AnnualEvaluationSubTypes,
     } = await this.buildAcademicYearDefaultCreateInput(added_by);
-    const [{ academic_year_id }] = await this.prismaService.$transaction([
+    const [academicYear] = await this.prismaService.$transaction([
       this.prismaService.academicYear.create({
         data: {
           ends_at,
@@ -93,7 +94,7 @@ export class AcademicYearsService {
         },
       }),
     ]);
-    return academic_year_id;
+    return new AcademicYearEntity(academicYear);
   }
 
   async template(
@@ -408,14 +409,14 @@ export class AcademicYearsService {
   async retrieveRoles(
     login_id: string,
     academic_year_id: string
-  ): Promise<{ roles: UserRole[]; desirializedRoles: DesirializeRoles }> {
+  ): Promise<{ roles: UserRole[]; desirializedRoles: DesirializedRoles }> {
     const retrivedRoles: UserRole[] = [];
     const { school_id } = await this.prismaService.login.findUnique({
       where: { login_id },
     });
 
     if (!school_id)
-      return { roles: [], desirializedRoles: {} as DesirializeRoles };
+      return { roles: [], desirializedRoles: {} as DesirializedRoles };
     const { started_at, ended_at, starts_at, ends_at, year_code, year_status } =
       await this.prismaService.academicYear.findFirst({
         where: {
@@ -424,7 +425,7 @@ export class AcademicYearsService {
         },
       });
 
-    let desirializedRoles: DesirializeRoles = {
+    let desirializedSession: DesirializeSession = {
       login_id,
       school_id,
       activeYear: {
@@ -468,8 +469,8 @@ export class AcademicYearsService {
         },
         AnnualStudentHasCreditUnits: crediUnits,
       } = annualStudent;
-      desirializedRoles = {
-        ...desirializedRoles,
+      desirializedSession = {
+        ...desirializedSession,
         annualStudent: {
           student_id,
           classroom_code,
@@ -494,8 +495,8 @@ export class AcademicYearsService {
         });
       if (annualConfigurator) {
         const { annual_configurator_id, is_sudo } = annualConfigurator;
-        desirializedRoles = {
-          ...desirializedRoles,
+        desirializedSession = {
+          ...desirializedSession,
           annualConfigurator: { annual_configurator_id, is_sudo },
         };
         retrivedRoles.push({
@@ -514,8 +515,8 @@ export class AcademicYearsService {
       });
       if (annualRegistry) {
         const { annual_registry_id } = annualRegistry;
-        desirializedRoles = {
-          ...desirializedRoles,
+        desirializedSession = {
+          ...desirializedSession,
           annualRegistry: { annual_registry_id },
         };
         retrivedRoles.push({
@@ -553,8 +554,8 @@ export class AcademicYearsService {
             user_id: annual_teacher_id,
             role: Role.COORDINATOR,
           });
-        desirializedRoles = {
-          ...desirializedRoles,
+        desirializedSession = {
+          ...desirializedSession,
           annualTeacher: {
             classroomDivisions: classroomDivisions.map(
               ({ annual_classroom_division_id: id }) => id
@@ -568,7 +569,10 @@ export class AcademicYearsService {
         };
       }
     }
-    return { desirializedRoles, roles: retrivedRoles };
+    return {
+      roles: retrivedRoles,
+      desirializedRoles: new DesirializedRoles(desirializedSession),
+    };
   }
 
   private async buildAcademicYearDefaultCreateInput(
