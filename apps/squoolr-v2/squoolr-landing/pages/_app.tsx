@@ -61,7 +61,7 @@ function CustomApp({ Component, pageProps }: AppProps) {
             height: '100%',
             maxWidth: '1700px',
             margin: '0 auto',
-            width:'100%'
+            width: '100%',
           }}
         >
           <Component
