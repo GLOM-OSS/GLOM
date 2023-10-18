@@ -32,7 +32,11 @@ export function ElevationScroll({ children }: { children: ReactElement }) {
 }
 
 export const scrollToSection = (sectionId: string) => {
-  const section = document.querySelector(sectionId);
+  let tt = sectionId.split('/');
+  let usedSection = '';
+  if (tt.length > 1) usedSection = tt[1];
+  else usedSection = tt[0];
+  const section = document.querySelector(usedSection);
   section?.scrollIntoView({ behavior: 'smooth' });
 };
 
@@ -52,10 +56,10 @@ interface INavItem {
 }
 
 const landingNavElements: INavItem[] = [
-  { item: 'features', route: '#features' },
-  { item: 'partners', route: '#partners' },
+  { item: 'features', route: '/#features' },
+  { item: 'partners', route: '/#partners' },
   { item: 'pricing', route: 'pricing' },
-  { item: 'faq', route: '#faq' },
+  { item: 'faq', route: '/#faq' },
 ];
 
 export function LogoHolder({
