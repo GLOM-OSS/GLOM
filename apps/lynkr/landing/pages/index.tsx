@@ -21,18 +21,6 @@ export function Index() {
         <HeroSection />
       </Box>
 
-      <Box
-        component="section"
-        id="features"
-        height="100vh"
-        sx={{ backgroundColor: 'green', pt: 10.5 }}
-      >
-        <Typography className="h1--mobile">Lynkr</Typography>
-        <Typography className="p1--space">Lynkr number 2</Typography>
-        <Button color="secondary" variant="contained">
-          Hello
-        </Button>
-      </Box>
     </Box>
   );
 }
