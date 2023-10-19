@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Stripe } from 'stripe';
-import {
+import type {
   CreatePaymentIntent,
-  IStripeConfigOptions,
+  StripeConfigOptions,
   VerificationSession,
 } from './stripe.type';
 
@@ -10,7 +10,7 @@ import {
 export class StripeService {
   private stripe: Stripe;
 
-  constructor({ apiSecretKey, ...configOptions }: IStripeConfigOptions) {
+  constructor({ apiSecretKey, ...configOptions }: StripeConfigOptions) {
     this.stripe = new Stripe(apiSecretKey, configOptions);
   }
 

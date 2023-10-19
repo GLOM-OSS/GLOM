@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 
-export type IStripeConfigOptions = Stripe.StripeConfig & {
+export type StripeConfigOptions = Stripe.StripeConfig & {
   /**
    * stripe api secret key
    * @example sk_aqswde55Fd5454r5dd45dyuui156s65Sk51ko
