@@ -1,4 +1,10 @@
-export const featuresData = [
+interface IFeature {
+  title: string;
+  image: string;
+  description: string;
+}
+
+export const featuresData: IFeature[] = [
   {
     title: 'Manage Bundles',
     image: 'features_icons1',

@@ -3,9 +3,13 @@ import React from "react";
 import FeatureCard from "./FeatureCard";
 import { useTheme } from "@glom/theme";
 import { featuresData } from "../../data";
+import { useIntl } from "react-intl";
 
 export default function FeatureSection() {
   const theme = useTheme();
+
+  const { formatMessage } = useIntl();
+
   return (
     <Box
       sx={{
@@ -27,25 +31,24 @@ export default function FeatureSection() {
           }
         }}
       >
-        Feature
+        {formatMessage({ id: "featureHeadline" })}
       </Typography>
       <Typography
         className="p1--space"
         textAlign="center"
         sx={{ mt: "10px", paddingX: "5px" }}
       >
-        Get Answers to frequently asked question . Get Answers to frequently
-        asked question . <br /> Get Answers to frequently asked question .{" "}
-        <br /> Get Answers to fequently
+        {formatMessage({ id: "featureSubtitle" })}
       </Typography>
 
       <Box
         sx={{
           rowGap: "16px",
-          display: "flex",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit , minmax(300px, 1fr))",
           marginTop: "48px",
           justifyContent: "space-around",
-          flexWrap: "wrap",
+          // flexWrap: "wrap",
           maxWidth: "80%",
           marginX: "auto"
         }}

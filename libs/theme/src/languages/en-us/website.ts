@@ -327,4 +327,8 @@ export const website = {
   projectHeadline: 'Sell Internet Over WiFi With No Hassles Or Complications',
   projectSubtitle:
     'Manage your bundles, sell your internet, disconnect unpaid clients, receive your money without dealing with tickets and client complications',
+
+  featureHeadline: 'Feature',
+  featureSubtitle:" Get Answers to frequently asked question . Get Answers to frequently asked question .  Get Answers to frequently asked question .  Get Answers to fequently"
+
 };
