@@ -1,3 +1,8 @@
+export type NotchPayConfigOptions = {
+  endpoint: 'api.notchpay.co';
+  apiKey: string;
+};
+
 export type InitiatePaymentPayload = {
   /** The email address of the customer is prominently displayed within your dashboard,
    * and serves as a valuable tool for both search and tracking purposes.
