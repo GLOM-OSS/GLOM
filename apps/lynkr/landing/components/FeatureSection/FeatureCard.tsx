@@ -4,14 +4,9 @@ import { Icon } from "@iconify/react";
 import globe from "@iconify/icons-fluent/globe-48-regular";
 import Image from "next/image";
 import { useIntl } from "react-intl";
+import { IFeature } from "./FeatureSection";
 
-type dataType = {
-  title: string;
-  image: string;
-  description: string;
-};
-
-export default function FeatureCard({ data }: { data: dataType }) {
+export default function FeatureCard({ data }: { data: IFeature }) {
   const image = `/icons/${data.image}.png`;
 
   const { formatMessage } = useIntl();
@@ -20,7 +15,6 @@ export default function FeatureCard({ data }: { data: dataType }) {
     <Card
       variant="outlined"
       sx={{
-        // maxWidth: 345,
         minHeight: 400,
         display: "flex",
         flexDirection: "column",

@@ -2,13 +2,45 @@ import { Box, Typography } from "@mui/material";
 import React from "react";
 import FeatureCard from "./FeatureCard";
 import { useTheme } from "@glom/theme";
-import { featuresData } from "../../data";
 import { useIntl } from "react-intl";
+
+export interface IFeature {
+  title: string;
+  image: string;
+  description: string;
+}
 
 export default function FeatureSection() {
   const theme = useTheme();
 
   const { formatMessage } = useIntl();
+
+  const featuresData: IFeature[] = [
+    {
+      title: "Manage Bundles",
+      image: "features_icons1",
+      description:
+        "Apps that have the power to transform workflows, improve client relationships, boost your productivity."
+    },
+    {
+      title: "Stats",
+      image: "features_icons2",
+      description:
+        "Apps that have the power to transform workflows, improve client relationships, boost your productivity."
+    },
+    {
+      title: "Buy bundles",
+      image: "features_icons3",
+      description:
+        "Apps that have the power to transform workflows, improve client relationships, boost your productivity."
+    },
+    {
+      title: "Simple & Powerful",
+      image: "features_icons4",
+      description:
+        "Apps that have the power to transform workflows, improve client relationships, boost your productivity."
+    }
+  ];
 
   return (
     <Box
