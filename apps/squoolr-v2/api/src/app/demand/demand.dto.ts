@@ -31,10 +31,6 @@ export class CreateSchoolDto {
   @ApiProperty()
   lead_funnel: string;
 
-  @IsNumber()
-  @ApiProperty()
-  paid_amount: number;
-
   @IsString()
   @ApiProperty()
   referral_code: string;
@@ -92,6 +88,10 @@ export class SchoolEntity extends OmitType(CreateSchoolDto, [
   'initial_year_ends_at',
   'initial_year_starts_at',
 ]) {
+  @IsNumber()
+  @ApiProperty()
+  paid_amount: number;
+
   @ApiProperty()
   ambassador_email: string;
 

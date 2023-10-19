@@ -32,7 +32,7 @@ const schoolSelectAttr = Prisma.validator<Prisma.SchoolArgs>()({
     },
   },
 });
-const toSchoolEntity = (
+const getSchoolEntity = (
   data: Prisma.SchoolGetPayload<typeof schoolSelectAttr>
 ) => {
   const {
@@ -70,7 +70,7 @@ export class DemandService {
       where: { school_code },
     });
     if (!school) throw new NotFoundException('School demand not found');
-    return toSchoolEntity(school);
+    return getSchoolEntity(school);
   }
 
   async findDetails(school_code: string) {
@@ -82,7 +82,7 @@ export class DemandService {
     const { Person: person, ...school } = schoolData;
     return new DemandDetails({
       person,
-      school: toSchoolEntity(school),
+      school: getSchoolEntity(school),
     });
   }
 
@@ -90,7 +90,7 @@ export class DemandService {
     const schools = await this.prismaService.school.findMany({
       ...schoolSelectAttr,
     });
-    return schools.map((school) => toSchoolEntity(school));
+    return schools.map((school) => getSchoolEntity(school));
   }
 
   async create({
@@ -101,7 +101,6 @@ export class DemandService {
       school_phone_number,
       school_name,
       school_acronym,
-      paid_amount,
       referral_code,
       lead_funnel,
     },
@@ -115,6 +114,9 @@ export class DemandService {
     );
     const school_code = await this.codeGenerator.getSchoolCode(school_acronym);
     const matricule = `${school_acronym}${this.codeGenerator.formatNumber(1)}`;
+
+    const { onboarding_fee } =
+      await this.prismaService.platformSettings.findFirstOrThrow();
     const [school] = await this.prismaService.$transaction([
       this.prismaService.school.create({
         ...schoolSelectAttr,
@@ -132,7 +134,10 @@ export class DemandService {
             },
           },
           SchoolDemand: {
-            create: { Ambassador: { connect: { referral_code } }, paid_amount },
+            create: {
+              paid_amount: onboarding_fee,
+              Ambassador: { connect: { referral_code } },
+            },
           },
         },
       }),
@@ -197,7 +202,7 @@ export class DemandService {
         where: { annual_configurator_id },
       }),
     ]);
-    return toSchoolEntity(school);
+    return getSchoolEntity(school);
   }
 
   async validateDemand(
