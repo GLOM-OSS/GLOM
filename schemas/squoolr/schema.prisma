@@ -47,8 +47,10 @@ enum InquiryType {
 model Inquiry {
     inquiry_id String      @id @default(uuid()) @db.VarChar(36)
     email      String      @db.VarChar(45)
-    message    String?     @db.Text
     type       InquiryType
+    phone      String?     @db.VarChar(45)
+    name       String?     @db.VarChar(90)
+    message    String?     @db.Text
     created_at DateTime    @default(now()) @db.DateTime(0)
 }
 
@@ -178,6 +180,16 @@ model SchoolAudit {
     AnnualConfigurator     AnnualConfigurator? @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
+model Ambassador {
+    ambassador_id String @id @default(uuid()) @db.VarChar(36)
+    referral_code String @unique @db.VarChar(36)
+    login_id      String @db.VarChar(36)
+    Login         Login  @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+
+    SchoolDemands      SchoolDemand[]
+    SchoolDemandAudits SchoolDemandAudit[]
+}
+
 enum SchoolDemandStatus {
     PENDING
     PROCESSING
@@ -190,12 +202,13 @@ enum SchoolDemandStatus {
 model SchoolDemand {
     school_demand_id String             @id @default(uuid()) @db.VarChar(36)
     demand_status    SchoolDemandStatus @default(PENDING)
-    referral_code    String             @db.VarChar(45)
     paid_amount      Float              @default(0)
     demanded_at      DateTime           @default(now()) @db.DateTime(0)
     rejection_reason String?            @db.Text
     school_id        String             @unique
     School           School             @relation(fields: [school_id], references: [school_id], onDelete: Cascade, onUpdate: Cascade)
+    ambassador_id    String?            @db.VarChar(36)
+    Ambassador       Ambassador?        @relation(fields: [ambassador_id], references: [ambassador_id], onDelete: Cascade, onUpdate: Cascade)
 
     SchoolDemandAudits SchoolDemandAudit[]
 }
@@ -203,10 +216,11 @@ model SchoolDemand {
 model SchoolDemandAudit {
     school_demand_audit_id String             @id @default(uuid()) @db.VarChar(36)
     rejection_reason       String?            @db.Text
-    referral_code          String             @db.VarChar(45)
     paid_amount            Float              @default(0)
     demand_status          SchoolDemandStatus @default(PENDING)
     audited_at             DateTime           @default(now()) @db.DateTime(0)
+    ambassador_id          String?            @db.VarChar(36)
+    Ambassador             Ambassador?        @relation(fields: [ambassador_id], references: [ambassador_id], onDelete: Cascade, onUpdate: Cascade)
     school_demand_id       String             @db.VarChar(36)
     SchoolDemand           SchoolDemand       @relation(fields: [school_demand_id], references: [school_demand_id], onDelete: Cascade, onUpdate: Cascade)
     audited_by             String             @db.VarChar(36)
@@ -280,6 +294,7 @@ model Login {
     Payment                Payment[]
     PlatformSettings       PlatformSettings[]
     PlatformSettingsAudits PlatformSettingsAudit[]
+    Ambassadors            Ambassador[]
 
     @@unique([person_id, school_id])
 }
