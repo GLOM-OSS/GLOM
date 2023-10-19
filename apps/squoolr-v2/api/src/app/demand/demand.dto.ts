@@ -88,9 +88,13 @@ export class ValidateDemandDto {
 }
 
 export class SchoolEntity extends OmitType(CreateSchoolDto, [
+  'referral_code',
   'initial_year_ends_at',
   'initial_year_starts_at',
 ]) {
+  @ApiProperty()
+  ambassador_email: string;
+
   @ApiProperty()
   school_code: string;
 
