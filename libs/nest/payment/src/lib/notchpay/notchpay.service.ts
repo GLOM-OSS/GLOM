@@ -1,17 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { AxiosInstance } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import type {
   CancelPaymentResponse,
   CompletePaymentPayload,
   CompletePaymentResponse,
   InitializePaymentResponse,
   InitiatePaymentPayload,
+  NotchPayConfigOptions,
   VerifyPaymentResponse,
 } from './notchpay.type';
 
 @Injectable()
 export class NotchPayService {
-  constructor(private axiosInstance: AxiosInstance) {}
+  private axiosInstance: AxiosInstance;
+
+  constructor({ apiKey, endpoint }: NotchPayConfigOptions) {
+    this.axiosInstance = axios.create({
+      baseURL: endpoint,
+      headers: { Authorization: apiKey },
+    });
+  }
 
   async initiatePayment(payload: InitiatePaymentPayload) {
     const { data } = await this.axiosInstance.post<InitializePaymentResponse>(
