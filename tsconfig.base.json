@@ -17,7 +17,7 @@
     "paths": {
       "@glom/casl": ["libs/nest/casl/src/index.ts"],
       "@glom/data-types": ["libs/data-types/src/index.ts"],
-      "@glom/data-types/squoolr": ["libs/data-types/src/lib/squoolr/index.ts"],
+      "@glom/data-types/squoolr": ["libs/data-types/src/lib/squoolr/index.d.ts"],
       "@glom/data-types/lynkr": ["libs/data-types/src/lib/lynkr/index.ts"],
       "@glom/encrypter": ["libs/encrypter/src/index.ts"],
       "@glom/execeptions": ["libs/nest/exceptions/src/index.ts"],

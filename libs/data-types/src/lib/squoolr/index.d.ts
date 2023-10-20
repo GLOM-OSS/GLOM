@@ -8,10 +8,17 @@ import {
 import { operations } from './docs';
 
 /** ------------- GET SETTINGS ------------- */
-export type PlatformSettings = SchemaResponseBody<
+export type PlatformSettingsEntity = SchemaResponseBody<
   operations,
   'AppController_getPlatformSettings'
 >;
+
+/** ------------- GET AMBASSADOR ------------- */
+export type AmbassadorEntity = SchemaResponseBody<
+  operations,
+  'AmbassadorsController_getAmbassador'
+>;
+
 /** ------------- CREATE SCHOOL DEMAND ------------- */
 export type SubmitSchoolDemandPayload = SchemaRequestBody<
   operations,
@@ -29,8 +36,20 @@ export type ValidateSchoolDemandPayload = SchemaRequestBody<
   'DemandController_validateDemand'
 >;
 
-/** ------------- UPDATE SCHOOL DEMAND ------------- */
+/** ------------- CHANGE SCHOOL DEMAND STATUS TO PROCESSING ------------- */
 export type ProcessDemandPayload = SchemaRequestParams<
   operations,
   'DemandController_updateDemandStatus'
+>;
+
+/** ------------- CREATEE NEW INQUIRY ------------- */
+export type CreateInquiryPayload = SchemaRequestBody<
+  operations,
+  'InquiriesController_createInquiry'
+>;
+
+/** ------------- GET ALL INQUIRIES ------------- */
+export type InquiryEntity = SchemaCreateResponseBody<
+  operations,
+  'InquiriesController_createInquiry'
 >;
