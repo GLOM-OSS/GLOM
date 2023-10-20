@@ -55,6 +55,10 @@ export class CreateSchoolDto {
 }
 
 export class SubmitDemandDto {
+  @IsString()
+  @ApiProperty()
+  payment_phone: string;
+
   @IsNotEmptyObject()
   @ValidateNested()
   @Type(() => CreatePersonDto)

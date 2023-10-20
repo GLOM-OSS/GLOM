@@ -1,3 +1,4 @@
+import { NotchPayService } from '@glom/payment';
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import {
@@ -19,6 +20,7 @@ const schoolSelectAttr = Prisma.validator<Prisma.SchoolArgs>()({
   include: {
     SchoolDemand: {
       include: {
+        Payment: true,
         Ambassador: {
           select: {
             Login: {
@@ -39,7 +41,7 @@ const getSchoolEntity = (
     SchoolDemand: {
       demand_status,
       rejection_reason,
-      paid_amount,
+      Payment: { amount: paid_amount },
       Ambassador: {
         Login: {
           Person: { email },
@@ -61,6 +63,7 @@ const getSchoolEntity = (
 export class DemandService {
   constructor(
     private prismaService: GlomPrismaService,
+    private notchPayService: NotchPayService,
     private codeGenerator: CodeGeneratorFactory
   ) {}
 
@@ -93,7 +96,20 @@ export class DemandService {
     return schools.map((school) => getSchoolEntity(school));
   }
 
+  private async payOnboardingFee(phone: string, amount: number) {
+    const newPayment = await this.notchPayService.initiatePayment({
+      amount,
+      phone,
+    });
+    await this.notchPayService.completePayment(newPayment.reference, {
+      channel: 'cm.mobile',
+      phone,
+    });
+    return newPayment;
+  }
+
   async create({
+    payment_phone,
     school: {
       school_email,
       initial_year_ends_at: ends_at,
@@ -117,6 +133,7 @@ export class DemandService {
 
     const { onboarding_fee } =
       await this.prismaService.platformSettings.findFirstOrThrow();
+    const payment = await this.payOnboardingFee(payment_phone, onboarding_fee);
     const [school] = await this.prismaService.$transaction([
       this.prismaService.school.create({
         ...schoolSelectAttr,
@@ -135,7 +152,14 @@ export class DemandService {
           },
           SchoolDemand: {
             create: {
-              paid_amount: onboarding_fee,
+              Payment: {
+                create: {
+                  amount: onboarding_fee,
+                  payment_reason: 'Onboarding',
+                  payment_ref: payment.reference,
+                  provider: 'NotchPay',
+                },
+              },
               Ambassador: { connect: { referral_code } },
             },
           },
@@ -210,6 +234,7 @@ export class DemandService {
     audited_by: string
   ) {
     const schoolDemand = await this.prismaService.schoolDemand.findFirst({
+      include: { Payment: true },
       where: {
         School: { school_code },
       },
@@ -219,7 +244,7 @@ export class DemandService {
       demand_status,
       rejection_reason: reason,
       ambassador_id,
-      paid_amount,
+      Payment: { amount: paid_amount },
     } = schoolDemand;
     await this.prismaService.schoolDemand.update({
       data: {
