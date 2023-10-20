@@ -6,20 +6,16 @@ import {
   Param,
   Post,
   Put,
-  Req
+  Req,
 } from '@nestjs/common';
-import {
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiTags
-} from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { IsPublic, Role, Roles } from '../auth/auth.decorator';
 import {
   DemandDetails,
   SchoolEntity,
   SubmitDemandDto,
-  ValidateDemandDto
+  ValidateDemandDto,
 } from './demand.dto';
 import { DemandService } from './demand.service';
 
