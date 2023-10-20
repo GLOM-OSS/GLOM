@@ -29,6 +29,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { DemandModule } from './demand/demand.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
+import { AmbassadorsModule } from './ambassador/ambassadors.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { InquiriesModule } from './inquiries/inquiries.module';
     DemandModule,
     AcademicYearsModule,
     InquiriesModule,
+    AmbassadorsModule,
   ],
   controllers: [AppController],
   providers: [
