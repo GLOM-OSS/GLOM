@@ -21,10 +21,13 @@ export class NotchPayService {
     });
   }
 
-  async initiatePayment(payload: InitiatePaymentPayload) {
+  async initiatePayment({
+    currency = 'XAF',
+    ...payload
+  }: InitiatePaymentPayload) {
     const { data } = await this.axiosInstance.post<InitializePaymentResponse>(
       '/payments/initialize',
-      payload
+      { currency, ...payload }
     );
     return data.transaction;
   }

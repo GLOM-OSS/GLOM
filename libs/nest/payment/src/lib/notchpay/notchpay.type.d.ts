@@ -4,18 +4,18 @@ export type NotchPayConfigOptions = {
 };
 
 export type InitiatePaymentPayload = {
+  /**The customer's or business phone */
+  phone: string;
+  /**Amount to be charged for the payment. According to currency. */
+  amount: number;
   /** The email address of the customer is prominently displayed within your dashboard,
    * and serves as a valuable tool for both search and tracking purposes.
    * Please note that this field allows for up to 512 characters. */
-  email: string;
+  email?: string;
   /** Currency of transaction. */
-  currency: string;
-  /**Amount to be charged for the payment. According to currency. */
-  aomunt: number;
+  currency?: string;
   /**The customer's fullname or business name */
   name?: string;
-  /**The customer's or business phone */
-  phone?: string;
 };
 
 export type CompletePaymentPayload = {
@@ -51,8 +51,8 @@ export type InitializePaymentResponse = NotchpayResponse & {
 export type VerifyPaymentResponse = InitializePaymentResponse;
 
 export type CompletePaymentResponse = NotchpayResponse & {
-  /** Only returned  for method `PUT` */
-  action?: string;
+  /** Describes the next action to be done */
+  action: 'confirm';
 };
 
 export type ListPaymentReponse = NotchpayResponse & {
