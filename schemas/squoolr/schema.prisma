@@ -208,10 +208,11 @@ model SchoolAudit {
 }
 
 model Ambassador {
-    ambassador_id String @id @default(uuid()) @db.VarChar(36)
-    referral_code String @unique @db.VarChar(36)
-    login_id      String @db.VarChar(36)
-    Login         Login  @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+    ambassador_id String   @id @default(uuid()) @db.VarChar(36)
+    referral_code String   @unique @db.VarChar(36)
+    login_id      String   @db.VarChar(36)
+    Login         Login    @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+    created_at    DateTime @default(now()) @db.DateTime(0)
 
     SchoolDemands      SchoolDemand[]
     SchoolDemandAudits SchoolDemandAudit[]
