@@ -236,10 +236,10 @@ export class User extends PersonEntity implements DesirializeSession {
   @ApiProperty()
   login_id: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   school_id?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ type: [String] })
   tutorStudentIds?: string[];
 
   @ApiProperty()
@@ -247,20 +247,24 @@ export class User extends PersonEntity implements DesirializeSession {
   @Transform(({ value }) => new ActiveYearSessionData(value))
   activeYear?: ActiveYearSessionData;
 
-  @ApiProperty()
   @Type(() => StudentSessionData)
+  @ApiPropertyOptional({ type: StudentSessionData })
   @Transform(({ value }) => new StudentSessionData(value))
   annualStudent?: StudentSessionData;
 
+  @ApiPropertyOptional({ type: ConfiguratorSessionData })
+  @Transform(({ value }) => new ConfiguratorSessionData(value))
   @Type(() => ConfiguratorSessionData)
   annualConfigurator?: ConfiguratorSessionData;
 
-  @Type(() => TeacherSessionData)
+  @ApiPropertyOptional({ type: TeacherSessionData })
   @Transform(({ value }) => new TeacherSessionData(value))
+  @Type(() => TeacherSessionData)
   annualTeacher?: TeacherSessionData;
 
-  @Type(() => RegistrySessionData)
+  @ApiPropertyOptional({ type: TeacherSessionData })
   @Transform(({ value }) => new RegistrySessionData(value))
+  @Type(() => RegistrySessionData)
   annualRegistry?: RegistrySessionData;
 }
 

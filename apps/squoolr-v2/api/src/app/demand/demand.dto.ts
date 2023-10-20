@@ -79,6 +79,7 @@ export class ValidateDemandDto {
   @IsString()
   school_code: string;
 
+  @IsString()
   @IsOptional()
   @ApiPropertyOptional()
   rejection_reason?: string;
