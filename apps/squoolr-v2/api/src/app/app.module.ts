@@ -29,7 +29,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { DemandModule } from './demand/demand.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
-import { AmbassadorsModule } from './ambassador/ambassadors.module';
+import { AmbassadorsModule } from './ambassadors/ambassadors.module';
 
 @Module({
   imports: [
