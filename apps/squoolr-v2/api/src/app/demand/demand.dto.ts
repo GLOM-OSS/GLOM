@@ -32,8 +32,9 @@ export class CreateSchoolDto {
   lead_funnel: string;
 
   @IsString()
-  @ApiProperty()
-  referral_code: string;
+  @IsOptional()
+  @ApiPropertyOptional()
+  referral_code?: string;
 
   @ApiProperty()
   @IsPhoneNumber('CM')
@@ -56,8 +57,9 @@ export class CreateSchoolDto {
 
 export class SubmitDemandDto {
   @IsString()
-  @ApiProperty()
-  payment_phone: string;
+  @IsOptional()
+  @ApiPropertyOptional()
+  payment_phone?: string;
 
   @IsNotEmptyObject()
   @ValidateNested()

@@ -48,6 +48,18 @@ export class DemandController {
   @Post('new')
   @ApiCreatedResponse({ type: SchoolEntity })
   submitDemand(@Body() schoolDemandPayload: SubmitDemandDto) {
+    const {
+      payment_phone,
+      school: { referral_code },
+    } = schoolDemandPayload;
+    if (payment_phone && referral_code)
+      throw new BadRequestException(
+        'payment number and referral code cannot be both provided'
+      );
+    if (!payment_phone && !referral_code)
+      throw new BadRequestException(
+        'please provide phone number or referral code'
+      );
     return this.demandService.create(schoolDemandPayload);
   }
 
