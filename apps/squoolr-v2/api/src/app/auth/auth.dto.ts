@@ -66,23 +66,25 @@ export class CreatePersonDto {
   @IsString()
   phone_number: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @Transform(({ value }) => new Date(value))
   @IsDateString()
-  birthdate: Date;
+  birthdate: Date | null;
 
-  @IsEnum(Gender)
-  @ApiProperty({ enum: Gender })
-  gender: Gender;
-
-  @IsString()
+  @ApiPropertyOptional({ enum: Gender })
   @IsOptional()
-  @ApiPropertyOptional()
-  address?: string;
+  @IsEnum(Gender)
+  gender: Gender | null;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
-  national_id_number: string;
+  address: string | null;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  national_id_number: string | null;
 
   @ApiProperty()
   @IsStrongPassword()
@@ -97,9 +99,6 @@ export class PersonEntity
   extends OmitType(CreatePersonDto, ['password'])
   implements Person
 {
-  @ApiProperty({ nullable: true })
-  address: string | null;
-
   @ApiProperty()
   person_id: string;
 
@@ -236,10 +235,10 @@ export class User extends PersonEntity implements DesirializeSession {
   @ApiProperty()
   login_id: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   school_id?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ type: [String] })
   tutorStudentIds?: string[];
 
   @ApiProperty()
@@ -247,20 +246,24 @@ export class User extends PersonEntity implements DesirializeSession {
   @Transform(({ value }) => new ActiveYearSessionData(value))
   activeYear?: ActiveYearSessionData;
 
-  @ApiProperty()
   @Type(() => StudentSessionData)
+  @ApiPropertyOptional({ type: StudentSessionData })
   @Transform(({ value }) => new StudentSessionData(value))
   annualStudent?: StudentSessionData;
 
+  @ApiPropertyOptional({ type: ConfiguratorSessionData })
+  @Transform(({ value }) => new ConfiguratorSessionData(value))
   @Type(() => ConfiguratorSessionData)
   annualConfigurator?: ConfiguratorSessionData;
 
-  @Type(() => TeacherSessionData)
+  @ApiPropertyOptional({ type: TeacherSessionData })
   @Transform(({ value }) => new TeacherSessionData(value))
+  @Type(() => TeacherSessionData)
   annualTeacher?: TeacherSessionData;
 
-  @Type(() => RegistrySessionData)
+  @ApiPropertyOptional({ type: TeacherSessionData })
   @Transform(({ value }) => new RegistrySessionData(value))
+  @Type(() => RegistrySessionData)
   annualRegistry?: RegistrySessionData;
 }
 

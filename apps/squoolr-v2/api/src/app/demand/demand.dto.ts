@@ -31,13 +31,10 @@ export class CreateSchoolDto {
   @ApiProperty()
   lead_funnel: string;
 
-  @IsNumber()
-  @ApiProperty()
-  paid_amount: number;
-
   @IsString()
-  @ApiProperty()
-  referral_code: string;
+  @IsOptional()
+  @ApiPropertyOptional()
+  referral_code?: string;
 
   @ApiProperty()
   @IsPhoneNumber('CM')
@@ -59,6 +56,11 @@ export class CreateSchoolDto {
 }
 
 export class SubmitDemandDto {
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional()
+  payment_phone?: string;
+
   @IsNotEmptyObject()
   @ValidateNested()
   @Type(() => CreatePersonDto)
@@ -77,6 +79,7 @@ export class ValidateDemandDto {
   @IsString()
   school_code: string;
 
+  @IsString()
   @IsOptional()
   @ApiPropertyOptional()
   rejection_reason?: string;
@@ -88,9 +91,17 @@ export class ValidateDemandDto {
 }
 
 export class SchoolEntity extends OmitType(CreateSchoolDto, [
+  'referral_code',
   'initial_year_ends_at',
   'initial_year_starts_at',
 ]) {
+  @IsNumber()
+  @ApiProperty()
+  paid_amount: number;
+
+  @ApiProperty()
+  ambassador_email: string;
+
   @ApiProperty()
   school_code: string;
 

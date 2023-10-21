@@ -1,3 +1,4 @@
+import { NotchPayService } from '@glom/payment';
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import {
@@ -15,100 +16,106 @@ import {
   ValidateDemandDto,
 } from './demand.dto';
 
+const schoolSelectAttr = Prisma.validator<Prisma.SchoolArgs>()({
+  include: {
+    SchoolDemand: {
+      include: {
+        Payment: true,
+        Ambassador: {
+          select: {
+            Login: {
+              select: {
+                Person: { select: { email: true } },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+});
+const getSchoolEntity = (
+  data: Prisma.SchoolGetPayload<typeof schoolSelectAttr>
+) => {
+  const {
+    SchoolDemand: {
+      demand_status,
+      rejection_reason,
+      Payment: { amount: paid_amount },
+      Ambassador: {
+        Login: {
+          Person: { email },
+        },
+      },
+    },
+    ...school
+  } = data;
+  return new SchoolEntity({
+    ...school,
+    paid_amount,
+    ambassador_email: email,
+    school_demand_status: demand_status,
+    school_rejection_reason: rejection_reason,
+  });
+};
+
 @Injectable()
 export class DemandService {
   constructor(
     private prismaService: GlomPrismaService,
+    private notchPayService: NotchPayService,
     private codeGenerator: CodeGeneratorFactory
   ) {}
 
   async findOne(school_code: string) {
     const school = await this.prismaService.school.findUnique({
-      include: { SchoolDemand: true },
+      ...schoolSelectAttr,
       where: { school_code },
     });
     if (!school) throw new NotFoundException('School demand not found');
-    const {
-      SchoolDemand: {
-        demand_status,
-        rejection_reason,
-        referral_code,
-        paid_amount,
-      },
-    } = school;
-    return new SchoolEntity({
-      ...school,
-      paid_amount,
-      referral_code,
-      school_demand_status: demand_status,
-      school_rejection_reason: rejection_reason,
-    });
+    return getSchoolEntity(school);
   }
 
   async findDetails(school_code: string) {
     const schoolData = await this.prismaService.school.findUnique({
-      include: { SchoolDemand: true, Person: true },
+      include: { ...schoolSelectAttr.include, Person: true },
       where: { school_code },
     });
     if (!schoolData) throw new NotFoundException('School demand not found');
-    const {
-      Person: person,
-      SchoolDemand: {
-        demand_status,
-        rejection_reason,
-        referral_code,
-        paid_amount,
-      },
-      ...school
-    } = schoolData;
+    const { Person: person, ...school } = schoolData;
     return new DemandDetails({
       person,
-      school: {
-        ...school,
-        school_code,
-        paid_amount,
-        referral_code,
-        school_demand_status: demand_status,
-        school_rejection_reason: rejection_reason,
-      },
+      school: getSchoolEntity(school),
     });
   }
 
   async findAll() {
     const schools = await this.prismaService.school.findMany({
-      include: { SchoolDemand: true },
+      ...schoolSelectAttr,
     });
-    return schools.map(
-      ({
-        SchoolDemand: {
-          demand_status,
-          rejection_reason,
-          paid_amount,
-          referral_code,
-        },
-        ...school
-      }) =>
-        new SchoolEntity({
-          ...school,
-          paid_amount,
-          referral_code,
-          school_demand_status: demand_status,
-          school_rejection_reason: rejection_reason,
-        })
-    );
+    return schools.map((school) => getSchoolEntity(school));
   }
 
-  async create({
+  private async payOnboardingFee(phone: string) {
+    const settings =
+      await this.prismaService.platformSettings.findFirstOrThrow();
+
+    const newPayment = await this.notchPayService.initiatePayment({
+      amount: settings.onboarding_fee,
+      phone,
+    });
+    await this.notchPayService.completePayment(newPayment.reference, {
+      channel: 'cm.mobile',
+      phone,
+    });
+    return newPayment;
+  }
+
+  private async getFistAcademicYearSetup({
     school: {
-      school_email,
+      school_acronym,
       initial_year_ends_at: ends_at,
       initial_year_starts_at: starts_at,
-      school_phone_number,
-      school_name,
-      school_acronym,
-      paid_amount,
-      referral_code,
-      lead_funnel,
     },
     configurator: { password, phone_number, ...person },
   }: SubmitDemandDto) {
@@ -119,9 +126,104 @@ export class DemandService {
       ends_at.getFullYear()
     );
     const school_code = await this.codeGenerator.getSchoolCode(school_acronym);
-    const matricule = `${school_acronym}${this.codeGenerator.formatNumber(1)}`;
+    const configuratorCode = `${school_acronym}SE${this.codeGenerator.formatNumber(
+      1
+    )}`;
+    return {
+      data: {
+        academic_year_id,
+        annual_configurator_id,
+        year_code,
+        school_code,
+      },
+      transactions: [
+        this.prismaService.annualConfigurator.create({
+          data: {
+            is_sudo: true,
+            annual_configurator_id,
+            matricule: configuratorCode,
+            Login: {
+              create: {
+                is_personnel: true,
+                password: bcrypt.hashSync(password, Number(process.env.SALT)),
+                Person: {
+                  connectOrCreate: {
+                    create: { ...person, phone_number },
+                    where: { email: person.email },
+                  },
+                },
+                School: { connect: { school_code } },
+              },
+            },
+            AcademicYear: {
+              create: {
+                ends_at,
+                starts_at,
+                year_code,
+                academic_year_id,
+                School: { connect: { school_code } },
+              },
+            },
+          },
+        }),
+        this.prismaService.annualCarryOverSytem.create({
+          data: {
+            carry_over_system: CarryOverSystemEnum.SUBJECT,
+            AcademicYear: { connect: { year_code } },
+            AnnualConfigurator: {
+              connect: { annual_configurator_id },
+            },
+          },
+        }),
+        this.prismaService.annualSemesterExamAcess.createMany({
+          data: [
+            {
+              academic_year_id,
+              payment_percentage: 0,
+              annual_semester_number: 1,
+              configured_by: annual_configurator_id,
+            },
+            {
+              academic_year_id,
+              payment_percentage: 0,
+              annual_semester_number: 2,
+              configured_by: annual_configurator_id,
+            },
+          ],
+        }),
+      ],
+    };
+  }
+
+  async create(demandpayload: SubmitDemandDto) {
+    const {
+      payment_phone,
+      school: {
+        school_email,
+        school_phone_number,
+        school_name,
+        school_acronym,
+        referral_code,
+        lead_funnel,
+      },
+      configurator: { password, phone_number, ...person },
+    } = demandpayload;
+
+    const {
+      transactions: academicYearSetupTransactions,
+      data: { school_code },
+    } = await this.getFistAcademicYearSetup(demandpayload);
+
+    let payment_ref: string;
+    let onboarding_fee: number;
+    if (payment_phone) {
+      const payment = await this.payOnboardingFee(payment_phone);
+      payment_ref = payment.reference;
+      onboarding_fee = payment.amount;
+    }
     const [school] = await this.prismaService.$transaction([
       this.prismaService.school.create({
+        ...schoolSelectAttr,
         data: {
           school_email,
           school_code,
@@ -135,77 +237,27 @@ export class DemandService {
               where: { email: person.email },
             },
           },
-          SchoolDemand: { create: { referral_code, paid_amount } },
-        },
-      }),
-      this.prismaService.annualConfigurator.create({
-        data: {
-          matricule,
-          is_sudo: true,
-          annual_configurator_id,
-          Login: {
+          SchoolDemand: {
             create: {
-              is_personnel: true,
-              password: bcrypt.hashSync(password, Number(process.env.SALT)),
-              Person: {
-                connectOrCreate: {
-                  create: { ...person, phone_number },
-                  where: { email: person.email },
-                },
-              },
-              School: { connect: { school_code } },
-            },
-          },
-          AcademicYear: {
-            create: {
-              ends_at,
-              starts_at,
-              year_code,
-              academic_year_id,
-              School: { connect: { school_code } },
+              ...(payment_phone
+                ? {
+                    Payment: {
+                      create: {
+                        payment_ref,
+                        provider: 'NotchPay',
+                        amount: onboarding_fee,
+                        payment_reason: 'Onboarding',
+                      },
+                    },
+                  }
+                : { Ambassador: { connect: { referral_code } } }),
             },
           },
         },
       }),
-      this.prismaService.annualCarryOverSytem.create({
-        data: {
-          carry_over_system: CarryOverSystemEnum.SUBJECT,
-          AcademicYear: { connect: { year_code } },
-          AnnualConfigurator: {
-            connect: { annual_configurator_id },
-          },
-        },
-      }),
-      this.prismaService.annualSemesterExamAcess.createMany({
-        data: [
-          {
-            academic_year_id,
-            payment_percentage: 0,
-            annual_semester_number: 1,
-            configured_by: annual_configurator_id,
-          },
-          {
-            academic_year_id,
-            payment_percentage: 0,
-            annual_semester_number: 2,
-            configured_by: annual_configurator_id,
-          },
-        ],
-      }),
-      this.prismaService.annualConfigurator.update({
-        data: {
-          CreatedByAnnualConfigurator: { connect: { annual_configurator_id } },
-        },
-        where: { annual_configurator_id },
-      }),
+      ...academicYearSetupTransactions,
     ]);
-    return new SchoolEntity({
-      ...school,
-      paid_amount,
-      referral_code,
-      school_rejection_reason: null,
-      school_demand_status: 'PENDING',
-    });
+    return getSchoolEntity(school);
   }
 
   async validateDemand(
@@ -213,6 +265,7 @@ export class DemandService {
     audited_by: string
   ) {
     const schoolDemand = await this.prismaService.schoolDemand.findFirst({
+      include: { Payment: true },
       where: {
         School: { school_code },
       },
@@ -221,8 +274,8 @@ export class DemandService {
     const {
       demand_status,
       rejection_reason: reason,
-      referral_code,
-      paid_amount,
+      ambassador_id,
+      Payment: { amount: paid_amount },
     } = schoolDemand;
     await this.prismaService.schoolDemand.update({
       data: {
@@ -237,7 +290,7 @@ export class DemandService {
           create: {
             audited_by,
             paid_amount,
-            referral_code,
+            ambassador_id,
             demand_status,
             rejection_reason: reason,
           },
@@ -253,7 +306,7 @@ export class DemandService {
     });
     if (!schoolDemand) throw new NotFoundException('School demand');
 
-    const { demand_status, referral_code, rejection_reason, school_demand_id } =
+    const { demand_status, ambassador_id, rejection_reason, school_demand_id } =
       schoolDemand;
     await this.prismaService.schoolDemand.update({
       data: {
@@ -261,7 +314,7 @@ export class DemandService {
         SchoolDemandAudits: {
           create: {
             audited_by,
-            referral_code,
+            ambassador_id,
             demand_status,
             rejection_reason,
           },

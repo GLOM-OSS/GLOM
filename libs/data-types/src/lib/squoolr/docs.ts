@@ -59,6 +59,15 @@ export interface paths {
   "/inquiries/new": {
     post: operations["InquiriesController_createInquiry"];
   };
+  "/ambassadors/all": {
+    get: operations["AmbassadorsController_getAmbassadors"];
+  };
+  "/ambassadors/{ambassador_id}": {
+    get: operations["AmbassadorsController_getAmbassador"];
+  };
+  "/ambassadors/{referral_code}/verify": {
+    get: operations["AmbassadorsController_getAmbassador"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -87,9 +96,9 @@ export interface components {
       school_acronym: string;
       school_email: string;
       lead_funnel: string;
-      paid_amount: number;
-      referral_code: string;
       school_phone_number: string;
+      paid_amount: number;
+      ambassador_email: string;
       school_code: string;
       /** @enum {string} */
       school_demand_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED";
@@ -101,11 +110,11 @@ export interface components {
       email: string;
       phone_number: string;
       /** Format: date-time */
-      birthdate: string;
+      birthdate?: string;
       /** @enum {string} */
-      gender: "Male" | "Female";
-      address?: string | null;
-      national_id_number: string;
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
       person_id: string;
       birthplace: string | null;
       nationality: string;
@@ -134,11 +143,11 @@ export interface components {
       email: string;
       phone_number: string;
       /** Format: date-time */
-      birthdate: string;
+      birthdate?: string;
       /** @enum {string} */
-      gender: "Male" | "Female";
+      gender?: "Male" | "Female";
       address?: string;
-      national_id_number: string;
+      national_id_number?: string;
       password: string;
     };
     CreateSchoolDto: {
@@ -146,8 +155,7 @@ export interface components {
       school_acronym: string;
       school_email: string;
       lead_funnel: string;
-      paid_amount: number;
-      referral_code: string;
+      referral_code?: string;
       school_phone_number: string;
       /** Format: date-time */
       initial_year_starts_at: string;
@@ -155,6 +163,7 @@ export interface components {
       initial_year_ends_at: string;
     };
     SubmitDemandDto: {
+      payment_phone?: string;
       configurator: components["schemas"]["CreatePersonDto"];
       school: components["schemas"]["CreateSchoolDto"];
     };
@@ -203,16 +212,33 @@ export interface components {
       classroom_level: number;
       student_id: string;
     };
+    ConfiguratorSessionData: {
+      annual_configurator_id: string;
+      is_sudo: boolean;
+    };
+    TeacherSessionData: {
+      annual_teacher_id: string;
+      hourly_rate: number;
+      origin_institute: string;
+      has_signed_convention: boolean;
+      classroomDivisions: string[];
+      teacher_id: string;
+    };
     DesirializedRoles: {
       login_id: string;
-      school_id: string;
-      tutorStudentIds: string[];
+      school_id?: string;
+      tutorStudentIds?: string[];
       activeYear: components["schemas"]["ActiveYearSessionData"];
-      annualStudent: components["schemas"]["StudentSessionData"];
+      annualStudent?: components["schemas"]["StudentSessionData"];
+      annualConfigurator?: components["schemas"]["ConfiguratorSessionData"];
+      annualTeacher?: components["schemas"]["TeacherSessionData"];
+      annualRegistry?: components["schemas"]["TeacherSessionData"];
     };
     InquiryEntity: {
       email: string;
-      message: string;
+      phone?: string;
+      name?: string;
+      message?: string;
       /** @enum {string} */
       type: "Default" | "EarlyAccess";
       inquiry_id: string;
@@ -221,9 +247,16 @@ export interface components {
     };
     CreateInquiryDto: {
       email: string;
-      message: string;
+      phone?: string;
+      name?: string;
+      message?: string;
       /** @enum {string} */
       type: "Default" | "EarlyAccess";
+    };
+    AmbassadorEntity: {
+      ambassador_id: string;
+      referral_code: string;
+      login_id: string;
     };
   };
   responses: never;
@@ -436,6 +469,30 @@ export interface operations {
       201: {
         content: {
           "application/json": components["schemas"]["InquiryEntity"];
+        };
+      };
+    };
+  };
+  AmbassadorsController_getAmbassadors: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["AmbassadorEntity"][];
+        };
+      };
+    };
+  };
+  AmbassadorsController_getAmbassador: {
+    parameters: {
+      path: {
+        ambassador_id: string;
+        referral_code: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["AmbassadorEntity"];
         };
       };
     };
