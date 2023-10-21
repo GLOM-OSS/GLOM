@@ -66,23 +66,25 @@ export class CreatePersonDto {
   @IsString()
   phone_number: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @Transform(({ value }) => new Date(value))
   @IsDateString()
-  birthdate: Date;
+  birthdate: Date | null;
 
-  @IsEnum(Gender)
-  @ApiProperty({ enum: Gender })
-  gender: Gender;
-
-  @IsString()
+  @ApiPropertyOptional({ enum: Gender })
   @IsOptional()
-  @ApiPropertyOptional()
-  address?: string;
+  @IsEnum(Gender)
+  gender: Gender | null;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
-  national_id_number: string;
+  address: string | null;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  national_id_number: string | null;
 
   @ApiProperty()
   @IsStrongPassword()
@@ -97,9 +99,6 @@ export class PersonEntity
   extends OmitType(CreatePersonDto, ['password'])
   implements Person
 {
-  @ApiProperty({ nullable: true })
-  address: string | null;
-
   @ApiProperty()
   person_id: string;
 

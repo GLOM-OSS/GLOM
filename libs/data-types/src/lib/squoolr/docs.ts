@@ -110,11 +110,11 @@ export interface components {
       email: string;
       phone_number: string;
       /** Format: date-time */
-      birthdate: string;
+      birthdate?: string;
       /** @enum {string} */
-      gender: "Male" | "Female";
-      address?: string | null;
-      national_id_number: string;
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
       person_id: string;
       birthplace: string | null;
       nationality: string;
@@ -143,11 +143,11 @@ export interface components {
       email: string;
       phone_number: string;
       /** Format: date-time */
-      birthdate: string;
+      birthdate?: string;
       /** @enum {string} */
-      gender: "Male" | "Female";
+      gender?: "Male" | "Female";
       address?: string;
-      national_id_number: string;
+      national_id_number?: string;
       password: string;
     };
     CreateSchoolDto: {
