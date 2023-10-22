@@ -1,11 +1,6 @@
 import { SubmitSchoolDemandPayload } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
-import {
-  Box,
-  Divider,
-  Paper,
-  Typography
-} from '@mui/material';
+import { Box, Divider, Paper, Typography } from '@mui/material';
 import { validatePhoneNumber } from '@squoolr/utils';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
