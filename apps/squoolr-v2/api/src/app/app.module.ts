@@ -33,7 +33,9 @@ import { AmbassadorsModule } from './ambassadors/ambassadors.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     ThrottlerModule.forRoot(),
     PassportModule.register({
       session: true,
