@@ -2,7 +2,7 @@ import { SubmitSchoolDemandPayload } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
 import { Box, Divider, Paper, Typography } from '@mui/material';
 import { validatePhoneNumber } from '@squoolr/utils';
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import { useIntl } from 'react-intl';
 import ReviewStep from '../../components/demand/ReviewStep';
 import StepperItem from '../../components/demand/StepperItem';
@@ -213,7 +213,7 @@ export default function Demand() {
           }}
         >
           {steps.map((step, index) => (
-            <>
+            <Fragment key={index}>
               {index > 0 && (
                 <Divider
                   sx={{
@@ -237,7 +237,7 @@ export default function Demand() {
                     : null
                 }
               />
-            </>
+            </Fragment>
           ))}
         </Box>
       </Paper>
