@@ -475,4 +475,11 @@ export const website = {
   demandTreatmentDelay:
     ' Demands typically take a maximum of 7 working days to be treated. ',
   checkYourDemandStatus: "Check your demand's status progression at",
+
+  mailSentForFutureReference:
+    'An email containing your demand details have been sent to your address for future reference!',
+  male: 'Male',
+  female: 'Female',
+  copyToClipboard: 'Copy to clipboard!',
+  copied: 'Copied',
 };

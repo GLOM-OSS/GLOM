@@ -501,4 +501,10 @@ export const website = {
     'Les demandes prennent généralement un maximum de 7 jours ouvrables pour être traitées.',
   checkYourDemandStatus:
     "Vérifiez la progression de l'état de votre demande sur",
+  mailSentForFutureReference:
+    'Un e-mail contenant les détails de votre demande a été envoyé à votre adresse pour référence future !',
+  male: 'Homme',
+  female: 'Femme',
+  copyToClipboard: 'Copier dans le presse-papiers !',
+  copied: 'Copié',
 };
