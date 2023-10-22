@@ -469,4 +469,10 @@ export const website = {
   setupFee: 'Setup Fee: billed only once',
   payNow: 'Pay Now',
   submitDemand: 'Submit Demand',
+
+  demandEmailSent:
+    'An email has been sent to both your personal and school email addresses containing your demand details.',
+  demandTreatmentDelay:
+    ' Demands typically take a maximum of 7 working days to be treated. ',
+  checkYourDemandStatus: "Check your demand's status progression at",
 };

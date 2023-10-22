@@ -494,4 +494,11 @@ export const website = {
   setupFee: 'Frais de configuration : facturés une seule fois',
   payNow: 'Payer maintenant',
   submitDemand: 'Soumettre la demande',
+
+  demandEmailSent:
+    'Un email a été envoyé à vos adresses email personnelles et scolaires contenant les détails de votre demande.',
+  demandTreatmentDelay:
+    'Les demandes prennent généralement un maximum de 7 jours ouvrables pour être traitées.',
+  checkYourDemandStatus:
+    "Vérifiez la progression de l'état de votre demande sur",
 };
