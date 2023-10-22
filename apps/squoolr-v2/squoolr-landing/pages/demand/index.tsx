@@ -1,9 +1,17 @@
+import { SubmitSchoolDemandPayload } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
-import { Box, Divider, Paper, Typography } from '@mui/material';
+import {
+  Box,
+  Divider,
+  Paper,
+  Typography
+} from '@mui/material';
+import { validatePhoneNumber } from '@squoolr/utils';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import ReviewStep from '../../components/demand/ReviewStep';
 import StepperItem from '../../components/demand/StepperItem';
+import SubmittedStep from '../../components/demand/SubmittedStep';
 import ReferralDescription from '../../components/demand/descriptionPane/ReferralDescription';
 import ReviewDescription from '../../components/demand/descriptionPane/ReviewDescription';
 import ReviewDescriptionHeader from '../../components/demand/descriptionPane/ReviewDescriptionHeader';
@@ -18,8 +26,6 @@ import ReferralInformation, {
 import SchoolInformation, {
   ISchoolInformation,
 } from '../../components/demand/forms/SchoolInformation';
-import { validatePhoneNumber } from '@squoolr/utils';
-import { SubmitSchoolDemandPayload } from '@glom/data-types/squoolr';
 
 interface IStep {
   title: string | JSX.Element;
@@ -171,6 +177,7 @@ export default function Demand() {
     4: {
       description: <SubmittedDescription />,
       title: formatMessage({ id: 'demandSubmitted' }),
+      form: <SubmittedStep demandCode={demandCode} />,
     },
   };
 
