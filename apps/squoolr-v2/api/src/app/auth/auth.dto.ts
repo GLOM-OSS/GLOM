@@ -14,6 +14,7 @@ import {
 } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
 import {
+  IsDate,
   IsDateString,
   IsEmail,
   IsEnum,
@@ -66,9 +67,10 @@ export class CreatePersonDto {
   @IsString()
   phone_number: string;
 
+  @IsDate()
   @ApiPropertyOptional()
+  @IsOptional()
   @Transform(({ value }) => new Date(value))
-  @IsDateString()
   birthdate: Date | null;
 
   @ApiPropertyOptional({ enum: Gender })

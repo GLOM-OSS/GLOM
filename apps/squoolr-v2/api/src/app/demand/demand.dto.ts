@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { SchoolDemandStatus } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
 import {
+  IsDate,
   IsDateString,
   IsEmail,
   IsNotEmptyObject,
@@ -40,14 +41,14 @@ export class CreateSchoolDto {
   @IsPhoneNumber('CM')
   school_phone_number: string;
 
+  @IsDate()
   @ApiProperty()
   @Transform(({ value }) => new Date(value))
-  @IsDateString()
   initial_year_starts_at: Date;
 
+  @IsDate()
   @ApiProperty()
   @Transform(({ value }) => new Date(value))
-  @IsDateString()
   initial_year_ends_at: Date;
 
   constructor(props: CreateSchoolDto) {
