@@ -507,4 +507,12 @@ export const website = {
   female: 'Femme',
   copyToClipboard: 'Copier dans le presse-papiers !',
   copied: 'Copié',
+  enterCodeToGetStatus: 'Entrez votre code de demande pour obtenir le statut !',
+  weAreWorkingActively:
+    'Nous travaillons activement ! Nous prendrons en compte votre demande !',
+  pleaseBePatient: 'Veuillez être patient',
+  yourSchoolDomain: 'Votre établissement est disponible sur :',
+  yourRequestHasBeenValidated: 'Votre demande a été validée',
+  thankYouForYourPatience: 'Merci pour votre patience !',
+  submittedOn: 'Soumis le',
 };

@@ -482,4 +482,12 @@ export const website = {
   female: 'Female',
   copyToClipboard: 'Copy to clipboard!',
   copied: 'Copied',
+
+  enterCodeToGetStatus: 'Enter your demand code to get status!',
+  weAreWorkingActively: "We're working actively! We'll get to your request!",
+  pleaseBePatient: 'Please be patient',
+  yourSchoolDomain: 'Your school is available on: ',
+  yourRequestHasBeenValidated: 'Your request has been validated',
+  thankYouForYourPatience: 'Thank you for your patience!',
+  submittedOn: 'Submitted on',
 };
