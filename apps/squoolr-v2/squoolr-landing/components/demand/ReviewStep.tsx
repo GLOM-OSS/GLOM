@@ -2,13 +2,13 @@ import { Box, Button } from '@mui/material';
 import { useIntl } from 'react-intl';
 import ReviewColumn from './ReviewColumn';
 import { IPersonalInformation } from './forms/PersonnalInformation';
-import { ISchoolInformation } from './forms/SchoolInformation';
 import { IReferral } from './forms/ReferralInformation';
-import { validatePhoneNumber } from '@squoolr/utils';
+import { ISchoolInformation } from './forms/SchoolInformation';
 
 export default function ReviewStep({
   data,
   onboarding_fee,
+  isSubmitting,
   onPrev,
   onNext,
 }: {
@@ -19,17 +19,11 @@ export default function ReviewStep({
     payingNumber: string;
   };
   onboarding_fee: number;
+  isSubmitting: boolean;
   onPrev: () => void;
   onNext: () => void;
 }) {
   const { formatMessage, formatNumber } = useIntl();
-
-  function handlePayment() {
-    if (validatePhoneNumber(data.payingNumber) !== -1) {
-      //TODO: TRIGGER THE PAYMENT HERE WHEN ALL IS GOOD, THEN TRIGGER onNext
-      onNext();
-    } else alert(formatMessage({ id: 'enterValidPhoneForPayment' }));
-  }
 
   return (
     <Box sx={{ display: 'grid', rowGap: 4, alignContent: 'start' }}>
@@ -78,35 +72,28 @@ export default function ReviewStep({
           size="large"
           color="inherit"
           onClick={onPrev}
+          disabled={isSubmitting}
         >
           {formatMessage({ id: 'back' })}
         </Button>
-        {data.referral.referral_code ? (
-          <Button
-            variant="contained"
-            size="large"
-            color="primary"
-            onClick={onNext}
-          >
-            {formatMessage({
-              id: 'submitDemand',
-            })}
-          </Button>
-        ) : (
-          <Button
-            variant="contained"
-            size="large"
-            color="primary"
-            onClick={handlePayment}
-          >
-            {`${formatMessage({
-              id: 'payNow',
-            })} (${formatNumber(onboarding_fee, {
-              style: 'currency',
-              currency: 'xaf',
-            })})`}
-          </Button>
-        )}
+        <Button
+          variant="contained"
+          size="large"
+          color="primary"
+          onClick={onNext}
+          disabled={isSubmitting}
+        >
+          {data.referral.referral_code
+            ? formatMessage({
+                id: 'submitDemand',
+              })
+            : `${formatMessage({
+                id: 'payNow',
+              })} (${formatNumber(onboarding_fee, {
+                style: 'currency',
+                currency: 'xaf',
+              })})`}
+        </Button>
       </Box>
     </Box>
   );

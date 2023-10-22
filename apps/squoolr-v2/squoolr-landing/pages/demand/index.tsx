@@ -18,6 +18,8 @@ import ReferralInformation, {
 import SchoolInformation, {
   ISchoolInformation,
 } from '../../components/demand/forms/SchoolInformation';
+import { validatePhoneNumber } from '@squoolr/utils';
+import { SubmitSchoolDemandPayload } from '@glom/data-types/squoolr';
 
 interface IStep {
   title: string | JSX.Element;
@@ -32,10 +34,13 @@ export default function Demand() {
   const [activeStep, setActiveStep] = useState<number>(0);
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [payingPhone, setPayingPhone] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const steps: string[] = ['yourInfo', 'schoolInfo', 'ambassador', 'review'];
   //TODO: FETCH onboarding fee here
   const [onboarding_fee, setOnboarding_fee] = useState<number>(50000);
+  //TODO: SET THIS VALUE ONLY AFTER SUCCESSFULL DEMAND
+  const [demandCode, setDemandCode] = useState<string>('');
 
   const [personnalData, setPersonnalData] = useState<IPersonalInformation>({
     confirm_password: '',
@@ -69,6 +74,24 @@ export default function Demand() {
 
   function handleBack() {
     setActiveStep((prev) => (prev > 0 ? prev - 1 : prev));
+  }
+
+  function handleSubmitDemand() {
+    const submitData: SubmitSchoolDemandPayload = {
+      configurator: { ...personnalData },
+      school: { ...institutionData, ...referralData },
+      payment_phone: payingPhone,
+    };
+    setIsSubmitting(true);
+    if (referralData.referral_code) {
+      //TODO: call api to submit demand here with data submitData
+      //TODO: toast here
+      handleNext();
+    } else if (validatePhoneNumber(payingPhone) !== -1) {
+      //TODO: TRIGGER THE PAYMENT, when done, save all data, store demand code in state, THEN TRIGGER handleNext
+      setDemandCode('34125');
+      // handleNext();
+    } else alert(formatMessage({ id: 'enterValidPhoneForPayment' }));
   }
 
   const stepp: Record<string, IStep> = {
@@ -118,6 +141,7 @@ export default function Demand() {
     3: {
       description: (
         <ReviewDescription
+          isSubmitting={isSubmitting}
           payingPhone={payingPhone}
           setPayingPhone={setPayingPhone}
           referral_code={referralData.referral_code}
@@ -137,9 +161,10 @@ export default function Demand() {
             referral: referralData,
             payingNumber: payingPhone,
           }}
+          isSubmitting={isSubmitting}
           onboarding_fee={onboarding_fee}
           onPrev={handleBack}
-          onNext={handleNext}
+          onNext={handleSubmitDemand}
         />
       ),
     },

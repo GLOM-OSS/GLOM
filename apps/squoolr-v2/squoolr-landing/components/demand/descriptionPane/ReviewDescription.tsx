@@ -8,10 +8,12 @@ export default function ReviewDescription({
   payingPhone,
   setPayingPhone,
   referral_code,
+  isSubmitting,
 }: {
   payingPhone: string;
   setPayingPhone: (phone: string) => void;
   referral_code: string;
+  isSubmitting: boolean;
 }) {
   const theme = useTheme();
   const { formatMessage, formatNumber } = useIntl();
@@ -34,6 +36,7 @@ export default function ReviewDescription({
         })}: ${referral_code}`}</Typography>
       ) : (
         <TextField
+          disabled={isSubmitting}
           InputProps={{
             startAdornment: (
               <Typography variant="body1" mr={1}>
@@ -82,7 +85,7 @@ export default function ReviewDescription({
         >
           {formatMessage({ id: 'getFeeFreeJourney' })}
         </Typography>
-        {` ${formatMessage({id:'connectWithAmbassadorsAt'})} `}
+        {` ${formatMessage({ id: 'connectWithAmbassadorsAt' })} `}
         <Typography
           variant="h5"
           component="a"
