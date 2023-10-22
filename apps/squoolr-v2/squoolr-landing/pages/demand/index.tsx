@@ -177,83 +177,86 @@ export default function Demand() {
   };
 
   return (
-    <Box
-      sx={{
-        marginTop: '150px',
-        display: 'grid',
-        rowGap: '30px',
-        alignContent: 'start',
-      }}
-    >
-      <Paper
-        elevation={0}
+    <>
+      <Box
         sx={{
-          padding: '32px',
-          borderRadius: '8px',
-          display: 'grid',
-          gridTemplateColumns: 'auto 1fr',
-          alignItems: 'bottom',
-          justifyItems: 'end',
+          marginTop: '150px',
+          display: { mobile: 'none', laptop: 'grid' },
+          rowGap: '30px',
+          alignContent: 'start',
         }}
       >
-        <Box>
-          <Typography variant="h3">
-            {formatMessage({ id: 'demandForSchoolCreation' })}
-          </Typography>
-          <Typography variant="h5" sx={{ fontWeight: 400 }}>
-            {formatMessage({ id: 'demandForSchoolCreationSubtitle' })}
-          </Typography>
-        </Box>
+        <Paper
+          elevation={0}
+          sx={{
+            padding: '32px',
+            borderRadius: '8px',
+            display: 'grid',
+            gridTemplateColumns: 'auto 1fr',
+            alignItems: 'bottom',
+            justifyItems: 'end',
+          }}
+        >
+          <Box>
+            <Typography variant="h3">
+              {formatMessage({ id: 'demandForSchoolCreation' })}
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: 400 }}>
+              {formatMessage({ id: 'demandForSchoolCreationSubtitle' })}
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              display: 'grid',
+              gridAutoFlow: 'column',
+              alignItems: 'center',
+              columnGap: 1,
+            }}
+          >
+            {steps.map((step, index) => (
+              <Fragment key={index}>
+                {index > 0 && (
+                  <Divider
+                    sx={{
+                      backgroundColor:
+                        activeStep + 1 > index
+                          ? theme.palette.primary.main
+                          : theme.common.line,
+                      height: '2px',
+                      width: '100px',
+                    }}
+                  />
+                )}
+                <StepperItem
+                  step={formatMessage({ id: step })}
+                  activeStep={activeStep}
+                  currentStep={currentStep}
+                  position={index}
+                  openStep={() =>
+                    currentStep >= index && !isSubmitting && !demandCode
+                      ? setActiveStep(index)
+                      : null
+                  }
+                />
+              </Fragment>
+            ))}
+          </Box>
+        </Paper>
         <Box
           sx={{
             display: 'grid',
-            gridAutoFlow: 'column',
-            alignItems: 'center',
-            columnGap: 1,
+            gridTemplateColumns: '37fr 63fr',
+            columnGap: '30px',
+            padding: '0 18px',
           }}
         >
-          {steps.map((step, index) => (
-            <Fragment key={index}>
-              {index > 0 && (
-                <Divider
-                  sx={{
-                    backgroundColor:
-                      activeStep + 1 > index
-                        ? theme.palette.primary.main
-                        : theme.common.line,
-                    height: '2px',
-                    width: '100px',
-                  }}
-                />
-              )}
-              <StepperItem
-                step={formatMessage({ id: step })}
-                activeStep={activeStep}
-                currentStep={currentStep}
-                position={index}
-                openStep={() =>
-                  currentStep >= index && !isSubmitting && !demandCode
-                    ? setActiveStep(index)
-                    : null
-                }
-              />
-            </Fragment>
-          ))}
+          <StepDescriptionCard
+            title={stepp[activeStep].title}
+            description={stepp[activeStep].description}
+          />
+          {stepp[activeStep].form}
         </Box>
-      </Paper>
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: '37fr 63fr',
-          columnGap: '30px',
-        }}
-      >
-        <StepDescriptionCard
-          title={stepp[activeStep].title}
-          description={stepp[activeStep].description}
-        />
-        {stepp[activeStep].form}
       </Box>
-    </Box>
+    </>
   );
 }
