@@ -48,10 +48,11 @@ import { AmbassadorsModule } from './ambassadors/ambassadors.module';
     GlomPrismaModule.forRoot({
       isGlobal: true,
       async seedData(prisma) {
-        const settingsId = randomUUID();
+        const settingsId =
+          '2eed9593-b796-4b2d-b9e8-98dd005b9b7b' || randomUUID();
         const data: Prisma.PlatformSettingsCreateInput = {
           platform_settings_id: settingsId,
-          onboarding_fee: 0,
+          onboarding_fee: 10,
         };
 
         await prisma.platformSettings.upsert({
