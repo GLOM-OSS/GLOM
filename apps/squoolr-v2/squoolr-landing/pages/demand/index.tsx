@@ -141,7 +141,7 @@ export default function Demand() {
     3: {
       description: (
         <ReviewDescription
-          isSubmitting={isSubmitting}
+          isSubmitting={isSubmitting || !!demandCode}
           payingPhone={payingPhone}
           setPayingPhone={setPayingPhone}
           referral_code={referralData.referral_code}
@@ -161,7 +161,7 @@ export default function Demand() {
             referral: referralData,
             payingNumber: payingPhone,
           }}
-          isSubmitting={isSubmitting}
+          isSubmitting={isSubmitting || !!demandCode}
           onboarding_fee={onboarding_fee}
           onPrev={handleBack}
           onNext={handleSubmitDemand}
@@ -230,7 +230,9 @@ export default function Demand() {
                 currentStep={currentStep}
                 position={index}
                 openStep={() =>
-                  currentStep >= index && !isSubmitting && !demandCode ? setActiveStep(index) : null
+                  currentStep >= index && !isSubmitting && !demandCode
+                    ? setActiveStep(index)
+                    : null
                 }
               />
             </>
