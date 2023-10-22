@@ -442,4 +442,56 @@ export const website = {
   yourName: 'Votre nom',
   createYourSchool: 'Créez votre école',
   useFeatureNow: 'Utilisez la fonction maintenant',
+
+  allowedGenderError: 'Seuls les genres masculin et féminin sont autorisés',
+  onlyAcceptAccronym: 'Accepte uniquement [A-Z][0-9] et -',
+  HowDidYouHearAboutUs: 'Comment avez-vous entendu parler de nous',
+  yourInformation: 'Vos Informations',
+  yourInformationDescription:
+    "Vos informations personnelles nous permettront de créer un point de contact avec votre institution. C'est important car nous aurons quelques appels et échanges d'informations lors du processus de création et de gestion.",
+  institutionData: "Informations sur l'Institution",
+  institutionDataDescription:
+    "Les informations de votre école seront utilisées lors de la configuration initiale de votre institution. L'année académique servira à créer la première année académique au sein de laquelle les configurations de l'institution seront effectuées. Veuillez fournir des informations précises pour éviter des réclamations et des retards de correction ultérieurs !",
+  initial_year_ends_at: 'Date de fin de la première année académique',
+  initial_year_starts_at: 'Date de début de la première année académique',
+  school_email: "E-mail de l'école",
+  school_phone_number: "Numéro de téléphone de l'école",
+  school_acronym: "Acronyme de l'école",
+  enterValidPhoneForPayment:
+    'Veuillez entrer un numéro valide dans la colonne de gauche pour procéder au paiement !',
+  ambassador: 'Ambassadeur',
+  demandSubmitted: 'Demande soumise',
+  demandForSchoolCreation: "Demande de création d'école",
+  demandForSchoolCreationSubtitle:
+    'Remplissez les formulaires ci-dessous et nous vous mettrons votre solution très rapidement !',
+  yourInfo: 'Vos info',
+  schoolInfo: 'Info Ecole',
+  review: 'Révision',
+  phoneNumber: 'Numéro de téléphone',
+  invalidPhonenumber: 'Numéro de téléphone invalide',
+  institutionName: "Nom de l'institution",
+  schoolAcronym: "Acronyme de l'institution",
+  institutionPhoneNumber: "Numéro de téléphone de l'institution",
+  schoolEmail: "E-mail de l'institution",
+  initialAcademicYearStartDate: 'Date de début de la première année académique',
+  estimatedInitialAcademicYearEndDate:
+    'Date de fin estimée de la première année académique',
+  ambassadorCode: "Code de l'ambassadeur",
+  referralCodeExemptsFee:
+    "Le code d'un ambassadeur vous exempte des frais de configuration",
+  ambassadorDescription:
+    "Programme Ambassadeur de Squoolr : Zéro frais de configuration, conseils d'experts. Nos Ambassadeurs certifiés mettent en place votre plateforme, forment votre personnel et fournissent une assistance directe, réduisant ainsi votre stress.",
+  ambassadorDescriptionFee: 'Sans Ambassadeur, des frais vous seront facturés ',
+  toFindAmbassadorsVisit:
+    'Pour trouver des Ambassadeurs près de chez vous, visitez',
+  andGetStarted: 'et commencez.',
+  friend: 'Ami(e)',
+  other: 'Autre',
+  payingPhone: 'Numéro de paiement',
+  getFeeFreeJourney:
+    "Profitez d'une demande sans frais grâce à un code d'ambassadeur,",
+  connectWithAmbassadorsAt: 'connectez-vous avec des ambassadeurs sur',
+  setupFee: 'Frais de configuration : facturés une seule fois',
+  payNow: 'Payer maintenant',
+  submitDemand: 'Soumettre la demande',
 };
