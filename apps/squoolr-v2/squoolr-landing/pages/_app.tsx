@@ -1,20 +1,22 @@
+import { GlomThemeProvider } from '@glom/theme';
+import { Box } from '@mui/material';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
-import { Box } from '@mui/material';
-import { GlomThemeProvider } from '@glom/theme';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
+import ContactUs from '../components/contact-us/ContactUs';
+import StatusDialog from '../components/demand/status/StatusDialog';
+import Navbar from '../components/navigation/Navbar';
 import '../public/styles/global.scss';
 import '../public/styles/notifGlobalStyles.css';
 import '../public/styles/phoneNumberStyles.css';
 import '../public/styles/reset.css';
 import '../public/styles/root.scss';
-import 'aos/dist/aos.css';
-import AOS from 'aos';
-import { useEffect, useState } from 'react';
-import ContactUs from '../components/contact-us/ContactUs';
-import Navbar from '../components/navigation/Navbar';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 function CustomApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
@@ -31,6 +33,20 @@ function CustomApp({ Component, pageProps }: AppProps) {
   const [isEarlyAccesDialogOpen, setIsEarlyAccesDialogOpen] =
     useState<boolean>(false);
 
+  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState<boolean>(false);
+  const [demandCode, setDemandCode] = useState<string>('');
+  const { query, pathname } = useRouter();
+
+  useEffect(() => {
+    if (
+      typeof query.status !== 'undefined' &&
+      pathname.split('/').join('') === ''
+    ) {
+      if (query.status !== 'true') setDemandCode(query.status as string);
+      setIsStatusDialogOpen(true);
+    }
+  }, []);
+
   return (
     <GlomThemeProvider defaultLang="en">
       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -45,6 +61,12 @@ function CustomApp({ Component, pageProps }: AppProps) {
             backgroundColor: '#FAFAFD',
           }}
         >
+          <StatusDialog
+            closeDialog={() => setIsStatusDialogOpen(false)}
+            open={isStatusDialogOpen}
+            demandCode={demandCode}
+          />
+
           <ContactUs
             closeDialog={() => setIsContactUsDialogOpen(false)}
             open={isContactUsDialogOpen}
@@ -57,6 +79,7 @@ function CustomApp({ Component, pageProps }: AppProps) {
           <Navbar
             openContactUs={() => setIsContactUsDialogOpen(true)}
             openEarlyAccess={() => setIsEarlyAccesDialogOpen(true)}
+            openStatusDialog={() => setIsStatusDialogOpen(true)}
             canDemand={false}
           />
           <Box

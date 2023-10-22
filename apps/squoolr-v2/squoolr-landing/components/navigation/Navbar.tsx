@@ -117,10 +117,12 @@ export function LogoHolder({
 
 export default function Navbar({
   openContactUs,
+  openStatusDialog,
   openEarlyAccess,
   canDemand = false,
 }: {
   openContactUs: () => void;
+  openStatusDialog: () => void;
   openEarlyAccess: () => void;
   canDemand?: boolean;
 }) {
@@ -138,8 +140,10 @@ export default function Navbar({
         navItems={landingNavElements}
         close={() => setIsSideNavOpen(false)}
         open={isSideNavOpen}
+        canDemand={canDemand}
         openContactUs={openContactUs}
         openEarlyAccess={openEarlyAccess}
+        openStatusDialog={openStatusDialog}
       />
       <ElevationScroll>
         <AppBar color="default">
@@ -315,6 +319,7 @@ export default function Navbar({
                   variant="text"
                   color="primary"
                   sx={{ fontSize: '16px' }}
+                  onClick={openStatusDialog}
                 >
                   {formatMessage({ id: 'verifyDemandStatus' })}
                 </Button>

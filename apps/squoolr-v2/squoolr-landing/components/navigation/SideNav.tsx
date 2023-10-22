@@ -2,8 +2,8 @@ import { useTheme } from '@glom/theme';
 import { Box, Button, Drawer, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useIntl } from 'react-intl';
-import { LogoHolder } from './Navbar';
 import NavItem from './NavItem';
+import { LogoHolder } from './Navbar';
 
 interface INavItem {
   item: string;
@@ -16,12 +16,16 @@ export function SideNav({
   navItems,
   openContactUs,
   openEarlyAccess,
+  openStatusDialog,
+  canDemand = false,
 }: {
   close: () => void;
   open: boolean;
   navItems: INavItem[];
   openContactUs: () => void;
   openEarlyAccess: () => void;
+  openStatusDialog: () => void;
+  canDemand: boolean;
 }) {
   const { push } = useRouter();
 
@@ -103,15 +107,33 @@ export function SideNav({
                 justifyItems: 'center',
               }}
             >
-              <Button variant="text" color="primary" size="small">
-                {formatMessage({ id: 'verifyDemandStatus' })}
-              </Button>
+              {canDemand && (
+                <Button
+                  variant="text"
+                  color="primary"
+                  size="small"
+                  onClick={() => {
+                    openStatusDialog();
+                    close();
+                  }}
+                >
+                  {formatMessage({ id: 'verifyDemandStatus' })}
+                </Button>
+              )}
               <Button
                 variant="contained"
                 color="primary"
-                onClick={openEarlyAccess}
+                size={canDemand ? 'small' : 'medium'}
+                onClick={() => {
+                  if (canDemand) push('/demand');
+                  else openEarlyAccess();
+
+                  close();
+                }}
               >
-                {formatMessage({ id: 'getEarlyAccess' })}
+                {formatMessage({
+                  id: canDemand ? 'createYourSchool' : 'getEarlyAccess',
+                })}
               </Button>
             </Box>
             <Box sx={{ display: 'grid', justifyItems: 'center', rowGap: 1 }}>
