@@ -13,6 +13,8 @@ import AOS from 'aos';
 import { useEffect, useState } from 'react';
 import ContactUs from '../components/contact-us/ContactUs';
 import Navbar from '../components/navigation/Navbar';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 function CustomApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
@@ -31,46 +33,48 @@ function CustomApp({ Component, pageProps }: AppProps) {
 
   return (
     <GlomThemeProvider defaultLang="en">
-      <Head>
-        <title>Squoolr</title>
-      </Head>
-      <Box
-        component="main"
-        sx={{
-          minHeight: '100vh',
-          display: 'grid',
-          backgroundColor: '#FAFAFD',
-        }}
-      >
-        <ContactUs
-          closeDialog={() => setIsContactUsDialogOpen(false)}
-          open={isContactUsDialogOpen}
-        />
-        <ContactUs
-          closeDialog={() => setIsEarlyAccesDialogOpen(false)}
-          open={isEarlyAccesDialogOpen}
-          usage="EarlyAccess"
-        />
-        <Navbar
-          openContactUs={() => setIsContactUsDialogOpen(true)}
-          openEarlyAccess={() => setIsEarlyAccesDialogOpen(true)}
-          canDemand={false}
-        />
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Head>
+          <title>Squoolr</title>
+        </Head>
         <Box
+          component="main"
           sx={{
-            height: '100%',
-            maxWidth: '1700px',
-            margin: '0 auto',
-            width: '100%',
+            minHeight: '100vh',
+            display: 'grid',
+            backgroundColor: '#FAFAFD',
           }}
         >
-          <Component
-            {...pageProps}
-            setIsContactUsDialogOpen={setIsContactUsDialogOpen}
-            setIsEarlyAccesDialogOpen={setIsEarlyAccesDialogOpen}
+          <ContactUs
+            closeDialog={() => setIsContactUsDialogOpen(false)}
+            open={isContactUsDialogOpen}
           />
+          <ContactUs
+            closeDialog={() => setIsEarlyAccesDialogOpen(false)}
+            open={isEarlyAccesDialogOpen}
+            usage="EarlyAccess"
+          />
+          <Navbar
+            openContactUs={() => setIsContactUsDialogOpen(true)}
+            openEarlyAccess={() => setIsEarlyAccesDialogOpen(true)}
+            canDemand={false}
+          />
+          <Box
+            sx={{
+              height: '100%',
+              maxWidth: '1700px',
+              margin: '0 auto',
+              width: '100%',
+            }}
+          >
+            <Component
+              {...pageProps}
+              setIsContactUsDialogOpen={setIsContactUsDialogOpen}
+              setIsEarlyAccesDialogOpen={setIsEarlyAccesDialogOpen}
+            />
+          </Box>
         </Box>
-      </Box>
+      </LocalizationProvider>
     </GlomThemeProvider>
   );
 }
