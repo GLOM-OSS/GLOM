@@ -230,7 +230,7 @@ export default function Demand() {
                 currentStep={currentStep}
                 position={index}
                 openStep={() =>
-                  currentStep >= index ? setActiveStep(index) : null
+                  currentStep >= index && !isSubmitting && !demandCode ? setActiveStep(index) : null
                 }
               />
             </>
