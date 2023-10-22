@@ -106,11 +106,11 @@ model Person {
     first_name         String            @db.VarChar(50)
     last_name          String            @db.VarChar(50)
     phone_number       String            @unique @db.VarChar(15)
-    birthdate          DateTime          @db.DateTime(0)
+    birthdate          DateTime?         @db.DateTime(0)
     birthplace         String?           @db.VarChar(45)
     gender             Gender
     nationality        String?           @db.VarChar(45)
-    national_id_number String            @db.VarChar(15)
+    national_id_number String?           @db.VarChar(15)
     address            String?           @db.VarChar(100)
     longitude          Int?
     latitude           Int?
@@ -134,11 +134,11 @@ model PersonAudit {
     first_name         String              @db.VarChar(50)
     last_name          String              @db.VarChar(50)
     phone_number       String              @db.VarChar(15)
-    birthdate          DateTime            @db.DateTime(0)
+    birthdate          DateTime?           @db.DateTime(0)
     birthplace         String?             @db.VarChar(45)
     gender             Gender
     nationality        String?             @db.VarChar(45)
-    national_id_number String              @db.VarChar(15)
+    national_id_number String?             @db.VarChar(15)
     address            String?             @db.VarChar(100)
     longitude          Int?
     latitude           Int?
