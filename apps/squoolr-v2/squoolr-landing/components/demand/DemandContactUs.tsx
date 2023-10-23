@@ -1,12 +1,12 @@
 import { PhoneTextField } from '@glom/components';
+import { CreateInquiryPayload } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { useFormik } from 'formik';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import * as Yup from 'yup';
-import { ICreateContactUs } from '../../components/contact-us/ContactUs';
-import { useState } from 'react';
-import { useRouter } from 'next/router';
 
 export default function DemandContactUs() {
   const theme = useTheme();
@@ -16,19 +16,19 @@ export default function DemandContactUs() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isDemandSubmitted, setIsDemandSubmitted] = useState<boolean>(false);
 
-  const initialValues: ICreateContactUs = {
+  const initialValues: CreateInquiryPayload = {
     email: '',
     phone: '',
-    fullname: '',
+    name: '',
     message: formatMessage({ id: 'demandMessage' }),
-    type: 'Default',
+    type: 'Demand',
   };
 
   const validationSchema = Yup.object().shape({
     email: Yup.string()
       .email()
       .required(formatMessage({ id: 'requiredField' })),
-    fullname: Yup.string().required(formatMessage({ id: 'requiredField' })),
+    name: Yup.string().required(formatMessage({ id: 'requiredField' })),
     phone: Yup.string().required(formatMessage({ id: 'requiredField' })),
     message: Yup.string().required(formatMessage({ id: 'requiredField' })),
   });
@@ -122,9 +122,9 @@ export default function DemandContactUs() {
             label={formatMessage({ id: 'fullname' })}
             placeholder={formatMessage({ id: 'fullname' })}
             variant="outlined"
-            error={formik.touched.fullname && Boolean(formik.errors.fullname)}
-            helperText={formik.touched.fullname && formik.errors.fullname}
-            {...formik.getFieldProps('fullname')}
+            error={formik.touched.name && Boolean(formik.errors.name)}
+            helperText={formik.touched.name && formik.errors.name}
+            {...formik.getFieldProps('name')}
             disabled={isSubmitting}
           />
           <TextField
