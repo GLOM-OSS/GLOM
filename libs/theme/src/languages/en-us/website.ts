@@ -490,4 +490,12 @@ export const website = {
   yourRequestHasBeenValidated: 'Your request has been validated',
   thankYouForYourPatience: 'Thank you for your patience!',
   submittedOn: 'Submitted on',
+
+  fullname: 'Your full name',
+  demandMessage:
+    "Hello Squoolr Team, I'm interested in setting up and using this platform for my school. Can you provide me with the necessary resources?",
+  submitDemandSubtitle:
+    "Full feature access on larger screens (laptop and up). Leave your details, and we'll assist with the setup.",
+  demandSubmittedSubtitle:
+    "We've received your request, and we'll be in touch shortly to help you get set up and rolling. Cheers!",
 };

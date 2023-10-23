@@ -515,4 +515,12 @@ export const website = {
   yourRequestHasBeenValidated: 'Votre demande a été validée',
   thankYouForYourPatience: 'Merci pour votre patience !',
   submittedOn: 'Soumis le',
+
+  fullname: 'Votre nom complet',
+  demandMessage:
+    'Salut Équipe Squoolr, je suis intéressé à mettre en place et à utiliser cette plateforme pour mon institut. Pouvez-vous me fournir les ressources nécessaires ?',
+  submitDemandSubtitle:
+    'Accès complet a fonctionnalité sur les écrans plus grands (ordinateur portable et supérieur). Laissez vos coordonnées, et nous vous assisterons pour la configuration.',
+  demandSubmittedSubtitle:
+    'Nous avons bien reçu votre demande et nous vous contacterons bientôt pour vous aider à démarrer.',
 };
