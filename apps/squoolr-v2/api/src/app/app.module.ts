@@ -10,7 +10,6 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { Prisma } from '@prisma/client';
 
 import RedisStore from 'connect-redis';
 import { randomUUID } from 'crypto';
@@ -22,6 +21,8 @@ import { TasksModule } from '@glom/nest-tasks';
 import { GlomPrismaModule } from '@glom/prisma';
 
 import { AcademicYearsModule } from './academic-years/academic-years.module';
+import { AmbassadorsModule } from './ambassadors/ambassadors.module';
+import { seedData } from './app-seeder.factory';
 import { AppController } from './app.controller';
 import { AppInterceptor } from './app.interceptor';
 import { AppMiddleware } from './app.middleware';
@@ -29,7 +30,6 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { DemandModule } from './demand/demand.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
-import { AmbassadorsModule } from './ambassadors/ambassadors.module';
 
 @Module({
   imports: [
@@ -47,20 +47,7 @@ import { AmbassadorsModule } from './ambassadors/ambassadors.module';
     }),
     GlomPrismaModule.forRoot({
       isGlobal: true,
-      async seedData(prisma) {
-        const settingsId =
-          '2eed9593-b796-4b2d-b9e8-98dd005b9b7b' || randomUUID();
-        const data: Prisma.PlatformSettingsCreateInput = {
-          platform_settings_id: settingsId,
-          onboarding_fee: 10,
-        };
-
-        await prisma.platformSettings.upsert({
-          create: data,
-          update: data,
-          where: { platform_settings_id: settingsId },
-        });
-      },
+      seedData,
     }),
     TasksModule,
     AuthModule,
@@ -72,10 +59,10 @@ import { AmbassadorsModule } from './ambassadors/ambassadors.module';
   controllers: [AppController],
   providers: [
     AppService,
-    // {
-    //   provide: APP_INTERCEPTOR,
-    //   useClass: AppInterceptor,
-    // },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AppInterceptor,
+    },
     {
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,
