@@ -498,4 +498,21 @@ export const website = {
     "Full feature access on larger screens (laptop and up). Leave your details, and we'll assist with the setup.",
   demandSubmittedSubtitle:
     "We've received your request, and we'll be in touch shortly to help you get set up and rolling. Cheers!",
+
+  ourPricing: 'Our Pricing',
+  ourPricingSubtitle:
+    'Explore Our Exclusive, No-Cost Pricing Model Tailored for Institutions, Bringing Unprecedented Levels of Efficiency and Excellence',
+  freeForInstitutions: 'Free for Institutions',
+  freeForInstitutionsSubtitle:
+    'Discover Our Free, Tailored Institutional Pricing for Unmatched Efficiency and Excellence',
+  studentsPay: 'Students pay',
+  perSemesterForPlatformFee: 'Per semester for platform fee',
+  onboardNow: 'Onboard Now',
+  functionalitiesInclude: 'Functionalities include:',
+  studentRegistration: 'Student Registration',
+  feePayment: 'Fee Payment',
+  markManagement: 'Mark Management',
+  disciplineManagement: 'Discipline Management',
+  parentsPlatform: 'Parents Platform',
+  allFunctionalities: 'All Functionalities',
 };

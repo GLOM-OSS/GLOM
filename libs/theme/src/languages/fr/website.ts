@@ -523,4 +523,21 @@ export const website = {
     'Accès complet a fonctionnalité sur les écrans plus grands (ordinateur portable et supérieur). Laissez vos coordonnées, et nous vous assisterons pour la configuration.',
   demandSubmittedSubtitle:
     'Nous avons bien reçu votre demande et nous vous contacterons bientôt pour vous aider à démarrer.',
+
+  ourPricing: 'Notre Tarification',
+  ourPricingSubtitle:
+    "Explorez notre modèle de tarification exclusif et sans frais, adapté aux institutions, apportant des niveaux d'efficacité et d'excellence inégalés",
+  freeForInstitutions: 'Gratuit pour les Institutions',
+  freeForInstitutionsSubtitle:
+    'Découvrez notre tarification institutionnelle gratuite et sur mesure pour une excellence inégalée',
+  studentsPay: 'Les étudiants paient',
+  perSemesterForPlatformFee: 'Par semestre pour les frais de la plateforme',
+  onboardNow: 'Embarquez maintenant',
+  functionalitiesInclude: 'Les fonctionnalités incluent :',
+  studentRegistration: 'Inscription des étudiants',
+  feePayment: 'Paiement des frais de scolarité',
+  markManagement: 'Gestion des notes',
+  disciplineManagement: 'Gestion de la discipline',
+  parentsPlatform: 'Plateforme pour les parents',
+  allFunctionalities: 'Toutes les fonctionnalités',
 };
