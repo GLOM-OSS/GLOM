@@ -1,9 +1,15 @@
 import { SubmitSchoolDemandPayload } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
-import { Box, Divider, Paper, Typography } from '@mui/material';
+import {
+  Box,
+  Divider,
+  Paper,
+  Typography
+} from '@mui/material';
 import { validatePhoneNumber } from '@squoolr/utils';
-import { useState, Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import { useIntl } from 'react-intl';
+import DemandContactUs from '../../components/demand/DemandContactUs';
 import ReviewStep from '../../components/demand/ReviewStep';
 import StepperItem from '../../components/demand/StepperItem';
 import SubmittedStep from '../../components/demand/SubmittedStep';
@@ -178,6 +184,8 @@ export default function Demand() {
 
   return (
     <>
+      <DemandContactUs />
+
       <Box
         sx={{
           marginTop: '150px',
