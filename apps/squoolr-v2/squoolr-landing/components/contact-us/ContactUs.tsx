@@ -31,7 +31,7 @@ export default function ContactUs({
     phone: '',
     message: usage === 'Default' ? '' : 'earlyAccessMessage',
     name: '',
-    type: 'Default',
+    type: usage,
   };
 
   const validationSchema = Yup.object().shape({
