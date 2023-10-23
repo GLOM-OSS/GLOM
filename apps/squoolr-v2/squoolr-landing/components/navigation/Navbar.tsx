@@ -32,7 +32,11 @@ export function ElevationScroll({ children }: { children: ReactElement }) {
 }
 
 export const scrollToSection = (sectionId: string) => {
-  const section = document.querySelector(sectionId);
+  let tt = sectionId.split('/');
+  let usedSection = '';
+  if (tt.length > 1) usedSection = tt[1];
+  else usedSection = tt[0];
+  const section = document.querySelector(usedSection);
   section?.scrollIntoView({ behavior: 'smooth' });
 };
 
@@ -52,10 +56,10 @@ interface INavItem {
 }
 
 const landingNavElements: INavItem[] = [
-  { item: 'features', route: '#features' },
-  { item: 'partners', route: '#partners' },
+  { item: 'features', route: '/#features' },
+  { item: 'partners', route: '/#partners' },
   { item: 'pricing', route: 'pricing' },
-  { item: 'faq', route: '#faq' },
+  { item: 'faq', route: '/#faq' },
 ];
 
 export function LogoHolder({
@@ -113,10 +117,12 @@ export function LogoHolder({
 
 export default function Navbar({
   openContactUs,
+  openStatusDialog,
   openEarlyAccess,
   canDemand = false,
 }: {
   openContactUs: () => void;
+  openStatusDialog: () => void;
   openEarlyAccess: () => void;
   canDemand?: boolean;
 }) {
@@ -134,8 +140,10 @@ export default function Navbar({
         navItems={landingNavElements}
         close={() => setIsSideNavOpen(false)}
         open={isSideNavOpen}
+        canDemand={canDemand}
         openContactUs={openContactUs}
         openEarlyAccess={openEarlyAccess}
+        openStatusDialog={openStatusDialog}
       />
       <ElevationScroll>
         <AppBar color="default">
@@ -311,6 +319,7 @@ export default function Navbar({
                   variant="text"
                   color="primary"
                   sx={{ fontSize: '16px' }}
+                  onClick={openStatusDialog}
                 >
                   {formatMessage({ id: 'verifyDemandStatus' })}
                 </Button>

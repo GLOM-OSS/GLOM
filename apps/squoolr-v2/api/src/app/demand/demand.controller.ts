@@ -6,20 +6,16 @@ import {
   Param,
   Post,
   Put,
-  Req
+  Req,
 } from '@nestjs/common';
-import {
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiTags
-} from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { IsPublic, Role, Roles } from '../auth/auth.decorator';
 import {
   DemandDetails,
   SchoolEntity,
   SubmitDemandDto,
-  ValidateDemandDto
+  ValidateDemandDto,
 } from './demand.dto';
 import { DemandService } from './demand.service';
 
@@ -52,6 +48,18 @@ export class DemandController {
   @Post('new')
   @ApiCreatedResponse({ type: SchoolEntity })
   submitDemand(@Body() schoolDemandPayload: SubmitDemandDto) {
+    const {
+      payment_phone,
+      school: { referral_code },
+    } = schoolDemandPayload;
+    if (payment_phone && referral_code)
+      throw new BadRequestException(
+        'payment number and referral code cannot be both provided'
+      );
+    if (!payment_phone && !referral_code)
+      throw new BadRequestException(
+        'please provide phone number or referral code'
+      );
     return this.demandService.create(schoolDemandPayload);
   }
 

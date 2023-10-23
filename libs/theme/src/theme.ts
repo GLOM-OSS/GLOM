@@ -236,6 +236,20 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
           }),
         },
       },
+      MuiTextField: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            background: theme.common.offWhite,
+            '& .MuiOutlinedInput-root': {
+              border: 'none',
+              borderRadius: '8px',
+            },
+            '& .MuiOutlinedInput-notchedOutline': {
+              border: `1px solid ${theme.common.line}`,
+            },
+          }),
+        },
+      },
       MuiDialog: {
         styleOverrides: {
           root: ({ theme }) => ({

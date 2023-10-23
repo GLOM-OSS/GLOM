@@ -421,4 +421,81 @@ export const website = {
 
   createYourSchool: 'Create Your School',
   useFeatureNow: 'Use Feature Now',
+
+  allowedGenderError: 'Allowed gender are Male and Female',
+  onlyAcceptAccronym: 'only accepts [A-Z][0-9] and -',
+  HowDidYouHearAboutUs: 'How did you hear about us',
+  yourInformation: 'Your Information',
+  yourInformationDescription:
+    'Your personal information will permit us to create a point of contact with your institution. This is important as we will have some few calls and information exchange during the creation and management process.',
+  institutionData: 'Institution Information',
+  institutionDataDescription:
+    "Your school's information will be used in the initial setup of your institution. The academic year will be used to create the first academic year within which the institutions configurations will be made. Please provide accurate information to avoid complains and delays in correction later!",
+  initial_year_ends_at: 'Initial year end date',
+  initial_year_starts_at: 'Initial year start date',
+  school_email: 'School email',
+  school_phone_number: 'School phone',
+  school_acronym: 'School acronym',
+  enterValidPhoneForPayment:
+    'Please enter a valid number in the left column to proceed with payment!',
+  ambassador: 'Ambassador',
+  demandSubmitted: 'Demand Submitted',
+  demandForSchoolCreation: 'Demand for School Creation',
+  demandForSchoolCreationSubtitle:
+    "Fill in the forms below and we'll set you up very swiftly!",
+  yourInfo: 'Your Info',
+  schoolInfo: 'School Info',
+  review: 'Review',
+  phoneNumber: 'Phone number',
+  invalidPhonenumber: 'Invalid phone number',
+  institutionName: 'Intitution name',
+  schoolAcronym: 'Institution acronym',
+  institutionPhoneNumber: 'Institution phone number',
+  schoolEmail: 'Institution email',
+  initialAcademicYearStartDate: 'First academic year start date',
+  estimatedInitialAcademicYearEndDate: 'First Academic year estimated end date',
+  ambassadorCode: 'Ambassador code',
+  referralCodeExemptsFee: 'Ambassador code exempts you from setup fee',
+  ambassadorDescription:
+    "Squoolr's Ambassador Program: Zero Setup Fees, Expert Guidance. Our certified Ambassadors set up your platform, train your staff, and provide direct assistance, reducing your stress.",
+  ambassadorDescriptionFee: 'Without an Ambassador, you will pay a fee ',
+  toFindAmbassadorsVisit: 'To find Ambassadors near you, visit',
+  andGetStarted: 'and get started.',
+  friend: 'Friend',
+  other: 'Other',
+  payingPhone: 'Paying number',
+  getFeeFreeJourney: 'Get fee-free journey with an ambassador code,',
+  connectWithAmbassadorsAt: 'connect with ambassadors at',
+  setupFee: 'Setup Fee: billed only once',
+  payNow: 'Pay Now',
+  submitDemand: 'Submit Demand',
+
+  demandEmailSent:
+    'An email has been sent to both your personal and school email addresses containing your demand details.',
+  demandTreatmentDelay:
+    ' Demands typically take a maximum of 7 working days to be treated. ',
+  checkYourDemandStatus: "Check your demand's status progression at",
+
+  mailSentForFutureReference:
+    'An email containing your demand details have been sent to your address for future reference!',
+  male: 'Male',
+  female: 'Female',
+  copyToClipboard: 'Copy to clipboard!',
+  copied: 'Copied',
+
+  enterCodeToGetStatus: 'Enter your demand code to get status!',
+  weAreWorkingActively: "We're working actively! We'll get to your request!",
+  pleaseBePatient: 'Please be patient',
+  yourSchoolDomain: 'Your school is available on: ',
+  yourRequestHasBeenValidated: 'Your request has been validated',
+  thankYouForYourPatience: 'Thank you for your patience!',
+  submittedOn: 'Submitted on',
+
+  fullname: 'Your full name',
+  demandMessage:
+    "Hello Squoolr Team, I'm interested in setting up and using this platform for my school. Can you provide me with the necessary resources?",
+  submitDemandSubtitle:
+    "Full feature access on larger screens (laptop and up). Leave your details, and we'll assist with the setup.",
+  demandSubmittedSubtitle:
+    "We've received your request, and we'll be in touch shortly to help you get set up and rolling. Cheers!",
 };

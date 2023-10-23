@@ -1,18 +1,18 @@
 import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
-import { Exclude, Transform, Type } from 'class-transformer';
+import { SchoolDemandStatus } from '@prisma/client';
+import { Transform, Type } from 'class-transformer';
 import {
   IsDateString,
   IsEmail,
-  IsEnum,
   IsNotEmptyObject,
+  IsNumber,
   IsOptional,
   IsPhoneNumber,
   IsString,
   NotContains,
   ValidateNested,
 } from 'class-validator';
-import { PersonEntity, CreatePersonDto } from '../auth/auth.dto';
-import { SchoolDemandStatus } from '@prisma/client';
+import { CreatePersonDto, PersonEntity } from '../auth/auth.dto';
 
 export class CreateSchoolDto {
   @ApiProperty()
@@ -27,15 +27,26 @@ export class CreateSchoolDto {
   @IsEmail()
   school_email: string;
 
+  @IsString()
+  @ApiProperty()
+  lead_funnel: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional()
+  referral_code?: string;
+
   @ApiProperty()
   @IsPhoneNumber('CM')
   school_phone_number: string;
 
   @ApiProperty()
+  @Transform(({ value }) => new Date(value))
   @IsDateString()
   initial_year_starts_at: Date;
 
   @ApiProperty()
+  @Transform(({ value }) => new Date(value))
   @IsDateString()
   initial_year_ends_at: Date;
 
@@ -45,11 +56,16 @@ export class CreateSchoolDto {
 }
 
 export class SubmitDemandDto {
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional()
+  payment_phone?: string;
+
   @IsNotEmptyObject()
   @ValidateNested()
   @Type(() => CreatePersonDto)
   @ApiProperty({ type: CreatePersonDto })
-  personnel: CreatePersonDto;
+  configurator: CreatePersonDto;
 
   @IsNotEmptyObject()
   @ValidateNested()
@@ -63,6 +79,7 @@ export class ValidateDemandDto {
   @IsString()
   school_code: string;
 
+  @IsString()
   @IsOptional()
   @ApiPropertyOptional()
   rejection_reason?: string;
@@ -74,9 +91,17 @@ export class ValidateDemandDto {
 }
 
 export class SchoolEntity extends OmitType(CreateSchoolDto, [
+  'referral_code',
   'initial_year_ends_at',
   'initial_year_starts_at',
 ]) {
+  @IsNumber()
+  @ApiProperty()
+  paid_amount: number;
+
+  @ApiProperty()
+  ambassador_email: string;
+
   @ApiProperty()
   school_code: string;
 
