@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
 import { ApiExcludeEndpoint, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { DesirializeSession, User } from '../auth/auth';
 import { Role, Roles } from '../auth/auth.decorator';
 import {
   AcademicYearEntity,
@@ -40,7 +39,7 @@ export class AcademicYearsController {
     const {
       school_id,
       annualConfigurator: { annual_configurator_id },
-    } = request.user as User;
+    } = request.user as Express.User;
     return this.academicYearService.create(
       school_id,
       newAcademicYear,
@@ -55,8 +54,11 @@ export class AcademicYearsController {
     @Param('academic_year_id') academic_year_id: string
   ) {
     const { login_id } = request.session.passport.user;
-    const { desirializedRoles, roles } =
-      await this.academicYearService.retrieveRoles(login_id, academic_year_id);
+    // const { desirializedRoles, roles } =
+    const { desirializedRoles } = await this.academicYearService.retrieveRoles(
+      login_id,
+      academic_year_id
+    );
 
     // await this.authService.updateSession(request, { roles, academic_year_id });
     return desirializedRoles;
@@ -72,7 +74,7 @@ export class AcademicYearsController {
   ) {
     const {
       annualConfigurator: { annual_configurator_id },
-    } = request.user as User;
+    } = request.user as Express.User;
     return {
       academic_year_id: await this.academicYearService.template(
         template_year_id,

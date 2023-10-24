@@ -10,13 +10,27 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request } from 'express';
-import { PassportUser, User } from './auth';
-import { SetNewPasswordDto, ResetPasswordDto, SignInDto } from './auth.dto';
+import { PassportUser } from './auth';
+import {
+  SetNewPasswordDto,
+  ResetPasswordDto,
+  SignInDto,
+  User,
+  SingInResponse,
+  PersonEntity,
+} from './auth.dto';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { LocalGuard } from './local/local.guard';
+import { AcademicYear } from '@prisma/client';
 
 @ApiBearerAuth()
 @ApiTags('Auth')
@@ -29,41 +43,33 @@ export class AuthController {
 
   @Post('signin')
   @UseGuards(LocalGuard)
+  @ApiCreatedResponse({ type: SingInResponse })
   async signIn(@Req() request: Request, @Body() login: SignInDto) {
-    Logger.debug(`Successfully login ${login.email} !!!`);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { created_at, cookie_age, roles, job_name, school_id, ...user } =
-      request.user as User & PassportUser;
-
-    if (!school_id) return { user };
-    const { academicYears, desirializedRoles } =
-      await this.authService.updateUserRoles(request, user.login_id);
-
-    return {
-      user: {
-        ...user,
-        ...(desirializedRoles ? desirializedRoles : {}),
-      },
-      academic_years: academicYears,
-    };
+    let user = request.user;
+    let academicYears: AcademicYear[] = [];
+    if (user.school_id) {
+      const result = await this.authService.updateUserSession(
+        request,
+        user.login_id
+      );
+      academicYears = result.academicYears;
+      user = { ...user, ...result.desirializedRoles };
+    }
+    return new SingInResponse({ user, academicYears });
   }
 
   @Post('reset-password')
+  @ApiNoContentResponse()
   async resetPassword(
     @Req() request: Request,
     @Body() { email }: ResetPasswordDto
   ) {
     const squoolr_client = new URL(request.headers.origin).host;
-    const { reset_password_id } = await this.authService.resetPassword(
-      email,
-      squoolr_client
-    );
-    return {
-      reset_link: `${request.headers.origin}/forgot-password/${reset_password_id}/new-password`,
-    };
+    await this.authService.resetPassword(email, squoolr_client);
   }
 
   @Post('new-password')
+  @ApiNoContentResponse()
   async setNewPassword(
     @Req() request: Request,
     @Body() { reset_password_id, new_password }: SetNewPasswordDto
@@ -74,29 +80,28 @@ export class AuthController {
       new_password,
       squoolr_client
     );
-    return { is_new_password_set: true };
   }
 
   @Delete('log-out')
   @UseGuards(AuthenticatedGuard)
   async logOut(@Req() request: Request) {
-    const { log_id } = request.session.passport.user;
+    // const { log_id } = request.session.passport.user;
     return request.session.destroy(async (err) => {
       if (err)
         throw new InternalServerErrorException('Could not detroy session');
-      await this.prismaService.log.update({
-        data: { logged_out_at: new Date() },
-        where: { log_id },
-      });
+      // await this.prismaService.log.updateMany({
+      //   data: { logged_out_at: new Date() },
+      //   where: {  },
+      // });
     });
   }
 
   @Get('user')
+  @ApiOkResponse({ type: PersonEntity })
   @UseGuards(AuthenticatedGuard)
   async getUser(@Req() request: Request) {
     const email = request.query.email as string;
-    return {
-      user: email ? await this.authService.getUser(email) : request.user,
-    };
+    const person = email ? await this.authService.getPerson(email) : request.user;
+    return new PersonEntity(person);
   }
 }

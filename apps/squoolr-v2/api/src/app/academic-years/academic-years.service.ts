@@ -409,14 +409,14 @@ export class AcademicYearsService {
   async retrieveRoles(
     login_id: string,
     academic_year_id: string
-  ): Promise<{ roles: UserRole[]; desirializedRoles: DesirializedRoles }> {
+  ): Promise<{ desirializedRoles: DesirializedRoles }> {
+    // ): Promise<{ roles: UserRole[]; desirializedRoles: DesirializedRoles }> {
     const retrivedRoles: UserRole[] = [];
     const { school_id } = await this.prismaService.login.findUnique({
       where: { login_id },
     });
 
-    if (!school_id)
-      return { roles: [], desirializedRoles: {} as DesirializedRoles };
+    if (!school_id) return { desirializedRoles: DesirializedRoles.prototype };
     const { started_at, ended_at, starts_at, ends_at, year_code, year_status } =
       await this.prismaService.academicYear.findFirst({
         where: {
@@ -570,7 +570,7 @@ export class AcademicYearsService {
       }
     }
     return {
-      roles: retrivedRoles,
+      // roles: retrivedRoles,
       desirializedRoles: new DesirializedRoles(desirializedSession),
     };
   }

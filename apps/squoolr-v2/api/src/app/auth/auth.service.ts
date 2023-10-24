@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -12,7 +13,7 @@ import { Login } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { AcademicYearsService } from '../academic-years/academic-years.service';
-import { DesirializeSession, PassportUser, User } from './auth';
+import { DesirializeSession, PassportUser, ValidatedUser } from './auth';
 import { Role } from './auth.decorator';
 
 @Injectable()
@@ -23,7 +24,11 @@ export class AuthService {
     private academicYearService: AcademicYearsService
   ) {}
 
-  async validateUser(request: Request, email: string, password: string) {
+  async validateUser(
+    request: Request,
+    email: string,
+    password: string
+  ): Promise<ValidatedUser> {
     const person = await this.prismaService.person.findUnique({
       where: { email },
     });
@@ -37,8 +42,8 @@ export class AuthService {
         try {
           const user = await this.validateLogin(request, login);
           return {
-            ...user,
             ...person,
+            session: user,
             login_id: login.login_id,
             school_id: login.school_id,
           };
@@ -50,7 +55,10 @@ export class AuthService {
     }
   }
 
-  async authenticateUser(request: Request, email: string) {
+  async authenticateUser(
+    request: Request,
+    email: string
+  ): Promise<ValidatedUser> {
     const person = await this.prismaService.person.findUnique({
       where: { email },
     });
@@ -62,21 +70,24 @@ export class AuthService {
       const login = userLogins[i];
       const user = await this.validateLogin(request, login);
       return {
-        ...user,
         ...person,
+        session: user,
         login_id: login.login_id,
       };
     }
   }
 
-  async validateLogin(request: Request, login: Omit<Login, 'password'>) {
+  async validateLogin(
+    request: Request,
+    login: Omit<Login, 'password'>
+  ): Promise<PassportUser> {
     const origin = new URL(request.headers.origin).host;
     const { login_id, school_id, is_personnel, is_parent, cookie_age } = login;
 
     let user: Omit<PassportUser, 'log_id'> = {
       login_id,
-      cookie_age,
-      roles: [],
+      // cookie_age,
+      // roles: [],
     };
     const activeLogs = await this.prismaService.log.count({
       where: {
@@ -112,22 +123,23 @@ export class AuthService {
     } else {
       if (!this.checkOrigin(origin, Role.ADMIN))
         throw new UnauthorizedException('Not admin'); //attempting to be an admin
-      user = {
-        ...user,
-        roles: [
-          {
-            role: Role.ADMIN,
-            user_id: login_id,
-          },
-        ],
-      };
+      // user = {
+      //   ...user,
+      //   roles: [
+      //     {
+      //       role: Role.ADMIN,
+      //       user_id: login_id,
+      //     },
+      //   ],
+      // };
     }
     const { log_id, job_name } = await this.logIn(
       request,
       user.login_id,
-      user.cookie_age
+      3600
+      // user.cookie_age
     );
-    return { log_id, ...user, job_name };
+    return { login_id };
   }
 
   private checkOrigin(origin: string, role: Role, subdomain?: string) {
@@ -154,7 +166,7 @@ export class AuthService {
     );
   }
 
-  async updateUserRoles(request: Request, login_id: string) {
+  async updateUserSession(request: Request, login_id: string) {
     let desirializedRoles: DesirializeSession | null = null;
     const academicYears = await this.academicYearService.findAll(login_id);
     const numberOfAcademicYear = academicYears.length;
@@ -162,12 +174,13 @@ export class AuthService {
       throw new NotFoundException('No academic year was found');
     else if (numberOfAcademicYear === 1) {
       const [{ academic_year_id }] = academicYears;
-      const { desirializedRoles: userRoles, roles } =
+      // const { desirializedRoles: userRoles, roles } =
+      const { desirializedRoles: userRoles } =
         await this.academicYearService.retrieveRoles(
           login_id,
           academic_year_id
         );
-      await this.updateSession(request, { academic_year_id, roles });
+      await this.updateSession(request, { academic_year_id });
       desirializedRoles = userRoles;
     }
     return { academicYears, desirializedRoles };
@@ -175,15 +188,17 @@ export class AuthService {
 
   async updateSession(
     request: Request,
-    payload: Pick<PassportUser, 'academic_year_id' | 'roles'>
+    // payload: Pick<PassportUser, 'academic_year_id' | 'roles'>
+    payload: Pick<PassportUser, 'academic_year_id'>
   ) {
     const user = request.session.passport.user;
-    await new Promise((resolve) =>
-      request.login({ ...user, ...payload }, (err) => {
+    await new Promise((resolve) => {
+      request.session.passport.user = { ...user, ...payload };
+      request.session.save((err) => {
         if (err) throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
         resolve(1);
-      })
-    );
+      });
+    });
   }
 
   async resetPassword(email: string, squoolr_client: string) {
@@ -212,8 +227,7 @@ export class AuthService {
         },
       }
     );
-
-    return { reset_password_id };
+    Logger.verbose(reset_password_id, AuthService.name);
   }
 
   async setNewPassword(
@@ -229,7 +243,6 @@ export class AuthService {
             is_deleted: true,
             is_personnel: true,
             password: true,
-            login_id: true,
           },
         },
       },
@@ -250,22 +263,23 @@ export class AuthService {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { Login: login } = resetPassword;
-    return await this.prismaService.$transaction([
-      this.prismaService.loginAudit.create({ data: login }),
-      this.prismaService.login.update({
-        data: {
-          password: bcrypt.hashSync(new_password, Number(process.env.SALT)),
+    return await this.prismaService.resetPassword.update({
+      data: {
+        is_valid: false,
+        Login: {
+          update: {
+            password: bcrypt.hashSync(new_password, Number(process.env.SALT)),
+            LoginAudits: {
+              create: login,
+            },
+          },
         },
-        where: { login_id: login.login_id },
-      }),
-      this.prismaService.resetPassword.update({
-        data: { is_valid: false },
-        where: { reset_password_id },
-      }),
-    ]);
+      },
+      where: { reset_password_id },
+    });
   }
 
-  async deserializeUser(user: PassportUser): Promise<User> {
+  async deserializeUser(user: PassportUser): Promise<Express.User> {
     const { academic_year_id, login_id } = user;
     const person = await this.prismaService.person.findFirst({
       include: { Logins: true },
@@ -276,7 +290,7 @@ export class AuthService {
     const {
       Logins: [login],
     } = person;
-    let deserialedUser: User;
+    let deserialedUser: Express.User;
     if (academic_year_id) {
       const { desirializedRoles: availableRoles } =
         await this.academicYearService.retrieveRoles(
@@ -324,7 +338,7 @@ export class AuthService {
     });
   }
 
-  async isClientCorrect(deserialedUser: User, squoolr_client: string) {
+  async isClientCorrect(deserialedUser: Express.User, squoolr_client: string) {
     const {
       login_id,
       annualConfigurator,
@@ -349,18 +363,8 @@ export class AuthService {
     );
   }
 
-  async getUser(email: string) {
+  async getPerson(email: string) {
     return this.prismaService.person.findUnique({
-      select: {
-        first_name: true,
-        last_name: true,
-        email: true,
-        phone_number: true,
-        national_id_number: true,
-        gender: true,
-        address: true,
-        birthdate: true,
-      },
       where: { email },
     });
   }
