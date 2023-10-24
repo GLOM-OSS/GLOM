@@ -67,15 +67,7 @@ import { TeacherModule } from './teacher/teacher.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    const redisClient = createClient({
-      legacyMode: true,
-      url: `redis://${process.env.REDIS_HOST}:6379`,
-    });
-    redisClient.connect().catch((message) => Logger.error(message));
-    const RedisStore = connectRedis(session);
-
     if (process.env.NODE_ENV === 'production') {
-      console.log(process.env.DATABASE_URL);
       shell.exec(`npx prisma migrate dev --name deploy`);
       shell.exec(`npx prisma migrate deploy`);
     }
@@ -84,10 +76,7 @@ export class AppModule implements NestModule {
       .apply(
         session({
           name: process.env.SESSION_NAME,
-          store: new RedisStore({
-            client: redisClient,
-            host: process.env.REDIS_HOST,
-          }),
+          store: new session.MemoryStore(),
           secret: process.env.SESSION_SECRET,
           genid: () => randomUUID(),
           saveUninitialized: false,
