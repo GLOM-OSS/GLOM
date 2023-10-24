@@ -2,11 +2,17 @@ import { Reducer, useContext, useReducer } from 'react';
 import LanguageContext from './languageContext';
 
 import {
-  Action, Language,
-  LanguageContextProviderProps, State
+  Action,
+  Language,
+  LanguageContextProviderProps,
+  LanguageType,
+  State,
 } from './language.interface';
 
-const languageReducer: Reducer<Language, Action> = (state: State, action: Action) => {
+const languageReducer: Reducer<Language, Action> = (
+  state: State,
+  action: Action
+) => {
   switch (action.type) {
     case 'USE_ENGLISH': {
       localStorage.setItem('squoolr_active_language', 'en');
@@ -23,9 +29,13 @@ const languageReducer: Reducer<Language, Action> = (state: State, action: Action
 
 function LanguageContextProvider({
   children,
-}: LanguageContextProviderProps): JSX.Element {
+  defaultLang,
+}: {
+  children: JSX.Element;
+  defaultLang?: LanguageType;
+}): JSX.Element {
   const initialState: Language = {
-    activeLanguage:  'fr',
+    activeLanguage: defaultLang ?? 'fr',
     languageDispatch: () => null,
   };
 
@@ -54,4 +64,22 @@ export const useLanguage = () => {
       'useLanguage must be used as a descendant of LanguageProvider'
     );
   } else return context;
+};
+
+export const useActiveLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error(
+      'useLanguage must be used as a descendant of LanguageProvider'
+    );
+  } else return context.activeLanguage;
+};
+
+export const useDispatchLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error(
+      'useLanguage must be used as a descendant of LanguageProvider'
+    );
+  } else return context.languageDispatch;
 };

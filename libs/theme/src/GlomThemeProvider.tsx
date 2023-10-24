@@ -8,11 +8,12 @@ import LanguageContextProvider, {
   useLanguage,
 } from './contexts/language/LanguageContextProvider';
 import AppThemeContextProvider, {
-  useDispatchTheme
+  useDispatchTheme,
 } from './contexts/themeContext/AppThemeContextProvider';
 import enMessages from './languages/en-us';
 import frMessages from './languages/fr';
 import { theme } from './theme';
+import { LanguageType } from './contexts/language/language.interface';
 
 const App = ({
   children,
@@ -63,12 +64,14 @@ const App = ({
 export function GlomThemeProvider({
   children,
   theme,
+  defaultLang,
 }: {
   children: React.ReactNode;
   theme?: Theme;
+  defaultLang?: LanguageType;
 }) {
   return (
-    <LanguageContextProvider>
+    <LanguageContextProvider defaultLang={defaultLang}>
       <AppThemeContextProvider>
         <App newTheme={theme}>{children}</App>
       </AppThemeContextProvider>
