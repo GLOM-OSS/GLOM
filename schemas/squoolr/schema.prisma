@@ -373,7 +373,6 @@ model AnnualConfigurator {
 model LoginAudit {
     login_audit_id String   @id @default(uuid()) @db.VarChar(36)
     password       String   @db.VarChar(75)
-    cookie_age     Int //10* 60 seconds of inativity
     is_personnel   Boolean  @db.TinyInt
     is_deleted     Boolean  @db.TinyInt
     audited_at     DateTime @default(now()) @db.DateTime(0)
