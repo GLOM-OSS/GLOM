@@ -300,7 +300,6 @@ model AcademicYear {
 model Login {
     login_id     String   @id @default(uuid()) @db.VarChar(36)
     password     String   @db.VarChar(75)
-    cookie_age   Int      @default(3600) //60* 60 seconds of inativity
     is_parent    Boolean  @default(false) @db.TinyInt
     is_personnel Boolean  @default(false) @db.TinyInt
     is_deleted   Boolean  @default(false) @db.TinyInt()
@@ -576,7 +575,7 @@ enum AuthMethod {
 }
 
 model Log {
-    log_id        String     @id @default(uuid()) @db.VarChar(36)
+    log_id        String     @id @db.VarChar(36)
     auth_method   AuthMethod @default(LOCAL)
     logged_in_at  DateTime   @default(now()) @db.DateTime(0)
     logged_out_at DateTime?  @db.DateTime(0)

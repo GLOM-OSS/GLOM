@@ -13,9 +13,12 @@ import { Login } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { AcademicYearsService } from '../academic-years/academic-years.service';
-import { DesirializeSession, PassportUser, ValidatedUser } from './auth';
+import { SessionData, PassportUser, ValidatedUser } from './auth';
 import { Role } from './auth.decorator';
 
+export type MajorRole =
+  | Extract<Role, Role.ADMIN | Role.PARENT | Role.STUDENT>
+  | 'PERSONNEL';
 @Injectable()
 export class AuthService {
   constructor(
@@ -28,7 +31,7 @@ export class AuthService {
     request: Request,
     email: string,
     password: string
-  ): Promise<ValidatedUser> {
+  ): Promise<Express.User> {
     const person = await this.prismaService.person.findUnique({
       where: { email },
     });
@@ -39,26 +42,23 @@ export class AuthService {
     for (let i = 0; i < userLogins.length; i++) {
       const login = userLogins[i];
       if (bcrypt.compareSync(password, login.password)) {
-        try {
-          const user = await this.validateLogin(request, login);
+        const isLoginValid = await this.isValidLogin(request, login);
+        if (isLoginValid) {
           return {
             ...person,
-            session: user,
             login_id: login.login_id,
             school_id: login.school_id,
           };
-        } catch (error) {
-          if (i === userLogins.length - 1)
-            throw new HttpException(error?.message, error?.statusCode);
         }
       }
     }
+    throw new UnauthorizedException('Wrong origin !!!');
   }
 
   async authenticateUser(
     request: Request,
     email: string
-  ): Promise<ValidatedUser> {
+  ): Promise<Express.User> {
     const person = await this.prismaService.person.findUnique({
       where: { email },
     });
@@ -68,27 +68,20 @@ export class AuthService {
     })) as Login[];
     for (let i = 0; i < userLogins.length; i++) {
       const login = userLogins[i];
-      const user = await this.validateLogin(request, login);
-      return {
-        ...person,
-        session: user,
-        login_id: login.login_id,
-      };
+      const isLoginValid = await this.isValidLogin(request, login);
+      if (isLoginValid)
+        return {
+          ...person,
+          login_id: login.login_id,
+        };
     }
+    throw new UnauthorizedException('Wrong origin !!!');
   }
 
-  async validateLogin(
-    request: Request,
-    login: Omit<Login, 'password'>
-  ): Promise<PassportUser> {
+  async isValidLogin(request: Request, login: Login) {
     const origin = new URL(request.headers.origin).host;
-    const { login_id, school_id, is_personnel, is_parent, cookie_age } = login;
+    const { login_id, school_id, is_personnel, is_parent } = login;
 
-    let user: Omit<PassportUser, 'log_id'> = {
-      login_id,
-      // cookie_age,
-      // roles: [],
-    };
     const activeLogs = await this.prismaService.log.count({
       where: {
         login_id,
@@ -104,45 +97,28 @@ export class AuthService {
         HttpStatus.TOO_MANY_REQUESTS
       );
     }
-    if (is_parent && !this.checkOrigin(origin, Role.PARENT)) {
-      throw new UnauthorizedException('Parent not  right origin');
-    } else if (school_id) {
-      const school = await this.prismaService.school.findFirst({
-        where: { school_id, is_validated: true },
-      });
-      if (this.checkOrigin(origin, Role.STUDENT, school.subdomain)) {
-        const student = await this.prismaService.student.findFirst({
-          where: { login_id },
-        });
-        if (!student) throw new UnauthorizedException('Not a student'); //someone attempting to be a student
-      } else if (
-        !is_personnel ||
-        !this.checkOrigin(origin, Role.CONFIGURATOR, school.subdomain)
-      )
-        throw new UnauthorizedException('Not a personnel'); //someone attempting to be a personnel
-    } else {
-      if (!this.checkOrigin(origin, Role.ADMIN))
-        throw new UnauthorizedException('Not admin'); //attempting to be an admin
-      // user = {
-      //   ...user,
-      //   roles: [
-      //     {
-      //       role: Role.ADMIN,
-      //       user_id: login_id,
-      //     },
-      //   ],
-      // };
-    }
-    const { log_id, job_name } = await this.logIn(
-      request,
-      user.login_id,
-      3600
-      // user.cookie_age
+    const schoolId = school_id ? school_id : null;
+    const [school, student] = await Promise.all([
+      this.prismaService.school.findFirst({
+        where: { school_id: schoolId, is_validated: true },
+      }),
+      this.prismaService.student.findFirst({
+        where: { login_id, Login: { school_id: schoolId } },
+      }),
+    ]);
+    return (
+      (school &&
+        ((is_personnel &&
+          this.checkOrigin(origin, 'PERSONNEL', school.subdomain)) ||
+          (student &&
+            this.checkOrigin(origin, Role.STUDENT, school.subdomain)))) ||
+      (!school &&
+        ((is_parent && this.checkOrigin(origin, Role.PARENT)) ||
+          (!is_parent && this.checkOrigin(origin, Role.ADMIN))))
     );
-    return { login_id };
   }
 
-  private checkOrigin(origin: string, role: Role, subdomain?: string) {
+  private checkOrigin(origin: string, role: MajorRole, subdomain?: string) {
     const env = process.env.NODE_ENV;
     return (
       (role === Role.ADMIN &&
@@ -167,7 +143,7 @@ export class AuthService {
   }
 
   async updateUserSession(request: Request, login_id: string) {
-    let desirializedRoles: DesirializeSession | null = null;
+    let sessionData: SessionData = null;
     const academicYears = await this.academicYearService.findAll(login_id);
     const numberOfAcademicYear = academicYears.length;
     if (numberOfAcademicYear === 0)
@@ -175,15 +151,15 @@ export class AuthService {
     else if (numberOfAcademicYear === 1) {
       const [{ academic_year_id }] = academicYears;
       // const { desirializedRoles: userRoles, roles } =
-      const { desirializedRoles: userRoles } =
-        await this.academicYearService.retrieveRoles(
+      const { sessionData: session } =
+        await this.academicYearService.selectAcademicYear(
           login_id,
           academic_year_id
         );
       await this.updateSession(request, { academic_year_id });
-      desirializedRoles = userRoles;
+      sessionData = session;
     }
-    return { academicYears, desirializedRoles };
+    return { academicYears, sessionData };
   }
 
   async updateSession(
@@ -292,8 +268,8 @@ export class AuthService {
     } = person;
     let deserialedUser: Express.User;
     if (academic_year_id) {
-      const { desirializedRoles: availableRoles } =
-        await this.academicYearService.retrieveRoles(
+      const { sessionData: availableRoles } =
+        await this.academicYearService.selectAcademicYear(
           login_id,
           academic_year_id
         );
@@ -312,29 +288,19 @@ export class AuthService {
     return { login_id, ...person, ...deserialedUser };
   }
 
-  async logIn(request: Request, login_id: string, cookie_age: number) {
-    const { log_id } = await this.prismaService.log.create({
+  async openSession(sessionID: string, login_id: string) {
+    await this.prismaService.log.create({
       data: {
+        log_id: sessionID,
         Login: { connect: { login_id } },
       },
     });
-    const now = new Date();
-    const job_name = this.tasksService.addCronJob(
-      CronJobEvents.AUTO_LOGOUT,
-      new Date(now.setSeconds(now.getSeconds() + cookie_age)),
-      () => {
-        request.session.destroy(async (err) => {
-          if (!err) await this.closeSession(log_id);
-        });
-      }
-    );
-    return { job_name, log_id };
   }
 
-  async closeSession(log_id: string) {
+  async closeSession(sessionID: string) {
     await this.prismaService.log.update({
       data: { closed_at: new Date() },
-      where: { log_id },
+      where: { log_id: sessionID },
     });
   }
 
@@ -359,7 +325,7 @@ export class AuthService {
       (annualStudent && this.checkOrigin(squoolr_client, Role.STUDENT)) || //Student -> `${school.subdomain}.squoolr.com`
       (tutorStudentIds && this.checkOrigin(squoolr_client, Role.PARENT)) || //Parent -> `parent.squoolr.com`
       ((annualConfigurator || annualRegistry || annualTeacher) &&
-        this.checkOrigin(squoolr_client, Role.CONFIGURATOR, school.subdomain)) //Personnel -> `admin.${school.subdomain}.squoolr.com`
+        this.checkOrigin(squoolr_client, 'PERSONNEL', school.subdomain)) //Personnel -> `admin.${school.subdomain}.squoolr.com`
     );
   }
 

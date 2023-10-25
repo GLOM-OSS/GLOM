@@ -48,12 +48,12 @@ export class AuthController {
     let user = request.user;
     let academicYears: AcademicYear[] = [];
     if (user.school_id) {
-      const result = await this.authService.updateUserSession(
-        request,
-        user.login_id
-      );
+      const [result] = await Promise.all([
+        this.authService.updateUserSession(request, user.login_id),
+        this.authService.openSession(request.sessionID, user.login_id),
+      ]);
       academicYears = result.academicYears;
-      user = { ...user, ...result.desirializedRoles };
+      user = { ...user, ...result.sessionData };
     }
     return new SingInResponse({ user, academicYears });
   }
@@ -85,14 +85,13 @@ export class AuthController {
   @Delete('log-out')
   @UseGuards(AuthenticatedGuard)
   async logOut(@Req() request: Request) {
-    // const { log_id } = request.session.passport.user;
     return request.session.destroy(async (err) => {
       if (err)
         throw new InternalServerErrorException('Could not detroy session');
-      // await this.prismaService.log.updateMany({
-      //   data: { logged_out_at: new Date() },
-      //   where: {  },
-      // });
+      await this.prismaService.log.updateMany({
+        data: { logged_out_at: new Date() },
+        where: { log_id: request.sessionID },
+      });
     });
   }
 
@@ -101,7 +100,9 @@ export class AuthController {
   @UseGuards(AuthenticatedGuard)
   async getUser(@Req() request: Request) {
     const email = request.query.email as string;
-    const person = email ? await this.authService.getPerson(email) : request.user;
+    const person = email
+      ? await this.authService.getPerson(email)
+      : request.user;
     return new PersonEntity(person);
   }
 }
