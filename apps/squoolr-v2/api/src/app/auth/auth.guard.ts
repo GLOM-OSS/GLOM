@@ -2,9 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
-  HttpException,
-  HttpStatus,
-  Injectable,
+  Injectable
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
@@ -22,7 +20,7 @@ export class AuthenticatedGuard implements CanActivate {
       IS_PUBLIC,
       context.getHandler()
     );
-    const roles = this.reflector.getAllAndOverride<Role[]>(ROLES, [
+    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES, [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -40,29 +38,24 @@ export class AuthenticatedGuard implements CanActivate {
     );
     if (!isOriginValid) throw new ForbiddenException('Invalid origin !!!');
 
-    if (roles) {
-      const isAccessValid = this.validateRoleAccess(request.user, roles);
-      if (!isAccessValid)
-        throw new ForbiddenException('Insufficient privileges !!!');
-    }
+    if (
+      requiredRoles &&
+      !(await this.validateRoleAccess(request.user, requiredRoles))
+    )
+      throw new ForbiddenException('Insufficient privileges !!!');
 
     const isPrivate = this.reflector.get<boolean>(
       IS_PRIVATE,
       context.getHandler()
     );
-    if (isPrivate) {
-      const isPrivateCodeValid = await this.validatePrivateCode(
-        request,
-        roles[0]
-      );
-      if (!isPrivateCodeValid)
-        throw new ForbiddenException('Invalid confirmation code !!!');
-    }
+    if (isPrivate && !(await this.validatePrivateCode(request, requiredRoles)))
+      throw new ForbiddenException('Invalid confirmation code !!!');
+
     return isAuthenticated;
   }
 
-  async validateRoleAccess(user: Express.User, metaRoles: Role[]) {
-    return metaRoles.some(
+  async validateRoleAccess(user: Express.User, roles: Role[]) {
+    return roles.some(
       (role) =>
         (user.tutorStudentIds && role === Role.PARENT) ||
         (user.annualConfigurator && role === Role.CONFIGURATOR) ||
@@ -73,29 +66,21 @@ export class AuthenticatedGuard implements CanActivate {
     );
   }
 
-  async validatePrivateCode(request: Request, role: Role) {
-    const private_code = request.body['private_code'] as string | '';
+  async validatePrivateCode(request: Request, roles: Role[]) {
+    const { annualTeacher, annualRegistry } = request.user;
+    const private_code = request.body['private_code'];
 
-    if (role === Role.TEACHER) {
-      const {
-        annualTeacher: { teacher_id },
-      } = request.user as Express.User;
-      return await this.authService.verifyPrivateCode(role, {
-        private_code,
-        user_id: teacher_id,
-      });
-    } else if (role === Role.REGISTRY) {
-      const {
-        annualRegistry: { annual_registry_id },
-      } = request.user as Express.User;
-      return await this.authService.verifyPrivateCode(role, {
-        private_code,
-        user_id: annual_registry_id,
-      });
-    } else
-      throw new HttpException(
-        `Private decorator can only with method protected by a teacher or registry role.`,
-        HttpStatus.MISDIRECTED
-      );
+    return (
+      (roles.includes(Role.TEACHER) &&
+        (await this.authService.verifyPrivateCode(Role.TEACHER, {
+          private_code,
+          user_id: annualTeacher?.teacher_id,
+        }))) ||
+      (roles.includes(Role.REGISTRY) &&
+        (await this.authService.verifyPrivateCode(Role.REGISTRY, {
+          private_code,
+          user_id: annualRegistry?.annual_registry_id,
+        })))
+    );
   }
 }
