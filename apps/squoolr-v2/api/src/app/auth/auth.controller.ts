@@ -1,14 +1,12 @@
-import { GlomPrismaService } from '@glom/prisma';
 import {
   Body,
   Controller,
   Delete,
   Get,
   InternalServerErrorException,
-  Logger,
   Post,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -17,29 +15,24 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { AcademicYear } from '@prisma/client';
 import { Request } from 'express';
-import { PassportUser } from './auth';
 import {
-  SetNewPasswordDto,
-  ResetPasswordDto,
-  SignInDto,
-  User,
-  SingInResponse,
   PersonEntity,
+  ResetPasswordDto,
+  SetNewPasswordDto,
+  SignInDto,
+  SingInResponse
 } from './auth.dto';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { LocalGuard } from './local/local.guard';
-import { AcademicYear } from '@prisma/client';
 
 @ApiBearerAuth()
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private authService: AuthService,
-    private prismaService: GlomPrismaService
-  ) {}
+  constructor(private authService: AuthService) {}
 
   @Post('signin')
   @UseGuards(LocalGuard)
@@ -48,13 +41,14 @@ export class AuthController {
     let user = request.user;
     let academicYears: AcademicYear[] = [];
     if (user.school_id) {
-      const [result] = await Promise.all([
-        this.authService.updateUserSession(request, user.login_id),
-        this.authService.openSession(request.sessionID, user.login_id),
-      ]);
+      const result = await this.authService.updateUserSession(
+        request,
+        user.login_id
+      );
       academicYears = result.academicYears;
       user = { ...user, ...result.sessionData };
     }
+    await this.authService.openSession(request, user.login_id);
     return new SingInResponse({ user, academicYears });
   }
 
@@ -85,14 +79,16 @@ export class AuthController {
   @Delete('log-out')
   @UseGuards(AuthenticatedGuard)
   async logOut(@Req() request: Request) {
-    return request.session.destroy(async (err) => {
-      if (err)
-        throw new InternalServerErrorException('Could not detroy session');
-      await this.prismaService.log.updateMany({
-        data: { logged_out_at: new Date() },
-        where: { log_id: request.sessionID },
-      });
-    });
+    await new Promise((resolve) =>
+      request.session.destroy(async (err) => {
+        if (err)
+          throw new InternalServerErrorException('Could not detroy session');
+        await this.authService.closeSession(request.sessionID, {
+          logged_out_at: new Date(),
+        });
+        resolve(1);
+      })
+    );
   }
 
   @Get('user')

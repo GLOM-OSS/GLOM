@@ -1,4 +1,4 @@
-import { CronJobEvents, TasksService } from '@glom/nest-tasks';
+import { TasksService } from '@glom/nest-tasks';
 import { GlomPrismaService } from '@glom/prisma';
 import {
   ConflictException,
@@ -9,11 +9,11 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Login } from '@prisma/client';
+import { Login, Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { AcademicYearsService } from '../academic-years/academic-years.service';
-import { SessionData, PassportUser, ValidatedUser } from './auth';
+import { PassportUser, SessionData } from './auth';
 import { Role } from './auth.decorator';
 
 export type MajorRole =
@@ -284,18 +284,19 @@ export class AuthService {
     return { login_id, ...person, ...deserialedUser };
   }
 
-  async openSession(sessionID: string, login_id: string) {
+  async openSession(request: Request, login_id: string) {
     await this.prismaService.log.create({
       data: {
-        log_id: sessionID,
+        log_id: request.sessionID,
         Login: { connect: { login_id } },
+        user_agent: request.headers['user-agent'],
       },
     });
   }
 
-  async closeSession(sessionID: string) {
+  async closeSession(sessionID: string, payload: Prisma.LogUpdateInput) {
     await this.prismaService.log.update({
-      data: { closed_at: new Date() },
+      data: payload,
       where: { log_id: sessionID },
     });
   }

@@ -1,4 +1,3 @@
-import { TasksService } from '@glom/nest-tasks';
 import {
   CanActivate,
   ExecutionContext,
@@ -28,7 +27,12 @@ export class AuthenticatedGuard implements CanActivate {
       context.getClass(),
     ]);
     const isAuthenticated = isPublic ? isPublic : request.isAuthenticated();
-    if (!isAuthenticated) throw new ForbiddenException();
+    if (!isAuthenticated) {
+      await this.authService.closeSession(request.sessionID, {
+        closed_at: new Date(),
+      });
+      throw new ForbiddenException();
+    }
 
     const isOriginValid = await this.authService.validateOrigin(
       request.user,
