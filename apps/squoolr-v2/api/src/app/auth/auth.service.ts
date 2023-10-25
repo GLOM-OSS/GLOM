@@ -97,7 +97,7 @@ export class AuthService {
         HttpStatus.TOO_MANY_REQUESTS
       );
     }
-    const schoolId = school_id ? school_id : null;
+    const schoolId = school_id ? school_id : '';
     const [school, student] = await Promise.all([
       this.prismaService.school.findFirst({
         where: { school_id: schoolId, is_validated: true },
@@ -215,7 +215,6 @@ export class AuthService {
       include: {
         Login: {
           select: {
-            cookie_age: true,
             is_deleted: true,
             is_personnel: true,
             password: true,
@@ -257,15 +256,12 @@ export class AuthService {
 
   async deserializeUser(user: PassportUser): Promise<Express.User> {
     const { academic_year_id, login_id } = user;
-    const person = await this.prismaService.person.findFirst({
-      include: { Logins: true },
-      where: { Logins: { some: { login_id } } },
+    const login = await this.prismaService.login.findFirst({
+      include: { Person: true },
+      where: { login_id },
     });
-    if (!person) return null;
-
-    const {
-      Logins: [login],
-    } = person;
+    if (!login) return null;
+    const { Person: person } = login;
     let deserialedUser: Express.User;
     if (academic_year_id) {
       const { sessionData: availableRoles } =
@@ -304,7 +300,7 @@ export class AuthService {
     });
   }
 
-  async isClientCorrect(deserialedUser: Express.User, squoolr_client: string) {
+  async validateOrigin(user: Express.User, origin: string) {
     const {
       login_id,
       annualConfigurator,
@@ -312,7 +308,7 @@ export class AuthService {
       annualStudent,
       annualTeacher,
       tutorStudentIds,
-    } = deserialedUser;
+    } = user;
     const school = await this.prismaService.school.findFirst({
       where: {
         Logins: {
@@ -321,11 +317,11 @@ export class AuthService {
       },
     });
     return (
-      (login_id && this.checkOrigin(squoolr_client, Role.ADMIN)) || //Admin -> process.env.ADMIN_URL
-      (annualStudent && this.checkOrigin(squoolr_client, Role.STUDENT)) || //Student -> `${school.subdomain}.squoolr.com`
-      (tutorStudentIds && this.checkOrigin(squoolr_client, Role.PARENT)) || //Parent -> `parent.squoolr.com`
+      (login_id && this.checkOrigin(origin, Role.ADMIN)) || //Admin -> process.env.ADMIN_URL
+      (annualStudent && this.checkOrigin(origin, Role.STUDENT)) || //Student -> `${school.subdomain}.squoolr.com`
+      (tutorStudentIds && this.checkOrigin(origin, Role.PARENT)) || //Parent -> `parent.squoolr.com`
       ((annualConfigurator || annualRegistry || annualTeacher) &&
-        this.checkOrigin(squoolr_client, 'PERSONNEL', school.subdomain)) //Personnel -> `admin.${school.subdomain}.squoolr.com`
+        this.checkOrigin(origin, 'PERSONNEL', school.subdomain)) //Personnel -> `admin.${school.subdomain}.squoolr.com`
     );
   }
 

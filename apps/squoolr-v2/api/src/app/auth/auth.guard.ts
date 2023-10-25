@@ -1,3 +1,4 @@
+import { TasksService } from '@glom/nest-tasks';
 import {
   CanActivate,
   ExecutionContext,
@@ -5,22 +6,15 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  NotAcceptableException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { TasksService } from '@glom/nest-tasks';
 import { Request } from 'express';
 import { MetadataEnum, Role } from './auth.decorator';
 import { AuthService } from './auth.service';
 
 @Injectable()
 export class AuthenticatedGuard implements CanActivate {
-  constructor(
-    private reflector: Reflector,
-    private authService: AuthService,
-    private tasksService: TasksService
-  ) {}
+  constructor(private reflector: Reflector, private authService: AuthService) {}
 
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest<Request>();
@@ -34,9 +28,19 @@ export class AuthenticatedGuard implements CanActivate {
       context.getClass(),
     ]);
     const isAuthenticated = isPublic ? isPublic : request.isAuthenticated();
-    // ? await this.authenticateUser(request, roles)
-    // : false;
     if (!isAuthenticated) throw new ForbiddenException();
+
+    const isOriginValid = await this.authService.validateOrigin(
+      request.user,
+      new URL(request.headers.origin).host
+    );
+    if (!isOriginValid) throw new ForbiddenException('Invalid origin !!!');
+
+    if (roles) {
+      const isAccessValid = this.validateRoleAccess(request.user, roles);
+      if (!isAccessValid)
+        throw new ForbiddenException('Insufficient privileges !!!');
+    }
 
     const isPrivate = this.reflector.get<boolean>(
       IS_PRIVATE,
@@ -48,48 +52,22 @@ export class AuthenticatedGuard implements CanActivate {
         roles[0]
       );
       if (!isPrivateCodeValid)
-        throw new NotAcceptableException('Valid private code needed');
+        throw new ForbiddenException('Invalid confirmation code !!!');
     }
     return isAuthenticated;
   }
 
-  // async authenticateUser(request: Request, metaRoles: Role[]) {
-  //   const user = request.user as Express.User;
-  //   const {
-  //     session: {
-  //       passport: {
-  //         user: { log_id, cookie_age, job_name, roles },
-  //       },
-  //     },
-  //   } = request;
-
-  //   let userHasTheAcess = true;
-  //   if (metaRoles) {
-  //     let hasRole = false;
-  //     roles.forEach(({ role }) => {
-  //       if (metaRoles.includes(role)) hasRole = true;
-  //     });
-  //     userHasTheAcess = hasRole;
-  //   }
-
-  //   const userClientCorrect = this.authService.isClientCorrect(
-  //     user,
-  //     new URL(request.headers.origin).host
-  //   );
-  //   if (!userHasTheAcess || !userClientCorrect)
-  //     throw new ForbiddenException('Missing access or incorrect origin');
-  //   const now = new Date();
-  //   this.tasksService.upsertCronTime(
-  //     job_name,
-  //     new Date(now.setSeconds(now.getSeconds() + cookie_age)),
-  //     () => {
-  //       request.session.destroy(async (err) => {
-  //         if (!err) await this.authService.closeSession(log_id);
-  //       });
-  //     }
-  //   );
-  //   return userClientCorrect;
-  // }
+  async validateRoleAccess(user: Express.User, metaRoles: Role[]) {
+    return metaRoles.some(
+      (role) =>
+        (user.tutorStudentIds && role === Role.PARENT) ||
+        (user.annualConfigurator && role === Role.CONFIGURATOR) ||
+        (user.annualRegistry && role === Role.REGISTRY) ||
+        (user.annualTeacher && role === Role.TEACHER) ||
+        (user.annualStudent && role === Role.STUDENT) ||
+        (!user.school_id && role === Role.ADMIN)
+    );
+  }
 
   async validatePrivateCode(request: Request, role: Role) {
     const private_code = request.body['private_code'] as string | '';
