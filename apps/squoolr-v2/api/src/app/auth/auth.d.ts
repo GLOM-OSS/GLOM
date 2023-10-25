@@ -31,7 +31,7 @@ export type ActiveYear = {
   year_code: string;
 };
 
-export type DesirializeSession = {
+export type SessionData = {
   login_id: string;
   school_id?: string;
   annualStudent?: {
@@ -72,6 +72,6 @@ declare module 'express-session' {
 }
 declare global {
   namespace Express {
-    interface User extends DesirializeSession, Person {}
+    interface User extends SessionData, Person {}
   }
 }

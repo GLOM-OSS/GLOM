@@ -12,7 +12,7 @@ import {
   Lang,
   Person,
 } from '@prisma/client';
-import { Transform, Type } from 'class-transformer';
+import { Exclude, Transform, Type } from 'class-transformer';
 import {
   IsDate,
   IsDateString,
@@ -22,7 +22,7 @@ import {
   IsString,
   IsStrongPassword,
 } from 'class-validator';
-import { ActiveYear, DesirializeSession } from './auth';
+import { ActiveYear, SessionData } from './auth';
 import { AcademicYearEntity } from '../academic-years/academic-years.dto';
 import { Logger } from '@nestjs/common';
 
@@ -235,7 +235,7 @@ export class ActiveYearSessionData implements ActiveYear {
     Object.assign(this, props);
   }
 }
-export class User extends PersonEntity implements DesirializeSession {
+export class User extends PersonEntity implements SessionData {
   @ApiProperty()
   login_id: string;
 
@@ -276,7 +276,7 @@ export class User extends PersonEntity implements DesirializeSession {
   }
 }
 
-export class DesirializedRoles extends PickType(User, [
+export class SessionEntity extends PickType(User, [
   'login_id',
   'school_id',
   'activeYear',
