@@ -1,10 +1,11 @@
-import { Box, Button, TextField, Typography, capitalize } from '@mui/material';
-import { useIntl } from 'react-intl';
-import { IAppType } from './Auth.interfaces';
 import { useTheme } from '@glom/theme';
+import { Box, Button, TextField, Typography, capitalize } from '@mui/material';
 import { useFormik } from 'formik';
-import * as Yup from 'yup';
 import { useState } from 'react';
+import { useIntl } from 'react-intl';
+import * as Yup from 'yup';
+import { IAppType } from './Auth.interfaces';
+import Footer from './Footer';
 
 export function Signin({ app }: { app: IAppType }) {
   const { formatMessage } = useIntl();
@@ -42,73 +43,83 @@ export function Signin({ app }: { app: IAppType }) {
     <Box
       sx={{
         display: 'grid',
-        justifyContent: 'center',
         alignContent: 'start',
         height: '100vh',
         rowGap: '65px',
+        gridTemplateRows: '1fr auto',
       }}
     >
       <Box
         sx={{
-          marginTop: '140px',
           display: 'grid',
-          justifyItems: 'center',
+          justifyContent: 'center',
           alignContent: 'start',
-          rowGap: 2.5,
+          rowGap: '65px',
         }}
       >
-        <img src="/logo.png" alt="Squoolr logo" />
-        <Typography
-          variant="h1"
-          sx={{ color: `${theme.common.titleActive} !important` }}
+        <Box
+          sx={{
+            marginTop: '140px',
+            display: 'grid',
+            justifyItems: 'center',
+            alignContent: 'start',
+            rowGap: 2.5,
+          }}
         >
-          {formatMessage({ id: `welcomeBack${capitalize(app)}` })}
-        </Typography>
-        <Typography
-          className="p1"
-          sx={{ color: `${theme.common.body} !important` }}
+          <img src="/logo.png" alt="Squoolr logo" />
+          <Typography
+            variant="h1"
+            sx={{ color: `${theme.common.titleActive} !important` }}
+          >
+            {formatMessage({ id: `welcomeBack${capitalize(app)}` })}
+          </Typography>
+          <Typography
+            className="p1"
+            sx={{ color: `${theme.common.body} !important` }}
+          >
+            {formatMessage({ id: `pleaseEnterYourDetails` })}
+          </Typography>
+        </Box>
+
+        <Box
+          component="form"
+          onSubmit={formik.handleSubmit}
+          sx={{ display: 'grid', rowGap: 3 }}
         >
-          {formatMessage({ id: `pleaseEnterYourDetails` })}
-        </Typography>
-      </Box>
+          <TextField
+            fullWidth
+            required
+            autoFocus
+            label={formatMessage({ id: 'email' })}
+            placeholder={formatMessage({ id: 'email' })}
+            variant="outlined"
+            type="email"
+            error={formik.touched.email && Boolean(formik.errors.email)}
+            helperText={formik.touched.email && formik.errors.email}
+            {...formik.getFieldProps('email')}
+            disabled={isSubmitting}
+            size="small"
+          />
+          <TextField
+            fullWidth
+            required
+            label={formatMessage({ id: 'password' })}
+            placeholder={formatMessage({ id: 'password' })}
+            variant="outlined"
+            type={showPassword ? 'text' : 'password'}
+            error={formik.touched.password && Boolean(formik.errors.password)}
+            helperText={formik.touched.password && formik.errors.password}
+            {...formik.getFieldProps('password')}
+            disabled={isSubmitting}
+            size="small"
+          />
 
-      <Box
-        component="form"
-        onSubmit={formik.handleSubmit}
-        sx={{ display: 'grid', rowGap: 3 }}
-      >
-        <TextField
-          fullWidth
-          required
-          autoFocus
-          label={formatMessage({ id: 'email' })}
-          placeholder={formatMessage({ id: 'email' })}
-          variant="outlined"
-          type="email"
-          error={formik.touched.email && Boolean(formik.errors.email)}
-          helperText={formik.touched.email && formik.errors.email}
-          {...formik.getFieldProps('email')}
-          disabled={isSubmitting}
-          size="small"
-        />
-        <TextField
-          fullWidth
-          required
-          label={formatMessage({ id: 'password' })}
-          placeholder={formatMessage({ id: 'password' })}
-          variant="outlined"
-          type={showPassword ? 'text' : 'password'}
-          error={formik.touched.password && Boolean(formik.errors.password)}
-          helperText={formik.touched.password && formik.errors.password}
-          {...formik.getFieldProps('password')}
-          disabled={isSubmitting}
-          size="small"
-        />
-
-        <Button type="submit" variant="contained" color="primary" fullWidth>
-          {formatMessage({ id: 'login' })}
-        </Button>
+          <Button type="submit" variant="contained" color="primary" fullWidth>
+            {formatMessage({ id: 'login' })}
+          </Button>
+        </Box>
       </Box>
+      <Footer />
     </Box>
   );
 }
