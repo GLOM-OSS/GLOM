@@ -135,9 +135,10 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
         h1: {
           fontSize: '36px',
           lineHeight: '44px',
-          letterSpacing: '-2%',
+          letterSpacing: '-0.72px',
           paddingBottom: '10px',
           fontWeight: 700,
+          color: 'var(--titleActive)',
         },
         h2: {
           fontWeight: 700,
@@ -232,6 +233,40 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
             // '&.MuiButton-containedError:hover': {
             //   backgroundColor: theme.palette.error.light,
             // },
+          }),
+        },
+      },
+      MuiTextField: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            background: theme.common.offWhite,
+            '& .MuiOutlinedInput-root': {
+              border: 'none',
+              borderRadius: '8px',
+            },
+            '& .MuiOutlinedInput-notchedOutline': {
+              border: `1px solid ${theme.common.line}`,
+            },
+          }),
+        },
+      },
+      MuiDialog: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            '& .MuiPaper-root': {
+              borderRadius: 0,
+              backgroundColor: theme.common.background,
+            },
+          }),
+        },
+      },
+      MuiDialogTitle: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            '&.MuiDialogTitle-root': {
+              ...theme.typography.h1,
+              paddingBottom: '24px',
+            },
           }),
         },
       },
