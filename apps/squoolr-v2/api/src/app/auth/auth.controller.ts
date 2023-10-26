@@ -7,7 +7,7 @@ import {
   Post,
   Req,
   UseGuards,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -23,7 +23,7 @@ import {
   ResetPasswordDto,
   SetNewPasswordDto,
   SignInDto,
-  SingInResponse
+  SingInResponse,
 } from './auth.dto';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
@@ -59,8 +59,8 @@ export class AuthController {
     @Req() request: Request,
     @Body() { email }: ResetPasswordDto
   ) {
-    const squoolr_client = new URL(request.headers.origin).host;
-    await this.authService.resetPassword(email, squoolr_client);
+    const requestHost = new URL(request.headers.origin).host;
+    await this.authService.resetPassword(email, requestHost);
   }
 
   @Post('new-password')
@@ -69,11 +69,11 @@ export class AuthController {
     @Req() request: Request,
     @Body() { reset_password_id, new_password }: SetNewPasswordDto
   ) {
-    const squoolr_client = new URL(request.headers.origin).host;
+    const requestHost = new URL(request.headers.origin).host;
     await this.authService.setNewPassword(
       reset_password_id,
       new_password,
-      squoolr_client
+      requestHost
     );
   }
 

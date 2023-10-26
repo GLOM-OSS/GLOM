@@ -177,14 +177,12 @@ export class AuthService {
     });
   }
 
-  async resetPassword(email: string, squoolr_client: string) {
+  async resetPassword(email: string, subdomain: string) {
+    console.log({ subdomain });
     const login = await this.prismaService.login.findFirst({
       where: {
         Person: { email },
-        School:
-          squoolr_client !== process.env.ADMIN_URL
-            ? { subdomain: squoolr_client }
-            : undefined,
+        School: subdomain !== process.env.ADMIN_URL ? { subdomain } : undefined,
       },
     });
     if (!login) throw new NotFoundException('Unknown email');
@@ -209,7 +207,7 @@ export class AuthService {
   async setNewPassword(
     reset_password_id: string,
     new_password: string,
-    squoolr_client: string
+    subdomain: string
   ) {
     const resetPassword = await this.prismaService.resetPassword.findFirst({
       include: {
@@ -224,17 +222,14 @@ export class AuthService {
       where: {
         Login: {
           School:
-            process.env.NODE_ENV === 'production' &&
-            squoolr_client !== process.env.ADMIN_URL
-              ? { subdomain: squoolr_client }
-              : undefined,
+            subdomain !== process.env.ADMIN_URL ? { subdomain } : undefined,
         },
         is_valid: true,
         reset_password_id,
         expires_at: { gte: new Date() },
       },
     });
-    if (resetPassword) throw new NotFoundException('Reset password not found');
+    if (!resetPassword) throw new NotFoundException('Reset password not found');
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { Login: login } = resetPassword;
