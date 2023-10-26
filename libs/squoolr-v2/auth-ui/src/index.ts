@@ -1,1 +1,2 @@
-export * from './lib/squoolr-v2-auth-ui';
+export * from './lib/Signin';
+export * from './lib/Auth.interfaces';
