@@ -515,4 +515,9 @@ export const website = {
   disciplineManagement: 'Discipline Management',
   parentsPlatform: 'Parents Platform',
   allFunctionalities: 'All Functionalities',
+
+  welcomeBackAdmin: 'Welcome Back Admin!',
+  welcomeBackStaff: 'Welcome Back Staff!',
+  pleaseEnterYourDetails: 'Please enter your details',
+  login: 'Login',
 };

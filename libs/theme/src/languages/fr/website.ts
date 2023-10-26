@@ -540,4 +540,9 @@ export const website = {
   disciplineManagement: 'Gestion de la discipline',
   parentsPlatform: 'Plateforme pour les parents',
   allFunctionalities: 'Toutes les fonctionnalités',
+
+  welcomeBackAdmin: 'Bienvenue, Administrateur !',
+  welcomeBackStaff: 'Bienvenue, Personnel !',
+  pleaseEnterYourDetails: 'Veuillez entrer vos informations',
+  login: 'Connexion',
 };
