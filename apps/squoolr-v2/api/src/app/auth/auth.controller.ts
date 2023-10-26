@@ -6,7 +6,8 @@ import {
   InternalServerErrorException,
   Post,
   Req,
-  UseGuards
+  UseGuards,
+  UseInterceptors
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -27,8 +28,8 @@ import {
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { LocalGuard } from './local/local.guard';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
-@ApiBearerAuth()
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {

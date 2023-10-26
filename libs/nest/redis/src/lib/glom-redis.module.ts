@@ -21,8 +21,8 @@ export class GlomRedisModule {
       module: GlomRedisModule,
       imports: [
         CacheModule.register({
-          ttl: 5, // seconds
           isGlobal,
+          ttl: 60000,
           store: redisStore,
         }),
       ],
