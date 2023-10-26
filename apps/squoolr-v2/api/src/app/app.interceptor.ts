@@ -1,13 +1,13 @@
+import { encrypt } from '@glom/encrypter';
 import {
   CallHandler,
   ExecutionContext,
   Injectable,
   Logger,
-  NestInterceptor,
+  NestInterceptor
 } from '@nestjs/common';
-import { map, Observable } from 'rxjs';
-import { encrypt } from '@glom/encrypter';
 import { Request } from 'express';
+import { Observable, map } from 'rxjs';
 
 @Injectable()
 export class AppInterceptor<T> implements NestInterceptor<T, string> {
