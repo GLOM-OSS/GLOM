@@ -1,23 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PassportSerializer } from '@nestjs/passport';
 
-import { PassportUser, RecordValue, UserRole } from './auth';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { PassportUser } from './auth';
 import { AuthService } from './auth.service';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AuthSerializer extends PassportSerializer {
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
+  ) {
     super();
   }
 
   serializeUser(user: Express.User, done: (err, user: PassportUser) => void) {
     done(null, {
-      // log_id: user.lo,
-      // roles: user.roles,
       login_id: user.login_id,
-      // job_name: user.job_name,
-      // cookie_age: Number(user.cookie_age ?? 3600), //1 hour equivalent
-      // academic_year_id: user.academic_year_id,
+      cache_key: `cacheKey-${randomUUID()}`,
     });
   }
 
@@ -25,7 +27,12 @@ export class AuthSerializer extends PassportSerializer {
     user: PassportUser,
     done: (err, user: Express.User) => void
   ) {
-    const deserialedUser = await this.authService.deserializeUser(user);
+    const cacheKey = user.cache_key;
+    let deserialedUser = await this.cacheManager.get<Express.User>(cacheKey);
+    if (!deserialedUser) {
+      deserialedUser = await this.authService.deserializeUser(user);
+      await this.cacheManager.set(cacheKey, deserialedUser);
+    }
     done(null, deserialedUser);
   }
 }

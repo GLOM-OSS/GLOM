@@ -15,11 +15,8 @@ export type UserRole = {
 };
 
 export type PassportUser = {
-  // log_id: string;
   login_id: string;
-  // roles: UserRole[];
-  // cookie_age: number;
-  // job_name?: string;
+  cache_key: string;
   academic_year_id?: string;
 };
 
