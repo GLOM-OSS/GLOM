@@ -2,11 +2,8 @@ import { GlomThemeProvider } from '@glom/theme';
 import { Box } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
-import { useEffect } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 import '../public/styles/global.scss';
 import '../public/styles/notifGlobalStyles.css';
@@ -15,15 +12,6 @@ import '../public/styles/reset.css';
 import '../public/styles/root.scss';
 
 function CustomApp({ Component, pageProps }: AppProps) {
-  useEffect(() => {
-    AOS.init({
-      offset: 200,
-      duration: 600,
-      easing: 'ease-in-sine',
-      delay: 100,
-    });
-  }, []);
-
   return (
     <GlomThemeProvider defaultLang="en">
       <LocalizationProvider dateAdapter={AdapterDayjs}>

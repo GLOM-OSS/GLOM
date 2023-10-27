@@ -8,6 +8,9 @@ import LandingLayout from '../components/layout/layout';
 import createEmotionCache from '../config_mui/createEmotionCache';
 import './globalStyles.css';
 
+//TODO squoolr type import example
+import type { SubmitSchoolDemandPayload } from '@glom/data-types/squoolr';
+
 const App = (props) => {
   const { Component, pageProps } = props;
   const { languageDispatch } = useLanguage();

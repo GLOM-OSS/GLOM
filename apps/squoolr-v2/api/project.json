@@ -6,14 +6,18 @@
   "targets": {
     "build": {
       "executor": "@nrwl/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "target": "node",
         "compiler": "tsc",
         "outputPath": "dist/apps/squoolr-v2/api",
         "main": "apps/squoolr-v2/api/src/main.ts",
         "tsConfig": "apps/squoolr-v2/api/tsconfig.app.json",
-        "assets": ["apps/squoolr-v2/api/src/assets"]
+        "assets": [
+          "apps/squoolr-v2/api/src/assets"
+        ]
       },
       "configurations": {
         "production": {
@@ -42,17 +46,31 @@
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["apps/squoolr-v2/api/**/*.ts"]
+        "lintFilePatterns": [
+          "apps/squoolr-v2/api/**/*.ts"
+        ]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/squoolr-v2/api"],
+      "outputs": [
+        "coverage/apps/squoolr-v2/api"
+      ],
       "options": {
         "jestConfig": "apps/squoolr-v2/api/jest.config.ts",
         "passWithNoTests": true
+      }
+    },
+    "swagger": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "npx openapi-typescript http://localhost:8000/docs-yaml --output libs/data-types/src/lib/squoolr/docs.ts"
+        ]
       }
     }
   },

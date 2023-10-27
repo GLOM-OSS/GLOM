@@ -343,4 +343,211 @@ export const website = {
     "Vendre de l'Internet par WiFi sans problème ni complication",
   projectSubtitle:
     'Gérez vos forfaits, vendez votre internet, déconnectez les clients impayés, recevez votre argent sans avoir à gérer les tickets et les complications des clients',
+
+  partners: 'Partenaires',
+  en: 'English',
+  fr: 'Français',
+  getEarlyAccess: 'Accès anticipé',
+
+  unlockYourInstitutionsPotential:
+    'Débloquez le potentiel de votre institution',
+  squoolrLandingSubtitle:
+    'Outils innovants pour le succès de votre institution : Personnalisez et mettez en œuvre en un clic !',
+  getEarlyAccessNow: 'Accès anticipé',
+  scrollToSeeMore: 'Défilez pour plus',
+
+  theyTrustUs: 'Ils Nous Font Confiance',
+  partnerSectionSubtitle: 'Ils Comptent sur Notre Expertise',
+
+  technologyForAllSchoolSizes:
+    "La Technologie pour Toutes les Tailles d'Écoles",
+  technologyForAllSchoolSizesSubtitle:
+    "Notre solution complète révolutionne les opérations quotidiennes de votre institution. Squoolr offre une accessibilité transparente aux administrateurs, enseignants, étudiants, comptables et parents. De l'inscription aux rapports, il consolide tous les aspects de votre institution. Éliminez les paperasses et les duplications, travaillez de n'importe où grâce aux interfaces conviviales de Squoolr. La prochaine ère est arrivée ! Rejoignez Squoolr aujourd'hui et découvrez une gestion institutionnelle efficace et transparente.",
+
+  howCanSquoolrHelpOurSchool:
+    "Qu'est-ce que Squoolr et comment peut-il aider notre institution?",
+  howCanSquoolrHelpOurSchoolAnswer:
+    "Squoolr : Votre partenaire pour l'excellence institutionnelle ! Stimulez la croissance et l'efficacité sans coûts supplémentaires.",
+  whatAreSquoolrFunctionalities:
+    "Quelles fonctionnalités spécifiques offre Squoolr pour la gestion d'une université?",
+  whatAreSquoolrFunctionalitiesAnswer:
+    'Fonctionnalités de Squoolr : gestion des étudiants, des cours, des notes, des emplois du temps, de la comptabilité et communication fluide.',
+  isSquoolrConfigurable:
+    "Squoolr est-il personnalisable pour s'adapter aux besoins uniques de notre institution?",
+  isSquoolrConfigurableAnswer:
+    'Oui, Squoolr est entièrement personnalisable pour répondre à vos besoins spécifiques.',
+  howDoWeHandleDataSecurity:
+    'Comment Squoolr assure-t-il la sécurité des données de notre institution?',
+  howDoWeHandleDataSecurityAnswer:
+    "Excellence en sécurité des données : Squoolr garantit un chiffrement de bout en bout pour votre tranquillité d'esprit.",
+  canSquoolrIntegrateExternally:
+    "Pouvons-nous intégrer Squoolr avec d'autres systèmes ou logiciels que nous utilisons déjà?",
+  canSquoolrIntegrateExternallyAnswer:
+    "Intégration transparente : Squoolr s'intègre facilement, et notre équipe de support est là pour vous guider.",
+  squoolrClientService:
+    'Comment fonctionne le support technique et la formation pour notre équipe administrative?',
+  squoolrClientServiceAnswer:
+    'Notre engagement : Support technique 24/7 et formation complète pour garantir votre succès.',
+  squoolrCost: "Quels sont les coûts associés à l'utilisation de Squoolr?",
+  squoolrCostAnswer:
+    'Économique : Les fonctionnalités de base (gestion des étudiants, des cours et des notes) sont gratuites ; les fonctionnalités supplémentaires coûtent 1000 francs par étudiant par an.',
+  canWeTestSquoolr:
+    "Pouvons-nous tester Squoolr avant de prendre une décision d'achat?",
+  canWeTestSquoolrAnswer:
+    'Testez Squoolr gratuitement : Essayez nos fonctionnalités de base (gestion des étudiants, des cours et des notes) avant de vous engager.',
+  canSquoolrSupportAllSchoolSizes:
+    'Squoolr convient-il aux petites et grandes institutions?',
+  canSquoolrSupportAllSchoolSizesAnswer:
+    'Pour toutes tailles : Squoolr renforce les institutions, petites et grandes, avec une efficacité et une excellence égales.',
+  frequentlyAskedQuestions: 'Questions Fréquemment Posées',
+  frequentlyAskedQuestionsSubtitle: 'Réponses à Vos Questions Courantes',
+
+  resources: 'Ressources',
+  privacyPolicy: 'Politique de Confidentialité',
+  phone: 'Téléphone',
+  products: 'Produits',
+  getInTouch: 'Contactez-nous',
+  termsOfUse: "Conditions d'Utilisation",
+
+  comingSoon: 'Bientôt',
+  courseManagement: 'Gestion des Cours',
+  courseManagementDescription:
+    'Squoolr introduit un système de gestion de cours avancé qui facilite les interactions entre étudiants et enseignants. Des devoirs et soumissions aux évaluations, aux notations et à la publication des résultats, notre système flexible et convivial favorise la communication et améliore la compréhension des matières de cours.',
+  gradingAndResultPublication: 'Notation et Publication des Résultats',
+  gradingAndResultPublicationDescription:
+    "Notre plateforme simplifie la notation en permettant aux enseignants de saisir les notes d'évaluation, réduisant ainsi les retards administratifs. Chaque institution peut configurer son système de notation selon ses préférences, et nous calculons les résultats instantanément, les mettant à disposition en un simple clic.",
+  andMoreFeatures: 'Et Plus Encore...',
+  andMoreFeaturesDescription:
+    "Grâce à nos processus rationalisés, Squoolr offre aux institutions la flexibilité de demander des fonctionnalités spéciales, que ce soient des idées que nous avons envisagées ou des idées auxquelles nous n'avons pas encore pensé. Squoolr transforme vos aspirations ambitieuses en matière de gestion en réalité !",
+  configurationsDescription:
+    "Nous comprenons chez Squoolr que chaque institution est unique, avec ses propres exigences et objectifs. C'est pourquoi nous offrons une personnalisation inégalée, vous permettant d'ajuster la plateforme pour qu'elle corresponde parfaitement aux besoins uniques de votre institution. Que vous soyez petit, grand, ou quelque part entre les deux, Squoolr s'intègre sans effort à vos flux de travail. De la personnalisation des rôles et des permissions des utilisateurs à la conception de modèles de rapports personnalisés, notre plateforme existe pour refléter l'identité de votre institution.",
+  previous: 'Précédent',
+
+  ourComprehensiveSolution: 'Notre Solution Complète',
+  ourComprehensiveSolutionSubtitle:
+    "Au fur et à mesure que votre institution grandit et évolue, nous grandissons avec vous. Nous comprenons la nature dynamique des environnements éducatifs, et notre plateforme est conçue pour s'adapter facilement à vos besoins croissants. Que vous connaissiez une augmentation des inscriptions d'étudiants, ajoutiez de nouveaux départements ou introduisiez des cours supplémentaires, nous restons le partenaire fiable pour accompagner votre croissance. Avec la possibilité de demander des fonctionnalités personnalisées, nous nous assurons que Squoolr continue de suivre l'évolution du paysage de l'éducation. Vous pouvez être assuré que Squoolr continuera de soutenir et d'habiliter votre institution alors qu'elle vise des sommets plus élevés de réussite.",
+
+  pageNotFound: 'Page non trouvée',
+  missingPage:
+    "Cette page est introuvable ou vous n'avez pas assemblé le lien correctement !",
+  goHome: "Retourner à l'accueil",
+
+  requiredField: 'Champ obligatoire !',
+  contactUsSubtitle:
+    'Des questions ou des remarques ? Écrivez-nous un message !',
+  writeYourMessageHere: 'Écrivez votre message ici',
+  message: 'Message',
+  earlyAccessSubtitle:
+    "Découvrez l'innovation de première main - Rejoignez notre programme d'accès anticipé",
+  yourName: 'Votre nom',
+  createYourSchool: 'Créez votre école',
+  useFeatureNow: 'Utilisez la fonction maintenant',
+
+  allowedGenderError: 'Seuls les genres masculin et féminin sont autorisés',
+  onlyAcceptAccronym: 'Accepte uniquement [A-Z][0-9] et -',
+  HowDidYouHearAboutUs: 'Comment avez-vous entendu parler de nous',
+  yourInformation: 'Vos Informations',
+  yourInformationDescription:
+    "Vos informations personnelles nous permettront de créer un point de contact avec votre institution. C'est important car nous aurons quelques appels et échanges d'informations lors du processus de création et de gestion.",
+  institutionData: "Informations sur l'Institution",
+  institutionDataDescription:
+    "Les informations de votre école seront utilisées lors de la configuration initiale de votre institution. L'année académique servira à créer la première année académique au sein de laquelle les configurations de l'institution seront effectuées. Veuillez fournir des informations précises pour éviter des réclamations et des retards de correction ultérieurs !",
+  initial_year_ends_at: 'Date de fin de la première année académique',
+  initial_year_starts_at: 'Date de début de la première année académique',
+  school_email: "E-mail de l'école",
+  school_phone_number: "Numéro de téléphone de l'école",
+  school_acronym: "Acronyme de l'école",
+  enterValidPhoneForPayment:
+    'Veuillez entrer un numéro valide dans la colonne de gauche pour procéder au paiement !',
+  ambassador: 'Ambassadeur',
+  demandSubmitted: 'Demande soumise',
+  demandForSchoolCreation: "Demande de création d'école",
+  demandForSchoolCreationSubtitle:
+    'Remplissez les formulaires ci-dessous et nous vous mettrons votre solution très rapidement !',
+  yourInfo: 'Vos info',
+  schoolInfo: 'Info Ecole',
+  review: 'Révision',
+  phoneNumber: 'Numéro de téléphone',
+  invalidPhonenumber: 'Numéro de téléphone invalide',
+  institutionName: "Nom de l'institution",
+  schoolAcronym: "Acronyme de l'institution",
+  institutionPhoneNumber: "Numéro de téléphone de l'institution",
+  schoolEmail: "E-mail de l'institution",
+  initialAcademicYearStartDate: 'Date de début de la première année académique',
+  estimatedInitialAcademicYearEndDate:
+    'Date de fin estimée de la première année académique',
+  ambassadorCode: "Code de l'ambassadeur",
+  referralCodeExemptsFee:
+    "Le code d'un ambassadeur vous exempte des frais de configuration",
+  ambassadorDescription:
+    "Programme Ambassadeur de Squoolr : Zéro frais de configuration, conseils d'experts. Nos Ambassadeurs certifiés mettent en place votre plateforme, forment votre personnel et fournissent une assistance directe, réduisant ainsi votre stress.",
+  ambassadorDescriptionFee: 'Sans Ambassadeur, des frais vous seront facturés ',
+  toFindAmbassadorsVisit:
+    'Pour trouver des Ambassadeurs près de chez vous, visitez',
+  andGetStarted: 'et commencez.',
+  friend: 'Ami(e)',
+  other: 'Autre',
+  payingPhone: 'Numéro de paiement',
+  getFeeFreeJourney:
+    "Profitez d'une demande sans frais grâce à un code d'ambassadeur,",
+  connectWithAmbassadorsAt: 'connectez-vous avec des ambassadeurs sur',
+  setupFee: 'Frais de configuration : facturés une seule fois',
+  payNow: 'Payer maintenant',
+  submitDemand: 'Soumettre la demande',
+
+  demandEmailSent:
+    'Un email a été envoyé à vos adresses email personnelles et scolaires contenant les détails de votre demande.',
+  demandTreatmentDelay:
+    'Les demandes prennent généralement un maximum de 7 jours ouvrables pour être traitées.',
+  checkYourDemandStatus:
+    "Vérifiez la progression de l'état de votre demande sur",
+  mailSentForFutureReference:
+    'Un e-mail contenant les détails de votre demande a été envoyé à votre adresse pour référence future !',
+  male: 'Homme',
+  female: 'Femme',
+  copyToClipboard: 'Copier dans le presse-papiers !',
+  copied: 'Copié',
+  enterCodeToGetStatus: 'Entrez votre code de demande pour obtenir le statut !',
+  weAreWorkingActively:
+    'Nous travaillons activement ! Nous prendrons en compte votre demande !',
+  pleaseBePatient: 'Veuillez être patient',
+  yourSchoolDomain: 'Votre établissement est disponible sur :',
+  yourRequestHasBeenValidated: 'Votre demande a été validée',
+  thankYouForYourPatience: 'Merci pour votre patience !',
+  submittedOn: 'Soumis le',
+
+  fullname: 'Votre nom complet',
+  demandMessage:
+    'Salut Équipe Squoolr, je suis intéressé à mettre en place et à utiliser cette plateforme pour mon institut. Pouvez-vous me fournir les ressources nécessaires ?',
+  submitDemandSubtitle:
+    'Accès complet a fonctionnalité sur les écrans plus grands (ordinateur portable et supérieur). Laissez vos coordonnées, et nous vous assisterons pour la configuration.',
+  demandSubmittedSubtitle:
+    'Nous avons bien reçu votre demande et nous vous contacterons bientôt pour vous aider à démarrer.',
+
+  ourPricing: 'Notre Tarification',
+  ourPricingSubtitle:
+    "Explorez notre modèle de tarification exclusif et sans frais, adapté aux institutions, apportant des niveaux d'efficacité et d'excellence inégalés",
+  freeForInstitutions: 'Gratuit pour les Institutions',
+  freeForInstitutionsSubtitle:
+    'Découvrez notre tarification institutionnelle gratuite et sur mesure pour une excellence inégalée',
+  studentsPay: 'Les étudiants paient',
+  perSemesterForPlatformFee: 'Par semestre pour les frais de la plateforme',
+  onboardNow: 'Embarquez maintenant',
+  functionalitiesInclude: 'Les fonctionnalités incluent :',
+  studentRegistration: 'Inscription des étudiants',
+  feePayment: 'Paiement des frais de scolarité',
+  markManagement: 'Gestion des notes',
+  disciplineManagement: 'Gestion de la discipline',
+  parentsPlatform: 'Plateforme pour les parents',
+  allFunctionalities: 'Toutes les fonctionnalités',
+
+  welcomeBackAdmin: 'Bienvenue, Administrateur !',
+  welcomeBackStaff: 'Bienvenue, Personnel !',
+  pleaseEnterYourDetails: 'Veuillez entrer vos informations',
+  login: 'Connexion',
+
+  showPassword: 'Afficher le mot de passe',
+  hidePassword: 'Cacher le mot de passe',
+  newPassword: 'Nouveau mot de passe',
+  enterYourNewPassword: 'Saisissez votre nouveau mot de passe',
 };

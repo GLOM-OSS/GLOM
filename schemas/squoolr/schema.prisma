@@ -37,6 +37,70 @@ enum EmploymentStatus {
     @@map("employment_status_enum")
 }
 
+enum InquiryType {
+    Default
+    EarlyAccess
+
+    @@map("inquiry_type_enum")
+}
+
+enum PaymentProvider {
+    Stripe
+    NotchPay
+
+    @@map("payment_provider_enum")
+}
+
+enum PaymentReasonEnum {
+    Fee
+    Platform
+    Onboarding
+    Registration
+
+    @@map("payment_reason_enum")
+}
+
+model Payment {
+    payment_id     String            @id @default(uuid()) @db.VarChar(36)
+    amount         Float
+    payment_ref    String            @db.VarChar(199)
+    provider       PaymentProvider
+    payment_reason PaymentReasonEnum
+
+    StudentPayments StudentPayment[]
+    SchoolDemands   SchoolDemand[]
+}
+
+model Inquiry {
+    inquiry_id String      @id @default(uuid()) @db.VarChar(36)
+    email      String      @db.VarChar(45)
+    type       InquiryType
+    phone      String?     @db.VarChar(45)
+    name       String?     @db.VarChar(90)
+    message    String?     @db.Text
+    created_at DateTime    @default(now()) @db.DateTime(0)
+}
+
+model PlatformSettings {
+    platform_settings_id String   @id @default(uuid()) @db.VarChar(36)
+    onboarding_fee       Float
+    created_at           DateTime @default(now()) @db.DateTime(0)
+    created_by           String?  @db.VarChar(36)
+    Login                Login?   @relation(fields: [created_by], references: [login_id], onUpdate: Cascade, onDelete: Cascade)
+
+    PlatformSettingsAudits PlatformSettingsAudit[]
+}
+
+model PlatformSettingsAudit {
+    platform_settings_audit_id String           @id @default(uuid()) @db.VarChar(36)
+    onboarding_fee             Float
+    created_at                 DateTime         @default(now()) @db.DateTime(0)
+    platform_settings_id       String           @db.VarChar(36)
+    PlatformSettings           PlatformSettings @relation(fields: [platform_settings_id], references: [platform_settings_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by                 String           @db.VarChar(36)
+    Login                      Login            @relation(fields: [audited_by], references: [login_id], onUpdate: Cascade, onDelete: Cascade)
+}
+
 model Person {
     person_id          String            @id @default(uuid()) @db.VarChar(36)
     first_name         String            @db.VarChar(50)
@@ -95,15 +159,16 @@ model PersonAudit {
 
 model School {
     school_id              String   @id @default(uuid()) @db.VarChar(36)
-    address                String?  @db.VarChar(20)
-    longitude              Int?
-    latitude               Int?
     school_name            String   @db.VarChar(50)
     school_code            String   @unique @db.VarChar(45)
     school_acronym         String   @db.VarChar(45)
     school_email           String   @unique @db.VarChar(50)
     school_phone_number    String   @db.VarChar(15)
+    lead_funnel            String   @db.VarChar(45)
+    longitude              Float?
+    latitude               Float?
     description            String?  @db.Text
+    address                String?  @db.VarChar(20)
     logo_ref               String?  @db.VarChar(45)
     subdomain              String?  @db.VarChar(30)
     creation_decree_number String?  @db.VarChar(45)
@@ -123,8 +188,9 @@ model School {
 model SchoolAudit {
     school_audit_id        String              @id @default(uuid()) @db.VarChar(36)
     address                String?             @db.VarChar(20)
-    longitude              Int?
-    latitude               Int?
+    longitude              Float?
+    latitude               Float?
+    lead_funnel            String              @db.VarChar(45)
     school_name            String              @db.VarChar(50)
     school_code            String              @db.VarChar(45)
     school_acronym         String              @db.VarChar(45)
@@ -141,9 +207,20 @@ model SchoolAudit {
     AnnualConfigurator     AnnualConfigurator? @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
+model Ambassador {
+    ambassador_id String   @id @default(uuid()) @db.VarChar(36)
+    referral_code String   @unique @db.VarChar(36)
+    login_id      String   @db.VarChar(36)
+    Login         Login    @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+    created_at    DateTime @default(now()) @db.DateTime(0)
+
+    SchoolDemands      SchoolDemand[]
+    SchoolDemandAudits SchoolDemandAudit[]
+}
+
 enum SchoolDemandStatus {
     PENDING
-    PROGRESS
+    PROCESSING
     REJECTED
     VALIDATED
 
@@ -155,8 +232,12 @@ model SchoolDemand {
     demand_status    SchoolDemandStatus @default(PENDING)
     demanded_at      DateTime           @default(now()) @db.DateTime(0)
     rejection_reason String?            @db.Text
+    payment_id       String?            @db.VarChar(36)
+    Payment          Payment?           @relation(fields: [payment_id], references: [payment_id], onDelete: Cascade, onUpdate: Cascade)
     school_id        String             @unique
     School           School             @relation(fields: [school_id], references: [school_id], onDelete: Cascade, onUpdate: Cascade)
+    ambassador_id    String?            @db.VarChar(36)
+    Ambassador       Ambassador?        @relation(fields: [ambassador_id], references: [ambassador_id], onDelete: Cascade, onUpdate: Cascade)
 
     SchoolDemandAudits SchoolDemandAudit[]
 }
@@ -164,9 +245,12 @@ model SchoolDemand {
 model SchoolDemandAudit {
     school_demand_audit_id String             @id @default(uuid()) @db.VarChar(36)
     rejection_reason       String?            @db.Text
-    school_demand_id       String             @db.VarChar(36)
-    audited_at             DateTime           @default(now()) @db.DateTime(0)
+    paid_amount            Float              @default(0)
     demand_status          SchoolDemandStatus @default(PENDING)
+    audited_at             DateTime           @default(now()) @db.DateTime(0)
+    ambassador_id          String?            @db.VarChar(36)
+    Ambassador             Ambassador?        @relation(fields: [ambassador_id], references: [ambassador_id], onDelete: Cascade, onUpdate: Cascade)
+    school_demand_id       String             @db.VarChar(36)
     SchoolDemand           SchoolDemand       @relation(fields: [school_demand_id], references: [school_demand_id], onDelete: Cascade, onUpdate: Cascade)
     audited_by             String             @db.VarChar(36)
     Login                  Login              @relation(fields: [audited_by], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
@@ -226,17 +310,20 @@ model Login {
     school_id    String?  @db.VarChar(36)
     School       School?  @relation(fields: [school_id], references: [school_id], onDelete: Cascade, onUpdate: Cascade)
 
-    LoginAudits          LoginAudit[]
-    ResetPasswords       ResetPassword[]
-    AnnualConfigurators  AnnualConfigurator[]
-    AdminResetPasswwords ResetPassword[]      @relation("Admin_Generated_ResetPassword")
-    Logs                 Log[]
-    Students             Student[]            @relation(name: "Student_Login")
-    Tutors               Student[]            @relation(name: "Tutor_Login")
-    AnnualRegistries     AnnualRegistry[]
-    AnnualTeachers       AnnualTeacher[]
-    SchoolDemandAudits   SchoolDemandAudit[]
-    Payment              Payment[]
+    LoginAudits            LoginAudit[]
+    ResetPasswords         ResetPassword[]
+    AnnualConfigurators    AnnualConfigurator[]
+    AdminResetPasswwords   ResetPassword[]         @relation("Admin_Generated_ResetPassword")
+    Logs                   Log[]
+    Students               Student[]               @relation(name: "Student_Login")
+    Tutors                 Student[]               @relation(name: "Tutor_Login")
+    AnnualRegistries       AnnualRegistry[]
+    AnnualTeachers         AnnualTeacher[]
+    SchoolDemandAudits     SchoolDemandAudit[]
+    StudentPayments        StudentPayment[]
+    PlatformSettings       PlatformSettings[]
+    PlatformSettingsAudits PlatformSettingsAudit[]
+    Ambassadors            Ambassador[]
 
     @@unique([person_id, school_id])
 }
@@ -323,7 +410,7 @@ model AnnualStudent {
     EvaluationHasStudents        EvaluationHasStudent[]
     AnnualStudentTakeAssessments AnnualStudentTakeAssessment[]
     AnnualStudentHasCreditUnits  AnnualStudentHasCreditUnit[]
-    Payments                     Payment[]
+    StudentPayments              StudentPayment[]
 
     @@unique([student_id, academic_year_id])
 }
@@ -1459,26 +1546,17 @@ model PresenceListHasCreditUnitStudent {
     DeletedByAnnualTeacher              AnnualTeacher?             @relation(name: "DeletedBy_AnnualTeacher", fields: [deleted_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-enum PaymentReasonEnum {
-    Fee
-    Platform
-    Registration
-
-    @@map("payement_reason_enum")
-}
-
-model Payment {
-    payment_id        String            @id @default(uuid()) @db.VarChar(36)
+model StudentPayment {
+    studentpayment_id String        @id @default(uuid()) @db.VarChar(36)
     amount            Float
-    transaction_id    String            @db.VarChar(45)
-    payment_date      DateTime          @db.DateTime(0)
-    payment_reason    PaymentReasonEnum
+    payment_id        String        @db.VarChar(45)
+    Payment           Payment       @relation(fields: [payment_id], references: [payment_id], onDelete: Cascade, onUpdate: Cascade)
     semester_number   Int?
-    annual_student_id String            @db.VarChar(36)
-    AnnualStudent     AnnualStudent     @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)
-    paid_by           String            @db.VarChar(36)
-    Login             Login             @relation(fields: [paid_by], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
-    created_at        DateTime          @default(now()) @db.DateTime(0)
+    annual_student_id String        @db.VarChar(36)
+    AnnualStudent     AnnualStudent @relation(fields: [annual_student_id], references: [annual_student_id], onDelete: Cascade, onUpdate: Cascade)
+    paid_by           String        @db.VarChar(36)
+    Login             Login         @relation(fields: [paid_by], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+    created_at        DateTime      @default(now()) @db.DateTime(0)
 }
 
 model AssignmentGroupMember {
