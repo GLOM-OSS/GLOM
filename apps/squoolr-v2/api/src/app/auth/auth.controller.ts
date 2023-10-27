@@ -40,7 +40,6 @@ export class AuthController {
   async signIn(@Req() request: Request, @Body() login: SignInDto) {
     let user = request.user;
     let academicYears: AcademicYear[] = [];
-    console.log(user);
     if (user.school_id) {
       const result = await this.authService.updateUserSession(
         request,
