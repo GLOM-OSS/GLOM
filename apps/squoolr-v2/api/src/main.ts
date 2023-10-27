@@ -3,7 +3,7 @@
  * This is only a minimal backend to get started.
  */
 
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
@@ -21,6 +21,10 @@ async function bootstrap() {
       origin,
       credentials: true,
     },
+  });
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1'
   });
 
   app.useStaticAssets(path.join(__dirname, './assets'));
