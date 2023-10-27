@@ -14,14 +14,14 @@ import {
 } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
-import { SessionData, UserRole } from '../auth/auth';
-import { Role } from '../auth/auth.decorator';
+import { SessionData, UserRole } from '../../app/auth/auth';
+import { Role } from '../../app/auth/auth.decorator';
 import {
   AcademicYearEntity,
   CreateAcademicYearDto,
   TemplateAcademicYearDto,
 } from './academic-years.dto';
-import { SessionEntity } from '../auth/auth.dto';
+import { SessionEntity } from '../../app/auth/auth.dto';
 
 @Injectable()
 export class AcademicYearsService {

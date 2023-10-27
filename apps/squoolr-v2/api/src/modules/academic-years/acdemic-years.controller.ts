@@ -1,14 +1,14 @@
 import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
 import { ApiExcludeEndpoint, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { Role, Roles } from '../auth/auth.decorator';
+import { Role, Roles } from '../../app/auth/auth.decorator';
 import {
   AcademicYearEntity,
   CreateAcademicYearDto,
   TemplateAcademicYearDto,
 } from './academic-years.dto';
 import { AcademicYearsService } from './academic-years.service';
-import { SessionEntity } from '../auth/auth.dto';
+import { SessionEntity } from '../../app/auth/auth.dto';
 // import { AuthService } from '../auth/auth.service';
 
 @ApiTags('Academic Years')

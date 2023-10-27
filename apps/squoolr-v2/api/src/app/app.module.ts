@@ -26,15 +26,15 @@ import { GlomPrismaModule } from '@glom/prisma';
 
 import { GlomRedisModule, GlomRedisService } from '@glom/redis';
 import { CacheInterceptor } from '@nestjs/cache-manager';
-import { AcademicYearsModule } from './academic-years/academic-years.module';
-import { AmbassadorsModule } from './ambassadors/ambassadors.module';
+import { AcademicYearsModule } from '../modules/academic-years/academic-years.module';
+import { AmbassadorsModule } from '../modules/ambassadors/ambassadors.module';
 import { seedData } from './app-seeder.factory';
 import { AppController } from './app.controller';
 import { AppInterceptor } from './app.interceptor';
 import { AppMiddleware } from './app.middleware';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { DemandModule } from './demand/demand.module';
+import { DemandModule } from '../modules/demand/demand.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
 
 @Module({
@@ -54,7 +54,7 @@ import { InquiriesModule } from './inquiries/inquiries.module';
     }),
     GlomPrismaModule.forRoot({
       isGlobal: true,
-      seedData,
+      // seedData,
     }),
     TasksModule,
     AuthModule,

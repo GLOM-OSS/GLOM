@@ -13,7 +13,7 @@ import {
   NotContains,
   ValidateNested,
 } from 'class-validator';
-import { CreatePersonDto, PersonEntity } from '../auth/auth.dto';
+import { CreatePersonDto, PersonEntity } from '../../app/auth/auth.dto';
 
 export class CreateSchoolDto {
   @ApiProperty()

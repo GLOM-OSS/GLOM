@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { IsPublic, Role, Roles } from '../auth/auth.decorator';
+import { IsPublic, Role, Roles } from '../../app/auth/auth.decorator';
 import {
   DemandDetails,
   SchoolEntity,
