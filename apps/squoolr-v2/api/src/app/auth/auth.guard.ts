@@ -2,10 +2,10 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
-  Injectable
+  Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { MetadataEnum, Role } from './auth.decorator';
 import { AuthService } from './auth.service';
 
@@ -15,6 +15,7 @@ export class AuthenticatedGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest<Request>();
+    const response = context.switchToHttp().getRequest<Response>();
     const { IS_PRIVATE, IS_PUBLIC, ROLES } = MetadataEnum;
     const isPublic = this.reflector.get<boolean>(
       IS_PUBLIC,
@@ -26,9 +27,13 @@ export class AuthenticatedGuard implements CanActivate {
     ]);
     const isAuthenticated = isPublic ? isPublic : request.isAuthenticated();
     if (!isAuthenticated) {
-      await this.authService.closeSession(request.sessionID, {
-        closed_at: new Date(),
-      });
+      const sessionID = request.headers.cookie?.split('=s%3A')[1].split('.')[0];
+      if (sessionID) {
+        await this.authService.closeSession(sessionID, {
+          closed_at: new Date(),
+        });
+        response.clearCookie(process.env.SESSION_NAME);
+      }
       throw new ForbiddenException();
     }
 

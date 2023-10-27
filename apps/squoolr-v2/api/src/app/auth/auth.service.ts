@@ -1,5 +1,5 @@
-import { TasksService } from '@glom/nest-tasks';
 import { GlomPrismaService } from '@glom/prisma';
+import { excludeKeys } from '@glom/utils';
 import {
   ConflictException,
   HttpException,
@@ -22,7 +22,6 @@ export type MajorRole =
 @Injectable()
 export class AuthService {
   constructor(
-    private tasksService: TasksService,
     private prismaService: GlomPrismaService,
     private academicYearService: AcademicYearsService
   ) {}
@@ -32,101 +31,98 @@ export class AuthService {
     email: string,
     password: string
   ): Promise<Express.User> {
+    const origin = new URL(request.headers.origin).host;
     const person = await this.prismaService.person.findUnique({
+      include: { Logins: true },
       where: { email },
     });
-    if (!person) throw new UnauthorizedException();
-    const userLogins: Login[] = await this.prismaService.login.findMany({
-      where: { person_id: person?.person_id },
-    });
-    for (let i = 0; i < userLogins.length; i++) {
-      const login = userLogins[i];
-      if (bcrypt.compareSync(password, login.password)) {
-        const isLoginValid = await this.isValidLogin(request, login);
-        if (isLoginValid) {
-          return {
-            ...person,
-            login_id: login.login_id,
-            school_id: login.school_id,
-          };
-        }
-      }
-    }
-    throw new UnauthorizedException('Wrong origin !!!');
+    if (!person)
+      throw new UnauthorizedException('Incorrect email or password !!');
+    const login = await this.getValidLogin(person.Logins, origin);
+    if (!bcrypt.compareSync(password, login.password))
+      throw new UnauthorizedException('Incorrect email or password !!');
+
+    return {
+      login_id: login.login_id,
+      school_id: login.school_id,
+      ...excludeKeys(person, ['Logins']),
+    };
   }
 
   async authenticateUser(
     request: Request,
     email: string
   ): Promise<Express.User> {
+    const origin = new URL(request.headers.origin).host;
     const person = await this.prismaService.person.findUnique({
+      include: { Logins: true },
       where: { email },
     });
     if (!person) throw new UnauthorizedException();
-    const userLogins = (await this.prismaService.login.findMany({
-      where: { person_id: person?.person_id },
-    })) as Login[];
-    for (let i = 0; i < userLogins.length; i++) {
-      const login = userLogins[i];
-      const isLoginValid = await this.isValidLogin(request, login);
-      if (isLoginValid)
-        return {
-          ...person,
-          login_id: login.login_id,
-        };
-    }
-    throw new UnauthorizedException('Wrong origin !!!');
+    const login = await this.getValidLogin(person.Logins, origin);
+    return {
+      ...person,
+      login_id: login.login_id,
+      ...excludeKeys(person, ['Logins']),
+    };
   }
 
-  async isValidLogin(request: Request, login: Login) {
-    const origin = new URL(request.headers.origin).host;
-    const { login_id, school_id, is_personnel, is_parent } = login;
-
-    const activeLogs = await this.prismaService.log.count({
+  /**
+   * Gets the first login whose priviligies are attached to the given origin
+   * @param logins list of logins to validate
+   * @param origin request origin
+   * @returns a login from the given list
+   */
+  async getValidLogin(logins: Login[], origin: string): Promise<Login> {
+    const loginsData = await Promise.all(
+      logins.map(async (login) => {
+        const { login_id, school_id } = login;
+        const schoolId = school_id ? school_id : '';
+        return {
+          login,
+          school: await this.prismaService.school.findFirst({
+            where: { school_id: schoolId, is_validated: true },
+          }),
+          student: await this.prismaService.student.findFirst({
+            where: { login_id, Login: { school_id: schoolId } },
+          }),
+        };
+      })
+    );
+    const loginData = loginsData.find(
+      ({ login: { is_parent, is_personnel }, school, student }) =>
+        (school &&
+          ((is_personnel &&
+            this.checkOrigin(origin, 'PERSONNEL', school.subdomain)) ||
+            (student &&
+              this.checkOrigin(origin, Role.STUDENT, school.subdomain)))) ||
+        (!school &&
+          ((is_parent && this.checkOrigin(origin, Role.PARENT)) ||
+            (!is_parent && this.checkOrigin(origin, Role.ADMIN))))
+    );
+    if (!loginData) throw new UnauthorizedException('Wrong origin !!!');
+    const numberOfActiveSessions = await this.prismaService.log.count({
       where: {
-        login_id,
+        login_id: loginData.login.login_id,
         OR: {
           logged_out_at: null,
           closed_at: null,
         },
       },
     });
-    if (activeLogs === 3) {
+    if (numberOfActiveSessions > 2)
       throw new HttpException(
-        'TOO_MANY_REQUESTS',
+        { error: 'TOO_MANY_REQUESTS', message: 'Too many session opened !!' },
         HttpStatus.TOO_MANY_REQUESTS
       );
-    }
-    const schoolId = school_id ? school_id : '';
-    const [school, student] = await Promise.all([
-      this.prismaService.school.findFirst({
-        where: { school_id: schoolId, is_validated: true },
-      }),
-      this.prismaService.student.findFirst({
-        where: { login_id, Login: { school_id: schoolId } },
-      }),
-    ]);
-    return (
-      (school &&
-        ((is_personnel &&
-          this.checkOrigin(origin, 'PERSONNEL', school.subdomain)) ||
-          (student &&
-            this.checkOrigin(origin, Role.STUDENT, school.subdomain)))) ||
-      (!school &&
-        ((is_parent && this.checkOrigin(origin, Role.PARENT)) ||
-          (!is_parent && this.checkOrigin(origin, Role.ADMIN))))
-    );
+    return loginData.login;
   }
 
   private checkOrigin(origin: string, role: MajorRole, subdomain?: string) {
     const env = process.env.NODE_ENV;
     return (
-      (role === Role.ADMIN &&
-        origin ===
-          (env === 'production' ? process.env.ADMIN_URL : 'localhost:4202')) ||
-      (role === Role.PARENT &&
-        origin ===
-          (env === 'production' ? `parent.squoolr.com` : 'localhost:4203')) ||
+      (role === Role.ADMIN && origin === process.env.ADMIN_URL) ||
+      (role === Role.PARENT && origin === process.env.PARENT_URL) ||
       (role === Role.STUDENT &&
         origin ===
           (env === 'production'
@@ -137,7 +133,7 @@ export class AuthService {
         role !== Role.STUDENT &&
         origin ===
           (env === 'production'
-            ? `admin.${subdomain}.squoolr.com`
+            ? `${subdomain}-staff.squoolr.com`
             : 'localhost:4201'))
     );
   }

@@ -1,23 +1,23 @@
+import { encrypt } from '@glom/encrypter';
+import { GlomExceptionResponse } from '@glom/execeptions';
 import {
   Body,
   Controller,
   Delete,
   Get,
-  InternalServerErrorException,
   Post,
   Req,
+  Res,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { AcademicYear } from '@prisma/client';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import {
   PersonEntity,
   ResetPasswordDto,
@@ -28,7 +28,6 @@ import {
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { LocalGuard } from './local/local.guard';
-import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -41,6 +40,7 @@ export class AuthController {
   async signIn(@Req() request: Request, @Body() login: SignInDto) {
     let user = request.user;
     let academicYears: AcademicYear[] = [];
+    console.log(user);
     if (user.school_id) {
       const result = await this.authService.updateUserSession(
         request,
@@ -73,23 +73,31 @@ export class AuthController {
     await this.authService.setNewPassword(
       reset_password_id,
       new_password,
-      requestHost
+      requestHost.split('.')[0]
     );
   }
 
   @Delete('log-out')
   @UseGuards(AuthenticatedGuard)
-  async logOut(@Req() request: Request) {
-    await new Promise((resolve) =>
-      request.session.destroy(async (err) => {
-        if (err)
-          throw new InternalServerErrorException('Could not detroy session');
-        await this.authService.closeSession(request.sessionID, {
-          logged_out_at: new Date(),
-        });
+  async logOut(@Req() request: Request, @Res() response: Response) {
+    const sessionName = process.env.SESSION_NAME;
+    await new Promise((resolve, reject) =>
+      request.session.destroy((err) => {
+        if (err) reject(err);
         resolve(1);
       })
+    ).catch((err) =>
+      response.status(500).json(
+        new GlomExceptionResponse({
+          error: 'Internal server error',
+          message: err,
+          path: request.url,
+          timestamp: Date.now(),
+        })
+      )
     );
+    response.clearCookie(sessionName);
+    response.send(encrypt(`Cleared ${sessionName} cookie successfully.`));
   }
 
   @Get('user')
