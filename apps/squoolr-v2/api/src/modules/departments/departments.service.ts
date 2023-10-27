@@ -51,7 +51,7 @@ export class DepartmentsService {
   }
 
   async update(
-    department_code: string,
+    department_id: string,
     payload: UpdateDepartmentDto,
     audited_by: string
   ) {
@@ -61,7 +61,7 @@ export class DepartmentsService {
           is_deleted: true,
           department_name: true,
         },
-        where: { department_code },
+        where: { department_id },
       });
     return this.prismaService.department.update({
       data: {
@@ -73,7 +73,7 @@ export class DepartmentsService {
           },
         },
       },
-      where: { department_code },
+      where: { department_id },
     });
   }
 }

@@ -31,9 +31,7 @@ export class DepartmentsController {
     @Query() params: QueryParamsDto
   ) {
     const { school_id } = request.user;
-    return {
-      departments: await this.departmentsService.findAll(school_id, params),
-    };
+    return this.departmentsService.findAll(school_id, params);
   }
 
   @Post('new')
@@ -46,34 +44,26 @@ export class DepartmentsController {
       school_id,
       annualConfigurator: { annual_configurator_id },
     } = request.user;
-    return {
-      department: await this.departmentsService.create(
-        { school_id, ...newDepartment },
-        annual_configurator_id
-      ),
-    };
+    return this.departmentsService.create(
+      { school_id, ...newDepartment },
+      annual_configurator_id
+    );
   }
 
-  @Put(':department_code/edit')
+  @Put(':department_id/edit')
   @Roles(Role.CONFIGURATOR)
   async updateDepartment(
     @Req() request: Request,
-    @Param('department_code') department_code: string,
+    @Param('department_id') department_id: string,
     @Body() updatePayload: UpdateDepartmentDto
   ) {
     const {
       annualConfigurator: { annual_configurator_id },
     } = request.user;
-    try {
-      return {
-        department: await this.departmentsService.update(
-          department_code,
-          updatePayload,
-          annual_configurator_id
-        ),
-      };
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return this.departmentsService.update(
+      department_id,
+      updatePayload,
+      annual_configurator_id
+    );
   }
 }
