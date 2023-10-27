@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { theme } from '@glom/theme';
-import { random } from '@squoolr/utils';
+import { random } from '@glom/utils';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router';

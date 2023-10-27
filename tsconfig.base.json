@@ -37,7 +37,7 @@
       "@squoolr/interfaces": ["libs/interfaces/src/index.ts"],
       "@squoolr/layout": ["libs/squoolr-layout/src/index.ts"],
       "@squoolr/toast": ["libs/toast/src/index.ts"],
-      "@squoolr/utils": ["libs/utils/src/index.ts"]
+      "@glom/utils": ["libs/utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

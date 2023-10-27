@@ -20,7 +20,7 @@ import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { CycleName } from '@squoolr/interfaces';
 import { theme } from '@glom/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { generateShort } from '@squoolr/utils';
+import { generateShort } from '@glom/utils';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
