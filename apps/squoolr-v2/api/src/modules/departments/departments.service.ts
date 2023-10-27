@@ -24,9 +24,11 @@ export class DepartmentsService {
       where: {
         school_id,
         is_deleted: params?.is_deleted,
-        department_name: {
-          contains: params?.keywords,
-        },
+        department_name: params?.keywords
+          ? {
+              search: params?.keywords,
+            }
+          : undefined,
       },
     });
   }

@@ -4,7 +4,8 @@ datasource db {
 }
 
 generator client {
-    provider = "prisma-client-js"
+    provider        = "prisma-client-js"
+    previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 enum Gender {
@@ -611,6 +612,9 @@ model Department {
     DepartmentAudits  DepartmentAudit[]
     AnnualMajors      AnnualMajor[]
     AnnualMajorAudits AnnualMajorAudit[]
+
+    @@fulltext([department_name])
+    @@fulltext([department_name, department_acronym])
 }
 
 model DepartmentAudit {
@@ -671,6 +675,9 @@ model Major {
     AnnualMajors      AnnualMajor[]
     Classrooms        Classroom[]
     AnnualCreditUnits AnnualCreditUnit[]
+
+    @@fulltext([major_name])
+    @@fulltext([major_name, major_acronym])
 }
 
 model MajorAudit {
@@ -706,6 +713,8 @@ model AnnualMajor {
     AnnualMajorAudits AnnualMajorAudit[]
 
     @@unique([major_code, academic_year_id])
+    @@fulltext([major_name])
+    @@fulltext([major_name, major_acronym])
 }
 
 model AnnualMajorAudit {
@@ -737,6 +746,9 @@ model Classroom {
 
     Students         Student[]
     AnnualClassrooms AnnualClassroom[]
+
+    @@fulltext([classroom_name])
+    @@fulltext([classroom_name, classroom_acronym])
 }
 
 model AnnualClassroom {
@@ -757,6 +769,8 @@ model AnnualClassroom {
     AnnualClassroomDivisions AnnualClassroomDivision[]
 
     @@unique([classroom_code, academic_year_id])
+    @@fulltext([classroom_name])
+    @@fulltext([classroom_name, classroom_acronym])
 }
 
 model AnnualClassroomAudit {
