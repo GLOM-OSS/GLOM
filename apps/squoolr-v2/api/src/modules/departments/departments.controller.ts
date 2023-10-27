@@ -15,7 +15,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Role, Roles } from '../../app/auth/auth.decorator';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
-import { DepartmentPostDto, DepartmentPutDto } from './department.dto';
+import { CreateDepartmentDto, UpdateDepartmentDto } from './department.dto';
 import { DepartmentsService } from './departments.service';
 import { QueryParamsDto } from '../modules.dto';
 
@@ -40,7 +40,7 @@ export class DepartmentsController {
   @Roles(Role.CONFIGURATOR)
   async createDepartment(
     @Req() request: Request,
-    @Body() newDepartment: DepartmentPostDto
+    @Body() newDepartment: CreateDepartmentDto
   ) {
     const {
       school_id,
@@ -59,7 +59,7 @@ export class DepartmentsController {
   async updateDepartment(
     @Req() request: Request,
     @Param('department_code') department_code: string,
-    @Body() updateData: DepartmentPutDto
+    @Body() updatePayload: UpdateDepartmentDto
   ) {
     const {
       annualConfigurator: { annual_configurator_id },
@@ -68,7 +68,7 @@ export class DepartmentsController {
       return {
         department: await this.departmentsService.update(
           department_code,
-          updateData,
+          updatePayload,
           annual_configurator_id
         ),
       };

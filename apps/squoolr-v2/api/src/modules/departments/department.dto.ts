@@ -1,7 +1,7 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
-export class DepartmentPostDto {
+export class CreateDepartmentDto {
   @IsString()
   @ApiProperty()
   department_name: string;
@@ -10,7 +10,7 @@ export class DepartmentPostDto {
   @ApiProperty()
   department_acronym: string;
 }
-export class DepartmentPutDto {
+export class UpdateDepartmentDto extends PartialType(CreateDepartmentDto) {
   @IsString()
   @IsOptional()
   @ApiPropertyOptional()

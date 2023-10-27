@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import { QueryParamsDto } from '../modules.dto';
 import { DepartmentCreateInput } from './department';
-import { DepartmentPutDto } from './department.dto';
+import { UpdateDepartmentDto } from './department.dto';
 
 @Injectable()
 export class DepartmentsService {
@@ -52,7 +52,7 @@ export class DepartmentsService {
 
   async update(
     department_code: string,
-    data: DepartmentPutDto,
+    payload: UpdateDepartmentDto,
     audited_by: string
   ) {
     const departmentAudit =
@@ -65,7 +65,7 @@ export class DepartmentsService {
       });
     return this.prismaService.department.update({
       data: {
-        ...data,
+        ...payload,
         DepartmentAudits: {
           create: {
             audited_by,
