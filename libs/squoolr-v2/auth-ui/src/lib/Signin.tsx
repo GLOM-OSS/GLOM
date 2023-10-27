@@ -1,11 +1,22 @@
 import { useTheme } from '@glom/theme';
-import { Box, Button, TextField, Typography, capitalize } from '@mui/material';
+import {
+  Box,
+  Button,
+  IconButton,
+  TextField,
+  Tooltip,
+  Typography,
+  capitalize,
+} from '@mui/material';
 import { useFormik } from 'formik';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import * as Yup from 'yup';
 import { IAppType } from './Auth.interfaces';
 import Footer from './Footer';
+import { Icon } from '@iconify/react';
+import eye from '@iconify/icons-fluent/eye-32-regular';
+import eyeSlash from '@iconify/icons-fluent/eye-hide-24-regular';
 
 export function Signin({ app }: { app: IAppType }) {
   const { formatMessage } = useIntl();
@@ -112,6 +123,23 @@ export function Signin({ app }: { app: IAppType }) {
             {...formik.getFieldProps('password')}
             disabled={isSubmitting}
             size="small"
+            InputProps={{
+              endAdornment: (
+                <Tooltip
+                  arrow
+                  title={formatMessage({
+                    id: showPassword ? 'hidePassword' : 'showPassword',
+                  })}
+                >
+                  <IconButton
+                    size="small"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                  >
+                    <Icon icon={showPassword ? eyeSlash : eye} />
+                  </IconButton>
+                </Tooltip>
+              ),
+            }}
           />
 
           <Button type="submit" variant="contained" color="primary" fullWidth>
