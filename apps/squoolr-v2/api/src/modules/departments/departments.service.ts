@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import { QueryParamsDto } from '../modules.dto';
 import { DepartmentCreateInput } from './department';
-import { UpdateDepartmentDto } from './department.dto';
+import { DepartmentEntity, UpdateDepartmentDto } from './department.dto';
 
 @Injectable()
 export class DepartmentsService {
@@ -13,14 +13,7 @@ export class DepartmentsService {
   ) {}
 
   async findAll(school_id: string, params?: QueryParamsDto) {
-    return this.prismaService.department.findMany({
-      select: {
-        is_deleted: true,
-        created_at: true,
-        department_code: true,
-        department_name: true,
-        department_acronym: true,
-      },
+    const departments = await this.prismaService.department.findMany({
       where: {
         school_id,
         is_deleted: params?.is_deleted,
@@ -31,6 +24,7 @@ export class DepartmentsService {
           : undefined,
       },
     });
+    return departments.map((department) => new DepartmentEntity(department));
   }
 
   async create(payload: DepartmentCreateInput, created_by: string) {
@@ -63,7 +57,7 @@ export class DepartmentsService {
         },
         where: { department_id },
       });
-    return this.prismaService.department.update({
+    await this.prismaService.department.update({
       data: {
         ...payload,
         DepartmentAudits: {

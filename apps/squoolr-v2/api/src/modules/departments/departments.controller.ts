@@ -2,8 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   Post,
   Put,
@@ -11,13 +9,17 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Role, Roles } from '../../app/auth/auth.decorator';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
-import { CreateDepartmentDto, UpdateDepartmentDto } from './department.dto';
-import { DepartmentsService } from './departments.service';
 import { QueryParamsDto } from '../modules.dto';
+import {
+  CreateDepartmentDto,
+  DepartmentEntity,
+  UpdateDepartmentDto,
+} from './department.dto';
+import { DepartmentsService } from './departments.service';
 
 @ApiTags('Departments')
 @Controller('departments')
@@ -26,6 +28,7 @@ export class DepartmentsController {
   constructor(private departmentsService: DepartmentsService) {}
 
   @Get('all')
+  @ApiOkResponse({ type: [DepartmentEntity] })
   async getDepartments(
     @Req() request: Request,
     @Query() params: QueryParamsDto
@@ -36,6 +39,7 @@ export class DepartmentsController {
 
   @Post('new')
   @Roles(Role.CONFIGURATOR)
+  @ApiCreatedResponse({ type: DepartmentEntity })
   async createDepartment(
     @Req() request: Request,
     @Body() newDepartment: CreateDepartmentDto
