@@ -36,6 +36,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { DemandModule } from '../modules/demand/demand.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
+import { DepartmentsModule } from '../modules/departments/departments.module';
 
 @Module({
   imports: [
@@ -56,12 +57,12 @@ import { InquiriesModule } from './inquiries/inquiries.module';
       isGlobal: true,
       // seedData,
     }),
-    TasksModule,
     AuthModule,
     DemandModule,
     AcademicYearsModule,
     InquiriesModule,
     AmbassadorsModule,
+    DepartmentsModule
   ],
   controllers: [AppController],
   providers: [
