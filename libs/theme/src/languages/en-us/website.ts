@@ -520,4 +520,9 @@ export const website = {
   welcomeBackStaff: 'Welcome Back Staff!',
   pleaseEnterYourDetails: 'Please enter your details',
   login: 'Login',
+
+  showPassword: 'Show password',
+  hidePassword: 'Hide password',
+  newPassword: 'New password',
+  enterYourNewPassword: 'Enter Your New Password',
 };

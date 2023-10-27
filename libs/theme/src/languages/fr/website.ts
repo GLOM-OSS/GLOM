@@ -545,4 +545,9 @@ export const website = {
   welcomeBackStaff: 'Bienvenue, Personnel !',
   pleaseEnterYourDetails: 'Veuillez entrer vos informations',
   login: 'Connexion',
+
+  showPassword: 'Afficher le mot de passe',
+  hidePassword: 'Cacher le mot de passe',
+  newPassword: 'Nouveau mot de passe',
+  enterYourNewPassword: 'Saisissez votre nouveau mot de passe',
 };
