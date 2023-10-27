@@ -1,11 +1,11 @@
 import { useRoutes } from 'react-router';
 import { routes } from './routes/routes';
-import { SquoolrThemeProvider } from '@glom/theme';
+import { GlomThemeProvider } from '@glom/theme';
 
 export function App() {
   const routing = useRoutes(routes);
 
-  return <SquoolrThemeProvider>{routing}</SquoolrThemeProvider>;
+  return <GlomThemeProvider>{routing}</GlomThemeProvider>;
 }
 
 export default App;

@@ -16,10 +16,10 @@ function axiosInstance(): AxiosInstance {
     (request) => {
       request = {
         ...request,
-        headers: {
-          ...request.headers,
-          lang: 'fr',
-        },
+        // headers: {
+        //   ...request.headers,
+        //   lang: 'fr',
+        // },
         params: request.params ? { data: encrypt(request.params) } : undefined,
         data:
           request.data instanceof FormData
