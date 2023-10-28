@@ -1,12 +1,22 @@
-import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiProperty, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
-import { AnnualMajorEntity, QueryMajorDto } from './major.dto';
+import { AnnualMajorEntity, CreateMajorDto, QueryMajorDto } from './major.dto';
 import { MajorsService } from './majors.service';
+import { Role, Roles } from '../../app/auth/auth.decorator';
 
-@Controller()
 @ApiTags('Majors')
+@Controller('majors')
 @UseGuards(AuthenticatedGuard)
 export class MajorsController {
   constructor(private majorsService: MajorsService) {}
@@ -24,5 +34,18 @@ export class MajorsController {
   @ApiProperty({ type: AnnualMajorEntity })
   async getMajor(@Param('annual_major_id') annualMajorid: string) {
     return this.majorsService.findOne(annualMajorid);
+  }
+
+  @Post('new')
+  @Roles(Role.CONFIGURATOR)
+  async createMajor(@Req() request: Request, @Body() newMajor: CreateMajorDto) {
+    const {
+      activeYear: { academic_year_id },
+      annualConfigurator: { annual_configurator_id },
+    } = request.user;
+    return this.majorsService.create(
+      { ...newMajor, academic_year_id },
+      annual_configurator_id
+    );
   }
 }

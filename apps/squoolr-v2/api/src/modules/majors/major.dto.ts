@@ -4,33 +4,9 @@ import {
   OmitType,
   PartialType,
 } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import {
-  IsArray,
-  IsBoolean,
-  IsNumber,
-  IsOptional,
-  IsString,
-  IsUUID,
-  ValidateNested,
-} from 'class-validator';
-import { CycleEntity, QueryParamsDto } from '../modules.dto';
-import { DepartmentEntity } from '../departments/department.dto';
-import { Cycle } from '@prisma/client';
+import { IsBoolean, IsOptional, IsString, IsUUID } from 'class-validator';
+import { QueryParamsDto } from '../modules.dto';
 
-export class CreateMajorClassroomDto {
-  @IsNumber()
-  @ApiProperty()
-  level: number;
-
-  @IsNumber()
-  @ApiProperty()
-  total_fee_due: number;
-
-  @IsNumber()
-  @ApiProperty()
-  registration_fee: number;
-}
 export class CreateMajorDto {
   @IsString()
   @ApiProperty()
@@ -48,11 +24,9 @@ export class CreateMajorDto {
   @ApiProperty()
   cycle_id: string;
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreateMajorClassroomDto)
-  @ApiProperty({ type: [CreateMajorClassroomDto] })
-  classrooms: CreateMajorClassroomDto[];
+  constructor(props: CreateMajorDto) {
+    Object.assign(this, props);
+  }
 }
 
 export class UpdateMajorDto extends OmitType(PartialType(CreateMajorDto), [
@@ -71,9 +45,7 @@ export class QueryMajorDto extends QueryParamsDto {
   department_code?: string;
 }
 
-export class AnnualMajorEntity extends OmitType(CreateMajorDto, [
-  'classrooms',
-]) {
+export class AnnualMajorEntity extends CreateMajorDto {
   @ApiProperty()
   annual_major_id: string;
 
