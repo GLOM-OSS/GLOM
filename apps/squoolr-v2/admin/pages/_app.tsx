@@ -23,13 +23,11 @@ function CustomApp({ Component, pageProps }: AppProps) {
           sx={{
             minHeight: '100vh',
             display: 'grid',
-            backgroundColor: '#FAFAFD',
           }}
         >
           <Box
             sx={{
               height: '100%',
-              maxWidth: '1700px',
               margin: '0 auto',
               width: '100%',
             }}
