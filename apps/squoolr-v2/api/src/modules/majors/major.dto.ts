@@ -32,15 +32,10 @@ export class CreateMajorDto {
 export class UpdateMajorDto extends OmitType(PartialType(CreateMajorDto), [
   'cycle_id',
   'department_id',
-]) {
-  @IsBoolean()
-  @IsOptional()
-  @ApiPropertyOptional()
-  is_deleted?: boolean;
-}
+]) {}
 
 export class QueryMajorDto extends QueryParamsDto {
-  @IsString()
+  @IsUUID()
   @IsOptional()
   @ApiPropertyOptional()
   department_id?: string;

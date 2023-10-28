@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -55,7 +56,7 @@ export class MajorsController {
     );
   }
 
-  @Put(':annual_major_id/update')
+  @Put(':annual_major_id')
   @Roles(Role.CONFIGURATOR)
   async updateMajor(
     @Req() request: Request,
@@ -68,6 +69,22 @@ export class MajorsController {
     return this.majorsService.update(
       annualMajorId,
       updatePayload,
+      annual_configurator_id
+    );
+  }
+
+  @Delete(':annual_major_id')
+  @Roles(Role.CONFIGURATOR)
+  async deleteMajor(
+    @Req() request: Request,
+    @Param('annual_major_id') annualMajorId: string
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user;
+    return this.majorsService.update(
+      annualMajorId,
+      { is_deleted: true },
       annual_configurator_id
     );
   }

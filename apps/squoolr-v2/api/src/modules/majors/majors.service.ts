@@ -3,7 +3,11 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
-import { CreateMajorPayload, GenerateClassroomsPayload } from './major';
+import {
+  CreateMajorPayload,
+  GenerateClassroomsPayload,
+  UpdateMajorPayload,
+} from './major';
 import { AnnualMajorEntity, QueryMajorDto, UpdateMajorDto } from './major.dto';
 
 export const annualMajorSelect = Prisma.validator<Prisma.AnnualMajorSelect>()({
@@ -215,7 +219,7 @@ export class MajorsService {
 
   async update(
     annual_major_id: string,
-    payload: UpdateMajorDto,
+    payload: UpdateMajorPayload,
     audited_by: string
   ) {
     const annualMajorAudit =

@@ -11,3 +11,8 @@ export type CreateMajorPayload = Pick<
   Prisma.AnnualMajorCreateManyInput,
   'academic_year_id' | 'department_id' | 'major_acronym' | 'major_name'
 > & { cycle_id: string };
+
+export type UpdateMajorPayload = Pick<
+  Prisma.AnnualMajorUpdateInput,
+  'major_name' | 'major_acronym'
+> & { is_deleted?: true };
