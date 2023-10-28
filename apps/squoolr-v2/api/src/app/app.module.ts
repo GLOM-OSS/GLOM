@@ -21,23 +21,23 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 
 import { GlomExceptionsFilter } from '@glom/execeptions';
-import { TasksModule } from '@glom/nest-tasks';
 import { GlomPrismaModule } from '@glom/prisma';
 
 import { GlomRedisModule, GlomRedisService } from '@glom/redis';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { AcademicYearsModule } from '../modules/academic-years/academic-years.module';
 import { AmbassadorsModule } from '../modules/ambassadors/ambassadors.module';
+import { ClassroomsModule } from '../modules/classrooms/classrooms.module';
+import { DemandModule } from '../modules/demand/demand.module';
+import { DepartmentsModule } from '../modules/departments/departments.module';
+import { MajorsModule } from '../modules/majors/majors.module';
 import { seedData } from './app-seeder.factory';
 import { AppController } from './app.controller';
 import { AppInterceptor } from './app.interceptor';
 import { AppMiddleware } from './app.middleware';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { DemandModule } from '../modules/demand/demand.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
-import { DepartmentsModule } from '../modules/departments/departments.module';
-import { MajorsModule } from '../modules/majors/majors.module';
 
 @Module({
   imports: [
@@ -65,6 +65,7 @@ import { MajorsModule } from '../modules/majors/majors.module';
     AmbassadorsModule,
     DepartmentsModule,
     MajorsModule,
+    ClassroomsModule
   ],
   controllers: [AppController],
   providers: [
