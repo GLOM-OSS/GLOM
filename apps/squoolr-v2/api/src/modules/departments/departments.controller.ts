@@ -54,7 +54,7 @@ export class DepartmentsController {
     );
   }
 
-  @Put(':department_id/edit')
+  @Put(':department_id/update')
   @Roles(Role.CONFIGURATOR)
   async updateDepartment(
     @Req() request: Request,
