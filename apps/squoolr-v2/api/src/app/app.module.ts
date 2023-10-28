@@ -37,6 +37,7 @@ import { AuthModule } from './auth/auth.module';
 import { DemandModule } from '../modules/demand/demand.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
 import { DepartmentsModule } from '../modules/departments/departments.module';
+import { MajorsModule } from '../modules/majors/majors.module';
 
 @Module({
   imports: [
@@ -62,7 +63,8 @@ import { DepartmentsModule } from '../modules/departments/departments.module';
     AcademicYearsModule,
     InquiriesModule,
     AmbassadorsModule,
-    DepartmentsModule
+    DepartmentsModule,
+    MajorsModule,
   ],
   controllers: [AppController],
   providers: [
