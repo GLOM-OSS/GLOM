@@ -1,5 +1,5 @@
 import { CacheProvider, EmotionCache } from '@emotion/react';
-import { SquoolrThemeProvider, useLanguage } from '@glom/theme';
+import { GlomThemeProvider, useLanguage } from '@glom/theme';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useEffect } from 'react';
@@ -48,9 +48,9 @@ function CustomApp(props: CustomAppProps) {
         <link rel="icon" type="image/x-icon" href="/favicon.png" />
       </Head>
       <CacheProvider value={emotionCache}>
-        <SquoolrThemeProvider>
+        <GlomThemeProvider>
           <App {...{ Component, pageProps, emotionCache }} />
-        </SquoolrThemeProvider>
+        </GlomThemeProvider>
       </CacheProvider>
     </>
   );

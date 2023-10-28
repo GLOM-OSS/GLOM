@@ -9,7 +9,7 @@ import {
   PreconditionFailedException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { excludeKeys } from '@squoolr/utils';
+import { excludeKeys } from '@glom/utils';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { Profile } from 'passport';

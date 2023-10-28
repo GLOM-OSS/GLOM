@@ -3,7 +3,7 @@ import { Box, lighten, Skeleton, Typography } from '@mui/material';
 import { getClassrooms } from '@squoolr/api-services';
 import { theme, useLanguage } from '@glom/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
+import { random } from '@glom/utils';
 import { useEffect, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { FormattedNumberParts, useIntl } from 'react-intl';

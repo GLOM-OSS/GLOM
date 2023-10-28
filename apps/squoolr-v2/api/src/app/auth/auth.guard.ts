@@ -2,121 +2,90 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
-  HttpException,
-  HttpStatus,
   Injectable,
-  NotAcceptableException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { TasksService } from '@glom/nest-tasks';
-import { Request } from 'express';
-import { User } from './auth';
+import { Request, Response } from 'express';
 import { MetadataEnum, Role } from './auth.decorator';
 import { AuthService } from './auth.service';
 
 @Injectable()
 export class AuthenticatedGuard implements CanActivate {
-  constructor(
-    private reflector: Reflector,
-    private authService: AuthService,
-    private tasksService: TasksService
-  ) {}
+  constructor(private reflector: Reflector, private authService: AuthService) {}
 
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest<Request>();
+    const response = context.switchToHttp().getRequest<Response>();
     const { IS_PRIVATE, IS_PUBLIC, ROLES } = MetadataEnum;
     const isPublic = this.reflector.get<boolean>(
       IS_PUBLIC,
       context.getHandler()
     );
-    const roles = this.reflector.getAllAndOverride<Role[]>(ROLES, [
+    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES, [
       context.getHandler(),
       context.getClass(),
     ]);
-    const isAuthenticated = isPublic
-      ? isPublic
-      : request.isAuthenticated()
-      ? await this.authenticateUser(request, roles)
-      : false;
-    if (!isAuthenticated) throw new ForbiddenException();
+    const isAuthenticated = isPublic ? isPublic : request.isAuthenticated();
+    if (!isAuthenticated) {
+      const sessionID = request.headers.cookie?.split('=s%3A')[1].split('.')[0];
+      if (sessionID) {
+        await this.authService.closeSession(sessionID, {
+          closed_at: new Date(),
+        });
+        response.clearCookie(process.env.SESSION_NAME);
+      }
+      throw new ForbiddenException();
+    }
+
+    const isOriginValid = await this.authService.validateOrigin(
+      request.user,
+      new URL(request.headers.origin).host
+    );
+    if (!isOriginValid) throw new ForbiddenException('Invalid origin !!!');
+
+    if (
+      requiredRoles &&
+      !(await this.validateRoleAccess(request.user, requiredRoles))
+    )
+      throw new ForbiddenException('Insufficient privileges !!!');
 
     const isPrivate = this.reflector.get<boolean>(
       IS_PRIVATE,
       context.getHandler()
     );
-    if (isPrivate) {
-      const isPrivateCodeValid = await this.validatePrivateCode(
-        request,
-        roles[0]
-      );
-      if (!isPrivateCodeValid)
-        throw new NotAcceptableException('Valid private code needed');
-    }
+    if (isPrivate && !(await this.validatePrivateCode(request, requiredRoles)))
+      throw new ForbiddenException('Invalid confirmation code !!!');
+
     return isAuthenticated;
   }
 
-  async authenticateUser(request: Request, metaRoles: Role[]) {
-    const user = request.user as User;
-    const {
-      session: {
-        passport: {
-          user: { log_id, cookie_age, job_name, roles },
-        },
-      },
-    } = request;
-
-    let userHasTheAcess = true;
-    if (metaRoles) {
-      let hasRole = false;
-      roles.forEach(({ role }) => {
-        if (metaRoles.includes(role)) hasRole = true;
-      });
-      userHasTheAcess = hasRole;
-    }
-
-    const userClientCorrect = this.authService.isClientCorrect(
-      user,
-      new URL(request.headers.origin).host
+  async validateRoleAccess(user: Express.User, roles: Role[]) {
+    return roles.some(
+      (role) =>
+        (user.tutorStudentIds && role === Role.PARENT) ||
+        (user.annualConfigurator && role === Role.CONFIGURATOR) ||
+        (user.annualRegistry && role === Role.REGISTRY) ||
+        (user.annualTeacher && role === Role.TEACHER) ||
+        (user.annualStudent && role === Role.STUDENT) ||
+        (!user.school_id && role === Role.ADMIN)
     );
-    if (!userHasTheAcess || !userClientCorrect)
-      throw new ForbiddenException('Missing access or incorrect origin');
-    const now = new Date();
-    this.tasksService.upsertCronTime(
-      job_name,
-      new Date(now.setSeconds(now.getSeconds() + cookie_age)),
-      () => {
-        request.session.destroy(async (err) => {
-          if (!err) await this.authService.closeSession(log_id);
-        });
-      }
-    );
-    return userClientCorrect;
   }
 
-  async validatePrivateCode(request: Request, role: Role) {
-    const private_code = request.body['private_code'] as string | '';
+  async validatePrivateCode(request: Request, roles: Role[]) {
+    const { annualTeacher, annualRegistry } = request.user;
+    const private_code = request.body['private_code'];
 
-    if (role === Role.TEACHER) {
-      const {
-        annualTeacher: { teacher_id },
-      } = request.user as User;
-      return await this.authService.verifyPrivateCode(role, {
-        private_code,
-        user_id: teacher_id,
-      });
-    } else if (role === Role.REGISTRY) {
-      const {
-        annualRegistry: { annual_registry_id },
-      } = request.user as User;
-      return await this.authService.verifyPrivateCode(role, {
-        private_code,
-        user_id: annual_registry_id,
-      });
-    } else
-      throw new HttpException(
-        `Private decorator can only with method protected by a teacher or registry role.`,
-        HttpStatus.MISDIRECTED
-      );
+    return (
+      (roles.includes(Role.TEACHER) &&
+        (await this.authService.verifyPrivateCode(Role.TEACHER, {
+          private_code,
+          user_id: annualTeacher?.teacher_id,
+        }))) ||
+      (roles.includes(Role.REGISTRY) &&
+        (await this.authService.verifyPrivateCode(Role.REGISTRY, {
+          private_code,
+          user_id: annualRegistry?.annual_registry_id,
+        })))
+    );
   }
 }

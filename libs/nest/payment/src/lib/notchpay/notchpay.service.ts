@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
 import type {
   CancelPaymentResponse,
@@ -16,9 +16,23 @@ export class NotchPayService {
 
   constructor({ apiKey, endpoint }: NotchPayConfigOptions) {
     this.axiosInstance = axios.create({
-      baseURL: endpoint,
+      baseURL: `https://${endpoint}`,
       headers: { Authorization: apiKey },
     });
+    this.axiosInstance
+      .get('/')
+      .then(() =>
+        Logger.log(
+          'Connection successfully established !!!',
+          NotchPayService.name
+        )
+      )
+      .catch((error) =>
+        Logger.error(
+          `Couldn't establish connection: ${error?.message}`,
+          NotchPayService.name
+        )
+      );
   }
 
   async initiatePayment({
@@ -39,10 +53,13 @@ export class NotchPayService {
     return data.transaction;
   }
 
-  async completePayment(reference: string, payload: CompletePaymentPayload) {
+  async completePayment(
+    reference: string,
+    { channel, phone }: CompletePaymentPayload
+  ) {
     const { data } = await this.axiosInstance.put<CompletePaymentResponse>(
       `/payments/${reference}`,
-      payload
+      { channel, data: { phone } }
     );
     return data;
   }

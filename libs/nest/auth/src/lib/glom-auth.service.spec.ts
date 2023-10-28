@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { GlomMailerModule, GlomMailerService } from '@glom/nest-mailer';
 import { HttpModule } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
-import { excludeKeys } from '@squoolr/utils';
+import { excludeKeys } from '@glom/utils';
 import * as bcrypt from 'bcrypt';
 import { isUUID } from 'class-validator';
 import { Request } from 'express';
