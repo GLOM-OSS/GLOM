@@ -1,1 +1,2 @@
-export * from './lib/squoolr-v2-side-nav';
+export * from './lib/SideNav';
+export * from './lib/SideNav.interfaces';
