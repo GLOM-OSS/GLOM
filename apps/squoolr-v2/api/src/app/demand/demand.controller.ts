@@ -4,10 +4,10 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Put,
-  Req,
-  UseGuards,
+  Req
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -19,12 +19,11 @@ import {
   ValidateDemandDto,
 } from './demand.dto';
 import { DemandService } from './demand.service';
-import { AuthenticatedGuard } from '../auth/auth.guard';
 
 @ApiTags('Demands')
 @Roles(Role.ADMIN)
 @Controller('demands')
-@UseGuards(AuthenticatedGuard)
+// @UseGuards(AuthenticatedGuard)
 export class DemandController {
   constructor(private demandService: DemandService) {}
 
@@ -86,7 +85,7 @@ export class DemandController {
   }
 
   @ApiOkResponse()
-  @Put(':school_code/status')
+  @Patch(':school_code/status')
   updateDemandStatus(
     @Req() request: Request,
     @Param('school_code') schoolCode: string

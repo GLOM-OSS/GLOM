@@ -256,7 +256,8 @@ export class DemandService {
   }
 
   async validateDemand(
-    { school_code, rejection_reason, subdomain }: ValidateDemandDto,
+    school_code: string,
+    { rejection_reason, subdomain }: ValidateDemandDto,
     audited_by: string
   ) {
     const schoolDemand = await this.prismaService.schoolDemand.findFirst({

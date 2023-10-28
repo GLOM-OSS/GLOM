@@ -76,10 +76,6 @@ export class SubmitDemandDto {
 }
 
 export class ValidateDemandDto {
-  @ApiProperty()
-  @IsString()
-  school_code: string;
-
   @IsString()
   @IsOptional()
   @ApiPropertyOptional()
