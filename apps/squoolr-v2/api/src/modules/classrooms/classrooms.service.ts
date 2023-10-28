@@ -1,6 +1,11 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
-import { AnnualClassroomEntity, QueryClassroomDto } from './classroom.dto';
+import {
+  AnnualClassroomEntity,
+  QueryClassroomDto,
+  UpdateClassroomDto,
+} from './classroom.dto';
+import { UpdateClassroomPayload } from './classroom';
 
 @Injectable()
 export class ClassroomsService {
@@ -40,5 +45,33 @@ export class ClassroomsService {
           number_of_divisions: 1,
         })
     );
+  }
+
+  async update(
+    annual_classroom_id: string,
+    payload: UpdateClassroomPayload,
+    audited_by: string
+  ) {
+    const annualClassroomAudit =
+      await this.prismaService.annualClassroom.findUnique({
+        select: {
+          registration_fee: true,
+          total_fee_due: true,
+          is_deleted: true,
+        },
+        where: { annual_classroom_id },
+      });
+    await this.prismaService.annualClassroom.update({
+      data: {
+        ...payload,
+        AnnualClassroomAudits: {
+          create: {
+            audited_by,
+            ...annualClassroomAudit,
+          },
+        },
+      },
+      where: { annual_classroom_id },
+    });
   }
 }
