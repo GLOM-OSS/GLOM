@@ -607,9 +607,8 @@ model Department {
     school_id          String             @db.VarChar(36)
     School             School             @relation(fields: [school_id], references: [school_id], onDelete: Cascade, onUpdate: Cascade)
 
-    DepartmentAudits  DepartmentAudit[]
-    AnnualMajors      AnnualMajor[]
-    AnnualMajorAudits AnnualMajorAudit[]
+    DepartmentAudits DepartmentAudit[]
+    AnnualMajors     AnnualMajor[]
 
     @@fulltext([department_name])
     @@fulltext([department_name, department_acronym])
@@ -725,8 +724,6 @@ model AnnualMajorAudit {
     audited_at            DateTime           @default(now()) @db.DateTime(0)
     annual_major_id       String             @db.VarChar(36)
     AnnualMajor           AnnualMajor        @relation(fields: [annual_major_id], references: [annual_major_id], onDelete: Cascade, onUpdate: Cascade)
-    department_id         String             @db.VarChar(36)
-    Department            Department         @relation(fields: [department_id], references: [department_id], onDelete: Cascade, onUpdate: Cascade)
     audited_by            String             @db.VarChar(36)
     AnnualConfigurator    AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
