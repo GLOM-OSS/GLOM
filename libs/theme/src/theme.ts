@@ -18,6 +18,9 @@ declare module '@mui/material/styles' {
       line: React.CSSProperties['color'];
       inputBackground: React.CSSProperties['color'];
       background: React.CSSProperties['color'];
+      backgroundSelect: React.CSSProperties['color'];
+      blueTransparent: React.CSSProperties['color'];
+      over: React.CSSProperties['color'];
       offWhite: React.CSSProperties['color'];
       placeholder: React.CSSProperties['color'];
       label: React.CSSProperties['color'];
@@ -31,6 +34,9 @@ declare module '@mui/material/styles' {
       line: React.CSSProperties['color'];
       inputBackground: React.CSSProperties['color'];
       background: React.CSSProperties['color'];
+      backgroundSelect: React.CSSProperties['color'];
+      blueTransparent: React.CSSProperties['color'];
+      over: React.CSSProperties['color'];
       offWhite: React.CSSProperties['color'];
       placeholder: React.CSSProperties['color'];
       label: React.CSSProperties['color'];
@@ -124,6 +130,9 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
         line: '#D1D5DB',
         inputBackground: '#F4F5F7',
         background: BACKGROUND,
+        backgroundSelect: '#EBEAED',
+        blueTransparent: '#EDF2FB',
+        over: '#F3F4F6',
         offWhite: '#FFFFFF',
         dialogBackground: BACKGROUND,
       },
