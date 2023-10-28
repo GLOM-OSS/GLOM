@@ -43,7 +43,7 @@ export class QueryMajorDto extends QueryParamsDto {
   @IsString()
   @IsOptional()
   @ApiPropertyOptional()
-  department_code?: string;
+  department_id?: string;
 }
 
 export class AnnualMajorEntity extends CreateMajorDto {

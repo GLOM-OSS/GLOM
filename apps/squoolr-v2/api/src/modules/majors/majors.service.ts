@@ -36,7 +36,7 @@ export class MajorsService {
           ? [
               {
                 is_deleted: params.is_deleted,
-                Department: { department_code: params.department_code },
+                department_id: params.department_id,
               },
               {
                 major_name: {
