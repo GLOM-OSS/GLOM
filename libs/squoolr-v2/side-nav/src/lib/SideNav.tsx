@@ -7,7 +7,7 @@ import { INavSection } from './SideNav.interfaces';
 import Header from './components/Header';
 import SideNavItem from './components/SideNavItem';
 
-export default function SideNav({
+export function SideNav({
   callingApp,
   navSections,
 }: {
