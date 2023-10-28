@@ -1,7 +1,7 @@
-import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { Department } from '@prisma/client';
 import { Exclude } from 'class-transformer';
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class CreateDepartmentDto {
   @IsString()
@@ -12,17 +12,7 @@ export class CreateDepartmentDto {
   @ApiProperty()
   department_acronym: string;
 }
-export class UpdateDepartmentDto extends PartialType(CreateDepartmentDto) {
-  @IsString()
-  @IsOptional()
-  @ApiPropertyOptional()
-  department_name?: string;
-
-  @IsBoolean()
-  @IsOptional()
-  @ApiPropertyOptional()
-  is_deleted?: boolean;
-}
+export class UpdateDepartmentDto extends PartialType(CreateDepartmentDto) {}
 
 export class DepartmentEntity implements Department {
   @ApiProperty()

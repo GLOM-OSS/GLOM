@@ -2,7 +2,7 @@ import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import { QueryParamsDto } from '../modules.dto';
-import { DepartmentCreateInput } from './department';
+import { CreateDepartmentInput, UpdateDepartmentInput } from './department';
 import { DepartmentEntity, UpdateDepartmentDto } from './department.dto';
 
 @Injectable()
@@ -27,7 +27,7 @@ export class DepartmentsService {
     return departments.map((department) => new DepartmentEntity(department));
   }
 
-  async create(payload: DepartmentCreateInput, created_by: string) {
+  async create(payload: CreateDepartmentInput, created_by: string) {
     const { school_id, department_acronym, department_name } = payload;
     const departmentCode = await this.codeGenerator.getDepartmentCode(
       department_acronym,
@@ -46,7 +46,7 @@ export class DepartmentsService {
 
   async update(
     department_id: string,
-    payload: UpdateDepartmentDto,
+    payload: UpdateDepartmentInput,
     audited_by: string
   ) {
     const departmentAudit =
