@@ -32,11 +32,13 @@ export class ClassroomsService {
         Classroom: { level },
         AnnualClassroomDivisions: [{ annual_coordinator_id }],
         ...data
-      }) => new AnnualClassroomEntity({
-        ...data,
-        annual_coordinator_id,
-        classroom_level: level,
-      })
+      }) =>
+        new AnnualClassroomEntity({
+          ...data,
+          annual_coordinator_id,
+          classroom_level: level,
+          number_of_divisions: 1,
+        })
     );
   }
 }
