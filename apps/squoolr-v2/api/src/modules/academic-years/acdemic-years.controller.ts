@@ -64,23 +64,23 @@ export class AcademicYearsController {
     return sessionData;
   }
 
-  @ApiExcludeEndpoint()
-  @Roles(Role.CONFIGURATOR)
-  @Post(':template_year_id/template')
-  async templateAcademicYear(
-    @Req() request: Request,
-    @Body() templateOptions: TemplateAcademicYearDto,
-    @Param('template_year_id') template_year_id: string
-  ) {
-    const {
-      annualConfigurator: { annual_configurator_id },
-    } = request.user as Express.User;
-    return {
-      academic_year_id: await this.academicYearService.template(
-        template_year_id,
-        templateOptions,
-        annual_configurator_id
-      ),
-    };
-  }
+  // @ApiExcludeEndpoint()
+  // @Roles(Role.CONFIGURATOR)
+  // @Post(':template_year_id/template')
+  // async templateAcademicYear(
+  //   @Req() request: Request,
+  //   @Body() templateOptions: TemplateAcademicYearDto,
+  //   @Param('template_year_id') template_year_id: string
+  // ) {
+  //   const {
+  //     annualConfigurator: { annual_configurator_id },
+  //   } = request.user as Express.User;
+  //   return {
+  //     academic_year_id: await this.academicYearService.template(
+  //       template_year_id,
+  //       templateOptions,
+  //       annual_configurator_id
+  //     ),
+  //   };
+  // }
 }
