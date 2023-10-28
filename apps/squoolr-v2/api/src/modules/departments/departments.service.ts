@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import { QueryParamsDto } from '../modules.dto';
 import { CreateDepartmentPayload, UpdateDepartmentPayload } from './department';
-import { DepartmentEntity, UpdateDepartmentDto } from './department.dto';
+import { DepartmentEntity } from './department.dto';
 
 @Injectable()
 export class DepartmentsService {

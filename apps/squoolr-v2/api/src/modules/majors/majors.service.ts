@@ -8,7 +8,7 @@ import {
   GenerateClassroomsPayload,
   UpdateMajorPayload,
 } from './major';
-import { AnnualMajorEntity, QueryMajorDto, UpdateMajorDto } from './major.dto';
+import { AnnualMajorEntity, QueryMajorDto } from './major.dto';
 
 export const annualMajorSelect = Prisma.validator<Prisma.AnnualMajorSelect>()({
   annual_major_id: true,

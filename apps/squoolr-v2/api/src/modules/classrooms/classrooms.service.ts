@@ -1,11 +1,10 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
+import { UpdateClassroomPayload } from './classroom';
 import {
   AnnualClassroomEntity,
-  QueryClassroomDto,
-  UpdateClassroomDto,
+  QueryClassroomDto
 } from './classroom.dto';
-import { UpdateClassroomPayload } from './classroom';
 
 @Injectable()
 export class ClassroomsService {
