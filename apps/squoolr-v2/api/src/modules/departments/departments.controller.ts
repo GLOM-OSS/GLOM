@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -54,7 +55,7 @@ export class DepartmentsController {
     );
   }
 
-  @Put(':department_id/update')
+  @Put(':department_id')
   @Roles(Role.CONFIGURATOR)
   async updateDepartment(
     @Req() request: Request,
@@ -67,6 +68,22 @@ export class DepartmentsController {
     return this.departmentsService.update(
       department_id,
       updatePayload,
+      annual_configurator_id
+    );
+  }
+
+  @Delete(':department_id')
+  @Roles(Role.CONFIGURATOR)
+  async deleteDepartment(
+    @Req() request: Request,
+    @Param('department_id') department_id: string
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user;
+    return this.departmentsService.update(
+      department_id,
+      { is_deleted: true },
       annual_configurator_id
     );
   }

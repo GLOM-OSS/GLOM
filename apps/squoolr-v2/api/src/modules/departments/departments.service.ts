@@ -33,7 +33,7 @@ export class DepartmentsService {
       department_acronym,
       school_id
     );
-    return this.prismaService.department.create({
+    const department = await this.prismaService.department.create({
       data: {
         department_name,
         department_acronym,
@@ -42,6 +42,7 @@ export class DepartmentsService {
         AnnualConfigurator: { connect: { annual_configurator_id: created_by } },
       },
     });
+    return new DepartmentEntity(department);
   }
 
   async update(
