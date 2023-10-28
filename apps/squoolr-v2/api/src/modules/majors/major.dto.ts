@@ -31,6 +31,7 @@ export class CreateMajorDto {
 
 export class UpdateMajorDto extends OmitType(PartialType(CreateMajorDto), [
   'cycle_id',
+  'department_id',
 ]) {
   @IsBoolean()
   @IsOptional()

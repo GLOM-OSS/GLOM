@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -11,7 +12,12 @@ import {
 import { ApiProperty, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
-import { AnnualMajorEntity, CreateMajorDto, QueryMajorDto } from './major.dto';
+import {
+  AnnualMajorEntity,
+  CreateMajorDto,
+  QueryMajorDto,
+  UpdateMajorDto,
+} from './major.dto';
 import { MajorsService } from './majors.service';
 import { Role, Roles } from '../../app/auth/auth.decorator';
 
@@ -45,6 +51,23 @@ export class MajorsController {
     } = request.user;
     return this.majorsService.create(
       { ...newMajor, academic_year_id },
+      annual_configurator_id
+    );
+  }
+
+  @Put(':annual_major_id/update')
+  @Roles(Role.CONFIGURATOR)
+  async updateMajor(
+    @Req() request: Request,
+    @Param('annual_major_id') annualMajorId: string,
+    @Body() updatePayload: UpdateMajorDto
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user;
+    return this.majorsService.update(
+      annualMajorId,
+      updatePayload,
       annual_configurator_id
     );
   }

@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import { CreateMajorPayload, GenerateClassroomsPayload } from './major';
-import { AnnualMajorEntity, QueryMajorDto } from './major.dto';
+import { AnnualMajorEntity, QueryMajorDto, UpdateMajorDto } from './major.dto';
 
 export const annualMajorSelect = Prisma.validator<Prisma.AnnualMajorSelect>()({
   annual_major_id: true,
@@ -211,5 +211,35 @@ export class MajorsService {
       annualClassrooms,
       annualClassroomDivisions,
     };
+  }
+
+  async update(
+    annual_major_id: string,
+    payload: UpdateMajorDto,
+    audited_by: string
+  ) {
+    const annualMajorAudit =
+      await this.prismaService.annualMajor.findFirstOrThrow({
+        select: {
+          annual_major_id: true,
+          major_acronym: true,
+          major_code: true,
+          major_name: true,
+          is_deleted: true,
+        },
+        where: { annual_major_id },
+      });
+    await this.prismaService.annualMajor.update({
+      data: {
+        ...payload,
+        AnnualMajorAudits: {
+          create: {
+            audited_by,
+            ...annualMajorAudit,
+          },
+        },
+      },
+      where: { annual_major_id },
+    });
   }
 }
