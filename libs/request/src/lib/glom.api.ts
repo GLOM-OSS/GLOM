@@ -1,4 +1,9 @@
-import { DemandsApi, InquiriesApi } from '../squoolr';
+import {
+  AmbassadorsApi,
+  DemandsApi,
+  InquiriesApi,
+  PlatformSettingsApi,
+} from '../squoolr';
 import { GlomRequest, RequestParams } from './glom-request';
 
 export const GLOM_HOSTS = {
@@ -20,6 +25,8 @@ export class GlomApi {
   public squoolr: {
     demands: DemandsApi;
     inquiries: InquiriesApi;
+    ambassadors: AmbassadorsApi;
+    platformSettings: PlatformSettingsApi;
   };
 
   constructor(public params?: Partial<RequestParams>) {
@@ -33,6 +40,8 @@ export class GlomApi {
     this.squoolr = {
       demands: new DemandsApi(squoolrRequest),
       inquiries: new InquiriesApi(squoolrRequest),
+      ambassadors: new AmbassadorsApi(squoolrRequest),
+      platformSettings: new PlatformSettingsApi(squoolrRequest),
     };
   }
 }
