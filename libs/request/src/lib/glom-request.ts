@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { decrypt, encrypt } from '@glom/encrypter';
 import axios, { AxiosRequestConfig } from 'axios';
 
 export const filterEmptyKeys = <T extends Record<string, any>>(
@@ -65,10 +66,11 @@ export class GlomRequest {
       url: `${host}${this.params.prefix}/${version}${path}`,
       method: params.method,
       withCredentials: true,
-      xsrfCookieName: 'csrftoken',
-      xsrfHeaderName: 'X-CSRFTOKEN',
-      data: params.body,
+      // xsrfCookieName: 'csrftoken',
+      // xsrfHeaderName: 'X-CSRFTOKEN',
       params: params.queryParams,
+      data: encrypt(params.body as object),
+      transformResponse: (data) => decrypt(data),
       ...params.requestConfig,
     });
 
