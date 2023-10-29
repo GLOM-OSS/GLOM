@@ -31,6 +31,7 @@ export function useSubmitDemand() {
 
 export function useSchoolDemand(schoolCode: string) {
   return useQuery({
+    enabled: !!schoolCode,
     queryKey: ['get-school-demand'],
     queryFn: () => demands.getDemand(schoolCode),
   });
