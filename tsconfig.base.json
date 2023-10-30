@@ -17,11 +17,12 @@
     "paths": {
       "@glom/casl": ["libs/nest/casl/src/index.ts"],
       "@glom/components": ["libs/components/src/index.ts"],
+      "@glom/data-access/squoolr": ["libs/data-access/squoolr/src/index.ts"],
       "@glom/data-types": ["libs/data-types/src/index.ts"],
+      "@glom/data-types/lynkr": ["libs/data-types/src/lib/lynkr/index.ts"],
       "@glom/data-types/squoolr": [
         "libs/data-types/src/lib/squoolr/index.d.ts"
       ],
-      "@glom/data-types/lynkr": ["libs/data-types/src/lib/lynkr/index.ts"],
       "@glom/encrypter": ["libs/encrypter/src/index.ts"],
       "@glom/execeptions": ["libs/nest/exceptions/src/index.ts"],
       "@glom/nest-auth": ["libs/nest/auth/src/index.ts"],
@@ -32,6 +33,7 @@
       "@glom/redis": ["libs/nest/redis/src/index.ts"],
       "@glom/request": ["libs/request/src/index.ts"],
       "@glom/theme": ["libs/theme/src/index.ts"],
+      "@glom/utils": ["libs/utils/src/index.ts"],
       "@squoolr/api-services": ["libs/api-services/src/index.ts"],
       "@squoolr/auth": ["libs/squoolr-auth/src/index.ts"],
       "@squoolr/axios": ["libs/axios/src/index.ts"],
@@ -39,8 +41,7 @@
       "@squoolr/constants": ["libs/constants/src/index.ts"],
       "@squoolr/interfaces": ["libs/interfaces/src/index.ts"],
       "@squoolr/layout": ["libs/squoolr-layout/src/index.ts"],
-      "@squoolr/toast": ["libs/toast/src/index.ts"],
-      "@glom/utils": ["libs/utils/src/index.ts"]
+      "@squoolr/toast": ["libs/toast/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
