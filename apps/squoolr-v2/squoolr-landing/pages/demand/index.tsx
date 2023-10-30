@@ -1,12 +1,12 @@
 import { SubmitSchoolDemandPayload } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
+import { validatePhoneNumber } from '@glom/utils';
 import {
   Box,
   Divider,
   Paper,
   Typography
 } from '@mui/material';
-import { validatePhoneNumber } from '@squoolr/utils';
 import { Fragment, useState } from 'react';
 import { useIntl } from 'react-intl';
 import DemandContactUs from '../../components/demand/DemandContactUs';
