@@ -4,11 +4,16 @@ import { GlomRequest } from '../lib/glom-request';
 export class InquiriesApi {
   constructor(private readonly request: GlomRequest) {}
 
-  getInquiries() {
-    return this.request.get<InquiryEntity[]>('/inquiries');
+  async getInquiries() {
+    const resp = await this.request.get<InquiryEntity[]>('/inquiries');
+    return resp.data;
   }
 
-  createInquiry(payload: CreateInquiryPayload) {
-    return this.request.post<InquiryEntity>('/inquiries/new', payload);
+  async createInquiry(payload: CreateInquiryPayload) {
+    const resp = await this.request.post<InquiryEntity>(
+      '/inquiries/new',
+      payload
+    );
+    return resp.data;
   }
 }

@@ -9,35 +9,46 @@ import { GlomRequest } from '../lib/glom-request';
 export class DemandsApi {
   constructor(private readonly request: GlomRequest) {}
 
-  submitDemand(schoolDemandPayload: SubmitSchoolDemandPayload) {
-    return this.request.post<SchoolEntity>('/demands/new', schoolDemandPayload);
+  async submitDemand(schoolDemandPayload: SubmitSchoolDemandPayload) {
+    const resp = await this.request.post<SchoolEntity>(
+      '/demands/new',
+      schoolDemandPayload
+    );
+    return resp.data;
   }
 
-  getDemands() {
-    return this.request.get<SchoolEntity[]>('/demands');
+  async getDemands() {
+    const resp = await this.request.get<SchoolEntity[]>('/demands');
+    return resp.data;
   }
 
-  getDemand(school_code: string) {
-    return this.request.get<SchoolEntity>(`/demands/${school_code}`);
+  async getDemand(school_code: string) {
+    const resp = await this.request.get<SchoolEntity>(
+      `/demands/${school_code}`
+    );
+    return resp.data;
   }
 
-  getDemandDetails(school_code: string) {
-    return this.request.get<SchoolDemandDetails>(
+  async getDemandDetails(school_code: string) {
+    const resp = await this.request.get<SchoolDemandDetails>(
       `/demands/${school_code}/details`
     );
+    return resp.data;
   }
 
-  validateDemand(
+  async validateDemand(
     school_code: string,
     validatedDemandPayload: ValidateSchoolDemandPayload
   ) {
-    return this.request.put(
+    const resp = await this.request.put(
       `/demands/${school_code}/validate`,
       validatedDemandPayload
     );
+    return resp.data;
   }
 
-  processDemand(school_code: string) {
-    return this.request.patch(`/demands/${school_code}/status`, {});
+  async processDemand(school_code: string) {
+    const resp = await this.request.patch(`/demands/${school_code}/status`, {});
+    return resp.data;
   }
 }
