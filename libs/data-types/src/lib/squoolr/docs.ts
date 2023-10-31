@@ -42,7 +42,7 @@ export interface paths {
     put: operations["DemandController_validateDemand"];
   };
   "/v1/demands/{school_code}/status": {
-    put: operations["DemandController_updateDemandStatus"];
+    patch: operations["DemandController_updateDemandStatus"];
   };
   "/v1/academic-years/all": {
     get: operations["AcademicYearsController_getAcademicYears"];
@@ -76,6 +76,7 @@ export interface components {
   schemas: {
     PlatformSettingsEntity: {
       platform_settings_id: string;
+      platform_fee: number;
       onboarding_fee: number;
       /** Format: date-time */
       created_at: string;
@@ -219,6 +220,9 @@ export interface components {
       /** @enum {string} */
       school_demand_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED";
       school_rejection_reason: string;
+      subdomain: string | null;
+      /** Format: date-time */
+      created_at: string;
     };
     DemandDetails: {
       school: components["schemas"]["SchoolEntity"];
