@@ -1,7 +1,9 @@
+import { useVerifyAmbassador } from '@glom/data-access/squoolr';
 import { SubmitSchoolDemandPayload } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
 import { Box, Button, MenuItem, TextField, Typography } from '@mui/material';
 import { useFormik } from 'formik';
+import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import * as Yup from 'yup';
 
@@ -28,17 +30,15 @@ export default function ReferralInformation({
     lead_funnel: Yup.string().required(formatMessage({ id: 'requiredField' })),
     referral_code: Yup.string(),
   });
+  const [referralCode, setReferralCode] = useState<string>();
+  const { data: isRefferalValid } = useVerifyAmbassador(referralCode);
 
   const formik = useFormik({
     initialValues: data,
     validationSchema,
     onSubmit: (values, { resetForm }) => {
-      if (values.referral_code) {
-        //TODO: VALIDATE THE ENTERED referral_code here before moving on. if invalid, then alert invalid referral
-        // either they leave it empty or they enter a valid number
-        onNext(values);
-        resetForm();
-      } else {
+      setReferralCode(values.referral_code);
+      if (isRefferalValid) {
         onNext(values);
         resetForm();
       }
