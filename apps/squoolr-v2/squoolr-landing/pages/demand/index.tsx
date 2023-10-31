@@ -1,12 +1,7 @@
 import { SubmitSchoolDemandPayload } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
 import { validatePhoneNumber } from '@glom/utils';
-import {
-  Box,
-  Divider,
-  Paper,
-  Typography
-} from '@mui/material';
+import { Box, Divider, Paper, Typography } from '@mui/material';
 import { Fragment, useState } from 'react';
 import { useIntl } from 'react-intl';
 import DemandContactUs from '../../components/demand/DemandContactUs';
@@ -27,6 +22,10 @@ import ReferralInformation, {
 import SchoolInformation, {
   ISchoolInformation,
 } from '../../components/demand/forms/SchoolInformation';
+import {
+  usePlatformSettings,
+  useSubmitDemand,
+} from '@glom/data-access/squoolr';
 
 interface IStep {
   title: string | JSX.Element;
@@ -41,12 +40,11 @@ export default function Demand() {
   const [activeStep, setActiveStep] = useState<number>(0);
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [payingPhone, setPayingPhone] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const steps: string[] = ['yourInfo', 'schoolInfo', 'ambassador', 'review'];
-  //TODO: FETCH onboarding fee here
-  const [onboarding_fee, setOnboarding_fee] = useState<number>(50000);
-  //TODO: SET THIS VALUE ONLY AFTER SUCCESSFULL DEMAND
+  const {
+    data: { onboarding_fee },
+  } = usePlatformSettings();
   const [demandCode, setDemandCode] = useState<string>('');
 
   const [personnalData, setPersonnalData] = useState<IPersonalInformation>({
@@ -83,21 +81,21 @@ export default function Demand() {
     setActiveStep((prev) => (prev > 0 ? prev - 1 : prev));
   }
 
+  const { mutate: submitDemand, isPending: isSubmitting } = useSubmitDemand();
+
   function handleSubmitDemand() {
     const submitData: SubmitSchoolDemandPayload = {
       configurator: { ...personnalData },
       school: { ...institutionData, ...referralData },
       payment_phone: payingPhone,
     };
-    setIsSubmitting(true);
-    if (referralData.referral_code) {
-      //TODO: call api to submit demand here with data submitData
-      //TODO: toast here
-      handleNext();
-    } else if (validatePhoneNumber(payingPhone) !== -1) {
-      //TODO: TRIGGER THE PAYMENT, when done, save all data, store demand code in state, THEN TRIGGER handleNext
-      setDemandCode('34125');
-      // handleNext();
+    if (referralData.referral_code || validatePhoneNumber(payingPhone) !== -1) {
+      submitDemand(submitData, {
+        onSuccess(data) {
+          setDemandCode(data.school_code);
+          handleNext();
+        },
+      });
     } else alert(formatMessage({ id: 'enterValidPhoneForPayment' }));
   }
 
