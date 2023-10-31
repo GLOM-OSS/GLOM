@@ -17,7 +17,15 @@ import {
 } from './demand.dto';
 
 const schoolSelectAttr = Prisma.validator<Prisma.SchoolArgs>()({
-  include: {
+  select: {
+    created_at: true,
+    lead_funnel: true,
+    school_acronym: true,
+    school_code: true,
+    school_email: true,
+    school_name: true,
+    school_phone_number: true,
+    subdomain: true,
     SchoolDemand: {
       include: {
         Payment: true,
@@ -74,7 +82,7 @@ export class DemandService {
 
   async findDetails(school_code: string) {
     const schoolData = await this.prismaService.school.findUnique({
-      include: { ...schoolSelectAttr.include, Person: true },
+      include: { ...schoolSelectAttr.select, Person: true },
       where: { school_code },
     });
     if (!schoolData) throw new NotFoundException('School demand not found');

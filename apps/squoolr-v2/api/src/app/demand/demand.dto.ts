@@ -108,6 +108,12 @@ export class SchoolEntity extends OmitType(CreateSchoolDto, [
   @ApiProperty()
   school_rejection_reason: string;
 
+  @ApiProperty({ nullable: true })
+  subdomain: string | null;
+
+  @ApiProperty()
+  created_at: Date;
+
   constructor(props: SchoolEntity) {
     super(props);
     Object.assign(this, props);
