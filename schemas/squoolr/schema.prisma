@@ -83,6 +83,7 @@ model Inquiry {
 
 model PlatformSettings {
     platform_settings_id String   @id @default(uuid()) @db.VarChar(36)
+    platform_fee         Float    @default(3300)
     onboarding_fee       Float
     created_at           DateTime @default(now()) @db.DateTime(0)
     created_by           String?  @db.VarChar(36)
