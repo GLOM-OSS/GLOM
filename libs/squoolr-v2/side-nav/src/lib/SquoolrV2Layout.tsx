@@ -49,12 +49,14 @@ function Layout({
 
 export function SquoolrV2Layout({
   navSections,
+  children,
 }: {
   navSections: INavSection[];
+  children?: JSX.Element;
 }) {
   return (
     <BreadcrumbContextProvider>
-      <Layout navSections={navSections} />
+      <Layout navSections={navSections}>{children}</Layout>
     </BreadcrumbContextProvider>
   );
 }
