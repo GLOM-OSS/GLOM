@@ -6,11 +6,15 @@ import BreadcrumbContextProvider, {
   useDispatchBreadcrumb,
 } from './breadcrumbContext/BreadcrumbContextProvider';
 import LayoutHeader from './components/LayoutHeader';
+import { IAppType } from '@glom/squoolr-v2/auth-ui';
 
 function Layout({
   navSections,
   children,
+  callingApp,
 }: {
+  callingApp: IAppType;
+
   navSections: INavSection[];
   children?: JSX.Element;
 }) {
@@ -36,11 +40,11 @@ function Layout({
         height: '100%',
       }}
     >
-      <SideNav callingApp="Admin" navSections={navSections} />
+      <SideNav callingApp={callingApp} navSections={navSections} />
       <Box
         sx={{ height: '100%', display: 'grid', gridTemplateRows: 'auto 1fr' }}
       >
-        <LayoutHeader />
+        <LayoutHeader callingApp={callingApp} />
         <Box sx={{ padding: '24px 40px' }}>{children}</Box>
       </Box>
     </Box>
@@ -50,13 +54,17 @@ function Layout({
 export function SquoolrV2Layout({
   navSections,
   children,
+  callingApp,
 }: {
   navSections: INavSection[];
   children?: JSX.Element;
+  callingApp: IAppType;
 }) {
   return (
     <BreadcrumbContextProvider>
-      <Layout navSections={navSections}>{children}</Layout>
+      <Layout navSections={navSections} callingApp={callingApp}>
+        {children}
+      </Layout>
     </BreadcrumbContextProvider>
   );
 }
