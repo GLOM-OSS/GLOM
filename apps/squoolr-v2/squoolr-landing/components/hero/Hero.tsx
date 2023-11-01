@@ -3,7 +3,11 @@ import { Icon } from '@iconify/react';
 import { Box, Button, Typography } from '@mui/material';
 import { useIntl } from 'react-intl';
 
-export default function Hero() {
+export default function Hero({
+  openEarlyAccess,
+}: {
+  openEarlyAccess: () => void;
+}) {
   const { formatMessage } = useIntl();
 
   return (
@@ -55,6 +59,7 @@ export default function Hero() {
             variant="contained"
             endIcon={<Icon icon={arrowRight} />}
             sx={{ justifySelf: { mobile: 'center', desktop: 'initial' } }}
+            onClick={openEarlyAccess}
           >
             {formatMessage({ id: 'getEarlyAccessNow' })}
           </Button>

@@ -76,10 +76,6 @@ export class SubmitDemandDto {
 }
 
 export class ValidateDemandDto {
-  @ApiProperty()
-  @IsString()
-  school_code: string;
-
   @IsString()
   @IsOptional()
   @ApiPropertyOptional()
@@ -111,6 +107,12 @@ export class SchoolEntity extends OmitType(CreateSchoolDto, [
 
   @ApiProperty()
   school_rejection_reason: string;
+
+  @ApiProperty({ nullable: true })
+  subdomain: string | null;
+
+  @ApiProperty()
+  created_at: Date;
 
   constructor(props: SchoolEntity) {
     super(props);

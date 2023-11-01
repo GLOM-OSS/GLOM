@@ -30,6 +30,13 @@ export type SchoolEntity = SchemaCreateResponseBody<
   'DemandController_submitDemand'
 >;
 
+export type DemandStatus = SchoolEntity['school_demand_status'];
+
+export type SchoolDemandDetails = SchemaResponseBody<
+  operations,
+  'DemandController_getDemandDetails'
+>;
+
 /** ------------- VALIDATE SCHOOL DEMAND ------------- */
 export type ValidateSchoolDemandPayload = SchemaRequestBody<
   operations,

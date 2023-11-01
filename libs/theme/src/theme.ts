@@ -236,6 +236,40 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
           }),
         },
       },
+      MuiTextField: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            background: theme.common.offWhite,
+            '& .MuiOutlinedInput-root': {
+              border: 'none',
+              borderRadius: '8px',
+            },
+            '& .MuiOutlinedInput-notchedOutline': {
+              border: `1px solid ${theme.common.line}`,
+            },
+          }),
+        },
+      },
+      MuiDialog: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            '& .MuiPaper-root': {
+              borderRadius: 0,
+              backgroundColor: theme.common.background,
+            },
+          }),
+        },
+      },
+      MuiDialogTitle: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            '&.MuiDialogTitle-root': {
+              ...theme.typography.h1,
+              paddingBottom: '24px',
+            },
+          }),
+        },
+      },
     },
   });
 }
