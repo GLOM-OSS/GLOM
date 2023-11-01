@@ -10,6 +10,56 @@ import '../public/styles/notifGlobalStyles.css';
 import '../public/styles/phoneNumberStyles.css';
 import '../public/styles/reset.css';
 import '../public/styles/root.scss';
+import { INavSection, SquoolrV2Layout } from '@glom/squoolr-v2/side-nav';
+import { useIntl } from 'react-intl';
+import dashboard from '@iconify/icons-fluent/grid-28-regular';
+import demand from '@iconify/icons-fluent/receipt-32-regular';
+import schools from '@iconify/icons-fluent/hat-graduation-28-regular';
+import configurators from '@iconify/icons-fluent/people-48-regular';
+
+function App({ children }: { children?: JSX.Element }) {
+  const { formatMessage } = useIntl();
+  const navSections: INavSection[] = [
+    {
+      title: formatMessage({ id: 'dashboard' }),
+      route: 'dasboard',
+      navItems: [
+        {
+          icon: dashboard,
+          route: '',
+          title: formatMessage({ id: 'overview' }),
+        },
+      ],
+    },
+    {
+      title: formatMessage({ id: 'management' }),
+      route: 'management',
+      navItems: [
+        {
+          icon: demand,
+          route: 'demands',
+          title: formatMessage({ id: 'demands' }),
+        },
+        {
+          icon: schools,
+          route: 'schools',
+          title: formatMessage({ id: 'schools' }),
+        },
+        {
+          icon: configurators,
+          route: 'configurators',
+          title: formatMessage({ id: 'configurators' }),
+        },
+      ],
+    },
+  ];
+
+  return (
+    <SquoolrV2Layout navSections={navSections} callingApp="Admin">
+      {children}
+    </SquoolrV2Layout>
+  );
+}
 
 function CustomApp({ Component, pageProps }: AppProps) {
   return (
@@ -23,18 +73,18 @@ function CustomApp({ Component, pageProps }: AppProps) {
           sx={{
             minHeight: '100vh',
             display: 'grid',
-            backgroundColor: '#FAFAFD',
           }}
         >
           <Box
             sx={{
               height: '100%',
-              maxWidth: '1700px',
               margin: '0 auto',
               width: '100%',
             }}
           >
-            <Component {...pageProps} />
+            <App>
+              <Component {...pageProps} />
+            </App>
           </Box>
         </Box>
       </LocalizationProvider>

@@ -550,4 +550,12 @@ export const website = {
   hidePassword: 'Cacher le mot de passe',
   newPassword: 'Nouveau mot de passe',
   enterYourNewPassword: 'Saisissez votre nouveau mot de passe',
+
+  hideSideNav: 'Cacher',
+  showSideNav: ' Agrandir ',
+  byGlom: 'Par GLOM LLC',
+
+  noTitleAvailable: 'Pas de titre disponible',
+  demand: 'Demande',
+  overview: 'Aperçu',
 };

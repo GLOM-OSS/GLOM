@@ -525,4 +525,12 @@ export const website = {
   hidePassword: 'Hide password',
   newPassword: 'New password',
   enterYourNewPassword: 'Enter Your New Password',
+
+  hideSideNav: 'Hide',
+  showSideNav: 'Expand',
+  byGlom: 'By GLOM LLC',
+
+  noTitleAvailable: 'No Title Available',
+  demand: 'Demand',
+  overview: 'Overview',
 };
