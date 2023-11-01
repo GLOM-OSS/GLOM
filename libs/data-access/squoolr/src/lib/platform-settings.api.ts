@@ -6,6 +6,6 @@ const { platformSettings } = squoolrApi;
 export function usePlatformSettings() {
   return useQuery({
     queryKey: ['get-platform-settings'],
-    queryFn: platformSettings.getPlatformSettings,
+    queryFn: () => platformSettings.getPlatformSettings(),
   });
 }
