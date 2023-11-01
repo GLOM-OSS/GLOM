@@ -68,6 +68,34 @@ export interface paths {
   "/v1/ambassadors/{referral_code}/verify": {
     get: operations["AmbassadorsController_getAmbassador"];
   };
+  "/v1/departments/all": {
+    get: operations["DepartmentsController_getDepartments"];
+  };
+  "/v1/departments/new": {
+    post: operations["DepartmentsController_createDepartment"];
+  };
+  "/v1/departments/{department_id}": {
+    put: operations["DepartmentsController_updateDepartment"];
+    delete: operations["DepartmentsController_deleteDepartment"];
+  };
+  "/v1/majors/all": {
+    get: operations["MajorsController_getMajors"];
+  };
+  "/v1/majors/{annual_major_id}": {
+    get: operations["MajorsController_getMajor"];
+    put: operations["MajorsController_updateMajor"];
+    delete: operations["MajorsController_deleteMajor"];
+  };
+  "/v1/majors/new": {
+    post: operations["MajorsController_createMajor"];
+  };
+  "/v1/classrooms/all": {
+    get: operations["ClassroomsController_getClassrooms"];
+  };
+  "/v1/classrooms/{annual_classroom_id}": {
+    put: operations["ClassroomsController_updateClassroom"];
+    delete: operations["ClassroomsController_deleteClassroom"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -301,6 +329,55 @@ export interface components {
       ambassador_id: string;
       referral_code: string;
       login_id: string;
+    };
+    DepartmentEntity: {
+      department_id: string;
+      department_name: string;
+      department_acronym: string;
+      department_code: string;
+      /** Format: date-time */
+      created_at: string;
+      created_by: string;
+      school_id: string;
+      is_deleted: boolean;
+    };
+    CreateDepartmentDto: {
+      department_name: string;
+      department_acronym: string;
+    };
+    UpdateDepartmentDto: {
+      department_name?: string;
+      department_acronym?: string;
+    };
+    CreateMajorDto: {
+      major_name: string;
+      major_acronym: string;
+      department_id: string;
+      cycle_id: string;
+    };
+    UpdateMajorDto: {
+      major_name?: string;
+      major_acronym?: string;
+    };
+    AnnualClassroomEntity: {
+      annual_classroom_id: string;
+      annual_major_id: string;
+      classroom_name: string;
+      classroom_code: string;
+      classroom_acronym: string;
+      classroom_level: number;
+      number_of_divisions: number;
+      is_deleted: boolean;
+      total_fee_due: number | null;
+      registration_fee: number | null;
+      annual_coordinator_id: string | null;
+      classroom_id: string;
+      /** Format: date-time */
+      created_at: string;
+    };
+    UpdateClassroomDto: {
+      registration_fee?: number;
+      total_fee_due?: number;
     };
   };
   responses: never;
@@ -547,6 +624,177 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["AmbassadorEntity"];
         };
+      };
+    };
+  };
+  DepartmentsController_getDepartments: {
+    parameters: {
+      query?: {
+        is_deleted?: boolean;
+        keywords?: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["DepartmentEntity"][];
+        };
+      };
+    };
+  };
+  DepartmentsController_createDepartment: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateDepartmentDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["DepartmentEntity"];
+        };
+      };
+    };
+  };
+  DepartmentsController_updateDepartment: {
+    parameters: {
+      path: {
+        department_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateDepartmentDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  DepartmentsController_deleteDepartment: {
+    parameters: {
+      path: {
+        department_id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  MajorsController_getMajors: {
+    parameters: {
+      query?: {
+        is_deleted?: boolean;
+        keywords?: string;
+        department_id?: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  MajorsController_getMajor: {
+    parameters: {
+      path: {
+        annual_major_id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  MajorsController_updateMajor: {
+    parameters: {
+      path: {
+        annual_major_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateMajorDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  MajorsController_deleteMajor: {
+    parameters: {
+      path: {
+        annual_major_id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  MajorsController_createMajor: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateMajorDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: never;
+      };
+    };
+  };
+  ClassroomsController_getClassrooms: {
+    parameters: {
+      query: {
+        is_deleted?: boolean;
+        keywords?: string;
+        annual_major_id: string;
+        level?: number;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["AnnualClassroomEntity"][];
+        };
+      };
+    };
+  };
+  ClassroomsController_updateClassroom: {
+    parameters: {
+      path: {
+        annual_classroom_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateClassroomDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  ClassroomsController_deleteClassroom: {
+    parameters: {
+      path: {
+        annual_classroom_id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
       };
     };
   };
