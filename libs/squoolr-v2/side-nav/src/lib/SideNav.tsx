@@ -17,6 +17,7 @@ export function SideNav({
   const { formatMessage } = useIntl();
   const theme = useTheme();
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
+
   return (
     <Box
       sx={{
@@ -42,7 +43,7 @@ export function SideNav({
           alignContent: 'start',
         }}
       >
-        {navSections.map(({ title, navItems }, index) => (
+        {navSections.map(({ title, navItems, route }, index) => (
           <Box
             sx={{
               paddingTop: 3,
@@ -63,7 +64,13 @@ export function SideNav({
             </Typography>
             <Box sx={{ display: 'grid', rowGap: 2 }}>
               {navItems.map((item, index) => (
-                <SideNavItem isExpanded={isExpanded} item={item} key={index} />
+                <SideNavItem
+                  isExpanded={isExpanded}
+                  item={item}
+                  key={index}
+                  sectionRoute={route}
+                  sectionTitle={title}
+                />
               ))}
             </Box>
           </Box>

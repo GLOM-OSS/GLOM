@@ -3,22 +3,46 @@ import { Icon } from '@iconify/react';
 import { Box, Collapse, Tooltip, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { INavItem } from '../SideNav.interfaces';
+import { useDispatchBreadcrumb } from '../breadcrumbContext/BreadcrumbContextProvider';
 
 export default function SideNavItem({
   item: { icon, route, title },
+  item,
   isExpanded,
+  sectionRoute,
+  sectionTitle,
 }: {
   item: INavItem;
   isExpanded: boolean;
+  sectionRoute: string;
+  sectionTitle: string;
 }) {
   const { asPath, push } = useRouter();
   const theme = useTheme();
+  const breadcrumbDispatch = useDispatchBreadcrumb();
   const isActive = asPath.startsWith(route);
+
+  function openItem(item: INavItem, sectionRoute: string) {
+    breadcrumbDispatch({
+      action: 'RESET',
+      payload: [
+        { route: undefined, title: sectionTitle },
+        {
+          route: `${sectionRoute}/${item.route}`,
+          title: `${item.title}`,
+        },
+      ],
+    });
+  }
+
   return (
     <>
       <Tooltip arrow title={title} placement="right">
         <Box
-          onClick={() => push(route)}
+          onClick={() => {
+            push(`/${sectionRoute}/${route}`);
+            openItem(item, sectionRoute);
+          }}
           sx={{
             display: isExpanded ? 'none' : 'grid',
             alignItems: 'center',
@@ -55,7 +79,10 @@ export default function SideNavItem({
         </Box>
       </Tooltip>
       <Box
-        onClick={() => push(route)}
+        onClick={() => {
+          openItem(item, sectionRoute);
+          push(`/${sectionRoute}/${route}`);
+        }}
         sx={{
           display: isExpanded ? 'grid' : 'none',
           alignItems: 'center',
