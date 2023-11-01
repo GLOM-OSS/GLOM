@@ -8,5 +8,6 @@ export interface INavItem {
 
 export interface INavSection {
   title: string;
+  route: string;
   navItems: INavItem[];
 }
