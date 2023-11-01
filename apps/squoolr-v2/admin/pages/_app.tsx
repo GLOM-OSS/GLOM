@@ -15,7 +15,7 @@ import { useIntl } from 'react-intl';
 import dashboard from '@iconify/icons-fluent/grid-28-regular';
 import demand from '@iconify/icons-fluent/receipt-32-regular';
 import schools from '@iconify/icons-fluent/hat-graduation-28-regular';
-import configurators from '@iconify/icons-fluent/organization-48-regular';
+import configurators from '@iconify/icons-fluent/people-48-regular';
 
 function App({ children }: { children?: JSX.Element }) {
   const { formatMessage } = useIntl();
@@ -37,8 +37,8 @@ function App({ children }: { children?: JSX.Element }) {
       navItems: [
         {
           icon: demand,
-          route: 'demand',
-          title: formatMessage({ id: 'demand' }),
+          route: 'demands',
+          title: formatMessage({ id: 'demands' }),
         },
         {
           icon: schools,
