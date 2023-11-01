@@ -1,4 +1,5 @@
-import { useSchoolDemand } from '@glom/data-access/squoolr';
+import { getSchoolDemand } from '@glom/data-access/squoolr';
+import { SchoolEntity } from '@glom/data-types';
 import { useTheme } from '@glom/theme';
 import checkCircle from '@iconify/icons-fluent/checkmark-circle-48-regular';
 import { Icon } from '@iconify/react';
@@ -25,9 +26,8 @@ export default function StatusDialog({
     demandCode: initialDemandCode,
   };
 
-  const [demandCode, setDemandCode] = useState<string>(initialDemandCode);
-  const { data: schoolDemand, isPending: isSubmitting } =
-    useSchoolDemand(demandCode);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>();
+  const [schoolDemand, setSchoolDemand] = useState<SchoolEntity>();
 
   const validationSchema = Yup.object().shape({
     demandCode: Yup.string().required(formatMessage({ id: 'requiredField' })),
@@ -36,9 +36,11 @@ export default function StatusDialog({
   const formik = useFormik({
     initialValues,
     validationSchema,
-    onSubmit: (values, { resetForm }) => {
-      setDemandCode(values.demandCode);
-      resetForm();
+    onSubmit: async (values) => {
+      setIsSubmitting(true);
+      const demand = await getSchoolDemand(values.demandCode);
+      setSchoolDemand(demand);
+      setIsSubmitting(false);
     },
   });
 

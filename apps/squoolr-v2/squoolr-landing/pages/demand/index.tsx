@@ -1,6 +1,6 @@
 import { SubmitSchoolDemandPayload } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
-import { validatePhoneNumber } from '@glom/utils';
+import { validatePhoneNumber, excludeKeys } from '@glom/utils';
 import { Box, Divider, Paper, Typography } from '@mui/material';
 import { Fragment, useState } from 'react';
 import { useIntl } from 'react-intl';
@@ -42,9 +42,7 @@ export default function Demand() {
   const [payingPhone, setPayingPhone] = useState<string>('');
 
   const steps: string[] = ['yourInfo', 'schoolInfo', 'ambassador', 'review'];
-  const {
-    data: { onboarding_fee },
-  } = usePlatformSettings();
+  const { data: platformSettings } = usePlatformSettings();
   const [demandCode, setDemandCode] = useState<string>('');
 
   const [personnalData, setPersonnalData] = useState<IPersonalInformation>({
@@ -85,7 +83,7 @@ export default function Demand() {
 
   function handleSubmitDemand() {
     const submitData: SubmitSchoolDemandPayload = {
-      configurator: { ...personnalData },
+      configurator: { ...excludeKeys(personnalData, ['confirm_password']) },
       school: { ...institutionData, ...referralData },
       payment_phone: payingPhone,
     };
@@ -96,7 +94,9 @@ export default function Demand() {
           handleNext();
         },
       });
-    } else alert(formatMessage({ id: 'enterValidPhoneForPayment' }));
+    }
+    //TODO change to toast
+    else alert(formatMessage({ id: 'enterValidPhoneForPayment' }));
   }
 
   const stepp: Record<string, IStep> = {
@@ -129,11 +129,15 @@ export default function Demand() {
       ),
     },
     2: {
-      description: <ReferralDescription onboarding_fee={onboarding_fee} />,
+      description: (
+        <ReferralDescription
+          onboarding_fee={platformSettings?.onboarding_fee ?? 0}
+        />
+      ),
       title: formatMessage({ id: 'ambassador' }),
       form: (
         <ReferralInformation
-          onboarding_fee={onboarding_fee}
+          onboarding_fee={platformSettings?.onboarding_fee ?? 0}
           data={referralData}
           onPrev={handleBack}
           onNext={(submitData: IReferral) => {
@@ -155,7 +159,7 @@ export default function Demand() {
       title: (
         <ReviewDescriptionHeader
           referral_code={referralData.referral_code}
-          onboarding_fee={onboarding_fee}
+          onboarding_fee={platformSettings?.onboarding_fee ?? 0}
         />
       ),
       form: (
@@ -167,7 +171,7 @@ export default function Demand() {
             payingNumber: payingPhone,
           }}
           isSubmitting={isSubmitting || !!demandCode}
-          onboarding_fee={onboarding_fee}
+          onboarding_fee={platformSettings?.onboarding_fee ?? 0}
           onPrev={handleBack}
           onNext={handleSubmitDemand}
         />
