@@ -526,7 +526,11 @@ export const website = {
   newPassword: 'New password',
   enterYourNewPassword: 'Enter Your New Password',
 
-  hideSideNav:'Hide',
+  hideSideNav: 'Hide',
   showSideNav: 'Expand',
-  byGlom:'By GLOM LLC'
+  byGlom: 'By GLOM LLC',
+
+  noTitleAvailable: 'No Title Available',
+  demand: 'Demand',
+  overview: 'Overview',
 };

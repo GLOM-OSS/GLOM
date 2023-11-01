@@ -554,4 +554,8 @@ export const website = {
   hideSideNav: 'Cacher',
   showSideNav: ' Agrandir ',
   byGlom: 'Par GLOM LLC',
+
+  noTitleAvailable: 'Pas de titre disponible',
+  demand: 'Demande',
+  overview: 'Aperçu',
 };
