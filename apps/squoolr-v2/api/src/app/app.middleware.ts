@@ -8,11 +8,11 @@ export class AppMiddleware implements NestMiddleware {
       // console.log('request.params...');
       request.params = decrypt(request.params);
     }
-    if (typeof request.body === 'string') {
+    if (typeof request.body.data === 'string') {
       // console.log('request.body...');
-      request.body = decrypt(request.body);
+      request.body = decrypt(request.body.data);
     }
-    if (typeof request.query.data === 'string') {
+    if (typeof request.query === 'string') {
       // console.log('request.query...');
       request.query = decrypt(String(request.query));
     }
