@@ -34,6 +34,7 @@ export class GlomApi {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const squoolrRequest = new GlomRequest({
       ...params,
+      prefix: '',
       host,
     });
 

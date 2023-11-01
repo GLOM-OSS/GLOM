@@ -44,7 +44,7 @@ export interface RequestData {
   body?: object;
 }
 
-const airhublabsAxios = axios.create();
+const glomAxios = axios.create();
 
 export class GlomRequest {
   private DEFAULT_REQUEST_OPTIONS: AxiosRequestConfig = {
@@ -57,23 +57,23 @@ export class GlomRequest {
     this.params = { host: DEFAULT_HOST, version: DEFAULT_VERSION, ...params };
   }
 
-  async request<T>(path: string, params: RequestFunctionParams<T, any>) {
+  request<T>(path: string, params: RequestFunctionParams<T, any>) {
     const host = params?.host || this.params.host;
     const version = params?.version || this.params.version;
-
-    const response = airhublabsAxios.request<T>({
-      ...this.DEFAULT_REQUEST_OPTIONS,
-      url: `${host}${this.params.prefix}/${version}${path}`,
-      method: params.method,
+    const url = `${host}${this.params.prefix}/${version}${path}`;
+    const response = glomAxios.request<T>({
+      url,
       withCredentials: true,
+      method: params.method,
+      ...params.requestConfig,
       // xsrfCookieName: 'csrftoken',
       // xsrfHeaderName: 'X-CSRFTOKEN',
-      params: params.queryParams,
-      data: encrypt(params.body as object),
-      transformResponse: (data) => decrypt(data),
-      ...params.requestConfig,
+      ...this.DEFAULT_REQUEST_OPTIONS,
+      transformResponse: (data) =>
+        data.includes('error') ? data : decrypt<T>(data),
+      params: params.queryParams ? encrypt(params.queryParams) : undefined,
+      data: params.body ? { data: encrypt(params.body as object) } : undefined,
     });
-
     return response;
   }
 
@@ -81,7 +81,7 @@ export class GlomRequest {
    * Get request
    * @param path URL path denoting the resource to request EX. /users
    */
-  async get<T, Q = unknown>(
+  get<T, Q = unknown>(
     path: string,
     queryParams?: Q,
     requestOptions?: Partial<RequestOptions>
@@ -98,7 +98,7 @@ export class GlomRequest {
     });
   }
 
-  async post<T, Q = unknown>(
+  post<T, Q = unknown>(
     path: string,
     body?: any,
     params?: Q,
@@ -112,7 +112,7 @@ export class GlomRequest {
     });
   }
 
-  async patch<T>(path: string, body: any, params?: object) {
+  patch<T>(path: string, body: any, params?: object) {
     return this.request<T>(path, {
       method: 'patch',
       queryParams: params,
@@ -120,11 +120,11 @@ export class GlomRequest {
     });
   }
 
-  async put<T>(path: string, body: any, params?: object) {
+  put<T>(path: string, body: any, params?: object) {
     return this.request<T>(path, { method: 'put', queryParams: params, body });
   }
 
-  async delete<ResponseBody, RequestQuery = any>(
+  delete<ResponseBody, RequestQuery = any>(
     path: string,
     params?: Omit<RequestFunctionParams<ResponseBody, RequestQuery>, 'method'>
   ) {
