@@ -6,12 +6,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import {
-  APP_FILTER,
-  APP_GUARD,
-  APP_INTERCEPTOR,
-  APP_PIPE
-} from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
@@ -38,6 +33,7 @@ import { AppMiddleware } from './app.middleware';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
+import { StaffModule } from '../modules/personnel/staff.module';
 
 @Module({
   imports: [
@@ -65,7 +61,8 @@ import { InquiriesModule } from './inquiries/inquiries.module';
     AmbassadorsModule,
     DepartmentsModule,
     MajorsModule,
-    ClassroomsModule
+    ClassroomsModule,
+    // StaffModule,
   ],
   controllers: [AppController],
   providers: [
