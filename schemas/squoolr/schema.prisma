@@ -129,6 +129,9 @@ model Person {
     Schools      School[]
     PersonAudits PersonAudit[]
     Logins       Login[]
+
+    @@fulltext([first_name, last_name])
+    @@fulltext([email, first_name, last_name])
 }
 
 model PersonAudit {
@@ -517,7 +520,7 @@ model AnnualTeacher {
     AnnualConfigurator    AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualTeacherAudits                         AnnualTeacherAudit[]
-    AnnualClassroomDivision                     AnnualClassroomDivision[]
+    AnnualClassroomDivisions                    AnnualClassroomDivision[]
     AnnualClassroomDivisionAudits               AnnualClassroomDivisionAudit[]
     AnnualCreditUnits                           AnnualCreditUnit[]
     AnnualCreditUnitAudits                      AnnualCreditUnitAudit[]
