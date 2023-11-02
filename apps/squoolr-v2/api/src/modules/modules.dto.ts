@@ -2,8 +2,9 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Cycle, CycleName, CycleType } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { QueryParams } from './module';
 
-export class QueryParamsDto {
+export class QueryParamsDto implements QueryParams {
   @IsBoolean()
   @IsOptional()
   @ApiPropertyOptional()
