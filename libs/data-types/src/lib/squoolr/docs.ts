@@ -355,6 +355,16 @@ export interface components {
       department_id: string;
       cycle_id: string;
     };
+    AnnualMajorEntity: {
+      major_name: string;
+      major_acronym: string;
+      department_id: string;
+      cycle_id: string;
+      annual_major_id: string;
+      major_id: string;
+      department_acronym: string;
+      cycle_name: string;
+    };
     UpdateMajorDto: {
       major_name?: string;
       major_acronym?: string;
@@ -526,7 +536,7 @@ export interface operations {
       };
     };
     responses: {
-      200: {
+      204: {
         content: never;
       };
     };
@@ -538,7 +548,7 @@ export interface operations {
       };
     };
     responses: {
-      200: {
+      204: {
         content: never;
       };
     };
@@ -668,7 +678,7 @@ export interface operations {
       };
     };
     responses: {
-      200: {
+      204: {
         content: never;
       };
     };
@@ -680,7 +690,7 @@ export interface operations {
       };
     };
     responses: {
-      200: {
+      204: {
         content: never;
       };
     };
@@ -723,7 +733,7 @@ export interface operations {
       };
     };
     responses: {
-      200: {
+      204: {
         content: never;
       };
     };
@@ -735,7 +745,7 @@ export interface operations {
       };
     };
     responses: {
-      200: {
+      204: {
         content: never;
       };
     };
@@ -748,7 +758,9 @@ export interface operations {
     };
     responses: {
       201: {
-        content: never;
+        content: {
+          "application/json": components["schemas"]["AnnualMajorEntity"];
+        };
       };
     };
   };
@@ -781,7 +793,7 @@ export interface operations {
       };
     };
     responses: {
-      200: {
+      204: {
         content: never;
       };
     };
@@ -793,7 +805,7 @@ export interface operations {
       };
     };
     responses: {
-      200: {
+      204: {
         content: never;
       };
     };

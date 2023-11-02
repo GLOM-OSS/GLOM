@@ -7,9 +7,15 @@ import {
   Patch,
   Post,
   Put,
-  Req
+  Req,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { IsPublic, Role, Roles } from '../../app/auth/auth.decorator';
 import {
@@ -19,11 +25,12 @@ import {
   ValidateDemandDto,
 } from './demand.dto';
 import { DemandService } from './demand.service';
+import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 
 @ApiTags('Demands')
 @Roles(Role.ADMIN)
 @Controller('demands')
-// @UseGuards(AuthenticatedGuard)
+@UseGuards(AuthenticatedGuard)
 export class DemandController {
   constructor(private demandService: DemandService) {}
 
@@ -65,7 +72,7 @@ export class DemandController {
     return this.demandService.create(schoolDemandPayload);
   }
 
-  @ApiOkResponse()
+  @ApiNoContentResponse()
   @Put(':school_code/validate')
   validateDemand(
     @Req() request: Request,
@@ -84,7 +91,7 @@ export class DemandController {
     );
   }
 
-  @ApiOkResponse()
+  @ApiNoContentResponse()
   @Patch(':school_code/status')
   updateDemandStatus(
     @Req() request: Request,

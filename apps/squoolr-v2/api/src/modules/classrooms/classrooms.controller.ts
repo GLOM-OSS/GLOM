@@ -9,7 +9,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 import {
   AnnualClassroomEntity,
@@ -37,6 +37,7 @@ export class ClassroomsController {
     });
   }
 
+  @ApiNoContentResponse()
   @Put(':annual_classroom_id')
   @Roles(Role.CONFIGURATOR)
   async updateClassroom(
@@ -54,8 +55,9 @@ export class ClassroomsController {
     );
   }
 
-  @Delete(':annual_classroom_id')
+  @ApiNoContentResponse()
   @Roles(Role.CONFIGURATOR)
+  @Delete(':annual_classroom_id')
   async deleteClassroom(
     @Req() request: Request,
     @Param('annual_classroom_id') annual_classroom_id: string

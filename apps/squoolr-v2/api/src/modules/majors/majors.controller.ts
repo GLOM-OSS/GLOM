@@ -10,7 +10,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiProperty, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiProperty,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 import {
@@ -45,6 +50,7 @@ export class MajorsController {
 
   @Post('new')
   @Roles(Role.CONFIGURATOR)
+  @ApiCreatedResponse({ type: AnnualMajorEntity })
   async createMajor(@Req() request: Request, @Body() newMajor: CreateMajorDto) {
     const {
       activeYear: { academic_year_id },
@@ -58,6 +64,7 @@ export class MajorsController {
 
   @Put(':annual_major_id')
   @Roles(Role.CONFIGURATOR)
+  @ApiNoContentResponse()
   async updateMajor(
     @Req() request: Request,
     @Param('annual_major_id') annualMajorId: string,
@@ -75,6 +82,7 @@ export class MajorsController {
 
   @Delete(':annual_major_id')
   @Roles(Role.CONFIGURATOR)
+  @ApiNoContentResponse()
   async deleteMajor(
     @Req() request: Request,
     @Param('annual_major_id') annualMajorId: string

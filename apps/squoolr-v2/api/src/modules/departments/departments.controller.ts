@@ -10,7 +10,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Role, Roles } from '../../app/auth/auth.decorator';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
@@ -57,6 +57,7 @@ export class DepartmentsController {
 
   @Put(':department_id')
   @Roles(Role.CONFIGURATOR)
+  @ApiNoContentResponse()
   async updateDepartment(
     @Req() request: Request,
     @Param('department_id') department_id: string,
@@ -74,6 +75,7 @@ export class DepartmentsController {
 
   @Delete(':department_id')
   @Roles(Role.CONFIGURATOR)
+  @ApiNoContentResponse()
   async deleteDepartment(
     @Req() request: Request,
     @Param('department_id') department_id: string
