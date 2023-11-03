@@ -15,7 +15,7 @@ import {
 import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import { SessionData, UserRole } from '../../app/auth/auth';
-import { Role } from '../../app/auth/auth.decorator';
+import { Role } from '../../utils/enums';
 import {
   AcademicYearEntity,
   CreateAcademicYearDto,

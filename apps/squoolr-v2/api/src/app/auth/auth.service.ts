@@ -14,11 +14,8 @@ import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { AcademicYearsService } from '../../modules/academic-years/academic-years.service';
 import { PassportUser, SessionData } from './auth';
-import { Role } from './auth.decorator';
+import { KeyRole, StaffRole } from '../../utils/enums';
 
-export type MajorRole =
-  | Extract<Role, Role.ADMIN | Role.PARENT | Role.STUDENT>
-  | 'PERSONNEL';
 @Injectable()
 export class AuthService {
   constructor(
@@ -93,12 +90,12 @@ export class AuthService {
       ({ login: { is_parent, is_personnel }, school, student }) =>
         (school &&
           ((is_personnel &&
-            this.checkOrigin(origin, 'PERSONNEL', school.subdomain)) ||
+            this.checkOrigin(origin, KeyRole.STAFF, school.subdomain)) ||
             (student &&
-              this.checkOrigin(origin, Role.STUDENT, school.subdomain)))) ||
+              this.checkOrigin(origin, KeyRole.STUDENT, school.subdomain)))) ||
         (!school &&
-          ((is_parent && this.checkOrigin(origin, Role.PARENT)) ||
-            (!is_parent && this.checkOrigin(origin, Role.ADMIN))))
+          ((is_parent && this.checkOrigin(origin, KeyRole.PARENT)) ||
+            (!is_parent && this.checkOrigin(origin, KeyRole.ADMIN))))
     );
     if (!loginData) throw new UnauthorizedException('Wrong origin !!!');
     const numberOfActiveSessions = await this.prismaService.log.count({
@@ -118,19 +115,19 @@ export class AuthService {
     return loginData.login;
   }
 
-  private checkOrigin(origin: string, role: MajorRole, subdomain?: string) {
+  private checkOrigin(origin: string, role: KeyRole, subdomain?: string) {
     const env = process.env.NODE_ENV;
     return (
-      (role === Role.ADMIN && origin === process.env.ADMIN_URL) ||
-      (role === Role.PARENT && origin === process.env.PARENT_URL) ||
-      (role === Role.STUDENT &&
+      (role === KeyRole.ADMIN && origin === process.env.ADMIN_URL) ||
+      (role === KeyRole.PARENT && origin === process.env.PARENT_URL) ||
+      (role === KeyRole.STUDENT &&
         origin ===
           (env === 'production'
             ? `${subdomain}.squoolr.com`
             : 'localhost:4200')) ||
-      (role !== Role.ADMIN &&
-        role !== Role.PARENT &&
-        role !== Role.STUDENT &&
+      (role !== KeyRole.ADMIN &&
+        role !== KeyRole.PARENT &&
+        role !== KeyRole.STUDENT &&
         origin ===
           (env === 'production'
             ? `${subdomain}-staff.squoolr.com`
@@ -146,7 +143,6 @@ export class AuthService {
       throw new NotFoundException('No academic year was found');
     else if (numberOfAcademicYear === 1) {
       const [{ academic_year_id }] = academicYears;
-      // const { desirializedRoles: userRoles, roles } =
       const { sessionData: session } =
         await this.academicYearService.selectAcademicYear(
           login_id,
@@ -160,7 +156,6 @@ export class AuthService {
 
   async updateSession(
     request: Request,
-    // payload: Pick<PassportUser, 'academic_year_id' | 'roles'>
     payload: Pick<PassportUser, 'academic_year_id'>
   ) {
     const user = request.session.passport.user;
@@ -309,11 +304,11 @@ export class AuthService {
       },
     });
     return (
-      (login_id && this.checkOrigin(origin, Role.ADMIN)) || //Admin -> process.env.ADMIN_URL
-      (annualStudent && this.checkOrigin(origin, Role.STUDENT)) || //Student -> `${school.subdomain}.squoolr.com`
-      (tutorStudentIds && this.checkOrigin(origin, Role.PARENT)) || //Parent -> `parent.squoolr.com`
+      (login_id && this.checkOrigin(origin, KeyRole.ADMIN)) || //Admin -> process.env.ADMIN_URL
+      (annualStudent && this.checkOrigin(origin, KeyRole.STUDENT)) || //Student -> `${school.subdomain}.squoolr.com`
+      (tutorStudentIds && this.checkOrigin(origin, KeyRole.PARENT)) || //Parent -> `parent.squoolr.com`
       ((annualConfigurator || annualRegistry || annualTeacher) &&
-        this.checkOrigin(origin, 'PERSONNEL', school.subdomain)) //Personnel -> `admin.${school.subdomain}.squoolr.com`
+        this.checkOrigin(origin, KeyRole.STAFF, school.subdomain)) //Personnel -> `${school.subdomain}-staff.squoolr.com`
     );
   }
 
@@ -324,12 +319,12 @@ export class AuthService {
   }
 
   async verifyPrivateCode(
-    role: Role.REGISTRY | Role.TEACHER,
+    role: StaffRole.REGISTRY | StaffRole.TEACHER,
     { private_code, user_id }: { private_code: string; user_id: string }
   ) {
     let privateCode: string;
 
-    if (role === Role.TEACHER) {
+    if (role === StaffRole.TEACHER) {
       const teacher = await this.prismaService.teacher.findUnique({
         where: { teacher_id: user_id },
       });

@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { GlomPrismaService } from '@glom/prisma';
-import { Role } from '../app/auth/auth.decorator';
+import { Role } from '../utils/enums';
 
 @Injectable()
 export class CodeGeneratorFactory {
