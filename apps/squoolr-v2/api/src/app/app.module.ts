@@ -62,7 +62,7 @@ import { StaffModule } from '../modules/personnel/staff.module';
     DepartmentsModule,
     MajorsModule,
     ClassroomsModule,
-    // StaffModule,
+    StaffModule,
   ],
   controllers: [AppController],
   providers: [
