@@ -9,7 +9,7 @@ export class QueryStaffDto extends QueryParamsDto {
   @IsOptional()
   @IsEnum(StaffRole, { each: true })
   @ApiPropertyOptional({ enum: StaffRole, isArray: true })
-  roles?: StaffRole;
+  roles?: StaffRole[];
 }
 
 export class QueryOneStaffDto {

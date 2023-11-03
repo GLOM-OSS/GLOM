@@ -26,27 +26,25 @@ export class StaffService {
   }
 
   async findAll(
-    role: StaffRole | 'ALL',
+    roles: StaffRole[] | 'ALL',
     academic_year_id: string,
     params?: QueryParamsDto
   ) {
-    if (role === 'ALL') {
-      const staff = await Promise.all(
-        Object.keys(this.staffServices).map((key) =>
-          this.staffServices[key].findAll(academic_year_id, params)
-        )
-      );
-      return staff.reduce(
-        (reducedStaff, staff) => [
-          ...reducedStaff,
-          ...staff.filter((_) =>
-            reducedStaff.find((__) => _.login_id !== __.login_id)
-          ),
-        ],
-        []
-      );
-    }
-    return this.staffServices[role].findAll(academic_year_id, params);
+    const staff = await Promise.all(
+      (roles === 'ALL' ? Object.keys(this.staffServices) : roles).map((role) =>
+        this.staffServices[role as StaffRole].findAll(academic_year_id, params)
+      )
+    );
+
+    return staff.reduce(
+      (reducedStaff, staff) => [
+        ...reducedStaff,
+        ...staff.filter((_) =>
+          reducedStaff.find((__) => _.login_id !== __.login_id)
+        ),
+      ],
+      []
+    );
   }
 
   async findOne(role: StaffRole, annual_personnel_id: string) {
