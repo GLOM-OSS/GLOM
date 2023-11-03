@@ -1,9 +1,22 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsOptional } from 'class-validator';
-import { Role } from '../../app/auth/auth.decorator';
 import { QueryParamsDto } from '../modules.dto';
 import { StaffIDs } from './staff';
 import { Gender } from '@prisma/client';
+import { StaffRole } from '../../utils/enums';
+
+export class QueryStaffDto extends QueryParamsDto {
+  @IsOptional()
+  @IsEnum(StaffRole, { each: true })
+  @ApiPropertyOptional({ enum: StaffRole, isArray: true })
+  roles?: StaffRole;
+}
+
+export class QueryOneStaffDto {
+  @IsEnum(StaffRole)
+  @ApiProperty({ enum: StaffRole })
+  role: StaffRole;
+}
 
 export class StaffEntity implements StaffIDs {
   @ApiProperty()
@@ -51,17 +64,10 @@ export class StaffEntity implements StaffIDs {
   @ApiPropertyOptional()
   annual_coordinator_id?: string;
 
-  @ApiProperty({ enum: Role, isArray: true })
-  roles: Role[];
+  @ApiProperty({ enum: StaffRole, isArray: true })
+  roles: StaffRole[];
 
   constructor(props: StaffEntity) {
     Object.assign(this, props);
   }
-}
-
-export class QueryStaffDto extends QueryParamsDto {
-  @IsEnum(Role)
-  @IsOptional()
-  @ApiPropertyOptional({ enum: Role })
-  roles?: Role;
 }

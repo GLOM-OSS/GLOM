@@ -1,11 +1,10 @@
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { Role } from '../../app/auth/auth.decorator';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
-import { QueryParamsDto } from '../modules.dto';
+import { QueryOneStaffDto, QueryStaffDto, StaffEntity } from './staff.dto';
 import { StaffService } from './staff.service';
-import { QueryStaffDto, StaffEntity } from './staff.dto';
+import { StaffRole } from '../../utils/enums';
 
 @ApiTags('Staff')
 @Controller('staff')
@@ -23,5 +22,14 @@ export class StaffController {
       activeYear: { academic_year_id },
     } = request.user;
     return this.staffService.findAll(roles ?? 'ALL', academic_year_id, params);
+  }
+
+  @Get('annual_staff_id')
+  @ApiOkResponse({ type: StaffEntity })
+  async getStaff(
+    @Param('annual_staff_id') annualStaffId: string,
+    @Query() { role }: QueryOneStaffDto
+  ) {
+    return this.staffService.findOne(role, annualStaffId);
   }
 }

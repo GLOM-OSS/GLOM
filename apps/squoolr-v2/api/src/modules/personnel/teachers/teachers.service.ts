@@ -1,19 +1,50 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
 import { QueryParamsDto } from '../../modules.dto';
-import { StaffEntity } from '../staff.dto';
 import { IStaffService } from '../staff';
-import { QueryParams } from '../../module';
-import { Role } from '../../../app/auth/auth.decorator';
 import { StaffArgsFactory } from '../staff-args.factory';
+import { StaffRole } from '../../../utils/enums';
+import { StaffEntity } from '../staff.dto';
 
 @Injectable()
 export class TeachersService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
-  findOne: (
-    academic_year_id: string,
-    params?: QueryParams
-  ) => Promise<StaffEntity>;
+  
+  async findOne(annual_teacher_id: string) {
+    const {
+      Teacher: { matricule, ...teacher },
+      Login: { login_id, Person: person },
+      ...annual_teacher
+    } = await this.prismaService.annualTeacher.findFirstOrThrow({
+      select: {
+        ...StaffArgsFactory.getStaffSelect(),
+        has_signed_convention: true,
+        origin_institute: true,
+        teaching_grade_id: true,
+        hourly_rate: true,
+        Teacher: {
+          select: {
+            matricule: true,
+            has_tax_payers_card: true,
+            tax_payer_card_number: true,
+            teacher_type_id: true,
+          },
+        },
+      },
+      where: { annual_teacher_id },
+    });
+
+    return new StaffEntity({
+      ...teacher,
+      ...person,
+      ...annual_teacher,
+      login_id,
+      matricule,
+      roles: [],
+      annual_teacher_id,
+      last_connected: null,
+    });
+  }
 
   async findAll(academic_year_id: string, params?: QueryParamsDto) {
     const teachers = await this.prismaService.annualTeacher.findMany({
@@ -21,7 +52,7 @@ export class TeachersService implements IStaffService<StaffEntity> {
         annual_teacher_id: true,
         Teacher: { select: { matricule: true } },
         ...StaffArgsFactory.getStaffSelect({
-          activeRole: Role.COORDINATOR,
+          activeRole: StaffRole.COORDINATOR,
           academic_year_id,
           params,
         }),
@@ -48,17 +79,17 @@ export class TeachersService implements IStaffService<StaffEntity> {
           annual_teacher_id,
           last_connected: log?.logged_in_at ?? null,
           roles: [{ registry }, { configrator }, { codinatedClass }].reduce<
-            Role[]
+            StaffRole[]
           >(
             (roles, _) =>
               _.registry
-                ? [...roles, Role.REGISTRY]
+                ? [...roles, StaffRole.REGISTRY]
                 : _.configrator
-                ? [...roles, Role.CONFIGURATOR]
+                ? [...roles, StaffRole.CONFIGURATOR]
                 : _.codinatedClass
-                ? [...roles, Role.COORDINATOR]
+                ? [...roles, StaffRole.COORDINATOR]
                 : roles,
-            [Role.TEACHER]
+            [StaffRole.TEACHER]
           ),
         })
     );

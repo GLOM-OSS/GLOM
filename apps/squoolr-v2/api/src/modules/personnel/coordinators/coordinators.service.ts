@@ -1,19 +1,19 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { QueryParamsDto } from '../../modules.dto';
-import { StaffEntity } from '../staff.dto';
 import { IStaffService } from '../staff';
-import { QueryParams } from '../../module';
-import { Role } from '../../../app/auth/auth.decorator';
 import { StaffArgsFactory } from '../staff-args.factory';
+import { StaffRole } from '../../../utils/enums';
+import { StaffEntity } from '../staff.dto';
 
 @Injectable()
 export class CoordinatorsService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
-  findOne: (
-    academic_year_id: string,
-    params?: QueryParams
-  ) => Promise<StaffEntity>;
+  async findOne(annual_coordinator_id: string): Promise<StaffEntity> {
+    throw new NotImplementedException(
+      '`findOne` method is not supported for coordinators. Use teacher instead'
+    );
+  }
 
   async findAll(academic_year_id: string, params?: QueryParamsDto) {
     const coordinators =
@@ -25,7 +25,7 @@ export class CoordinatorsService implements IStaffService<StaffEntity> {
               annual_teacher_id: true,
               Teacher: { select: { matricule: true } },
               ...StaffArgsFactory.getStaffSelect({
-                activeRole: Role.COORDINATOR,
+                activeRole: StaffRole.COORDINATOR,
                 academic_year_id,
                 params,
               }),
@@ -59,14 +59,14 @@ export class CoordinatorsService implements IStaffService<StaffEntity> {
           ...Person,
           annual_teacher_id,
           last_connected: log?.logged_in_at ?? null,
-          roles: [{ registry }, { configrator }].reduce<Role[]>(
+          roles: [{ registry }, { configrator }].reduce<StaffRole[]>(
             (roles, _) =>
               _.registry
-                ? [...roles, Role.REGISTRY]
+                ? [...roles, StaffRole.REGISTRY]
                 : _.configrator
-                ? [...roles, Role.CONFIGURATOR]
+                ? [...roles, StaffRole.CONFIGURATOR]
                 : roles,
-            [Role.TEACHER, Role.COORDINATOR]
+            [StaffRole.TEACHER, StaffRole.COORDINATOR]
           ),
         })
     );

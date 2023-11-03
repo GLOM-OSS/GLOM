@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { Role } from '../../app/auth/auth.decorator';
+import { Role } from '../../utils/enums';
 import { QueryParams } from '../module';
 import { StaffSelectParams } from './staff';
 
