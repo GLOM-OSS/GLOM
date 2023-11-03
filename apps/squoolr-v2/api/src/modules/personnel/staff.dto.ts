@@ -1,15 +1,9 @@
-import {
-  ApiProperty,
-  ApiPropertyOptional
-} from '@nestjs/swagger';
-import {
-  IsEnum,
-  IsOptional
-} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsOptional } from 'class-validator';
 import { Role } from '../../app/auth/auth.decorator';
 import { QueryParamsDto } from '../modules.dto';
 import { StaffIDs } from './staff';
-
+import { Gender } from '@prisma/client';
 
 export class StaffEntity implements StaffIDs {
   @ApiProperty()
@@ -31,7 +25,19 @@ export class StaffEntity implements StaffIDs {
   matricule: string;
 
   @ApiProperty({ nullable: null })
-  last_connected: Date | null;
+  national_id_number: string;
+
+  @ApiProperty({ nullable: null })
+  birthdate: Date;
+
+  @ApiProperty({ nullable: null })
+  address: string;
+
+  @ApiProperty({ nullable: null })
+  gender: Gender;
+
+  @ApiProperty({ nullable: null })
+  last_connected: Date;
 
   @ApiPropertyOptional()
   annual_configurator_id?: string;
