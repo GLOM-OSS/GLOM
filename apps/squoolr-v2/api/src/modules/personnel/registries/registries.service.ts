@@ -1,11 +1,11 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
-import { getStaffWhereInput, getStaffSelect } from '../staff.service';
 import { QueryParamsDto } from '../../modules.dto';
 import { StaffEntity } from '../staff.dto';
 import { IStaffService } from '../staff';
 import { QueryParams } from '../../module';
 import { Role } from '../../../app/auth/auth.decorator';
+import { StaffArgsFactory } from '../staff-args.factory';
 
 @Injectable()
 export class RegistriesService implements IStaffService<StaffEntity> {
@@ -20,9 +20,13 @@ export class RegistriesService implements IStaffService<StaffEntity> {
       select: {
         matricule: true,
         annual_registry_id: true,
-        ...getStaffSelect(academic_year_id, Role.COORDINATOR, params),
+        ...StaffArgsFactory.getStaffSelect(
+          academic_year_id,
+          Role.COORDINATOR,
+          params
+        ),
       },
-      where: getStaffWhereInput(academic_year_id, params),
+      where: StaffArgsFactory.getStaffWhereInput(academic_year_id, params),
     });
     return registries.map(
       ({

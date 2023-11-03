@@ -2,10 +2,10 @@ import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
 import { QueryParamsDto } from '../../modules.dto';
 import { StaffEntity } from '../staff.dto';
-import { getStaffSelect, getStaffWhereInput } from '../staff.service';
 import { IStaffService } from '../staff';
 import { QueryParams } from '../../module';
 import { Role } from '../../../app/auth/auth.decorator';
+import { StaffArgsFactory } from '../staff-args.factory';
 
 @Injectable()
 export class CoordinatorsService implements IStaffService<StaffEntity> {
@@ -24,12 +24,19 @@ export class CoordinatorsService implements IStaffService<StaffEntity> {
             select: {
               annual_teacher_id: true,
               Teacher: { select: { matricule: true } },
-              ...getStaffSelect(academic_year_id, Role.COORDINATOR, params),
+              ...StaffArgsFactory.getStaffSelect(
+                academic_year_id,
+                Role.COORDINATOR,
+                params
+              ),
             },
           },
         },
         where: {
-          AnnualTeacher: getStaffWhereInput(academic_year_id, params),
+          AnnualTeacher: StaffArgsFactory.getStaffWhereInput(
+            academic_year_id,
+            params
+          ),
         },
       });
     return coordinators.map(
