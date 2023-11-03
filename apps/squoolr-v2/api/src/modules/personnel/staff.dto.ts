@@ -45,8 +45,7 @@ export class StaffEntity implements StaffIDs {
   @ApiPropertyOptional()
   annual_coordinator_id?: string;
 
-  @IsEnum(Role, { each: true })
-  @ApiProperty({ type: [Role] })
+  @ApiProperty({ enum: Role, isArray: true })
   roles: Role[];
 
   constructor(props: StaffEntity) {
