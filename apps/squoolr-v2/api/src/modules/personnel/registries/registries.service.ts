@@ -20,11 +20,11 @@ export class RegistriesService implements IStaffService<StaffEntity> {
       select: {
         matricule: true,
         annual_registry_id: true,
-        ...StaffArgsFactory.getStaffSelect(
+        ...StaffArgsFactory.getStaffSelect({
+          activeRole: Role.COORDINATOR,
           academic_year_id,
-          Role.COORDINATOR,
-          params
-        ),
+          params,
+        }),
       },
       where: StaffArgsFactory.getStaffWhereInput(academic_year_id, params),
     });

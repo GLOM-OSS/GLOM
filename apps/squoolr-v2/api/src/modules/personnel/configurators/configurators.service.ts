@@ -11,7 +11,7 @@ import { StaffArgsFactory } from '../staff-args.factory';
 export class ConfiguratorsService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
   findOne: (
-    academic_year_id: string,
+    annual_personnel_id: string,
     params?: QueryParams
   ) => Promise<StaffEntity>;
 
@@ -20,11 +20,11 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
       select: {
         matricule: true,
         annual_configurator_id: true,
-        ...StaffArgsFactory.getStaffSelect(
+        ...StaffArgsFactory.getStaffSelect({
+          activeRole: Role.CONFIGURATOR,
           academic_year_id,
-          Role.CONFIGURATOR,
-          params
-        ),
+          params,
+        }),
       },
       where: StaffArgsFactory.getStaffWhereInput(academic_year_id, params),
     });
@@ -60,4 +60,23 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
         })
     );
   }
+
+  // async findOne(annual_registry_id: string, params?: QueryParams) {
+  //   const {
+  //     matricule,
+  //     Login: { login_id, Person: person },
+  //   } = await this.prismaService.annualRegistry.findFirst({
+  //     select: {
+  //       matricule: true,
+  //       ...StaffArgsFactory.getStaffSelect({ params }),
+  //     },
+  //     where: { annual_registry_id, is_deleted: false },
+  //   });
+  //   return {
+  //     login_id,
+  //     ...person,
+  //     matricule,
+  //     annual_registry_id,
+  //   };
+  // }
 }

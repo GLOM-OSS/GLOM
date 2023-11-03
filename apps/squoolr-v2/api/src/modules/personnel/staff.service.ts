@@ -46,4 +46,109 @@ export class StaffService {
     }
     return staffServices[role].findAll(academic_year_id, params);
   }
+
+  // async findOne(role: Role, annual_personnel_id: string) {
+  //   const select = {
+  //     Login: {
+  //       select: {
+  //         login_id: true,
+  //         Person: {
+  //           select: {
+  //             first_name: true,
+  //             last_name: true,
+  //             email: true,
+  //             phone_number: true,
+  //             national_id_number: true,
+  //             gender: true,
+  //             address: true,
+  //             birthdate: true,
+  //           },
+  //         },
+  //       },
+  //     },
+  //   };
+  //   switch (role) {
+  //     case Role.REGISTRY: {
+  //       const {
+  //         annual_registry_id,
+  //         matricule,
+  //         Login: { login_id, Person: person },
+  //       } = await this.prismaService.annualRegistry.findFirst({
+  //         select: {
+  //           ...select,
+  //           matricule: true,
+  //           annual_registry_id: true,
+  //         },
+  //         where: { annual_registry_id: annual_personnel_id, is_deleted: false },
+  //       });
+  //       return {
+  //         login_id,
+  //         ...person,
+  //         matricule,
+  //         annual_registry_id,
+  //       };
+  //     }
+  //     case Role.TEACHER: {
+  //       const {
+  //         Teacher: { matricule, ...teacher },
+  //         annual_teacher_id,
+  //         Login: { login_id, Person: person },
+  //         ...annual_teacher
+  //       } = await this.prismaService.annualTeacher.findFirst({
+  //         select: {
+  //           ...select,
+  //           has_signed_convention: true,
+  //           origin_institute: true,
+  //           teaching_grade_id: true,
+  //           hourly_rate: true,
+  //           Teacher: {
+  //             select: {
+  //               matricule: true,
+  //               has_tax_payers_card: true,
+  //               tax_payer_card_number: true,
+  //               teacher_type_id: true,
+  //             },
+  //           },
+  //           annual_teacher_id: true,
+  //         },
+  //         where: { annual_teacher_id: annual_personnel_id, is_deleted: false },
+  //       });
+
+  //       return {
+  //         personnel_id: annual_teacher_id,
+  //         personnel_code: matricule,
+  //         ...annual_teacher,
+  //         ...teacher,
+  //         ...person,
+  //         login_id,
+  //       };
+  //     }
+  //     case Role.CONFIGURATOR: {
+  //       const {
+  //         annual_configurator_id,
+  //         matricule,
+  //         Login: { login_id, Person: person },
+  //       } = await this.prismaService.annualConfigurator.findFirst({
+  //         select: {
+  //           ...select,
+  //           matricule: true,
+  //           annual_configurator_id: true,
+  //         },
+  //         where: {
+  //           annual_configurator_id: annual_personnel_id,
+  //           is_deleted: false,
+  //         },
+  //       });
+  //       return {
+  //         personnel_id: annual_configurator_id,
+  //         personnel_code: matricule,
+  //         login_id,
+  //         ...person,
+  //       };
+  //     }
+  //     default:
+  //       throw new NotImplementedException(`${role} role not supported !!!`);
+  //   }
+  // }
+
 }

@@ -1,11 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { Role } from '../../app/auth/auth.decorator';
 import { QueryParams } from '../module';
-
-export type StaffRole = Extract<
-  Role,
-  Role.CONFIGURATOR | Role.REGISTRY | Role.TEACHER | Role.COORDINATOR
->;
+import { StaffSelectParams } from './staff';
 
 export class StaffArgsFactory {
   static getStaffWhereInput = (
@@ -31,31 +27,33 @@ export class StaffArgsFactory {
     }),
   });
 
-  static getStaffSelect = (
-    academic_year_id: string,
-    activeRole: StaffRole,
-    params?: QueryParams
-  ) => ({
+  static getStaffSelect = (staffParams?: StaffSelectParams) => ({
     is_deleted: true,
     Login: Prisma.validator<Prisma.LoginFindManyArgs>()({
       select: {
         login_id: true,
         AnnualConfigurators:
-          activeRole === Role.CONFIGURATOR
+          staffParams?.activeRole === Role.CONFIGURATOR
             ? {
                 select: { matricule: true, annual_configurator_id: true },
-                where: this.getStaffWhereInput(academic_year_id, params),
+                where: this.getStaffWhereInput(
+                  staffParams?.academic_year_id,
+                  staffParams?.params
+                ),
               }
             : undefined,
         AnnualRegistries:
-          activeRole === Role.REGISTRY
+          staffParams?.activeRole === Role.REGISTRY
             ? {
                 select: { matricule: true, annual_registry_id: true },
-                where: this.getStaffWhereInput(academic_year_id, params),
+                where: this.getStaffWhereInput(
+                  staffParams?.academic_year_id,
+                  staffParams?.params
+                ),
               }
             : undefined,
         AnnualTeachers:
-          activeRole === Role.TEACHER
+          staffParams?.activeRole === Role.TEACHER
             ? {
                 select: {
                   annual_teacher_id: true,
@@ -63,7 +61,10 @@ export class StaffArgsFactory {
                     select: { annual_coordinator_id: true },
                   },
                 },
-                where: this.getStaffWhereInput(academic_year_id, params),
+                where: this.getStaffWhereInput(
+                  staffParams?.academic_year_id,
+                  staffParams?.params
+                ),
               }
             : undefined,
         Person: {

@@ -24,11 +24,11 @@ export class CoordinatorsService implements IStaffService<StaffEntity> {
             select: {
               annual_teacher_id: true,
               Teacher: { select: { matricule: true } },
-              ...StaffArgsFactory.getStaffSelect(
+              ...StaffArgsFactory.getStaffSelect({
+                activeRole: Role.COORDINATOR,
                 academic_year_id,
-                Role.COORDINATOR,
-                params
-              ),
+                params,
+              }),
             },
           },
         },
