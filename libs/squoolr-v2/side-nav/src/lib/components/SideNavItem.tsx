@@ -20,7 +20,7 @@ export default function SideNavItem({
   const { asPath, push } = useRouter();
   const theme = useTheme();
   const breadcrumbDispatch = useDispatchBreadcrumb();
-  const isActive = asPath.startsWith(route);
+  const isActive = asPath.startsWith(`/${sectionRoute}/${route}`);
 
   function openItem(item: INavItem, sectionRoute: string) {
     breadcrumbDispatch({
