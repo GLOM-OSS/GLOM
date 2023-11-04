@@ -18,6 +18,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import FilterMenu from '../../../component/management/demands/FilterMenu';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 
@@ -28,7 +29,7 @@ function TableHeaderItem({
 }: {
   icon: IconifyIcon;
   title: string;
-  onClick?: () => void;
+  onClick?: (event) => void;
 }) {
   const theme = useTheme();
   return (
@@ -41,7 +42,7 @@ function TableHeaderItem({
         borderRadius: '4px',
         cursor: 'pointer',
       }}
-      onClick={onClick}
+      onClick={(event) => onClick(event)}
     >
       <Icon icon={icon} fontSize={20} />
       <Typography className="p4" sx={{ color: theme.common.body }}>
@@ -124,160 +125,190 @@ export function Index() {
   const [canSearchExpand, setCanSearchExpand] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>('');
 
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<
+    (SchoolEntity['school_demand_status'] | 'SUSPENDED')[]
+  >([]);
+
+  function onChangeFilter(
+    demandStatus: SchoolEntity['school_demand_status'] | 'SUSPENDED'
+  ) {
+    setSelectedStatus(
+      selectedStatus.includes(demandStatus)
+        ? selectedStatus.filter((element) => element !== demandStatus)
+        : [...selectedStatus, demandStatus]
+    );
+  }
+
   useEffect(() => {
-    //TODO: CALL SEARCH API HERE. MUTATE DEMAND DATA WHEN IT'S DONE
-  }, [searchValue]);
+    //TODO: CALL SEARCH API HERE with searchValue and selectedStatus' use it to filter. MUTATE DEMAND DATA WHEN IT'S DONE
+    alert('hello world');
+  }, [searchValue, selectedStatus]);
 
   return (
-    <Box>
-      <Box
-        sx={{
-          borderTopLeftRadius: '8px',
-          borderTopRightRadius: '8px',
-          border: `1px solid ${theme.common.line}`,
-          borderBottom: 'none',
-          display: 'grid',
-          gridTemplateColumns: 'auto 1fr',
-          justifyItems: 'end',
-          alignItems: 'center',
-          padding: '16px',
+    <>
+      <FilterMenu
+        closeMenu={() => {
+          setAnchorEl(null);
         }}
-      >
+        isOpen={!!anchorEl}
+        onSelect={onChangeFilter}
+        anchorEl={anchorEl}
+        selectedStatus={selectedStatus}
+      />
+      <Box>
         <Box
           sx={{
+            borderTopLeftRadius: '8px',
+            borderTopRightRadius: '8px',
+            border: `1px solid ${theme.common.line}`,
+            borderBottom: 'none',
             display: 'grid',
-            gridAutoFlow: 'column',
-            columnGap: 2,
+            gridTemplateColumns: 'auto 1fr',
+            justifyItems: 'end',
             alignItems: 'center',
+            padding: '16px',
           }}
         >
-          <TextField
-            onClick={() => setCanSearchExpand(true)}
-            onBlur={() =>
-              !searchValue
-                ? setCanSearchExpand(false)
-                : setCanSearchExpand(true)
-            }
-            onChange={(e) => setSearchValue(e.target.value)}
-            variant="outlined"
-            size="small"
+          <Box
             sx={{
-              transition: 'width 0.3s',
-              '& .MuiInputBase-root': {
-                paddingLeft: '8px',
-              },
-              '& .MuiInputBase-input': {
-                padding: '8.5px 0',
+              display: 'grid',
+              gridAutoFlow: 'column',
+              columnGap: 2,
+              alignItems: 'center',
+            }}
+          >
+            <TextField
+              onClick={() => setCanSearchExpand(true)}
+              onBlur={() =>
+                !searchValue
+                  ? setCanSearchExpand(false)
+                  : setCanSearchExpand(true)
+              }
+              onChange={(e) => setSearchValue(e.target.value)}
+              variant="outlined"
+              size="small"
+              sx={{
                 transition: 'width 0.3s',
-                width: canSearchExpand ? '100%' : 0,
-              },
-              '&:hover': {
-                width: '100%',
-                '& .MuiInputBase-input': {
-                  width: '100%',
+                '& .MuiInputBase-root': {
+                  paddingLeft: '8px',
                 },
-              },
-            }}
-            placeholder={formatMessage({ id: 'search' })}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start" sx={{ width: 'auto' }}>
-                  <Icon icon={search} fontSize={20} />
-                </InputAdornment>
-              ),
-            }}
-          />
+                '& .MuiInputBase-input': {
+                  padding: '8.5px 0',
+                  transition: 'width 0.3s',
+                  width: canSearchExpand ? '100%' : 0,
+                },
+                '&:hover': {
+                  width: '100%',
+                  '& .MuiInputBase-input': {
+                    width: '100%',
+                  },
+                },
+              }}
+              placeholder={formatMessage({ id: 'search' })}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start" sx={{ width: 'auto' }}>
+                    <Icon icon={search} fontSize={20} />
+                  </InputAdornment>
+                ),
+              }}
+            />
 
+            <TableHeaderItem
+              icon={reset}
+              title={formatMessage({ id: 'reload' })}
+              onClick={() => {
+                //TODO: MUTATE TABLE VALUES HERE AND SEARCH AGAIN.
+                alert('hello world');
+              }}
+            />
+          </Box>
           <TableHeaderItem
-            icon={reset}
-            title={formatMessage({ id: 'reload' })}
-            onClick={() => {
-              //TODO: MUTATE TABLE VALUES HERE AND SEARCH AGAIN.
-              alert('hello world');
+            icon={filter}
+            title={formatMessage({ id: 'filter' })}
+            onClick={(event) => {
+              setAnchorEl(event.currentTarget);
             }}
           />
         </Box>
-        <TableHeaderItem
-          icon={filter}
-          title={formatMessage({ id: 'filter' })}
-        />
-      </Box>
-      <TableContainer
-        sx={{
-          borderTopLeftRadius: 0,
-          borderTopRightRadius: 0,
-        }}
-      >
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow>
-              {tableHeaders.map((columnTitle, index) => (
-                <TableCell key={index} align="left">
-                  {formatMessage({ id: columnTitle })}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {demandData.length === 0 ? (
-              <NoTableElement />
-            ) : (
-              demandData.map(
-                (
-                  {
-                    school_code,
-                    school_name,
-                    school_email,
-                    school_phone_number,
-                    school_demand_status,
-                  },
-                  index
-                ) => (
-                  <TableRow
-                    key={index}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                  >
-                    <TableCell>{school_code}</TableCell>
-                    <TableCell>{school_name}</TableCell>
-                    <TableCell>
-                      <Typography
-                        component="a"
-                        href={`mailto:${school_email}`}
-                        target="_blank"
-                        style={{
-                          color: theme.palette.primary.main,
-                        }}
-                      >
-                        {school_email}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      {school_phone_number
-                        .split('+')[1]
-                        .replace(/(.{3})/g, ' $1')}
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        variant={STATUS_CHIP_VARIANT[school_demand_status]}
-                        color={STATUS_CHIP_COLOR[school_demand_status]}
-                        label={formatMessage({
-                          id: school_demand_status.toLowerCase(),
-                        })}
-                        sx={{
-                          ...(school_demand_status === 'VALIDATED'
-                            ? { color: 'white' }
-                            : {}),
-                        }}
-                      />
-                    </TableCell>
-                  </TableRow>
+        <TableContainer
+          sx={{
+            borderTopLeftRadius: 0,
+            borderTopRightRadius: 0,
+          }}
+        >
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                {tableHeaders.map((columnTitle, index) => (
+                  <TableCell key={index} align="left">
+                    {formatMessage({ id: columnTitle })}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {demandData.length === 0 ? (
+                <NoTableElement />
+              ) : (
+                demandData.map(
+                  (
+                    {
+                      school_code,
+                      school_name,
+                      school_email,
+                      school_phone_number,
+                      school_demand_status,
+                    },
+                    index
+                  ) => (
+                    <TableRow
+                      key={index}
+                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    >
+                      <TableCell>{school_code}</TableCell>
+                      <TableCell>{school_name}</TableCell>
+                      <TableCell>
+                        <Typography
+                          component="a"
+                          href={`mailto:${school_email}`}
+                          target="_blank"
+                          style={{
+                            color: theme.palette.primary.main,
+                          }}
+                        >
+                          {school_email}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        {school_phone_number
+                          .split('+')[1]
+                          .replace(/(.{3})/g, ' $1')}
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          variant={STATUS_CHIP_VARIANT[school_demand_status]}
+                          color={STATUS_CHIP_COLOR[school_demand_status]}
+                          label={formatMessage({
+                            id: school_demand_status.toLowerCase(),
+                          })}
+                          sx={{
+                            ...(school_demand_status === 'VALIDATED'
+                              ? { color: 'white' }
+                              : {}),
+                          }}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  )
                 )
-              )
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    </>
   );
 }
 
