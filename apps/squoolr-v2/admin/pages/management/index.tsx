@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 export function Index() {
   const { push } = useRouter();
   useEffect(() => {
-    push('/management');
+    push('/management/demands');
   }, []);
 
   return <Box></Box>;
