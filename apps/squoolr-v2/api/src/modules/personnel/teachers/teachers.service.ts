@@ -1,7 +1,7 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
 import { QueryParamsDto } from '../../modules.dto';
-import { IStaffService } from '../staff';
+import { CreateStaffInput, IStaffService } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffRole } from '../../../utils/enums';
 import { StaffEntity } from '../staff.dto';
@@ -9,7 +9,12 @@ import { StaffEntity } from '../staff.dto';
 @Injectable()
 export class TeachersService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
-  
+  create: (
+    payload: CreateStaffInput,
+    created_by: string,
+    private_code: string
+  ) => Promise<StaffEntity>;
+
   async findOne(annual_teacher_id: string) {
     const {
       Teacher: { matricule, ...teacher },
