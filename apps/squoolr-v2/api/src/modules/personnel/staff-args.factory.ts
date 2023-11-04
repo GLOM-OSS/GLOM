@@ -1,8 +1,8 @@
 import { Prisma } from '@prisma/client';
 import { Role } from '../../utils/enums';
 import { QueryParams } from '../module';
-import { StaffSelectParams } from './staff';
-
+import { CreateStaffInput, StaffSelectParams } from './staff';
+import * as bcrypt from 'bcrypt';
 export class StaffArgsFactory {
   static getStaffWhereInput = (
     academic_year_id: string,
@@ -89,4 +89,33 @@ export class StaffArgsFactory {
       },
     }),
   });
+
+  static getStaffCreateInput = ({
+    matricule,
+    person_id,
+    school_id,
+    academic_year_id,
+    password,
+    ...personPayload
+  }: CreateStaffInput) =>
+    Prisma.validator<Prisma.AnnualConfiguratorCreateInput>()({
+      matricule,
+      Login: {
+        connectOrCreate: {
+          create: {
+            is_personnel: true,
+            password: bcrypt.hashSync(password, Number(process.env.SALT)),
+            Person: {
+              connectOrCreate: {
+                create: personPayload,
+                where: { email: personPayload.email },
+              },
+            },
+            School: { connect: { school_id } },
+          },
+          where: { person_id_school_id: { person_id, school_id } },
+        },
+      },
+      AcademicYear: { connect: { academic_year_id } },
+    });
 }
