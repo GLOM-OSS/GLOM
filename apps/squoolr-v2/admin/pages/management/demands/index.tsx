@@ -310,6 +310,7 @@ export function Index() {
                       </TableCell>
                       <TableCell>
                         <Chip
+                          size="small"
                           variant={STATUS_CHIP_VARIANT[school_demand_status]}
                           color={STATUS_CHIP_COLOR[school_demand_status]}
                           label={formatMessage({
