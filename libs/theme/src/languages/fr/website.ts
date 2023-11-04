@@ -565,4 +565,5 @@ export const website = {
   'code#': 'Code#',
   filter: 'Filtrer',
   reload: 'Actualiser',
+  Lost: 'Perdu',
 };

@@ -540,4 +540,5 @@ export const website = {
   'code#': 'Code#',
   filter: 'Filter',
   reload: 'Reload',
+  lost: 'Lost',
 };
