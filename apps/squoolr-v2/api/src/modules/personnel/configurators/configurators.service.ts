@@ -1,7 +1,7 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { QueryParamsDto } from '../../modules.dto';
-import { IStaffService } from '../staff';
+import { CreateStaffInput, IStaffService } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffRole } from '../../../utils/enums';
 import { StaffEntity } from '../staff.dto';
@@ -9,7 +9,6 @@ import { StaffEntity } from '../staff.dto';
 @Injectable()
 export class ConfiguratorsService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
-
   async findOne(annual_configurator_id: string) {
     const {
       matricule,
@@ -78,5 +77,33 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
           ),
         })
     );
+  }
+
+  async create(configuratorPayload: CreateStaffInput, created_by: string) {
+    const {
+      matricule,
+      annual_configurator_id,
+      Login: { login_id, Person },
+    } = await this.prismaService.annualConfigurator.create({
+      select: {
+        ...StaffArgsFactory.getStaffSelect(),
+        annual_configurator_id: true,
+        matricule: true,
+      },
+      data: {
+        CreatedByAnnualConfigurator: {
+          connect: { annual_configurator_id: created_by },
+        },
+        ...StaffArgsFactory.getStaffCreateInput(configuratorPayload),
+      },
+    });
+    return new StaffEntity({
+      login_id,
+      ...Person,
+      matricule,
+      roles: [],
+      last_connected: null,
+      annual_configurator_id,
+    });
   }
 }
