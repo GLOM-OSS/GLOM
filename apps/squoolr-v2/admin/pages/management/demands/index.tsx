@@ -21,6 +21,8 @@ import {
 import FilterMenu from '../../../component/management/demands/FilterMenu';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
+import { useDispatchBreadcrumb } from '@glom/squoolr-v2/side-nav';
+import { useRouter } from 'next/router';
 
 function TableHeaderItem({
   title,
@@ -54,6 +56,7 @@ function TableHeaderItem({
 
 export function Index() {
   const theme = useTheme();
+  const { push, asPath } = useRouter();
   const { formatMessage } = useIntl();
 
   const tableHeaders = [
@@ -121,6 +124,8 @@ export function Index() {
     VALIDATED: 'success',
     SUSPENDED: 'error',
   };
+
+  const breadcrumbDispatch = useDispatchBreadcrumb();
 
   const [canSearchExpand, setCanSearchExpand] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>('');
@@ -260,12 +265,29 @@ export function Index() {
                       school_email,
                       school_phone_number,
                       school_demand_status,
+                      school_acronym,
                     },
                     index
                   ) => (
                     <TableRow
+                      hover
                       key={index}
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                      onClick={() => {
+                        push(`${asPath}/${school_code}`);
+                        breadcrumbDispatch({
+                          action: 'ADD',
+                          payload: [
+                            {
+                              title: school_acronym,
+                              route: `${asPath}/${school_code}`,
+                            },
+                          ],
+                        });
+                      }}
+                      sx={{
+                        '&:last-child td, &:last-child th': { border: 0 },
+                        cursor: 'pointer',
+                      }}
                     >
                       <TableCell>{school_code}</TableCell>
                       <TableCell>{school_name}</TableCell>
