@@ -178,7 +178,7 @@ export function Index() {
                 },
               },
             }}
-            placeholder="Search"
+            placeholder={formatMessage({ id: 'search' })}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start" sx={{ width: 'auto' }}>
@@ -190,14 +190,17 @@ export function Index() {
 
           <TableHeaderItem
             icon={reset}
-            title="Reload"
+            title={formatMessage({ id: 'reload' })}
             onClick={() => {
               //TODO: MUTATE TABLE VALUES HERE AND SEARCH AGAIN.
               alert('hello world');
             }}
           />
         </Box>
-        <TableHeaderItem icon={filter} title="Filter" />
+        <TableHeaderItem
+          icon={filter}
+          title={formatMessage({ id: 'filter' })}
+        />
       </Box>
       <TableContainer
         sx={{
