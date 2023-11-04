@@ -533,4 +533,11 @@ export const website = {
   noTitleAvailable: 'No Title Available',
   demand: 'Demand',
   overview: 'Overview',
+
+  nothingToDisplay: 'Nothing to display',
+  processing: 'Processing',
+  suspended: 'Suspended',
+  'code#': 'Code#',
+  filter: 'Filter',
+  reload: 'Reload',
 };

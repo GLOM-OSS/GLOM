@@ -558,4 +558,11 @@ export const website = {
   noTitleAvailable: 'Pas de titre disponible',
   demand: 'Demande',
   overview: 'Aperçu',
+
+  nothingToDisplay: 'Rien à afficher',
+  processing: 'En traitement',
+  suspended: 'Suspendu',
+  'code#': 'Code#',
+  filter: 'Filtrer',
+  reload: 'Actualiser',
 };
