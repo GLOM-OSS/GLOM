@@ -1,9 +1,10 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { IsEnum, IsOptional } from 'class-validator';
 import { QueryParamsDto } from '../modules.dto';
 import { StaffIDs } from './staff';
 import { Gender } from '@prisma/client';
 import { StaffRole } from '../../utils/enums';
+import { CreatePersonDto } from '../../app/auth/auth.dto';
 
 export class QueryStaffDto extends QueryParamsDto {
   @IsOptional()
@@ -70,4 +71,10 @@ export class StaffEntity implements StaffIDs {
   constructor(props: StaffEntity) {
     Object.assign(this, props);
   }
+}
+
+export class CreateStaffDto extends OmitType(CreatePersonDto, ['password']) {
+  @IsEnum(StaffRole)
+  @ApiProperty({ enum: StaffRole })
+  role: StaffRole;
 }

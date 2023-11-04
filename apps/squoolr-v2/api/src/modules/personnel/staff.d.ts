@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { QueryParams } from '../module';
 
 export type StaffIDs = {
@@ -11,8 +12,20 @@ export type StaffSelectParams = {
   activeRole?: StaffRole;
   academic_year_id?: string;
 };
+export type CreateStaffInput = Prisma.PersonCreateInput & {
+  academic_year_id: string;
+  password: string;
+  matricule: string;
+  person_id: string;
+  school_id: string;
+};
 
 export interface IStaffService<T> {
   findOne: (annual_personnel_id: string) => Promise<T>;
   findAll: (academic_year_id: string, params?: QueryParams) => Promise<T[]>;
+  create: (
+    payload: CreateStaffInput,
+    created_by: string,
+    private_code: string
+  ) => Promise<T>;
 }
