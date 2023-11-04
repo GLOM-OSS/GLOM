@@ -3,6 +3,7 @@ import BreadcrumbContext, {
   Action,
   BreadcrumbContextProviderProps,
   IBreadcrumb,
+  IBreadcrumbItem,
 } from './BreadcrumbContext';
 
 const BreadcrumbReducer: Reducer<IBreadcrumb, Action> = (
@@ -26,6 +27,23 @@ const BreadcrumbReducer: Reducer<IBreadcrumb, Action> = (
       return {
         ...state,
         breadcrumbItems: toBeLeftItems,
+      };
+    }
+    case 'MOVE': {
+      const toBeKeptRoutes: IBreadcrumbItem[] = [];
+      let isEnd = false;
+      for (let index = 0; index < state.breadcrumbItems.length; index++) {
+        const element = state.breadcrumbItems[index];
+        if (!isEnd) toBeKeptRoutes.push(element);
+        if (element.route === action.payload[0].route) {
+          isEnd = true;
+          continue;
+        }
+      }
+
+      return {
+        ...state,
+        breadcrumbItems: toBeKeptRoutes,
       };
     }
     case 'RESET': {

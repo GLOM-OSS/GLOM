@@ -10,7 +10,7 @@ export interface BreadcrumbContextProviderProps {
 }
 
 export type Action = {
-  action: 'ADD' | 'REMOVE' | 'RESET';
+  action: 'ADD' | 'REMOVE' | 'RESET'|'MOVE';
   payload: IBreadcrumbItem[];
 };
 
