@@ -287,6 +287,15 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
           }),
         },
       },
+      MuiMenu: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            '& .MuiList-root': {
+              padding: 0,
+            },
+          }),
+        },
+      },
     },
   });
 }
