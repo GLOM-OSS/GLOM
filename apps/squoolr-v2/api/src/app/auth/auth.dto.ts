@@ -12,8 +12,9 @@ import {
   Lang,
   Person,
 } from '@prisma/client';
-import { Transform, Type } from 'class-transformer';
+import { Exclude, Transform, Type } from 'class-transformer';
 import {
+  IsDate,
   IsDateString,
   IsEmail,
   IsEnum,
@@ -21,7 +22,9 @@ import {
   IsString,
   IsStrongPassword,
 } from 'class-validator';
-import { ActiveYear, DesirializeSession } from './auth';
+import { ActiveYear, SessionData } from './auth';
+import { AcademicYearEntity } from '../academic-years/academic-years.dto';
+import { Logger } from '@nestjs/common';
 
 export class SetNewPasswordDto {
   @ApiProperty()
@@ -66,9 +69,10 @@ export class CreatePersonDto {
   @IsString()
   phone_number: string;
 
+  @IsDate()
   @ApiPropertyOptional()
+  @IsOptional()
   @Transform(({ value }) => new Date(value))
-  @IsDateString()
   birthdate: Date | null;
 
   @ApiPropertyOptional({ enum: Gender })
@@ -231,7 +235,7 @@ export class ActiveYearSessionData implements ActiveYear {
     Object.assign(this, props);
   }
 }
-export class User extends PersonEntity implements DesirializeSession {
+export class User extends PersonEntity implements SessionData {
   @ApiProperty()
   login_id: string;
 
@@ -265,9 +269,14 @@ export class User extends PersonEntity implements DesirializeSession {
   @Transform(({ value }) => new RegistrySessionData(value))
   @Type(() => RegistrySessionData)
   annualRegistry?: RegistrySessionData;
+
+  constructor(props: User) {
+    super(props);
+    Object.assign(this, props);
+  }
 }
 
-export class DesirializedRoles extends PickType(User, [
+export class SessionEntity extends PickType(User, [
   'login_id',
   'school_id',
   'activeYear',
@@ -277,3 +286,19 @@ export class DesirializedRoles extends PickType(User, [
   'annualStudent',
   'annualTeacher',
 ]) {}
+
+export class SingInResponse {
+  @ApiProperty({ type: User })
+  @Transform(({ value }) => new User(value))
+  user: User;
+
+  @ApiPropertyOptional({ type: [AcademicYearEntity] })
+  @Transform(({ value: values }) =>
+    values.map((value) => new AcademicYearEntity(value))
+  )
+  academicYears?: AcademicYearEntity[];
+
+  constructor(props: SingInResponse) {
+    Object.assign(this, props);
+  }
+}

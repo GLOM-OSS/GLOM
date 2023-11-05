@@ -42,20 +42,16 @@ const getSchoolEntity = (
       demand_status,
       rejection_reason,
       Payment: { amount: paid_amount },
-      Ambassador: {
-        Login: {
-          Person: { email },
-        },
-      },
+      Ambassador,
     },
     ...school
   } = data;
   return new SchoolEntity({
     ...school,
     paid_amount,
-    ambassador_email: email,
     school_demand_status: demand_status,
     school_rejection_reason: rejection_reason,
+    ambassador_email: Ambassador?.Login.Person.email,
   });
 };
 
@@ -99,7 +95,6 @@ export class DemandService {
   private async payOnboardingFee(phone: string) {
     const settings =
       await this.prismaService.platformSettings.findFirstOrThrow();
-
     const newPayment = await this.notchPayService.initiatePayment({
       amount: settings.onboarding_fee,
       phone,

@@ -1,12 +1,13 @@
+import { encrypt } from '@glom/encrypter';
 import {
   CallHandler,
   ExecutionContext,
   Injectable,
   Logger,
-  NestInterceptor,
+  NestInterceptor
 } from '@nestjs/common';
-import { map, Observable } from 'rxjs';
-import { encrypt } from '@glom/encrypter';
+import { Request } from 'express';
+import { Observable, map } from 'rxjs';
 
 @Injectable()
 export class AppInterceptor<T> implements NestInterceptor<T, string> {
@@ -16,9 +17,11 @@ export class AppInterceptor<T> implements NestInterceptor<T, string> {
     Logger.log(request.url, request.method);
     return next.handle().pipe(
       map((data) => {
-        if (typeof data === 'object') {
+        if (
+          typeof data === 'object' &&
+          !request.headers['user-agent'].includes('PostmanRuntime')
+        )
           data = encrypt(data);
-        }
         return data;
       })
     );

@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
 import { ApiExcludeEndpoint, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { DesirializeSession, User } from '../auth/auth';
 import { Role, Roles } from '../auth/auth.decorator';
 import {
   AcademicYearEntity,
@@ -9,7 +8,7 @@ import {
   TemplateAcademicYearDto,
 } from './academic-years.dto';
 import { AcademicYearsService } from './academic-years.service';
-import { DesirializedRoles } from '../auth/auth.dto';
+import { SessionEntity } from '../auth/auth.dto';
 // import { AuthService } from '../auth/auth.service';
 
 @ApiTags('Academic Years')
@@ -40,7 +39,7 @@ export class AcademicYearsController {
     const {
       school_id,
       annualConfigurator: { annual_configurator_id },
-    } = request.user as User;
+    } = request.user as Express.User;
     return this.academicYearService.create(
       school_id,
       newAcademicYear,
@@ -49,17 +48,20 @@ export class AcademicYearsController {
   }
 
   @Patch(':academic_year_id/choose')
-  @ApiOkResponse({ type: DesirializedRoles })
+  @ApiOkResponse({ type: SessionEntity })
   async chooseActiveAcademicYear(
     @Req() request: Request,
     @Param('academic_year_id') academic_year_id: string
   ) {
     const { login_id } = request.session.passport.user;
-    const { desirializedRoles, roles } =
-      await this.academicYearService.retrieveRoles(login_id, academic_year_id);
+    // const { desirializedRoles, roles } =
+    const { sessionData } = await this.academicYearService.selectAcademicYear(
+      login_id,
+      academic_year_id
+    );
 
     // await this.authService.updateSession(request, { roles, academic_year_id });
-    return desirializedRoles;
+    return sessionData;
   }
 
   @ApiExcludeEndpoint()
@@ -72,7 +74,7 @@ export class AcademicYearsController {
   ) {
     const {
       annualConfigurator: { annual_configurator_id },
-    } = request.user as User;
+    } = request.user as Express.User;
     return {
       academic_year_id: await this.academicYearService.template(
         template_year_id,

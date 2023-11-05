@@ -106,11 +106,11 @@ model Person {
     first_name         String            @db.VarChar(50)
     last_name          String            @db.VarChar(50)
     phone_number       String            @unique @db.VarChar(15)
-    birthdate          DateTime          @db.DateTime(0)
+    birthdate          DateTime?         @db.DateTime(0)
     birthplace         String?           @db.VarChar(45)
     gender             Gender
     nationality        String?           @db.VarChar(45)
-    national_id_number String            @db.VarChar(15)
+    national_id_number String?           @db.VarChar(15)
     address            String?           @db.VarChar(100)
     longitude          Int?
     latitude           Int?
@@ -134,11 +134,11 @@ model PersonAudit {
     first_name         String              @db.VarChar(50)
     last_name          String              @db.VarChar(50)
     phone_number       String              @db.VarChar(15)
-    birthdate          DateTime            @db.DateTime(0)
+    birthdate          DateTime?           @db.DateTime(0)
     birthplace         String?             @db.VarChar(45)
     gender             Gender
     nationality        String?             @db.VarChar(45)
-    national_id_number String              @db.VarChar(15)
+    national_id_number String?             @db.VarChar(15)
     address            String?             @db.VarChar(100)
     longitude          Int?
     latitude           Int?
@@ -300,7 +300,6 @@ model AcademicYear {
 model Login {
     login_id     String   @id @default(uuid()) @db.VarChar(36)
     password     String   @db.VarChar(75)
-    cookie_age   Int      @default(3600) //60* 60 seconds of inativity
     is_parent    Boolean  @default(false) @db.TinyInt
     is_personnel Boolean  @default(false) @db.TinyInt
     is_deleted   Boolean  @default(false) @db.TinyInt()
@@ -374,7 +373,6 @@ model AnnualConfigurator {
 model LoginAudit {
     login_audit_id String   @id @default(uuid()) @db.VarChar(36)
     password       String   @db.VarChar(75)
-    cookie_age     Int //10* 60 seconds of inativity
     is_personnel   Boolean  @db.TinyInt
     is_deleted     Boolean  @db.TinyInt
     audited_at     DateTime @default(now()) @db.DateTime(0)
@@ -576,8 +574,9 @@ enum AuthMethod {
 }
 
 model Log {
-    log_id        String     @id @default(uuid()) @db.VarChar(36)
+    log_id        String     @id @db.VarChar(36)
     auth_method   AuthMethod @default(LOCAL)
+    user_agent    String
     logged_in_at  DateTime   @default(now()) @db.DateTime(0)
     logged_out_at DateTime?  @db.DateTime(0)
     closed_at     DateTime?  @db.DateTime(0)

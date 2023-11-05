@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { DialogTransition } from '@squoolr/confirm-dialogs';
 import { theme } from '@glom/theme';
-import { generateShort } from '@squoolr/utils';
+import { generateShort } from '@glom/utils';
 import { useFormik } from 'formik';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';

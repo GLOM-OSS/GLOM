@@ -58,7 +58,7 @@ export class DemandController {
       );
     if (!payment_phone && !referral_code)
       throw new BadRequestException(
-        'please provide phone number or referral code'
+        'please provide payment number or referral code'
       );
     return this.demandService.create(schoolDemandPayload);
   }

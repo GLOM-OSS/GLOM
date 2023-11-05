@@ -1,102 +1,112 @@
-import { GlomPrismaService } from '@glom/prisma';
+import { encrypt } from '@glom/encrypter';
+import { GlomExceptionResponse } from '@glom/execeptions';
 import {
   Body,
   Controller,
   Delete,
   Get,
-  InternalServerErrorException,
-  Logger,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Request } from 'express';
-import { PassportUser, User } from './auth';
-import { SetNewPasswordDto, ResetPasswordDto, SignInDto } from './auth.dto';
+import {
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { AcademicYear } from '@prisma/client';
+import { Request, Response } from 'express';
+import {
+  PersonEntity,
+  ResetPasswordDto,
+  SetNewPasswordDto,
+  SignInDto,
+  SingInResponse,
+} from './auth.dto';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { LocalGuard } from './local/local.guard';
 
-@ApiBearerAuth()
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private authService: AuthService,
-    private prismaService: GlomPrismaService
-  ) {}
+  constructor(private authService: AuthService) {}
 
   @Post('signin')
   @UseGuards(LocalGuard)
+  @ApiCreatedResponse({ type: SingInResponse })
   async signIn(@Req() request: Request, @Body() login: SignInDto) {
-    Logger.debug(`Successfully login ${login.email} !!!`);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { created_at, cookie_age, roles, job_name, school_id, ...user } =
-      request.user as User & PassportUser;
-
-    if (!school_id) return { user };
-    const { academicYears, desirializedRoles } =
-      await this.authService.updateUserRoles(request, user.login_id);
-
-    return {
-      user: {
-        ...user,
-        ...(desirializedRoles ? desirializedRoles : {}),
-      },
-      academic_years: academicYears,
-    };
+    let user = request.user;
+    let academicYears: AcademicYear[] = [];
+    if (user.school_id) {
+      const result = await this.authService.updateUserSession(
+        request,
+        user.login_id
+      );
+      academicYears = result.academicYears;
+      user = { ...user, ...result.sessionData };
+    }
+    await this.authService.openSession(request, user.login_id);
+    return new SingInResponse({ user, academicYears });
   }
 
   @Post('reset-password')
+  @ApiNoContentResponse()
   async resetPassword(
     @Req() request: Request,
     @Body() { email }: ResetPasswordDto
   ) {
-    const squoolr_client = new URL(request.headers.origin).host;
-    const { reset_password_id } = await this.authService.resetPassword(
-      email,
-      squoolr_client
-    );
-    return {
-      reset_link: `${request.headers.origin}/forgot-password/${reset_password_id}/new-password`,
-    };
+    const requestHost = new URL(request.headers.origin).host;
+    await this.authService.resetPassword(email, requestHost);
   }
 
   @Post('new-password')
+  @ApiNoContentResponse()
   async setNewPassword(
     @Req() request: Request,
     @Body() { reset_password_id, new_password }: SetNewPasswordDto
   ) {
-    const squoolr_client = new URL(request.headers.origin).host;
+    const requestHost = new URL(request.headers.origin).host;
     await this.authService.setNewPassword(
       reset_password_id,
       new_password,
-      squoolr_client
+      requestHost.split('.')[0]
     );
-    return { is_new_password_set: true };
   }
 
   @Delete('log-out')
   @UseGuards(AuthenticatedGuard)
-  async logOut(@Req() request: Request) {
-    const { log_id } = request.session.passport.user;
-    return request.session.destroy(async (err) => {
-      if (err)
-        throw new InternalServerErrorException('Could not detroy session');
-      await this.prismaService.log.update({
-        data: { logged_out_at: new Date() },
-        where: { log_id },
-      });
-    });
+  async logOut(@Req() request: Request, @Res() response: Response) {
+    const sessionName = process.env.SESSION_NAME;
+    await new Promise((resolve, reject) =>
+      request.session.destroy((err) => {
+        if (err) reject(err);
+        resolve(1);
+      })
+    ).catch((err) =>
+      response.status(500).json(
+        new GlomExceptionResponse({
+          error: 'Internal server error',
+          message: err,
+          path: request.url,
+          timestamp: Date.now(),
+        })
+      )
+    );
+    response.clearCookie(sessionName);
+    response.send(encrypt(`Cleared ${sessionName} cookie successfully.`));
   }
 
   @Get('user')
+  @ApiOkResponse({ type: PersonEntity })
   @UseGuards(AuthenticatedGuard)
   async getUser(@Req() request: Request) {
     const email = request.query.email as string;
-    return {
-      user: email ? await this.authService.getUser(email) : request.user,
-    };
+    const person = email
+      ? await this.authService.getPerson(email)
+      : request.user;
+    return new PersonEntity(person);
   }
 }
