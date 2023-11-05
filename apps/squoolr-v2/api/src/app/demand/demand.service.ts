@@ -74,13 +74,28 @@ export class DemandService {
 
   async findDetails(school_code: string) {
     const schoolData = await this.prismaService.school.findUnique({
-      include: { ...schoolSelectAttr.include, Person: true },
+      include: {
+        ...schoolSelectAttr.include,
+        Person: true,
+        AcademicYears: {
+          take: 1,
+          orderBy: { created_at: 'asc' },
+        },
+      },
       where: { school_code },
     });
     if (!schoolData) throw new NotFoundException('School demand not found');
-    const { Person: person, ...school } = schoolData;
+    const {
+      Person: person,
+      AcademicYears: [academicYear],
+      ...school
+    } = schoolData;
     return new DemandDetails({
       person,
+      academicYear: {
+        ends_at: academicYear?.ended_at,
+        starts_at: academicYear?.starts_at,
+      },
       school: getSchoolEntity(school),
     });
   }

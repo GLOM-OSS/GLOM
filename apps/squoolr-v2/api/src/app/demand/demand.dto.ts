@@ -14,6 +14,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { CreatePersonDto, PersonEntity } from '../auth/auth.dto';
+import { CreateAcademicYearDto } from '../academic-years/academic-years.dto';
 
 export class CreateSchoolDto {
   @ApiProperty()
@@ -126,6 +127,10 @@ export class DemandDetails {
   @ApiProperty({ type: PersonEntity })
   @Transform(({ value }) => new PersonEntity(value))
   person: PersonEntity;
+  
+  @ApiProperty({ type: CreateAcademicYearDto })
+  @Transform(({ value }) => new CreateAcademicYearDto(value))
+  academicYear: CreateAcademicYearDto;
 
   constructor(props: DemandDetails) {
     Object.assign(this, props);
