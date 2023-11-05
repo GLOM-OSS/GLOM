@@ -99,13 +99,16 @@ export class SchoolEntity extends OmitType(CreateSchoolDto, [
   'initial_year_starts_at',
 ]) {
   @ApiProperty()
+  school_id: string;
+
+  @ApiProperty()
+  school_code: string;
+
+  @ApiProperty()
   paid_amount: number;
 
   @ApiProperty()
   ambassador_email: string;
-
-  @ApiProperty()
-  school_code: string;
 
   @ApiProperty({ enum: SchoolDemandStatus })
   school_demand_status: SchoolDemandStatus;

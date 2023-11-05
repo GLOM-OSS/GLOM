@@ -18,7 +18,15 @@ import {
 } from './demand.dto';
 
 const schoolSelectAttr = Prisma.validator<Prisma.SchoolArgs>()({
-  include: {
+  select: {
+    school_id: true,
+    school_acronym: true,
+    school_code: true,
+    lead_funnel: true,
+    school_email: true,
+    school_name: true,
+    subdomain: true,
+    school_phone_number: true,
     SchoolDemand: {
       include: {
         Payment: true,
@@ -64,26 +72,26 @@ export class DemandService {
     private codeGenerator: CodeGeneratorFactory
   ) {}
 
-  async findOne(school_code: string) {
+  async findOne(school_id: string) {
     const school = await this.prismaService.school.findUnique({
       ...schoolSelectAttr,
-      where: { school_code },
+      where: { school_id },
     });
     if (!school) throw new NotFoundException('School demand not found');
     return getSchoolEntity(school);
   }
 
-  async findDetails(school_code: string) {
+  async findDetails(school_id: string) {
     const schoolData = await this.prismaService.school.findUnique({
       include: {
-        ...schoolSelectAttr.include,
+        ...schoolSelectAttr.select,
         Person: true,
         AcademicYears: {
           take: 1,
           orderBy: { created_at: 'asc' },
         },
       },
-      where: { school_code },
+      where: { school_id },
     });
     if (!schoolData) throw new NotFoundException('School demand not found');
     const {
