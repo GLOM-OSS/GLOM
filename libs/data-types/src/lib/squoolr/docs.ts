@@ -5,67 +5,67 @@
 
 
 export interface paths {
-  "/": {
+  "/v1": {
     get: operations["AppController_getData"];
   };
-  "/platform-settings": {
+  "/v1/platform-settings": {
     get: operations["AppController_getPlatformSettings"];
   };
-  "/auth/signin": {
+  "/v1/auth/signin": {
     post: operations["AuthController_signIn"];
   };
-  "/auth/reset-password": {
+  "/v1/auth/reset-password": {
     post: operations["AuthController_resetPassword"];
   };
-  "/auth/new-password": {
+  "/v1/auth/new-password": {
     post: operations["AuthController_setNewPassword"];
   };
-  "/auth/log-out": {
+  "/v1/auth/log-out": {
     delete: operations["AuthController_logOut"];
   };
-  "/auth/user": {
+  "/v1/auth/user": {
     get: operations["AuthController_getUser"];
   };
-  "/demands/all": {
+  "/v1/demands/all": {
     get: operations["DemandController_getAllDemands"];
   };
-  "/demands/{school_code}": {
+  "/v1/demands/{school_code}": {
     get: operations["DemandController_getDemandStatus"];
   };
-  "/demands/{school_code}/details": {
+  "/v1/demands/{school_code}/details": {
     get: operations["DemandController_getDemandDetails"];
   };
-  "/demands/new": {
+  "/v1/demands/new": {
     post: operations["DemandController_submitDemand"];
   };
-  "/demands/validate": {
+  "/v1/demands/validate": {
     put: operations["DemandController_validateDemand"];
   };
-  "/demands/{school_code}/status": {
+  "/v1/demands/{school_code}/status": {
     put: operations["DemandController_updateDemandStatus"];
   };
-  "/academic-years/all": {
+  "/v1/academic-years/all": {
     get: operations["AcademicYearsController_getAcademicYears"];
   };
-  "/academic-years/new": {
+  "/v1/academic-years/new": {
     post: operations["AcademicYearsController_createAcademicYear"];
   };
-  "/academic-years/{academic_year_id}/choose": {
+  "/v1/academic-years/{academic_year_id}/choose": {
     patch: operations["AcademicYearsController_chooseActiveAcademicYear"];
   };
-  "/inquiries/all": {
+  "/v1/inquiries/all": {
     get: operations["InquiriesController_getAllInquiries"];
   };
-  "/inquiries/new": {
+  "/v1/inquiries/new": {
     post: operations["InquiriesController_createInquiry"];
   };
-  "/ambassadors/all": {
+  "/v1/ambassadors/all": {
     get: operations["AmbassadorsController_getAmbassadors"];
   };
-  "/ambassadors/{ambassador_id}": {
+  "/v1/ambassadors/{ambassador_id}": {
     get: operations["AmbassadorsController_getAmbassador"];
   };
-  "/ambassadors/{referral_code}/verify": {
+  "/v1/ambassadors/{referral_code}/verify": {
     get: operations["AmbassadorsController_getAmbassador"];
   };
 }
@@ -84,25 +84,99 @@ export interface components {
       email: string;
       password: string;
     };
+    ActiveYearSessionData: {
+      academic_year_id: string;
+      /** Format: date-time */
+      starting_date: string;
+      /** Format: date-time */
+      ending_date: string;
+      /** @enum {string} */
+      year_status: "INACTIVE" | "ACTIVE" | "FINISHED";
+      year_code: string;
+    };
+    StudentSessionData: {
+      annual_student_id: string;
+      activeSemesters: string[];
+      classroom_code: string;
+      classroom_level: number;
+      student_id: string;
+    };
+    ConfiguratorSessionData: {
+      annual_configurator_id: string;
+      is_sudo: boolean;
+    };
+    TeacherSessionData: {
+      annual_teacher_id: string;
+      hourly_rate: number;
+      origin_institute: string;
+      has_signed_convention: boolean;
+      classroomDivisions: string[];
+      teacher_id: string;
+    };
+    User: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone_number: string;
+      /** Format: date-time */
+      birthdate?: string;
+      /** @enum {string} */
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      person_id: string;
+      birthplace: string | null;
+      nationality: string;
+      longitude: number | null;
+      latitude: number | null;
+      /** @enum {string} */
+      preferred_lang: "en" | "fr";
+      image_ref: string | null;
+      home_region: string | null;
+      religion: string | null;
+      handicap: string;
+      /** @enum {string} */
+      civil_status: "Married" | "Single" | "Divorced";
+      /** @enum {string|null} */
+      employment_status: "Employed" | "Unemployed" | "SelfEmployed" | null;
+      /** Format: date-time */
+      created_at: string;
+      login_id: string;
+      school_id?: string;
+      tutorStudentIds?: string[];
+      activeYear: components["schemas"]["ActiveYearSessionData"];
+      annualStudent?: components["schemas"]["StudentSessionData"];
+      annualConfigurator?: components["schemas"]["ConfiguratorSessionData"];
+      annualTeacher?: components["schemas"]["TeacherSessionData"];
+      annualRegistry?: components["schemas"]["TeacherSessionData"];
+    };
+    AcademicYearEntity: {
+      /** Format: date-time */
+      starts_at: string;
+      /** Format: date-time */
+      ends_at: string;
+      academic_year_id: string;
+      year_code: string;
+      /** Format: date-time */
+      started_at: string;
+      /** Format: date-time */
+      ended_at: string;
+      /** @enum {string} */
+      year_status: "INACTIVE" | "ACTIVE" | "FINISHED";
+      school_id: string;
+      /** Format: date-time */
+      created_at: string;
+    };
+    SingInResponse: {
+      user: components["schemas"]["User"];
+      academicYears?: components["schemas"]["AcademicYearEntity"][];
+    };
     ResetPasswordDto: {
       email: string;
     };
     SetNewPasswordDto: {
       reset_password_id: string;
       new_password: string;
-    };
-    SchoolEntity: {
-      school_name: string;
-      school_acronym: string;
-      school_email: string;
-      lead_funnel: string;
-      school_phone_number: string;
-      paid_amount: number;
-      ambassador_email: string;
-      school_code: string;
-      /** @enum {string} */
-      school_demand_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED";
-      school_rejection_reason: string;
     };
     PersonEntity: {
       first_name: string;
@@ -133,9 +207,29 @@ export interface components {
       /** Format: date-time */
       created_at: string;
     };
+    SchoolEntity: {
+      school_name: string;
+      school_acronym: string;
+      school_email: string;
+      lead_funnel: string;
+      school_phone_number: string;
+      paid_amount: number;
+      ambassador_email: string;
+      school_code: string;
+      /** @enum {string} */
+      school_demand_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED";
+      school_rejection_reason: string;
+    };
+    CreateAcademicYearDto: {
+      /** Format: date-time */
+      starts_at: string;
+      /** Format: date-time */
+      ends_at: string;
+    };
     DemandDetails: {
       school: components["schemas"]["SchoolEntity"];
       person: components["schemas"]["PersonEntity"];
+      academicYear: components["schemas"]["CreateAcademicYearDto"];
     };
     CreatePersonDto: {
       first_name: string;
@@ -172,59 +266,7 @@ export interface components {
       rejection_reason?: string;
       subdomain?: string;
     };
-    AcademicYearEntity: {
-      /** Format: date-time */
-      starts_at: string;
-      /** Format: date-time */
-      ends_at: string;
-      academic_year_id: string;
-      year_code: string;
-      /** Format: date-time */
-      started_at: string;
-      /** Format: date-time */
-      ended_at: string;
-      /** @enum {string} */
-      year_status: "INACTIVE" | "ACTIVE" | "FINISHED";
-      school_id: string;
-      /** Format: date-time */
-      created_at: string;
-    };
-    CreateAcademicYearDto: {
-      /** Format: date-time */
-      starts_at: string;
-      /** Format: date-time */
-      ends_at: string;
-    };
-    ActiveYearSessionData: {
-      academic_year_id: string;
-      /** Format: date-time */
-      starting_date: string;
-      /** Format: date-time */
-      ending_date: string;
-      /** @enum {string} */
-      year_status: "INACTIVE" | "ACTIVE" | "FINISHED";
-      year_code: string;
-    };
-    StudentSessionData: {
-      annual_student_id: string;
-      activeSemesters: string[];
-      classroom_code: string;
-      classroom_level: number;
-      student_id: string;
-    };
-    ConfiguratorSessionData: {
-      annual_configurator_id: string;
-      is_sudo: boolean;
-    };
-    TeacherSessionData: {
-      annual_teacher_id: string;
-      hourly_rate: number;
-      origin_institute: string;
-      has_signed_convention: boolean;
-      classroomDivisions: string[];
-      teacher_id: string;
-    };
-    DesirializedRoles: {
+    SessionEntity: {
       login_id: string;
       school_id?: string;
       tutorStudentIds?: string[];
@@ -296,7 +338,9 @@ export interface operations {
     };
     responses: {
       201: {
-        content: never;
+        content: {
+          "application/json": components["schemas"]["SingInResponse"];
+        };
       };
     };
   };
@@ -307,7 +351,7 @@ export interface operations {
       };
     };
     responses: {
-      201: {
+      204: {
         content: never;
       };
     };
@@ -319,7 +363,7 @@ export interface operations {
       };
     };
     responses: {
-      201: {
+      204: {
         content: never;
       };
     };
@@ -334,7 +378,9 @@ export interface operations {
   AuthController_getUser: {
     responses: {
       200: {
-        content: never;
+        content: {
+          "application/json": components["schemas"]["PersonEntity"];
+        };
       };
     };
   };
@@ -445,7 +491,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["DesirializedRoles"];
+          "application/json": components["schemas"]["SessionEntity"];
         };
       };
     };
