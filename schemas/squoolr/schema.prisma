@@ -178,9 +178,9 @@ model School {
     demanded_by            String   @db.VarChar(36)
     Person                 Person   @relation(fields: [demanded_by], references: [person_id], onDelete: Cascade, onUpdate: Cascade)
 
-    Logins       Login[]
-    Departments  Department[]
-    AcademicYear AcademicYear[]
+    Logins        Login[]
+    Departments   Department[]
+    AcademicYears AcademicYear[]
 
     SchoolDemand SchoolDemand?
 }
@@ -223,6 +223,7 @@ enum SchoolDemandStatus {
     PROCESSING
     REJECTED
     VALIDATED
+    SUSPENDED
 
     @@map("school_demand_status_enum")
 }
