@@ -8,6 +8,7 @@
     "test": "nx test",
     "prisma:lynkr": "prisma migrate dev --schema schemas/lynkr/schema.prisma",
     "prisma:squoolr": "prisma migrate dev --schema schemas/squoolr/schema.prisma",
+    "prisma:gen:squoolr": "prisma generate --schema schemas/squoolr/schema.prisma",
     "prisma:squoolr-v1": "prisma migrate dev --schema schemas/squoolr-v1/schema.prisma"
   },
   "private": true,
