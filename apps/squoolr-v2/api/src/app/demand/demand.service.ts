@@ -13,6 +13,7 @@ import {
   DemandDetails,
   SchoolEntity,
   SubmitDemandDto,
+  UpdateSchoolStatus,
   ValidateDemandDto,
 } from './demand.dto';
 
@@ -310,7 +311,11 @@ export class DemandService {
     });
   }
 
-  async updateStatus(school_code: string, audited_by: string) {
+  async updateStatus(
+    school_code: string,
+    payload: UpdateSchoolStatus,
+    audited_by: string
+  ) {
     const schoolDemand = await this.prismaService.schoolDemand.findFirst({
       where: { School: { school_code } },
     });
@@ -320,7 +325,7 @@ export class DemandService {
       schoolDemand;
     await this.prismaService.schoolDemand.update({
       data: {
-        demand_status: SchoolDemandStatus.PROCESSING,
+        demand_status: payload.school_status,
         SchoolDemandAudits: {
           create: {
             audited_by,

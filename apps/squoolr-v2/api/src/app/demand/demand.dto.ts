@@ -5,6 +5,7 @@ import {
   IsDate,
   IsDateString,
   IsEmail,
+  IsEnum,
   IsNotEmptyObject,
   IsNumber,
   IsOptional,
@@ -97,7 +98,6 @@ export class SchoolEntity extends OmitType(CreateSchoolDto, [
   'initial_year_ends_at',
   'initial_year_starts_at',
 ]) {
-  @IsNumber()
   @ApiProperty()
   paid_amount: number;
 
@@ -127,12 +127,22 @@ export class DemandDetails {
   @ApiProperty({ type: PersonEntity })
   @Transform(({ value }) => new PersonEntity(value))
   person: PersonEntity;
-  
+
   @ApiProperty({ type: CreateAcademicYearDto })
   @Transform(({ value }) => new CreateAcademicYearDto(value))
   academicYear: CreateAcademicYearDto;
 
   constructor(props: DemandDetails) {
+    Object.assign(this, props);
+  }
+}
+
+export class UpdateSchoolStatus {
+  @IsEnum(SchoolDemandStatus)
+  @ApiProperty({ enum: SchoolDemandStatus })
+  school_status: SchoolDemandStatus;
+
+  constructor(props: UpdateSchoolStatus) {
     Object.assign(this, props);
   }
 }

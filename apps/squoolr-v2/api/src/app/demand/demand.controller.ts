@@ -15,6 +15,7 @@ import {
   DemandDetails,
   SchoolEntity,
   SubmitDemandDto,
+  UpdateSchoolStatus,
   ValidateDemandDto,
 } from './demand.dto';
 import { DemandService } from './demand.service';
@@ -83,12 +84,14 @@ export class DemandController {
   @Put(':school_code/status')
   @ApiOkResponse()
   // @UseGuards(AuthenticatedGuard)
-  updateDemandStatus(
+  updateSchoolStatus(
     @Req() request: Request,
-    @Param('school_code') schoolCode: string
+    @Param('school_code') schoolCode: string,
+    @Body() payload: UpdateSchoolStatus
   ) {
     return this.demandService.updateStatus(
       schoolCode,
+      payload,
       request.user['login_id']
     );
   }
