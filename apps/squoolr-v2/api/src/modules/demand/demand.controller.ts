@@ -22,6 +22,7 @@ import {
   DemandDetails,
   SchoolEntity,
   SubmitDemandDto,
+  UpdateSchoolStatus,
   ValidateDemandDto,
 } from './demand.dto';
 import { DemandService } from './demand.service';
@@ -41,16 +42,16 @@ export class DemandController {
   }
 
   @IsPublic()
-  @Get(':school_code')
+  @Get(':school_id')
   @ApiOkResponse({ type: SchoolEntity })
-  getDemandStatus(@Param('school_code') schoolCode: string) {
-    return this.demandService.findOne(schoolCode);
+  getDemandStatus(@Param('school_id') schoolId: string) {
+    return this.demandService.findOne(schoolId);
   }
 
-  @Get(':school_code/details')
+  @Get(':school_id/details')
   @ApiOkResponse({ type: DemandDetails })
-  getDemandDetails(@Param('school_code') schoolCode: string) {
-    return this.demandService.findDetails(schoolCode);
+  getDemandDetails(@Param('school_id') schoolId: string) {
+    return this.demandService.findDetails(schoolId);
   }
 
   @IsPublic()
@@ -73,30 +74,30 @@ export class DemandController {
   }
 
   @ApiNoContentResponse()
-  @Put(':school_code/validate')
+  @Put(':school_id/validate')
   validateDemand(
     @Req() request: Request,
-    @Param('school_code') schoolCode: string,
+    @Param('school_id') schoolId: string,
     @Body() validatedDemand: ValidateDemandDto
   ) {
+    const userId = request.user.login_id;
     const { rejection_reason, subdomain } = validatedDemand;
     if ((rejection_reason && subdomain) || (!rejection_reason && !subdomain))
       throw new BadRequestException(
         'rejection_reason and subdomain cannot coexist'
       );
-    return this.demandService.validateDemand(
-      schoolCode,
-      validatedDemand,
-      request.user.login_id
-    );
+    return this.demandService.validateDemand(schoolId, validatedDemand, userId);
   }
 
-  @ApiNoContentResponse()
-  @Patch(':school_code/status')
-  updateDemandStatus(
+  @Put(':school_id/status')
+  @ApiOkResponse()
+  // @UseGuards(AuthenticatedGuard)
+  updateSchoolStatus(
     @Req() request: Request,
-    @Param('school_code') schoolCode: string
+    @Param('school_id') schoolId: string,
+    @Body() payload: UpdateSchoolStatus
   ) {
-    return this.demandService.updateStatus(schoolCode, request.user.login_id);
+    const userId = request.user.login_id;
+    return this.demandService.updateStatus(schoolId, payload, userId);
   }
 }
