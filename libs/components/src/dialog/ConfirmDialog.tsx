@@ -59,18 +59,12 @@ export function ConfirmDialog({
           columnGap: '20px',
         }}
       >
-        <Button
-          sx={{ textTransform: 'none' }}
-          color={danger ? 'primary' : 'error'}
-          variant={danger ? 'outlined' : 'text'}
-          onClick={closeDialog}
-        >
+        <Button color="inherit" variant="outlined" onClick={closeDialog}>
           {formatMessage({ id: 'cancel' })}
         </Button>
         <Button
-          sx={{ textTransform: 'none' }}
           color={danger ? 'error' : 'primary'}
-          variant={danger ? 'outlined' : 'contained'}
+          variant="contained"
           onClick={() => {
             confirm();
             closeDialog();
