@@ -1,20 +1,17 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
-import { QueryParamsDto } from '../../modules.dto';
-import { CreateStaffInput, IStaffService, StaffSelectParams } from '../staff';
-import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffRole } from '../../../utils/enums';
+import { CreateTeacherInput, IStaffService, StaffSelectParams } from '../staff';
+import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffEntity } from '../staff.dto';
 
 @Injectable()
 export class TeachersService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
   create: (
-    payload: CreateStaffInput,
-    created_by: string,
-    private_code: string
+    payload: CreateTeacherInput,
+    created_by: string
   ) => Promise<StaffEntity>;
-
   async findOne(annual_teacher_id: string) {
     const {
       Teacher: { matricule, ...teacher },
