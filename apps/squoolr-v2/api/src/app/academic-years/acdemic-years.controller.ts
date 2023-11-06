@@ -20,7 +20,7 @@ export class AcademicYearsController {
     private academicYearService: AcademicYearsService
   ) {}
 
-  @Get('/all')
+  @Get()
   @ApiOkResponse({ type: [AcademicYearEntity] })
   async getAcademicYears(@Req() request: Request) {
     const { login_id } = request.session.passport.user;

@@ -7,7 +7,7 @@ import { AmbassadorEntity } from './ambassadors.dto';
 export class AmbassadorsController {
   constructor(private ambassadorsService: AmbassadorsService) {}
 
-  @Get('all')
+  @Get()
   @ApiOkResponse({ type: [AmbassadorEntity] })
   async getAmbassadors() {
     return this.ambassadorsService.findAll();

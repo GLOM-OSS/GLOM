@@ -29,22 +29,22 @@ export interface paths {
   "/v1/demands": {
     get: operations["DemandController_getAllDemands"];
   };
-  "/v1/demands/{school_code}": {
+  "/v1/demands/{school_id}": {
     get: operations["DemandController_getDemandStatus"];
   };
-  "/v1/demands/{school_code}/details": {
+  "/v1/demands/{school_id}/details": {
     get: operations["DemandController_getDemandDetails"];
   };
   "/v1/demands/new": {
     post: operations["DemandController_submitDemand"];
   };
-  "/v1/demands/{school_code}/validate": {
+  "/v1/demands/validate": {
     put: operations["DemandController_validateDemand"];
   };
-  "/v1/demands/{school_code}/status": {
-    patch: operations["DemandController_updateDemandStatus"];
+  "/v1/demands/{school_id}/status": {
+    put: operations["DemandController_updateSchoolStatus"];
   };
-  "/v1/academic-years/all": {
+  "/v1/academic-years": {
     get: operations["AcademicYearsController_getAcademicYears"];
   };
   "/v1/academic-years/new": {
@@ -59,7 +59,7 @@ export interface paths {
   "/v1/inquiries/new": {
     post: operations["InquiriesController_createInquiry"];
   };
-  "/v1/ambassadors/all": {
+  "/v1/ambassadors": {
     get: operations["AmbassadorsController_getAmbassadors"];
   };
   "/v1/ambassadors/{ambassador_id}": {
@@ -214,19 +214,24 @@ export interface components {
       school_email: string;
       lead_funnel: string;
       school_phone_number: string;
+      school_id: string;
+      school_code: string;
       paid_amount: number;
       ambassador_email: string;
-      school_code: string;
       /** @enum {string} */
-      school_demand_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED";
+      school_demand_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED";
       school_rejection_reason: string;
-      subdomain: string | null;
+    };
+    CreateAcademicYearDto: {
       /** Format: date-time */
-      created_at: string;
+      starts_at: string;
+      /** Format: date-time */
+      ends_at: string;
     };
     DemandDetails: {
       school: components["schemas"]["SchoolEntity"];
       person: components["schemas"]["PersonEntity"];
+      academicYear: components["schemas"]["CreateAcademicYearDto"];
     };
     CreatePersonDto: {
       first_name: string;
@@ -262,11 +267,9 @@ export interface components {
       rejection_reason?: string;
       subdomain?: string;
     };
-    CreateAcademicYearDto: {
-      /** Format: date-time */
-      starts_at: string;
-      /** Format: date-time */
-      ends_at: string;
+    UpdateSchoolStatus: {
+      /** @enum {string} */
+      school_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED";
     };
     SessionEntity: {
       login_id: string;
@@ -398,7 +401,7 @@ export interface operations {
   DemandController_getDemandStatus: {
     parameters: {
       path: {
-        school_code: string;
+        school_id: string;
       };
     };
     responses: {
@@ -412,7 +415,7 @@ export interface operations {
   DemandController_getDemandDetails: {
     parameters: {
       path: {
-        school_code: string;
+        school_id: string;
       };
     };
     responses: {
@@ -454,10 +457,15 @@ export interface operations {
       };
     };
   };
-  DemandController_updateDemandStatus: {
+  DemandController_updateSchoolStatus: {
     parameters: {
       path: {
-        school_code: string;
+        school_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateSchoolStatus"];
       };
     };
     responses: {

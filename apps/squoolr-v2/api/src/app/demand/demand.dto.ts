@@ -5,6 +5,7 @@ import {
   IsDate,
   IsDateString,
   IsEmail,
+  IsEnum,
   IsNotEmptyObject,
   IsNumber,
   IsOptional,
@@ -14,6 +15,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { CreatePersonDto, PersonEntity } from '../auth/auth.dto';
+import { CreateAcademicYearDto } from '../academic-years/academic-years.dto';
 
 export class CreateSchoolDto {
   @ApiProperty()
@@ -92,15 +94,17 @@ export class SchoolEntity extends OmitType(CreateSchoolDto, [
   'initial_year_ends_at',
   'initial_year_starts_at',
 ]) {
-  @IsNumber()
+  @ApiProperty()
+  school_id: string;
+
+  @ApiProperty()
+  school_code: string;
+
   @ApiProperty()
   paid_amount: number;
 
   @ApiProperty()
   ambassador_email: string;
-
-  @ApiProperty()
-  school_code: string;
 
   @ApiProperty({ enum: SchoolDemandStatus })
   school_demand_status: SchoolDemandStatus;
@@ -129,7 +133,21 @@ export class DemandDetails {
   @Transform(({ value }) => new PersonEntity(value))
   person: PersonEntity;
 
+  @ApiProperty({ type: CreateAcademicYearDto })
+  @Transform(({ value }) => new CreateAcademicYearDto(value))
+  academicYear: CreateAcademicYearDto;
+
   constructor(props: DemandDetails) {
+    Object.assign(this, props);
+  }
+}
+
+export class UpdateSchoolStatus {
+  @IsEnum(SchoolDemandStatus)
+  @ApiProperty({ enum: SchoolDemandStatus })
+  school_status: SchoolDemandStatus;
+
+  constructor(props: UpdateSchoolStatus) {
     Object.assign(this, props);
   }
 }
