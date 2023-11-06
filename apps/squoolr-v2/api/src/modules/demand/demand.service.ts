@@ -13,19 +13,21 @@ import {
   DemandDetails,
   SchoolEntity,
   SubmitDemandDto,
+  UpdateSchoolStatus,
   ValidateDemandDto,
 } from './demand.dto';
 
 const schoolSelectAttr = Prisma.validator<Prisma.SchoolArgs>()({
   select: {
-    created_at: true,
-    lead_funnel: true,
+    school_id: true,
     school_acronym: true,
     school_code: true,
+    lead_funnel: true,
     school_email: true,
     school_name: true,
-    school_phone_number: true,
     subdomain: true,
+    school_phone_number: true,
+    created_at: true,
     SchoolDemand: {
       include: {
         Payment: true,
@@ -71,24 +73,39 @@ export class DemandService {
     private codeGenerator: CodeGeneratorFactory
   ) {}
 
-  async findOne(school_code: string) {
+  async findOne(school_id: string) {
     const school = await this.prismaService.school.findUnique({
       ...schoolSelectAttr,
-      where: { school_code },
+      where: { school_id },
     });
     if (!school) throw new NotFoundException('School demand not found');
     return getSchoolEntity(school);
   }
 
-  async findDetails(school_code: string) {
+  async findDetails(school_id: string) {
     const schoolData = await this.prismaService.school.findUnique({
-      include: { ...schoolSelectAttr.select, Person: true },
-      where: { school_code },
+      include: {
+        ...schoolSelectAttr.select,
+        Person: true,
+        AcademicYears: {
+          take: 1,
+          orderBy: { created_at: 'asc' },
+        },
+      },
+      where: { school_id },
     });
     if (!schoolData) throw new NotFoundException('School demand not found');
-    const { Person: person, ...school } = schoolData;
+    const {
+      Person: person,
+      AcademicYears: [academicYear],
+      ...school
+    } = schoolData;
     return new DemandDetails({
       person,
+      academicYear: {
+        ends_at: academicYear?.ended_at,
+        starts_at: academicYear?.starts_at,
+      },
       school: getSchoolEntity(school),
     });
   }
@@ -264,14 +281,14 @@ export class DemandService {
   }
 
   async validateDemand(
-    school_code: string,
+    school_id: string,
     { rejection_reason, subdomain }: ValidateDemandDto,
     audited_by: string
   ) {
     const schoolDemand = await this.prismaService.schoolDemand.findFirst({
       include: { Payment: true },
       where: {
-        School: { school_code },
+        School: { school_id },
       },
     });
     if (!schoolDemand) throw new NotFoundException('School demand');
@@ -304,17 +321,20 @@ export class DemandService {
     });
   }
 
-  async updateStatus(school_code: string, audited_by: string) {
+  async updateStatus(
+    school_id: string,
+    payload: UpdateSchoolStatus,
+    audited_by: string
+  ) {
     const schoolDemand = await this.prismaService.schoolDemand.findFirst({
-      where: { School: { school_code } },
+      where: { School: { school_id } },
     });
     if (!schoolDemand) throw new NotFoundException('School demand');
 
-    const { demand_status, ambassador_id, rejection_reason, school_demand_id } =
-      schoolDemand;
+    const { demand_status, ambassador_id, rejection_reason } = schoolDemand;
     await this.prismaService.schoolDemand.update({
       data: {
-        demand_status: SchoolDemandStatus.PROCESSING,
+        demand_status: payload.school_status,
         SchoolDemandAudits: {
           create: {
             audited_by,
@@ -324,7 +344,7 @@ export class DemandService {
           },
         },
       },
-      where: { school_demand_id },
+      where: { school_id },
     });
   }
 }
