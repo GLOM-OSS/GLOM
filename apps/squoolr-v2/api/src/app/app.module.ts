@@ -33,7 +33,7 @@ import { AppMiddleware } from './app.middleware';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
-import { StaffModule } from '../modules/personnel/staff.module';
+import { StaffModule } from '../modules/staff/staff.module';
 
 @Module({
   imports: [
