@@ -1,10 +1,18 @@
 import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
-import { IsEnum, IsOptional } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 import { QueryParamsDto } from '../modules.dto';
 import { StaffIDs } from './staff';
 import { Gender } from '@prisma/client';
 import { StaffRole } from '../../utils/enums';
 import { CreatePersonDto } from '../../app/auth/auth.dto';
+import { Type } from 'class-transformer';
 
 export class QueryStaffDto extends QueryParamsDto {
   @IsOptional()
@@ -13,11 +21,13 @@ export class QueryStaffDto extends QueryParamsDto {
   roles?: StaffRole[];
 }
 
-export class QueryOneStaffDto {
+export class StaffRoleDto {
   @IsEnum(StaffRole)
   @ApiProperty({ enum: StaffRole })
   role: StaffRole;
 }
+
+export class QueryOneStaffDto extends StaffRoleDto {}
 
 export class StaffEntity implements StaffIDs {
   @ApiProperty()
@@ -73,8 +83,79 @@ export class StaffEntity implements StaffIDs {
   }
 }
 
-export class CreateStaffDto extends OmitType(CreatePersonDto, ['password']) {
+export class CreateConfiguratorDto extends OmitType(CreatePersonDto, [
+  'password',
+]) {
   @IsEnum(StaffRole)
   @ApiProperty({ enum: StaffRole })
   role: StaffRole;
+}
+
+export class CreateCoordinatorDto extends StaffRoleDto {
+  @IsString()
+  @ApiProperty()
+  annual_teacher_id: string;
+
+  @IsString({ each: true })
+  @ApiProperty({ type: [String] })
+  classroomIds: string[];
+}
+
+export class CreateTeacherDto extends CreateConfiguratorDto {
+  @IsUUID()
+  @ApiProperty()
+  teaching_grade_id: string;
+
+  @IsUUID()
+  @ApiProperty()
+  teacher_type_id: string;
+
+  @IsString()
+  @ApiProperty()
+  origin_institute: string;
+
+  @IsNumber()
+  @ApiProperty()
+  hourly_rate: number;
+
+  @IsBoolean()
+  @ApiProperty()
+  has_signed_convention: boolean;
+
+  @IsBoolean()
+  @ApiProperty()
+  has_tax_payers_card: boolean;
+
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional()
+  tax_payer_card_number?: string;
+}
+
+export class CreateStaffDto {
+  @Type(() => StaffRoleDto, {
+    discriminator: {
+      property: 'role',
+      subTypes: [
+        {
+          value: CreateConfiguratorDto,
+          name: StaffRole.CONFIGURATOR,
+        },
+        {
+          value: CreateConfiguratorDto,
+          name: StaffRole.REGISTRY,
+        },
+        {
+          value: CreateCoordinatorDto,
+          name: StaffRole.COORDINATOR,
+        },
+        {
+          value: CreateTeacherDto,
+          name: StaffRole.TEACHER,
+        },
+      ],
+    },
+  })
+  @ApiProperty({ type: StaffRoleDto })
+  payload: CreateConfiguratorDto | CreateCoordinatorDto | CreateTeacherDto;
 }
