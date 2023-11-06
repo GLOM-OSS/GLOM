@@ -81,20 +81,10 @@ export default function RejectDemandDialog({
             columnGap: '20px',
           }}
         >
-          <Button
-            sx={{ textTransform: 'none' }}
-            color="inherit"
-            variant="outlined"
-            onClick={closeDialog}
-          >
+          <Button color="inherit" variant="outlined" onClick={closeDialog}>
             {formatMessage({ id: 'cancel' })}
           </Button>
-          <Button
-            sx={{ textTransform: 'none' }}
-            color="error"
-            variant="contained"
-            type="submit"
-          >
+          <Button color="error" variant="contained" type="submit">
             {formatMessage({ id: 'reject' })}
           </Button>
         </DialogActions>
