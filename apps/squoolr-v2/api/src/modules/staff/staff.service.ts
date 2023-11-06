@@ -1,17 +1,20 @@
+import { GlomPrismaService } from '@glom/prisma';
+import { excludeKeys, generatePassword } from '@glom/utils';
 import { Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import { StaffRole } from '../../utils/enums';
-import { QueryParamsDto } from '../modules.dto';
+import { MetaParams } from '../module';
 import { ConfiguratorsService } from './configurators/configurators.service';
 import { CoordinatorsService } from './coordinators/coordinators.service';
 import { RegistriesService } from './registries/registries.service';
 import { IStaffService, StaffSelectParams } from './staff';
-import { CreateStaffDto, StaffEntity } from './staff.dto';
+import {
+  CreateCoordinatorDto,
+  CreateStaffDto,
+  StaffEntity
+} from './staff.dto';
 import { TeachersService } from './teachers/teachers.service';
-import { MetaParams } from '../module';
-import { GlomPrismaService } from '@glom/prisma';
-import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
-import * as bcrypt from 'bcrypt';
-import { generatePassword } from '@glom/utils';
 
 @Injectable()
 export class StaffService {
@@ -57,29 +60,37 @@ export class StaffService {
   }
 
   async create(
-    { role, ...payload }: CreateStaffDto & MetaParams,
+    payload: CreateStaffDto['payload'],
+    metadata: MetaParams,
     created_by: string
   ) {
+    if (payload instanceof CreateCoordinatorDto) {
+      return this.staffServices[payload.role].create(
+        excludeKeys(payload, ['role']),
+        created_by
+      );
+    }
     const person = await this.prismaService.person.findUnique({
       where: { email: payload.email },
     });
     const matricule = await this.codeGenerator.getPersonnelCode(
-      payload.school_id,
-      role
+      metadata.school_id,
+      payload.role
     );
     const private_code = bcrypt.hashSync(
       this.codeGenerator.formatNumber(Math.floor(Math.random() * 10000)),
       Number(process.env.SALT)
     );
-    return this.staffServices[role].create(
+    return this.staffServices[payload.role].create(
       {
         ...payload,
+        ...metadata,
         matricule,
+        private_code,
         person_id: person?.person_id,
         password: generatePassword(),
       },
-      created_by,
-      private_code
+      created_by
     );
   }
 }
