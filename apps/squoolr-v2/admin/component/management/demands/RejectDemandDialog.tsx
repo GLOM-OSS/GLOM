@@ -7,7 +7,7 @@ import {
   DialogTitle,
   TextField,
 } from '@mui/material';
-import { DialogTransition } from '@squoolr/confirm-dialogs';
+import { DialogTransition } from '@glom/components';
 import { theme } from '@glom/theme';
 import { useFormik } from 'formik';
 import { useIntl } from 'react-intl';
