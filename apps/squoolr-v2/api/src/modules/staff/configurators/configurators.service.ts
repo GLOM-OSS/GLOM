@@ -1,7 +1,7 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { QueryParamsDto } from '../../modules.dto';
-import { CreateStaffInput, IStaffService } from '../staff';
+import { CreateStaffInput, IStaffService, StaffSelectParams } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffRole } from '../../../utils/enums';
 import { StaffEntity } from '../staff.dto';
@@ -33,18 +33,17 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
     });
   }
 
-  async findAll(academic_year_id: string, params?: QueryParamsDto) {
+  async findAll(staffParams?: StaffSelectParams) {
     const configurators = await this.prismaService.annualConfigurator.findMany({
       select: {
         matricule: true,
         annual_configurator_id: true,
-        ...StaffArgsFactory.getStaffSelect({
-          activeRole: StaffRole.CONFIGURATOR,
-          academic_year_id,
-          params,
-        }),
+        ...StaffArgsFactory.getStaffSelect(staffParams),
       },
-      where: StaffArgsFactory.getStaffWhereInput(academic_year_id, params),
+      where: {
+        is_sudo: !staffParams?.academic_year_id,
+        ...StaffArgsFactory.getStaffWhereInput(staffParams),
+      },
     });
     return configurators.map(
       ({

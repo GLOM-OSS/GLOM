@@ -6,11 +6,13 @@ import {
   Post,
   Query,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import { Roles } from '../../app/auth/auth.decorator';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
+import { Role } from '../../utils/enums';
 import {
   CreateStaffDto,
   QueryOneStaffDto,
@@ -18,25 +20,24 @@ import {
   StaffEntity,
 } from './staff.dto';
 import { StaffService } from './staff.service';
-import { Role, StaffRole } from '../../utils/enums';
-import { Roles } from '../../app/auth/auth.decorator';
 
-@ApiTags('Staff')
-@Controller('staff')
+@ApiTags('Staffs')
+@Controller('staffs')
 @UseGuards(AuthenticatedGuard)
 export class StaffController {
   constructor(private staffService: StaffService) {}
 
-  @Get('all')
+  @Get()
   @ApiOkResponse({ type: [StaffEntity] })
   async getAllStaff(
     @Req() request: Request,
     @Query() { roles, ...params }: QueryStaffDto
   ) {
-    const {
-      activeYear: { academic_year_id },
-    } = request.user;
-    return this.staffService.findAll(roles ?? 'ALL', academic_year_id, params);
+    const { activeYear } = request.user;
+    return this.staffService.findAll(roles ?? 'ALL', {
+      academic_year_id: activeYear?.academic_year_id,
+      params,
+    });
   }
 
   @Get('annual_staff_id')

@@ -1,13 +1,12 @@
 import { Prisma } from '@prisma/client';
-import { Role } from '../../utils/enums';
-import { QueryParams } from '../module';
-import { CreateStaffInput, StaffSelectParams } from './staff';
 import * as bcrypt from 'bcrypt';
+import { Role } from '../../utils/enums';
+import { CreateStaffInput, StaffSelectParams } from './staff';
 export class StaffArgsFactory {
-  static getStaffWhereInput = (
-    academic_year_id: string,
-    params?: QueryParams
-  ) => ({
+  static getStaffWhereInput = ({
+    academic_year_id,
+    params,
+  }: StaffSelectParams) => ({
     academic_year_id,
     is_deleted: params?.is_deleted,
     ...Prisma.validator<Prisma.LoginWhereInput>()({
@@ -36,20 +35,14 @@ export class StaffArgsFactory {
           staffParams?.activeRole === Role.CONFIGURATOR
             ? {
                 select: { matricule: true, annual_configurator_id: true },
-                where: this.getStaffWhereInput(
-                  staffParams?.academic_year_id,
-                  staffParams?.params
-                ),
+                where: this.getStaffWhereInput(staffParams),
               }
             : undefined,
         AnnualRegistries:
           staffParams?.activeRole === Role.REGISTRY
             ? {
                 select: { matricule: true, annual_registry_id: true },
-                where: this.getStaffWhereInput(
-                  staffParams?.academic_year_id,
-                  staffParams?.params
-                ),
+                where: this.getStaffWhereInput(staffParams),
               }
             : undefined,
         AnnualTeachers:
@@ -61,10 +54,7 @@ export class StaffArgsFactory {
                     select: { annual_coordinator_id: true },
                   },
                 },
-                where: this.getStaffWhereInput(
-                  staffParams?.academic_year_id,
-                  staffParams?.params
-                ),
+                where: this.getStaffWhereInput(staffParams),
               }
             : undefined,
         Person: {

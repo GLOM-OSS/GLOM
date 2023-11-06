@@ -22,7 +22,7 @@ export type CreateStaffInput = Prisma.PersonCreateInput & {
 
 export interface IStaffService<T> {
   findOne: (annual_personnel_id: string) => Promise<T>;
-  findAll: (academic_year_id: string, params?: QueryParams) => Promise<T[]>;
+  findAll: (staffParams?: StaffSelectParams) => Promise<T[]>;
   create: (
     payload: CreateStaffInput,
     created_by: string,

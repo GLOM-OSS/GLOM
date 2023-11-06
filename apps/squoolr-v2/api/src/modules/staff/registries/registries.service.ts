@@ -1,7 +1,7 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
 import { QueryParamsDto } from '../../modules.dto';
-import { CreateStaffInput, IStaffService } from '../staff';
+import { CreateStaffInput, IStaffService, StaffSelectParams } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffRole } from '../../../utils/enums';
 import { StaffEntity } from '../staff.dto';
@@ -30,18 +30,14 @@ export class RegistriesService implements IStaffService<StaffEntity> {
     });
   }
 
-  async findAll(academic_year_id: string, params?: QueryParamsDto) {
+  async findAll(staffParams?: StaffSelectParams) {
     const registries = await this.prismaService.annualRegistry.findMany({
       select: {
         matricule: true,
         annual_registry_id: true,
-        ...StaffArgsFactory.getStaffSelect({
-          activeRole: StaffRole.COORDINATOR,
-          academic_year_id,
-          params,
-        }),
+        ...StaffArgsFactory.getStaffSelect(staffParams),
       },
-      where: StaffArgsFactory.getStaffWhereInput(academic_year_id, params),
+      where: StaffArgsFactory.getStaffWhereInput(staffParams),
     });
     return registries.map(
       ({

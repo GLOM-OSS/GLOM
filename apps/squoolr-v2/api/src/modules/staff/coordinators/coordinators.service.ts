@@ -1,7 +1,7 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { QueryParamsDto } from '../../modules.dto';
-import { CreateStaffInput, IStaffService } from '../staff';
+import { CreateStaffInput, IStaffService, StaffSelectParams } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffRole } from '../../../utils/enums';
 import { StaffEntity } from '../staff.dto';
@@ -19,7 +19,7 @@ export class CoordinatorsService implements IStaffService<StaffEntity> {
     );
   }
 
-  async findAll(academic_year_id: string, params?: QueryParamsDto) {
+  async findAll(staffParams?: StaffSelectParams) {
     const coordinators =
       await this.prismaService.annualClassroomDivision.findMany({
         distinct: ['annual_coordinator_id'],
@@ -28,19 +28,12 @@ export class CoordinatorsService implements IStaffService<StaffEntity> {
             select: {
               annual_teacher_id: true,
               Teacher: { select: { matricule: true } },
-              ...StaffArgsFactory.getStaffSelect({
-                activeRole: StaffRole.COORDINATOR,
-                academic_year_id,
-                params,
-              }),
+              ...StaffArgsFactory.getStaffSelect(staffParams),
             },
           },
         },
         where: {
-          AnnualTeacher: StaffArgsFactory.getStaffWhereInput(
-            academic_year_id,
-            params
-          ),
+          AnnualTeacher: StaffArgsFactory.getStaffWhereInput(staffParams),
         },
       });
     return coordinators.map(

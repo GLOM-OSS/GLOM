@@ -4,7 +4,7 @@ import { QueryParamsDto } from '../modules.dto';
 import { ConfiguratorsService } from './configurators/configurators.service';
 import { CoordinatorsService } from './coordinators/coordinators.service';
 import { RegistriesService } from './registries/registries.service';
-import { IStaffService } from './staff';
+import { IStaffService, StaffSelectParams } from './staff';
 import { CreateStaffDto, StaffEntity } from './staff.dto';
 import { TeachersService } from './teachers/teachers.service';
 import { MetaParams } from '../module';
@@ -32,14 +32,10 @@ export class StaffService {
     };
   }
 
-  async findAll(
-    roles: StaffRole[] | 'ALL',
-    academic_year_id: string,
-    params?: QueryParamsDto
-  ) {
+  async findAll(roles: StaffRole[] | 'ALL', staffParams?: StaffSelectParams) {
     const staff = await Promise.all(
       (roles === 'ALL' ? Object.keys(this.staffServices) : roles).map((role) =>
-        this.staffServices[role as StaffRole].findAll(academic_year_id, params)
+        this.staffServices[role as StaffRole].findAll(staffParams)
       )
     );
 
