@@ -26,7 +26,7 @@ export interface paths {
   "/v1/auth/user": {
     get: operations["AuthController_getUser"];
   };
-  "/v1/demands/all": {
+  "/v1/demands": {
     get: operations["DemandController_getAllDemands"];
   };
   "/v1/demands/{school_id}": {
@@ -38,7 +38,7 @@ export interface paths {
   "/v1/demands/new": {
     post: operations["DemandController_submitDemand"];
   };
-  "/v1/demands/validate": {
+  "/v1/demands/{school_id}/validate": {
     put: operations["DemandController_validateDemand"];
   };
   "/v1/demands/{school_id}/status": {
@@ -53,7 +53,7 @@ export interface paths {
   "/v1/academic-years/{academic_year_id}/choose": {
     patch: operations["AcademicYearsController_chooseActiveAcademicYear"];
   };
-  "/v1/inquiries/all": {
+  "/v1/inquiries": {
     get: operations["InquiriesController_getAllInquiries"];
   };
   "/v1/inquiries/new": {
@@ -249,6 +249,9 @@ export interface components {
       /** @enum {string} */
       school_demand_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED";
       school_rejection_reason: string;
+      subdomain: string | null;
+      /** Format: date-time */
+      created_at: string;
     };
     CreateAcademicYearDto: {
       /** Format: date-time */
@@ -530,7 +533,7 @@ export interface operations {
   DemandController_validateDemand: {
     parameters: {
       path: {
-        school_code: string;
+        school_id: string;
       };
     };
     requestBody: {
@@ -556,7 +559,7 @@ export interface operations {
       };
     };
     responses: {
-      204: {
+      200: {
         content: never;
       };
     };
