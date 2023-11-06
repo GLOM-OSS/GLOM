@@ -1,5 +1,6 @@
 import {
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -18,6 +19,8 @@ export function ConfirmDialog({
   dialogTitle = 'delete',
   confirmButton = 'delete',
   danger = false,
+  closeOnConfirm = false,
+  isSubmitting = false,
 }: {
   isDialogOpen: boolean;
   closeDialog: () => void;
@@ -26,6 +29,8 @@ export function ConfirmDialog({
   dialogTitle?: string;
   confirmButton?: string;
   danger?: boolean;
+  closeOnConfirm?: boolean;
+  isSubmitting?: boolean;
 }) {
   const { formatMessage } = useIntl();
   return (
@@ -33,7 +38,7 @@ export function ConfirmDialog({
       open={isDialogOpen}
       TransitionComponent={DialogTransition}
       keepMounted
-      onClose={closeDialog}
+      onClose={() => (isSubmitting ? null : closeDialog())}
       sx={{
         '& .MuiPaper-root': {
           padding: { laptop: '2% 10%', mobile: 0 },
@@ -59,16 +64,25 @@ export function ConfirmDialog({
           columnGap: '20px',
         }}
       >
-        <Button color="inherit" variant="outlined" onClick={closeDialog}>
+        <Button
+          color="inherit"
+          variant="outlined"
+          onClick={() => (isSubmitting ? null : closeDialog())}
+          disabled={isSubmitting}
+        >
           {formatMessage({ id: 'cancel' })}
         </Button>
         <Button
           color={danger ? 'error' : 'primary'}
           variant="contained"
+          disabled={isSubmitting}
           onClick={() => {
             confirm();
-            closeDialog();
+            if (!closeOnConfirm) closeDialog();
           }}
+          startIcon={
+            isSubmitting && <CircularProgress color="primary" size={18} />
+          }
         >
           {confirmButton}
         </Button>
