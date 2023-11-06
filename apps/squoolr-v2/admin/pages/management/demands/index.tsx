@@ -54,6 +54,24 @@ function TableHeaderItem({
   );
 }
 
+export const STATUS_CHIP_VARIANT: Record<string, 'outlined' | 'filled'> = {
+  PROCESSING: 'filled',
+  PENDING: 'outlined',
+  REJECTED: 'filled',
+  VALIDATED: 'filled',
+  SUSPENDED: 'outlined',
+};
+export const STATUS_CHIP_COLOR: Record<
+  string,
+  'primary' | 'secondary' | 'error' | 'success'
+> = {
+  PENDING: 'primary',
+  PROCESSING: 'secondary',
+  REJECTED: 'error',
+  VALIDATED: 'success',
+  SUSPENDED: 'error',
+};
+
 export function Index() {
   const theme = useTheme();
   const { push, asPath } = useRouter();
@@ -80,6 +98,7 @@ export function Index() {
       paid_amount: 0,
       school_code: 'KIS234',
       school_rejection_reason: '',
+      school_id: 'siels',
     },
     {
       school_acronym: 'SBAHS',
@@ -92,6 +111,7 @@ export function Index() {
       paid_amount: 0,
       school_code: 'KIS235',
       school_rejection_reason: '',
+      school_id: 'siels',
     },
     {
       school_acronym: 'SAJOHIM',
@@ -104,26 +124,9 @@ export function Index() {
       paid_amount: 0,
       school_code: 'KIS234',
       school_rejection_reason: '',
+      school_id: 'siels',
     },
   ];
-
-  const STATUS_CHIP_VARIANT: Record<string, 'outlined' | 'filled'> = {
-    PROCESSING: 'filled',
-    PENDING: 'outlined',
-    REJECTED: 'filled',
-    VALIDATED: 'filled',
-    SUSPENDED: 'outlined',
-  };
-  const STATUS_CHIP_COLOR: Record<
-    string,
-    'primary' | 'secondary' | 'error' | 'success'
-  > = {
-    PENDING: 'primary',
-    PROCESSING: 'secondary',
-    REJECTED: 'error',
-    VALIDATED: 'success',
-    SUSPENDED: 'error',
-  };
 
   const breadcrumbDispatch = useDispatchBreadcrumb();
 
