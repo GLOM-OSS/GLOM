@@ -6,7 +6,7 @@ import {
   Post,
   Query,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -52,14 +52,15 @@ export class StaffController {
   @Post('new')
   @Roles(Role.CONFIGURATOR)
   @ApiOkResponse({ type: StaffEntity })
-  async createStaff(@Req() request: Request, @Body() payload: CreateStaffDto) {
+  async createStaff(@Req() request: Request, @Body() newStaff: CreateStaffDto) {
     const {
       school_id,
       activeYear: { academic_year_id },
       annualConfigurator: { annual_configurator_id },
     } = request.user;
     return this.staffService.create(
-      { ...payload, school_id, academic_year_id },
+      newStaff.payload,
+      { school_id, academic_year_id },
       annual_configurator_id
     );
   }
