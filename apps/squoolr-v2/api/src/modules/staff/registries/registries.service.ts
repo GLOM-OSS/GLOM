@@ -1,9 +1,8 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
-import { QueryParamsDto } from '../../modules.dto';
+import { StaffRole } from '../../../utils/enums';
 import { CreateStaffInput, IStaffService, StaffSelectParams } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
-import { StaffRole } from '../../../utils/enums';
 import { StaffEntity } from '../staff.dto';
 
 @Injectable()
@@ -72,11 +71,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
     );
   }
 
-  async create(
-    registryPayload: CreateStaffInput,
-    private_code: string,
-    created_by: string
-  ) {
+  async create(payload: CreateStaffInput, created_by: string) {
     const {
       matricule,
       annual_registry_id,
@@ -88,11 +83,11 @@ export class RegistriesService implements IStaffService<StaffEntity> {
         matricule: true,
       },
       data: {
-        private_code,
+        private_code: payload.private_code,
         AnnualConfigurator: {
           connect: { annual_configurator_id: created_by },
         },
-        ...StaffArgsFactory.getStaffCreateInput(registryPayload),
+        ...StaffArgsFactory.getStaffCreateInput(payload),
       },
     });
     return new StaffEntity({
