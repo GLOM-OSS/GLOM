@@ -1,22 +1,22 @@
-import { SchoolDemandDetails, SchoolEntity } from '@glom/data-types/squoolr';
+import { ConfirmDialog } from '@glom/components';
+import { SchoolDemandDetails } from '@glom/data-types/squoolr';
+import { useTheme } from '@glom/theme';
 import { Box, Button, Chip, CircularProgress, Typography } from '@mui/material';
+import RejectDemandDialog from 'apps/squoolr-v2/admin/component/management/demands/RejectDemandDialog';
 import ReviewColumn from 'apps/squoolr-v2/admin/component/management/demands/ReviewColumn';
+import ValidateDemandDialog from 'apps/squoolr-v2/admin/component/management/demands/ValidateDemandDialog';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { STATUS_CHIP_COLOR, STATUS_CHIP_VARIANT } from '..';
-import { useTheme } from '@glom/theme';
-import { useState } from 'react';
-import { ConfirmDialog, DialogTransition } from '@glom/components';
-import { useRouter } from 'next/router';
-import RejectDemandDialog from 'apps/squoolr-v2/admin/component/management/demands/RejectDemandDialog';
-import ValidateDemandDialog from 'apps/squoolr-v2/admin/component/management/demands/ValidateDemandDialog';
 
 export default function index() {
   const { formatMessage } = useIntl();
   const theme = useTheme();
   const {
     query: { demand_code },
+    asPath,
   } = useRouter();
-
   //TODO: FETCH SCHOOL DATA WITH DEMAND_CODE HERE.
   let schoolData: SchoolDemandDetails = {
     person: {
