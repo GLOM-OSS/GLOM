@@ -104,14 +104,10 @@ export class CodeGeneratorFactory {
           number_of_configurators + 1
         )}`;
       }
-      case StaffRole.TEACHER, StaffRole.COORDINATOR: {
+      case (StaffRole.TEACHER, StaffRole.COORDINATOR): {
         const number_of_teachers = await this.prismaService.teacher.count({
           where: {
-            AnnualTeachers: {
-              some: {
-                Login: { school_id },
-              },
-            },
+            AnnualTeachers: { some: { Teacher: { Login: { school_id } } } },
           },
         });
         return `${school_acronym}TE${this.formatNumber(

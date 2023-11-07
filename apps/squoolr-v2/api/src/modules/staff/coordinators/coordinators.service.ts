@@ -32,8 +32,12 @@ export class CoordinatorsService implements IStaffService<StaffEntity> {
           AnnualTeacher: {
             select: {
               annual_teacher_id: true,
-              Teacher: { select: { matricule: true } },
-              ...StaffArgsFactory.getStaffSelect(staffParams),
+              Teacher: {
+                select: {
+                  matricule: true,
+                  ...StaffArgsFactory.getStaffSelect(staffParams),
+                },
+              },
             },
           },
         },
@@ -45,13 +49,15 @@ export class CoordinatorsService implements IStaffService<StaffEntity> {
       ({
         AnnualTeacher: {
           annual_teacher_id,
-          Teacher: { matricule },
-          Login: {
-            login_id,
-            Person,
-            Logs: [log],
-            AnnualConfigurators: [configrator],
-            AnnualRegistries: [registry],
+          Teacher: {
+            matricule,
+            Login: {
+              login_id,
+              Person,
+              Logs: [log],
+              AnnualConfigurators: [configrator],
+              AnnualRegistries: [registry],
+            },
           },
         },
       }) =>

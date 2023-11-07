@@ -49,16 +49,20 @@ export class StaffArgsFactory {
                 where: this.getStaffWhereInput(staffParams),
               }
             : undefined,
-        AnnualTeachers:
+        Teacher:
           staffParams?.activeRole === Role.TEACHER
             ? {
                 select: {
-                  annual_teacher_id: true,
-                  AnnualClassroomDivisions: {
-                    select: { annual_coordinator_id: true },
+                  AnnualTeachers: {
+                    select: {
+                      annual_teacher_id: true,
+                      AnnualClassroomDivisions: {
+                        select: { annual_coordinator_id: true },
+                      },
+                    },
+                    where: this.getStaffWhereInput(staffParams),
                   },
                 },
-                where: this.getStaffWhereInput(staffParams),
               }
             : undefined,
         Person: {
@@ -103,7 +107,7 @@ export class StaffArgsFactory {
             Person: {
               connectOrCreate: {
                 create: personPayload,
-                where: { email: personPayload.email },
+                where: { person_id },
               },
             },
             School: { connect: { school_id } },
@@ -116,7 +120,6 @@ export class StaffArgsFactory {
 
   static getTeacherSelect = () =>
     Prisma.validator<Prisma.AnnualTeacherSelect>()({
-      ...StaffArgsFactory.getStaffSelect(),
       has_signed_convention: true,
       teaching_grade_id: true,
       annual_teacher_id: true,
@@ -128,6 +131,7 @@ export class StaffArgsFactory {
           has_tax_payers_card: true,
           tax_payer_card_number: true,
           teacher_type_id: true,
+          ...StaffArgsFactory.getStaffSelect(),
         },
       },
     });

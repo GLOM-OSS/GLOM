@@ -60,9 +60,9 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
         Login: {
           login_id,
           Person,
+          Teacher,
           Logs: [log],
           AnnualRegistries: [registry],
-          AnnualTeachers: [teacher],
         },
       }) =>
         new StaffEntity({
@@ -71,12 +71,14 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
           matricule,
           annual_configurator_id,
           last_connected: log?.logged_in_at ?? null,
-          roles: [{ registry }, { teacher }].reduce<StaffRole[]>(
+          roles: [{ registry }, { teacher: Teacher?.AnnualTeachers }].reduce<
+            StaffRole[]
+          >(
             (roles, _) =>
               _.registry
                 ? [...roles, StaffRole.REGISTRY]
                 : _.teacher
-                ? _.teacher.AnnualClassroomDivisions
+                ? _.teacher[0].AnnualClassroomDivisions
                   ? [...roles, StaffRole.TEACHER, StaffRole.COORDINATOR]
                   : [...roles, StaffRole.TEACHER]
                 : roles,
