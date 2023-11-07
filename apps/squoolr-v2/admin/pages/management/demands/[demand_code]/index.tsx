@@ -63,7 +63,7 @@ export default function index() {
 
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState<boolean>(false);
   const [isValidateDialogOpen, setIsValidateDialogOpen] =
-    useState<boolean>(true);
+    useState<boolean>(false);
   const [isConfirmSuspendDialogOpen, setIsConfirmSuspendDialogOpen] =
     useState<boolean>(false);
 
