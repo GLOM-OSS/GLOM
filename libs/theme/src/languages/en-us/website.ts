@@ -541,4 +541,16 @@ export const website = {
   filter: 'Filter',
   reload: 'Reload',
   lost: 'Lost',
+
+  starts_at: 'First academic year start date',
+  ends_at: 'First Academic year estimated end date',
+  lead_funnel: 'Lead Funnel',
+  ambassador_email: 'Ambassador Email',
+  configuratorInformation: 'Configurator Information',
+
+  confirmSuspendSchoolDialogMessage:
+    " This action will cut all access to the school's platform! Are you sure you want to suspend this school?",
+  suspend: 'Suspend',
+  yesSuspend: 'Yes, suspend',
+  fromSquoolr: 'from Squoolr?',
 };
