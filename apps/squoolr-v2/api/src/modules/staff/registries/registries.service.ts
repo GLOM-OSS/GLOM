@@ -83,6 +83,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
         matricule: true,
       },
       data: {
+        matricule: payload.matricule,
         private_code: payload.private_code,
         AnnualConfigurator: {
           connect: { annual_configurator_id: created_by },

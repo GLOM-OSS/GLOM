@@ -78,7 +78,10 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
     );
   }
 
-  async create(configuratorPayload: CreateStaffInput, created_by: string) {
+  async create(
+    payload: CreateStaffInput,
+    created_by: string
+  ) {
     const {
       matricule,
       annual_configurator_id,
@@ -90,10 +93,11 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
         matricule: true,
       },
       data: {
+        matricule: payload.matricule,
         CreatedByAnnualConfigurator: {
           connect: { annual_configurator_id: created_by },
         },
-        ...StaffArgsFactory.getStaffCreateInput(configuratorPayload),
+        ...StaffArgsFactory.getStaffCreateInput(payload),
       },
     });
     return new StaffEntity({
