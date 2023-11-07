@@ -1,18 +1,23 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { StaffRole } from '../../../utils/enums';
+import { BatchPayload } from '../../module';
+import { BatchPayloadDto } from '../../modules.dto';
 import {
   CreateCoordinatorInput,
   IStaffService,
   StaffSelectParams,
+  UpdateCoordinatorInput,
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffEntity } from '../staff.dto';
-import { BatchPayloadDto } from '../../modules.dto';
 
 @Injectable()
 export class CoordinatorsService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
+  update(payload: UpdateCoordinatorInput): Promise<BatchPayload> {
+    throw new Error('Method not implemented.');
+  }
   async findOne(annual_coordinator_id: string): Promise<StaffEntity> {
     throw new NotImplementedException(
       '`findOne` method is not supported for coordinators. Use teacher instead'

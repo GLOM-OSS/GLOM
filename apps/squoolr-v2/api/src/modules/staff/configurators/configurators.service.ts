@@ -1,14 +1,22 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { ConflictException, Injectable } from '@nestjs/common';
-import { QueryParamsDto } from '../../modules.dto';
-import { CreateStaffInput, IStaffService, StaffSelectParams } from '../staff';
-import { StaffArgsFactory } from '../staff-args.factory';
+import { Injectable } from '@nestjs/common';
 import { StaffRole } from '../../../utils/enums';
+import { BatchPayload } from '../../module';
+import {
+  CreateStaffInput,
+  IStaffService,
+  StaffSelectParams,
+  UpdateStaffInput,
+} from '../staff';
+import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffEntity } from '../staff.dto';
 
 @Injectable()
 export class ConfiguratorsService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
+  update(payload: UpdateStaffInput): Promise<BatchPayload> {
+    throw new Error('Method not implemented.');
+  }
   async findOne(annual_configurator_id: string) {
     const {
       matricule,
@@ -78,10 +86,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
     );
   }
 
-  async create(
-    payload: CreateStaffInput,
-    created_by: string
-  ) {
+  async create(payload: CreateStaffInput, created_by: string) {
     const {
       matricule,
       annual_configurator_id,

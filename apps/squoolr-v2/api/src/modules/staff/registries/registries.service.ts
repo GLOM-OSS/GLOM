@@ -1,13 +1,22 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
 import { StaffRole } from '../../../utils/enums';
-import { CreateStaffInput, IStaffService, StaffSelectParams } from '../staff';
+import { BatchPayload } from '../../module';
+import {
+  CreateStaffInput,
+  IStaffService,
+  StaffSelectParams,
+  UpdateStaffInput,
+} from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffEntity } from '../staff.dto';
 
 @Injectable()
 export class RegistriesService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
+  update(payload: UpdateStaffInput): Promise<BatchPayload> {
+    throw new Error('Method not implemented.');
+  }
   async findOne(annual_registry_id: string) {
     const {
       matricule,
