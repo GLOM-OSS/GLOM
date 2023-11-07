@@ -52,11 +52,15 @@ export interface IStaffService<
   P = CreateStaffInput | CreateTeacherInput | CreateCoordinatorInput,
   U = UpdateStaffInput | UpdateTeacherInput | UpdateCoordinatorInput
 > {
-  findOne: (annual_personnel_id: string) => Promise<T>;
+  findOne: (annual_staff_id: string) => Promise<T>;
   findAll: (staffParams?: StaffSelectParams) => Promise<T[]>;
   create(
     payload: P,
     created_by: string
   ): Promise<P extends CreateCoordinatorInput ? BatchPayload : T>;
-  update(payload: U): Promise<BatchPayload>;
+  update(
+    annual_staff_id: string,
+    payload: U,
+    audited_by: string
+  ): Promise<void>;
 }

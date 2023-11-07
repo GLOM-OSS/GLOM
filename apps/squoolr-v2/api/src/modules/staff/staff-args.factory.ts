@@ -68,6 +68,7 @@ export class StaffArgsFactory {
         Person: {
           select: {
             national_id_number: true,
+            preferred_lang: true,
             phone_number: true,
             first_name: true,
             last_name: true,
