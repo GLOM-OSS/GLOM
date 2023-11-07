@@ -98,7 +98,7 @@ export class CreateCoordinatorDto extends StaffRoleDto {
 
   @IsString({ each: true })
   @ApiProperty({ type: [String] })
-  classroomIds: string[];
+  annualClassroomIds: string[];
 }
 
 export class CreateTeacherDto extends CreateConfiguratorDto {

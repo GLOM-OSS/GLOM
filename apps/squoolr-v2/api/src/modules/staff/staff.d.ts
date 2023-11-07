@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { QueryParams } from '../module';
+import { BatchPayload, QueryParams } from '../module';
 
 export type StaffIDs = {
   annual_configurator_id?: string;
@@ -30,14 +30,17 @@ export type CreateTeacherInput = CreateStaffInput &
   >;
 export type CreateCoordinatorInput = {
   annual_teacher_id: string;
-  classroomIds: string[];
+  annualClassroomIds: string[];
 };
 
-export interface IStaffService<T> {
+export interface IStaffService<
+  T,
+  P = CreateStaffInput | CreateTeacherInput | CreateCoordinatorInput
+> {
   findOne: (annual_personnel_id: string) => Promise<T>;
   findAll: (staffParams?: StaffSelectParams) => Promise<T[]>;
-  create: (
-    payload: CreateStaffInput | CreateTeacherInput | CreateCoordinatorInput,
+  create(
+    payload: P,
     created_by: string
-  ) => Promise<T>;
+  ): Promise<P extends CreateCoordinatorInput ? BatchPayload : T>;
 }
