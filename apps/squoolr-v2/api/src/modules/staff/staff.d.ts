@@ -7,11 +7,18 @@ export type StaffIDs = {
   annual_teacher_id?: string;
   annual_coordinator_id?: string;
 };
+
 export type StaffSelectParams = {
   params?: QueryParams;
   activeRole?: StaffRole;
   academic_year_id?: string;
 };
+
+export type AnnualStaffCreateInput = Omit<
+  Prisma.AnnualConfiguratorCreateInput,
+  'matricule'
+>;
+
 export type CreateStaffInput = Prisma.PersonCreateInput &
   Pick<
     Prisma.AnnualRegistryCreateManyInput,
@@ -28,6 +35,7 @@ export type CreateTeacherInput = CreateStaffInput &
     | 'origin_institute'
     | 'teaching_grade_id'
   >;
+
 export type CreateCoordinatorInput = {
   annual_teacher_id: string;
   annualClassroomIds: string[];

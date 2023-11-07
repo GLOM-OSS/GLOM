@@ -1,7 +1,11 @@
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { Role } from '../../utils/enums';
-import { CreateStaffInput, StaffSelectParams } from './staff';
+import {
+  AnnualStaffCreateInput,
+  CreateStaffInput,
+  StaffSelectParams,
+} from './staff';
 export class StaffArgsFactory {
   static getStaffWhereInput = ({
     academic_year_id,
@@ -82,14 +86,15 @@ export class StaffArgsFactory {
 
   static getStaffCreateInput = ({
     matricule,
+    private_code,
+
+    password,
     person_id,
     school_id,
     academic_year_id,
-    password,
     ...personPayload
   }: CreateStaffInput) =>
-    Prisma.validator<Prisma.AnnualConfiguratorCreateInput>()({
-      matricule,
+    Prisma.validator<AnnualStaffCreateInput>()({
       Login: {
         connectOrCreate: {
           create: {
@@ -107,5 +112,23 @@ export class StaffArgsFactory {
         },
       },
       AcademicYear: { connect: { academic_year_id } },
+    });
+
+  static getTeacherSelect = () =>
+    Prisma.validator<Prisma.AnnualTeacherSelect>()({
+      ...StaffArgsFactory.getStaffSelect(),
+      has_signed_convention: true,
+      teaching_grade_id: true,
+      annual_teacher_id: true,
+      origin_institute: true,
+      hourly_rate: true,
+      Teacher: {
+        select: {
+          matricule: true,
+          has_tax_payers_card: true,
+          tax_payer_card_number: true,
+          teacher_type_id: true,
+        },
+      },
     });
 }
