@@ -18,7 +18,7 @@ export default function index() {
     asPath,
   } = useRouter();
   //TODO: FETCH SCHOOL DATA WITH DEMAND_CODE HERE.
-  let schoolData: SchoolDemandDetails = {
+  const [schoolData, setSchoolData] = useState<SchoolDemandDetails>({
     person: {
       birthplace: 'Nkambe',
       civil_status: 'Single',
@@ -59,7 +59,7 @@ export default function index() {
       ends_at: new Date().toISOString(),
       starts_at: new Date('12-22-2023').toISOString(),
     },
-  };
+  });
 
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState<boolean>(false);
   const [isValidateDialogOpen, setIsValidateDialogOpen] =
@@ -89,10 +89,10 @@ export default function index() {
     setIsRejectingDemand(true);
     setTimeout(() => {
       //TODO: MUTUTATE schoolData AFTER REJECTION
-      schoolData = {
+      setSchoolData({
         ...schoolData,
         school: { ...schoolData.school, school_demand_status: 'REJECTED' },
-      };
+      });
       setIsRejectingDemand(false);
     }, 3000);
   }
@@ -105,10 +105,10 @@ export default function index() {
     setIsValidatingDemand(true);
     setTimeout(() => {
       //TODO: MUTUTATE schoolData AFTER validation
-      schoolData = {
+      setSchoolData({
         ...schoolData,
         school: { ...schoolData.school, school_demand_status: 'VALIDATED' },
-      };
+      });
       setIsValidatingDemand(false);
     }, 3000);
   }
@@ -238,6 +238,7 @@ export default function index() {
                   variant="contained"
                   color="error"
                   onClick={() => setIsConfirmSuspendDialogOpen(true)}
+                  sx={{ alignSelf: 'end' }}
                 >
                   {formatMessage({ id: 'suspend' })}
                 </Button>
@@ -258,42 +259,6 @@ export default function index() {
               title={formatMessage({ id: 'institutionData' })}
             />
           </Box>
-          {/* <Box
-          sx={{
-            justifySelf: 'end',
-            display: 'grid',
-            gridAutoFlow: 'column',
-            columnGap: 4,
-          }}
-        >
-          <Button
-            variant="outlined"
-            size="large"
-            color="inherit"
-            onClick={onPrev}
-            disabled={isSubmitting}
-          >
-            {formatMessage({ id: 'back' })}
-          </Button>
-          <Button
-            variant="contained"
-            size="large"
-            color="primary"
-            onClick={onNext}
-            disabled={isSubmitting}
-          >
-            {data.referral.referral_code
-              ? formatMessage({
-                  id: 'submitDemand',
-                })
-              : `${formatMessage({
-                  id: 'payNow',
-                })} (${formatNumber(onboarding_fee, {
-                  style: 'currency',
-                  currency: 'xaf',
-                })})`}
-          </Button>
-        </Box> */}
         </Box>
       </Box>
     </>
