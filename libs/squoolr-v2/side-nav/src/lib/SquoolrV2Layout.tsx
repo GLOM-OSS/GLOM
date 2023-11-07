@@ -5,8 +5,10 @@ import { INavSection } from './SideNav.interfaces';
 import BreadcrumbContextProvider, {
   useDispatchBreadcrumb,
 } from './breadcrumbContext/BreadcrumbContextProvider';
+import { IBreadcrumbItem } from './breadcrumbContext/BreadcrumbContext';
 import LayoutHeader from './components/LayoutHeader';
 import { IAppType } from '@glom/squoolr-v2/auth-ui';
+import { useRouter } from 'next/router';
 
 function Layout({
   navSections,
@@ -19,17 +21,39 @@ function Layout({
   children?: JSX.Element;
 }) {
   const breadcrumbDispatch = useDispatchBreadcrumb();
+
+  const { asPath } = useRouter();
   useEffect(() => {
-    breadcrumbDispatch({
-      action: 'RESET',
-      payload: [
-        { route: undefined, title: navSections[0].title },
-        {
-          route: `${navSections[0].route}/${navSections[0].navItems[0].route}`,
-          title: `${navSections[0].navItems[0].title}`,
-        },
-      ],
-    });
+    const tt = asPath.split('/').filter((_) => _ !== '');
+    if (tt.length === 0) {
+      breadcrumbDispatch({
+        action: 'RESET',
+        payload: [
+          { route: undefined, title: navSections[0].title },
+          {
+            route: `${navSections[0].route}/${navSections[0].navItems[0].route}`,
+            title: `${navSections[0].navItems[0].title}`,
+          },
+        ],
+      });
+    } else {
+      const base = navSections.find((_) => _.route === tt[0]);
+      let payload: IBreadcrumbItem[] = [
+        { route: undefined, title: base?.title || '' },
+      ];
+      if (base && tt.length > 1) {
+        const level2 = base.navItems.find((_) => _.route === tt[1]);
+        payload.push({
+          route: `${base.route}/${level2?.route}`,
+          title: level2?.title || '',
+        });
+      }
+
+      breadcrumbDispatch({
+        action: 'RESET',
+        payload,
+      });
+    }
   }, []);
 
   return (
