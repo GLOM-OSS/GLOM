@@ -8,43 +8,25 @@ import { StaffEntity } from '../staff.dto';
 @Injectable()
 export class TeachersService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
-  create: (
-    payload: CreateTeacherInput,
-    created_by: string
-  ) => Promise<StaffEntity>;
   async findOne(annual_teacher_id: string) {
     const {
       Teacher: { matricule, ...teacher },
       Login: { login_id, Person: person },
       ...annual_teacher
     } = await this.prismaService.annualTeacher.findFirstOrThrow({
-      select: {
-        ...StaffArgsFactory.getStaffSelect(),
-        has_signed_convention: true,
-        origin_institute: true,
-        teaching_grade_id: true,
-        hourly_rate: true,
-        Teacher: {
-          select: {
-            matricule: true,
-            has_tax_payers_card: true,
-            tax_payer_card_number: true,
-            teacher_type_id: true,
-          },
-        },
-      },
+      select: StaffArgsFactory.getTeacherSelect(),
       where: { annual_teacher_id },
     });
 
     return new StaffEntity({
-      ...teacher,
-      ...person,
-      ...annual_teacher,
       login_id,
       matricule,
       roles: [],
       annual_teacher_id,
       last_connected: null,
+      ...teacher,
+      ...person,
+      ...annual_teacher,
     });
   }
 
@@ -91,5 +73,54 @@ export class TeachersService implements IStaffService<StaffEntity> {
           ),
         })
     );
+  }
+
+  async create(
+    {
+      teaching_grade_id,
+      teacher_type_id,
+      tax_payer_card_number,
+      has_tax_payers_card,
+      origin_institute,
+      has_signed_convention,
+      hourly_rate,
+      ...payload
+    }: CreateTeacherInput,
+    added_by: string
+  ) {
+    const {
+      Teacher: { matricule, ...teacher },
+      Login: { login_id, Person: person },
+      ...annual_teacher
+    } = await this.prismaService.annualTeacher.create({
+      select: StaffArgsFactory.getTeacherSelect(),
+      data: {
+        hourly_rate,
+        origin_institute,
+        has_signed_convention,
+        TeachingGrade: { connect: { teaching_grade_id } },
+        Teacher: {
+          create: {
+            has_tax_payers_card,
+            tax_payer_card_number,
+            matricule: payload.matricule,
+            private_code: payload.private_code,
+            TeacherType: { connect: { teacher_type_id } },
+          },
+        },
+        AnnualConfigurator: { connect: { annual_configurator_id: added_by } },
+        ...StaffArgsFactory.getStaffCreateInput(payload),
+      },
+    });
+
+    return new StaffEntity({
+      login_id,
+      matricule,
+      roles: [],
+      last_connected: null,
+      ...teacher,
+      ...person,
+      ...annual_teacher,
+    });
   }
 }
