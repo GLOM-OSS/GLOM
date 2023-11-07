@@ -23,7 +23,7 @@ export default function Footer() {
         gridTemplateColumns: '1fr auto',
         columnGap: 1,
         borderTop: `1px solid ${theme.common.line}`,
-        padding: { desktop: '8px 0 8px 0', mobile: '8px' },
+        padding: { desktop: '8px 16px 8px 16px', mobile: '8px' },
         alignItems: 'center',
       }}
     >
