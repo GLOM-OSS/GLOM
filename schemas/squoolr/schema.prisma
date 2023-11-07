@@ -321,7 +321,7 @@ model Login {
     Students               Student[]               @relation(name: "Student_Login")
     Tutors                 Student[]               @relation(name: "Tutor_Login")
     AnnualRegistries       AnnualRegistry[]
-    AnnualTeachers         AnnualTeacher[]
+    Teacher                Teacher?
     SchoolDemandAudits     SchoolDemandAudit[]
     StudentPayments        StudentPayment[]
     PlatformSettings       PlatformSettings[]
@@ -371,7 +371,6 @@ model AnnualConfigurator {
     AnnualSemesterExamAcess       AnnualSemesterExamAcess[]
 
     @@unique([login_id, academic_year_id])
-    @@unique([login_id, matricule])
 }
 
 model LoginAudit {
@@ -386,7 +385,7 @@ model LoginAudit {
 
 model Student {
     student_id   String    @id @default(uuid()) @db.VarChar(36)
-    matricule    String    @unique @db.VarChar(45)
+    matricule    String    @db.VarChar(45)
     classroom_id String    @db.VarChar(36)
     Classroom    Classroom @relation(fields: [classroom_id], references: [classroom_id], onDelete: Cascade, onUpdate: Cascade)
     login_id     String    @db.VarChar(36)
@@ -395,6 +394,8 @@ model Student {
     Tutor        Login     @relation(name: "Tutor_Login", fields: [tutor_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualStudents AnnualStudent[]
+
+    @@unique([login_id, classroom_id])
 }
 
 model AnnualStudent {
@@ -480,8 +481,10 @@ model Teacher {
     teacher_id            String      @id @default(uuid()) @db.VarChar(36)
     has_tax_payers_card   Boolean     @default(false)
     tax_payer_card_number String?
-    matricule             String      @unique @db.VarChar(75)
+    matricule             String      @db.VarChar(75)
     private_code          String      @db.VarChar(75)
+    login_id              String      @unique @db.VarChar(36)
+    Login                 Login       @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
     teacher_type_id       String      @db.VarChar(36)
     TeacherType           TeacherType @relation(fields: [teacher_type_id], references: [teacher_type_id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -515,8 +518,6 @@ model AnnualTeacher {
     AcademicYear          AcademicYear       @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
     teacher_id            String             @db.VarChar(36)
     Teacher               Teacher            @relation(fields: [teacher_id], references: [teacher_id], onDelete: Cascade, onUpdate: Cascade)
-    login_id              String             @db.VarChar(36)
-    Login                 Login              @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
     created_by            String             @db.VarChar(36)
     AnnualConfigurator    AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -554,7 +555,7 @@ model AnnualTeacher {
     DeletedPresenceListHasCreditUnitStudents    PresenceListHasCreditUnitStudent[]    @relation(name: "DeletedBy_AnnualTeacher")
     AnnualStudentAnswerQuestions                AnnualStudentAnswerQuestion[]
 
-    @@unique([login_id, academic_year_id])
+    @@unique([teacher_id, academic_year_id])
 }
 
 model AnnualTeacherAudit {
