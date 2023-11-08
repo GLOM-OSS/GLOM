@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -18,6 +19,7 @@ import {
   QueryOneStaffDto,
   QueryStaffDto,
   StaffEntity,
+  UpdateStaffDto,
 } from './staff.dto';
 import { StaffService } from './staff.service';
 
@@ -61,6 +63,29 @@ export class StaffController {
     return this.staffService.create(
       newStaff.payload,
       { school_id, academic_year_id },
+      annual_configurator_id
+    );
+  }
+
+  @Put([
+    ':annual_teacher_id',
+    ':annual_coordinator_id',
+    ':annual_configurator_id',
+    ':annual_registry_id',
+  ])
+  @Roles(Role.CONFIGURATOR)
+  @ApiOkResponse({ type: StaffEntity })
+  async updateStaff(
+    @Req() request: Request,
+    @Param('annual_teacher_id') annualTeacherId: string,
+    @Body() newStaff: UpdateStaffDto
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user;
+    return this.staffService.update(
+      annualTeacherId,
+      newStaff.payload,
       annual_configurator_id
     );
   }

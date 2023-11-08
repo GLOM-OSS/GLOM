@@ -1,4 +1,9 @@
-import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  OmitType,
+  PartialType,
+} from '@nestjs/swagger';
 import {
   IsBoolean,
   IsEnum,
@@ -158,4 +163,39 @@ export class CreateStaffDto {
   })
   @ApiProperty({ type: StaffRoleDto })
   payload: CreateConfiguratorDto | CreateCoordinatorDto | CreateTeacherDto;
+}
+
+export class UpdateConfiguratorDto extends PartialType(CreateConfiguratorDto) {}
+export class UpdateCoordinatorDto extends OmitType(CreateCoordinatorDto, [
+  'annual_teacher_id',
+]) {}
+
+export class UpdateTeacherDto extends PartialType(CreateTeacherDto) {}
+
+export class UpdateStaffDto {
+  @Type(() => StaffRoleDto, {
+    discriminator: {
+      property: 'role',
+      subTypes: [
+        {
+          value: UpdateConfiguratorDto,
+          name: StaffRole.CONFIGURATOR,
+        },
+        {
+          value: UpdateConfiguratorDto,
+          name: StaffRole.REGISTRY,
+        },
+        {
+          value: UpdateCoordinatorDto,
+          name: StaffRole.COORDINATOR,
+        },
+        {
+          value: UpdateTeacherDto,
+          name: StaffRole.TEACHER,
+        },
+      ],
+    },
+  })
+  @ApiProperty({ type: StaffRoleDto })
+  payload: UpdateConfiguratorDto | UpdateCoordinatorDto | UpdateTeacherDto;
 }

@@ -12,7 +12,8 @@ import { IStaffService, StaffSelectParams } from './staff';
 import {
   CreateCoordinatorDto,
   CreateStaffDto,
-  StaffEntity
+  StaffEntity,
+  UpdateStaffDto,
 } from './staff.dto';
 import { TeachersService } from './teachers/teachers.service';
 
@@ -91,6 +92,18 @@ export class StaffService {
         password: generatePassword(),
       },
       created_by
+    );
+  }
+
+  async update(
+    annual_staff_id: string,
+    payload: UpdateStaffDto['payload'],
+    audited_by: string
+  ) {
+    return this.staffServices[payload.role].update(
+      annual_staff_id,
+      payload,
+      audited_by
     );
   }
 }
