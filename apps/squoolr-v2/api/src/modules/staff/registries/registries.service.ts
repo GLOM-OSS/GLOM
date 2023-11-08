@@ -109,25 +109,47 @@ export class RegistriesService implements IStaffService<StaffEntity> {
     });
   }
 
-  async update(annual_registry_id: string, payload: UpdateStaffInput, audited_by: string) {
+  async update(
+    annual_registry_id: string,
+    payload: UpdateStaffInput,
+    audited_by: string
+  ) {
     const {
+      is_deleted,
+      private_code,
       Login: { Person: person },
     } = await this.prismaService.annualRegistry.findUniqueOrThrow({
-      select: StaffArgsFactory.getStaffSelect(),
+      select: {
+        private_code: true,
+        ...StaffArgsFactory.getStaffSelect(),
+      },
       where: { annual_registry_id },
     });
+    const isDeleted = payload.is_deleted;
     await this.prismaService.annualRegistry.update({
       data: {
-        Login: {
-          update: {
-            Person: {
-              update: {
-                ...payload,
-                PersonAudits: { create: { ...person, audited_by } },
-              },
+        is_deleted: isDeleted,
+        AnnualRegistryAudits: {
+          create: {
+            is_deleted,
+            private_code,
+            AnnualConfigurator: {
+              connect: { annual_configurator_id: audited_by },
             },
           },
         },
+        Login: isDeleted
+          ? undefined
+          : {
+              update: {
+                Person: {
+                  update: {
+                    ...payload,
+                    PersonAudits: { create: { ...person, audited_by } },
+                  },
+                },
+              },
+            },
       },
       where: { annual_registry_id },
     });

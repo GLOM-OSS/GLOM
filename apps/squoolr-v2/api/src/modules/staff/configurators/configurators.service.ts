@@ -125,18 +125,28 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
       select: StaffArgsFactory.getStaffSelect(),
       where: { annual_configurator_id },
     });
+    const isDeleted = payload.is_deleted;
     await this.prismaService.annualConfigurator.update({
       data: {
-        Login: {
-          update: {
-            Person: {
+        is_deleted: isDeleted,
+        deleted_at: isDeleted ? new Date() : null,
+        DeletedByAnnualConfigurator: isDeleted
+          ? {
+              connect: { annual_configurator_id: audited_by },
+            }
+          : { disconnect: true },
+        Login: isDeleted
+          ? undefined
+          : {
               update: {
-                ...payload,
-                PersonAudits: { create: { ...person, audited_by } },
+                Person: {
+                  update: {
+                    ...payload,
+                    PersonAudits: { create: { ...person, audited_by } },
+                  },
+                },
               },
             },
-          },
-        },
       },
       where: { annual_configurator_id },
     });

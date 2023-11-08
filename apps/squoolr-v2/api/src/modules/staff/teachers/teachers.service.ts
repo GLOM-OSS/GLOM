@@ -1,7 +1,6 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
 import { StaffRole } from '../../../utils/enums';
-import { BatchPayload } from '../../module';
 import {
   CreateTeacherInput,
   IStaffService,
@@ -172,42 +171,50 @@ export class TeachersService implements IStaffService<StaffEntity> {
       },
       ...annualTeacher
     } = await this.prismaService.annualTeacher.findUniqueOrThrow({
-      select: StaffArgsFactory.getTeacherSelect(),
+      select: {
+        is_deleted: true,
+        ...StaffArgsFactory.getTeacherSelect(),
+      },
       where: { annual_teacher_id },
     });
+    const isDeleted = payload.is_deleted;
     await this.prismaService.annualTeacher.update({
       data: {
-        hourly_rate,
-        origin_institute,
-        has_signed_convention,
-        TeachingGrade: teaching_grade_id
-          ? { connect: { teaching_grade_id } }
-          : undefined,
-        Teacher: {
-          update: {
-            has_tax_payers_card,
-            tax_payer_card_number,
-            TeacherType: teacher_type_id
-              ? { connect: { teacher_type_id } }
-              : undefined,
-            TeacherAudits: {
-              create: {
-                ...teacher,
-                audited_by,
-              },
-            },
-            Login: {
-              update: {
-                Person: {
-                  update: {
-                    ...payload,
-                    PersonAudits: { create: { ...Person } },
+        ...(isDeleted
+          ? { is_deleted: isDeleted }
+          : {
+              hourly_rate,
+              origin_institute,
+              has_signed_convention,
+              TeachingGrade: teaching_grade_id
+                ? { connect: { teaching_grade_id } }
+                : undefined,
+              Teacher: {
+                update: {
+                  has_tax_payers_card,
+                  tax_payer_card_number,
+                  TeacherType: teacher_type_id
+                    ? { connect: { teacher_type_id } }
+                    : undefined,
+                  TeacherAudits: {
+                    create: {
+                      ...teacher,
+                      audited_by,
+                    },
+                  },
+                  Login: {
+                    update: {
+                      Person: {
+                        update: {
+                          ...payload,
+                          PersonAudits: { create: { ...Person } },
+                        },
+                      },
+                    },
                   },
                 },
               },
-            },
-          },
-        },
+            }),
         AnnualTeacherAudits: {
           create: {
             ...annualTeacher,
