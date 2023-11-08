@@ -11,13 +11,11 @@ import {
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffEntity } from '../staff.dto';
+import { excludeKeys } from '@glom/utils';
 
 @Injectable()
 export class CoordinatorsService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
-  update(payload: UpdateCoordinatorInput): Promise<BatchPayload> {
-    throw new Error('Method not implemented.');
-  }
   async findOne(annual_coordinator_id: string): Promise<StaffEntity> {
     throw new NotImplementedException(
       '`findOne` method is not supported for coordinators. Use teacher instead'
@@ -119,5 +117,53 @@ export class CoordinatorsService implements IStaffService<StaffEntity> {
       count,
       message: `Updated ${count} records in database`,
     });
+  }
+
+  async update(
+    annual_coordinator_id: string,
+    { annualClassroomIds }: UpdateCoordinatorInput,
+    audited_by: string
+  ) {
+    const coordinatedClasses =
+      await this.prismaService.annualClassroomDivision.findMany({
+        where: { annual_coordinator_id },
+      });
+    const addedClasses = annualClassroomIds.filter(
+      (id) =>
+        !coordinatedClasses.find(
+          ({ annual_classroom_id }) => id === annual_classroom_id
+        )
+    );
+    const deletedClasses = coordinatedClasses.filter(
+      ({ annual_classroom_id }) =>
+        !annualClassroomIds.find((id) => id === annual_classroom_id)
+    );
+    await this.prismaService.$transaction([
+      this.prismaService.annualClassroomDivision.updateMany({
+        data: {
+          annual_coordinator_id,
+        },
+        where: {
+          OR: addedClasses.map((annual_classroom_id) => ({
+            annual_classroom_id,
+          })),
+        },
+      }),
+      this.prismaService.annualClassroomDivision.updateMany({
+        data: { is_deleted: true },
+        where: {
+          OR: deletedClasses.map(({ annual_classroom_id }) => ({
+            annual_classroom_id,
+          })),
+        },
+      }),
+      this.prismaService.annualClassroomDivisionAudit.createMany({
+        data: deletedClasses.map((deletedClass) => ({
+          audited_by,
+          ...excludeKeys(deletedClass, ['created_by', 'created_at']),
+        })),
+        skipDuplicates: true,
+      }),
+    ]);
   }
 }
