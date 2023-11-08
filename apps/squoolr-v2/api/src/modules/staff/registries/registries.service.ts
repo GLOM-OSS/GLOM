@@ -125,7 +125,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
       },
       where: { annual_registry_id },
     });
-    const isDeleted = payload.is_deleted;
+    const isDeleted = payload.delete ? !is_deleted : undefined;
     await this.prismaService.annualRegistry.update({
       data: {
         is_deleted: isDeleted,
@@ -138,18 +138,19 @@ export class RegistriesService implements IStaffService<StaffEntity> {
             },
           },
         },
-        Login: isDeleted
-          ? undefined
-          : {
-              update: {
-                Person: {
-                  update: {
-                    ...payload,
-                    PersonAudits: { create: { ...person, audited_by } },
+        Login:
+          isDeleted !== undefined
+            ? undefined
+            : {
+                update: {
+                  Person: {
+                    update: {
+                      ...payload,
+                      PersonAudits: { create: { ...person, audited_by } },
+                    },
                   },
                 },
               },
-            },
       },
       where: { annual_registry_id },
     });

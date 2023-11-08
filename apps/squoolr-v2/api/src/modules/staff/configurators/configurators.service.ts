@@ -120,12 +120,13 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
     audited_by: string
   ) {
     const {
+      is_deleted,
       Login: { Person: person },
     } = await this.prismaService.annualConfigurator.findUniqueOrThrow({
       select: StaffArgsFactory.getStaffSelect(),
       where: { annual_configurator_id },
     });
-    const isDeleted = payload.is_deleted;
+    const isDeleted = payload.delete ? !is_deleted : undefined;
     await this.prismaService.annualConfigurator.update({
       data: {
         is_deleted: isDeleted,
@@ -135,18 +136,19 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
               connect: { annual_configurator_id: audited_by },
             }
           : { disconnect: true },
-        Login: isDeleted
-          ? undefined
-          : {
-              update: {
-                Person: {
-                  update: {
-                    ...payload,
-                    PersonAudits: { create: { ...person, audited_by } },
+        Login:
+          isDeleted !== undefined
+            ? undefined
+            : {
+                update: {
+                  Person: {
+                    update: {
+                      ...payload,
+                      PersonAudits: { create: { ...person, audited_by } },
+                    },
                   },
                 },
               },
-            },
       },
       where: { annual_configurator_id },
     });

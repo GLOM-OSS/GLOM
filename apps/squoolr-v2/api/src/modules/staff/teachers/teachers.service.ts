@@ -177,10 +177,10 @@ export class TeachersService implements IStaffService<StaffEntity> {
       },
       where: { annual_teacher_id },
     });
-    const isDeleted = payload.is_deleted;
+    const isDeleted = payload.delete ? !annualTeacher.is_deleted : undefined;
     await this.prismaService.annualTeacher.update({
       data: {
-        ...(isDeleted
+        ...(isDeleted !== undefined
           ? { is_deleted: isDeleted }
           : {
               hourly_rate,

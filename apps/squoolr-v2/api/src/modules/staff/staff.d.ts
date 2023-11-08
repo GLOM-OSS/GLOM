@@ -26,7 +26,7 @@ export type CreateStaffInput = Prisma.PersonCreateInput &
   > &
   Pick<Prisma.LoginCreateManyInput, 'password' | 'school_id'>;
 export type UpdateStaffInput = Partial<
-  Prisma.PersonCreateInput & { is_deleted: boolean }
+  Prisma.PersonCreateInput & { delete: boolean }
 >;
 
 type TeacherCreateInput = Omit<Prisma.TeacherCreateManyInput, 'teacher_id'> &
