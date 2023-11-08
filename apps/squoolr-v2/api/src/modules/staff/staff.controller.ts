@@ -8,7 +8,6 @@ import {
   Put,
   Query,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -18,10 +17,11 @@ import {
 } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles } from '../../app/auth/auth.decorator';
-import { AuthenticatedGuard } from '../../app/auth/auth.guard';
-import { Role } from '../../utils/enums';
+import { Role, StaffRole } from '../../utils/enums';
+import { BatchPayloadDto } from '../modules.dto';
 import {
   CreateStaffDto,
+  DisableStaffDto,
   QueryOneStaffDto,
   QueryStaffDto,
   StaffEntity,
@@ -118,5 +118,18 @@ export class StaffController {
       payload,
       annual_configurator_id
     );
+  }
+
+  @Delete()
+  @Roles(Role.CONFIGURATOR)
+  @ApiOkResponse({ type: BatchPayloadDto })
+  async disableManyStaff(
+    @Req() request: Request,
+    @Query() disabledStaff: DisableStaffDto
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user;
+    return this.staffService.disableMany(disabledStaff, annual_configurator_id);
   }
 }

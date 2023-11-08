@@ -49,6 +49,9 @@ export type UpdateCoordinatorInput = Omit<
   CreateCoordinatorInput,
   'annual_teacher_id'
 >;
+export type StaffRoleIDs = {
+  [x in StaffRole]: string[];
+};
 
 export interface IStaffService<
   T,

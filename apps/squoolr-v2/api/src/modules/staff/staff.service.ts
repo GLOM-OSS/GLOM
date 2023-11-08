@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import { StaffRole } from '../../utils/enums';
-import { MetaParams } from '../module';
+import { BatchPayload, MetaParams } from '../module';
 import { ConfiguratorsService } from './configurators/configurators.service';
 import { CoordinatorsService } from './coordinators/coordinators.service';
 import { RegistriesService } from './registries/registries.service';
@@ -12,6 +12,7 @@ import { IStaffService, StaffSelectParams } from './staff';
 import {
   CreateCoordinatorDto,
   CreateStaffDto,
+  DisableStaffDto,
   StaffEntity,
   StaffRoleDto,
   UpdateStaffDto,
@@ -115,8 +116,22 @@ export class StaffService {
   ) {
     return this.staffServices[payload.role].update(
       annual_staff_id,
-      { is_deleted: true },
+      { delete: true },
       disabled_by
+    );
+  }
+
+  async disableMany(payload: DisableStaffDto, disabled_by: string) {
+    return Promise.all(
+      Object.keys(payload).reduce<Promise<void>[]>(
+        (methods, key) => [
+          ...methods,
+          ...payload[key as StaffRole].map((staffId) =>
+            this.disable(staffId, { role: key as StaffRole }, disabled_by)
+          ),
+        ],
+        []
+      )
     );
   }
 }
