@@ -14,9 +14,6 @@ import { StaffEntity } from '../staff.dto';
 @Injectable()
 export class RegistriesService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
-  update(payload: UpdateStaffInput): Promise<BatchPayload> {
-    throw new Error('Method not implemented.');
-  }
   async findOne(annual_registry_id: string) {
     const {
       matricule,
@@ -109,6 +106,30 @@ export class RegistriesService implements IStaffService<StaffEntity> {
       roles: [],
       annual_registry_id,
       last_connected: null,
+    });
+  }
+
+  async update(annual_registry_id: string, payload: UpdateStaffInput, audited_by: string) {
+    const {
+      Login: { Person: person },
+    } = await this.prismaService.annualRegistry.findUniqueOrThrow({
+      select: StaffArgsFactory.getStaffSelect(),
+      where: { annual_registry_id },
+    });
+    await this.prismaService.annualRegistry.update({
+      data: {
+        Login: {
+          update: {
+            Person: {
+              update: {
+                ...payload,
+                PersonAudits: { create: { ...person, audited_by } },
+              },
+            },
+          },
+        },
+      },
+      where: { annual_registry_id },
     });
   }
 }
