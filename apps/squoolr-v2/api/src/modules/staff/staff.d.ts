@@ -36,7 +36,7 @@ type TeacherCreateInput = Omit<Prisma.TeacherCreateManyInput, 'teacher_id'> &
     | 'teaching_grade_id'
   >;
 export type CreateTeacherInput = CreateStaffInput & TeacherCreateInput;
-export type UpdateTeacherInput = UpdateStaffInput | Partial<TeacherCreateInput>;
+export type UpdateTeacherInput = UpdateStaffInput & Partial<TeacherCreateInput>;
 
 export type CreateCoordinatorInput = {
   annual_teacher_id: string;

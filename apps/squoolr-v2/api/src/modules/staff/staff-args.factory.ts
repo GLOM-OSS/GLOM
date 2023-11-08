@@ -129,6 +129,7 @@ export class StaffArgsFactory {
       Teacher: {
         select: {
           matricule: true,
+          private_code: true,
           has_tax_payers_card: true,
           tax_payer_card_number: true,
           teacher_type_id: true,

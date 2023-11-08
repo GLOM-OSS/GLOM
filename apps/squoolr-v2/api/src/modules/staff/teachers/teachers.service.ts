@@ -14,9 +14,6 @@ import { StaffEntity } from '../staff.dto';
 @Injectable()
 export class TeachersService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
-  update(payload: UpdateTeacherInput): Promise<BatchPayload> {
-    throw new Error('Method not implemented.');
-  }
   async findOne(annual_teacher_id: string) {
     const {
       Teacher: {
@@ -151,6 +148,76 @@ export class TeachersService implements IStaffService<StaffEntity> {
       ...teacher,
       ...person,
       ...annual_teacher,
+    });
+  }
+
+  async update(
+    annual_teacher_id: string,
+    {
+      teaching_grade_id,
+      teacher_type_id,
+      tax_payer_card_number,
+      has_tax_payers_card,
+      origin_institute,
+      has_signed_convention,
+      hourly_rate,
+      ...payload
+    }: UpdateTeacherInput,
+    audited_by: string
+  ) {
+    const {
+      Teacher: {
+        Login: { Person },
+        ...teacher
+      },
+      ...annualTeacher
+    } = await this.prismaService.annualTeacher.findUniqueOrThrow({
+      select: StaffArgsFactory.getTeacherSelect(),
+      where: { annual_teacher_id },
+    });
+    await this.prismaService.annualTeacher.update({
+      data: {
+        hourly_rate,
+        origin_institute,
+        has_signed_convention,
+        TeachingGrade: teaching_grade_id
+          ? { connect: { teaching_grade_id } }
+          : undefined,
+        Teacher: {
+          update: {
+            has_tax_payers_card,
+            tax_payer_card_number,
+            TeacherType: teacher_type_id
+              ? { connect: { teacher_type_id } }
+              : undefined,
+            TeacherAudits: {
+              create: {
+                ...teacher,
+                audited_by,
+              },
+            },
+            Login: {
+              update: {
+                Person: {
+                  update: {
+                    ...payload,
+                    PersonAudits: { create: { ...Person } },
+                  },
+                },
+              },
+            },
+          },
+        },
+        AnnualTeacherAudits: {
+          create: {
+            ...annualTeacher,
+            AnnualConfigurator: {
+              connect: { annual_configurator_id: audited_by },
+            },
+          },
+        },
+      },
+      where: { annual_teacher_id },
     });
   }
 }
