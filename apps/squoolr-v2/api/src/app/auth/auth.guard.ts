@@ -21,11 +21,12 @@ export class AuthenticatedGuard implements CanActivate {
       IS_PUBLIC,
       context.getHandler()
     );
+    if(isPublic) return isPublic
     const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES, [
       context.getHandler(),
       context.getClass(),
     ]);
-    const isAuthenticated = isPublic ? isPublic : request.isAuthenticated();
+    const isAuthenticated = request.isAuthenticated();
     if (!isAuthenticated) {
       const sessionID = request.headers.cookie?.split('=s%3A')[1].split('.')[0];
       if (sessionID) {
