@@ -99,6 +99,8 @@ export function Index() {
       school_code: 'KIS234',
       school_rejection_reason: '',
       school_id: 'siels',
+      created_at: new Date().toISOString(),
+      subdomain: '',
     },
     {
       school_acronym: 'SBAHS',
@@ -112,6 +114,8 @@ export function Index() {
       school_code: 'KIS235',
       school_rejection_reason: '',
       school_id: 'siels',
+      created_at: new Date().toISOString(),
+      subdomain: '',
     },
     {
       school_acronym: 'SAJOHIM',
@@ -125,6 +129,8 @@ export function Index() {
       school_code: 'KIS234',
       school_rejection_reason: '',
       school_id: 'siels',
+      created_at: new Date().toISOString(),
+      subdomain: '',
     },
   ];
 
