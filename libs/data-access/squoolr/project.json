@@ -1,0 +1,24 @@
+{
+  "name": "data-access-squoolr",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/data-access/squoolr/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/data-access/squoolr/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/data-access/squoolr"],
+      "options": {
+        "jestConfig": "libs/data-access/squoolr/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  }
+}

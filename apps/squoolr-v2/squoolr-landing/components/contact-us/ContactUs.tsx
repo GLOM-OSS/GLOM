@@ -1,4 +1,5 @@
 import { PhoneTextField } from '@glom/components';
+import { useSubmitInquiry } from '@glom/data-access/squoolr';
 import { CreateInquiryPayload } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
 import { Box, Button, Dialog, TextField, Typography } from '@mui/material';
@@ -20,11 +21,11 @@ export default function ContactUs({
   const theme = useTheme();
   const { formatMessage } = useIntl();
 
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  // const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (open) setIsSubmitting(false);
-  }, [open]);
+  // useEffect(() => {
+  //   if (open) setIsSubmitting(false);
+  // }, [open]);
 
   const initialValues: CreateInquiryPayload = {
     email: '',
@@ -43,17 +44,19 @@ export default function ContactUs({
     message: Yup.string().required(formatMessage({ id: 'requiredField' })),
   });
 
+  const { mutate: submitInquiry, isPending: isSubmitting } = useSubmitInquiry();
+
   const formik = useFormik({
     initialValues,
     validationSchema,
     enableReinitialize: true,
     onSubmit: (values, { resetForm }) => {
-      //TODO: INTEGRATE CONTACT US HERE
-      //TODO: CHECK ON THE NOTIF HERE, AND UPDATE OneUI own
-      alert(JSON.stringify(values));
-      setIsSubmitting(true);
-      resetForm();
-      closeDialog();
+      submitInquiry(values, {
+        onSuccess() {
+          closeDialog();
+          resetForm();
+        },
+      });
     },
   });
 

@@ -26,7 +26,7 @@ export interface paths {
   "/v1/auth/user": {
     get: operations["AuthController_getUser"];
   };
-  "/v1/demands/all": {
+  "/v1/demands": {
     get: operations["DemandController_getAllDemands"];
   };
   "/v1/demands/{school_id}": {
@@ -38,7 +38,7 @@ export interface paths {
   "/v1/demands/new": {
     post: operations["DemandController_submitDemand"];
   };
-  "/v1/demands/validate": {
+  "/v1/demands/{school_id}/validate": {
     put: operations["DemandController_validateDemand"];
   };
   "/v1/demands/{school_id}/status": {
@@ -53,7 +53,7 @@ export interface paths {
   "/v1/academic-years/{academic_year_id}/choose": {
     patch: operations["AcademicYearsController_chooseActiveAcademicYear"];
   };
-  "/v1/inquiries/all": {
+  "/v1/inquiries": {
     get: operations["InquiriesController_getAllInquiries"];
   };
   "/v1/inquiries/new": {
@@ -68,6 +68,55 @@ export interface paths {
   "/v1/ambassadors/{referral_code}/verify": {
     get: operations["AmbassadorsController_getAmbassador"];
   };
+  "/v1/departments/all": {
+    get: operations["DepartmentsController_getDepartments"];
+  };
+  "/v1/departments/new": {
+    post: operations["DepartmentsController_createDepartment"];
+  };
+  "/v1/departments/{department_id}": {
+    put: operations["DepartmentsController_updateDepartment"];
+    delete: operations["DepartmentsController_deleteDepartment"];
+  };
+  "/v1/majors/all": {
+    get: operations["MajorsController_getMajors"];
+  };
+  "/v1/majors/{annual_major_id}": {
+    get: operations["MajorsController_getMajor"];
+    put: operations["MajorsController_updateMajor"];
+    delete: operations["MajorsController_deleteMajor"];
+  };
+  "/v1/majors/new": {
+    post: operations["MajorsController_createMajor"];
+  };
+  "/v1/classrooms/all": {
+    get: operations["ClassroomsController_getClassrooms"];
+  };
+  "/v1/classrooms/{annual_classroom_id}": {
+    put: operations["ClassroomsController_updateClassroom"];
+    delete: operations["ClassroomsController_deleteClassroom"];
+  };
+  "/v1/staffs": {
+    get: operations["StaffController_getAllStaff"];
+  };
+  "/v1/staffs/{annual_staff_id}": {
+    get: operations["StaffController_getStaff"];
+  };
+  "/v1/staffs/new": {
+    post: operations["StaffController_createStaff"];
+  };
+  "/v1/staffs/{annual_teacher_id}": {
+    put: operations["StaffController_updateStaff"];
+  };
+  "/v1/staffs/{annual_coordinator_id}": {
+    put: operations["StaffController_updateStaff"];
+  };
+  "/v1/staffs/{annual_configurator_id}": {
+    put: operations["StaffController_updateStaff"];
+  };
+  "/v1/staffs/{annual_registry_id}": {
+    put: operations["StaffController_updateStaff"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -76,6 +125,7 @@ export interface components {
   schemas: {
     PlatformSettingsEntity: {
       platform_settings_id: string;
+      platform_fee: number;
       onboarding_fee: number;
       /** Format: date-time */
       created_at: string;
@@ -220,6 +270,9 @@ export interface components {
       /** @enum {string} */
       school_demand_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED";
       school_rejection_reason: string;
+      subdomain: string | null;
+      /** Format: date-time */
+      created_at: string;
     };
     CreateAcademicYearDto: {
       /** Format: date-time */
@@ -263,7 +316,6 @@ export interface components {
       school: components["schemas"]["CreateSchoolDto"];
     };
     ValidateDemandDto: {
-      school_code: string;
       rejection_reason?: string;
       subdomain?: string;
     };
@@ -304,6 +356,96 @@ export interface components {
       ambassador_id: string;
       referral_code: string;
       login_id: string;
+    };
+    DepartmentEntity: {
+      department_id: string;
+      department_name: string;
+      department_acronym: string;
+      department_code: string;
+      /** Format: date-time */
+      created_at: string;
+      created_by: string;
+      school_id: string;
+      is_deleted: boolean;
+    };
+    CreateDepartmentDto: {
+      department_name: string;
+      department_acronym: string;
+    };
+    UpdateDepartmentDto: {
+      department_name?: string;
+      department_acronym?: string;
+    };
+    CreateMajorDto: {
+      major_name: string;
+      major_acronym: string;
+      department_id: string;
+      cycle_id: string;
+    };
+    AnnualMajorEntity: {
+      major_name: string;
+      major_acronym: string;
+      department_id: string;
+      cycle_id: string;
+      annual_major_id: string;
+      major_id: string;
+      department_acronym: string;
+      cycle_name: string;
+    };
+    UpdateMajorDto: {
+      major_name?: string;
+      major_acronym?: string;
+    };
+    AnnualClassroomEntity: {
+      annual_classroom_id: string;
+      annual_major_id: string;
+      classroom_name: string;
+      classroom_code: string;
+      classroom_acronym: string;
+      classroom_level: number;
+      number_of_divisions: number;
+      is_deleted: boolean;
+      total_fee_due: number | null;
+      registration_fee: number | null;
+      annual_coordinator_id: string | null;
+      classroom_id: string;
+      /** Format: date-time */
+      created_at: string;
+    };
+    UpdateClassroomDto: {
+      registration_fee?: number;
+      total_fee_due?: number;
+    };
+    StaffEntity: {
+      email: string;
+      login_id: string;
+      last_name: string;
+      first_name: string;
+      phone_number: string;
+      matricule: string;
+      national_id_number: string;
+      /** Format: date-time */
+      birthdate: string;
+      address: string;
+      /** @enum {string} */
+      gender: "Male" | "Female";
+      /** Format: date-time */
+      last_connected: string;
+      annual_configurator_id?: string;
+      annual_registry_id?: string;
+      annual_teacher_id?: string;
+      annual_coordinator_id?: string;
+      roles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
+    };
+    StaffRoleDto: {
+      /** @enum {string} */
+      role: "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR";
+    };
+    CreateStaffDto: {
+      payload: components["schemas"]["StaffRoleDto"];
+    };
+    UpdateStaffDto: {
+      payload: components["schemas"]["StaffRoleDto"];
     };
   };
   responses: never;
@@ -441,13 +583,18 @@ export interface operations {
     };
   };
   DemandController_validateDemand: {
+    parameters: {
+      path: {
+        school_id: string;
+      };
+    };
     requestBody: {
       content: {
         "application/json": components["schemas"]["ValidateDemandDto"];
       };
     };
     responses: {
-      200: {
+      204: {
         content: never;
       };
     };
@@ -550,6 +697,243 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["AmbassadorEntity"];
         };
+      };
+    };
+  };
+  DepartmentsController_getDepartments: {
+    parameters: {
+      query?: {
+        is_deleted?: boolean;
+        keywords?: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["DepartmentEntity"][];
+        };
+      };
+    };
+  };
+  DepartmentsController_createDepartment: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateDepartmentDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["DepartmentEntity"];
+        };
+      };
+    };
+  };
+  DepartmentsController_updateDepartment: {
+    parameters: {
+      path: {
+        department_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateDepartmentDto"];
+      };
+    };
+    responses: {
+      204: {
+        content: never;
+      };
+    };
+  };
+  DepartmentsController_deleteDepartment: {
+    parameters: {
+      path: {
+        department_id: string;
+      };
+    };
+    responses: {
+      204: {
+        content: never;
+      };
+    };
+  };
+  MajorsController_getMajors: {
+    parameters: {
+      query?: {
+        is_deleted?: boolean;
+        keywords?: string;
+        department_id?: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  MajorsController_getMajor: {
+    parameters: {
+      path: {
+        annual_major_id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  MajorsController_updateMajor: {
+    parameters: {
+      path: {
+        annual_major_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateMajorDto"];
+      };
+    };
+    responses: {
+      204: {
+        content: never;
+      };
+    };
+  };
+  MajorsController_deleteMajor: {
+    parameters: {
+      path: {
+        annual_major_id: string;
+      };
+    };
+    responses: {
+      204: {
+        content: never;
+      };
+    };
+  };
+  MajorsController_createMajor: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateMajorDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["AnnualMajorEntity"];
+        };
+      };
+    };
+  };
+  ClassroomsController_getClassrooms: {
+    parameters: {
+      query: {
+        is_deleted?: boolean;
+        keywords?: string;
+        annual_major_id: string;
+        level?: number;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["AnnualClassroomEntity"][];
+        };
+      };
+    };
+  };
+  ClassroomsController_updateClassroom: {
+    parameters: {
+      path: {
+        annual_classroom_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateClassroomDto"];
+      };
+    };
+    responses: {
+      204: {
+        content: never;
+      };
+    };
+  };
+  ClassroomsController_deleteClassroom: {
+    parameters: {
+      path: {
+        annual_classroom_id: string;
+      };
+    };
+    responses: {
+      204: {
+        content: never;
+      };
+    };
+  };
+  StaffController_getAllStaff: {
+    parameters: {
+      query?: {
+        is_deleted?: boolean;
+        keywords?: string;
+        roles?: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["StaffEntity"][];
+        };
+      };
+    };
+  };
+  StaffController_getStaff: {
+    parameters: {
+      query: {
+        role: "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR";
+      };
+      path: {
+        annual_staff_id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["StaffEntity"];
+        };
+      };
+    };
+  };
+  StaffController_createStaff: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateStaffDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["StaffEntity"];
+        };
+      };
+    };
+  };
+  StaffController_updateStaff: {
+    parameters: {
+      path: {
+        annual_teacher_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateStaffDto"];
+      };
+    };
+    responses: {
+      204: {
+        content: never;
       };
     };
   };

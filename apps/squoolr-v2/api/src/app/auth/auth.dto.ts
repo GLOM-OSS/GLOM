@@ -23,7 +23,7 @@ import {
   IsStrongPassword,
 } from 'class-validator';
 import { ActiveYear, SessionData } from './auth';
-import { AcademicYearEntity } from '../academic-years/academic-years.dto';
+import { AcademicYearEntity } from '../../modules/academic-years/academic-years.dto';
 import { Logger } from '@nestjs/common';
 
 export class SetNewPasswordDto {

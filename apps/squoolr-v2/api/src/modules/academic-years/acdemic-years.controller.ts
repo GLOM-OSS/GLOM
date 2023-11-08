@@ -1,22 +1,32 @@
-import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
-import { ApiExcludeEndpoint, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { Role, Roles } from '../auth/auth.decorator';
+import { Roles } from '../../app/auth/auth.decorator';
+import { Role } from '../../utils/enums';
+import { SessionEntity } from '../../app/auth/auth.dto';
+import { AuthenticatedGuard } from '../../app/auth/auth.guard';
+import { AuthService } from '../../app/auth/auth.service';
 import {
   AcademicYearEntity,
   CreateAcademicYearDto,
-  TemplateAcademicYearDto,
 } from './academic-years.dto';
 import { AcademicYearsService } from './academic-years.service';
-import { SessionEntity } from '../auth/auth.dto';
-// import { AuthService } from '../auth/auth.service';
 
 @ApiTags('Academic Years')
 @Controller('academic-years')
-// @UseGuards(AuthenticatedGuard)
+@UseGuards(AuthenticatedGuard)
 export class AcademicYearsController {
   constructor(
-    // private authService: AuthService,
+    private authService: AuthService,
     private academicYearService: AcademicYearsService
   ) {}
 
@@ -54,33 +64,32 @@ export class AcademicYearsController {
     @Param('academic_year_id') academic_year_id: string
   ) {
     const { login_id } = request.session.passport.user;
-    // const { desirializedRoles, roles } =
     const { sessionData } = await this.academicYearService.selectAcademicYear(
       login_id,
       academic_year_id
     );
 
-    // await this.authService.updateSession(request, { roles, academic_year_id });
+    await this.authService.updateSession(request, { academic_year_id });
     return sessionData;
   }
 
-  @ApiExcludeEndpoint()
-  @Roles(Role.CONFIGURATOR)
-  @Post(':template_year_id/template')
-  async templateAcademicYear(
-    @Req() request: Request,
-    @Body() templateOptions: TemplateAcademicYearDto,
-    @Param('template_year_id') template_year_id: string
-  ) {
-    const {
-      annualConfigurator: { annual_configurator_id },
-    } = request.user as Express.User;
-    return {
-      academic_year_id: await this.academicYearService.template(
-        template_year_id,
-        templateOptions,
-        annual_configurator_id
-      ),
-    };
-  }
+  // @ApiExcludeEndpoint()
+  // @Roles(Role.CONFIGURATOR)
+  // @Post(':template_year_id/template')
+  // async templateAcademicYear(
+  //   @Req() request: Request,
+  //   @Body() templateOptions: TemplateAcademicYearDto,
+  //   @Param('template_year_id') template_year_id: string
+  // ) {
+  //   const {
+  //     annualConfigurator: { annual_configurator_id },
+  //   } = request.user as Express.User;
+  //   return {
+  //     academic_year_id: await this.academicYearService.template(
+  //       template_year_id,
+  //       templateOptions,
+  //       annual_configurator_id
+  //     ),
+  //   };
+  // }
 }

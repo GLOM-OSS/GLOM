@@ -8,7 +8,7 @@ import { CreateInquiryDto, InquiryEntity } from './inquiries.dto';
 export class InquiriesController {
   constructor(private inquiriesService: InquiriesService) {}
 
-  @Get('all')
+  @Get()
   @ApiOkResponse({ type: [InquiryEntity] })
   getAllInquiries() {
     return this.inquiriesService.findAll();

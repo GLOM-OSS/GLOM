@@ -1,3 +1,4 @@
+import { useVerifyAmbassador } from '@glom/data-access/squoolr';
 import { SubmitSchoolDemandPayload } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
 import { Box, Button, MenuItem, TextField, Typography } from '@mui/material';
@@ -32,18 +33,16 @@ export default function ReferralInformation({
   const formik = useFormik({
     initialValues: data,
     validationSchema,
-    onSubmit: (values, { resetForm }) => {
-      if (values.referral_code) {
-        //TODO: VALIDATE THE ENTERED referral_code here before moving on. if invalid, then alert invalid referral
-        // either they leave it empty or they enter a valid number
+    onSubmit: (values) => {
+      if (!values.referral_code || (values.referral_code && isRefferalValid)) {
         onNext(values);
-        resetForm();
-      } else {
-        onNext(values);
-        resetForm();
       }
     },
   });
+  const { data: isRefferalValid } = useVerifyAmbassador(
+    formik.values.referral_code
+  );
+
   return (
     <Box
       component="form"

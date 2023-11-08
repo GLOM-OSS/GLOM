@@ -1,8 +1,9 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { AmbassadorsService } from './ambassadors.service';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AmbassadorEntity } from './ambassadors.dto';
 
+@ApiTags('Ambassadors')
 @Controller('ambassadors')
 export class AmbassadorsController {
   constructor(private ambassadorsService: AmbassadorsService) {}

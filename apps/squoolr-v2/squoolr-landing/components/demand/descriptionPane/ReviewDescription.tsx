@@ -1,6 +1,6 @@
 import { useTheme } from '@glom/theme';
 import { Box, InputAdornment, TextField, Typography } from '@mui/material';
-import { determinePhoneNetworkLogo, validatePhoneNumber } from '@squoolr/utils';
+import { determinePhoneNetworkLogo, validatePhoneNumber } from '@glom/utils';
 import Image from 'next/image';
 import { useIntl } from 'react-intl';
 

@@ -27,6 +27,7 @@ const schoolSelectAttr = Prisma.validator<Prisma.SchoolArgs>()({
     school_name: true,
     subdomain: true,
     school_phone_number: true,
+    created_at: true,
     SchoolDemand: {
       include: {
         Payment: true,
@@ -280,13 +281,14 @@ export class DemandService {
   }
 
   async validateDemand(
-    { school_code, rejection_reason, subdomain }: ValidateDemandDto,
+    school_id: string,
+    { rejection_reason, subdomain }: ValidateDemandDto,
     audited_by: string
   ) {
     const schoolDemand = await this.prismaService.schoolDemand.findFirst({
       include: { Payment: true },
       where: {
-        School: { school_code },
+        School: { school_id },
       },
     });
     if (!schoolDemand) throw new NotFoundException('School demand');
@@ -320,17 +322,16 @@ export class DemandService {
   }
 
   async updateStatus(
-    school_code: string,
+    school_id: string,
     payload: UpdateSchoolStatus,
     audited_by: string
   ) {
     const schoolDemand = await this.prismaService.schoolDemand.findFirst({
-      where: { School: { school_code } },
+      where: { School: { school_id } },
     });
     if (!schoolDemand) throw new NotFoundException('School demand');
 
-    const { demand_status, ambassador_id, rejection_reason, school_demand_id } =
-      schoolDemand;
+    const { demand_status, ambassador_id, rejection_reason } = schoolDemand;
     await this.prismaService.schoolDemand.update({
       data: {
         demand_status: payload.school_status,
@@ -343,7 +344,7 @@ export class DemandService {
           },
         },
       },
-      where: { school_demand_id },
+      where: { school_id },
     });
   }
 }

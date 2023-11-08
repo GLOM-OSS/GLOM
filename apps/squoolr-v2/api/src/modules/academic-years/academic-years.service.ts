@@ -14,14 +14,14 @@ import {
 } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
-import { SessionData, UserRole } from '../auth/auth';
-import { Role } from '../auth/auth.decorator';
+import { SessionData, UserRole } from '../../app/auth/auth';
+import { Role } from '../../utils/enums';
 import {
   AcademicYearEntity,
   CreateAcademicYearDto,
   TemplateAcademicYearDto,
 } from './academic-years.dto';
-import { SessionEntity } from '../auth/auth.dto';
+import { SessionEntity } from '../../app/auth/auth.dto';
 
 @Injectable()
 export class AcademicYearsService {
@@ -97,268 +97,268 @@ export class AcademicYearsService {
     return new AcademicYearEntity(academicYear);
   }
 
-  async template(
-    template_year_id: string,
-    {
-      ends_at,
-      starts_at,
-      classroomCodes,
-      personnelConfig: {
-        reuse_configurators,
-        reuse_coordinators,
-        reuse_registries,
-        reuse_teachers,
-      },
-      reuse_coordinators_configs,
-      reuse_registries_configs,
-    }: TemplateAcademicYearDto,
-    added_by: string
-  ) {
-    if (starts_at > ends_at)
-      throw new BadRequestException('Invalid date range');
+  // async template(
+  //   template_year_id: string,
+  //   {
+  //     ends_at,
+  //     starts_at,
+  //     classroomCodes,
+  //     personnelConfig: {
+  //       reuse_configurators,
+  //       reuse_coordinators,
+  //       reuse_registries,
+  //       reuse_teachers,
+  //     },
+  //     reuse_coordinators_configs,
+  //     reuse_registries_configs,
+  //   }: TemplateAcademicYearDto,
+  //   added_by: string
+  // ) {
+  //   if (starts_at > ends_at)
+  //     throw new BadRequestException('Invalid date range');
 
-    let academicYear = await this.prismaService.academicYear.findUnique({
-      where: { academic_year_id: template_year_id },
-    });
-    if (!academicYear) throw new NotFoundException('Academic year not found');
+  //   let academicYear = await this.prismaService.academicYear.findUnique({
+  //     where: { academic_year_id: template_year_id },
+  //   });
+  //   if (!academicYear) throw new NotFoundException('Academic year not found');
 
-    const { school_id } = academicYear;
-    //checking if there's any overlapping year
-    academicYear = await this.prismaService.academicYear.findFirst({
-      where: {
-        OR: {
-          ends_at: {
-            lt: new Date(starts_at),
-          },
-          starts_at: {
-            gt: new Date(ends_at),
-          },
-        },
-      },
-    });
-    if (academicYear) throw new ConflictException('Conflicting academic years');
+  //   const { school_id } = academicYear;
+  //   //checking if there's any overlapping year
+  //   academicYear = await this.prismaService.academicYear.findFirst({
+  //     where: {
+  //       OR: {
+  //         ends_at: {
+  //           lt: new Date(starts_at),
+  //         },
+  //         starts_at: {
+  //           gt: new Date(ends_at),
+  //         },
+  //       },
+  //     },
+  //   });
+  //   if (academicYear) throw new ConflictException('Conflicting academic years');
 
-    const academicYearId = randomUUID();
-    const newConfigurators: Prisma.AnnualConfiguratorCreateManyInput[] = [];
+  //   const academicYearId = randomUUID();
+  //   const newConfigurators: Prisma.AnnualConfiguratorCreateManyInput[] = [];
 
-    if (reuse_configurators) {
-      const configurators =
-        await this.prismaService.annualConfigurator.findMany({
-          select: { matricule: true, login_id: true },
-          where: { academic_year_id: template_year_id, is_deleted: false },
-        });
-      newConfigurators.push(
-        ...configurators.map((configurator) => ({
-          ...configurator,
-          added_by,
-          academic_year_id: academicYearId,
-        }))
-      );
-    }
+  //   if (reuse_configurators) {
+  //     const configurators =
+  //       await this.prismaService.annualConfigurator.findMany({
+  //         select: { matricule: true, login_id: true },
+  //         where: { academic_year_id: template_year_id, is_deleted: false },
+  //       });
+  //     newConfigurators.push(
+  //       ...configurators.map((configurator) => ({
+  //         ...configurator,
+  //         added_by,
+  //         academic_year_id: academicYearId,
+  //       }))
+  //     );
+  //   }
 
-    const newRegistries: Prisma.AnnualRegistryCreateManyInput[] = [];
-    if (reuse_registries) {
-      const registries = await this.prismaService.annualRegistry.findMany({
-        select: { matricule: true, login_id: true, private_code: true },
-        where: { academic_year_id: template_year_id },
-      });
-      newRegistries.push(
-        ...registries.map((registry) => ({
-          ...registry,
-          added_by,
-          academic_year_id: academicYearId,
-        }))
-      );
-    }
+  //   const newRegistries: Prisma.AnnualRegistryCreateManyInput[] = [];
+  //   if (reuse_registries) {
+  //     const registries = await this.prismaService.annualRegistry.findMany({
+  //       select: { matricule: true, login_id: true, private_code: true },
+  //       where: { academic_year_id: template_year_id },
+  //     });
+  //     newRegistries.push(
+  //       ...registries.map((registry) => ({
+  //         ...registry,
+  //         added_by,
+  //         academic_year_id: academicYearId,
+  //       }))
+  //     );
+  //   }
 
-    const newTeachers: Prisma.AnnualTeacherCreateManyInput[] = [];
-    if (reuse_teachers) {
-      const teachers = await this.prismaService.annualTeacher.findMany({
-        select: {
-          hourly_rate: true,
-          origin_institute: true,
-          teaching_grade_id: true,
-          teacher_id: true,
-          has_signed_convention: true,
-          login_id: true,
-        },
-        where: { academic_year_id: template_year_id, is_deleted: false },
-      });
-      newTeachers.push(
-        ...teachers.map((teacher) => ({
-          ...teacher,
-          created_by: added_by,
-          annual_teacher_id: randomUUID(),
-          academic_year_id: academicYearId,
-        }))
-      );
-    }
+  //   const newTeachers: Prisma.AnnualTeacherCreateManyInput[] = [];
+  //   if (reuse_teachers) {
+  //     const teachers = await this.prismaService.annualTeacher.findMany({
+  //       select: {
+  //         hourly_rate: true,
+  //         origin_institute: true,
+  //         teaching_grade_id: true,
+  //         teacher_id: true,
+  //         has_signed_convention: true,
+  //         login_id: true,
+  //       },
+  //       where: { academic_year_id: template_year_id, is_deleted: false },
+  //     });
+  //     newTeachers.push(
+  //       ...teachers.map((teacher) => ({
+  //         ...teacher,
+  //         created_by: added_by,
+  //         annual_teacher_id: randomUUID(),
+  //         academic_year_id: academicYearId,
+  //       }))
+  //     );
+  //   }
 
-    const newMajors: Prisma.AnnualMajorCreateManyInput[] = [];
-    const newClassrooms: Prisma.AnnualClassroomCreateManyInput[] = [];
-    const newClassroomDivisions: Prisma.AnnualClassroomDivisionCreateManyInput[] =
-      [];
-    if (classroomCodes.length > 0) {
-      const majors = await this.prismaService.annualMajor.findMany({
-        select: {
-          major_acronym: true,
-          major_code: true,
-          major_name: true,
-          major_id: true,
-          department_id: true,
-        },
-        where: {
-          is_deleted: false,
-          academic_year_id: template_year_id,
-          OR: [
-            ...classroomCodes.map((code) => ({
-              Major: { Classrooms: { some: { classroom_code: code } } },
-            })),
-          ],
-        },
-      });
-      newMajors.push(
-        ...majors.map((data) => ({
-          ...data,
-          created_by: added_by,
-          academic_year_id: academicYearId,
-        }))
-      );
-      const classrooms = await this.prismaService.annualClassroom.findMany({
-        select: {
-          classroom_acronym: true,
-          classroom_code: true,
-          classroom_id: true,
-          classroom_name: true,
-          registration_fee: true,
-          total_fee_due: true,
-          AnnualClassroomDivisions: {
-            select: {
-              annual_classroom_id: true,
-              division_letter: true,
-              AnnualTeacher: {
-                select: {
-                  Teacher: {
-                    select: {
-                      teacher_id: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        where: {
-          academic_year_id: template_year_id,
-          is_deleted: false,
-          OR: [...classroomCodes.map((code) => ({ classroom_code: code }))],
-        },
-      });
-      newClassrooms.push(
-        ...classrooms.map(({ AnnualClassroomDivisions, ...classroom }) => {
-          newClassroomDivisions.push(
-            ...AnnualClassroomDivisions.map(
-              ({
-                AnnualTeacher: {
-                  Teacher: { teacher_id },
-                },
-                ...data
-              }) => ({
-                ...data,
-                created_by: added_by,
-                annual_coordinator_id: reuse_coordinators
-                  ? newTeachers.find(({ teacher_id: id }) => id === teacher_id)
-                      .annual_teacher_id
-                  : null,
-              })
-            )
-          );
-          return {
-            ...classroom,
-            academic_year_id: academicYearId,
-          };
-        })
-      );
-    }
+  //   const newMajors: Prisma.AnnualMajorCreateManyInput[] = [];
+  //   const newClassrooms: Prisma.AnnualClassroomCreateManyInput[] = [];
+  //   const newClassroomDivisions: Prisma.AnnualClassroomDivisionCreateManyInput[] =
+  //     [];
+  //   if (classroomCodes.length > 0) {
+  //     const majors = await this.prismaService.annualMajor.findMany({
+  //       select: {
+  //         major_acronym: true,
+  //         major_code: true,
+  //         major_name: true,
+  //         major_id: true,
+  //         department_id: true,
+  //       },
+  //       where: {
+  //         is_deleted: false,
+  //         academic_year_id: template_year_id,
+  //         OR: [
+  //           ...classroomCodes.map((code) => ({
+  //             Major: { Classrooms: { some: { classroom_code: code } } },
+  //           })),
+  //         ],
+  //       },
+  //     });
+  //     newMajors.push(
+  //       ...majors.map((data) => ({
+  //         ...data,
+  //         created_by: added_by,
+  //         academic_year_id: academicYearId,
+  //       }))
+  //     );
+  //     const classrooms = await this.prismaService.annualClassroom.findMany({
+  //       select: {
+  //         classroom_acronym: true,
+  //         classroom_code: true,
+  //         classroom_id: true,
+  //         classroom_name: true,
+  //         registration_fee: true,
+  //         total_fee_due: true,
+  //         AnnualClassroomDivisions: {
+  //           select: {
+  //             annual_classroom_id: true,
+  //             division_letter: true,
+  //             AnnualTeacher: {
+  //               select: {
+  //                 Teacher: {
+  //                   select: {
+  //                     teacher_id: true,
+  //                   },
+  //                 },
+  //               },
+  //             },
+  //           },
+  //         },
+  //       },
+  //       where: {
+  //         academic_year_id: template_year_id,
+  //         is_deleted: false,
+  //         OR: [...classroomCodes.map((code) => ({ classroom_code: code }))],
+  //       },
+  //     });
+  //     newClassrooms.push(
+  //       ...classrooms.map(({ AnnualClassroomDivisions, ...classroom }) => {
+  //         newClassroomDivisions.push(
+  //           ...AnnualClassroomDivisions.map(
+  //             ({
+  //               AnnualTeacher: {
+  //                 Teacher: { teacher_id },
+  //               },
+  //               ...data
+  //             }) => ({
+  //               ...data,
+  //               created_by: added_by,
+  //               annual_coordinator_id: reuse_coordinators
+  //                 ? newTeachers.find(({ teacher_id: id }) => id === teacher_id)
+  //                     .annual_teacher_id
+  //                 : null,
+  //             })
+  //           )
+  //         );
+  //         return {
+  //           ...classroom,
+  //           academic_year_id: academicYearId,
+  //         };
+  //       })
+  //     );
+  //   }
 
-    if (reuse_coordinators_configs) {
-      //TODO complete this methode after working on coordinator settings
-    }
-    if (reuse_registries_configs) {
-      //TODO complete this methode after working on registry settings
-    }
+  //   if (reuse_coordinators_configs) {
+  //     //TODO complete this methode after working on coordinator settings
+  //   }
+  //   if (reuse_registries_configs) {
+  //     //TODO complete this methode after working on registry settings
+  //   }
 
-    const { matricule, login_id } =
-      await this.prismaService.annualConfigurator.findUnique({
-        select: { matricule: true, login_id: true },
-        where: { annual_configurator_id: added_by },
-      });
-    const year_code = await this.codeGenerator.getYearCode(
-      new Date(starts_at).getFullYear(),
-      new Date(ends_at).getFullYear(),
-      school_id
-    );
-    const {
-      AnnualCarryOverSytems,
-      AnnualSemesterExamAcess,
-      AnnualEvaluationSubTypes,
-    } = await this.buildAcademicYearDefaultCreateInput(added_by);
-    await this.prismaService.$transaction([
-      this.prismaService.academicYear.create({
-        data: {
-          ends_at,
-          starts_at,
-          year_code,
-          academic_year_id: academicYearId,
-          AnnualConfigurator: {
-            connect: { annual_configurator_id: added_by },
-          },
-          School: { connect: { school_id } },
-          AnnualCarryOverSytems,
-          AnnualSemesterExamAcess,
-          AnnualEvaluationSubTypes,
-        },
-      }),
-      this.prismaService.annualConfigurator.create({
-        data: {
-          matricule,
-          is_sudo: true,
-          Login: { connect: { login_id } },
-          CreatedByAnnualConfigurator: {
-            connect: { annual_configurator_id: added_by },
-          },
-          AcademicYear: {
-            connect: { year_code },
-          },
-        },
-      }),
-      this.prismaService.annualConfigurator.createMany({
-        data: newConfigurators,
-        skipDuplicates: true,
-      }),
-      this.prismaService.annualRegistry.createMany({
-        data: newRegistries,
-        skipDuplicates: true,
-      }),
-      this.prismaService.annualTeacher.createMany({
-        data: newTeachers,
-      }),
-      this.prismaService.annualMajor.createMany({
-        data: newMajors,
-        skipDuplicates: true,
-      }),
-      this.prismaService.annualClassroom.createMany({
-        data: newClassrooms,
-        skipDuplicates: true,
-      }),
-      this.prismaService.annualClassroomDivision.createMany({
-        data: newClassroomDivisions,
-        skipDuplicates: true,
-      }),
-      //TODO create academic year template information
-    ]);
-    return academicYearId;
-  }
+  //   const { matricule, login_id } =
+  //     await this.prismaService.annualConfigurator.findUnique({
+  //       select: { matricule: true, login_id: true },
+  //       where: { annual_configurator_id: added_by },
+  //     });
+  //   const year_code = await this.codeGenerator.getYearCode(
+  //     new Date(starts_at).getFullYear(),
+  //     new Date(ends_at).getFullYear(),
+  //     school_id
+  //   );
+  //   const {
+  //     AnnualCarryOverSytems,
+  //     AnnualSemesterExamAcess,
+  //     AnnualEvaluationSubTypes,
+  //   } = await this.buildAcademicYearDefaultCreateInput(added_by);
+  //   await this.prismaService.$transaction([
+  //     this.prismaService.academicYear.create({
+  //       data: {
+  //         ends_at,
+  //         starts_at,
+  //         year_code,
+  //         academic_year_id: academicYearId,
+  //         AnnualConfigurator: {
+  //           connect: { annual_configurator_id: added_by },
+  //         },
+  //         School: { connect: { school_id } },
+  //         AnnualCarryOverSytems,
+  //         AnnualSemesterExamAcess,
+  //         AnnualEvaluationSubTypes,
+  //       },
+  //     }),
+  //     this.prismaService.annualConfigurator.create({
+  //       data: {
+  //         matricule,
+  //         is_sudo: true,
+  //         Login: { connect: { login_id } },
+  //         CreatedByAnnualConfigurator: {
+  //           connect: { annual_configurator_id: added_by },
+  //         },
+  //         AcademicYear: {
+  //           connect: { year_code },
+  //         },
+  //       },
+  //     }),
+  //     this.prismaService.annualConfigurator.createMany({
+  //       data: newConfigurators,
+  //       skipDuplicates: true,
+  //     }),
+  //     this.prismaService.annualRegistry.createMany({
+  //       data: newRegistries,
+  //       skipDuplicates: true,
+  //     }),
+  //     this.prismaService.annualTeacher.createMany({
+  //       data: newTeachers,
+  //     }),
+  //     this.prismaService.annualMajor.createMany({
+  //       data: newMajors,
+  //       skipDuplicates: true,
+  //     }),
+  //     this.prismaService.annualClassroom.createMany({
+  //       data: newClassrooms,
+  //       skipDuplicates: true,
+  //     }),
+  //     this.prismaService.annualClassroomDivision.createMany({
+  //       data: newClassroomDivisions,
+  //       skipDuplicates: true,
+  //     }),
+  //     //TODO create academic year template information
+  //   ]);
+  //   return academicYearId;
+  // }
 
   async findAll(login_id: string) {
     //check for annual student
@@ -388,7 +388,7 @@ export class AcademicYearsService {
     //check for annual teachers
     const annualTeachers = await this.prismaService.annualTeacher.findMany({
       select: { AcademicYear: true },
-      where: { login_id, is_deleted: false },
+      where: { Teacher: { login_id }, is_deleted: false },
     });
 
     return [
@@ -530,7 +530,7 @@ export class AcademicYearsService {
         where: {
           academic_year_id,
           is_deleted: false,
-          login_id,
+          Teacher: { login_id },
         },
       });
       if (annualTeacher) {
