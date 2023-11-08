@@ -1,9 +1,15 @@
 import {
+  ApiExtraModels,
   ApiProperty,
   ApiPropertyOptional,
+  IntersectionType,
   OmitType,
   PartialType,
+  PickType,
+  getSchemaPath,
 } from '@nestjs/swagger';
+import { Gender } from '@prisma/client';
+import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsEnum,
@@ -11,13 +17,12 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  ValidateNested,
 } from 'class-validator';
+import { CreatePersonDto } from '../../app/auth/auth.dto';
+import { StaffRole } from '../../utils/enums';
 import { QueryParamsDto } from '../modules.dto';
 import { StaffIDs } from './staff';
-import { Gender } from '@prisma/client';
-import { StaffRole } from '../../utils/enums';
-import { CreatePersonDto } from '../../app/auth/auth.dto';
-import { Type } from 'class-transformer';
 
 export class QueryStaffDto extends QueryParamsDto {
   @IsOptional()
@@ -88,7 +93,7 @@ export class StaffEntity implements StaffIDs {
   }
 }
 
-export class CreateConfiguratorDto extends OmitType(CreatePersonDto, [
+export class CreatePersonWithRoleDto extends OmitType(CreatePersonDto, [
   'password',
 ]) {
   @IsEnum(StaffRole)
@@ -96,7 +101,22 @@ export class CreateConfiguratorDto extends OmitType(CreatePersonDto, [
   role: StaffRole;
 }
 
+export class CreateConfiguratorDto extends CreatePersonWithRoleDto {
+  @IsEnum([StaffRole.CONFIGURATOR])
+  @ApiProperty({ enum: [StaffRole.CONFIGURATOR] })
+  role: StaffRole.CONFIGURATOR;
+}
+export class CreateRegistryDto extends CreatePersonWithRoleDto {
+  @IsEnum([StaffRole.REGISTRY])
+  @ApiProperty({ enum: [StaffRole.REGISTRY] })
+  role: StaffRole.REGISTRY;
+}
+
 export class CreateCoordinatorDto extends StaffRoleDto {
+  @IsEnum([StaffRole.COORDINATOR])
+  @ApiProperty({ enum: [StaffRole.COORDINATOR] })
+  role: StaffRole.COORDINATOR;
+
   @IsString()
   @ApiProperty()
   annual_teacher_id: string;
@@ -106,7 +126,11 @@ export class CreateCoordinatorDto extends StaffRoleDto {
   annualClassroomIds: string[];
 }
 
-export class CreateTeacherDto extends CreateConfiguratorDto {
+export class CreateTeacherDto extends CreatePersonWithRoleDto {
+  @IsEnum([StaffRole.TEACHER])
+  @ApiProperty({ enum: [StaffRole.TEACHER] })
+  role: StaffRole.TEACHER;
+
   @IsUUID()
   @ApiProperty()
   teaching_grade_id: string;
@@ -137,65 +161,96 @@ export class CreateTeacherDto extends CreateConfiguratorDto {
   tax_payer_card_number?: string;
 }
 
-export class CreateStaffDto {
-  @Type(() => StaffRoleDto, {
-    discriminator: {
-      property: 'role',
-      subTypes: [
-        {
-          value: CreateConfiguratorDto,
-          name: StaffRole.CONFIGURATOR,
-        },
-        {
-          value: CreateConfiguratorDto,
-          name: StaffRole.REGISTRY,
-        },
-        {
-          value: CreateCoordinatorDto,
-          name: StaffRole.COORDINATOR,
-        },
-        {
-          value: CreateTeacherDto,
-          name: StaffRole.TEACHER,
-        },
-      ],
-    },
-  })
-  @ApiProperty({ type: StaffRoleDto })
-  payload: CreateConfiguratorDto | CreateCoordinatorDto | CreateTeacherDto;
-}
-
-export class UpdateConfiguratorDto extends PartialType(CreateConfiguratorDto) {}
+export class UpdateConfiguratorDto extends IntersectionType(
+  CreateConfiguratorDto,
+  PartialType(OmitType(CreateConfiguratorDto, ['role']))
+) {}
+export class UpdateRegistryDto extends IntersectionType(
+  CreateRegistryDto,
+  PartialType(OmitType(CreateRegistryDto, ['role']))
+) {}
 export class UpdateCoordinatorDto extends OmitType(CreateCoordinatorDto, [
   'annual_teacher_id',
 ]) {}
+export class UpdateTeacherDto extends IntersectionType(
+  CreateTeacherDto,
+  PartialType(OmitType(CreateTeacherDto, ['role']))
+) {}
 
-export class UpdateTeacherDto extends PartialType(CreateTeacherDto) {}
+const getStaffSubTypes = (action: 'create' | 'update') => [
+  {
+    value: action === 'create' ? CreateConfiguratorDto : UpdateConfiguratorDto,
+    name: StaffRole.CONFIGURATOR,
+  },
+  {
+    value: action === 'create' ? CreateRegistryDto : UpdateRegistryDto,
+    name: StaffRole.REGISTRY,
+  },
+  {
+    value: action === 'create' ? CreateCoordinatorDto : UpdateCoordinatorDto,
+    name: StaffRole.COORDINATOR,
+  },
+  {
+    value: action === 'create' ? CreateTeacherDto : UpdateTeacherDto,
+    name: StaffRole.TEACHER,
+  },
+];
 
+export type CreateStaffPayloadDto =
+  | CreateConfiguratorDto
+  | CreateCoordinatorDto
+  | CreateTeacherDto;
+@ApiExtraModels(
+  CreateConfiguratorDto,
+  CreateRegistryDto,
+  CreateCoordinatorDto,
+  CreateTeacherDto
+)
+export class CreateStaffDto {
+  @ValidateNested()
+  @Type(() => StaffRoleDto, {
+    discriminator: {
+      property: 'role',
+      subTypes: getStaffSubTypes('create'),
+    },
+    keepDiscriminatorProperty: true,
+  })
+  @ApiProperty({
+    oneOf: [
+      { $ref: getSchemaPath(CreateConfiguratorDto) },
+      { $ref: getSchemaPath(CreateRegistryDto) },
+      { $ref: getSchemaPath(CreateCoordinatorDto) },
+      { $ref: getSchemaPath(CreateTeacherDto) },
+    ],
+  })
+  payload: CreateStaffPayloadDto;
+}
+
+export type UpdateStaffPayloadDto =
+  | UpdateConfiguratorDto
+  | UpdateCoordinatorDto
+  | UpdateTeacherDto;
+@ApiExtraModels(
+  UpdateConfiguratorDto,
+  UpdateRegistryDto,
+  UpdateCoordinatorDto,
+  UpdateTeacherDto
+)
 export class UpdateStaffDto {
   @Type(() => StaffRoleDto, {
     discriminator: {
       property: 'role',
-      subTypes: [
-        {
-          value: UpdateConfiguratorDto,
-          name: StaffRole.CONFIGURATOR,
-        },
-        {
-          value: UpdateConfiguratorDto,
-          name: StaffRole.REGISTRY,
-        },
-        {
-          value: UpdateCoordinatorDto,
-          name: StaffRole.COORDINATOR,
-        },
-        {
-          value: UpdateTeacherDto,
-          name: StaffRole.TEACHER,
-        },
-      ],
+      subTypes: getStaffSubTypes('update'),
     },
+    keepDiscriminatorProperty: true,
   })
-  @ApiProperty({ type: StaffRoleDto })
-  payload: UpdateConfiguratorDto | UpdateCoordinatorDto | UpdateTeacherDto;
+  @ApiProperty({
+    oneOf: [
+      { $ref: getSchemaPath(UpdateConfiguratorDto) },
+      { $ref: getSchemaPath(UpdateRegistryDto) },
+      { $ref: getSchemaPath(UpdateCoordinatorDto) },
+      { $ref: getSchemaPath(UpdateTeacherDto) },
+    ],
+  })
+  payload: UpdateStaffPayloadDto;
 }

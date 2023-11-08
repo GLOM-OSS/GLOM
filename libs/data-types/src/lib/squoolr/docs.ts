@@ -437,15 +437,120 @@ export interface components {
       annual_coordinator_id?: string;
       roles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
     };
-    StaffRoleDto: {
+    CreateConfiguratorDto: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone_number: string;
+      /** Format: date-time */
+      birthdate?: string;
       /** @enum {string} */
-      role: "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR";
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      /** @enum {string} */
+      role: "CONFIGURATOR";
+    };
+    CreateRegistryDto: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone_number: string;
+      /** Format: date-time */
+      birthdate?: string;
+      /** @enum {string} */
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      /** @enum {string} */
+      role: "REGISTRY";
+    };
+    CreateCoordinatorDto: {
+      /** @enum {string} */
+      role: "COORDINATOR";
+      annual_teacher_id: string;
+      annualClassroomIds: string[];
+    };
+    CreateTeacherDto: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone_number: string;
+      /** Format: date-time */
+      birthdate?: string;
+      /** @enum {string} */
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      /** @enum {string} */
+      role: "TEACHER";
+      teaching_grade_id: string;
+      teacher_type_id: string;
+      origin_institute: string;
+      hourly_rate: number;
+      has_signed_convention: boolean;
+      has_tax_payers_card: boolean;
+      tax_payer_card_number?: string;
     };
     CreateStaffDto: {
-      payload: components["schemas"]["StaffRoleDto"];
+      payload: components["schemas"]["CreateConfiguratorDto"] | components["schemas"]["CreateRegistryDto"] | components["schemas"]["CreateCoordinatorDto"] | components["schemas"]["CreateTeacherDto"];
+    };
+    UpdateConfiguratorDto: {
+      first_name?: string;
+      last_name?: string;
+      email?: string;
+      phone_number?: string;
+      /** Format: date-time */
+      birthdate?: string;
+      /** @enum {string} */
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      /** @enum {string} */
+      role: "CONFIGURATOR";
+    };
+    UpdateRegistryDto: {
+      first_name?: string;
+      last_name?: string;
+      email?: string;
+      phone_number?: string;
+      /** Format: date-time */
+      birthdate?: string;
+      /** @enum {string} */
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      /** @enum {string} */
+      role: "REGISTRY";
+    };
+    UpdateCoordinatorDto: {
+      /** @enum {string} */
+      role: "COORDINATOR";
+      annualClassroomIds: string[];
+    };
+    UpdateTeacherDto: {
+      first_name?: string;
+      last_name?: string;
+      email?: string;
+      phone_number?: string;
+      /** Format: date-time */
+      birthdate?: string;
+      /** @enum {string} */
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      /** @enum {string} */
+      role: "TEACHER";
+      teaching_grade_id?: string;
+      teacher_type_id?: string;
+      origin_institute?: string;
+      hourly_rate?: number;
+      has_signed_convention?: boolean;
+      has_tax_payers_card?: boolean;
+      tax_payer_card_number?: string;
     };
     UpdateStaffDto: {
-      payload: components["schemas"]["StaffRoleDto"];
+      payload: components["schemas"]["UpdateConfiguratorDto"] | components["schemas"]["UpdateRegistryDto"] | components["schemas"]["UpdateCoordinatorDto"] | components["schemas"]["UpdateTeacherDto"];
     };
   };
   responses: never;
