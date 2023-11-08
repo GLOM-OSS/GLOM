@@ -13,6 +13,7 @@ import {
   CreateCoordinatorDto,
   CreateStaffDto,
   StaffEntity,
+  StaffRoleDto,
   UpdateStaffDto,
 } from './staff.dto';
 import { TeachersService } from './teachers/teachers.service';
@@ -104,6 +105,18 @@ export class StaffService {
       annual_staff_id,
       payload,
       audited_by
+    );
+  }
+
+  async disable(
+    annual_staff_id: string,
+    payload: StaffRoleDto,
+    disabled_by: string
+  ) {
+    return this.staffServices[payload.role].update(
+      annual_staff_id,
+      { is_deleted: true },
+      disabled_by
     );
   }
 }

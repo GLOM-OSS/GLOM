@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -24,13 +25,14 @@ import {
   QueryOneStaffDto,
   QueryStaffDto,
   StaffEntity,
+  StaffRoleDto,
   UpdateStaffDto,
 } from './staff.dto';
 import { StaffService } from './staff.service';
 
 @ApiTags('Staffs')
 @Controller('staffs')
-@UseGuards(AuthenticatedGuard)
+// @UseGuards(AuthenticatedGuard)
 export class StaffController {
   constructor(private staffService: StaffService) {}
 
@@ -91,6 +93,29 @@ export class StaffController {
     return this.staffService.update(
       annualTeacherId,
       newStaff.payload,
+      annual_configurator_id
+    );
+  }
+
+  @Delete([
+    ':annual_teacher_id',
+    ':annual_coordinator_id',
+    ':annual_configurator_id',
+    ':annual_registry_id',
+  ])
+  @Roles(Role.CONFIGURATOR)
+  @ApiNoContentResponse()
+  async disableStaff(
+    @Req() request: Request,
+    @Param('annual_teacher_id') annualTeacherId: string,
+    @Body() payload: StaffRoleDto
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user;
+    return this.staffService.disable(
+      annualTeacherId,
+      payload,
       annual_configurator_id
     );
   }

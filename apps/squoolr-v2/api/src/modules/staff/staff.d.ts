@@ -25,7 +25,9 @@ export type CreateStaffInput = Prisma.PersonCreateInput &
     'matricule' | 'private_code' | 'academic_year_id'
   > &
   Pick<Prisma.LoginCreateManyInput, 'password' | 'school_id'>;
-export type UpdateStaffInput = Partial<Prisma.PersonCreateInput>;
+export type UpdateStaffInput = Partial<
+  Prisma.PersonCreateInput & { is_deleted: boolean }
+>;
 
 type TeacherCreateInput = Omit<Prisma.TeacherCreateManyInput, 'teacher_id'> &
   Pick<
@@ -36,7 +38,8 @@ type TeacherCreateInput = Omit<Prisma.TeacherCreateManyInput, 'teacher_id'> &
     | 'teaching_grade_id'
   >;
 export type CreateTeacherInput = CreateStaffInput & TeacherCreateInput;
-export type UpdateTeacherInput = UpdateStaffInput & Partial<TeacherCreateInput>;
+export type UpdateTeacherInput =
+  | UpdateStaffInput & Partial<TeacherCreateInput & { is_deleted: true }>;
 
 export type CreateCoordinatorInput = {
   annual_teacher_id: string;
@@ -54,13 +57,17 @@ export interface IStaffService<
 > {
   findOne: (annual_staff_id: string) => Promise<T>;
   findAll: (staffParams?: StaffSelectParams) => Promise<T[]>;
-  create(
+  create: (
     payload: P,
     created_by: string
-  ): Promise<P extends CreateCoordinatorInput ? BatchPayload : T>;
-  update(
+  ) => Promise<P extends CreateCoordinatorInput ? BatchPayload : T>;
+  update: (
     annual_staff_id: string,
     payload: U,
     audited_by: string
-  ): Promise<void>;
+  ) => Promise<void>;
+  disableMany?: (
+    annualStaffIds: string[],
+    disabled_by: string
+  ) => Promise<BatchPayload>;
 }
