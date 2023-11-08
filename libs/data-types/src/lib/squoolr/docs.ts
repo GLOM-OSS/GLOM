@@ -96,6 +96,27 @@ export interface paths {
     put: operations["ClassroomsController_updateClassroom"];
     delete: operations["ClassroomsController_deleteClassroom"];
   };
+  "/v1/staffs": {
+    get: operations["StaffController_getAllStaff"];
+  };
+  "/v1/staffs/{annual_staff_id}": {
+    get: operations["StaffController_getStaff"];
+  };
+  "/v1/staffs/new": {
+    post: operations["StaffController_createStaff"];
+  };
+  "/v1/staffs/{annual_teacher_id}": {
+    put: operations["StaffController_updateStaff"];
+  };
+  "/v1/staffs/{annual_coordinator_id}": {
+    put: operations["StaffController_updateStaff"];
+  };
+  "/v1/staffs/{annual_configurator_id}": {
+    put: operations["StaffController_updateStaff"];
+  };
+  "/v1/staffs/{annual_registry_id}": {
+    put: operations["StaffController_updateStaff"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -394,6 +415,37 @@ export interface components {
     UpdateClassroomDto: {
       registration_fee?: number;
       total_fee_due?: number;
+    };
+    StaffEntity: {
+      email: string;
+      login_id: string;
+      last_name: string;
+      first_name: string;
+      phone_number: string;
+      matricule: string;
+      national_id_number: string;
+      /** Format: date-time */
+      birthdate: string;
+      address: string;
+      /** @enum {string} */
+      gender: "Male" | "Female";
+      /** Format: date-time */
+      last_connected: string;
+      annual_configurator_id?: string;
+      annual_registry_id?: string;
+      annual_teacher_id?: string;
+      annual_coordinator_id?: string;
+      roles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
+    };
+    StaffRoleDto: {
+      /** @enum {string} */
+      role: "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR";
+    };
+    CreateStaffDto: {
+      payload: components["schemas"]["StaffRoleDto"];
+    };
+    UpdateStaffDto: {
+      payload: components["schemas"]["StaffRoleDto"];
     };
   };
   responses: never;
@@ -813,6 +865,70 @@ export interface operations {
     parameters: {
       path: {
         annual_classroom_id: string;
+      };
+    };
+    responses: {
+      204: {
+        content: never;
+      };
+    };
+  };
+  StaffController_getAllStaff: {
+    parameters: {
+      query?: {
+        is_deleted?: boolean;
+        keywords?: string;
+        roles?: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["StaffEntity"][];
+        };
+      };
+    };
+  };
+  StaffController_getStaff: {
+    parameters: {
+      query: {
+        role: "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR";
+      };
+      path: {
+        annual_staff_id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["StaffEntity"];
+        };
+      };
+    };
+  };
+  StaffController_createStaff: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateStaffDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["StaffEntity"];
+        };
+      };
+    };
+  };
+  StaffController_updateStaff: {
+    parameters: {
+      path: {
+        annual_teacher_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateStaffDto"];
       };
     };
     responses: {

@@ -62,7 +62,7 @@ export class StaffEntity implements StaffIDs {
   @ApiProperty({ nullable: null })
   address: string;
 
-  @ApiProperty({ nullable: null })
+  @ApiProperty({ enum: Gender, nullable: null })
   gender: Gender;
 
   @ApiProperty({ nullable: null })

@@ -9,7 +9,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles } from '../../app/auth/auth.decorator';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
@@ -42,7 +47,7 @@ export class StaffController {
     });
   }
 
-  @Get('annual_staff_id')
+  @Get(':annual_staff_id')
   @ApiOkResponse({ type: StaffEntity })
   async getStaff(
     @Param('annual_staff_id') annualStaffId: string,
@@ -53,7 +58,7 @@ export class StaffController {
 
   @Post('new')
   @Roles(Role.CONFIGURATOR)
-  @ApiOkResponse({ type: StaffEntity })
+  @ApiCreatedResponse({ type: StaffEntity })
   async createStaff(@Req() request: Request, @Body() newStaff: CreateStaffDto) {
     const {
       school_id,
@@ -74,7 +79,7 @@ export class StaffController {
     ':annual_registry_id',
   ])
   @Roles(Role.CONFIGURATOR)
-  @ApiOkResponse({ type: StaffEntity })
+  @ApiNoContentResponse()
   async updateStaff(
     @Req() request: Request,
     @Param('annual_teacher_id') annualTeacherId: string,
