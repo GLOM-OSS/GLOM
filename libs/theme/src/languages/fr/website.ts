@@ -577,4 +577,18 @@ export const website = {
   suspend: 'Suspendre',
   yesSuspend: 'Oui, suspendre',
   fromSquoolr: 'de Squoolr ?',
+
+  name: 'Nom',
+  lastConnected: 'Dernière connexion',
+  disableAccounts: 'Désactiver les comptes',
+  disableAccount: 'Désactiver le compte',
+  resetPasswords: 'Réinitialiser les mots de passe',
+  resetConfiguratorPasswordDialogMessage:
+    "Cette action enverra un lien de réinitialisation du mot de passe à l'e-mail du configurateur pour qu'il puisse réinitialiser son mot de passe. Êtes-vous sûr de vouloir continuer ?",
+  resetConfiguratorPasswordsDialogMessage:
+    "Cette action enverra un lien de réinitialisation du mot de passe aux e-mails des configurateurs sélectionnés pour qu'ils puissent réinitialiser leur mot de passe. Êtes-vous sûr de vouloir continuer ?",
+  disableConfiguratorAccountDialogMessage:
+    "Cette action empêchera le configurateur d'accéder à son compte. Êtes-vous sûr de vouloir désactiver ce compte ?",
+  disableConfiguratorAccountsDialogMessage:
+    "Cette action empêchera ces configurateurs d'accéder à leurs comptes. Êtes-vous sûr de vouloir désactiver ces comptes ?",
 };
