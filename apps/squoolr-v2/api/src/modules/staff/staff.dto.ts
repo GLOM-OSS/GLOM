@@ -254,23 +254,21 @@ export class UpdateStaffDto {
   })
   payload: UpdateStaffPayloadDto;
 }
-type DisableStaffInput = {
-  [x in StaffRole]: string[];
-};
-export class DisableStaffDto implements DisableStaffInput {
+
+export class AnnualStaffIDsDto  {
   @ApiProperty()
   @IsString({ each: true })
-  TEACHER: string[];
+  teacherIds: string[];
 
   @ApiProperty()
   @IsString({ each: true })
-  REGISTRY: string[];
+  registryIds: string[];
 
   @ApiProperty()
   @IsString({ each: true })
-  COORDINATOR: string[];
+  coordinatorIds: string[];
 
   @ApiProperty()
   @IsString({ each: true })
-  CONFIGURATOR: string[];
+  configuratorIds: string[];
 }

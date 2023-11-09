@@ -69,7 +69,7 @@ export interface IStaffService<
     payload: U,
     audited_by: string
   ) => Promise<void>;
-  disableMany?: (
+  resetPasswords?: (
     annualStaffIds: string[],
     disabled_by: string
   ) => Promise<BatchPayload>;

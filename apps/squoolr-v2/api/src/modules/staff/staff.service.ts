@@ -12,12 +12,13 @@ import { IStaffService, StaffSelectParams } from './staff';
 import {
   CreateCoordinatorDto,
   CreateStaffDto,
-  DisableStaffDto,
+  AnnualStaffIDsDto,
   StaffEntity,
   StaffRoleDto,
   UpdateStaffDto,
 } from './staff.dto';
 import { TeachersService } from './teachers/teachers.service';
+import { BatchPayloadDto } from '../modules.dto';
 
 @Injectable()
 export class StaffService {
@@ -121,17 +122,83 @@ export class StaffService {
     );
   }
 
-  async disableMany(payload: DisableStaffDto, disabled_by: string) {
+  async disableMany(payload: AnnualStaffIDsDto, disabled_by: string) {
+    const staffIDToRole: Record<string, StaffRole> = {
+      configuratorIds: StaffRole.CONFIGURATOR,
+      registryIds: StaffRole.REGISTRY,
+      teacherIds: StaffRole.TEACHER,
+    };
     return Promise.all(
       Object.keys(payload).reduce<Promise<void>[]>(
         (methods, key) => [
           ...methods,
-          ...payload[key as StaffRole].map((staffId) =>
-            this.disable(staffId, { role: key as StaffRole }, disabled_by)
+          ...payload[key as keyof AnnualStaffIDsDto].map((staffId) =>
+            this.disable(staffId, { role: staffIDToRole[key] }, disabled_by)
           ),
         ],
         []
       )
     );
+  }
+  async resetPasswords(
+    { teacherIds, registryIds, configuratorIds }: AnnualStaffIDsDto,
+    disabledBy: string,
+    isAdmin?: boolean
+  ) {
+    const [teachers, configurators, registries] = await Promise.all([
+      ...(teacherIds?.length > 0
+        ? [
+            this.prismaService.annualTeacher.findMany({
+              select: { Teacher: { select: { login_id: true } } },
+              where: {
+                OR: teacherIds.map((annual_teacher_id) => ({
+                  annual_teacher_id,
+                })),
+              },
+            }),
+          ]
+        : []),
+      ...(configuratorIds?.length > 0
+        ? [
+            this.prismaService.annualConfigurator.findMany({
+              where: {
+                OR: configuratorIds.map((annual_configurator_id) => ({
+                  annual_configurator_id,
+                })),
+              },
+            }),
+          ]
+        : []),
+      ...(registryIds?.length > 0
+        ? [
+            this.prismaService.annualRegistry.findMany({
+              where: {
+                OR: registryIds.map((annual_registry_id) => ({
+                  annual_registry_id,
+                })),
+              },
+            }),
+          ]
+        : []),
+    ]);
+    const { count } = await this.prismaService.resetPassword.createMany({
+      data: [
+        ...[
+          ...registries,
+          ...configurators,
+          ...teachers.map((_) => _.Teacher),
+        ].map(({ login_id }) => ({
+          expires_at: new Date(Date.now() + 6 * 3600 * 1000),
+          login_id,
+          [isAdmin ? 'generated_by_admin' : 'generated_by_confiigurator']:
+            disabledBy,
+        })),
+      ],
+      skipDuplicates: true,
+    });
+    return new BatchPayloadDto({
+      count,
+      message: `Added ${count} records in database`,
+    });
   }
 }

@@ -1,7 +1,6 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
 import { StaffRole } from '../../../utils/enums';
-import { BatchPayload } from '../../module';
 import {
   CreateStaffInput,
   IStaffService,

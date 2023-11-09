@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -21,7 +22,7 @@ import { Role, StaffRole } from '../../utils/enums';
 import { BatchPayloadDto } from '../modules.dto';
 import {
   CreateStaffDto,
-  DisableStaffDto,
+  AnnualStaffIDsDto,
   QueryOneStaffDto,
   QueryStaffDto,
   StaffEntity,
@@ -125,11 +126,26 @@ export class StaffController {
   @ApiOkResponse({ type: BatchPayloadDto })
   async disableManyStaff(
     @Req() request: Request,
-    @Query() disabledStaff: DisableStaffDto
+    @Query() disabledStaff: AnnualStaffIDsDto
   ) {
     const {
       annualConfigurator: { annual_configurator_id },
     } = request.user;
     return this.staffService.disableMany(disabledStaff, annual_configurator_id);
+  }
+
+  @Patch()
+  @Roles(Role.ADMIN, Role.CONFIGURATOR)
+  @ApiOkResponse({ type: BatchPayloadDto })
+  async resetStaffPasswords(
+    @Req() request: Request,
+    @Query() disabledStaff: AnnualStaffIDsDto
+  ) {
+    const { login_id, annualConfigurator } = request.user;
+    return this.staffService.resetPasswords(
+      disabledStaff,
+      annualConfigurator?.annual_configurator_id ?? login_id,
+      !!annualConfigurator
+    );
   }
 }
