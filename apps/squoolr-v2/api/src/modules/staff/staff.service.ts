@@ -4,7 +4,8 @@ import { BadGatewayException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import { StaffRole } from '../../utils/enums';
-import { BatchPayload, MetaParams } from '../module';
+import { MetaParams } from '../module';
+import { BatchPayloadDto } from '../modules.dto';
 import { ConfiguratorsService } from './configurators/configurators.service';
 import { CoordinatorsService } from './coordinators/coordinators.service';
 import { RegistriesService } from './registries/registries.service';
@@ -15,15 +16,15 @@ import {
   ManageStaffDto,
   StaffEntity,
   StaffRoleDto,
+  TeacherEntity,
   UpdateStaffDto,
-  UpdateStaffRoleDto,
+  UpdateStaffRoleDto
 } from './staff.dto';
 import { TeachersService } from './teachers/teachers.service';
-import { BatchPayloadDto } from '../modules.dto';
 
 @Injectable()
 export class StaffService {
-  private staffServices: Record<StaffRole, IStaffService<StaffEntity>>;
+  private staffServices: Record<StaffRole, IStaffService<StaffEntity | TeacherEntity>>;
   constructor(
     private prismaService: GlomPrismaService,
     private codeGenerator: CodeGeneratorFactory,
