@@ -37,6 +37,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
       roles: [],
       last_connected: null,
       annual_configurator_id,
+      role: StaffRole.CONFIGURATOR,
     });
   }
 
@@ -83,6 +84,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
                 : roles,
             [StaffRole.CONFIGURATOR]
           ),
+          role: StaffRole.CONFIGURATOR,
         })
     );
   }
@@ -113,6 +115,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
       roles: [],
       last_connected: null,
       annual_configurator_id,
+      role: StaffRole.REGISTRY,
     });
   }
 
@@ -188,6 +191,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
       roles: [],
       last_connected: null,
       annual_configurator_id,
+      role: StaffRole.CONFIGURATOR,
     });
   }
 }

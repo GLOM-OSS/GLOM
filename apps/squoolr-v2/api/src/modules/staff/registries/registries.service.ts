@@ -32,6 +32,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
       roles: [],
       last_connected: null,
       annual_registry_id,
+      role: StaffRole.REGISTRY,
     });
   }
 
@@ -75,6 +76,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
                 : roles,
             [StaffRole.REGISTRY]
           ),
+          role: StaffRole.REGISTRY,
         })
     );
   }
@@ -106,6 +108,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
       roles: [],
       annual_registry_id,
       last_connected: null,
+      role: StaffRole.REGISTRY,
     });
   }
 
@@ -188,6 +191,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
       roles: [],
       last_connected: null,
       annual_registry_id,
+      role: StaffRole.REGISTRY,
     });
   }
 }
