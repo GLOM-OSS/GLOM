@@ -4,7 +4,7 @@ import {
   SchemaRequestQuery,
   SchemaResponseBody,
 } from '../../api-helper';
-import { operations } from '../docs';
+import { components, operations } from '../docs';
 
 export type CreateStaffPayload = SchemaRequestBody<
   operations,
@@ -16,10 +16,13 @@ export type UpdateStaffPayload = SchemaRequestBody<
   'StaffController_updateStaff'
 >;
 
-export type StaffEntity = SchemaCreateResponseBody<
+export type SatffEntity = SchemaResponseBody<
   operations,
-  'StaffController_createStaff'
+  'StaffController_getAllStaff'
 >;
+
+export type TeacherEntity = components['schemas']['TeacherEntity'];
+export type CoordinatorEntity = components['schemas']['CoordinatorEntity'];
 
 export type BulkDisableStaffPayload = SchemaRequestQuery<
   operations,

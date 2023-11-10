@@ -101,27 +101,28 @@ export interface paths {
     post: operations["StaffController_resetStaffPasswords"];
     delete: operations["StaffController_disableManyStaff"];
   };
-  "/v1/staffs/{annual_staff_id}": {
-    get: operations["StaffController_getStaff"];
-  };
-  "/v1/staffs/new": {
-    post: operations["StaffController_createStaff"];
-  };
   "/v1/staffs/{annual_teacher_id}": {
+    get: operations["StaffController_getStaff"];
     put: operations["StaffController_updateStaff"];
     delete: operations["StaffController_disableStaff"];
   };
   "/v1/staffs/{annual_coordinator_id}": {
+    get: operations["StaffController_getStaff"];
     put: operations["StaffController_updateStaff"];
     delete: operations["StaffController_disableStaff"];
   };
   "/v1/staffs/{annual_configurator_id}": {
+    get: operations["StaffController_getStaff"];
     put: operations["StaffController_updateStaff"];
     delete: operations["StaffController_disableStaff"];
   };
   "/v1/staffs/{annual_registry_id}": {
+    get: operations["StaffController_getStaff"];
     put: operations["StaffController_updateStaff"];
     delete: operations["StaffController_disableStaff"];
+  };
+  "/v1/staffs/new": {
+    post: operations["StaffController_createStaff"];
   };
   "/v1/staffs/{login_id}/roles": {
     put: operations["StaffController_updateStaffRoles"];
@@ -424,19 +425,76 @@ export interface components {
       registration_fee?: number;
       total_fee_due?: number;
     };
-    StaffEntity: {
-      email: string;
-      login_id: string;
-      last_name: string;
+    TeacherEntity: {
       first_name: string;
+      last_name: string;
+      email: string;
       phone_number: string;
-      matricule: string;
-      national_id_number: string;
       /** Format: date-time */
-      birthdate: string;
-      address: string;
+      birthdate?: string;
       /** @enum {string} */
-      gender: "Male" | "Female";
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      /** @enum {string} */
+      role: "TEACHER";
+      teaching_grade_id: string;
+      teacher_type_id: string;
+      origin_institute: string;
+      hourly_rate: number;
+      has_signed_convention: boolean;
+      has_tax_payers_card: boolean;
+      tax_payer_card_number?: string;
+      annual_teacher_id: string;
+      login_id: string;
+      matricule: string;
+      /** Format: date-time */
+      last_connected: string;
+      roles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
+    };
+    CoordinatorEntity: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone_number: string;
+      /** Format: date-time */
+      birthdate?: string;
+      /** @enum {string} */
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      teaching_grade_id: string;
+      teacher_type_id: string;
+      origin_institute: string;
+      hourly_rate: number;
+      has_signed_convention: boolean;
+      has_tax_payers_card: boolean;
+      tax_payer_card_number?: string;
+      annual_teacher_id: string;
+      login_id: string;
+      matricule: string;
+      /** Format: date-time */
+      last_connected: string;
+      roles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
+      /** @enum {string} */
+      role: "COORDINATOR";
+      annualClassroomIds: string[];
+    };
+    StaffEntity: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone_number: string;
+      /** Format: date-time */
+      birthdate?: string;
+      /** @enum {string} */
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      /** @enum {string} */
+      role: "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR";
+      login_id: string;
+      matricule: string;
       /** Format: date-time */
       last_connected: string;
       annual_configurator_id?: string;
@@ -1056,27 +1114,14 @@ export interface operations {
         role: "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR";
       };
       path: {
-        annual_staff_id: string;
+        annual_teacher_id: string;
       };
     };
     responses: {
+      /** @description `StaffEntity`, `TeacherEntity` or `CoordinatorEntity` will ne returned depending on request query */
       200: {
         content: {
-          "application/json": components["schemas"]["StaffEntity"];
-        };
-      };
-    };
-  };
-  StaffController_createStaff: {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateStaffDto"];
-      };
-    };
-    responses: {
-      201: {
-        content: {
-          "application/json": components["schemas"]["StaffEntity"];
+          "application/json": components["schemas"]["StaffEntity"] | components["schemas"]["TeacherEntity"] | components["schemas"]["CoordinatorEntity"];
         };
       };
     };
@@ -1110,6 +1155,21 @@ export interface operations {
     responses: {
       204: {
         content: never;
+      };
+    };
+  };
+  StaffController_createStaff: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateStaffDto"];
+      };
+    };
+    responses: {
+      /** @description `StaffEntity`, `TeacherEntity` or `CoordinatorEntity` will ne returned depending on request body */
+      201: {
+        content: {
+          "application/json": components["schemas"]["StaffEntity"] | components["schemas"]["TeacherEntity"] | components["schemas"]["CoordinatorEntity"];
+        };
       };
     };
   };

@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
   Put,
   Query,
@@ -16,10 +15,11 @@ import {
   ApiNoContentResponse,
   ApiOkResponse,
   ApiTags,
+  getSchemaPath,
 } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles } from '../../app/auth/auth.decorator';
-import { Role, StaffRole } from '../../utils/enums';
+import { Role } from '../../utils/enums';
 import { BatchPayloadDto } from '../modules.dto';
 import {
   CoordinatorEntity,
@@ -38,6 +38,7 @@ import { StaffService } from './staff.service';
 @ApiTags('Staffs')
 @Controller('staffs')
 // @UseGuards(AuthenticatedGuard)
+@ApiExtraModels(TeacherEntity, CoordinatorEntity)
 export class StaffController {
   constructor(private staffService: StaffService) {}
 
@@ -60,11 +61,16 @@ export class StaffController {
     ':annual_configurator_id',
     ':annual_registry_id',
   ])
-  @ApiExtraModels(TeacherEntity, CoordinatorEntity)
   @ApiOkResponse({
-    type: StaffEntity,
+    schema: {
+      oneOf: [
+        { $ref: getSchemaPath(StaffEntity) },
+        { $ref: getSchemaPath(TeacherEntity) },
+        { $ref: getSchemaPath(CoordinatorEntity) },
+      ],
+    },
     description:
-      '`TeacherEntity` or `CoordinatorEntity` could ne returned depending on query values',
+      '`StaffEntity`, `TeacherEntity` or `CoordinatorEntity` will ne returned depending on request query',
   })
   async getStaff(
     @Param('annual_teacher_id') annualStaffId: string,
@@ -75,7 +81,17 @@ export class StaffController {
 
   @Post('new')
   @Roles(Role.CONFIGURATOR)
-  @ApiCreatedResponse({ type: StaffEntity })
+  @ApiCreatedResponse({
+    schema: {
+      oneOf: [
+        { $ref: getSchemaPath(StaffEntity) },
+        { $ref: getSchemaPath(TeacherEntity) },
+        { $ref: getSchemaPath(CoordinatorEntity) },
+      ],
+    },
+    description:
+      '`StaffEntity`, `TeacherEntity` or `CoordinatorEntity` will ne returned depending on request body',
+  })
   async createStaff(@Req() request: Request, @Body() newStaff: CreateStaffDto) {
     const {
       school_id,
