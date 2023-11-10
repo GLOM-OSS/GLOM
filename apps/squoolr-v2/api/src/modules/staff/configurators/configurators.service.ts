@@ -4,11 +4,14 @@ import { StaffRole } from '../../../utils/enums';
 import {
   CreateStaffInput,
   IStaffService,
+  StaffCreateFromInput,
   StaffSelectParams,
+  TeacherCreateInput,
   UpdateStaffInput,
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffEntity } from '../staff.dto';
+import { BatchPayload } from '../../module';
 
 @Injectable()
 export class ConfiguratorsService implements IStaffService<StaffEntity> {
@@ -150,6 +153,41 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
               },
       },
       where: { annual_configurator_id },
+    });
+  }
+
+  async createFrom(
+    login_id: string,
+    { matricule, academic_year_id }: StaffCreateFromInput,
+    created_by: string
+  ) {
+    const {
+      annual_configurator_id,
+      Login: { Person },
+    } = await this.prismaService.annualConfigurator.upsert({
+      select: {
+        ...StaffArgsFactory.getStaffSelect(),
+        annual_configurator_id: true,
+        matricule: true,
+      },
+      create: {
+        matricule,
+        Login: { connect: { login_id } },
+        AcademicYear: { connect: { academic_year_id } },
+        CreatedByAnnualConfigurator: {
+          connect: { annual_configurator_id: created_by },
+        },
+      },
+      update: { is_deleted: false },
+      where: { login_id_academic_year_id: { login_id, academic_year_id } },
+    });
+    return new StaffEntity({
+      login_id,
+      ...Person,
+      matricule,
+      roles: [],
+      last_connected: null,
+      annual_configurator_id,
     });
   }
 }
