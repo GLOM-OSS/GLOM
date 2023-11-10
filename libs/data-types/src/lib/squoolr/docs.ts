@@ -98,6 +98,8 @@ export interface paths {
   };
   "/v1/staffs": {
     get: operations["StaffController_getAllStaff"];
+    post: operations["StaffController_resetStaffPasswords"];
+    delete: operations["StaffController_disableManyStaff"];
   };
   "/v1/staffs/{annual_staff_id}": {
     get: operations["StaffController_getStaff"];
@@ -107,15 +109,22 @@ export interface paths {
   };
   "/v1/staffs/{annual_teacher_id}": {
     put: operations["StaffController_updateStaff"];
+    delete: operations["StaffController_disableStaff"];
   };
   "/v1/staffs/{annual_coordinator_id}": {
     put: operations["StaffController_updateStaff"];
+    delete: operations["StaffController_disableStaff"];
   };
   "/v1/staffs/{annual_configurator_id}": {
     put: operations["StaffController_updateStaff"];
+    delete: operations["StaffController_disableStaff"];
   };
   "/v1/staffs/{annual_registry_id}": {
     put: operations["StaffController_updateStaff"];
+    delete: operations["StaffController_disableStaff"];
+  };
+  "/v1/staffs/{login_id}/roles": {
+    put: operations["StaffController_updateStaffRoles"];
   };
 }
 
@@ -161,7 +170,6 @@ export interface components {
       origin_institute: string;
       has_signed_convention: boolean;
       classroomDivisions: string[];
-      teacher_id: string;
     };
     User: {
       first_name: string;
@@ -551,6 +559,24 @@ export interface components {
     };
     UpdateStaffDto: {
       payload: components["schemas"]["UpdateConfiguratorDto"] | components["schemas"]["UpdateRegistryDto"] | components["schemas"]["UpdateCoordinatorDto"] | components["schemas"]["UpdateTeacherDto"];
+    };
+    BatchPayloadDto: {
+      count: number;
+      message: string;
+    };
+    ManageStaffDto: {
+      teacherIds: string[];
+      registryIds: string[];
+      configuratorIds: string[];
+    };
+    CoordinateClassDto: {
+      annualClassroomIds: string[];
+    };
+    UpdateStaffRoleDto: {
+      newRoles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
+      disabledStaffPayload?: components["schemas"]["ManageStaffDto"];
+      coordinatorPayload?: components["schemas"]["CoordinateClassDto"];
+      teacherPayload?: components["schemas"]["UpdateTeacherDto"];
     };
   };
   responses: never;
@@ -994,6 +1020,36 @@ export interface operations {
       };
     };
   };
+  StaffController_resetStaffPasswords: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ManageStaffDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["BatchPayloadDto"];
+        };
+      };
+    };
+  };
+  StaffController_disableManyStaff: {
+    parameters: {
+      query: {
+        teacherIds: string[];
+        registryIds: string[];
+        configuratorIds: string[];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["BatchPayloadDto"];
+        };
+      };
+    };
+  };
   StaffController_getStaff: {
     parameters: {
       query: {
@@ -1039,6 +1095,40 @@ export interface operations {
     responses: {
       204: {
         content: never;
+      };
+    };
+  };
+  StaffController_disableStaff: {
+    parameters: {
+      query: {
+        role: "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR";
+      };
+      path: {
+        annual_teacher_id: string;
+      };
+    };
+    responses: {
+      204: {
+        content: never;
+      };
+    };
+  };
+  StaffController_updateStaffRoles: {
+    parameters: {
+      path: {
+        login_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateStaffRoleDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["BatchPayloadDto"];
+        };
       };
     };
   };

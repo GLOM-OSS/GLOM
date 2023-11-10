@@ -275,7 +275,7 @@ export class CoordinateClassDto extends OmitType(UpdateCoordinatorDto, [
 
 export class UpdateStaffRoleDto {
   @IsEnum(StaffRole, { each: true })
-  @ApiProperty({ enum: [StaffRole] })
+  @ApiProperty({ enum: StaffRole, isArray: true })
   newRoles: StaffRole[];
 
   @IsOptional()

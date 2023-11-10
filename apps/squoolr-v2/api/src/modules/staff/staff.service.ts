@@ -129,7 +129,7 @@ export class StaffService {
       registryIds: StaffRole.REGISTRY,
       teacherIds: StaffRole.TEACHER,
     };
-    return Promise.all(
+    const elts = await Promise.all(
       Object.keys(payload).reduce<Promise<void>[]>(
         (methods, key) => [
           ...methods,
@@ -140,6 +140,10 @@ export class StaffService {
         []
       )
     );
+    return new BatchPayloadDto({
+      count: elts.length,
+      message: `Updated ${elts.length} records in database`,
+    });
   }
 
   async resetPasswords(

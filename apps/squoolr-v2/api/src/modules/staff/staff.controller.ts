@@ -110,7 +110,7 @@ export class StaffController {
   async disableStaff(
     @Req() request: Request,
     @Param('annual_teacher_id') annualTeacherId: string,
-    @Body() payload: StaffRoleDto
+    @Query() payload: StaffRoleDto
   ) {
     const {
       annualConfigurator: { annual_configurator_id },
@@ -135,12 +135,12 @@ export class StaffController {
     return this.staffService.disableMany(disabledStaff, annual_configurator_id);
   }
 
-  @Patch()
+  @Post()
   @Roles(Role.ADMIN, Role.CONFIGURATOR)
   @ApiOkResponse({ type: BatchPayloadDto })
   async resetStaffPasswords(
     @Req() request: Request,
-    @Query() disabledStaff: ManageStaffDto
+    @Body() disabledStaff: ManageStaffDto
   ) {
     const { login_id, annualConfigurator } = request.user;
     return this.staffService.resetPasswords(
