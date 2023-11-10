@@ -39,36 +39,32 @@ export class StaffRoleDto {
 
 export class QueryOneStaffDto extends StaffRoleDto {}
 
-export class StaffEntity implements StaffIDs {
-  @ApiProperty()
-  email: string;
+export class CreatePersonWithRoleDto extends OmitType(CreatePersonDto, [
+  'password',
+]) {
+  @IsEnum(StaffRole)
+  @ApiProperty({ enum: StaffRole })
+  role: StaffRole;
+
+  constructor(props: CreatePersonWithRoleDto) {
+    super(props);
+    Object.assign(this, props);
+  }
+}
+
+export class StaffEntity
+  extends OmitType(CreatePersonWithRoleDto, ['role'])
+  implements StaffIDs
+{
+  @IsEnum(StaffRole)
+  @ApiProperty({ enum: StaffRole })
+  role: StaffRole;
 
   @ApiProperty()
   login_id: string;
 
   @ApiProperty()
-  last_name: string;
-
-  @ApiProperty()
-  first_name: string;
-
-  @ApiProperty()
-  phone_number: string;
-
-  @ApiProperty()
   matricule: string;
-
-  @ApiProperty({ nullable: null })
-  national_id_number: string;
-
-  @ApiProperty({ nullable: null })
-  birthdate: Date;
-
-  @ApiProperty({ nullable: null })
-  address: string;
-
-  @ApiProperty({ enum: Gender, nullable: null })
-  gender: Gender;
 
   @ApiProperty({ nullable: null })
   last_connected: Date;
@@ -89,16 +85,9 @@ export class StaffEntity implements StaffIDs {
   roles: StaffRole[];
 
   constructor(props: StaffEntity) {
+    super(props);
     Object.assign(this, props);
   }
-}
-
-export class CreatePersonWithRoleDto extends OmitType(CreatePersonDto, [
-  'password',
-]) {
-  @IsEnum(StaffRole)
-  @ApiProperty({ enum: StaffRole })
-  role: StaffRole;
 }
 
 export class CreateConfiguratorDto extends CreatePersonWithRoleDto {
@@ -159,6 +148,47 @@ export class CreateTeacherDto extends CreatePersonWithRoleDto {
   @IsOptional()
   @ApiPropertyOptional()
   tax_payer_card_number?: string;
+
+  constructor(props: CreateTeacherDto) {
+    super(props);
+    Object.assign(this, props);
+  }
+}
+
+export class TeacherEntity extends CreateTeacherDto {
+  @ApiProperty()
+  annual_teacher_id: string;
+
+  @ApiProperty()
+  login_id: string;
+
+  @ApiProperty()
+  matricule: string;
+
+  @ApiProperty({ nullable: null })
+  last_connected: Date;
+
+  @ApiProperty({ enum: StaffRole, isArray: true })
+  roles: StaffRole[];
+
+  constructor(props: TeacherEntity) {
+    super(props);
+    Object.assign(this, props);
+  }
+}
+
+export class CoordinatorEntity extends OmitType(TeacherEntity, ['role']) {
+  @IsEnum([StaffRole.COORDINATOR])
+  @ApiProperty({ enum: [StaffRole.COORDINATOR] })
+  role: StaffRole.COORDINATOR;
+
+  @ApiProperty({ type: [String] })
+  annualClassroomIds: string[];
+
+  constructor(props: CoordinatorEntity) {
+    super(props);
+    Object.assign(this, props);
+  }
 }
 
 export class UpdateConfiguratorDto extends IntersectionType(
