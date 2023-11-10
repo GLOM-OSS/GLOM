@@ -1,6 +1,6 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { excludeKeys, generatePassword } from '@glom/utils';
-import { Injectable } from '@nestjs/common';
+import { BadGatewayException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import { StaffRole } from '../../utils/enums';
@@ -212,6 +212,7 @@ export class StaffService {
       school_id,
       disabledStaffPayload,
       coordinatorPayload,
+      teacherPayload,
     }: UpdateStaffRoleDto & MetaParams,
     audited_by: string
   ) {
@@ -238,11 +239,19 @@ export class StaffService {
           this.codeGenerator.formatNumber(Math.floor(Math.random() * 10000)),
           Number(process.env.SALT)
         );
-
+        if (role === StaffRole.TEACHER && !teacherPayload)
+          throw new BadGatewayException(
+            `Teacher role cannot exist without teacherPayload. Please complete teacher's information`
+          );
         return this.staffServices[role]
           .createFrom(
             login_id,
-            { matricule, private_code, academic_year_id },
+            {
+              matricule,
+              private_code,
+              academic_year_id,
+              ...(teacherPayload ? excludeKeys(teacherPayload, ['role']) : {}),
+            },
             audited_by
           )
           .then((staff) => {

@@ -289,4 +289,10 @@ export class UpdateStaffRoleDto {
   @Type(() => CoordinateClassDto)
   @ApiPropertyOptional({ type: CoordinateClassDto })
   coordinatorPayload?: UpdateCoordinatorDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpdateTeacherDto)
+  @ApiPropertyOptional({ type: UpdateTeacherDto })
+  teacherPayload?: UpdateTeacherDto;
 }
