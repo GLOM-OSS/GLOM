@@ -1,19 +1,21 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { excludeKeys } from '@glom/utils';
+import {
+  Injectable,
+  NotFoundException,
+  NotImplementedException,
+} from '@nestjs/common';
 import { StaffRole } from '../../../utils/enums';
-import { BatchPayload } from '../../module';
 import { BatchPayloadDto } from '../../modules.dto';
 import {
   CreateCoordinatorInput,
   IStaffService,
   StaffCreateFromInput,
   StaffSelectParams,
-  TeacherCreateFromInput,
-  UpdateCoordinatorInput,
+  UpdateCoordinatorInput
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { CoordinatorEntity, StaffEntity } from '../staff.dto';
-import { excludeKeys } from '@glom/utils';
 
 @Injectable()
 export class CoordinatorsService
@@ -29,9 +31,70 @@ export class CoordinatorsService
       '`createFrom` method is not supported for coordinators. Use teacher instead'
     );
   }
-  findOne(annual_coordinator_id: string): Promise<CoordinatorEntity> {
-    throw new NotImplementedException(
-      '`findOne` method is not supported for coordinators. Use teacher instead'
+  async findOne(annual_coordinator_id: string) {
+    const coordinatedClasses =
+      await this.prismaService.annualClassroomDivision.findMany({
+        distinct: ['annual_coordinator_id'],
+        select: {
+          annual_classroom_id: true,
+          AnnualTeacher: {
+            select: StaffArgsFactory.getTeacherSelect(),
+          },
+        },
+        where: { annual_coordinator_id },
+      });
+    if (coordinatedClasses.length === 0)
+      throw new NotFoundException('Coordinated classrooms not found !!!');
+    return coordinatedClasses.reduce<CoordinatorEntity>(
+      (
+        coordo,
+        {
+          annual_classroom_id,
+          AnnualTeacher: {
+            Teacher: {
+              Login: {
+                login_id,
+                Person,
+                Logs: [log],
+                AnnualConfigurators: [configrator],
+                AnnualRegistries: [registry],
+              },
+              ...teacher
+            },
+            ...annual_teacher
+          },
+        }
+      ) =>
+        new CoordinatorEntity(
+          coordo
+            ? {
+                ...coordo,
+                annualClassroomIds: coordo.annualClassroomIds.includes(
+                  annual_classroom_id
+                )
+                  ? coordo.annualClassroomIds
+                  : [...coordo.annualClassroomIds, annual_classroom_id],
+              }
+            : {
+                login_id,
+                ...Person,
+                ...teacher,
+                ...annual_teacher,
+                last_connected: log?.logged_in_at ?? null,
+                annualClassroomIds: [annual_classroom_id],
+                roles: [{ registry }, { configrator }].reduce<StaffRole[]>(
+                  (roles, _) =>
+                    _.registry
+                      ? [...roles, StaffRole.REGISTRY]
+                      : _.configrator
+                      ? [...roles, StaffRole.CONFIGURATOR]
+                      : roles,
+                  [StaffRole.TEACHER, StaffRole.COORDINATOR]
+                ),
+                role: StaffRole.COORDINATOR,
+              }
+        ),
+      CoordinatorEntity.prototype
     );
   }
 
