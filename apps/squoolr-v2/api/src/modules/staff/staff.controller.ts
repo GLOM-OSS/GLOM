@@ -22,12 +22,13 @@ import { Role, StaffRole } from '../../utils/enums';
 import { BatchPayloadDto } from '../modules.dto';
 import {
   CreateStaffDto,
-  AnnualStaffIDsDto,
+  ManageStaffDto,
   QueryOneStaffDto,
   QueryStaffDto,
   StaffEntity,
   StaffRoleDto,
   UpdateStaffDto,
+  UpdateStaffRoleDto,
 } from './staff.dto';
 import { StaffService } from './staff.service';
 
@@ -126,7 +127,7 @@ export class StaffController {
   @ApiOkResponse({ type: BatchPayloadDto })
   async disableManyStaff(
     @Req() request: Request,
-    @Query() disabledStaff: AnnualStaffIDsDto
+    @Query() disabledStaff: ManageStaffDto
   ) {
     const {
       annualConfigurator: { annual_configurator_id },
@@ -139,13 +140,33 @@ export class StaffController {
   @ApiOkResponse({ type: BatchPayloadDto })
   async resetStaffPasswords(
     @Req() request: Request,
-    @Query() disabledStaff: AnnualStaffIDsDto
+    @Query() disabledStaff: ManageStaffDto
   ) {
     const { login_id, annualConfigurator } = request.user;
     return this.staffService.resetPasswords(
       disabledStaff,
       annualConfigurator?.annual_configurator_id ?? login_id,
-      !!annualConfigurator
+      !annualConfigurator
+    );
+  }
+
+  @Put(':login_id/roles')
+  @Roles(Role.CONFIGURATOR)
+  @ApiOkResponse({ type: BatchPayloadDto })
+  async updateStaffRoles(
+    @Req() request: Request,
+    @Param('login_id') loginid: string,
+    @Body() staffPayload: UpdateStaffRoleDto
+  ) {
+    const {
+      school_id,
+      activeYear: { academic_year_id },
+      annualConfigurator: { annual_configurator_id },
+    } = request.user;
+    return this.staffService.updateStaffRoles(
+      loginid,
+      { academic_year_id, school_id, ...staffPayload },
+      annual_configurator_id
     );
   }
 }

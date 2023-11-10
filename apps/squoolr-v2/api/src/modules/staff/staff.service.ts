@@ -12,10 +12,11 @@ import { IStaffService, StaffSelectParams } from './staff';
 import {
   CreateCoordinatorDto,
   CreateStaffDto,
-  AnnualStaffIDsDto,
+  ManageStaffDto,
   StaffEntity,
   StaffRoleDto,
   UpdateStaffDto,
+  UpdateStaffRoleDto,
 } from './staff.dto';
 import { TeachersService } from './teachers/teachers.service';
 import { BatchPayloadDto } from '../modules.dto';
@@ -122,7 +123,7 @@ export class StaffService {
     );
   }
 
-  async disableMany(payload: AnnualStaffIDsDto, disabled_by: string) {
+  async disableMany(payload: ManageStaffDto, disabled_by: string) {
     const staffIDToRole: Record<string, StaffRole> = {
       configuratorIds: StaffRole.CONFIGURATOR,
       registryIds: StaffRole.REGISTRY,
@@ -132,7 +133,7 @@ export class StaffService {
       Object.keys(payload).reduce<Promise<void>[]>(
         (methods, key) => [
           ...methods,
-          ...payload[key as keyof AnnualStaffIDsDto].map((staffId) =>
+          ...payload[key as keyof ManageStaffDto].map((staffId) =>
             this.disable(staffId, { role: staffIDToRole[key] }, disabled_by)
           ),
         ],
@@ -140,8 +141,9 @@ export class StaffService {
       )
     );
   }
+
   async resetPasswords(
-    { teacherIds, registryIds, configuratorIds }: AnnualStaffIDsDto,
+    { teacherIds, registryIds, configuratorIds }: ManageStaffDto,
     disabledBy: string,
     isAdmin?: boolean
   ) {
@@ -199,6 +201,74 @@ export class StaffService {
     return new BatchPayloadDto({
       count,
       message: `Added ${count} records in database`,
+    });
+  }
+
+  async updateStaffRoles(
+    login_id: string,
+    {
+      newRoles,
+      academic_year_id,
+      school_id,
+      disabledStaffPayload,
+      coordinatorPayload,
+    }: UpdateStaffRoleDto & MetaParams,
+    audited_by: string
+  ) {
+    if (disabledStaffPayload)
+      await this.disableMany(disabledStaffPayload, audited_by);
+
+    const addedRoles: StaffRole[] = newRoles.reduce(
+      (roles, role) =>
+        roles.includes(role)
+          ? roles
+          : [
+              ...roles,
+              role === StaffRole.COORDINATOR ? StaffRole.TEACHER : role,
+            ],
+      []
+    );
+    await Promise.all(
+      addedRoles.map(async (role) => {
+        const matricule = await this.codeGenerator.getPersonnelCode(
+          school_id,
+          role
+        );
+        const private_code = bcrypt.hashSync(
+          this.codeGenerator.formatNumber(Math.floor(Math.random() * 10000)),
+          Number(process.env.SALT)
+        );
+
+        return this.staffServices[role]
+          .createFrom(
+            login_id,
+            { matricule, private_code, academic_year_id },
+            audited_by
+          )
+          .then((staff) => {
+            if (coordinatorPayload && role === StaffRole.TEACHER)
+              this.update(
+                staff.annual_teacher_id,
+                {
+                  role: StaffRole.COORDINATOR,
+                  annualClassroomIds: coordinatorPayload.annualClassroomIds,
+                },
+                audited_by
+              );
+          });
+      })
+    );
+    const totalUpdateRecords =
+      addedRoles.length +
+      (coordinatorPayload?.annualClassroomIds.length ?? 0) +
+      Object.keys(disabledStaffPayload).reduce(
+        (count, key) =>
+          count + disabledStaffPayload[key as keyof ManageStaffDto].length,
+        0
+      );
+    return new BatchPayloadDto({
+      count: totalUpdateRecords,
+      message: `Updated ${totalUpdateRecords} records in database`,
     });
   }
 }
