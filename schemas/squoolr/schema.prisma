@@ -478,7 +478,6 @@ model TeachingGrade {
 }
 
 model Teacher {
-    teacher_id            String      @id @default(uuid()) @db.VarChar(36)
     has_tax_payers_card   Boolean     @default(false)
     tax_payer_card_number String?
     matricule             String      @db.VarChar(75)
@@ -499,8 +498,8 @@ model TeacherAudit {
     private_code          String             @db.VarChar(75)
     teacher_type_id       String             @db.VarChar(36)
     TeacherType           TeacherType        @relation(fields: [teacher_type_id], references: [teacher_type_id], onDelete: Cascade, onUpdate: Cascade)
-    teacher_id            String             @db.VarChar(36)
-    Teacher               Teacher            @relation(fields: [teacher_id], references: [teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    login_id              String             @db.VarChar(36)
+    Teacher               Teacher            @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
     audited_by            String             @db.VarChar(36)
     AnnualConfigurator    AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
@@ -516,8 +515,8 @@ model AnnualTeacher {
     TeachingGrade         TeachingGrade      @relation(fields: [teaching_grade_id], references: [teaching_grade_id], onDelete: Cascade, onUpdate: Cascade)
     academic_year_id      String             @db.VarChar(36)
     AcademicYear          AcademicYear       @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
-    teacher_id            String             @db.VarChar(36)
-    Teacher               Teacher            @relation(fields: [teacher_id], references: [teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    login_id              String             @db.VarChar(36)
+    Teacher               Teacher            @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
     created_by            String             @db.VarChar(36)
     AnnualConfigurator    AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -555,7 +554,7 @@ model AnnualTeacher {
     DeletedPresenceListHasCreditUnitStudents    PresenceListHasCreditUnitStudent[]    @relation(name: "DeletedBy_AnnualTeacher")
     AnnualStudentAnswerQuestions                AnnualStudentAnswerQuestion[]
 
-    @@unique([teacher_id, academic_year_id])
+    @@unique([login_id, academic_year_id])
 }
 
 model AnnualTeacherAudit {
