@@ -6,7 +6,9 @@ import { BatchPayloadDto } from '../../modules.dto';
 import {
   CreateCoordinatorInput,
   IStaffService,
+  StaffCreateFromInput,
   StaffSelectParams,
+  TeacherCreateFromInput,
   UpdateCoordinatorInput,
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
@@ -16,7 +18,16 @@ import { excludeKeys } from '@glom/utils';
 @Injectable()
 export class CoordinatorsService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
-  async findOne(annual_coordinator_id: string): Promise<StaffEntity> {
+  createFrom(
+    login_id: string,
+    payload: StaffCreateFromInput,
+    created_by: string
+  ): Promise<StaffEntity> {
+    throw new NotImplementedException(
+      '`createFrom` method is not supported for coordinators. Use teacher instead'
+    );
+  }
+  findOne(annual_coordinator_id: string): Promise<StaffEntity> {
     throw new NotImplementedException(
       '`findOne` method is not supported for coordinators. Use teacher instead'
     );
