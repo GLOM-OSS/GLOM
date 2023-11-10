@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
+  ApiExtraModels,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiTags,
@@ -21,12 +22,14 @@ import { Roles } from '../../app/auth/auth.decorator';
 import { Role, StaffRole } from '../../utils/enums';
 import { BatchPayloadDto } from '../modules.dto';
 import {
+  CoordinatorEntity,
   CreateStaffDto,
   ManageStaffDto,
   QueryOneStaffDto,
   QueryStaffDto,
   StaffEntity,
   StaffRoleDto,
+  TeacherEntity,
   UpdateStaffDto,
   UpdateStaffRoleDto,
 } from './staff.dto';
@@ -51,10 +54,20 @@ export class StaffController {
     });
   }
 
-  @Get(':annual_staff_id')
-  @ApiOkResponse({ type: StaffEntity })
+  @Get([
+    ':annual_teacher_id',
+    ':annual_coordinator_id',
+    ':annual_configurator_id',
+    ':annual_registry_id',
+  ])
+  @ApiExtraModels(TeacherEntity, CoordinatorEntity)
+  @ApiOkResponse({
+    type: StaffEntity,
+    description:
+      '`TeacherEntity` or `CoordinatorEntity` could ne returned depending on query values',
+  })
   async getStaff(
-    @Param('annual_staff_id') annualStaffId: string,
+    @Param('annual_teacher_id') annualStaffId: string,
     @Query() { role }: QueryOneStaffDto
   ) {
     return this.staffService.findOne(role, annualStaffId);
@@ -86,14 +99,14 @@ export class StaffController {
   @ApiNoContentResponse()
   async updateStaff(
     @Req() request: Request,
-    @Param('annual_teacher_id') annualTeacherId: string,
+    @Param('annual_teacher_id') annualStaffId: string,
     @Body() newStaff: UpdateStaffDto
   ) {
     const {
       annualConfigurator: { annual_configurator_id },
     } = request.user;
     return this.staffService.update(
-      annualTeacherId,
+      annualStaffId,
       newStaff.payload,
       annual_configurator_id
     );
