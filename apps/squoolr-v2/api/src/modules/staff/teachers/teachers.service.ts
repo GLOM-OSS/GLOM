@@ -34,7 +34,7 @@ export class TeachersService
       ...annual_teacher
     } = await this.prismaService.annualTeacher.findFirstOrThrow({
       select: StaffArgsFactory.getTeacherSelect(),
-      where: { annual_teacher_id },
+      where: { annual_teacher_id, is_deleted: false },
     });
 
     return new TeacherEntity({
@@ -96,6 +96,7 @@ export class TeachersService
           login_id,
           ...Person,
           matricule,
+          is_deleted,
           annual_teacher_id,
           last_connected: log?.logged_in_at ?? null,
           roles: [{ registry }, { configrator }, { codinatedClass }].reduce<

@@ -19,8 +19,15 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
   async findOne(annual_configurator_id: string) {
     const {
       matricule,
-      Login: { login_id, Person },
-    } = await this.prismaService.annualConfigurator.findFirst({
+      is_deleted,
+      Login: {
+        login_id,
+        Person,
+        Teacher,
+        Logs: [log],
+        AnnualRegistries: [registry],
+      },
+    } = await this.prismaService.annualConfigurator.findFirstOrThrow({
       select: {
         matricule: true,
         ...StaffArgsFactory.getStaffSelect(),
@@ -34,9 +41,22 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
       login_id,
       ...Person,
       matricule,
-      roles: [],
-      last_connected: null,
+      is_deleted,
       annual_configurator_id,
+      last_connected: log?.logged_in_at ?? null,
+      roles: [{ registry }, { teacher: Teacher?.AnnualTeachers }].reduce<
+        StaffRole[]
+      >(
+        (roles, _) =>
+          _.registry
+            ? [...roles, StaffRole.REGISTRY]
+            : _.teacher
+            ? _.teacher[0].AnnualClassroomDivisions
+              ? [...roles, StaffRole.TEACHER, StaffRole.COORDINATOR]
+              : [...roles, StaffRole.TEACHER]
+            : roles,
+        [StaffRole.CONFIGURATOR]
+      ),
       role: StaffRole.CONFIGURATOR,
     });
   }
@@ -55,8 +75,9 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
     });
     return configurators.map(
       ({
-        annual_configurator_id,
         matricule,
+        is_deleted,
+        annual_configurator_id,
         Login: {
           login_id,
           Person,
@@ -69,6 +90,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
           login_id,
           ...Person,
           matricule,
+          is_deleted,
           annual_configurator_id,
           last_connected: log?.logged_in_at ?? null,
           roles: [{ registry }, { teacher: Teacher?.AnnualTeachers }].reduce<
@@ -92,6 +114,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
   async create(payload: CreateStaffInput, created_by: string) {
     const {
       matricule,
+      is_deleted,
       annual_configurator_id,
       Login: { login_id, Person },
     } = await this.prismaService.annualConfigurator.create({
@@ -113,6 +136,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
       ...Person,
       matricule,
       roles: [],
+      is_deleted,
       last_connected: null,
       annual_configurator_id,
       role: StaffRole.REGISTRY,
@@ -165,6 +189,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
     created_by: string
   ) {
     const {
+      is_deleted,
       annual_configurator_id,
       Login: { Person },
     } = await this.prismaService.annualConfigurator.upsert({
@@ -189,6 +214,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
       ...Person,
       matricule,
       roles: [],
+      is_deleted,
       last_connected: null,
       annual_configurator_id,
       role: StaffRole.CONFIGURATOR,

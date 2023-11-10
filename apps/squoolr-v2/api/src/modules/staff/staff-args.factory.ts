@@ -12,7 +12,7 @@ export class StaffArgsFactory {
     params,
   }: StaffSelectParams) => ({
     academic_year_id,
-    is_deleted: params?.is_deleted,
+    is_deleted: params?.is_deleted ?? false,
     ...Prisma.validator<Prisma.LoginWhereInput>()({
       Person: {
         OR: {

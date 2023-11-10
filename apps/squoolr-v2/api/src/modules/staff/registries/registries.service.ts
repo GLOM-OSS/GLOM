@@ -17,19 +17,21 @@ export class RegistriesService implements IStaffService<StaffEntity> {
   async findOne(annual_registry_id: string) {
     const {
       matricule,
+      is_deleted,
       Login: { login_id, Person },
-    } = await this.prismaService.annualRegistry.findUniqueOrThrow({
+    } = await this.prismaService.annualRegistry.findFirstOrThrow({
       select: {
         matricule: true,
         ...StaffArgsFactory.getStaffSelect(),
       },
-      where: { annual_registry_id },
+      where: { annual_registry_id, is_deleted: false },
     });
     return new StaffEntity({
       login_id,
       ...Person,
       matricule,
       roles: [],
+      is_deleted,
       last_connected: null,
       annual_registry_id,
       role: StaffRole.REGISTRY,
@@ -47,8 +49,9 @@ export class RegistriesService implements IStaffService<StaffEntity> {
     });
     return registries.map(
       ({
-        annual_registry_id,
         matricule,
+        is_deleted,
+        annual_registry_id,
         Login: {
           login_id,
           Person,
@@ -61,6 +64,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
           login_id,
           ...Person,
           matricule,
+          is_deleted,
           annual_registry_id,
           last_connected: log?.logged_in_at ?? null,
           roles: [{ configrator }, { teacher: Teacher?.AnnualTeachers }].reduce<
@@ -84,6 +88,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
   async create(payload: CreateStaffInput, created_by: string) {
     const {
       matricule,
+      is_deleted,
       annual_registry_id,
       Login: { login_id, Person },
     } = await this.prismaService.annualRegistry.create({
@@ -106,6 +111,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
       ...Person,
       matricule,
       roles: [],
+      is_deleted,
       annual_registry_id,
       last_connected: null,
       role: StaffRole.REGISTRY,
@@ -165,6 +171,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
     created_by: string
   ) {
     const {
+      is_deleted,
       annual_registry_id,
       Login: { Person },
     } = await this.prismaService.annualRegistry.upsert({
@@ -189,6 +196,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
       ...Person,
       matricule,
       roles: [],
+      is_deleted,
       last_connected: null,
       annual_registry_id,
       role: StaffRole.REGISTRY,

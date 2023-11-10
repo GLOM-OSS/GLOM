@@ -66,6 +66,10 @@ export class StaffEntity
   @ApiProperty()
   matricule: string;
 
+  @ApiProperty({ default: false })
+  @IsBoolean()
+  is_deleted: boolean;
+
   @ApiProperty({ nullable: null })
   last_connected: Date;
 
@@ -164,6 +168,10 @@ export class TeacherEntity extends CreateTeacherDto {
 
   @ApiProperty()
   matricule: string;
+
+  @ApiProperty({ default: false })
+  @IsBoolean()
+  is_deleted: boolean;
 
   @ApiProperty({ nullable: null })
   last_connected: Date;

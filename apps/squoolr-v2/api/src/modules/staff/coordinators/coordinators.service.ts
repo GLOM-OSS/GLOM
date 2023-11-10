@@ -108,6 +108,7 @@ export class CoordinatorsService
           },
         },
         where: {
+          is_deleted: false,
           AnnualTeacher: StaffArgsFactory.getStaffWhereInput(staffParams),
         },
       });
@@ -116,6 +117,7 @@ export class CoordinatorsService
         AnnualTeacher: {
           Teacher: {
             matricule,
+            is_deleted,
             Login: {
               login_id,
               Person,
@@ -131,6 +133,7 @@ export class CoordinatorsService
           login_id,
           ...Person,
           matricule,
+          is_deleted,
           annual_teacher_id,
           last_connected: log?.logged_in_at ?? null,
           roles: [{ registry }, { configrator }].reduce<StaffRole[]>(
