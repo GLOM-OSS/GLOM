@@ -5,6 +5,7 @@ import {
   CreateTeacherInput,
   IStaffService,
   StaffSelectParams,
+  TeacherCreateFromInput,
   UpdateTeacherInput,
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
@@ -225,6 +226,68 @@ export class TeachersService implements IStaffService<StaffEntity> {
         },
       },
       where: { annual_teacher_id },
+    });
+  }
+
+  async createFrom(
+    login_id: string,
+    {
+      matricule,
+      academic_year_id,
+      hourly_rate,
+      origin_institute,
+      private_code,
+      teacher_type_id,
+      teaching_grade_id,
+      has_signed_convention,
+      has_tax_payers_card,
+      tax_payer_card_number,
+    }: TeacherCreateFromInput,
+    created_by: string
+  ) {
+    const {
+      Teacher: {
+        Login: { Person: person },
+        ...teacher
+      },
+      ...annual_teacher
+    } = await this.prismaService.annualTeacher.upsert({
+      select: StaffArgsFactory.getTeacherSelect(),
+      create: {
+        hourly_rate,
+        origin_institute,
+        has_signed_convention,
+        AcademicYear: { connect: { academic_year_id } },
+        TeachingGrade: { connect: { teaching_grade_id } },
+        Teacher: {
+          connectOrCreate: {
+            create: {
+              matricule,
+              private_code,
+              has_tax_payers_card,
+              tax_payer_card_number,
+              Login: { connect: { login_id } },
+              TeacherType: { connect: { teacher_type_id } },
+            },
+            where: { login_id },
+          },
+        },
+        AnnualConfigurator: { connect: { annual_configurator_id: created_by } },
+      },
+      update: { is_deleted: false },
+      where: {
+        login_id_academic_year_id: { academic_year_id, login_id },
+      },
+    });
+
+    return new StaffEntity({
+      login_id,
+      matricule,
+      roles: [],
+      last_connected: null,
+      ...teacher,
+      ...person,
+      ...annual_teacher,
     });
   }
 }
