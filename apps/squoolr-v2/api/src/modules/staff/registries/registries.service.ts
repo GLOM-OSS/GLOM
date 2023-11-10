@@ -4,6 +4,7 @@ import { StaffRole } from '../../../utils/enums';
 import {
   CreateStaffInput,
   IStaffService,
+  StaffCreateFromInput,
   StaffSelectParams,
   UpdateStaffInput,
 } from '../staff';
@@ -152,6 +153,41 @@ export class RegistriesService implements IStaffService<StaffEntity> {
               },
       },
       where: { annual_registry_id },
+    });
+  }
+
+  async createFrom(
+    login_id: string,
+    { matricule, academic_year_id, private_code }: StaffCreateFromInput,
+    created_by: string
+  ) {
+    const {
+      annual_registry_id,
+      Login: { Person },
+    } = await this.prismaService.annualRegistry.upsert({
+      select: {
+        annual_registry_id: true,
+        ...StaffArgsFactory.getStaffSelect(),
+      },
+      create: {
+        matricule,
+        private_code,
+        Login: { connect: { login_id } },
+        AcademicYear: { connect: { academic_year_id } },
+        AnnualConfigurator: {
+          connect: { annual_configurator_id: created_by },
+        },
+      },
+      update: { is_deleted: false },
+      where: { login_id_academic_year_id: { academic_year_id, login_id } },
+    });
+    return new StaffEntity({
+      login_id,
+      ...Person,
+      matricule,
+      roles: [],
+      last_connected: null,
+      annual_registry_id,
     });
   }
 }
