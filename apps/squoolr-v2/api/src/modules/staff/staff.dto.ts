@@ -255,7 +255,7 @@ export class UpdateStaffDto {
   payload: UpdateStaffPayloadDto;
 }
 
-export class AnnualStaffIDsDto  {
+export class ManageStaffDto {
   @ApiProperty()
   @IsString({ each: true })
   teacherIds: string[];
@@ -266,9 +266,27 @@ export class AnnualStaffIDsDto  {
 
   @ApiProperty()
   @IsString({ each: true })
-  coordinatorIds: string[];
-
-  @ApiProperty()
-  @IsString({ each: true })
   configuratorIds: string[];
+}
+
+export class CoordinateClassDto extends OmitType(UpdateCoordinatorDto, [
+  'role',
+]) {}
+
+export class UpdateStaffRoleDto {
+  @IsEnum(StaffRole, { each: true })
+  @ApiProperty({ enum: [StaffRole] })
+  newRoles: StaffRole[];
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ManageStaffDto)
+  @ApiPropertyOptional({ type: ManageStaffDto })
+  disabledStaffPayload?: ManageStaffDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CoordinateClassDto)
+  @ApiPropertyOptional({ type: CoordinateClassDto })
+  coordinatorPayload?: UpdateCoordinatorDto;
 }
