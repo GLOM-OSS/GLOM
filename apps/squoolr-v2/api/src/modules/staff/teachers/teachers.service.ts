@@ -9,16 +9,26 @@ import {
   UpdateTeacherInput,
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
-import { StaffEntity } from '../staff.dto';
+import { StaffEntity, TeacherEntity } from '../staff.dto';
 
 @Injectable()
-export class TeachersService implements IStaffService<StaffEntity> {
+export class TeachersService
+  implements IStaffService<StaffEntity | TeacherEntity>
+{
   constructor(private prismaService: GlomPrismaService) {}
   async findOne(annual_teacher_id: string) {
     const {
       Teacher: {
-        matricule,
-        Login: { login_id, Person: person },
+        Login: {
+          login_id,
+          Person,
+          Logs: [log],
+          AnnualConfigurators: [configrator],
+          AnnualRegistries: [registry],
+          Teacher: {
+            AnnualTeachers: [{ AnnualClassroomDivisions: codinatedClass }],
+          },
+        },
         ...teacher
       },
       ...annual_teacher
@@ -27,15 +37,27 @@ export class TeachersService implements IStaffService<StaffEntity> {
       where: { annual_teacher_id },
     });
 
-    return new StaffEntity({
+    return new TeacherEntity({
       login_id,
-      matricule,
-      roles: [],
       annual_teacher_id,
-      last_connected: null,
       ...teacher,
-      ...person,
+      ...Person,
       ...annual_teacher,
+      last_connected: log?.logged_in_at ?? null,
+      roles: [{ registry }, { configrator }, { codinatedClass }].reduce<
+        StaffRole[]
+      >(
+        (roles, _) =>
+          _.registry
+            ? [...roles, StaffRole.REGISTRY]
+            : _.configrator
+            ? [...roles, StaffRole.CONFIGURATOR]
+            : _.codinatedClass
+            ? [...roles, StaffRole.COORDINATOR]
+            : roles,
+        [StaffRole.TEACHER]
+      ),
+      role: StaffRole.TEACHER,
     });
   }
 
@@ -89,6 +111,7 @@ export class TeachersService implements IStaffService<StaffEntity> {
                 : roles,
             [StaffRole.TEACHER]
           ),
+          role: StaffRole.TEACHER,
         })
     );
   }
@@ -110,7 +133,6 @@ export class TeachersService implements IStaffService<StaffEntity> {
       StaffArgsFactory.getStaffCreateInput(payload);
     const {
       Teacher: {
-        matricule,
         Login: { login_id, Person: person },
         ...teacher
       },
@@ -140,14 +162,14 @@ export class TeachersService implements IStaffService<StaffEntity> {
       },
     });
 
-    return new StaffEntity({
+    return new TeacherEntity({
       login_id,
-      matricule,
       roles: [],
       last_connected: null,
       ...teacher,
       ...person,
       ...annual_teacher,
+      role: StaffRole.TEACHER,
     });
   }
 
@@ -280,7 +302,7 @@ export class TeachersService implements IStaffService<StaffEntity> {
       },
     });
 
-    return new StaffEntity({
+    return new TeacherEntity({
       login_id,
       matricule,
       roles: [],
@@ -288,6 +310,7 @@ export class TeachersService implements IStaffService<StaffEntity> {
       ...teacher,
       ...person,
       ...annual_teacher,
+      role: StaffRole.TEACHER,
     });
   }
 }

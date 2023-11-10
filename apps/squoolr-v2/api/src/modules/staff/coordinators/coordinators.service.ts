@@ -12,22 +12,24 @@ import {
   UpdateCoordinatorInput,
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
-import { StaffEntity } from '../staff.dto';
+import { CoordinatorEntity, StaffEntity } from '../staff.dto';
 import { excludeKeys } from '@glom/utils';
 
 @Injectable()
-export class CoordinatorsService implements IStaffService<StaffEntity> {
+export class CoordinatorsService
+  implements IStaffService<StaffEntity | CoordinatorEntity>
+{
   constructor(private prismaService: GlomPrismaService) {}
   createFrom(
     login_id: string,
     payload: StaffCreateFromInput,
     created_by: string
-  ): Promise<StaffEntity> {
+  ): Promise<CoordinatorEntity> {
     throw new NotImplementedException(
       '`createFrom` method is not supported for coordinators. Use teacher instead'
     );
   }
-  findOne(annual_coordinator_id: string): Promise<StaffEntity> {
+  findOne(annual_coordinator_id: string): Promise<CoordinatorEntity> {
     throw new NotImplementedException(
       '`findOne` method is not supported for coordinators. Use teacher instead'
     );
@@ -39,15 +41,7 @@ export class CoordinatorsService implements IStaffService<StaffEntity> {
         distinct: ['annual_coordinator_id'],
         select: {
           AnnualTeacher: {
-            select: {
-              annual_teacher_id: true,
-              Teacher: {
-                select: {
-                  matricule: true,
-                  ...StaffArgsFactory.getStaffSelect(staffParams),
-                },
-              },
-            },
+            select: StaffArgsFactory.getTeacherSelect(),
           },
         },
         where: {
@@ -57,7 +51,6 @@ export class CoordinatorsService implements IStaffService<StaffEntity> {
     return coordinators.map(
       ({
         AnnualTeacher: {
-          annual_teacher_id,
           Teacher: {
             matricule,
             Login: {
@@ -68,12 +61,13 @@ export class CoordinatorsService implements IStaffService<StaffEntity> {
               AnnualRegistries: [registry],
             },
           },
+          annual_teacher_id,
         },
       }) =>
         new StaffEntity({
           login_id,
-          matricule,
           ...Person,
+          matricule,
           annual_teacher_id,
           last_connected: log?.logged_in_at ?? null,
           roles: [{ registry }, { configrator }].reduce<StaffRole[]>(
@@ -85,6 +79,7 @@ export class CoordinatorsService implements IStaffService<StaffEntity> {
                 : roles,
             [StaffRole.TEACHER, StaffRole.COORDINATOR]
           ),
+          role: StaffRole.COORDINATOR,
         })
     );
   }
