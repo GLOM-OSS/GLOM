@@ -1,12 +1,11 @@
-import { useNotification } from '@squoolr/toast';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
-import squoolrApi from './api';
 import {
   DemandStatus,
   SubmitSchoolDemandPayload,
   ValidateSchoolDemandPayload,
 } from '@glom/data-types';
+import squoolrApi from './api';
 const { demands } = squoolrApi;
 
 export function useSubmitDemand() {

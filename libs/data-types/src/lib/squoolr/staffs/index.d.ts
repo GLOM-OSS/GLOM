@@ -16,7 +16,7 @@ export type UpdateStaffPayload = SchemaRequestBody<
   'StaffController_updateStaff'
 >;
 
-export type SatffEntity = SchemaResponseBody<
+export type StaffEntity = SchemaResponseBody<
   operations,
   'StaffController_getAllStaff'
 >;
@@ -48,3 +48,12 @@ export type ResetStaffPasswordPayload = SchemaRequestBody<
   operations,
   'StaffController_resetStaffPasswords'
 >;
+
+export type StaffQueryParams = SchemaRequestQuery<
+  operations,
+  'StaffController_getAllStaff'
+>;
+export type StaffRole = SchemaRequestQuery<
+  operations,
+  'StaffController_getStaff'
+>['role'];
