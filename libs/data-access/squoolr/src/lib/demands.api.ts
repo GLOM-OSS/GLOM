@@ -41,7 +41,7 @@ export const getSchoolDemand = (schoolId: string) =>
 export function useSchoolDemand(schoolId: string) {
   return useQuery({
     enabled: !!schoolId,
-    queryKey: ['get-school-demand'],
+    queryKey: ['get-school-demand', schoolId],
     queryFn: () => demands.getDemand(schoolId),
   });
 }
@@ -56,14 +56,14 @@ export function useSchoolDemands(demandStatus?: DemandStatus[]) {
 export function useSchoolDemandDetails(schoolId: string) {
   return useQuery({
     enabled: !!schoolId,
-    queryKey: ['get-school-demand-details'],
+    queryKey: ['get-school-demand-details', schoolId],
     queryFn: () => demands.getDemandDetails(schoolId),
   });
 }
 
 export function useValidateDemand(schoolId: string) {
   return useMutation({
-    mutationKey: ['validate-school-demand'],
+    mutationKey: ['validate-school-demand', schoolId],
     mutationFn: (payload: ValidateSchoolDemandPayload) =>
       demands.validateDemand(schoolId, payload),
   });
