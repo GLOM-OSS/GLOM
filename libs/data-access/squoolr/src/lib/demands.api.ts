@@ -32,13 +32,27 @@ export function useSubmitDemand() {
   });
 }
 
-export const getSchoolDemand = (demandCode: string) =>
-  demands.getDemand(demandCode);
+export const getSchoolDemand = (schoolId: string) =>
+  demands.getDemand(schoolId);
 
-export function useSchoolDemand(schoolCode: string) {
+export function useSchoolDemand(schoolId: string) {
   return useQuery({
-    enabled: !!schoolCode,
+    enabled: !!schoolId,
     queryKey: ['get-school-demand'],
-    queryFn: () => demands.getDemand(schoolCode),
+    queryFn: () => demands.getDemand(schoolId),
+  });
+}
+
+export function useSchoolDemands() {
+  return useQuery({
+    queryKey: ['get-school-demands'],
+    queryFn: () => demands.getDemands(),
+  });
+}
+
+export function useSchoolDemandDetails(schoolId: string) {
+  return useQuery({
+    queryKey: ['get-school-demand-details'],
+    queryFn: () => demands.getDemandDetails(schoolId),
   });
 }

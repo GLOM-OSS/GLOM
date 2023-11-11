@@ -22,33 +22,33 @@ export class DemandsApi {
     return resp.data;
   }
 
-  async getDemand(school_code: string) {
+  async getDemand(schoolId: string) {
     const resp = await this.request.get<SchoolEntity>(
-      `/demands/${school_code}`
+      `/demands/${schoolId}`
     );
     return resp.data;
   }
 
-  async getDemandDetails(school_code: string) {
+  async getDemandDetails(scoolId: string) {
     const resp = await this.request.get<SchoolDemandDetails>(
-      `/demands/${school_code}/details`
+      `/demands/${scoolId}/details`
     );
     return resp.data;
   }
 
   async validateDemand(
-    school_code: string,
+    schoolId: string,
     validatedDemandPayload: ValidateSchoolDemandPayload
   ) {
     const resp = await this.request.put(
-      `/demands/${school_code}/validate`,
+      `/demands/${schoolId}/validate`,
       validatedDemandPayload
     );
     return resp.data;
   }
 
-  async processDemand(school_code: string) {
-    const resp = await this.request.patch(`/demands/${school_code}/status`, {});
+  async processDemand(schoolId: string) {
+    const resp = await this.request.patch(`/demands/${schoolId}/status`, {});
     return resp.data;
   }
 }
