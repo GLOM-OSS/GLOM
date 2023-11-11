@@ -1,9 +1,7 @@
 import {
   CoordinatorEntity,
-  CreateInquiryPayload,
   CreateStaffPayload,
-  InquiryEntity,
-  ManaStaffRolesPayload,
+  ManageStaffRolesPayload,
   StaffEntity,
   StaffQueryParams,
   StaffRole,
@@ -16,11 +14,11 @@ type CreateResponseType = StaffEntity | TeacherEntity | CoordinatorEntity;
 export class StaffApi {
   constructor(private readonly request: GlomRequest) {}
 
-  async getStaffs(params?: StaffQueryParams) {
+  async getStaffMembers(params?: StaffQueryParams) {
     return this.request.get<StaffEntity>('/staffs', params);
   }
 
-  async getStaff(annualStaffId: string, role: StaffRole) {
+  async getStaffMember(annualStaffId: string, role: StaffRole) {
     return this.request.get<CreateResponseType>(`/staffs/${annualStaffId}`, {
       role,
     });
@@ -40,11 +38,11 @@ export class StaffApi {
     });
   }
 
-  async disableManyStaff(disabledStaff: ManaStaffRolesPayload) {
+  async disableManyStaff(disabledStaff: ManageStaffRolesPayload) {
     return this.request.delete(`/staffs`, { queryParams: { disabledStaff } });
   }
 
-  async resetStaffPasswords(staffPayload: ManaStaffRolesPayload) {
+  async resetStaffPasswords(staffPayload: ManageStaffRolesPayload) {
     return this.request.post(`/staffs/reset-passwords`, staffPayload);
   }
 }

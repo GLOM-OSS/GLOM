@@ -39,7 +39,7 @@ export type UpdateStaffPayload = SchemaRequestBody<
   'StaffController_updateStaff'
 >;
 
-export type ManaStaffRolesPayload = SchemaRequestBody<
+export type ManageStaffRolesPayload = SchemaRequestBody<
   operations,
   'StaffController_updateStaffRoles'
 >;
