@@ -96,6 +96,42 @@ export interface paths {
     put: operations["ClassroomsController_updateClassroom"];
     delete: operations["ClassroomsController_deleteClassroom"];
   };
+  "/v1/staffs": {
+    get: operations["StaffController_getAllStaff"];
+    delete: operations["StaffController_disableManyStaff"];
+  };
+  "/v1/staffs/{annual_teacher_id}": {
+    get: operations["StaffController_getStaff"];
+    put: operations["StaffController_updateStaff"];
+    delete: operations["StaffController_disableStaff"];
+  };
+  "/v1/staffs/{annual_coordinator_id}": {
+    get: operations["StaffController_getStaff"];
+    put: operations["StaffController_updateStaff"];
+    delete: operations["StaffController_disableStaff"];
+  };
+  "/v1/staffs/{annual_configurator_id}": {
+    get: operations["StaffController_getStaff"];
+    put: operations["StaffController_updateStaff"];
+    delete: operations["StaffController_disableStaff"];
+  };
+  "/v1/staffs/{annual_registry_id}": {
+    get: operations["StaffController_getStaff"];
+    put: operations["StaffController_updateStaff"];
+    delete: operations["StaffController_disableStaff"];
+  };
+  "/v1/staffs/new": {
+    post: operations["StaffController_createStaff"];
+  };
+  "/v1/staffs/reset-passwords": {
+    post: operations["StaffController_resetStaffPasswords"];
+  };
+  "/v1/staffs/{login_id}/roles": {
+    put: operations["StaffController_updateStaffRoles"];
+  };
+  "/v1/staffs/private-codes": {
+    put: operations["StaffController_resetStaffPrivateCodes"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -140,7 +176,6 @@ export interface components {
       origin_institute: string;
       has_signed_convention: boolean;
       classroomDivisions: string[];
-      teacher_id: string;
     };
     User: {
       first_name: string;
@@ -394,6 +429,223 @@ export interface components {
     UpdateClassroomDto: {
       registration_fee?: number;
       total_fee_due?: number;
+    };
+    TeacherEntity: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone_number: string;
+      /** Format: date-time */
+      birthdate?: string;
+      /** @enum {string} */
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      /** @enum {string} */
+      role: "TEACHER";
+      teaching_grade_id: string;
+      teacher_type_id: string;
+      origin_institute: string;
+      hourly_rate: number;
+      has_signed_convention: boolean;
+      has_tax_payers_card: boolean;
+      tax_payer_card_number?: string;
+      annual_teacher_id: string;
+      login_id: string;
+      matricule: string;
+      /** @default false */
+      is_deleted: boolean;
+      /** Format: date-time */
+      last_connected: string;
+      roles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
+    };
+    CoordinatorEntity: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone_number: string;
+      /** Format: date-time */
+      birthdate?: string;
+      /** @enum {string} */
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      teaching_grade_id: string;
+      teacher_type_id: string;
+      origin_institute: string;
+      hourly_rate: number;
+      has_signed_convention: boolean;
+      has_tax_payers_card: boolean;
+      tax_payer_card_number?: string;
+      annual_teacher_id: string;
+      login_id: string;
+      matricule: string;
+      /** @default false */
+      is_deleted: boolean;
+      /** Format: date-time */
+      last_connected: string;
+      roles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
+      /** @enum {string} */
+      role: "COORDINATOR";
+      annualClassroomIds: string[];
+    };
+    StaffEntity: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone_number: string;
+      /** Format: date-time */
+      birthdate?: string;
+      /** @enum {string} */
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      /** @enum {string} */
+      role: "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR";
+      login_id: string;
+      matricule: string;
+      /** @default false */
+      is_deleted: boolean;
+      /** Format: date-time */
+      last_connected: string;
+      annual_configurator_id?: string;
+      annual_registry_id?: string;
+      annual_teacher_id?: string;
+      annual_coordinator_id?: string;
+      roles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
+    };
+    CreateConfiguratorDto: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone_number: string;
+      /** Format: date-time */
+      birthdate?: string;
+      /** @enum {string} */
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      /** @enum {string} */
+      role: "CONFIGURATOR";
+    };
+    CreateRegistryDto: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone_number: string;
+      /** Format: date-time */
+      birthdate?: string;
+      /** @enum {string} */
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      /** @enum {string} */
+      role: "REGISTRY";
+    };
+    CreateCoordinatorDto: {
+      /** @enum {string} */
+      role: "COORDINATOR";
+      annual_teacher_id: string;
+      annualClassroomIds: string[];
+    };
+    CreateTeacherDto: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone_number: string;
+      /** Format: date-time */
+      birthdate?: string;
+      /** @enum {string} */
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      /** @enum {string} */
+      role: "TEACHER";
+      teaching_grade_id: string;
+      teacher_type_id: string;
+      origin_institute: string;
+      hourly_rate: number;
+      has_signed_convention: boolean;
+      has_tax_payers_card: boolean;
+      tax_payer_card_number?: string;
+    };
+    CreateStaffDto: {
+      payload: components["schemas"]["CreateConfiguratorDto"] | components["schemas"]["CreateRegistryDto"] | components["schemas"]["CreateCoordinatorDto"] | components["schemas"]["CreateTeacherDto"];
+    };
+    UpdateConfiguratorDto: {
+      first_name?: string;
+      last_name?: string;
+      email?: string;
+      phone_number?: string;
+      /** Format: date-time */
+      birthdate?: string;
+      /** @enum {string} */
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      /** @enum {string} */
+      role: "CONFIGURATOR";
+    };
+    UpdateRegistryDto: {
+      first_name?: string;
+      last_name?: string;
+      email?: string;
+      phone_number?: string;
+      /** Format: date-time */
+      birthdate?: string;
+      /** @enum {string} */
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      /** @enum {string} */
+      role: "REGISTRY";
+    };
+    UpdateCoordinatorDto: {
+      /** @enum {string} */
+      role: "COORDINATOR";
+      annualClassroomIds: string[];
+    };
+    UpdateTeacherDto: {
+      first_name?: string;
+      last_name?: string;
+      email?: string;
+      phone_number?: string;
+      /** Format: date-time */
+      birthdate?: string;
+      /** @enum {string} */
+      gender?: "Male" | "Female";
+      address?: string;
+      national_id_number?: string;
+      /** @enum {string} */
+      role: "TEACHER";
+      teaching_grade_id?: string;
+      teacher_type_id?: string;
+      origin_institute?: string;
+      hourly_rate?: number;
+      has_signed_convention?: boolean;
+      has_tax_payers_card?: boolean;
+      tax_payer_card_number?: string;
+    };
+    UpdateStaffDto: {
+      payload: components["schemas"]["UpdateConfiguratorDto"] | components["schemas"]["UpdateRegistryDto"] | components["schemas"]["UpdateCoordinatorDto"] | components["schemas"]["UpdateTeacherDto"];
+    };
+    BatchPayloadDto: {
+      count: number;
+      message: string;
+    };
+    ManageStaffDto: {
+      teacherIds: string[];
+      registryIds: string[];
+      configuratorIds: string[];
+    };
+    CoordinateClassDto: {
+      annualClassroomIds: string[];
+    };
+    UpdateStaffRoleDto: {
+      newRoles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
+      disabledStaffPayload?: components["schemas"]["ManageStaffDto"];
+      coordinatorPayload?: components["schemas"]["CoordinateClassDto"];
+      teacherPayload?: components["schemas"]["UpdateTeacherDto"];
     };
   };
   responses: never;
@@ -818,6 +1070,150 @@ export interface operations {
     responses: {
       204: {
         content: never;
+      };
+    };
+  };
+  StaffController_getAllStaff: {
+    parameters: {
+      query?: {
+        is_deleted?: boolean;
+        keywords?: string;
+        roles?: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["StaffEntity"][];
+        };
+      };
+    };
+  };
+  StaffController_disableManyStaff: {
+    parameters: {
+      query: {
+        teacherIds: string[];
+        registryIds: string[];
+        configuratorIds: string[];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["BatchPayloadDto"];
+        };
+      };
+    };
+  };
+  StaffController_getStaff: {
+    parameters: {
+      query: {
+        role: "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR";
+      };
+      path: {
+        annual_teacher_id: string;
+      };
+    };
+    responses: {
+      /** @description `StaffEntity`, `TeacherEntity` or `CoordinatorEntity` will ne returned depending on request query */
+      200: {
+        content: {
+          "application/json": components["schemas"]["StaffEntity"] | components["schemas"]["TeacherEntity"] | components["schemas"]["CoordinatorEntity"];
+        };
+      };
+    };
+  };
+  StaffController_updateStaff: {
+    parameters: {
+      path: {
+        annual_teacher_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateStaffDto"];
+      };
+    };
+    responses: {
+      204: {
+        content: never;
+      };
+    };
+  };
+  StaffController_disableStaff: {
+    parameters: {
+      query: {
+        role: "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR";
+      };
+      path: {
+        annual_teacher_id: string;
+      };
+    };
+    responses: {
+      204: {
+        content: never;
+      };
+    };
+  };
+  StaffController_createStaff: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateStaffDto"];
+      };
+    };
+    responses: {
+      /** @description `StaffEntity`, `TeacherEntity` or `CoordinatorEntity` will ne returned depending on request body */
+      201: {
+        content: {
+          "application/json": components["schemas"]["StaffEntity"] | components["schemas"]["TeacherEntity"] | components["schemas"]["CoordinatorEntity"];
+        };
+      };
+    };
+  };
+  StaffController_resetStaffPasswords: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ManageStaffDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["BatchPayloadDto"];
+        };
+      };
+    };
+  };
+  StaffController_updateStaffRoles: {
+    parameters: {
+      path: {
+        login_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateStaffRoleDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["BatchPayloadDto"];
+        };
+      };
+    };
+  };
+  StaffController_resetStaffPrivateCodes: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ManageStaffDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["BatchPayloadDto"];
+        };
       };
     };
   };

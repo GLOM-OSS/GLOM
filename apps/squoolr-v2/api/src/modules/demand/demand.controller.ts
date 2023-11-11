@@ -17,7 +17,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Request } from 'express';
-import { IsPublic, Role, Roles } from '../../app/auth/auth.decorator';
+import { IsPublic, Roles } from '../../app/auth/auth.decorator';
+import { Role } from '../../utils/enums';
 import {
   DemandDetails,
   SchoolEntity,

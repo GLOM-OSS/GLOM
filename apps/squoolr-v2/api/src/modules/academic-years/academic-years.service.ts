@@ -15,7 +15,7 @@ import {
 import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import { SessionData, UserRole } from '../../app/auth/auth';
-import { Role } from '../../app/auth/auth.decorator';
+import { Role } from '../../utils/enums';
 import {
   AcademicYearEntity,
   CreateAcademicYearDto,
@@ -388,7 +388,7 @@ export class AcademicYearsService {
     //check for annual teachers
     const annualTeachers = await this.prismaService.annualTeacher.findMany({
       select: { AcademicYear: true },
-      where: { login_id, is_deleted: false },
+      where: { Teacher: { login_id }, is_deleted: false },
     });
 
     return [
@@ -530,7 +530,7 @@ export class AcademicYearsService {
         where: {
           academic_year_id,
           is_deleted: false,
-          login_id,
+          Teacher: { login_id },
         },
       });
       if (annualTeacher) {
@@ -539,7 +539,6 @@ export class AcademicYearsService {
           has_signed_convention,
           hourly_rate,
           origin_institute,
-          teacher_id,
         } = annualTeacher;
         retrivedRoles.push({
           user_id: annual_teacher_id,
@@ -564,7 +563,6 @@ export class AcademicYearsService {
             has_signed_convention,
             hourly_rate,
             origin_institute,
-            teacher_id,
           },
         };
       }

@@ -1,9 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Cycle, CycleName, CycleType } from '@prisma/client';
+import { Cycle, CycleName, CycleType, Prisma } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { QueryParams } from './module';
 
-export class QueryParamsDto {
+export class QueryParamsDto implements QueryParams {
   @IsBoolean()
   @IsOptional()
   @ApiPropertyOptional()
@@ -33,6 +34,18 @@ export class CycleEntity implements Cycle {
   created_at: Date;
 
   constructor(props: Partial<CycleEntity>) {
+    Object.assign(this, props);
+  }
+}
+
+export class BatchPayloadDto implements Prisma.BatchPayload {
+  @ApiProperty()
+  count: number;
+
+  @ApiProperty()
+  message: string;
+
+  constructor(props: BatchPayloadDto) {
     Object.assign(this, props);
   }
 }

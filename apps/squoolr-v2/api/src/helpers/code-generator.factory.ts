@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { GlomPrismaService } from '@glom/prisma';
-import { Role } from '../app/auth/auth.decorator';
+import { StaffRole } from '../utils/enums';
 
 @Injectable()
 export class CodeGeneratorFactory {
@@ -80,13 +80,13 @@ export class CodeGeneratorFactory {
     return `${classroom_acronym}${this.formatNumber(number_of_classrooms + 1)}`;
   }
 
-  async getPersonnelCode(school_id: string, role: Role) {
+  async getPersonnelCode(school_id: string, role: StaffRole) {
     const { school_acronym } = await this.prismaService.school.findUnique({
       select: { school_acronym: true },
       where: { school_id },
     });
     switch (role) {
-      case Role.REGISTRY: {
+      case StaffRole.REGISTRY: {
         const number_of_registries =
           await this.prismaService.annualRegistry.count({
             where: { Login: { school_id } },
@@ -95,7 +95,7 @@ export class CodeGeneratorFactory {
           number_of_registries + 1
         )}`;
       }
-      case Role.CONFIGURATOR: {
+      case StaffRole.CONFIGURATOR: {
         const number_of_configurators =
           await this.prismaService.annualConfigurator.count({
             where: { Login: { school_id } },
@@ -104,14 +104,10 @@ export class CodeGeneratorFactory {
           number_of_configurators + 1
         )}`;
       }
-      case Role.TEACHER || Role.COORDINATOR: {
+      case (StaffRole.TEACHER, StaffRole.COORDINATOR): {
         const number_of_teachers = await this.prismaService.teacher.count({
           where: {
-            AnnualTeachers: {
-              some: {
-                Login: { school_id },
-              },
-            },
+            AnnualTeachers: { some: { Teacher: { Login: { school_id } } } },
           },
         });
         return `${school_acronym}TE${this.formatNumber(

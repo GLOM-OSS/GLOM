@@ -49,7 +49,6 @@ export type SessionData = {
     origin_institute: string;
     has_signed_convention: boolean;
     classroomDivisions: string[];
-    teacher_id: string;
   };
   annualRegistry?: {
     annual_registry_id: string;

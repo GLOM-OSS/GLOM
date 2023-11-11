@@ -17,7 +17,8 @@ import {
   UpdateClassroomDto,
 } from './classroom.dto';
 import { ClassroomsService } from './classrooms.service';
-import { Role, Roles } from '../../app/auth/auth.decorator';
+import { Roles } from '../../app/auth/auth.decorator';
+import { Role } from '../../utils/enums';
 import { Request } from 'express';
 
 @ApiTags('Classrooms')

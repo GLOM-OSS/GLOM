@@ -10,7 +10,8 @@ import {
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { Role, Roles } from '../../app/auth/auth.decorator';
+import { Roles } from '../../app/auth/auth.decorator';
+import { Role } from '../../utils/enums';
 import { SessionEntity } from '../../app/auth/auth.dto';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 import { AuthService } from '../../app/auth/auth.service';
