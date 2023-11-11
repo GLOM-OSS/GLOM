@@ -314,4 +314,56 @@ export class TeachersService
       role: StaffRole.TEACHER,
     });
   }
+
+  async resetPrivateCodes(
+    annualStaffIds: string[],
+    codes: string[],
+    reset_by: string
+  ) {
+    const teachers = await this.prismaService.annualTeacher.findMany({
+      select: { annual_teacher_id: true, Teacher: true },
+      where: {
+        OR: annualStaffIds.map((annual_teacher_id) => ({
+          annual_teacher_id,
+        })),
+      },
+    });
+    await this.prismaService.$transaction([
+      ...teachers.map(
+        (
+          {
+            annual_teacher_id,
+            Teacher: {
+              has_tax_payers_card,
+              private_code,
+              tax_payer_card_number,
+              teacher_type_id,
+            },
+          },
+          i
+        ) =>
+          this.prismaService.annualTeacher.update({
+            data: {
+              Teacher: {
+                update: {
+                  private_code: codes[i],
+                  TeacherAudits: {
+                    create: {
+                      private_code,
+                      has_tax_payers_card,
+                      tax_payer_card_number,
+                      TeacherType: { connect: { teacher_type_id } },
+                      AnnualConfigurator: {
+                        connect: { annual_configurator_id: reset_by },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            where: { annual_teacher_id },
+          })
+      ),
+    ]);
+  }
 }
