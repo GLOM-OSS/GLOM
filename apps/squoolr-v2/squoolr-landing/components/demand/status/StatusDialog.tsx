@@ -1,4 +1,7 @@
+import { getSchoolDemand } from '@glom/data-access/squoolr';
+import { SchoolEntity } from '@glom/data-types';
 import { useTheme } from '@glom/theme';
+import checkCircle from '@iconify/icons-fluent/checkmark-circle-48-regular';
 import { Icon } from '@iconify/react';
 import { Box, Button, Dialog, TextField, Typography } from '@mui/material';
 import { DialogTransition } from '@squoolr/confirm-dialogs';
@@ -6,12 +9,11 @@ import { useFormik } from 'formik';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import * as Yup from 'yup';
-import checkCircle from '@iconify/icons-fluent/checkmark-circle-48-regular';
 
 export default function StatusDialog({
   open,
   closeDialog,
-  demandCode,
+  demandCode: initialDemandCode,
 }: {
   open: boolean;
   closeDialog: () => void;
@@ -20,18 +22,12 @@ export default function StatusDialog({
   const { formatMessage, formatDate } = useIntl();
   const theme = useTheme();
 
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const initialValues: { demandCode: string } = {
-    demandCode,
+    demandCode: initialDemandCode,
   };
 
-  //TODO: FILL THIS STATE WITH DATA FROM API
-  const [status, setStatus] = useState<{
-    submitted_date: string;
-    status: 'Pending' | 'Done' | 'Progress';
-    demandCode: string;
-    school_domain: string;
-  }>();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>();
+  const [schoolDemand, setSchoolDemand] = useState<SchoolEntity>();
 
   const validationSchema = Yup.object().shape({
     demandCode: Yup.string().required(formatMessage({ id: 'requiredField' })),
@@ -40,18 +36,11 @@ export default function StatusDialog({
   const formik = useFormik({
     initialValues,
     validationSchema,
-    onSubmit: (values, { resetForm }) => {
-      //TODO: FETCH THE STATUS OF THE DEMAND HERE and set as below
+    onSubmit: async (values) => {
       setIsSubmitting(true);
-      setTimeout(() => {
-        setIsSubmitting(false);
-      }, 2000);
-      setStatus({
-        status: 'Pending',
-        submitted_date: new Date().toISOString(),
-        demandCode: formik.values.demandCode,
-        school_domain: 'sjjoan.squoolr.com',
-      });
+      const demand = await getSchoolDemand(values.demandCode);
+      setSchoolDemand(demand);
+      setIsSubmitting(false);
     },
   });
 
@@ -120,61 +109,64 @@ export default function StatusDialog({
           />
         </Box>
 
-        {status && status.demandCode === formik.values.demandCode && (
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: 'auto 1fr',
-              columnGap: 0.5,
-              alignItems: 'center',
-              justifySelf: 'center',
-            }}
-          >
-            <Icon
-              icon={checkCircle}
-              style={{
-                color:
-                  status.status === 'Done'
-                    ? theme.palette.success.main
-                    : status.status === 'Progress'
-                    ? theme.palette.primary.main
-                    : theme.palette.error.main,
-                height: '20px',
-                width: '20px',
-              }}
-            />
-
-            <Typography
-              className="p3--space"
+        {schoolDemand &&
+          schoolDemand.school_code === formik.values.demandCode && (
+            <Box
               sx={{
-                color: `${
-                  status.status === 'Done'
-                    ? theme.palette.success.main
-                    : status.status === 'Progress'
-                    ? theme.palette.primary.main
-                    : theme.palette.error.main
-                } !important`,
+                display: 'grid',
+                gridTemplateColumns: 'auto 1fr',
+                columnGap: 0.5,
+                alignItems: 'center',
+                justifySelf: 'center',
               }}
             >
-              {formatMessage({ id: status.status })}
-            </Typography>
-          </Box>
-        )}
+              <Icon
+                icon={checkCircle}
+                style={{
+                  color:
+                    schoolDemand.school_demand_status === 'VALIDATED'
+                      ? theme.palette.success.main
+                      : schoolDemand.school_demand_status === 'PROCESSING'
+                      ? theme.palette.primary.main
+                      : theme.palette.error.main,
+                  height: '20px',
+                  width: '20px',
+                }}
+              />
 
-        {status && status.demandCode === formik.values.demandCode ? (
+              <Typography
+                className="p3--space"
+                sx={{
+                  color: `${
+                    schoolDemand.school_demand_status === 'VALIDATED'
+                      ? theme.palette.success.main
+                      : schoolDemand.school_demand_status === 'PROCESSING'
+                      ? theme.palette.primary.main
+                      : theme.palette.error.main
+                  } !important`,
+                }}
+              >
+                {formatMessage({ id: schoolDemand.school_demand_status })}
+              </Typography>
+            </Box>
+          )}
+
+        {schoolDemand &&
+        schoolDemand.school_demand_status === formik.values.demandCode ? (
           <Box>
             <Typography
               className="p3--space"
               sx={{ textAlign: 'center !important' }}
             >{`${formatMessage({
               id: 'submittedOn',
-            })} ${formatDate(status.submitted_date, {
+            })} ${formatDate(schoolDemand.created_at, {
               weekday: 'short',
               day: '2-digit',
               month: 'short',
               year: 'numeric',
             })}`}</Typography>
-            {status.status === 'Progress' || status.status === 'Pending' ? (
+            {schoolDemand.school_demand_status === 'PROCESSING' ||
+            schoolDemand.school_demand_status === 'PENDING' ? (
               <>
                 <Typography className="p3--space" sx={{ textAlign: 'center' }}>
                   {formatMessage({ id: 'weAreWorkingActively' })}
@@ -199,7 +191,7 @@ export default function StatusDialog({
                     className="p3--space"
                     component="a"
                     target="_blank"
-                    href={status.school_domain}
+                    href={schoolDemand.subdomain}
                     sx={{
                       color: `${theme.palette.primary.main} !important`,
                       '&:hover': {
@@ -207,7 +199,7 @@ export default function StatusDialog({
                       },
                     }}
                   >
-                    {status.school_domain}
+                    {schoolDemand.subdomain}
                   </Typography>
                 </Typography>
               </Box>

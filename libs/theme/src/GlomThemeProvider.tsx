@@ -14,6 +14,7 @@ import enMessages from './languages/en-us';
 import frMessages from './languages/fr';
 import { theme } from './theme';
 import { LanguageType } from './contexts/language/language.interface';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const App = ({
   children,
@@ -70,11 +71,20 @@ export function GlomThemeProvider({
   theme?: Theme;
   defaultLang?: LanguageType;
 }) {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: process.env['NODE_ENV'] === 'development',
+      },
+    },
+  });
   return (
     <LanguageContextProvider defaultLang={defaultLang}>
-      <AppThemeContextProvider>
-        <App newTheme={theme}>{children}</App>
-      </AppThemeContextProvider>
+      <QueryClientProvider client={queryClient}>
+        <AppThemeContextProvider>
+          <App newTheme={theme}>{children}</App>
+        </AppThemeContextProvider>
+      </QueryClientProvider>
     </LanguageContextProvider>
   );
 }

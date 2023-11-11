@@ -7,6 +7,9 @@ export class PlatformSettingsEntity implements PlatformSettings {
   platform_settings_id: string;
 
   @ApiProperty()
+  platform_fee: number;
+
+  @ApiProperty()
   onboarding_fee: number;
 
   @ApiProperty()

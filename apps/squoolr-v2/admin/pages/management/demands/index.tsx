@@ -1,4 +1,4 @@
-import { NoTableElement } from '@glom/components';
+import { NoTableElement, TableHeaderItem } from '@glom/components';
 import { SchoolEntity } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
 import reset from '@iconify/icons-fluent/arrow-counterclockwise-48-regular';
@@ -23,36 +23,6 @@ import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatchBreadcrumb } from '@glom/squoolr-v2/side-nav';
 import { useRouter } from 'next/router';
-
-function TableHeaderItem({
-  title,
-  icon,
-  onClick,
-}: {
-  icon: IconifyIcon;
-  title: string;
-  onClick?: (event) => void;
-}) {
-  const theme = useTheme();
-  return (
-    <Box
-      sx={{
-        display: 'grid',
-        gridAutoFlow: 'column',
-        alignItems: 'center',
-        columnGap: 1,
-        borderRadius: '4px',
-        cursor: 'pointer',
-      }}
-      onClick={(event) => onClick(event)}
-    >
-      <Icon icon={icon} fontSize={20} />
-      <Typography className="p4" sx={{ color: theme.common.body }}>
-        {title}
-      </Typography>
-    </Box>
-  );
-}
 
 export const STATUS_CHIP_VARIANT: Record<string, 'outlined' | 'filled'> = {
   PROCESSING: 'filled',
@@ -99,6 +69,8 @@ export function Index() {
       school_code: 'KIS234',
       school_rejection_reason: '',
       school_id: 'siels',
+      created_at: new Date().toISOString(),
+      subdomain: '',
     },
     {
       school_acronym: 'SBAHS',
@@ -112,6 +84,8 @@ export function Index() {
       school_code: 'KIS235',
       school_rejection_reason: '',
       school_id: 'siels',
+      created_at: new Date().toISOString(),
+      subdomain: '',
     },
     {
       school_acronym: 'SAJOHIM',
@@ -125,6 +99,8 @@ export function Index() {
       school_code: 'KIS234',
       school_rejection_reason: '',
       school_id: 'siels',
+      created_at: new Date().toISOString(),
+      subdomain: '',
     },
   ];
 

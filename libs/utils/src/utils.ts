@@ -72,3 +72,19 @@ export function pickKeys<T extends object, K extends keyof T>(
   });
   return obj;
 }
+
+/**
+ * Generate password with numbers, special characters, upper and lower case letters
+ * @param [useSpecialChar=false] Whether or not to use special characters
+ * @param [length=8] password length
+ */
+export function generatePassword(useSpecialChar: boolean = false, length = 8) {
+  let charset = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789${
+      useSpecialChar ? '!@#$%^&*?.-' : ''
+    }`,
+    retVal = '';
+  for (let i = 0, n = charset.length; i < length; ++i) {
+    retVal += charset.charAt(Math.floor(Math.random() * n));
+  }
+  return retVal;
+}

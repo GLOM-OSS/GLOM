@@ -56,7 +56,7 @@ function App({ children }: { children?: JSX.Element }) {
     },
   ];
 
-  const noLayoutRoutes = ['/signin', '/reset-password'];
+  const noLayoutRoutes = ['/signin', '/reset-password', '/new-password'];
   const { asPath } = useRouter();
 
   const [shouldUseLayout, setShouldUseLayout] = useState<boolean>(false);

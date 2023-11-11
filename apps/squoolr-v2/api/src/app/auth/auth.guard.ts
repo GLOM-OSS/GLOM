@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request, Response } from 'express';
-import { MetadataEnum, Role } from './auth.decorator';
+import { MetadataEnum, Role, StaffRole } from '../../utils/enums';
 import { AuthService } from './auth.service';
 
 @Injectable()
@@ -21,11 +21,12 @@ export class AuthenticatedGuard implements CanActivate {
       IS_PUBLIC,
       context.getHandler()
     );
+    if(isPublic) return isPublic
     const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES, [
       context.getHandler(),
       context.getClass(),
     ]);
-    const isAuthenticated = isPublic ? isPublic : request.isAuthenticated();
+    const isAuthenticated = request.isAuthenticated();
     if (!isAuthenticated) {
       const sessionID = request.headers.cookie?.split('=s%3A')[1].split('.')[0];
       if (sessionID) {
@@ -77,12 +78,12 @@ export class AuthenticatedGuard implements CanActivate {
 
     return (
       (roles.includes(Role.TEACHER) &&
-        (await this.authService.verifyPrivateCode(Role.TEACHER, {
+        (await this.authService.verifyPrivateCode(StaffRole.TEACHER, {
           private_code,
           user_id: annualTeacher?.teacher_id,
         }))) ||
       (roles.includes(Role.REGISTRY) &&
-        (await this.authService.verifyPrivateCode(Role.REGISTRY, {
+        (await this.authService.verifyPrivateCode(StaffRole.REGISTRY, {
           private_code,
           user_id: annualRegistry?.annual_registry_id,
         })))

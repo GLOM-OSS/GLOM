@@ -17,6 +17,7 @@
     "paths": {
       "@glom/casl": ["libs/nest/casl/src/index.ts"],
       "@glom/components": ["libs/components/src/index.ts"],
+      "@glom/data-access/squoolr": ["libs/data-access/squoolr/src/index.ts"],
       "@glom/data-types": ["libs/data-types/src/index.ts"],
       "@glom/data-types/lynkr": ["libs/data-types/src/lib/lynkr/index.ts"],
       "@glom/data-types/squoolr": [

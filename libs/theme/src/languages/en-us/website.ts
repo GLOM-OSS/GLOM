@@ -554,5 +554,19 @@ export const website = {
   yesSuspend: 'Yes, suspend',
   fromSquoolr: 'from Squoolr?',
 
+  name: 'Name',
+  lastConnected: 'Last Connected',
+  disableAccounts: 'Disable Accounts',
+  disableAccount: 'Disable account',
+  resetPasswords: 'Reset Passwords',
+  resetConfiguratorPasswordDialogMessage:
+    "This action will send a reset password link to the configurator's email for them to reset their password! Are you sure you want to continue?",
+  resetConfiguratorPasswordsDialogMessage:
+    'This action will send a reset password link to selected configurators emails for them to reset their password! Are you sure you want to continue?',
+  disableConfiguratorAccountDialogMessage:
+    'This action will prevent the configurator from accessing their account! Are you sure you want to disable this account?',
+  disableConfiguratorAccountsDialogMessage:
+    'This action will prevent these configurators from accessing their accounts! Are you sure you want to disable these accounts?',
   academicYears: 'Academic Years',
+  configuration: 'Configuration',
 };
