@@ -1,21 +1,29 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { StaffRole } from '../../../utils/enums';
 import {
   CreateStaffInput,
   IStaffService,
   StaffCreateFromInput,
   StaffSelectParams,
-  TeacherCreateInput,
-  UpdateStaffInput,
+  UpdateStaffInput
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffEntity } from '../staff.dto';
-import { BatchPayload } from '../../module';
 
 @Injectable()
 export class ConfiguratorsService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
+  async resetPrivateCodes(
+    annualStaffIds: string[],
+    codes: string[],
+    reset_by: string
+  ): Promise<void> {
+    throw new NotImplementedException(
+      '`resetPrivateCodes` method is not supported for configurators'
+    );
+  }
+
   async findOne(annual_configurator_id: string) {
     const {
       matricule,

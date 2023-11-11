@@ -12,7 +12,7 @@ import {
   IStaffService,
   StaffCreateFromInput,
   StaffSelectParams,
-  UpdateCoordinatorInput
+  UpdateCoordinatorInput,
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { CoordinatorEntity, StaffEntity } from '../staff.dto';
@@ -29,6 +29,15 @@ export class CoordinatorsService
   ): Promise<CoordinatorEntity> {
     throw new NotImplementedException(
       '`createFrom` method is not supported for coordinators. Use teacher instead'
+    );
+  }
+  async resetPrivateCodes(
+    annualStaffIds: string[],
+    roles: string[],
+    reset_by: string
+  ): Promise<void> {
+    throw new NotImplementedException(
+      '`resetPrivateCodes` method is not supported for coordinators. Use teacher instead'
     );
   }
   async findOne(annual_coordinator_id: string) {
