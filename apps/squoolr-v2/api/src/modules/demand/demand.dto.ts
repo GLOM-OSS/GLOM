@@ -14,7 +14,7 @@ import {
   NotContains,
   ValidateNested,
 } from 'class-validator';
-import { CreatePersonDto, PersonEntity } from '../auth/auth.dto';
+import { CreatePersonDto, PersonEntity } from '../../app//auth/auth.dto';
 import { CreateAcademicYearDto } from '../academic-years/academic-years.dto';
 
 export class CreateSchoolDto {

@@ -12,7 +12,7 @@ import {
 import { Login, Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
-import { AcademicYearsService } from '../academic-years/academic-years.service';
+import { AcademicYearsService } from '../../modules/academic-years/academic-years.service';
 import { PassportUser, SessionData } from './auth';
 import { Role } from './auth.decorator';
 
