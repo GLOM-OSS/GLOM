@@ -1,5 +1,9 @@
 import { ConfirmDialog } from '@glom/components';
-import { SchoolDemandDetails } from '@glom/data-types/squoolr';
+import {
+  useSchoolDemandDetails,
+  useUpdateDemandStaus,
+  useValidateDemand,
+} from '@glom/data-access/squoolr';
 import { useTheme } from '@glom/theme';
 import { Box, Button, Chip, CircularProgress, Typography } from '@mui/material';
 import RejectDemandDialog from 'apps/squoolr-v2/admin/component/management/demands/RejectDemandDialog';
@@ -14,52 +18,12 @@ export default function index() {
   const { formatMessage } = useIntl();
   const theme = useTheme();
   const {
-    query: { demand_code },
+    query: { school_id },
     asPath,
   } = useRouter();
-  //TODO: FETCH SCHOOL DATA WITH DEMAND_CODE HERE.
-  const [schoolData, setSchoolData] = useState<SchoolDemandDetails>({
-    person: {
-      birthplace: 'Nkambe',
-      civil_status: 'Single',
-      created_at: new Date().toISOString(),
-      email: 'lorraintchakoumi@gmail.com',
-      employment_status: 'Employed',
-      first_name: 'Tchakoumi Lorrain',
-      handicap: '',
-      home_region: '',
-      image_ref: '',
-      last_name: 'Kouatchoua',
-      latitude: 0,
-      longitude: 0,
-      nationality: 'Cameroon',
-      person_id: 'hktv239',
-      phone_number: '237657140183',
-      preferred_lang: 'en',
-      religion: 'Catholic',
-      address: '',
-      birthdate: new Date('03/27/1999').toISOString(),
-      gender: 'Male',
-      national_id_number: '000316122',
-    },
-    school: {
-      ambassador_email: 'tchapleuvidal@gmail.com',
-      lead_funnel: 'Facebook',
-      paid_amount: 0,
-      school_acronym: 'UdM',
-      school_code: 'SKD1000',
-      school_demand_status: 'PENDING',
-      school_email: 'info@udm-aed.org',
-      school_id: 'testing-123-till-uuid-works',
-      school_name: 'Université des Montagnes',
-      school_phone_number: '237693256789',
-      school_rejection_reason: '',
-    },
-    academicYear: {
-      ends_at: new Date().toISOString(),
-      starts_at: new Date('12-22-2023').toISOString(),
-    },
-  });
+  const schoolId = school_id as string;
+  const { data: schoolData, refetch: refetchSchoolDemandDetails } =
+    useSchoolDemandDetails(schoolId);
 
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState<boolean>(false);
   const [isValidateDialogOpen, setIsValidateDialogOpen] =
@@ -67,50 +31,41 @@ export default function index() {
   const [isConfirmSuspendDialogOpen, setIsConfirmSuspendDialogOpen] =
     useState<boolean>(false);
 
-  //TODO: REMOVE THIS STATE AND USE reactQuery own...
-  const [isConfirmingSuspension, setIsConfirmingSuspension] =
-    useState<boolean>(false);
+  const { mutate: updateDemandStatus, isPending: isConfirmingSuspension } =
+    useUpdateDemandStaus(schoolId);
   function suspendSchool() {
-    //TODO: CALL API HERE TO SUSPEND SCHOOL WITH CODE demand_code or id: schoolData.school.school_id
-    //TODO: TOAST SUSPENDING AND DONE SUSPENDING
-    setIsConfirmingSuspension(true);
-    setTimeout(() => {
-      setIsConfirmingSuspension(true);
-      //TODO: CLOSE DIALOG ON CONFIRM
-      setIsConfirmSuspendDialogOpen(false);
-    }, 3000);
+    updateDemandStatus('SUSPENDED', {
+      onSuccess() {
+        refetchSchoolDemandDetails();
+        //TODO: TOAST SUSPENDING AND DONE SUSPENDING
+      },
+    });
   }
+  const { mutate: validateDemand, isPending: isValidatingDemand } =
+    useValidateDemand(schoolId);
 
-  //TODO: REMOVE THIS STATE AND USE reactQuery own...
-  const [isRejectingDemand, setIsRejectingDemand] = useState<boolean>(false);
   function rejectSchool(rejectionReason: string) {
-    //TODO: CALL API TO REJECT SCHOOL HERE WITH rejectionReason and school_id: schoolData.school.school_id or demand_code
-    //TODO: TOAST REJECTING AND DONE REJECTING
-    setIsRejectingDemand(true);
-    setTimeout(() => {
-      //TODO: MUTUTATE schoolData AFTER REJECTION
-      setSchoolData({
-        ...schoolData,
-        school: { ...schoolData.school, school_demand_status: 'REJECTED' },
-      });
-      setIsRejectingDemand(false);
-    }, 3000);
+    validateDemand(
+      { rejection_reason: rejectionReason },
+      {
+        onSuccess() {
+          //TODO: TOAST REJECTING AND DONE REJECTING
+          refetchSchoolDemandDetails();
+        },
+      }
+    );
   }
 
-  //TODO: REMOVE THIS STATE AND USE reactQuery own...
-  const [isValidatingDemand, setIsValidatingDemand] = useState<boolean>(false);
   function validateSchool(subdomain: string) {
-    //TODO: CALL API TO validate SCHOOL HERE WITH subdomain and school_id: schoolData.school.school_id or demand_code
-    //TODO: TOAST validating and done validating
-    setIsValidatingDemand(true);
-    setTimeout(() => {
-      //TODO: MUTUTATE schoolData AFTER validation
-      setSchoolData({
-        ...schoolData,
-        school: { ...schoolData.school, school_demand_status: 'VALIDATED' },
-      });
-      setIsValidatingDemand(false);
-    }, 3000);
+    validateDemand(
+      { subdomain },
+      {
+        onSuccess() {
+          //TODO: TOAST validating and done validating
+          refetchSchoolDemandDetails();
+        },
+      }
+    );
   }
 
   return (
@@ -209,9 +164,9 @@ export default function index() {
                     variant="contained"
                     color="error"
                     onClick={() => setIsRejectDialogOpen(true)}
-                    disabled={isRejectingDemand || isValidatingDemand}
+                    disabled={isValidatingDemand || isValidatingDemand}
                     startIcon={
-                      isRejectingDemand && (
+                      isValidatingDemand && (
                         <CircularProgress color="error" size={18} />
                       )
                     }
@@ -222,7 +177,7 @@ export default function index() {
                     variant="contained"
                     color="primary"
                     onClick={() => setIsValidateDialogOpen(true)}
-                    disabled={isRejectingDemand || isValidatingDemand}
+                    disabled={isValidatingDemand || isValidatingDemand}
                     startIcon={
                       isValidatingDemand && (
                         <CircularProgress color="primary" size={18} />

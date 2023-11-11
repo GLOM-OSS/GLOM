@@ -215,6 +215,7 @@ export function Index() {
                 demandData.map(
                   (
                     {
+                      school_id,
                       school_code,
                       school_name,
                       school_email,
@@ -228,13 +229,13 @@ export function Index() {
                       hover
                       key={index}
                       onClick={() => {
-                        push(`${asPath}/${school_code}`);
+                        push(`${asPath}/${school_id}`);
                         breadcrumbDispatch({
                           action: 'ADD',
                           payload: [
                             {
                               title: school_acronym,
-                              route: `${asPath}/${school_code}`,
+                              route: `${asPath}/${school_id}`,
                             },
                           ],
                         });
