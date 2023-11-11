@@ -98,7 +98,6 @@ export interface paths {
   };
   "/v1/staffs": {
     get: operations["StaffController_getAllStaff"];
-    post: operations["StaffController_resetStaffPasswords"];
     delete: operations["StaffController_disableManyStaff"];
   };
   "/v1/staffs/{annual_teacher_id}": {
@@ -124,8 +123,14 @@ export interface paths {
   "/v1/staffs/new": {
     post: operations["StaffController_createStaff"];
   };
+  "/v1/staffs/reset-passwords": {
+    post: operations["StaffController_resetStaffPasswords"];
+  };
   "/v1/staffs/{login_id}/roles": {
     put: operations["StaffController_updateStaffRoles"];
+  };
+  "/v1/staffs/private-codes": {
+    put: operations["StaffController_resetStaffPrivateCodes"];
   };
 }
 
@@ -448,6 +453,8 @@ export interface components {
       annual_teacher_id: string;
       login_id: string;
       matricule: string;
+      /** @default false */
+      is_deleted: boolean;
       /** Format: date-time */
       last_connected: string;
       roles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
@@ -473,6 +480,8 @@ export interface components {
       annual_teacher_id: string;
       login_id: string;
       matricule: string;
+      /** @default false */
+      is_deleted: boolean;
       /** Format: date-time */
       last_connected: string;
       roles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
@@ -495,6 +504,8 @@ export interface components {
       role: "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR";
       login_id: string;
       matricule: string;
+      /** @default false */
+      is_deleted: boolean;
       /** Format: date-time */
       last_connected: string;
       annual_configurator_id?: string;
@@ -1078,20 +1089,6 @@ export interface operations {
       };
     };
   };
-  StaffController_resetStaffPasswords: {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ManageStaffDto"];
-      };
-    };
-    responses: {
-      200: {
-        content: {
-          "application/json": components["schemas"]["BatchPayloadDto"];
-        };
-      };
-    };
-  };
   StaffController_disableManyStaff: {
     parameters: {
       query: {
@@ -1173,6 +1170,20 @@ export interface operations {
       };
     };
   };
+  StaffController_resetStaffPasswords: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ManageStaffDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["BatchPayloadDto"];
+        };
+      };
+    };
+  };
   StaffController_updateStaffRoles: {
     parameters: {
       path: {
@@ -1182,6 +1193,20 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": components["schemas"]["UpdateStaffRoleDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["BatchPayloadDto"];
+        };
+      };
+    };
+  };
+  StaffController_resetStaffPrivateCodes: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ManageStaffDto"];
       };
     };
     responses: {
