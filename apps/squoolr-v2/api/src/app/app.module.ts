@@ -1,4 +1,3 @@
-import { InjectRedis, Redis, RedisModule } from '@nestjs-modules/ioredis';
 import {
   ClassSerializerInterceptor,
   MiddlewareConsumer,
@@ -7,10 +6,14 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import {
+  APP_FILTER,
+  APP_GUARD,
+  APP_INTERCEPTOR,
+  APP_PIPE
+} from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { Prisma } from '@prisma/client';
 
 import RedisStore from 'connect-redis';
 import { randomUUID } from 'crypto';
@@ -21,7 +24,11 @@ import { GlomExceptionsFilter } from '@glom/execeptions';
 import { TasksModule } from '@glom/nest-tasks';
 import { GlomPrismaModule } from '@glom/prisma';
 
+import { GlomRedisModule, GlomRedisService } from '@glom/redis';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 import { AcademicYearsModule } from './academic-years/academic-years.module';
+import { AmbassadorsModule } from './ambassadors/ambassadors.module';
+import { seedData } from './app-seeder.factory';
 import { AppController } from './app.controller';
 import { AppInterceptor } from './app.interceptor';
 import { AppMiddleware } from './app.middleware';
@@ -29,35 +36,25 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { DemandModule } from './demand/demand.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
-import { AmbassadorsModule } from './ambassadors/ambassadors.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     ThrottlerModule.forRoot(),
     PassportModule.register({
       session: true,
     }),
-    RedisModule.forRoot({
+    GlomRedisModule.forRoot({
+      isGlobal: true,
       config: {
         url: process.env.REDIS_URL,
       },
     }),
     GlomPrismaModule.forRoot({
       isGlobal: true,
-      async seedData(prisma) {
-        const settingsId = randomUUID();
-        const data: Prisma.PlatformSettingsCreateInput = {
-          platform_settings_id: settingsId,
-          onboarding_fee: 0,
-        };
-
-        await prisma.platformSettings.upsert({
-          create: data,
-          update: data,
-          where: { platform_settings_id: settingsId },
-        });
-      },
+      seedData,
     }),
     TasksModule,
     AuthModule,
@@ -69,14 +66,9 @@ import { AmbassadorsModule } from './ambassadors/ambassadors.module';
   controllers: [AppController],
   providers: [
     AppService,
-    // {
-    //   provide: APP_INTERCEPTOR,
-    //   useClass: AppInterceptor,
-    // },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: ClassSerializerInterceptor,
-    },
+    ...[AppInterceptor, ClassSerializerInterceptor, CacheInterceptor].map(
+      (Interceptor) => ({ provide: APP_INTERCEPTOR, useClass: Interceptor })
+    ),
     {
       provide: APP_FILTER,
       useClass: GlomExceptionsFilter,
@@ -92,13 +84,13 @@ import { AmbassadorsModule } from './ambassadors/ambassadors.module';
   ],
 })
 export class AppModule implements NestModule {
-  constructor(@InjectRedis() private readonly redis: Redis) {}
+  constructor(private redisClient: GlomRedisService) {}
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(
         session({
           name: process.env.SESSION_NAME,
-          store: new RedisStore({ client: this.redis }),
+          store: new RedisStore({ client: this.redisClient }),
           secret: process.env.SESSION_SECRET,
           genid: () => randomUUID(),
           saveUninitialized: false,

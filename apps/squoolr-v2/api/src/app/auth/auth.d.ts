@@ -15,11 +15,8 @@ export type UserRole = {
 };
 
 export type PassportUser = {
-  log_id: string;
   login_id: string;
-  roles: UserRole[];
-  cookie_age: number;
-  job_name?: string;
+  cache_key: string;
   academic_year_id?: string;
 };
 
@@ -31,7 +28,7 @@ export type ActiveYear = {
   year_code: string;
 };
 
-export type DesirializeSession = {
+export type SessionData = {
   login_id: string;
   school_id?: string;
   annualStudent?: {
@@ -61,12 +58,17 @@ export type DesirializeSession = {
   activeYear?: ActiveYear;
 };
 
-export type User = DesirializeSession & Person;
+export type ValidatedUser = Express.User & { session: PassportUser };
 
 declare module 'express-session' {
   interface SessionData {
     passport: {
       user: PassportUser;
     };
+  }
+}
+declare global {
+  namespace Express {
+    interface User extends SessionData, Person {}
   }
 }

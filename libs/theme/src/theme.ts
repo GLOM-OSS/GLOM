@@ -279,6 +279,23 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
           }),
         },
       },
+      MuiTableContainer: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            borderRadius: '8px',
+            border: `1px solid ${theme.common.line}`,
+          }),
+        },
+      },
+      MuiMenu: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            '& .MuiList-root': {
+              padding: 0,
+            },
+          }),
+        },
+      },
     },
   });
 }

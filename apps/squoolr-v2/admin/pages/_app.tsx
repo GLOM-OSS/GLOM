@@ -16,6 +16,8 @@ import dashboard from '@iconify/icons-fluent/grid-28-regular';
 import demand from '@iconify/icons-fluent/receipt-32-regular';
 import schools from '@iconify/icons-fluent/hat-graduation-28-regular';
 import configurators from '@iconify/icons-fluent/people-48-regular';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 
 function App({ children }: { children?: JSX.Element }) {
   const { formatMessage } = useIntl();
@@ -54,6 +56,17 @@ function App({ children }: { children?: JSX.Element }) {
     },
   ];
 
+  const noLayoutRoutes = ['/signin', '/reset-password'];
+  const { asPath } = useRouter();
+
+  const [shouldUseLayout, setShouldUseLayout] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (noLayoutRoutes.includes(asPath)) setShouldUseLayout(false);
+    else setShouldUseLayout(true);
+  }, []);
+
+  if (!shouldUseLayout) return children;
   return (
     <SquoolrV2Layout navSections={navSections} callingApp="Admin">
       {children}

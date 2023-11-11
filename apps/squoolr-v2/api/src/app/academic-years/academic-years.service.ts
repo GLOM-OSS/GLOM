@@ -14,14 +14,14 @@ import {
 } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
-import { DesirializeSession, UserRole } from '../auth/auth';
+import { SessionData, UserRole } from '../auth/auth';
 import { Role } from '../auth/auth.decorator';
 import {
   AcademicYearEntity,
   CreateAcademicYearDto,
   TemplateAcademicYearDto,
 } from './academic-years.dto';
-import { DesirializedRoles } from '../auth/auth.dto';
+import { SessionEntity } from '../auth/auth.dto';
 
 @Injectable()
 export class AcademicYearsService {
@@ -406,17 +406,17 @@ export class AcademicYearsService {
     );
   }
 
-  async retrieveRoles(
+  async selectAcademicYear(
     login_id: string,
     academic_year_id: string
-  ): Promise<{ roles: UserRole[]; desirializedRoles: DesirializedRoles }> {
+  ): Promise<{ sessionData: SessionEntity }> {
+    // ): Promise<{ roles: UserRole[]; desirializedRoles: DesirializedRoles }> {
     const retrivedRoles: UserRole[] = [];
     const { school_id } = await this.prismaService.login.findUnique({
       where: { login_id },
     });
 
-    if (!school_id)
-      return { roles: [], desirializedRoles: {} as DesirializedRoles };
+    if (!school_id) return { sessionData: SessionEntity.prototype };
     const { started_at, ended_at, starts_at, ends_at, year_code, year_status } =
       await this.prismaService.academicYear.findFirst({
         where: {
@@ -425,7 +425,7 @@ export class AcademicYearsService {
         },
       });
 
-    let desirializedSession: DesirializeSession = {
+    let sessionData: SessionData = {
       login_id,
       school_id,
       activeYear: {
@@ -469,8 +469,8 @@ export class AcademicYearsService {
         },
         AnnualStudentHasCreditUnits: crediUnits,
       } = annualStudent;
-      desirializedSession = {
-        ...desirializedSession,
+      sessionData = {
+        ...sessionData,
         annualStudent: {
           student_id,
           classroom_code,
@@ -495,8 +495,8 @@ export class AcademicYearsService {
         });
       if (annualConfigurator) {
         const { annual_configurator_id, is_sudo } = annualConfigurator;
-        desirializedSession = {
-          ...desirializedSession,
+        sessionData = {
+          ...sessionData,
           annualConfigurator: { annual_configurator_id, is_sudo },
         };
         retrivedRoles.push({
@@ -515,8 +515,8 @@ export class AcademicYearsService {
       });
       if (annualRegistry) {
         const { annual_registry_id } = annualRegistry;
-        desirializedSession = {
-          ...desirializedSession,
+        sessionData = {
+          ...sessionData,
           annualRegistry: { annual_registry_id },
         };
         retrivedRoles.push({
@@ -554,8 +554,8 @@ export class AcademicYearsService {
             user_id: annual_teacher_id,
             role: Role.COORDINATOR,
           });
-        desirializedSession = {
-          ...desirializedSession,
+        sessionData = {
+          ...sessionData,
           annualTeacher: {
             classroomDivisions: classroomDivisions.map(
               ({ annual_classroom_division_id: id }) => id
@@ -570,8 +570,8 @@ export class AcademicYearsService {
       }
     }
     return {
-      roles: retrivedRoles,
-      desirializedRoles: new DesirializedRoles(desirializedSession),
+      // roles: retrivedRoles,
+      sessionData: new SessionEntity(sessionData),
     };
   }
 

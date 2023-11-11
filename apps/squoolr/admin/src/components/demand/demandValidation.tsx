@@ -14,7 +14,7 @@ import {
 } from '@squoolr/api-services';
 import { theme } from '@glom/theme';
 import { ErrorMessage, useNotification } from '@squoolr/toast';
-import { random } from '@squoolr/utils';
+import { random } from '@glom/utils';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useNavigate, useParams } from 'react-router';

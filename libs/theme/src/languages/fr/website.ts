@@ -558,4 +558,23 @@ export const website = {
   noTitleAvailable: 'Pas de titre disponible',
   demand: 'Demande',
   overview: 'Aperçu',
+
+  nothingToDisplay: 'Rien à afficher',
+  processing: 'En traitement',
+  suspended: 'Suspendu',
+  'code#': 'Code#',
+  filter: 'Filtrer',
+  reload: 'Actualiser',
+  Lost: 'Perdu',
+
+  starts_at: 'Date de début de la première année académique',
+  ends_at: 'Date de fin estimée de la première année académique',
+  lead_funnel: 'Comment avez-vous entendu parler de nous',
+  ambassador_email: "Email de l'ambassadeur",
+  configuratorInformation: 'Informations du configurateur',
+  confirmSuspendSchoolDialogMessage:
+    "Cette action coupera tout accès à la plateforme de l'école ! Êtes-vous sûr de vouloir suspendre cette école ?",
+  suspend: 'Suspendre',
+  yesSuspend: 'Oui, suspendre',
+  fromSquoolr: 'de Squoolr ?',
 };

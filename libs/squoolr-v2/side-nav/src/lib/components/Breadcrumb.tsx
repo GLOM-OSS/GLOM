@@ -1,7 +1,10 @@
 import { useTheme } from '@glom/theme';
 import { Box, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useBreadcrumb } from '../breadcrumbContext/BreadcrumbContextProvider';
+import {
+  useBreadcrumb,
+  useDispatchBreadcrumb,
+} from '../breadcrumbContext/BreadcrumbContextProvider';
 import { IBreadcrumbItem } from '../breadcrumbContext/BreadcrumbContext';
 
 function BreadcrumbItem({
@@ -15,9 +18,17 @@ function BreadcrumbItem({
 }) {
   const { push } = useRouter();
   const theme = useTheme();
+  const breadcrumbDispatch = useDispatchBreadcrumb();
 
   return (
-    <>
+    <Box
+      sx={{
+        display: 'grid',
+        gridAutoFlow: 'column',
+        columnGap: 1,
+        alignItems: 'center',
+      }}
+    >
       {hasSlash && (
         <Typography
           className="p4"
@@ -34,12 +45,27 @@ function BreadcrumbItem({
             ? `${theme.palette.primary.main} !important`
             : 'initial',
           cursor: typeof route !== 'undefined' ? 'pointer' : 'context-menu',
+          '&:hover': {
+            color: colored
+              ? `${theme.palette.primary.main} !important`
+              : typeof route !== 'undefined'
+              ? `${theme.palette.primary.light} !important`
+              : 'inherit',
+          },
         }}
-        onClick={() => (route ? push(route) : null)}
+        onClick={() => {
+          if (route) {
+            breadcrumbDispatch({
+              action: 'MOVE',
+              payload: [{ route, title: '' }],
+            });
+            push(`/${route}`);
+          }
+        }}
       >
         {title}
       </Typography>
-    </>
+    </Box>
   );
 }
 
@@ -50,7 +76,8 @@ export default function Breadcrumb() {
     <Box
       sx={{
         display: 'grid',
-        gridTemplateColumns: 'auto auto auto 1fr',
+        justifyContent: 'start',
+        gridAutoFlow: 'column',
         columnGap: 1,
       }}
     >
