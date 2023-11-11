@@ -553,4 +553,6 @@ export const website = {
   suspend: 'Suspend',
   yesSuspend: 'Yes, suspend',
   fromSquoolr: 'from Squoolr?',
+
+  academicYears: 'Academic Years',
 };

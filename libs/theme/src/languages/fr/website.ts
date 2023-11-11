@@ -577,4 +577,5 @@ export const website = {
   suspend: 'Suspendre',
   yesSuspend: 'Oui, suspendre',
   fromSquoolr: 'de Squoolr ?',
+  academicYears: 'Années Académiques',
 };
