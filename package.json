@@ -113,7 +113,7 @@
     "@types/bcrypt": "^5.0.0",
     "@types/chart.js": "^2.9.38",
     "@types/connect-redis": "^0.0.18",
-    "@types/cron": "^2.0.0",
+    "@types/cron": "^2.4.0",
     "@types/crypto-js": "^4.1.1",
     "@types/csurf": "^1.11.2",
     "@types/express-session": "^1.17.7",
