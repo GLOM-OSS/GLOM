@@ -568,4 +568,5 @@ export const website = {
   disableConfiguratorAccountsDialogMessage:
     'This action will prevent these configurators from accessing their accounts! Are you sure you want to disable these accounts?',
   academicYears: 'Academic Years',
+  configuration: 'Configuration',
 };
