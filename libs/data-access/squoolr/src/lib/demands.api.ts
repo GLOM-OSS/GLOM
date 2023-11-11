@@ -2,7 +2,11 @@ import { useNotification } from '@squoolr/toast';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import squoolrApi from './api';
-import { DemandStatus, SubmitSchoolDemandPayload } from '@glom/data-types';
+import {
+  DemandStatus,
+  SubmitSchoolDemandPayload,
+  ValidateSchoolDemandPayload,
+} from '@glom/data-types';
 const { demands } = squoolrApi;
 
 export function useSubmitDemand() {
@@ -52,7 +56,25 @@ export function useSchoolDemands(demandStatus?: DemandStatus[]) {
 
 export function useSchoolDemandDetails(schoolId: string) {
   return useQuery({
+    enabled: !!schoolId,
     queryKey: ['get-school-demand-details'],
     queryFn: () => demands.getDemandDetails(schoolId),
+  });
+}
+
+export function useValidateDemand(schoolId: string) {
+  return useMutation({
+    mutationKey: ['validate-school-demand'],
+    mutationFn: (payload: ValidateSchoolDemandPayload) =>
+      demands.validateDemand(schoolId, payload),
+  });
+}
+
+export function useUpdateDemandStaus(schoolId: string) {
+  return useMutation({
+    mutationKey: ['update-school-demand-status'],
+    mutationFn: (
+      schoolDemandStaus: Extract<DemandStatus, 'PROCESSING' | 'SUSPENDED'>
+    ) => demands.updateDemandStatus(schoolId, schoolDemandStaus),
   });
 }

@@ -49,8 +49,13 @@ export class DemandsApi {
     return resp.data;
   }
 
-  async processDemand(schoolId: string) {
-    const resp = await this.request.patch(`/demands/${schoolId}/status`, {});
+  async updateDemandStatus(
+    schoolId: string,
+    status: Extract<DemandStatus, 'PROCESSING' | 'SUSPENDED'>
+  ) {
+    const resp = await this.request.patch(`/demands/${schoolId}/status`, {
+      school_status: status,
+    });
     return resp.data;
   }
 }
