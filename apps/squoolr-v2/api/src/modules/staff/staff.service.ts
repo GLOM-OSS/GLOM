@@ -18,13 +18,16 @@ import {
   StaffRoleDto,
   TeacherEntity,
   UpdateStaffDto,
-  UpdateStaffRoleDto
+  UpdateStaffRoleDto,
 } from './staff.dto';
 import { TeachersService } from './teachers/teachers.service';
 
 @Injectable()
 export class StaffService {
-  private staffServices: Record<StaffRole, IStaffService<StaffEntity | TeacherEntity>>;
+  private staffServices: Record<
+    StaffRole,
+    IStaffService<StaffEntity | TeacherEntity>
+  >;
   constructor(
     private prismaService: GlomPrismaService,
     private codeGenerator: CodeGeneratorFactory,
@@ -131,7 +134,7 @@ export class StaffService {
       teacherIds: StaffRole.TEACHER,
     };
     const elts = await Promise.all(
-      Object.keys(payload).reduce<Promise<void>[]>(
+      Object.keys(staffIDToRole).reduce<Promise<void>[]>(
         (methods, key) => [
           ...methods,
           ...payload[key as keyof ManageStaffDto].map((staffId) =>
@@ -283,6 +286,39 @@ export class StaffService {
     return new BatchPayloadDto({
       count: totalUpdateRecords,
       message: `Updated ${totalUpdateRecords} records in database`,
+    });
+  }
+
+  async resetPrivateCodes(payload: ManageStaffDto, reset_by: string) {
+    const staffIDToRole: Record<string, StaffRole> = {
+      registryIds: StaffRole.REGISTRY,
+      teacherIds: StaffRole.TEACHER,
+    };
+
+    const elts = await Promise.all(
+      Object.keys(staffIDToRole).reduce<Promise<void>[]>((methods, key) => {
+        const staffIDKey = key as keyof ManageStaffDto;
+        const annualStaffIds = payload[staffIDKey];
+        return [
+          ...methods,
+          this.staffServices[staffIDToRole[staffIDKey]].resetPrivateCodes(
+            annualStaffIds,
+            annualStaffIds.map(() =>
+              bcrypt.hashSync(
+                this.codeGenerator.formatNumber(
+                  Math.floor(Math.random() * 10000)
+                ),
+                Number(process.env.SALT)
+              )
+            ),
+            reset_by
+          ),
+        ];
+      }, [])
+    );
+    return new BatchPayloadDto({
+      count: elts.length,
+      message: `Updated ${elts.length} records in database`,
     });
   }
 }

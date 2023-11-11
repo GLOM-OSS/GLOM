@@ -164,7 +164,7 @@ export class StaffController {
     return this.staffService.disableMany(disabledStaff, annual_configurator_id);
   }
 
-  @Post()
+  @Post('reset-passwords')
   @Roles(Role.ADMIN, Role.CONFIGURATOR)
   @ApiOkResponse({ type: BatchPayloadDto })
   async resetStaffPasswords(
@@ -195,6 +195,22 @@ export class StaffController {
     return this.staffService.updateStaffRoles(
       loginid,
       { academic_year_id, school_id, ...staffPayload },
+      annual_configurator_id
+    );
+  }
+
+  @Put('private-codes')
+  @Roles(Role.ADMIN, Role.CONFIGURATOR)
+  @ApiOkResponse({ type: BatchPayloadDto })
+  async resetStaffPrivateCodes(
+    @Req() request: Request,
+    @Body() staffPayload: ManageStaffDto
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user;
+    return this.staffService.resetPrivateCodes(
+      staffPayload,
       annual_configurator_id
     );
   }
