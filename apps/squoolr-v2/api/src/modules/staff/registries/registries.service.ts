@@ -202,4 +202,38 @@ export class RegistriesService implements IStaffService<StaffEntity> {
       role: StaffRole.REGISTRY,
     });
   }
+
+  async resetPrivateCodes(
+    annualStaffIds: string[],
+    codes: string[],
+    reset_by: string
+  ) {
+    const configurators = await this.prismaService.annualRegistry.findMany({
+      where: {
+        OR: annualStaffIds.map((annual_registry_id) => ({
+          annual_registry_id,
+        })),
+      },
+    });
+    await this.prismaService.$transaction([
+      ...configurators.map(
+        ({ annual_registry_id, is_deleted, private_code }, i) =>
+          this.prismaService.annualRegistry.update({
+            data: {
+              private_code: codes[i],
+              AnnualRegistryAudits: {
+                create: {
+                  is_deleted,
+                  private_code,
+                  AnnualConfigurator: {
+                    connect: { annual_configurator_id: reset_by },
+                  },
+                },
+              },
+            },
+            where: { annual_registry_id },
+          })
+      ),
+    ]);
+  }
 }
