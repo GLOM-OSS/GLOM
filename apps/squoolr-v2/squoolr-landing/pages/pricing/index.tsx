@@ -1,18 +1,17 @@
+import { usePlatformSettings } from '@glom/data-access/squoolr';
 import { useTheme } from '@glom/theme';
+import check from '@iconify/icons-fluent/checkmark-48-filled';
 import { Icon } from '@iconify/react';
 import { Box, Button, Chip, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useIntl } from 'react-intl';
-import check from '@iconify/icons-fluent/checkmark-48-filled';
-import { useState } from 'react';
 
 export default function Pricing() {
   const theme = useTheme();
   const { formatMessage, formatNumber } = useIntl();
   const { push } = useRouter();
 
-  //TODO: fetch platform fee here
-  const [platformFee] = useState<number>(3300);
+  const { data: platformSettings } = usePlatformSettings();
 
   return (
     <Box
@@ -97,7 +96,8 @@ export default function Pricing() {
                 className="title-landing-page"
                 sx={{ color: `${theme.common.titleActive} !important` }}
               >
-                {formatNumber(platformFee)}
+                {platformSettings &&
+                  formatNumber(platformSettings?.platform_fee)}
               </Typography>
               <Typography
                 className="p1"

@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { InquiryType, Inquiry } from '@prisma/client';
-import { IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class CreateInquiryDto {
   @IsString()
@@ -22,6 +22,7 @@ export class CreateInquiryDto {
   @ApiPropertyOptional()
   message: string | null;
 
+  @IsEnum(InquiryType)
   @ApiProperty({ enum: InquiryType })
   type: InquiryType;
 

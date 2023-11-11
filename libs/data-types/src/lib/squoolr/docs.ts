@@ -26,7 +26,7 @@ export interface paths {
   "/v1/auth/user": {
     get: operations["AuthController_getUser"];
   };
-  "/v1/demands/all": {
+  "/v1/demands": {
     get: operations["DemandController_getAllDemands"];
   };
   "/v1/demands/{school_id}": {
@@ -44,7 +44,7 @@ export interface paths {
   "/v1/demands/{school_id}/status": {
     put: operations["DemandController_updateSchoolStatus"];
   };
-  "/v1/academic-years/all": {
+  "/v1/academic-years": {
     get: operations["AcademicYearsController_getAcademicYears"];
   };
   "/v1/academic-years/new": {
@@ -53,13 +53,13 @@ export interface paths {
   "/v1/academic-years/{academic_year_id}/choose": {
     patch: operations["AcademicYearsController_chooseActiveAcademicYear"];
   };
-  "/v1/inquiries/all": {
+  "/v1/inquiries": {
     get: operations["InquiriesController_getAllInquiries"];
   };
   "/v1/inquiries/new": {
     post: operations["InquiriesController_createInquiry"];
   };
-  "/v1/ambassadors/all": {
+  "/v1/ambassadors": {
     get: operations["AmbassadorsController_getAmbassadors"];
   };
   "/v1/ambassadors/{ambassador_id}": {
@@ -76,6 +76,7 @@ export interface components {
   schemas: {
     PlatformSettingsEntity: {
       platform_settings_id: string;
+      platform_fee: number;
       onboarding_fee: number;
       /** Format: date-time */
       created_at: string;
@@ -263,7 +264,6 @@ export interface components {
       school: components["schemas"]["CreateSchoolDto"];
     };
     ValidateDemandDto: {
-      school_code: string;
       rejection_reason?: string;
       subdomain?: string;
     };
@@ -441,6 +441,11 @@ export interface operations {
     };
   };
   DemandController_validateDemand: {
+    parameters: {
+      path: {
+        school_code: string;
+      };
+    };
     requestBody: {
       content: {
         "application/json": components["schemas"]["ValidateDemandDto"];
