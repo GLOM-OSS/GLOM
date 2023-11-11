@@ -74,9 +74,10 @@ export interface IStaffService<
     payload: U,
     audited_by: string
   ) => Promise<void>;
-  resetPasswords?: (
-    annualStaffIds: string[],
-    disabled_by: string
-  ) => Promise<BatchPayload>;
   createFrom: (login_id: string, payload: K, created_by: string) => Promise<T>;
+  resetPrivateCodes: (
+    annualStaffIds: string[],
+    codes: string[],
+    reset_by: string
+  ) => Promise<void>;
 }
