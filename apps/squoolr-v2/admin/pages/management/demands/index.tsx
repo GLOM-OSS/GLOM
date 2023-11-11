@@ -1,5 +1,5 @@
 import { NoTableElement } from '@glom/components';
-import { SchoolEntity } from '@glom/data-types/squoolr';
+import { DemandStatus, SchoolEntity } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
 import reset from '@iconify/icons-fluent/arrow-counterclockwise-48-regular';
 import filter from '@iconify/icons-fluent/filter-28-regular';
@@ -23,6 +23,7 @@ import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatchBreadcrumb } from '@glom/squoolr-v2/side-nav';
 import { useRouter } from 'next/router';
+import { useSchoolDemand, useSchoolDemands } from '@glom/data-access/squoolr';
 
 function TableHeaderItem({
   title,
@@ -85,73 +86,27 @@ export function Index() {
     'demandStatus',
   ];
 
-  //TODO: FETCH LIST OF DEMANDS HERE
-  const demandData: SchoolEntity[] = [
-    {
-      school_acronym: 'UdM',
-      school_name: 'Université des Montagnes',
-      school_email: 'info@udm.com',
-      school_phone_number: '+237657140183',
-      school_demand_status: 'PROCESSING',
-      ambassador_email: 'lorraintchakoumi@gmail.com',
-      lead_funnel: 'Facebook',
-      paid_amount: 0,
-      school_code: 'KIS234',
-      school_rejection_reason: '',
-      school_id: 'siels',
-    },
-    {
-      school_acronym: 'SBAHS',
-      school_name: 'Standard Bilingual Academy of Health Sciences',
-      school_email: 'info@sbahs.com',
-      school_phone_number: '+237657140183',
-      school_demand_status: 'VALIDATED',
-      ambassador_email: 'lorraintchakoumi@gmail.com',
-      lead_funnel: 'Facebook',
-      paid_amount: 0,
-      school_code: 'KIS235',
-      school_rejection_reason: '',
-      school_id: 'siels',
-    },
-    {
-      school_acronym: 'SAJOHIM',
-      school_name: 'Saint. Joan Higher Instistue of Health and Management',
-      school_email: 'info@sajohim.com',
-      school_phone_number: '+237657140183',
-      school_demand_status: 'PENDING',
-      ambassador_email: 'lorraintchakoumi@gmail.com',
-      lead_funnel: 'Facebook',
-      paid_amount: 0,
-      school_code: 'KIS234',
-      school_rejection_reason: '',
-      school_id: 'siels',
-    },
-  ];
-
   const breadcrumbDispatch = useDispatchBreadcrumb();
 
   const [canSearchExpand, setCanSearchExpand] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>('');
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState<
-    (SchoolEntity['school_demand_status'] | 'SUSPENDED')[]
-  >([]);
+  const [selectedStatus, setSelectedStatus] = useState<DemandStatus[]>([]);
 
-  function onChangeFilter(
-    demandStatus: SchoolEntity['school_demand_status'] | 'SUSPENDED'
-  ) {
+  const {
+    data: demandData,
+    isFetching: isFetchingDemands,
+    refetch: refetchDemands,
+  } = useSchoolDemands(selectedStatus);
+
+  function onChangeFilter(demandStatus: DemandStatus) {
     setSelectedStatus(
       selectedStatus.includes(demandStatus)
         ? selectedStatus.filter((element) => element !== demandStatus)
         : [...selectedStatus, demandStatus]
     );
   }
-
-  useEffect(() => {
-    //TODO: CALL SEARCH API HERE with searchValue and selectedStatus' use it to filter. MUTATE DEMAND DATA WHEN IT'S DONE
-    alert('hello world');
-  }, [searchValue, selectedStatus]);
 
   return (
     <>
@@ -226,10 +181,7 @@ export function Index() {
             <TableHeaderItem
               icon={reset}
               title={formatMessage({ id: 'reload' })}
-              onClick={() => {
-                //TODO: MUTATE TABLE VALUES HERE AND SEARCH AGAIN.
-                alert('hello world');
-              }}
+              onClick={() => refetchDemands()}
             />
           </Box>
           <TableHeaderItem
@@ -257,7 +209,7 @@ export function Index() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {demandData.length === 0 ? (
+              {isFetchingDemands || demandData.length === 0 ? (
                 <NoTableElement />
               ) : (
                 demandData.map(

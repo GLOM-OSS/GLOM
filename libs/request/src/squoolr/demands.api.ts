@@ -3,6 +3,7 @@ import {
   SchoolDemandDetails,
   SubmitSchoolDemandPayload,
   ValidateSchoolDemandPayload,
+  DemandStatus,
 } from '@glom/data-types/squoolr';
 import { GlomRequest } from '../lib/glom-request';
 
@@ -17,15 +18,16 @@ export class DemandsApi {
     return resp.data;
   }
 
-  async getDemands() {
-    const resp = await this.request.get<SchoolEntity[]>('/demands');
+  async getDemands(schoolDemandStaus?: DemandStatus[]) {
+    const resp = await this.request.get<SchoolEntity[]>('/demands', {
+      schoolDemandStaus:
+        schoolDemandStaus?.length > 0 ? schoolDemandStaus : undefined,
+    });
     return resp.data;
   }
 
   async getDemand(schoolId: string) {
-    const resp = await this.request.get<SchoolEntity>(
-      `/demands/${schoolId}`
-    );
+    const resp = await this.request.get<SchoolEntity>(`/demands/${schoolId}`);
     return resp.data;
   }
 

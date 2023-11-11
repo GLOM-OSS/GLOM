@@ -2,7 +2,7 @@ import { useNotification } from '@squoolr/toast';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import squoolrApi from './api';
-import { SubmitSchoolDemandPayload } from '@glom/data-types';
+import { DemandStatus, SubmitSchoolDemandPayload } from '@glom/data-types';
 const { demands } = squoolrApi;
 
 export function useSubmitDemand() {
@@ -43,10 +43,10 @@ export function useSchoolDemand(schoolId: string) {
   });
 }
 
-export function useSchoolDemands() {
+export function useSchoolDemands(demandStatus?: DemandStatus[]) {
   return useQuery({
     queryKey: ['get-school-demands'],
-    queryFn: () => demands.getDemands(),
+    queryFn: () => demands.getDemands(demandStatus),
   });
 }
 
