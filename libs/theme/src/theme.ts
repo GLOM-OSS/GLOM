@@ -290,6 +290,11 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
       MuiMenu: {
         styleOverrides: {
           root: ({ theme }) => ({
+            '& .MuiPaper-root': {
+              borderRadius: '5px',
+              boxShadow: 'none',
+              border: `1px solid ${theme.common.line}`,
+            },
             '& .MuiList-root': {
               padding: 0,
             },

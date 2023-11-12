@@ -30,13 +30,6 @@ export default function ManageConfiguratorMenu({
       }}
       open={isOpen}
       onClose={closeMenu}
-      sx={{
-        '& .MuiPaper-root': {
-          borderRadius: '5px',
-          boxShadow: 'none',
-          border: `1px solid ${theme.common.line}`,
-        },
-      }}
     >
       <MenuItem
         onClick={() => {
