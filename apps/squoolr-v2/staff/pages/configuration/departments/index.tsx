@@ -112,7 +112,7 @@ export function Index() {
   function confirmArchiveUnarchive() {
     if (isConfirmArchiveDialogOpen) {
       setIsArchiving(true);
-      //TODO: CALL API HERE TO ARCHIVE DEPARTMENT with data activeDepartmentId
+      //TODO: CALL API HERE TO ARCHIVE DEPARTMENT with data selectedDepartmentIds if length>1 or otherwise [activeDepartmentId]
       setTimeout(() => {
         alert('done archiving');
         //TODO: MUTATE departmentData here so the data updates
@@ -123,7 +123,7 @@ export function Index() {
     }
     if (isConfirmUnarchiveDialogOpen) {
       setIsUnarchiving(true);
-      //TODO: CALL API HERE TO ARCHIVE DEPARTMENT with data activeDepartmentId
+      //TODO: CALL API HERE TO ARCHIVE DEPARTMENT with data selectedDepartmentIds if length>1 or otherwise [activeDepartmentId]
       setTimeout(() => {
         alert('done unarchiving');
         //TODO: MUTATE departmentData here so the data updates
@@ -161,7 +161,11 @@ export function Index() {
         }}
         dialogMessage={formatMessage({
           id: isConfirmArchiveDialogOpen
-            ? 'confirmArchiveDepartmentDialogMessage'
+            ? selectedDepartmentIds.length > 1
+              ? 'confirmArchiveDepartmentsDialogMessage'
+              : 'confirmArchiveDepartmentDialogMessage'
+            : selectedDepartmentIds.length > 1
+            ? 'confirmUnarchiveDepartmentsDialogMessage'
             : 'confirmUnarchiveDepartmentDialogMessage',
         })}
         isDialogOpen={
@@ -170,7 +174,11 @@ export function Index() {
         confirm={confirmArchiveUnarchive}
         dialogTitle={formatMessage({
           id: isConfirmArchiveDialogOpen
-            ? 'archiveDepartment'
+            ? selectedDepartmentIds.length > 1
+              ? 'archiveDepartments'
+              : 'archiveDepartment'
+            : selectedDepartmentIds.length > 1
+            ? 'unarchiveDepartments'
             : 'unarchiveDepartment',
         })}
         confirmButton={formatMessage({
@@ -249,7 +257,7 @@ export function Index() {
               }}
             />
           </Box>
-          {selectedDepartmentIds.length > 0 && (
+          {
             <Box
               sx={{
                 display: 'grid',
@@ -258,29 +266,35 @@ export function Index() {
                 columnGap: 2,
               }}
             >
-              <Button
-                variant="outlined"
-                color="error"
-                disabled={isArchiving || isUnarchiving || isEditingDeparment}
-              >
-                {formatMessage({ id: 'resetPasswords' })}
-              </Button>
-              <Button
-                variant="outlined"
-                color="warning"
-                disabled={isArchiving || isUnarchiving || isEditingDeparment}
-              >
-                {formatMessage({ id: 'disableAccounts' })}
-              </Button>
+              {selectedDepartmentIds.length > 0 && showArchives && (
+                <Button
+                  variant="outlined"
+                  color="warning"
+                  disabled={isArchiving || isUnarchiving || isEditingDeparment}
+                  onClick={() => setIsConfirmUnarchiveDialogOpen(true)}
+                >
+                  {formatMessage({ id: 'unarchiveSelected' })}
+                </Button>
+              )}
+              {selectedDepartmentIds.length > 0 && !showArchives && (
+                <Button
+                  variant="outlined"
+                  color="warning"
+                  disabled={isArchiving || isUnarchiving || isEditingDeparment}
+                  onClick={() => setIsConfirmArchiveDialogOpen(true)}
+                >
+                  {formatMessage({ id: 'archiveSelected' })}
+                </Button>
+              )}
+              <TableHeaderItem
+                icon={filter}
+                title={formatMessage({ id: 'filter' })}
+                onClick={(event) => {
+                  setFilterAnchorEl(event.currentTarget);
+                }}
+              />
             </Box>
-          )}
-          <TableHeaderItem
-            icon={filter}
-            title={formatMessage({ id: 'filter' })}
-            onClick={(event) => {
-              setFilterAnchorEl(event.currentTarget);
-            }}
-          />
+          }
         </Box>
         <TableContainer
           sx={{
