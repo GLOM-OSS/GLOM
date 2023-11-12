@@ -1,12 +1,11 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
 import {
-  BulkDisableStaffPayload,
   CreateStaffPayload,
   ManageStaffRolesPayload,
   StaffQueryParams,
   StaffRole,
-  UpdateStaffPayload,
+  UpdateStaffPayload
 } from '@glom/data-types/squoolr';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import squoolrApi from './api';
 const { staffs } = squoolrApi;
 
