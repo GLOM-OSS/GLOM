@@ -577,7 +577,6 @@ export const website = {
   suspend: 'Suspendre',
   yesSuspend: 'Oui, suspendre',
   fromSquoolr: 'de Squoolr ?',
-
   name: 'Nom',
   lastConnected: 'Dernière connexion',
   disableAccounts: 'Désactiver les comptes',

@@ -539,7 +539,6 @@ export class AcademicYearsService {
           has_signed_convention,
           hourly_rate,
           origin_institute,
-          teacher_id,
         } = annualTeacher;
         retrivedRoles.push({
           user_id: annual_teacher_id,
@@ -564,7 +563,6 @@ export class AcademicYearsService {
             has_signed_convention,
             hourly_rate,
             origin_institute,
-            teacher_id,
           },
         };
       }

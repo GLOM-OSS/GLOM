@@ -1,8 +1,11 @@
-import { useNotification } from '@squoolr/toast';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
+import {
+  DemandStatus,
+  SubmitSchoolDemandPayload,
+  ValidateSchoolDemandPayload,
+} from '@glom/data-types';
 import squoolrApi from './api';
-import { SubmitSchoolDemandPayload } from '@glom/data-types';
 const { demands } = squoolrApi;
 
 export function useSubmitDemand() {
@@ -32,13 +35,45 @@ export function useSubmitDemand() {
   });
 }
 
-export const getSchoolDemand = (demandCode: string) =>
-  demands.getDemand(demandCode);
+export const getSchoolDemand = (schoolId: string) =>
+  demands.getDemand(schoolId);
 
-export function useSchoolDemand(schoolCode: string) {
+export function useSchoolDemand(schoolId: string) {
   return useQuery({
-    enabled: !!schoolCode,
-    queryKey: ['get-school-demand'],
-    queryFn: () => demands.getDemand(schoolCode),
+    enabled: !!schoolId,
+    queryKey: ['get-school-demand', schoolId],
+    queryFn: () => demands.getDemand(schoolId),
+  });
+}
+
+export function useSchoolDemands(demandStatus?: DemandStatus[]) {
+  return useQuery({
+    queryKey: ['get-school-demands'],
+    queryFn: () => demands.getDemands(demandStatus),
+  });
+}
+
+export function useSchoolDemandDetails(schoolId: string) {
+  return useQuery({
+    enabled: !!schoolId,
+    queryKey: ['get-school-demand-details', schoolId],
+    queryFn: () => demands.getDemandDetails(schoolId),
+  });
+}
+
+export function useValidateDemand(schoolId: string) {
+  return useMutation({
+    mutationKey: ['validate-school-demand', schoolId],
+    mutationFn: (payload: ValidateSchoolDemandPayload) =>
+      demands.validateDemand(schoolId, payload),
+  });
+}
+
+export function useUpdateDemandStaus(schoolId: string) {
+  return useMutation({
+    mutationKey: ['update-school-demand-status'],
+    mutationFn: (
+      schoolDemandStaus: Extract<DemandStatus, 'PROCESSING' | 'SUSPENDED'>
+    ) => demands.updateDemandStatus(schoolId, schoolDemandStaus),
   });
 }

@@ -326,7 +326,7 @@ export class AuthService {
 
     if (role === StaffRole.TEACHER) {
       const teacher = await this.prismaService.teacher.findUnique({
-        where: { teacher_id: user_id },
+        where: { login_id: user_id },
       });
       privateCode = teacher?.private_code;
     } else {

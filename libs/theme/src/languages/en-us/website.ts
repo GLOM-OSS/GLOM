@@ -553,7 +553,6 @@ export const website = {
   suspend: 'Suspend',
   yesSuspend: 'Yes, suspend',
   fromSquoolr: 'from Squoolr?',
-
   name: 'Name',
   lastConnected: 'Last Connected',
   disableAccounts: 'Disable Accounts',

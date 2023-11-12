@@ -198,9 +198,6 @@ export class TeacherSessionData {
   @ApiProperty()
   classroomDivisions: string[];
 
-  @ApiProperty()
-  teacher_id: string;
-
   constructor(props: TeacherSessionData) {
     Object.assign(this, props);
   }

@@ -92,7 +92,7 @@ export class DemandController {
 
   @Put(':school_id/status')
   @ApiOkResponse()
-  // @UseGuards(AuthenticatedGuard)
+  @UseGuards(AuthenticatedGuard)
   updateSchoolStatus(
     @Req() request: Request,
     @Param('school_id') schoolId: string,
