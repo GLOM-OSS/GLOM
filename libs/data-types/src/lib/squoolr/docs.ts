@@ -149,35 +149,7 @@ export interface components {
       email: string;
       password: string;
     };
-    ActiveYearSessionData: {
-      academic_year_id: string;
-      /** Format: date-time */
-      starting_date: string;
-      /** Format: date-time */
-      ending_date: string;
-      /** @enum {string} */
-      year_status: "INACTIVE" | "ACTIVE" | "FINISHED";
-      year_code: string;
-    };
-    StudentSessionData: {
-      annual_student_id: string;
-      activeSemesters: string[];
-      classroom_code: string;
-      classroom_level: number;
-      student_id: string;
-    };
-    ConfiguratorSessionData: {
-      annual_configurator_id: string;
-      is_sudo: boolean;
-    };
-    TeacherSessionData: {
-      annual_teacher_id: string;
-      hourly_rate: number;
-      origin_institute: string;
-      has_signed_convention: boolean;
-      classroomDivisions: string[];
-    };
-    User: {
+    UserEntity: {
       first_name: string;
       last_name: string;
       email: string;
@@ -205,14 +177,8 @@ export interface components {
       employment_status: "Employed" | "Unemployed" | "SelfEmployed" | null;
       /** Format: date-time */
       created_at: string;
-      login_id: string;
-      school_id?: string;
-      tutorStudentIds?: string[];
-      activeYear: components["schemas"]["ActiveYearSessionData"];
-      annualStudent?: components["schemas"]["StudentSessionData"];
-      annualConfigurator?: components["schemas"]["ConfiguratorSessionData"];
-      annualTeacher?: components["schemas"]["TeacherSessionData"];
-      annualRegistry?: components["schemas"]["TeacherSessionData"];
+      active_year_id?: string;
+      roles: ("ADMIN" | "PARENT" | "STUDENT" | "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
     };
     AcademicYearEntity: {
       /** Format: date-time */
@@ -232,7 +198,7 @@ export interface components {
       created_at: string;
     };
     SingInResponse: {
-      user: components["schemas"]["User"];
+      user: components["schemas"]["UserEntity"];
       academicYears?: components["schemas"]["AcademicYearEntity"][];
     };
     ResetPasswordDto: {
@@ -241,6 +207,23 @@ export interface components {
     SetNewPasswordDto: {
       reset_password_id: string;
       new_password: string;
+    };
+    SchoolEntity: {
+      school_name: string;
+      school_acronym: string;
+      school_email: string;
+      lead_funnel: string;
+      school_phone_number: string;
+      school_id: string;
+      school_code: string;
+      paid_amount: number;
+      ambassador_email: string;
+      /** @enum {string} */
+      school_demand_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED";
+      school_rejection_reason: string;
+      subdomain: string | null;
+      /** Format: date-time */
+      created_at: string;
     };
     PersonEntity: {
       first_name: string;
@@ -268,23 +251,6 @@ export interface components {
       civil_status: "Married" | "Single" | "Divorced";
       /** @enum {string|null} */
       employment_status: "Employed" | "Unemployed" | "SelfEmployed" | null;
-      /** Format: date-time */
-      created_at: string;
-    };
-    SchoolEntity: {
-      school_name: string;
-      school_acronym: string;
-      school_email: string;
-      lead_funnel: string;
-      school_phone_number: string;
-      school_id: string;
-      school_code: string;
-      paid_amount: number;
-      ambassador_email: string;
-      /** @enum {string} */
-      school_demand_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED";
-      school_rejection_reason: string;
-      subdomain: string | null;
       /** Format: date-time */
       created_at: string;
     };
@@ -337,15 +303,9 @@ export interface components {
       /** @enum {string} */
       school_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED";
     };
-    SessionEntity: {
-      login_id: string;
-      school_id?: string;
-      tutorStudentIds?: string[];
-      activeYear: components["schemas"]["ActiveYearSessionData"];
-      annualStudent?: components["schemas"]["StudentSessionData"];
-      annualConfigurator?: components["schemas"]["ConfiguratorSessionData"];
-      annualTeacher?: components["schemas"]["TeacherSessionData"];
-      annualRegistry?: components["schemas"]["TeacherSessionData"];
+    UserAnnualRoles: {
+      active_year_id?: string;
+      roles: ("ADMIN" | "PARENT" | "STUDENT" | "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
     };
     InquiryEntity: {
       email: string;
@@ -726,7 +686,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["PersonEntity"];
+          "application/json": components["schemas"]["UserEntity"];
         };
       };
     };
@@ -832,7 +792,7 @@ export interface operations {
       };
     };
     responses: {
-      200: {
+      201: {
         content: {
           "application/json": components["schemas"]["AcademicYearEntity"];
         };
@@ -848,7 +808,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["SessionEntity"];
+          "application/json": components["schemas"]["UserAnnualRoles"];
         };
       };
     };

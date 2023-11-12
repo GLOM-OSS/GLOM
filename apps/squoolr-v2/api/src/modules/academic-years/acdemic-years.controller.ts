@@ -8,7 +8,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles } from '../../app/auth/auth.decorator';
 import { Role } from '../../utils/enums';
@@ -39,7 +39,7 @@ export class AcademicYearsController {
 
   @Post('/new')
   @Roles(Role.CONFIGURATOR)
-  @ApiOkResponse({ type: AcademicYearEntity })
+  @ApiCreatedResponse({ type: AcademicYearEntity })
   async createAcademicYear(
     @Req() request: Request,
     @Body() newAcademicYear: CreateAcademicYearDto

@@ -23,7 +23,7 @@ import {
   SetNewPasswordDto,
   SignInDto,
   SingInResponse,
-  UserEntity
+  UserEntity,
 } from './auth.dto';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
@@ -80,6 +80,7 @@ export class AuthController {
   }
 
   @Delete('log-out')
+  @ApiNoContentResponse()
   @UseGuards(AuthenticatedGuard)
   async logOut(@Req() request: Request, @Res() response: Response) {
     const sessionName = process.env.SESSION_NAME;
