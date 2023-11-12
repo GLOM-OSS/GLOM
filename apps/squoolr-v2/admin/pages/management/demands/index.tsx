@@ -1,10 +1,12 @@
 import { NoTableElement, TableHeaderItem } from '@glom/components';
-import { DemandStatus, SchoolEntity } from '@glom/data-types/squoolr';
+import { useSchoolDemands } from '@glom/data-access/squoolr';
+import { DemandStatus } from '@glom/data-types/squoolr';
+import { useDispatchBreadcrumb } from '@glom/squoolr-v2/side-nav';
 import { useTheme } from '@glom/theme';
 import reset from '@iconify/icons-fluent/arrow-counterclockwise-48-regular';
 import filter from '@iconify/icons-fluent/filter-28-regular';
 import search from '@iconify/icons-fluent/search-48-regular';
-import { Icon, IconifyIcon } from '@iconify/react';
+import { Icon } from '@iconify/react';
 import {
   Box,
   Chip,
@@ -18,12 +20,10 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import FilterMenu from '../../../component/management/demands/FilterMenu';
-import { useEffect, useState } from 'react';
-import { useIntl } from 'react-intl';
-import { useDispatchBreadcrumb } from '@glom/squoolr-v2/side-nav';
 import { useRouter } from 'next/router';
-import { useSchoolDemand, useSchoolDemands } from '@glom/data-access/squoolr';
+import { useState } from 'react';
+import { useIntl } from 'react-intl';
+import FilterMenu from '../../../component/management/demands/FilterMenu';
 
 export const STATUS_CHIP_VARIANT: Record<string, 'outlined' | 'filled'> = {
   PROCESSING: 'filled',
@@ -64,11 +64,8 @@ export function Index() {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<DemandStatus[]>([]);
 
-  const {
-    data: demandData,
-    isFetching: isFetchingDemands,
-    refetch: refetchDemands,
-  } = useSchoolDemands(selectedStatus);
+  const { data: demandData, refetch: refetchDemands } =
+    useSchoolDemands(selectedStatus);
 
   function onChangeFilter(demandStatus: DemandStatus) {
     setSelectedStatus(
@@ -77,7 +74,7 @@ export function Index() {
         : [...selectedStatus, demandStatus]
     );
   }
-  
+
   return (
     <>
       <FilterMenu
@@ -179,7 +176,7 @@ export function Index() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {isFetchingDemands || demandData.length === 0 ? (
+              {!demandData || demandData.length === 0 ? (
                 <NoTableElement />
               ) : (
                 demandData.map(
