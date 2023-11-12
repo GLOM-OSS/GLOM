@@ -1,6 +1,7 @@
 import {
+  BulkDisableStaffPayload,
   CreateStaffPayload,
-  ManageStaffRolesPayload,
+  ResetStaffPasswordPayload,
   StaffQueryParams,
   StaffRole,
   UpdateStaffPayload
@@ -13,6 +14,7 @@ export function useStaffMembers(params?: StaffQueryParams) {
   return useQuery({
     queryKey: ['get-staff-members'],
     queryFn: () => staffs.getStaffMembers(params),
+    initialData: [],
   });
 }
 
@@ -24,14 +26,14 @@ export function useStaffMember(annualStaffId: string, role: StaffRole) {
   });
 }
 
-export function useCreateStaff() {
+export function useCreateStaffMember() {
   return useMutation({
-    mutationKey: ['add-new-staff'],
+    mutationKey: ['add-new-staff-member'],
     mutationFn: (newStaff: CreateStaffPayload) => staffs.createStaff(newStaff),
   });
 }
 
-export function useUpdateStaff(annualStaffId: string) {
+export function useUpdateStaffMember(annualStaffId: string) {
   return useMutation({
     mutationKey: ['update-staff-member', annualStaffId],
     mutationFn: (payload: UpdateStaffPayload) =>
@@ -39,17 +41,25 @@ export function useUpdateStaff(annualStaffId: string) {
   });
 }
 
-export function useDisableStaff(annualStaffId: string) {
+export function useDisableStaffMember(annualStaffId: string) {
   return useMutation({
     mutationKey: ['disable-staff-member', annualStaffId],
     mutationFn: (role: StaffRole) => staffs.disableStaff(annualStaffId, role),
   });
 }
 
-export function useDisableManyStaff() {
+export function useDisableStaffMembers() {
   return useMutation({
-    mutationKey: ['disable-staff-many-member'],
-    mutationFn: (staffPayload: ManageStaffRolesPayload) =>
+    mutationKey: ['disable-many-staff-member'],
+    mutationFn: (staffPayload: BulkDisableStaffPayload) =>
       staffs.disableManyStaff(staffPayload),
+  });
+}
+
+export function useResetStaffPasswords() {
+  return useMutation({
+    mutationKey: ['reset-many-staff-member'],
+    mutationFn: (staffPayload: ResetStaffPasswordPayload) =>
+      staffs.resetStaffPasswords(staffPayload),
   });
 }
