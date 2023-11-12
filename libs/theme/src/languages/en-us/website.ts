@@ -574,7 +574,7 @@ export const website = {
   departmentAcronym: 'Department Acronym',
   createdAt: 'Created At',
   confirmArchiveDepartmentDialogMessage:
-    "This action will archive this department and all it's sub-entities (majors, classrooms) preventing anything from being done. This is dangerous action! Do you still want to archive?",
+    "This action will archive this department and all it's sub-entities (majors, classrooms, and subjects) preventing anything from being done. This is dangerous action! Do you still want to archive?",
   confirmUnarchiveDepartmentDialogMessage:
     'This action will unarchive this department. Note that all sub-entities need to be unarchived manually. Do you want to continue?',
   archiveDepartment: 'Archive Department',
