@@ -1,6 +1,7 @@
 import { SchemaResponseBody } from '../api-helper';
 import { operations } from './docs';
 
+export * from './academic-years';
 export * from './ambassadors';
 export * from './auth';
 export * from './classrooms';
