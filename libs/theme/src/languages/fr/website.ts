@@ -593,4 +593,14 @@ export const website = {
     "Cette action empêchera ces configurateurs d'accéder à leurs comptes. Êtes-vous sûr de vouloir désactiver ces comptes ?",
   academicYears: 'Années Académiques',
   configuration: 'Configuration',
+
+  departmentName: 'Nom du département',
+  departmentAcronym: 'Acronyme du département',
+  createdAt: 'Créé le',
+  confirmArchiveDepartmentDialogMessage:
+    'Cette action archivera ce département et toutes ses sous-entités (filiere, classes), empêchant toute modification. Ceci est une action dangereuse ! Voulez-vous toujours archiver ?',
+  confirmUnarchiveDepartmentDialogMessage:
+    'Cette action désarchivera ce département. Notez que toutes les sous-entités doivent être désarchivées manuellement. Voulez-vous continuer ?',
+  archiveDepartment: 'Archiver le département',
+  unarchiveDepartment: 'Désarchiver le département',
 };

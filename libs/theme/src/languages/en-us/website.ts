@@ -569,4 +569,14 @@ export const website = {
     'This action will prevent these configurators from accessing their accounts! Are you sure you want to disable these accounts?',
   academicYears: 'Academic Years',
   configuration: 'Configuration',
+
+  departmentName: 'Department Name',
+  departmentAcronym: 'Department Acronym',
+  createdAt: 'Created At',
+  confirmArchiveDepartmentDialogMessage:
+    "This action will archive this department and all it's sub-entities (majors, classrooms) preventing anything from being done. This is dangerous action! Do you still want to archive?",
+  confirmUnarchiveDepartmentDialogMessage:
+    'This action will unarchive this department. Note that all sub-entities need to be unarchived manually. Do you want to continue?',
+  archiveDepartment: 'Archive Department',
+  unarchiveDepartment: 'Unarchive Department',
 };
