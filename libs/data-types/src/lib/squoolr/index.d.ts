@@ -2,6 +2,7 @@ import { SchemaResponseBody } from '../api-helper';
 import { operations } from './docs';
 
 export * from './ambassadors';
+export * from './auth';
 export * from './classrooms';
 export * from './demands';
 export * from './departments';
