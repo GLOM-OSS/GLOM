@@ -3,13 +3,17 @@ import {
   NoTableElement,
   TableHeaderItem,
 } from '@glom/components';
-import { StaffEntity } from '@glom/data-types/squoolr';
+import {
+  useDisableStaffMembers,
+  useResetStaffPasswords,
+  useStaffMembers,
+} from '@glom/data-access/squoolr';
 import { useTheme } from '@glom/theme';
 import reset from '@iconify/icons-fluent/arrow-counterclockwise-48-regular';
 import checked from '@iconify/icons-fluent/checkbox-checked-16-filled';
 import unchecked from '@iconify/icons-fluent/checkbox-unchecked-16-filled';
-import search from '@iconify/icons-fluent/search-48-regular';
 import more from '@iconify/icons-fluent/more-vertical-48-regular';
+import search from '@iconify/icons-fluent/search-48-regular';
 import { Icon } from '@iconify/react';
 import {
   Box,
@@ -27,9 +31,9 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import ManageConfiguratorMenu from '../../../component/management/configurators/ManageConfiguratorMenu';
+import { useState } from 'react';
 import { useIntl } from 'react-intl';
-import ManageConfiguratorMenu from 'apps/squoolr-v2/admin/component/management/configurators/ManageConfiguratorMenu';
 
 export function Index() {
   const theme = useTheme();
@@ -37,33 +41,12 @@ export function Index() {
 
   const tableHeaders = ['', 'name', 'email', 'phone', 'lastConnected', ''];
 
-  //TODO: FETCH LIST OF DEMANDS HERE
-  const configuratorsData: StaffEntity[] = [
-    {
-      address: 'Bangangte',
-      birthdate: new Date().toISOString(),
-      email: 'lorraintchakoumi@gmail.com',
-      first_name: 'Kouatchoua',
-      gender: 'Male',
-      last_connected: new Date().toISOString(),
-      last_name: 'Tchakoumi Lorrain',
-      login_id: 'wieo',
-      matricule: '17c005',
-      national_id_number: '000316122',
-      phone_number: '+237657140183',
-      roles: ['CONFIGURATOR'],
-      annual_configurator_id: 'wieols',
-    },
-  ];
+  const [searchValue, setSearchValue] = useState<string>('');
+  const { data: configuratorsData, refetch: refetchStaffMembers } =
+    useStaffMembers({ roles: ['CONFIGURATOR'], keywords: searchValue });
 
   const [canSearchExpand, setCanSearchExpand] = useState<boolean>(false);
-  const [searchValue, setSearchValue] = useState<string>('');
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-
-  useEffect(() => {
-    //TODO: CALL SEARCH API HERE with searchValue and selectedStatus' use it to filter. MUTATE DEMAND DATA WHEN IT'S DONE
-    alert('hello world');
-  }, [searchValue]);
 
   const [selectedConfiguratorIds, setSelectedConfiguratorIds] = useState<
     string[]
@@ -93,53 +76,48 @@ export function Index() {
     string | undefined
   >();
 
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isResettingPassword, setIsResettingPassword] =
-    useState<boolean>(false);
-  function resetConfiguratorPassword(
-    annual_configurator_id: string | string[]
-  ) {
-    setIsResettingPassword(true);
-    if (typeof annual_configurator_id === 'string') {
-      //TODO: CALL API HERE TO RESeT CONFIGURATOR PASSWORD WITH VALUE annual_configurator_id
-      setTimeout(() => {
-        alert(annual_configurator_id);
-        setIsResettingPassword(false);
-        setActiveAnnualConfiguratorId(undefined);
-      }, 3000);
-    } else {
-      //TODO: CALL API HERE TO BULK RESeT CONFIGURATOR PASSWORDS WITH VALUE annual_configurator_id WHICH IS AN ARRAY
-      setTimeout(() => {
-        alert(JSON.stringify(annual_configurator_id));
-        setSelectedConfiguratorIds([]);
-        setIsResettingPassword(false);
-        // TODO: MUTATE configuratorData
-      }, 3000);
-    }
+  const { mutate: resetStaffPasswords, isPending: isResettingPassword } =
+    useResetStaffPasswords();
+  function resetConfiguratorPassword(annualConfiguratorId: string | string[]) {
+    resetStaffPasswords(
+      {
+        teacherIds: [],
+        registryIds: [],
+        configuratorIds:
+          typeof annualConfiguratorId === 'string'
+            ? [annualConfiguratorId]
+            : annualConfiguratorId,
+      },
+      {
+        onSuccess() {
+          refetchStaffMembers();
+          setSelectedConfiguratorIds([]);
+          setActiveAnnualConfiguratorId(undefined);
+        },
+      }
+    );
   }
 
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isDisablingAccount, setIsDisablingAccount] = useState<boolean>(false);
-  function disableConfiguratorAccount(
-    annual_configurator_id: string | string[]
-  ) {
-    setIsDisablingAccount(true);
-    if (typeof annual_configurator_id === 'string') {
-      //TODO: CALL API HERE TO disable configurator account WITH VALUE annual_configurator_id
-      setTimeout(() => {
-        alert(annual_configurator_id);
-        setIsDisablingAccount(false);
-        setActiveAnnualConfiguratorId(undefined);
-      }, 3000);
-    } else {
-      //TODO: CALL API HERE TO BULK disable configurator accounts WITH VALUE annual_configurator_id WHICH IS AN ARRAY
-      setTimeout(() => {
-        alert(JSON.stringify(annual_configurator_id));
-        setSelectedConfiguratorIds([]);
-        setIsDisablingAccount(false);
-        // TODO: MUTATE configuratorData
-      }, 3000);
-    }
+  const { mutate: disableAccounts, isPending: isDisablingAccount } =
+    useDisableStaffMembers();
+  function disableConfiguratorAccount(annualConfiguratorId: string | string[]) {
+    disableAccounts(
+      {
+        teacherIds: [],
+        registryIds: [],
+        configuratorIds:
+          typeof annualConfiguratorId === 'string'
+            ? [annualConfiguratorId]
+            : annualConfiguratorId,
+      },
+      {
+        onSuccess() {
+          refetchStaffMembers();
+          setSelectedConfiguratorIds([]);
+          setActiveAnnualConfiguratorId(undefined);
+        },
+      }
+    );
   }
 
   const [isConfirmResetDialogOpen, setIsConfirmResetDialogOpen] =
@@ -282,10 +260,7 @@ export function Index() {
             <TableHeaderItem
               icon={reset}
               title={formatMessage({ id: 'reload' })}
-              onClick={() => {
-                //TODO: MUTATE TABLE VALUES HERE AND SEARCH AGAIN.
-                alert('hello world');
-              }}
+              onClick={() => refetchStaffMembers()}
             />
           </Box>
           {selectedConfiguratorIds.length > 0 && (
