@@ -1,5 +1,6 @@
 import {
   AmbassadorsApi,
+  AuthApi,
   DemandsApi,
   InquiriesApi,
   PlatformSettingsApi,
@@ -24,6 +25,7 @@ export const getURI = (app: keyof typeof GLOM_HOSTS) => {
 
 export class GlomApi {
   public squoolr: {
+    auth: AuthApi;
     staffs: StaffApi;
     demands: DemandsApi;
     inquiries: InquiriesApi;
@@ -41,6 +43,7 @@ export class GlomApi {
     });
 
     this.squoolr = {
+      auth: new AuthApi(squoolrRequest),
       staffs: new StaffApi(squoolrRequest),
       demands: new DemandsApi(squoolrRequest),
       inquiries: new InquiriesApi(squoolrRequest),
