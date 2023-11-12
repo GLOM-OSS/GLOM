@@ -3,11 +3,12 @@ import {
   NoTableElement,
   TableHeaderItem,
 } from '@glom/components';
-import { StaffEntity, DepartmentEntity } from '@glom/data-types/squoolr';
+import { DepartmentEntity } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
 import reset from '@iconify/icons-fluent/arrow-counterclockwise-48-regular';
 import checked from '@iconify/icons-fluent/checkbox-checked-16-filled';
 import unchecked from '@iconify/icons-fluent/checkbox-unchecked-16-filled';
+import filter from '@iconify/icons-fluent/filter-28-regular';
 import more from '@iconify/icons-fluent/more-vertical-48-regular';
 import search from '@iconify/icons-fluent/search-48-regular';
 import { Icon } from '@iconify/react';
@@ -25,9 +26,9 @@ import {
   TableRow,
   TextField,
   Tooltip,
-  Typography,
 } from '@mui/material';
-import ManageDepartmentMenu from 'apps/squoolr-v2/staff/components/configuration/ManageDepartmentMenu';
+import FilterMenu from 'apps/squoolr-v2/staff/components/configuration/departments/FilterMenu';
+import ManageDepartmentMenu from 'apps/squoolr-v2/staff/components/configuration/departments/ManageDepartmentMenu';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 
@@ -43,7 +44,7 @@ export function Index() {
     '',
   ];
 
-  //TODO: FETCH LIST OF DEMANDS HERE
+  //TODO: FETCH LIST OF departments HERE
   const departmentData: DepartmentEntity[] = [
     {
       created_at: new Date().toISOString(),
@@ -60,11 +61,15 @@ export function Index() {
   const [canSearchExpand, setCanSearchExpand] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>('');
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [showArchives, setShowArchives] = useState<boolean>(false);
+  const [filterAnchorEl, setFilterAnchorEl] = useState<HTMLElement | null>(
+    null
+  );
 
   useEffect(() => {
-    //TODO: CALL SEARCH API HERE with searchValue and selectedStatus' use it to filter. MUTATE DEMAND DATA WHEN IT'S DONE
+    //TODO: CALL fetch list of departments API HERE with searchValue and showArchives use it to filter. MUTATE DEMAND DATA WHEN IT'S DONE
     alert('hello world');
-  }, [searchValue]);
+  }, [searchValue, showArchives]);
 
   const [selectedDepartmentIds, setSelectedDepartmentIds] = useState<string[]>(
     []
@@ -131,6 +136,16 @@ export function Index() {
 
   return (
     <>
+      <FilterMenu
+        closeMenu={() => {
+          setFilterAnchorEl(null);
+        }}
+        isOpen={!!filterAnchorEl}
+        onShowArchives={() => setShowArchives((prev) => !prev)}
+        anchorEl={filterAnchorEl}
+        showArchives={showArchives}
+      />
+
       <ManageDepartmentMenu
         anchorEl={anchorEl}
         closeMenu={() => setAnchorEl(null)}
@@ -259,6 +274,13 @@ export function Index() {
               </Button>
             </Box>
           )}
+          <TableHeaderItem
+            icon={filter}
+            title={formatMessage({ id: 'filter' })}
+            onClick={(event) => {
+              setFilterAnchorEl(event.currentTarget);
+            }}
+          />
         </Box>
         <TableContainer
           sx={{
