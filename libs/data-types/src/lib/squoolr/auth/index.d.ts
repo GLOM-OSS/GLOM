@@ -29,3 +29,5 @@ export type UserEntity = SchemaResponseBody<
   operations,
   'AuthController_getUser'
 >;
+
+export type UserRole = UserEntity['roles'][0];
