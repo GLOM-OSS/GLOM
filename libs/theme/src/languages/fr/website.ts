@@ -193,7 +193,7 @@ export const website = {
   changeStatus: 'Changer le statut',
   school_status: 'Statut',
   finished: 'Finished',
-  départements: 'Departments',
+  departments: 'Départements',
   majors: 'Majors',
   classes: 'Classes',
   personnel: 'Personnel',
@@ -598,9 +598,18 @@ export const website = {
   departmentAcronym: 'Acronyme du département',
   createdAt: 'Créé le',
   confirmArchiveDepartmentDialogMessage:
-    'Cette action archivera ce département et toutes ses sous-entités (filiere, classes, matieres), empêchant toute modification. Ceci est une action dangereuse ! Voulez-vous toujours archiver ?',
+    'Cette action archivera ce département et toutes ses sous-entités (filière, classes, matières), empêchant toute modification. Ceci est une action dangereuse ! Voulez-vous toujours archiver ?',
   confirmUnarchiveDepartmentDialogMessage:
     'Cette action désarchivera ce département. Notez que toutes les sous-entités doivent être désarchivées manuellement. Voulez-vous continuer ?',
   archiveDepartment: 'Archiver le département',
   unarchiveDepartment: 'Désarchiver le département',
+
+  unarchiveSelected: 'Désarchiver les départements sélectionnés',
+  archiveSelected: 'Archiver les départements sélectionnés',
+  archiveDepartments: 'Archiver les départements sélectionnés',
+  unarchiveDepartments: 'Désarchiver les départements sélectionnés',
+  confirmArchiveDepartmentsDialogMessage:
+    "Cette action archivera ces départements sélectionnés ainsi que toutes leurs sous-entités (filères, classes et matières), empêchant toute action ultérieure. C'est une action dangereuse ! Confirmez-vous toujours l'archivage ?",
+  confirmUnarchiveDepartmentsDialogMessage:
+    'Cette action désarchivera ces départements sélectionnés. Notez que toutes les sous-entités doivent être désarchivées manuellement. Souhaitez-vous continuer ?',
 };

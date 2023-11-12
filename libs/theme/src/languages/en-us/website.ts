@@ -579,4 +579,13 @@ export const website = {
     'This action will unarchive this department. Note that all sub-entities need to be unarchived manually. Do you want to continue?',
   archiveDepartment: 'Archive Department',
   unarchiveDepartment: 'Unarchive Department',
+
+  unarchiveSelected: 'Unarchive selected departments',
+  archiveSelected: 'Archive selected departments',
+  archiveDepartments: 'Archive Selected Departments',
+  unarchiveDepartments: 'Unarchive Selected Departments',
+  confirmArchiveDepartmentsDialogMessage:
+    'This action will archive these selected departments and all their sub-entities (majors, classrooms, and subjects) preventing anything from being done. This is dangerous action! Do you still want to archive?',
+  confirmUnarchiveDepartmentsDialogMessage:
+    'This action will unarchive these selected departments. Note that all sub-entities need to be unarchived manually. Do you want to continue?',
 };
