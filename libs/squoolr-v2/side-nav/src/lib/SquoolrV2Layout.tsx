@@ -9,6 +9,11 @@ import { IBreadcrumbItem } from './breadcrumbContext/BreadcrumbContext';
 import LayoutHeader from './components/LayoutHeader';
 import { IAppType } from '@glom/squoolr-v2/auth-ui';
 import { useRouter } from 'next/router';
+import {
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query';
 
 function Layout({
   navSections,
@@ -84,11 +89,14 @@ export function SquoolrV2Layout({
   children?: JSX.Element;
   callingApp: IAppType;
 }) {
+  const queryClient = new QueryClient();
   return (
     <BreadcrumbContextProvider>
-      <Layout navSections={navSections} callingApp={callingApp}>
-        {children}
-      </Layout>
+      <QueryClientProvider client={queryClient}>
+        <Layout navSections={navSections} callingApp={callingApp}>
+          {children}
+        </Layout>
+      </QueryClientProvider>
     </BreadcrumbContextProvider>
   );
 }
