@@ -2,26 +2,21 @@ import { GlomPrismaService } from '@glom/prisma';
 import {
   BadRequestException,
   ConflictException,
-  Injectable,
-  NotFoundException,
+  Injectable
 } from '@nestjs/common';
 import {
   AcademicYearStatus,
   CarryOverSystemEnum,
   EvaluationSubTypeEnum,
-  EvaluationTypeEnum,
-  Prisma,
+  EvaluationTypeEnum
 } from '@prisma/client';
-import { randomUUID } from 'crypto';
+import { AnnualSessionData, UserRole } from '../../app/auth/auth';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
-import { SessionData, UserRole } from '../../app/auth/auth';
 import { Role } from '../../utils/enums';
 import {
   AcademicYearEntity,
-  CreateAcademicYearDto,
-  TemplateAcademicYearDto,
+  CreateAcademicYearDto
 } from './academic-years.dto';
-import { SessionEntity } from '../../app/auth/auth.dto';
 
 @Injectable()
 export class AcademicYearsService {
@@ -409,14 +404,8 @@ export class AcademicYearsService {
   async selectAcademicYear(
     login_id: string,
     academic_year_id: string
-  ): Promise<{ sessionData: SessionEntity }> {
-    // ): Promise<{ roles: UserRole[]; desirializedRoles: DesirializedRoles }> {
+  ): Promise<AnnualSessionData> {
     const retrivedRoles: UserRole[] = [];
-    const { school_id } = await this.prismaService.login.findUnique({
-      where: { login_id },
-    });
-
-    if (!school_id) return { sessionData: SessionEntity.prototype };
     const { started_at, ended_at, starts_at, ends_at, year_code, year_status } =
       await this.prismaService.academicYear.findFirst({
         where: {
@@ -425,9 +414,7 @@ export class AcademicYearsService {
         },
       });
 
-    let sessionData: SessionData = {
-      login_id,
-      school_id,
+    let annualSessionData: AnnualSessionData = {
       activeYear: {
         year_code,
         year_status,
@@ -469,8 +456,8 @@ export class AcademicYearsService {
         },
         AnnualStudentHasCreditUnits: crediUnits,
       } = annualStudent;
-      sessionData = {
-        ...sessionData,
+      annualSessionData = {
+        ...annualSessionData,
         annualStudent: {
           student_id,
           classroom_code,
@@ -495,8 +482,8 @@ export class AcademicYearsService {
         });
       if (annualConfigurator) {
         const { annual_configurator_id, is_sudo } = annualConfigurator;
-        sessionData = {
-          ...sessionData,
+        annualSessionData = {
+          ...annualSessionData,
           annualConfigurator: { annual_configurator_id, is_sudo },
         };
         retrivedRoles.push({
@@ -515,8 +502,8 @@ export class AcademicYearsService {
       });
       if (annualRegistry) {
         const { annual_registry_id } = annualRegistry;
-        sessionData = {
-          ...sessionData,
+        annualSessionData = {
+          ...annualSessionData,
           annualRegistry: { annual_registry_id },
         };
         retrivedRoles.push({
@@ -553,8 +540,8 @@ export class AcademicYearsService {
             user_id: annual_teacher_id,
             role: Role.COORDINATOR,
           });
-        sessionData = {
-          ...sessionData,
+        annualSessionData = {
+          ...annualSessionData,
           annualTeacher: {
             classroomDivisions: classroomDivisions.map(
               ({ annual_classroom_division_id: id }) => id
@@ -567,10 +554,7 @@ export class AcademicYearsService {
         };
       }
     }
-    return {
-      // roles: retrivedRoles,
-      sessionData: new SessionEntity(sessionData),
-    };
+    return annualSessionData;
   }
 
   private async buildAcademicYearDefaultCreateInput(

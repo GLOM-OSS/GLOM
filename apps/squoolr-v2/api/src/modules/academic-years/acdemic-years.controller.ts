@@ -12,7 +12,7 @@ import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles } from '../../app/auth/auth.decorator';
 import { Role } from '../../utils/enums';
-import { SessionEntity } from '../../app/auth/auth.dto';
+import { UserAnnualRoles } from '../../app/auth/auth.dto';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 import { AuthService } from '../../app/auth/auth.service';
 import {
@@ -33,10 +33,8 @@ export class AcademicYearsController {
   @Get()
   @ApiOkResponse({ type: [AcademicYearEntity] })
   async getAcademicYears(@Req() request: Request) {
-    const { login_id } = request.session.passport.user;
-    return {
-      academic_years: await this.academicYearService.findAll(login_id),
-    };
+    const { login_id } = request.user;
+    return this.academicYearService.findAll(login_id);
   }
 
   @Post('/new')
@@ -49,7 +47,7 @@ export class AcademicYearsController {
     const {
       school_id,
       annualConfigurator: { annual_configurator_id },
-    } = request.user as Express.User;
+    } = request.user;
     return this.academicYearService.create(
       school_id,
       newAcademicYear,
@@ -58,19 +56,23 @@ export class AcademicYearsController {
   }
 
   @Patch(':academic_year_id/choose')
-  @ApiOkResponse({ type: SessionEntity })
+  @ApiOkResponse({ type: UserAnnualRoles })
   async chooseActiveAcademicYear(
     @Req() request: Request,
     @Param('academic_year_id') academic_year_id: string
   ) {
-    const { login_id } = request.session.passport.user;
-    const { sessionData } = await this.academicYearService.selectAcademicYear(
+    const { login_id } = request.user;
+    const annualSessionData = await this.academicYearService.selectAcademicYear(
       login_id,
       academic_year_id
     );
 
     await this.authService.updateSession(request, { academic_year_id });
-    return sessionData;
+    const { roles, active_year_id } = await this.authService.getUser({
+      ...request.user,
+      ...annualSessionData,
+    });
+    return new UserAnnualRoles({ roles, active_year_id });
   }
 
   // @ApiExcludeEndpoint()
