@@ -1,19 +1,15 @@
+import { IAppType, UserContextProvider } from '@glom/squoolr-v2/auth-ui';
 import { Box } from '@mui/material';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { SideNav } from './SideNav';
 import { INavSection } from './SideNav.interfaces';
+import { IBreadcrumbItem } from './breadcrumbContext/BreadcrumbContext';
 import BreadcrumbContextProvider, {
   useDispatchBreadcrumb,
 } from './breadcrumbContext/BreadcrumbContextProvider';
-import { IBreadcrumbItem } from './breadcrumbContext/BreadcrumbContext';
 import LayoutHeader from './components/LayoutHeader';
-import { IAppType } from '@glom/squoolr-v2/auth-ui';
-import { useRouter } from 'next/router';
-import {
-  QueryCache,
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query';
 
 function Layout({
   navSections,
@@ -91,12 +87,14 @@ export function SquoolrV2Layout({
 }) {
   const queryClient = new QueryClient();
   return (
-    <BreadcrumbContextProvider>
-      <QueryClientProvider client={queryClient}>
-        <Layout navSections={navSections} callingApp={callingApp}>
-          {children}
-        </Layout>
-      </QueryClientProvider>
-    </BreadcrumbContextProvider>
+    <QueryClientProvider client={queryClient}>
+      <UserContextProvider>
+        <BreadcrumbContextProvider>
+          <Layout navSections={navSections} callingApp={callingApp}>
+            {children}
+          </Layout>
+        </BreadcrumbContextProvider>
+      </UserContextProvider>
+    </QueryClientProvider>
   );
 }
