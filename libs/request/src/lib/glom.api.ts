@@ -1,4 +1,5 @@
 import {
+  AcademicYearApi,
   AmbassadorsApi,
   AuthApi,
   DemandsApi,
@@ -30,6 +31,7 @@ export class GlomApi {
     demands: DemandsApi;
     inquiries: InquiriesApi;
     ambassadors: AmbassadorsApi;
+    academicYears: AcademicYearApi;
     platformSettings: PlatformSettingsApi;
   };
 
@@ -48,6 +50,7 @@ export class GlomApi {
       demands: new DemandsApi(squoolrRequest),
       inquiries: new InquiriesApi(squoolrRequest),
       ambassadors: new AmbassadorsApi(squoolrRequest),
+      academicYears: new AcademicYearApi(squoolrRequest),
       platformSettings: new PlatformSettingsApi(squoolrRequest),
     };
   }
