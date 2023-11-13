@@ -15,12 +15,16 @@ import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import * as Yup from 'yup';
 import Footer from './Footer';
+import { useResetPassword, useSetNewPassword } from '@glom/data-access/squoolr';
+import { useRouter } from 'next/router';
 
 export function ResetPassword() {
-  const { formatMessage } = useIntl();
   const theme = useTheme();
+  const {
+    query: { reset_password_id: resetPasswordId },
+  } = useRouter();
+  const { formatMessage } = useIntl();
 
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const initialValues: { newPassword: string; confirmPassword: string } = {
@@ -36,16 +40,25 @@ export function ResetPassword() {
     ),
   });
 
+  const { mutate: setNewPassword, isPending: isSubmitting } =
+    useSetNewPassword();
   const formik = useFormik({
     initialValues,
     validationSchema,
     enableReinitialize: true,
-    onSubmit: (values, { resetForm }) => {
-      //TODO: INTEGRATE RESET PASSWORD HERE
+    onSubmit: ({ confirmPassword: new_password }, { resetForm }) => {
       //TODO: CHECK ON THE NOTIF HERE, AND UPDATE OneUI own
-      alert(JSON.stringify(values));
-      setIsSubmitting(true);
-      resetForm();
+      setNewPassword(
+        {
+          new_password,
+          reset_password_id: resetPasswordId as string,
+        },
+        {
+          onSuccess() {
+            resetForm();
+          },
+        }
+      );
     },
   });
 

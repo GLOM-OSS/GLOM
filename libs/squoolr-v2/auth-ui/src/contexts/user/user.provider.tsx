@@ -1,6 +1,8 @@
-import { useReducer, useContext, Reducer } from 'react';
+import { useReducer, useContext, Reducer, useEffect } from 'react';
 import UserContext, { initialeState } from './user.context';
 import { UserAction, UserContextPayload } from './user.interface';
+import { useUser } from '@glom/data-access/squoolr';
+import { useRouter } from 'next/router';
 
 const userReducer: Reducer<UserContextPayload, UserAction> = (
   state: UserContextPayload,
@@ -32,10 +34,18 @@ export function UserContextProvider({
   const [userState, userDispatch] = useReducer(userReducer, initialeState);
   const value = { ...userState, userDispatch };
 
+  const { push } = useRouter();
+  const { data, error,  } = useUser();
+  if (error) {
+    //TODO toast error here
+  }
+  useEffect(() => {
+    if (data) userDispatch({ type: 'LOAD_USER', payload: data });
+  }, [data]);
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 
-export const useUser = () => {
+export const useUserContext = () => {
   const context = useContext(UserContext);
   if (!context) {
     throw new Error('useUser must be used as a descendant of UserProvider');
