@@ -5,6 +5,7 @@ import {
 } from '@glom/components';
 import { DepartmentEntity } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
+import add from '@iconify/icons-fluent/add-48-regular';
 import reset from '@iconify/icons-fluent/arrow-counterclockwise-48-regular';
 import checked from '@iconify/icons-fluent/checkbox-checked-16-filled';
 import unchecked from '@iconify/icons-fluent/checkbox-unchecked-16-filled';
@@ -29,6 +30,7 @@ import {
 } from '@mui/material';
 import FilterMenu from 'apps/squoolr-v2/staff/components/configuration/departments/FilterMenu';
 import ManageDepartmentMenu from 'apps/squoolr-v2/staff/components/configuration/departments/ManageDepartmentMenu';
+import NewDepartmentDialog from 'apps/squoolr-v2/staff/components/configuration/departments/NewDepartmentDialog';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 
@@ -134,8 +136,15 @@ export function Index() {
     }
   }
 
+  const [isNewDepartmentDialogOpen, setIsNewDepartmentDialogOpen] =
+    useState<boolean>(false);
+
   return (
     <>
+      <NewDepartmentDialog
+        isDialogOpen={isNewDepartmentDialogOpen}
+        closeDialog={() => setIsNewDepartmentDialogOpen(false)}
+      />
       <FilterMenu
         closeMenu={() => {
           setFilterAnchorEl(null);
@@ -188,7 +197,7 @@ export function Index() {
         closeOnConfirm
         isSubmitting={isArchiving || isUnarchiving}
       />
-      <Box>
+      <Box sx={{ height: '100%', position: 'relative' }}>
         <Box
           sx={{
             borderTopLeftRadius: '8px',
@@ -483,6 +492,28 @@ export function Index() {
             </TableBody>
           </Table>
         </TableContainer>
+
+        <Tooltip
+          arrow
+          title={formatMessage({ id: 'addNewDepartment' })}
+          placement="left"
+        >
+          <IconButton
+            onClick={() => setIsNewDepartmentDialogOpen(true)}
+            color="primary"
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+              backgroundColor: theme.palette.primary.light,
+              '&:hover': {
+                backgroundColor: theme.palette.primary.dark,
+              },
+            }}
+          >
+            <Icon icon={add} color="white" />
+          </IconButton>
+        </Tooltip>
       </Box>
     </>
   );
