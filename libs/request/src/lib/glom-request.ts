@@ -71,7 +71,9 @@ export class GlomRequest {
       ...this.DEFAULT_REQUEST_OPTIONS,
       transformResponse: (data) =>
         data.includes('error') ? data : decrypt<T>(data),
-      params: params.queryParams ? encrypt(params.queryParams) : undefined,
+      params: params.queryParams
+        ? { data: encrypt(params.queryParams) }
+        : undefined,
       data: params.body ? { data: encrypt(params.body as object) } : undefined,
     });
     return response;
