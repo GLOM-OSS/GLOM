@@ -38,9 +38,11 @@ export default function StatusDialog({
     validationSchema,
     onSubmit: async (values) => {
       setIsSubmitting(true);
-      const demand = await getSchoolDemand(values.demandCode);
-      setSchoolDemand(demand);
-      setIsSubmitting(false);
+      getSchoolDemand(values.demandCode)
+        .then((demand) => setSchoolDemand(demand))
+        //TODO toast error
+        .catch((error) => console.log(error))
+        .finally(() => setIsSubmitting(false));
     },
   });
 
