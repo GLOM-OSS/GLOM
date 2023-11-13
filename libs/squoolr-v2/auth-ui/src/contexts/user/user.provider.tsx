@@ -35,12 +35,14 @@ export function UserContextProvider({
   const value = { ...userState, userDispatch };
 
   const { push } = useRouter();
-  const { data, error,  } = useUser();
+  const { data, error } = useUser();
   if (error) {
     //TODO toast error here
+    push('/signin')
   }
   useEffect(() => {
-    if (data) userDispatch({ type: 'LOAD_USER', payload: data });
+    if (!userState.data.email && data)
+      userDispatch({ type: 'LOAD_USER', payload: data });
   }, [data]);
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }

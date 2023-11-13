@@ -19,10 +19,12 @@ import eye from '@iconify/icons-fluent/eye-32-regular';
 import eyeSlash from '@iconify/icons-fluent/eye-hide-24-regular';
 import { SignInPayload } from '@glom/data-types/squoolr';
 import { useSignIn } from '@glom/data-access/squoolr';
+import { useRouter } from 'next/router';
 
 export function Signin({ app }: { app: IAppType }) {
   const { formatMessage } = useIntl();
   const theme = useTheme();
+  const { push } = useRouter();
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -47,6 +49,7 @@ export function Signin({ app }: { app: IAppType }) {
       //TODO: CHECK ON THE NOTIF HERE, AND UPDATE OneUI own
       signIn(values, {
         onSuccess() {
+          push('/management');
           resetForm();
         },
       });
