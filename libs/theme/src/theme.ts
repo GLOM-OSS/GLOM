@@ -279,6 +279,20 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
           }),
         },
       },
+      MuiDialogActions: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            '&.MuiDialogActions-root': {
+              display: 'grid',
+              gridAutoFlow: 'column',
+              alignItems: 'center',
+              columnGap: '8px',
+              justifyContent: 'stretch',
+              padding: '8px 0',
+            },
+          }),
+        },
+      },
       MuiTableContainer: {
         styleOverrides: {
           root: ({ theme }) => ({
