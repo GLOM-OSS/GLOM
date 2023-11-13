@@ -53,7 +53,7 @@ export class DemandsApi {
     schoolId: string,
     status: Extract<DemandStatus, 'PROCESSING' | 'SUSPENDED'>
   ) {
-    const resp = await this.request.patch(`/demands/${schoolId}/status`, {
+    const resp = await this.request.put(`/demands/${schoolId}/status`, {
       school_status: status,
     });
     return resp.data;

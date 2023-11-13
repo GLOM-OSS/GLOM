@@ -10,7 +10,7 @@ import RejectDemandDialog from 'apps/squoolr-v2/admin/component/management/deman
 import ReviewColumn from 'apps/squoolr-v2/admin/component/management/demands/ReviewColumn';
 import ValidateDemandDialog from 'apps/squoolr-v2/admin/component/management/demands/ValidateDemandDialog';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { STATUS_CHIP_COLOR, STATUS_CHIP_VARIANT } from '..';
 
@@ -22,7 +22,7 @@ export default function index() {
     asPath,
   } = useRouter();
   const schoolId = school_id as string;
-  const { data: schoolData, refetch: refetchSchoolDemandDetails } =
+  const { data: schoolData, refetch: refetchSchoolData } =
     useSchoolDemandDetails(schoolId);
 
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState<boolean>(false);
@@ -36,7 +36,7 @@ export default function index() {
   function suspendSchool() {
     updateDemandStatus('SUSPENDED', {
       onSuccess() {
-        refetchSchoolDemandDetails();
+        refetchSchoolData();
         //TODO: TOAST SUSPENDING AND DONE SUSPENDING
       },
     });
@@ -50,7 +50,7 @@ export default function index() {
       {
         onSuccess() {
           //TODO: TOAST REJECTING AND DONE REJECTING
-          refetchSchoolDemandDetails();
+          refetchSchoolData();
         },
       }
     );
@@ -62,11 +62,27 @@ export default function index() {
       {
         onSuccess() {
           //TODO: TOAST validating and done validating
-          refetchSchoolDemandDetails();
+          refetchSchoolData();
         },
       }
     );
   }
+
+  useEffect(() => {
+    if (schoolData) {
+      const {
+        school: { school_demand_status },
+      } = schoolData;
+      setTimeout(() => {
+        if (school_demand_status === 'PENDING')
+          updateDemandStatus('PROCESSING', {
+            onSuccess() {
+              refetchSchoolData();
+            },
+          });
+      }, 2 * 60 * 1000);
+    }
+  }, [schoolData]);
 
   return (
     <>
