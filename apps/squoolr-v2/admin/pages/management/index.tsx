@@ -7,22 +7,21 @@ import { useIntl } from 'react-intl';
 export function Index() {
   const { push } = useRouter();
   const { formatMessage } = useIntl();
-  useEffect(() => {
-    push('/management/demands');
-  }, []);
 
   const breadcrumbDispatch = useDispatchBreadcrumb();
-
-  breadcrumbDispatch({
-    action: 'RESET',
-    payload: [
-      { route: undefined, title: formatMessage({ id: 'management' }) },
-      {
-        route: `management/demands`,
-        title: formatMessage({ id: `demands` }),
-      },
-    ],
-  });
+  useEffect(() => {
+    breadcrumbDispatch({
+      action: 'RESET',
+      payload: [
+        { route: undefined, title: formatMessage({ id: 'management' }) },
+        {
+          route: `management/demands`,
+          title: formatMessage({ id: `demands` }),
+        },
+      ],
+    });
+    push('/management/demands');
+  }, []);
 
   return <Box></Box>;
 }
