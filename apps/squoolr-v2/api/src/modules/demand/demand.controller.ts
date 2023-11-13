@@ -43,10 +43,10 @@ export class DemandController {
   }
 
   @IsPublic()
-  @Get(':school_id')
+  @Get([':school_id', ':demand_code'])
   @ApiOkResponse({ type: SchoolEntity })
-  getDemandStatus(@Param('school_id') schoolId: string) {
-    return this.demandService.findOne(schoolId);
+  getDemandStatus(@Param('school_id') identifier: string) {
+    return this.demandService.findOne(identifier);
   }
 
   @Get(':school_id/details')

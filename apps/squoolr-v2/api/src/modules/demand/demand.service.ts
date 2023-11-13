@@ -1,6 +1,10 @@
 import { NotchPayService } from '@glom/payment';
 import { GlomPrismaService } from '@glom/prisma';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import {
   CarryOverSystemEnum,
   Prisma,
@@ -16,6 +20,7 @@ import {
   UpdateSchoolStatus,
   ValidateDemandDto,
 } from './demand.dto';
+import { AxiosError } from 'axios';
 
 const schoolSelectAttr = Prisma.validator<Prisma.SchoolArgs>()({
   select: {
@@ -73,12 +78,12 @@ export class DemandService {
     private codeGenerator: CodeGeneratorFactory
   ) {}
 
-  async findOne(school_id: string) {
-    const school = await this.prismaService.school.findUnique({
+  async findOne(identifier: string) {
+    const school = await this.prismaService.school.findFirstOrThrow({
       ...schoolSelectAttr,
-      where: { school_id },
+      where: { OR: [{ school_id: identifier }, { school_code: identifier }] },
     });
-    if (!school) throw new NotFoundException('School demand not found');
+    // if (!school) throw new NotFoundException('School demand not found');
     return getSchoolEntity(school);
   }
 
@@ -237,7 +242,15 @@ export class DemandService {
     let payment_ref: string;
     let onboarding_fee: number;
     if (payment_phone) {
-      const payment = await this.payOnboardingFee(payment_phone);
+      const payment = await this.payOnboardingFee(payment_phone).catch(
+        (error: AxiosError) => {
+          throw new UnprocessableEntityException(
+            `Payment failed for: ${
+              error.response.data['message'] || error.message
+            }`
+          );
+        }
+      );
       payment_ref = payment.reference;
       onboarding_fee = payment.amount;
     }
