@@ -229,7 +229,7 @@ export function Index() {
                       <TableCell>
                         {school_phone_number
                           .split('+')[1]
-                          .replace(/(.{3})/g, ' $1')}
+                          ?.replace(/(.{3})/g, ' $1')}
                       </TableCell>
                       <TableCell>
                         <Chip

@@ -89,7 +89,7 @@ export class DemandService {
 
   async findDetails(school_id: string) {
     const schoolData = await this.prismaService.school.findUnique({
-      include: {
+      select: {
         ...schoolSelectAttr.select,
         Person: true,
         AcademicYears: {

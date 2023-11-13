@@ -91,131 +91,136 @@ export default function index() {
         closeOnConfirm
         confirmButton={formatMessage({ id: 'yesSuspend' })}
         dialogTitle={`${formatMessage({ id: 'suspend' })} ${
-          schoolData.school.school_acronym
+          schoolData?.school.school_acronym
         }`}
         danger
       />
-      <Box sx={{ display: 'grid', alignContent: 'start', rowGap: 5 }}>
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: 'auto 1fr',
-            alignItems: 'center',
-            justifyItems: 'start',
-            columnGap: 1,
-          }}
-        >
-          <Typography
-            variant="h3"
-            sx={{
-              color: `${theme.common.body} !important`,
-              paddingBottom: '0 !important',
-            }}
-          >{`${schoolData.school.school_acronym} - ${schoolData.school.school_name}`}</Typography>
-          <Chip
-            size="small"
-            variant={
-              STATUS_CHIP_VARIANT[schoolData.school.school_demand_status]
-            }
-            color={STATUS_CHIP_COLOR[schoolData.school.school_demand_status]}
-            label={formatMessage({
-              id: schoolData.school.school_demand_status.toLowerCase(),
-            })}
-            sx={{
-              ...(schoolData.school.school_demand_status === 'VALIDATED'
-                ? { color: 'white' }
-                : {}),
-            }}
-          />
-        </Box>
-        <Box sx={{ display: 'grid', rowGap: 4, alignContent: 'start' }}>
+      {schoolData && (
+        <Box sx={{ display: 'grid', alignContent: 'start', rowGap: 5 }}>
           <Box
             sx={{
               display: 'grid',
-              gridAutoFlow: 'column',
-              columnGap: 2,
+              gridTemplateColumns: 'auto 1fr',
+              alignItems: 'center',
+              justifyItems: 'start',
+              columnGap: 1,
             }}
           >
-            <Box sx={{ display: 'grid', rowGap: 2 }}>
-              <ReviewColumn
-                data={schoolData['person']}
-                order={[
-                  'first_name',
-                  'last_name',
-                  'email',
-                  'phone_number',
-                  'birthdate',
-                  'gender',
-                ]}
-                title={formatMessage({ id: 'configuratorInformation' })}
-              />
-              {['PENDING', 'PROCESSING'].includes(
-                schoolData.school.school_demand_status
-              ) && (
-                <Box
-                  sx={{
-                    display: 'grid',
-                    gridAutoFlow: 'column',
-                    columnGap: 5,
-                    alignSelf: 'end',
-                  }}
-                >
+            <Typography
+              variant="h3"
+              sx={{
+                color: `${theme.common.body} !important`,
+                paddingBottom: '0 !important',
+              }}
+            >{`${schoolData?.school.school_acronym} - ${schoolData?.school.school_name}`}</Typography>
+            <Chip
+              size="small"
+              variant={
+                STATUS_CHIP_VARIANT[schoolData.school.school_demand_status]
+              }
+              color={STATUS_CHIP_COLOR[schoolData.school.school_demand_status]}
+              label={formatMessage({
+                id: schoolData.school.school_demand_status.toLowerCase(),
+              })}
+              sx={{
+                ...(schoolData.school.school_demand_status === 'VALIDATED'
+                  ? { color: 'white' }
+                  : {}),
+              }}
+            />
+          </Box>
+          <Box sx={{ display: 'grid', rowGap: 4, alignContent: 'start' }}>
+            <Box
+              sx={{
+                display: 'grid',
+                gridAutoFlow: 'column',
+                columnGap: 2,
+              }}
+            >
+              <Box sx={{ display: 'grid', rowGap: 2 }}>
+                <ReviewColumn
+                  data={schoolData['person']}
+                  order={[
+                    'first_name',
+                    'last_name',
+                    'email',
+                    'phone_number',
+                    'birthdate',
+                    'gender',
+                  ]}
+                  title={formatMessage({ id: 'configuratorInformation' })}
+                />
+                {['PENDING', 'PROCESSING'].includes(
+                  schoolData.school.school_demand_status
+                ) && (
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridAutoFlow: 'column',
+                      columnGap: 5,
+                      alignSelf: 'end',
+                    }}
+                  >
+                    <Button
+                      variant="contained"
+                      color="error"
+                      onClick={() => setIsRejectDialogOpen(true)}
+                      disabled={isValidatingDemand || isValidatingDemand}
+                      startIcon={
+                        isValidatingDemand && (
+                          <CircularProgress color="error" size={18} />
+                        )
+                      }
+                    >
+                      {formatMessage({ id: 'reject' })}
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => setIsValidateDialogOpen(true)}
+                      disabled={isValidatingDemand || isValidatingDemand}
+                      startIcon={
+                        isValidatingDemand && (
+                          <CircularProgress color="primary" size={18} />
+                        )
+                      }
+                    >
+                      {formatMessage({ id: 'validate' })}
+                    </Button>
+                  </Box>
+                )}
+                {schoolData.school.school_demand_status === 'VALIDATED' && (
                   <Button
                     variant="contained"
                     color="error"
-                    onClick={() => setIsRejectDialogOpen(true)}
-                    disabled={isValidatingDemand || isValidatingDemand}
-                    startIcon={
-                      isValidatingDemand && (
-                        <CircularProgress color="error" size={18} />
-                      )
-                    }
+                    onClick={() => setIsConfirmSuspendDialogOpen(true)}
+                    sx={{ alignSelf: 'end' }}
                   >
-                    {formatMessage({ id: 'reject' })}
+                    {formatMessage({ id: 'suspend' })}
                   </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => setIsValidateDialogOpen(true)}
-                    disabled={isValidatingDemand || isValidatingDemand}
-                    startIcon={
-                      isValidatingDemand && (
-                        <CircularProgress color="primary" size={18} />
-                      )
-                    }
-                  >
-                    {formatMessage({ id: 'validate' })}
-                  </Button>
-                </Box>
-              )}
-              {schoolData.school.school_demand_status === 'VALIDATED' && (
-                <Button
-                  variant="contained"
-                  color="error"
-                  onClick={() => setIsConfirmSuspendDialogOpen(true)}
-                  sx={{ alignSelf: 'end' }}
-                >
-                  {formatMessage({ id: 'suspend' })}
-                </Button>
-              )}
+                )}
+              </Box>
+              <ReviewColumn
+                data={{
+                  ...schoolData['school'],
+                  ...schoolData['academicYear'],
+                }}
+                order={[
+                  'school_name',
+                  'school_acronym',
+                  'school_email',
+                  'school_phone_number',
+                  'starts_at',
+                  'ends_at',
+                  'lead_funnel',
+                  'ambassador_email',
+                ]}
+                title={formatMessage({ id: 'institutionData' })}
+              />
             </Box>
-            <ReviewColumn
-              data={{ ...schoolData['school'], ...schoolData['academicYear'] }}
-              order={[
-                'school_name',
-                'school_acronym',
-                'school_email',
-                'school_phone_number',
-                'starts_at',
-                'ends_at',
-                'lead_funnel',
-                'ambassador_email',
-              ]}
-              title={formatMessage({ id: 'institutionData' })}
-            />
           </Box>
         </Box>
-      </Box>
+      )}
     </>
   );
-};
+}
