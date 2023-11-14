@@ -423,7 +423,7 @@ export function Index() {
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        {phone_number.split('+')[1].replace(/(.{3})/g, ' $1')}
+                        {phone_number.split('+')[1]?.replace(/(.{3})/g, ' $1')}
                       </TableCell>
                       <TableCell>
                         {formatDate(last_connected, {
