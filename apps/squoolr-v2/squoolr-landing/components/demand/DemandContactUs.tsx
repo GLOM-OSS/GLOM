@@ -1,4 +1,5 @@
 import { PhoneTextField } from '@glom/components';
+import { useSubmitInquiry } from '@glom/data-access/squoolr';
 import { CreateInquiryPayload } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
 import { Box, Button, TextField, Typography } from '@mui/material';
@@ -21,7 +22,7 @@ export default function DemandContactUs() {
     phone: '',
     name: '',
     message: formatMessage({ id: 'demandMessage' }),
-    type: 'Demand',
+    type: 'EarlyAccess',
   };
 
   const validationSchema = Yup.object().shape({
@@ -32,18 +33,22 @@ export default function DemandContactUs() {
     phone: Yup.string().required(formatMessage({ id: 'requiredField' })),
     message: Yup.string().required(formatMessage({ id: 'requiredField' })),
   });
+  const { mutate: submitDemandInquiry } = useSubmitInquiry();
 
   const formik = useFormik({
     initialValues,
     validationSchema,
     enableReinitialize: true,
     onSubmit: (values, { resetForm }) => {
-      //TODO: INTEGRATE CONTACT US HERE
-      //TODO: CHECK ON THE NOTIF HERE, AND UPDATE OneUI own
-      alert(JSON.stringify(values));
-      setIsSubmitting(true);
-      setIsDemandSubmitted(true);
-      resetForm();
+      submitDemandInquiry(values, {
+        onSuccess() {
+          //TODO: CHECK ON THE NOTIF HERE, AND UPDATE OneUI own
+          alert(JSON.stringify(values));
+          setIsSubmitting(true);
+          setIsDemandSubmitted(true);
+          resetForm();
+        },
+      });
     },
   });
 

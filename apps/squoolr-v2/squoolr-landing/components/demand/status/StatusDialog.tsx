@@ -1,4 +1,4 @@
-import { getSchoolDemand } from '@glom/data-access/squoolr';
+import { getSchool } from '@glom/data-access/squoolr';
 import { SchoolEntity } from '@glom/data-types';
 import { useTheme } from '@glom/theme';
 import checkCircle from '@iconify/icons-fluent/checkmark-circle-48-regular';
@@ -27,7 +27,7 @@ export default function StatusDialog({
   };
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>();
-  const [schoolDemand, setSchoolDemand] = useState<SchoolEntity>();
+  const [school, setSchool] = useState<SchoolEntity>();
 
   const validationSchema = Yup.object().shape({
     demandCode: Yup.string().required(formatMessage({ id: 'requiredField' })),
@@ -38,9 +38,11 @@ export default function StatusDialog({
     validationSchema,
     onSubmit: async (values) => {
       setIsSubmitting(true);
-      const demand = await getSchoolDemand(values.demandCode);
-      setSchoolDemand(demand);
-      setIsSubmitting(false);
+      getSchool(values.demandCode)
+        .then((school) => setSchool(school))
+        //TODO toast error
+        .catch((error) => console.log(error))
+        .finally(() => setIsSubmitting(false));
     },
   });
 
@@ -109,8 +111,8 @@ export default function StatusDialog({
           />
         </Box>
 
-        {schoolDemand &&
-          schoolDemand.school_code === formik.values.demandCode && (
+        {school &&
+          school.school_code === formik.values.demandCode && (
             <Box
               sx={{
                 display: 'grid',
@@ -124,9 +126,9 @@ export default function StatusDialog({
                 icon={checkCircle}
                 style={{
                   color:
-                    schoolDemand.school_demand_status === 'VALIDATED'
+                    school.school_demand_status === 'VALIDATED'
                       ? theme.palette.success.main
-                      : schoolDemand.school_demand_status === 'PROCESSING'
+                      : school.school_demand_status === 'PROCESSING'
                       ? theme.palette.primary.main
                       : theme.palette.error.main,
                   height: '20px',
@@ -138,35 +140,35 @@ export default function StatusDialog({
                 className="p3--space"
                 sx={{
                   color: `${
-                    schoolDemand.school_demand_status === 'VALIDATED'
+                    school.school_demand_status === 'VALIDATED'
                       ? theme.palette.success.main
-                      : schoolDemand.school_demand_status === 'PROCESSING'
+                      : school.school_demand_status === 'PROCESSING'
                       ? theme.palette.primary.main
                       : theme.palette.error.main
                   } !important`,
                 }}
               >
-                {formatMessage({ id: schoolDemand.school_demand_status })}
+                {formatMessage({ id: school.school_demand_status })}
               </Typography>
             </Box>
           )}
 
-        {schoolDemand &&
-        schoolDemand.school_demand_status === formik.values.demandCode ? (
+        {school &&
+        school.school_demand_status === formik.values.demandCode ? (
           <Box>
             <Typography
               className="p3--space"
               sx={{ textAlign: 'center !important' }}
             >{`${formatMessage({
               id: 'submittedOn',
-            })} ${formatDate(schoolDemand.created_at, {
+            })} ${formatDate(school.created_at, {
               weekday: 'short',
               day: '2-digit',
               month: 'short',
               year: 'numeric',
             })}`}</Typography>
-            {schoolDemand.school_demand_status === 'PROCESSING' ||
-            schoolDemand.school_demand_status === 'PENDING' ? (
+            {school.school_demand_status === 'PROCESSING' ||
+            school.school_demand_status === 'PENDING' ? (
               <>
                 <Typography className="p3--space" sx={{ textAlign: 'center' }}>
                   {formatMessage({ id: 'weAreWorkingActively' })}
@@ -191,7 +193,7 @@ export default function StatusDialog({
                     className="p3--space"
                     component="a"
                     target="_blank"
-                    href={schoolDemand.subdomain}
+                    href={school.subdomain}
                     sx={{
                       color: `${theme.palette.primary.main} !important`,
                       '&:hover': {
@@ -199,7 +201,7 @@ export default function StatusDialog({
                       },
                     }}
                   >
-                    {schoolDemand.subdomain}
+                    {school.subdomain}
                   </Typography>
                 </Typography>
               </Box>

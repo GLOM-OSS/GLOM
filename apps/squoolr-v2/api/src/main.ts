@@ -24,7 +24,7 @@ async function bootstrap() {
   });
   app.enableVersioning({
     type: VersioningType.URI,
-    defaultVersion: '1'
+    defaultVersion: '1',
   });
 
   app.useStaticAssets(path.join(__dirname, './assets'));
@@ -54,7 +54,8 @@ async function bootstrap() {
   }
   const port = process.env.APP_PORT || 3333;
   await app.listen(port);
-  Logger.log(`🚀 Application is running on: http://localhost:${port}`);
+  const apiUrl = await app.getUrl();
+  Logger.log(`🚀 Application is running on: ${apiUrl}/v1`);
 }
 
 bootstrap();

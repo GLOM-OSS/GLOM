@@ -1,12 +1,15 @@
 import { SchemaResponseBody } from '../api-helper';
 import { operations } from './docs';
 
-export * from './ambassadors/index';
-export * from './demands/index';
-export * from './inquiries/index';
-export * from './departments/index';
-export * from './classrooms/index';
-export * from './majors/index';
+export * from './academic-years';
+export * from './ambassadors';
+export * from './auth';
+export * from './classrooms';
+export * from './schools';
+export * from './departments';
+export * from './inquiries';
+export * from './majors';
+export * from './staffs';
 
 /** ------------- GET SETTINGS ------------- */
 export type PlatformSettingsEntity = SchemaResponseBody<

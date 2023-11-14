@@ -1,20 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-
-export enum Role {
-  ADMIN = 'ADMIN',
-  PARENT = 'PARENT',
-  STUDENT = 'STUDENT',
-  TEACHER = 'TEACHER',
-  REGISTRY = 'REGISTRY',
-  COORDINATOR = 'COORDINATOR',
-  CONFIGURATOR = 'CONFIGURATOR',
-}
-
-export enum MetadataEnum {
-  ROLES = 'roles',
-  IS_PUBLIC = 'isPublic',
-  IS_PRIVATE = 'isPrivate',
-}
+import { MetadataEnum, Role } from '../../utils/enums';
 
 export const IsPublic = () => SetMetadata(MetadataEnum.IS_PUBLIC, true);
 

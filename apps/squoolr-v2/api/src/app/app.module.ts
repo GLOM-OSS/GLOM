@@ -6,12 +6,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import {
-  APP_FILTER,
-  APP_GUARD,
-  APP_INTERCEPTOR,
-  APP_PIPE
-} from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
@@ -28,7 +23,7 @@ import { CacheInterceptor } from '@nestjs/cache-manager';
 import { AcademicYearsModule } from '../modules/academic-years/academic-years.module';
 import { AmbassadorsModule } from '../modules/ambassadors/ambassadors.module';
 import { ClassroomsModule } from '../modules/classrooms/classrooms.module';
-import { DemandModule } from '../modules/demand/demand.module';
+import { SchoolsModule } from '../modules/schools/schools.module';
 import { DepartmentsModule } from '../modules/departments/departments.module';
 import { MajorsModule } from '../modules/majors/majors.module';
 import { seedData } from './app-seeder.factory';
@@ -38,6 +33,7 @@ import { AppMiddleware } from './app.middleware';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
+import { StaffModule } from '../modules/staff/staff.module';
 
 @Module({
   imports: [
@@ -59,13 +55,14 @@ import { InquiriesModule } from './inquiries/inquiries.module';
       // seedData,
     }),
     AuthModule,
-    DemandModule,
+    SchoolsModule,
     AcademicYearsModule,
     InquiriesModule,
     AmbassadorsModule,
     DepartmentsModule,
     MajorsModule,
-    ClassroomsModule
+    ClassroomsModule,
+    StaffModule,
   ],
   controllers: [AppController],
   providers: [

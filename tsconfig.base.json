@@ -32,6 +32,8 @@
       "@glom/prisma": ["libs/nest/prisma/src/index.ts"],
       "@glom/redis": ["libs/nest/redis/src/index.ts"],
       "@glom/request": ["libs/request/src/index.ts"],
+      "@glom/squoolr-v2/auth-ui": ["libs/squoolr-v2/auth-ui/src/index.ts"],
+      "@glom/squoolr-v2/side-nav": ["libs/squoolr-v2/side-nav/src/index.ts"],
       "@glom/theme": ["libs/theme/src/index.ts"],
       "@glom/utils": ["libs/utils/src/index.ts"],
       "@squoolr/api-services": ["libs/api-services/src/index.ts"],

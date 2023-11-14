@@ -12,7 +12,8 @@ import {
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { Role, Roles } from '../../app/auth/auth.decorator';
+import { Roles } from '../../app/auth/auth.decorator';
+import { Role } from '../../utils/enums';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 import { QueryParamsDto } from '../modules.dto';
 import {

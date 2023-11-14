@@ -25,7 +25,8 @@ import {
   UpdateMajorDto,
 } from './major.dto';
 import { MajorsService } from './majors.service';
-import { Role, Roles } from '../../app/auth/auth.decorator';
+import { Roles } from '../../app/auth/auth.decorator';
+import { Role } from '../../utils/enums';
 
 @ApiTags('Majors')
 @Controller('majors')
