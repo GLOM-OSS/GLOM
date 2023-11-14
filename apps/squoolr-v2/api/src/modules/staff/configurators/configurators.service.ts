@@ -6,7 +6,7 @@ import {
   IStaffService,
   StaffCreateFromInput,
   StaffSelectParams,
-  UpdateStaffInput
+  UpdateStaffInput,
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffEntity } from '../staff.dto';
@@ -154,7 +154,8 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
   async update(
     annual_configurator_id: string,
     payload: UpdateStaffInput,
-    audited_by: string
+    audited_by: string,
+    isAdmin = false
   ) {
     const {
       is_deleted,
@@ -168,9 +169,11 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
       data: {
         is_deleted: isDeleted,
         deleted_at: isDeleted ? new Date() : null,
-        DeletedBy: isDeleted
+        [isAdmin ? 'DisabledBy' : 'DeletedBy']: isDeleted
           ? {
-              connect: { annual_configurator_id: audited_by },
+              connect: {
+                [isAdmin ? 'login_id' : 'annual_configurator_id']: audited_by,
+              },
             }
           : { disconnect: true },
         Login:

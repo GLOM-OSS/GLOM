@@ -1,7 +1,8 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { excludeKeys, generatePassword } from '@glom/utils';
-import { BadGatewayException, Injectable } from '@nestjs/common';
+import { BadGatewayException, Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import { StaffRole } from '../../utils/enums';
 import { MetaParams } from '../module';
@@ -12,12 +13,12 @@ import { RegistriesService } from './registries/registries.service';
 import { IStaffService, StaffSelectParams } from './staff';
 import {
   CreateCoordinatorDto,
-  CreateStaffDto,
+  CreateStaffPayloadDto,
   ManageStaffDto,
   StaffEntity,
   StaffRoleDto,
   TeacherEntity,
-  UpdateStaffDto,
+  UpdateStaffPayloadDto,
   UpdateStaffRoleDto,
 } from './staff.dto';
 import { TeachersService } from './teachers/teachers.service';
@@ -69,7 +70,7 @@ export class StaffService {
   }
 
   async create(
-    payload: CreateStaffDto['payload'],
+    payload: CreateStaffPayloadDto,
     metadata: MetaParams,
     created_by: string
   ) {
@@ -105,29 +106,37 @@ export class StaffService {
 
   async update(
     annual_staff_id: string,
-    payload: UpdateStaffDto['payload'],
-    audited_by: string
+    payload: UpdateStaffPayloadDto,
+    audited_by: string,
+    isAdmin = false
   ) {
     return this.staffServices[payload.role].update(
       annual_staff_id,
       payload,
-      audited_by
+      audited_by,
+      isAdmin
     );
   }
 
   async disable(
     annual_staff_id: string,
     payload: StaffRoleDto,
-    disabled_by: string
+    disabled_by: string,
+    isAdmin = false
   ) {
     return this.staffServices[payload.role].update(
       annual_staff_id,
       { delete: true },
-      disabled_by
+      disabled_by,
+      isAdmin
     );
   }
 
-  async disableMany(payload: ManageStaffDto, disabled_by: string) {
+  async disableMany(
+    payload: ManageStaffDto,
+    disabled_by: string,
+    isAdmin = false
+  ) {
     const staffIDToRole: Record<string, StaffRole> = {
       configuratorIds: StaffRole.CONFIGURATOR,
       registryIds: StaffRole.REGISTRY,
@@ -138,7 +147,12 @@ export class StaffService {
         (methods, key) => [
           ...methods,
           ...payload[key as keyof ManageStaffDto].map((staffId) =>
-            this.disable(staffId, { role: staffIDToRole[key] }, disabled_by)
+            this.disable(
+              staffId,
+              { role: staffIDToRole[key] },
+              disabled_by,
+              isAdmin
+            )
           ),
         ],
         []
@@ -186,24 +200,31 @@ export class StaffService {
           })
         : getEmptyArray(),
     ]);
-    const { count } = await this.prismaService.resetPassword.createMany({
+    const resetPassworIds: string[] = [];
+    const result = await this.prismaService.resetPassword.createMany({
       data: [
         ...[
           ...registries,
           ...configurators,
           ...teachers.map((_) => _.Teacher),
-        ].map(({ login_id }) => ({
-          expires_at: new Date(Date.now() + 6 * 3600 * 1000),
-          login_id,
-          [isAdmin ? 'generated_by_admin' : 'generated_by_confiigurator']:
-            disabledBy,
-        })),
+        ].map(({ login_id }) => {
+          const reset_password_id = randomUUID();
+          resetPassworIds.push(reset_password_id);
+          return {
+            reset_password_id,
+            expires_at: new Date(Date.now() + 6 * 3600 * 1000),
+            login_id,
+            [isAdmin ? 'generated_by_admin' : 'generated_by_confiigurator']:
+              disabledBy,
+          };
+        }),
       ],
       skipDuplicates: true,
     });
+    Logger.verbose(resetPassworIds, StaffService.name);
     return new BatchPayloadDto({
-      count,
-      message: `Added ${count} records in database`,
+      count: result.count,
+      message: `Added ${result.count} records in database`,
     });
   }
 
