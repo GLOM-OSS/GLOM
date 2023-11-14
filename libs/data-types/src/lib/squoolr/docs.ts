@@ -370,6 +370,9 @@ export interface components {
       major_id: string;
       department_acronym: string;
       cycle_name: string;
+      /** Format: date-time */
+      created_at: string;
+      is_deleted: boolean;
     };
     UpdateMajorDto: {
       major_name?: string;

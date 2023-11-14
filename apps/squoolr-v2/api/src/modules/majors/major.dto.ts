@@ -6,6 +6,7 @@ import {
 } from '@nestjs/swagger';
 import { IsBoolean, IsOptional, IsString, IsUUID } from 'class-validator';
 import { QueryParamsDto } from '../modules.dto';
+import { Exclude } from 'class-transformer';
 
 export class CreateMajorDto {
   @IsString()
@@ -53,6 +54,12 @@ export class AnnualMajorEntity extends CreateMajorDto {
 
   @ApiProperty()
   cycle_name: string;
+
+  @ApiProperty()
+  created_at: Date;
+
+  @ApiProperty()
+  is_deleted: boolean;
 
   constructor(props: AnnualMajorEntity) {
     super(props);

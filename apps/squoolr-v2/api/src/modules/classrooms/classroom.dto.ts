@@ -68,11 +68,9 @@ export class AnnualClassroomEntity implements AnnualClassroom {
   @ApiProperty({ nullable: true })
   annual_coordinator_id: string | null;
 
-  @Exclude()
   @ApiProperty()
   classroom_id: string;
 
-  @Exclude()
   @ApiProperty()
   created_at: Date;
 
