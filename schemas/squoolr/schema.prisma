@@ -627,13 +627,6 @@ model DepartmentAudit {
     AnnualConfigurator   AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-enum CycleType {
-    SHORT
-    LONG
-
-    @@map("cycle_type_enum")
-}
-
 enum CycleName {
     BTS
     DUT
@@ -648,7 +641,6 @@ enum CycleName {
 model Cycle {
     cycle_id        String    @id @default(uuid()) @db.VarChar(36)
     cycle_name      CycleName
-    cycle_type      CycleType
     number_of_years Int
     created_at      DateTime  @default(now()) @db.DateTime(0)
 
