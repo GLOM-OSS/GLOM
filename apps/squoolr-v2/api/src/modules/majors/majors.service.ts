@@ -16,6 +16,8 @@ export const annualMajorSelect = Prisma.validator<Prisma.AnnualMajorSelect>()({
   major_code: true,
   major_acronym: true,
   major_id: true,
+  created_at: true,
+  is_deleted: true,
   Major: {
     select: { Cycle: { select: { cycle_id: true, cycle_name: true } } },
   },
