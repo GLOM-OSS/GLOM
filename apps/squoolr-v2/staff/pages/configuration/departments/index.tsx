@@ -31,6 +31,7 @@ import {
 import FilterMenu from 'apps/squoolr-v2/staff/components/configuration/departments/FilterMenu';
 import ManageDepartmentMenu from 'apps/squoolr-v2/staff/components/configuration/departments/ManageDepartmentMenu';
 import NewDepartmentDialog from 'apps/squoolr-v2/staff/components/configuration/departments/NewDepartmentDialog';
+import TableSkeleton from 'libs/components/src/table/TableSkeleton';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 
@@ -46,19 +47,31 @@ export function Index() {
     '',
   ];
 
+  //TODO: REPLACE WITH with reactQuery own
+  const [isDepartmentDataFetching, setIsDepartmentDataFetching] =
+    useState<boolean>(true);
+
   //TODO: FETCH LIST OF departments HERE
-  const departmentData: DepartmentEntity[] = [
-    {
-      created_at: new Date().toISOString(),
-      created_by: '',
-      department_acronym: 'DS',
-      department_code: 'EF1203',
-      department_id: 'EF1203',
-      department_name: 'Department des Sciences',
-      is_deleted: false,
-      school_id: 'slei',
-    },
-  ];
+  const [departmentData, setDepartmentData] = useState<DepartmentEntity[]>();
+
+  //TODO: REMOVE THIS WHEN INTEGRATION IS DONE
+  useEffect(() => {
+    setTimeout(() => {
+      setDepartmentData([
+        {
+          created_at: new Date().toISOString(),
+          created_by: '',
+          department_acronym: 'DS',
+          department_code: 'EF1203',
+          department_id: 'EF1203',
+          department_name: 'Department des Sciences',
+          is_deleted: false,
+          school_id: 'slei',
+        },
+      ]);
+      setIsDepartmentDataFetching(false);
+    }, 3000);
+  }, []);
 
   const [canSearchExpand, setCanSearchExpand] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>('');
@@ -325,7 +338,11 @@ export function Index() {
                     {index === 0 ? (
                       <Checkbox
                         disabled={
-                          isArchiving || isUnarchiving || isEditingDeparment
+                          !departmentData ||
+                          isDepartmentDataFetching ||
+                          isArchiving ||
+                          isUnarchiving ||
+                          isEditingDeparment
                         }
                         onClick={() =>
                           isArchiving || isUnarchiving || isEditingDeparment
@@ -333,6 +350,7 @@ export function Index() {
                             : selectAllDepartments()
                         }
                         checked={
+                          departmentData &&
                           selectedDepartmentIds.length === departmentData.length
                         }
                         icon={
@@ -370,7 +388,11 @@ export function Index() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {departmentData.length === 0 ? (
+              {!departmentData || isDepartmentDataFetching ? (
+                [...new Array(4)].map((_, index) => (
+                  <TableSkeleton key={index} hasCheckbox hasMore />
+                ))
+              ) : departmentData.length === 0 ? (
                 <NoTableElement />
               ) : (
                 departmentData.map(
@@ -388,7 +410,6 @@ export function Index() {
                       key={index}
                       sx={{
                         '&:last-child td, &:last-child th': { border: 0 },
-                        cursor: 'pointer',
                         '& td': {
                           padding: '7px',
                         },
@@ -493,27 +514,29 @@ export function Index() {
           </Table>
         </TableContainer>
 
-        <Tooltip
-          arrow
-          title={formatMessage({ id: 'addNewDepartment' })}
-          placement="left"
-        >
-          <IconButton
-            onClick={() => setIsNewDepartmentDialogOpen(true)}
-            color="primary"
-            sx={{
-              position: 'absolute',
-              bottom: 0,
-              right: 0,
-              backgroundColor: theme.palette.primary.light,
-              '&:hover': {
-                backgroundColor: theme.palette.primary.dark,
-              },
-            }}
+        {!!departmentData && !isDepartmentDataFetching && (
+          <Tooltip
+            arrow
+            title={formatMessage({ id: 'addNewDepartment' })}
+            placement="left"
           >
-            <Icon icon={add} color="white" />
-          </IconButton>
-        </Tooltip>
+            <IconButton
+              onClick={() => setIsNewDepartmentDialogOpen(true)}
+              color="primary"
+              sx={{
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                backgroundColor: theme.palette.primary.light,
+                '&:hover': {
+                  backgroundColor: theme.palette.primary.dark,
+                },
+              }}
+            >
+              <Icon icon={add} color="white" />
+            </IconButton>
+          </Tooltip>
+        )}
       </Box>
     </>
   );
