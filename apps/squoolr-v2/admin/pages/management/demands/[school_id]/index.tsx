@@ -233,7 +233,7 @@ export default function index() {
                     sx={{
                       display: 'grid',
                       gridAutoFlow: 'column',
-                      columnGap: 2,
+                      columnGap: 5,
                       alignSelf: 'end',
                     }}
                   >
