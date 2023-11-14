@@ -34,6 +34,7 @@ import {
 import ManageConfiguratorMenu from '../../../component/management/configurators/ManageConfiguratorMenu';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
+import TableSkeleton from 'libs/components/src/table/TableSkeleton';
 
 export function Index() {
   const theme = useTheme();
@@ -42,8 +43,11 @@ export function Index() {
   const tableHeaders = ['', 'name', 'email', 'phone', 'lastConnected', ''];
 
   const [searchValue, setSearchValue] = useState<string>('');
-  const { data: configuratorsData, refetch: refetchStaffMembers } =
-    useStaffMembers({ roles: ['CONFIGURATOR'], keywords: searchValue });
+  const {
+    data: configuratorsData,
+    refetch: refetchStaffMembers,
+    isFetching: isFetchingConfigurators,
+  } = useStaffMembers({ roles: ['CONFIGURATOR'], keywords: searchValue });
 
   const [canSearchExpand, setCanSearchExpand] = useState<boolean>(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -354,7 +358,9 @@ export function Index() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {configuratorsData.length === 0 ? (
+              {isFetchingConfigurators ? (
+                <TableSkeleton cols={6} hasCheckbox hasMore />
+              ) : configuratorsData.length === 0 ? (
                 <NoTableElement />
               ) : (
                 configuratorsData.map(
