@@ -350,7 +350,7 @@ export function Index() {
                             : selectAllDepartments()
                         }
                         checked={
-                          departmentData &&
+                          !!departmentData &&
                           selectedDepartmentIds.length === departmentData.length
                         }
                         icon={
