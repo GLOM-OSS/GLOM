@@ -275,6 +275,7 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
             '&.MuiDialogTitle-root': {
               ...theme.typography.h1,
               paddingBottom: '24px',
+              textAlign: 'center',
             },
           }),
         },
