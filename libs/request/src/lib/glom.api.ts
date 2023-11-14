@@ -2,7 +2,7 @@ import {
   AcademicYearApi,
   AmbassadorsApi,
   AuthApi,
-  DemandsApi,
+  SchoolsApi,
   InquiriesApi,
   PlatformSettingsApi,
   StaffApi,
@@ -28,7 +28,7 @@ export class GlomApi {
   public squoolr: {
     auth: AuthApi;
     staffs: StaffApi;
-    demands: DemandsApi;
+    schools: SchoolsApi;
     inquiries: InquiriesApi;
     ambassadors: AmbassadorsApi;
     academicYears: AcademicYearApi;
@@ -37,7 +37,6 @@ export class GlomApi {
 
   constructor(public params?: Partial<RequestParams>) {
     const { host } = getURI('squoolr');
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const squoolrRequest = new GlomRequest({
       ...params,
       prefix: '',
@@ -47,7 +46,7 @@ export class GlomApi {
     this.squoolr = {
       auth: new AuthApi(squoolrRequest),
       staffs: new StaffApi(squoolrRequest),
-      demands: new DemandsApi(squoolrRequest),
+      schools: new SchoolsApi(squoolrRequest),
       inquiries: new InquiriesApi(squoolrRequest),
       ambassadors: new AmbassadorsApi(squoolrRequest),
       academicYears: new AcademicYearApi(squoolrRequest),
