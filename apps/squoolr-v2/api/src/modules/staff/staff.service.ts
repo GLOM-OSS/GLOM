@@ -54,8 +54,8 @@ export class StaffService {
     return staff.reduce(
       (reducedStaff, staff) => [
         ...reducedStaff,
-        ...staff.filter((_) =>
-          reducedStaff.find((__) => _.login_id !== __.login_id)
+        ...staff.filter(
+          (_) => !reducedStaff.find((__) => _.login_id === __.login_id)
         ),
       ],
       []
@@ -155,41 +155,36 @@ export class StaffService {
     disabledBy: string,
     isAdmin?: boolean
   ) {
+    const getEmptyArray = () => [];
     const [teachers, configurators, registries] = await Promise.all([
-      ...(teacherIds?.length > 0
-        ? [
-            this.prismaService.annualTeacher.findMany({
-              select: { Teacher: { select: { login_id: true } } },
-              where: {
-                OR: teacherIds.map((annual_teacher_id) => ({
-                  annual_teacher_id,
-                })),
-              },
-            }),
-          ]
-        : []),
-      ...(configuratorIds?.length > 0
-        ? [
-            this.prismaService.annualConfigurator.findMany({
-              where: {
-                OR: configuratorIds.map((annual_configurator_id) => ({
-                  annual_configurator_id,
-                })),
-              },
-            }),
-          ]
-        : []),
-      ...(registryIds?.length > 0
-        ? [
-            this.prismaService.annualRegistry.findMany({
-              where: {
-                OR: registryIds.map((annual_registry_id) => ({
-                  annual_registry_id,
-                })),
-              },
-            }),
-          ]
-        : []),
+      teacherIds?.length > 0
+        ? this.prismaService.annualTeacher.findMany({
+            select: { Teacher: { select: { login_id: true } } },
+            where: {
+              OR: teacherIds.map((annual_teacher_id) => ({
+                annual_teacher_id,
+              })),
+            },
+          })
+        : getEmptyArray(),
+      configuratorIds?.length > 0
+        ? this.prismaService.annualConfigurator.findMany({
+            where: {
+              OR: configuratorIds.map((annual_configurator_id) => ({
+                annual_configurator_id,
+              })),
+            },
+          })
+        : getEmptyArray(),
+      registryIds?.length > 0
+        ? this.prismaService.annualRegistry.findMany({
+            where: {
+              OR: registryIds.map((annual_registry_id) => ({
+                annual_registry_id,
+              })),
+            },
+          })
+        : getEmptyArray(),
     ]);
     const { count } = await this.prismaService.resetPassword.createMany({
       data: [

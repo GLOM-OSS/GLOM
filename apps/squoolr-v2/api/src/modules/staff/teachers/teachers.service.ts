@@ -72,7 +72,7 @@ export class TeachersService
           },
         },
       },
-      where: StaffArgsFactory.getStaffWhereInput(staffParams),
+      where: { Teacher: StaffArgsFactory.getStaffWhereInput(staffParams) },
     });
     return teachers.map(
       ({
