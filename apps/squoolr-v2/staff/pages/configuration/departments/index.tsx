@@ -2,6 +2,7 @@ import {
   ConfirmDialog,
   NoTableElement,
   TableHeaderItem,
+  TableSkeleton,
 } from '@glom/components';
 import { DepartmentEntity } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
@@ -28,12 +29,11 @@ import {
   TextField,
   Tooltip,
 } from '@mui/material';
-import FilterMenu from 'apps/squoolr-v2/staff/components/configuration/departments/FilterMenu';
-import ManageDepartmentMenu from 'apps/squoolr-v2/staff/components/configuration/departments/ManageDepartmentMenu';
-import NewDepartmentDialog from 'apps/squoolr-v2/staff/components/configuration/departments/NewDepartmentDialog';
-import TableSkeleton from 'libs/components/src/table/TableSkeleton';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
+import FilterMenu from '../../../components/configuration/departments/FilterMenu';
+import ManageDepartmentMenu from '../../../components/configuration/departments/ManageDepartmentMenu';
+import NewDepartmentDialog from '../../../components/configuration/departments/NewDepartmentDialog';
 
 export function Index() {
   const theme = useTheme();
@@ -389,9 +389,7 @@ export function Index() {
             </TableHead>
             <TableBody>
               {!departmentData || isDepartmentDataFetching ? (
-                [...new Array(4)].map((_, index) => (
-                  <TableSkeleton key={index} hasCheckbox hasMore />
-                ))
+                <TableSkeleton hasCheckbox hasMore />
               ) : departmentData.length === 0 ? (
                 <NoTableElement />
               ) : (
