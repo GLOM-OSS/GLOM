@@ -2,8 +2,10 @@ import {
   ConfirmDialog,
   NoTableElement,
   TableHeaderItem,
+  TableSkeleton,
 } from '@glom/components';
-import { DepartmentEntity, MajorEntity } from '@glom/data-types/squoolr';
+import { MajorEntity } from '@glom/data-types/squoolr';
+import { useDispatchBreadcrumb } from '@glom/squoolr-v2/side-nav';
 import { useTheme } from '@glom/theme';
 import add from '@iconify/icons-fluent/add-48-regular';
 import reset from '@iconify/icons-fluent/arrow-counterclockwise-48-regular';
@@ -28,15 +30,12 @@ import {
   TextField,
   Tooltip,
 } from '@mui/material';
-import FilterMenu from 'apps/squoolr-v2/staff/components/configuration/departments/FilterMenu';
-import ManageDepartmentMenu from 'apps/squoolr-v2/staff/components/configuration/departments/ManageDepartmentMenu';
-import NewDepartmentDialog from 'apps/squoolr-v2/staff/components/configuration/departments/NewDepartmentDialog';
-import { TableSkeleton } from '@glom/components';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
-import ManageMajorMenu from 'apps/squoolr-v2/staff/components/configuration/majors/ManageMajorMenu';
-import { useDispatchBreadcrumb } from '@glom/squoolr-v2/side-nav';
-import { useRouter } from 'next/router';
+import FilterMenu from '../../../components/configuration/departments/FilterMenu';
+import EditMajorDialog from '../../../components/configuration/majors/EditMajorDialog';
+import ManageMajorMenu from '../../../components/configuration/majors/ManageMajorMenu';
 
 export function Index() {
   const theme = useTheme();
@@ -159,17 +158,22 @@ export function Index() {
     }
   }
 
-  const [isNewDepartmentDialogOpen, isNewMajorDialogOpen] =
+  const [isNewMajorDialogOpen, setIsNewMajorDialogOpen] =
+    useState<boolean>(false);
+  const [isEditMajorDialogOpen, setIsEditMajorDialogOpen] =
     useState<boolean>(false);
 
   const [editableMajor, setEditableMajor] = useState<MajorEntity>();
 
   return (
     <>
-      {/* <NewDepartmentDialog
-          isDialogOpen={isNewDepartmentDialogOpen}
-          closeDialog={() => setIsNewDepartmentDialogOpen(false)}
-        /> */}
+      {editableMajor && (
+        <EditMajorDialog
+          isDialogOpen={isEditMajorDialogOpen}
+          closeDialog={() => setIsEditMajorDialogOpen(false)}
+          editableMajor={editableMajor}
+        />
+      )}
       <FilterMenu
         closeMenu={() => {
           setFilterAnchorEl(null);
@@ -182,16 +186,15 @@ export function Index() {
 
       <ManageMajorMenu
         anchorEl={anchorEl}
-        closeMenu={() => {
-          setActiveMajorId(undefined);
-          setEditableMajor(undefined);
-          setAnchorEl(null);
-        }}
+        closeMenu={() => setAnchorEl(null)}
         isOpen={!!anchorEl}
         isArchived={isActiveDepartmentArchived}
         confirmArchive={() => setIsConfirmArchiveDialogOpen(true)}
         confirmUnarchive={() => setIsConfirmUnarchiveDialogOpen(true)}
-        editMajor={() => alert('editMajor')}
+        editMajor={() => {
+          setActiveMajorId(undefined);
+          setIsEditMajorDialogOpen(true);
+        }}
         openClassrooms={() => {
           breadcrumbDispatch({
             action: 'ADD',
@@ -567,7 +570,7 @@ export function Index() {
             placement="left"
           >
             <IconButton
-              onClick={() => isNewMajorDialogOpen(true)}
+              onClick={() => setIsNewMajorDialogOpen(true)}
               color="primary"
               sx={{
                 position: 'absolute',
