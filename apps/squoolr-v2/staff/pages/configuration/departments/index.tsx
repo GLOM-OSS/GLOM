@@ -118,9 +118,6 @@ export function Index() {
     useState<boolean>(false);
 
   //TODO: REMOVE THIS AND USE reactQuery own
-  const [isEditingDeparment, setIsEditingDepartment] = useState<boolean>(false);
-
-  //TODO: REMOVE THIS AND USE reactQuery own
   const [isArchiving, setIsArchiving] = useState<boolean>(false);
   //TODO: REMOVE THIS AND USE reactQuery own
   const [isUnarchiving, setIsUnarchiving] = useState<boolean>(false);
@@ -312,7 +309,7 @@ export function Index() {
                 <Button
                   variant="outlined"
                   color="warning"
-                  disabled={isArchiving || isUnarchiving || isEditingDeparment}
+                  disabled={isArchiving || isUnarchiving}
                   onClick={() => setIsConfirmUnarchiveDialogOpen(true)}
                 >
                   {formatMessage({ id: 'unarchiveSelected' })}
@@ -322,7 +319,7 @@ export function Index() {
                 <Button
                   variant="outlined"
                   color="warning"
-                  disabled={isArchiving || isUnarchiving || isEditingDeparment}
+                  disabled={isArchiving || isUnarchiving}
                   onClick={() => setIsConfirmArchiveDialogOpen(true)}
                 >
                   {formatMessage({ id: 'archiveSelected' })}
@@ -361,11 +358,10 @@ export function Index() {
                           !departmentData ||
                           isDepartmentDataFetching ||
                           isArchiving ||
-                          isUnarchiving ||
-                          isEditingDeparment
+                          isUnarchiving
                         }
                         onClick={() =>
-                          isArchiving || isUnarchiving || isEditingDeparment
+                          isArchiving || isUnarchiving
                             ? null
                             : selectAllDepartments()
                         }
@@ -500,18 +496,9 @@ export function Index() {
                           <Tooltip arrow title={formatMessage({ id: 'more' })}>
                             <IconButton
                               size="small"
-                              disabled={
-                                isArchiving ||
-                                isUnarchiving ||
-                                isEditingDeparment
-                              }
+                              disabled={isArchiving || isUnarchiving}
                               onClick={(event) => {
-                                if (
-                                  isArchiving ||
-                                  isUnarchiving ||
-                                  isEditingDeparment
-                                )
-                                  return null;
+                                if (isArchiving || isUnarchiving) return null;
                                 setAnchorEl(event.currentTarget);
                                 setActiveDepartmentId(department_id);
                                 setEditableDepartment(department);
