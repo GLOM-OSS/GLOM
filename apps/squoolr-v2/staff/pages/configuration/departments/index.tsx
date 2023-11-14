@@ -151,12 +151,22 @@ export function Index() {
 
   const [isNewDepartmentDialogOpen, setIsNewDepartmentDialogOpen] =
     useState<boolean>(false);
+  const [isEditDepartmentDialogOpen, setIsEditDepartmentDialogOpen] =
+    useState<boolean>(false);
+
+  const [editableDepartment, setEditableDepartment] =
+    useState<DepartmentEntity>();
 
   return (
     <>
       <NewDepartmentDialog
-        isDialogOpen={isNewDepartmentDialogOpen}
-        closeDialog={() => setIsNewDepartmentDialogOpen(false)}
+        isDialogOpen={isEditDepartmentDialogOpen || isNewDepartmentDialogOpen}
+        closeDialog={() => {
+          setEditableDepartment(undefined);
+          setIsNewDepartmentDialogOpen(false);
+          setIsEditDepartmentDialogOpen(false);
+        }}
+        editableDepartment={editableDepartment}
       />
       <FilterMenu
         closeMenu={() => {
@@ -173,8 +183,18 @@ export function Index() {
         closeMenu={() => setAnchorEl(null)}
         isOpen={!!anchorEl}
         isArchived={isActiveDepartmentArchived}
-        confirmArchive={() => setIsConfirmArchiveDialogOpen(true)}
-        confirmUnarchive={() => setIsConfirmUnarchiveDialogOpen(true)}
+        confirmArchive={() => {
+          setEditableDepartment(undefined);
+          setIsConfirmArchiveDialogOpen(true);
+        }}
+        confirmUnarchive={() => {
+          setEditableDepartment(undefined);
+          setIsConfirmUnarchiveDialogOpen(true);
+        }}
+        editDepartment={() => {
+          setActiveDepartmentId(undefined);
+          setIsEditDepartmentDialogOpen(true);
+        }}
       />
       <ConfirmDialog
         closeDialog={() => {
@@ -393,17 +413,15 @@ export function Index() {
               ) : departmentData.length === 0 ? (
                 <NoTableElement />
               ) : (
-                departmentData.map(
-                  (
-                    {
-                      created_at,
-                      department_acronym,
-                      department_name,
-                      department_id,
-                      is_deleted,
-                    },
-                    index
-                  ) => (
+                departmentData.map((department, index) => {
+                  const {
+                    created_at,
+                    department_acronym,
+                    department_name,
+                    department_id,
+                    is_deleted,
+                  } = department;
+                  return (
                     <TableRow
                       key={index}
                       sx={{
@@ -496,6 +514,7 @@ export function Index() {
                                   return null;
                                 setAnchorEl(event.currentTarget);
                                 setActiveDepartmentId(department_id);
+                                setEditableDepartment(department);
                                 setIsActiveDepartmentArchived(is_deleted);
                               }}
                             >
@@ -505,8 +524,8 @@ export function Index() {
                         )}
                       </TableCell>
                     </TableRow>
-                  )
-                )
+                  );
+                })
               )}
             </TableBody>
           </Table>
