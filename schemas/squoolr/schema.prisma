@@ -628,12 +628,12 @@ model DepartmentAudit {
 }
 
 enum CycleName {
-    BTS
+    HND
     DUT
     DTS
     BACHELOR
     MASTER
-    DOCTORAT
+    DOCTORATE
 
     @@map("cycle_name_enum")
 }

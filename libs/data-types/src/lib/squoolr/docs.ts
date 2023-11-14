@@ -361,15 +361,22 @@ export interface components {
       department_id: string;
       cycle_id: string;
     };
+    CycleEntity: {
+      cycle_id: string;
+      /** @enum {string} */
+      cycle_name: "HND" | "DUT" | "DTS" | "BACHELOR" | "MASTER" | "DOCTORATE";
+      number_of_years: number;
+      /** Format: date-time */
+      created_at: string;
+    };
     AnnualMajorEntity: {
       major_name: string;
       major_acronym: string;
       department_id: string;
-      cycle_id: string;
       annual_major_id: string;
       major_id: string;
       department_acronym: string;
-      cycle_name: string;
+      cycle: components["schemas"]["CycleEntity"];
       /** Format: date-time */
       created_at: string;
       is_deleted: boolean;
