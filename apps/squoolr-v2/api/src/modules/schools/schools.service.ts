@@ -14,12 +14,12 @@ import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import {
-  DemandDetails,
+  SchoolDemandDetails,
   SchoolEntity,
-  SubmitDemandDto,
-  UpdateSchoolStatus,
-  ValidateDemandDto,
-} from './demand.dto';
+  SubmitSchoolDemandDto,
+  UpdateSchoolDemandStatus,
+  ValidateSchoolDemandDto,
+} from './schools.dto';
 import { AxiosError } from 'axios';
 
 const schoolSelectAttr = Prisma.validator<Prisma.SchoolArgs>()({
@@ -71,7 +71,7 @@ const getSchoolEntity = (
 };
 
 @Injectable()
-export class DemandService {
+export class SchoolsService {
   constructor(
     private prismaService: GlomPrismaService,
     private notchPayService: NotchPayService,
@@ -105,7 +105,7 @@ export class DemandService {
       AcademicYears: [academicYear],
       ...school
     } = schoolData;
-    return new DemandDetails({
+    return new SchoolDemandDetails({
       person,
       academicYear: {
         ends_at: academicYear?.ended_at,
@@ -143,7 +143,7 @@ export class DemandService {
       initial_year_starts_at: starts_at,
     },
     configurator: { password, phone_number, ...person },
-  }: SubmitDemandDto) {
+  }: SubmitSchoolDemandDto) {
     const academic_year_id = randomUUID();
     const annual_configurator_id = randomUUID();
     const year_code = await this.codeGenerator.getYearCode(
@@ -220,7 +220,7 @@ export class DemandService {
     };
   }
 
-  async create(demandpayload: SubmitDemandDto) {
+  async create(demandpayload: SubmitSchoolDemandDto) {
     const {
       payment_phone,
       school: {
@@ -295,7 +295,7 @@ export class DemandService {
 
   async validateDemand(
     school_id: string,
-    { rejection_reason, subdomain }: ValidateDemandDto,
+    { rejection_reason, subdomain }: ValidateSchoolDemandDto,
     audited_by: string
   ) {
     const schoolDemand = await this.prismaService.schoolDemand.findFirst({
@@ -336,7 +336,7 @@ export class DemandService {
 
   async updateStatus(
     school_id: string,
-    payload: UpdateSchoolStatus,
+    payload: UpdateSchoolDemandStatus,
     audited_by: string
   ) {
     const schoolDemand = await this.prismaService.schoolDemand.findFirst({
@@ -347,7 +347,7 @@ export class DemandService {
     const { demand_status, ambassador_id, rejection_reason } = schoolDemand;
     await this.prismaService.schoolDemand.update({
       data: {
-        demand_status: payload.school_status,
+        demand_status: payload.school_demand_status,
         SchoolDemandAudits: {
           create: {
             audited_by,

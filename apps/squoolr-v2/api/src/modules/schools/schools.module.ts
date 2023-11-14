@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
-import { DemandController } from './demand.controller';
-import { DemandService } from './demand.service';
+import { SchoolsController } from './schools.controller';
+import { SchoolsService } from './schools.service';
 import { GlomPaymentModule } from '@glom/payment';
 
 @Module({
@@ -18,7 +18,7 @@ import { GlomPaymentModule } from '@glom/payment';
       ],
     }),
   ],
-  providers: [DemandService, CodeGeneratorFactory],
-  controllers: [DemandController],
+  providers: [SchoolsService, CodeGeneratorFactory],
+  controllers: [SchoolsController],
 })
-export class DemandModule {}
+export class SchoolsModule {}

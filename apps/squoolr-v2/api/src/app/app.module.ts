@@ -23,7 +23,7 @@ import { CacheInterceptor } from '@nestjs/cache-manager';
 import { AcademicYearsModule } from '../modules/academic-years/academic-years.module';
 import { AmbassadorsModule } from '../modules/ambassadors/ambassadors.module';
 import { ClassroomsModule } from '../modules/classrooms/classrooms.module';
-import { DemandModule } from '../modules/demand/demand.module';
+import { SchoolsModule } from '../modules/schools/schools.module';
 import { DepartmentsModule } from '../modules/departments/departments.module';
 import { MajorsModule } from '../modules/majors/majors.module';
 import { seedData } from './app-seeder.factory';
@@ -55,7 +55,7 @@ import { StaffModule } from '../modules/staff/staff.module';
       // seedData,
     }),
     AuthModule,
-    DemandModule,
+    SchoolsModule,
     AcademicYearsModule,
     InquiriesModule,
     AmbassadorsModule,
