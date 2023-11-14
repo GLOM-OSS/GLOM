@@ -35,9 +35,13 @@ import { TableSkeleton } from '@glom/components';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import ManageMajorMenu from 'apps/squoolr-v2/staff/components/configuration/majors/ManageMajorMenu';
+import { useDispatchBreadcrumb } from '@glom/squoolr-v2/side-nav';
+import { useRouter } from 'next/router';
 
 export function Index() {
   const theme = useTheme();
+  const { push, asPath } = useRouter();
+  const breadcrumbDispatch = useDispatchBreadcrumb();
   const { formatMessage, formatDate, formatNumber } = useIntl();
 
   const tableHeaders = [
@@ -115,7 +119,7 @@ export function Index() {
   }
 
   const [activeMajorId, setActiveMajorId] = useState<string>();
-  const [isActiveDepartmentArchived, setIsActiveDepartmentArchived] =
+  const [isActiveDepartmentArchived, setIsActiveMajorArchived] =
     useState<boolean>(false);
 
   const [isConfirmArchiveDialogOpen, setIsConfirmArchiveDialogOpen] =
@@ -158,6 +162,8 @@ export function Index() {
   const [isNewDepartmentDialogOpen, isNewMajorDialogOpen] =
     useState<boolean>(false);
 
+  const [editableMajor, setEditableMajor] = useState<MajorEntity>();
+
   return (
     <>
       {/* <NewDepartmentDialog
@@ -176,13 +182,28 @@ export function Index() {
 
       <ManageMajorMenu
         anchorEl={anchorEl}
-        closeMenu={() => setAnchorEl(null)}
+        closeMenu={() => {
+          setActiveMajorId(undefined);
+          setEditableMajor(undefined);
+          setAnchorEl(null);
+        }}
         isOpen={!!anchorEl}
         isArchived={isActiveDepartmentArchived}
         confirmArchive={() => setIsConfirmArchiveDialogOpen(true)}
         confirmUnarchive={() => setIsConfirmUnarchiveDialogOpen(true)}
         editMajor={() => alert('editMajor')}
-        openClassrooms={() => alert('open classrooms')}
+        openClassrooms={() => {
+          breadcrumbDispatch({
+            action: 'ADD',
+            payload: [
+              {
+                title: editableMajor.major_acronym,
+                route: editableMajor.annual_major_id,
+              },
+            ],
+          });
+          push(`${asPath}/${editableMajor.annual_major_id}`);
+        }}
       />
       <ConfirmDialog
         closeDialog={() => {
@@ -401,19 +422,17 @@ export function Index() {
               ) : majorData.length === 0 ? (
                 <NoTableElement />
               ) : (
-                majorData.map(
-                  (
-                    {
-                      major_acronym,
-                      major_name,
-                      department_acronym,
-                      cycle: { cycle_name, number_of_years },
-                      annual_major_id,
-                      is_deleted,
-                      created_at,
-                    },
-                    index
-                  ) => (
+                majorData.map((major, index) => {
+                  const {
+                    major_acronym,
+                    major_name,
+                    department_acronym,
+                    cycle: { cycle_name, number_of_years },
+                    annual_major_id,
+                    is_deleted,
+                    created_at,
+                  } = major;
+                  return (
                     <TableRow
                       key={index}
                       sx={{
@@ -524,7 +543,8 @@ export function Index() {
                                   return null;
                                 setAnchorEl(event.currentTarget);
                                 setActiveMajorId(annual_major_id);
-                                setIsActiveDepartmentArchived(is_deleted);
+                                setIsActiveMajorArchived(is_deleted);
+                                setEditableMajor(major);
                               }}
                             >
                               <Icon icon={more} />
@@ -533,8 +553,8 @@ export function Index() {
                         )}
                       </TableCell>
                     </TableRow>
-                  )
-                )
+                  );
+                })
               )}
             </TableBody>
           </Table>
