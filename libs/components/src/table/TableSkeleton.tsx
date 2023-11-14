@@ -1,3 +1,5 @@
+import unchecked from '@iconify/icons-fluent/checkbox-unchecked-16-filled';
+import more from '@iconify/icons-fluent/more-vertical-48-regular';
 import { Icon } from '@iconify/react';
 import {
   Checkbox,
@@ -6,8 +8,6 @@ import {
   TableCell,
   TableRow,
 } from '@mui/material';
-import unchecked from '@iconify/icons-fluent/checkbox-unchecked-16-filled';
-import more from '@iconify/icons-fluent/more-vertical-48-regular';
 
 export default function TableSkeleton({
   hasCheckbox,
