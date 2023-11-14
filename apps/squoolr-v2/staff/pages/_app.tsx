@@ -64,7 +64,7 @@ function App({ children }: { children?: JSX.Element }) {
   useEffect(() => {
     if (noLayoutRoutes.includes(asPath)) setShouldUseLayout(false);
     else setShouldUseLayout(true);
-  }, []);
+  }, [asPath]);
 
   if (!shouldUseLayout) return children;
   return (
