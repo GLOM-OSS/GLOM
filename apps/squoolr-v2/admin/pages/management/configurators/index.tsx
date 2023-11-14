@@ -46,7 +46,7 @@ export function Index() {
   const {
     data: configuratorsData,
     refetch: refetchStaffMembers,
-    isFetching: isFetchingConfigurators,
+    isLoading: isLoadingConfigurators,
   } = useStaffMembers({ roles: ['CONFIGURATOR'], keywords: searchValue });
 
   const [canSearchExpand, setCanSearchExpand] = useState<boolean>(false);
@@ -358,7 +358,7 @@ export function Index() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {isFetchingConfigurators ? (
+              {isLoadingConfigurators ? (
                 <TableSkeleton cols={6} hasCheckbox hasMore />
               ) : configuratorsData.length === 0 ? (
                 <NoTableElement />

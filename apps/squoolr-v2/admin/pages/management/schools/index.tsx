@@ -63,12 +63,14 @@ export function Index() {
   const [searchValue, setSearchValue] = useState<string>('');
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState<SchoolDemandStatus[]>([]);
+  const [selectedStatus, setSelectedStatus] = useState<SchoolDemandStatus[]>(
+    []
+  );
 
   const {
-    data: demandData,
-    refetch: refetchDemands,
-    isFetching: isFetchingDemandData,
+    data: schools,
+    refetch: refetchSchools,
+    isLoading: isLoadingSchools,
   } = useSchools(selectedStatus);
 
   function onChangeFilter(demandStatus: SchoolDemandStatus) {
@@ -152,7 +154,7 @@ export function Index() {
             <TableHeaderItem
               icon={reset}
               title={formatMessage({ id: 'reload' })}
-              onClick={() => refetchDemands()}
+              onClick={() => refetchSchools()}
             />
           </Box>
           <TableHeaderItem
@@ -180,12 +182,12 @@ export function Index() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {isFetchingDemandData ? (
+              {isLoadingSchools ? (
                 <TableSkeleton hasCheckbox hasMore />
-              ) : demandData.length === 0 ? (
+              ) : schools.length === 0 ? (
                 <NoTableElement />
               ) : (
-                demandData.map(
+                schools.map(
                   (
                     {
                       school_id,

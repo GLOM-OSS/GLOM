@@ -31,7 +31,7 @@ export default function index() {
   const {
     data: schoolData,
     refetch: refetchSchoolData,
-    isFetching: isFetchingschoolData,
+    isLoading: isLoadingSchoolData,
   } = useSchoolDemandDetails(schoolId);
 
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState<boolean>(false);
@@ -128,7 +128,7 @@ export default function index() {
               columnGap: 1,
             }}
           >
-            {isFetchingschoolData || !schoolData ? (
+            {isLoadingSchoolData || !schoolData ? (
               <Skeleton />
             ) : (
               <>
@@ -169,7 +169,7 @@ export default function index() {
             >
               <ReviewColumn
                 data={
-                  isFetchingschoolData || !schoolData
+                  isLoadingSchoolData || !schoolData
                     ? {
                         school_name: <Skeleton width={100} />,
                         school_acronym: <Skeleton width={100} />,
@@ -201,7 +201,7 @@ export default function index() {
               <Box sx={{ display: 'grid', rowGap: 2 }}>
                 <ReviewColumn
                   data={
-                    isFetchingschoolData || !schoolData
+                    isLoadingSchoolData || !schoolData
                       ? {
                           first_name: <Skeleton width={100} />,
                           last_name: <Skeleton width={100} />,
@@ -265,7 +265,11 @@ export default function index() {
                   <Button
                     variant="outlined"
                     color="error"
-                    sx={{ alignSelf: 'end' }}
+                    sx={{
+                      alignSelf: 'end',
+                      justifySelf: 'center',
+                      width: '50%',
+                    }}
                     onClick={() => setIsConfirmSuspendDialogOpen(true)}
                   >
                     {formatMessage({ id: 'suspend' })}
