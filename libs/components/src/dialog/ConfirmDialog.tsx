@@ -54,7 +54,9 @@ export function ConfirmDialog({
         {dialogTitle}
       </DialogTitle>
       <DialogContent>
-        <DialogContentText>{dialogMessage}</DialogContentText>
+        <DialogContentText sx={{ textAlign: 'center' }}>
+          {dialogMessage}
+        </DialogContentText>
       </DialogContent>
       <DialogActions
         sx={{
