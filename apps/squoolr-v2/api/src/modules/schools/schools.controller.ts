@@ -24,6 +24,7 @@ import {
   SchoolEntity,
   SubmitSchoolDemandDto,
   UpdateSchoolDemandStatus,
+  UpdateSchoolDto,
   ValidateSchoolDemandDto,
 } from './schools.dto';
 import { SchoolsService } from './schools.service';
@@ -38,27 +39,27 @@ export class SchoolsController {
 
   @Get()
   @ApiOkResponse({ type: [SchoolEntity] })
-  getAllDemands() {
+  getSchools() {
     return this.schoolsService.findAll();
   }
 
   @IsPublic()
   @Get([':school_id', ':school_code'])
   @ApiOkResponse({ type: SchoolEntity })
-  getDemandStatus(@Param('school_id') identifier: string) {
+  getSchool(@Param('school_id') identifier: string) {
     return this.schoolsService.findOne(identifier);
   }
 
   @Get(':school_id/details')
   @ApiOkResponse({ type: SchoolDemandDetails })
-  getDemandDetails(@Param('school_id') schoolId: string) {
+  getSchoolDetails(@Param('school_id') schoolId: string) {
     return this.schoolsService.findDetails(schoolId);
   }
 
   @IsPublic()
   @Post('new')
   @ApiCreatedResponse({ type: SchoolEntity })
-  submitDemand(@Body() schoolDemandPayload: SubmitSchoolDemandDto) {
+  submitSchoolDemand(@Body() schoolDemandPayload: SubmitSchoolDemandDto) {
     const {
       payment_phone,
       school: { referral_code },
@@ -76,7 +77,7 @@ export class SchoolsController {
 
   @ApiNoContentResponse()
   @Put(':school_id/validate')
-  validateDemand(
+  validateSchoolDemand(
     @Req() request: Request,
     @Param('school_id') schoolId: string,
     @Body() validatedDemand: ValidateSchoolDemandDto
@@ -87,12 +88,33 @@ export class SchoolsController {
       throw new BadRequestException(
         'rejection_reason and subdomain cannot coexist'
       );
-    return this.schoolsService.validateDemand(schoolId, validatedDemand, userId);
+    return this.schoolsService.validateDemand(
+      schoolId,
+      validatedDemand,
+      userId
+    );
+  }
+
+  @Put(':school_id')
+  @ApiOkResponse()
+  @Roles(Role.CONFIGURATOR)
+  updateSchool(
+    @Req() request: Request,
+    @Param('school_id') schoolId: string,
+    @Body() payload: UpdateSchoolDto
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user;
+    return this.schoolsService.update(
+      schoolId,
+      payload,
+      annual_configurator_id
+    );
   }
 
   @Put(':school_id/status')
   @ApiOkResponse()
-  @UseGuards(AuthenticatedGuard)
   updateSchoolStatus(
     @Req() request: Request,
     @Param('school_id') schoolId: string,

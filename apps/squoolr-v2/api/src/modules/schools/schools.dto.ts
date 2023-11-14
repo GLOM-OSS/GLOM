@@ -1,6 +1,11 @@
-import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  OmitType,
+  PartialType,
+} from '@nestjs/swagger';
 import { SchoolDemandStatus } from '@prisma/client';
-import { Transform, Type } from 'class-transformer';
+import { Exclude, Transform, Type } from 'class-transformer';
 import {
   IsDate,
   IsDateString,
@@ -115,8 +120,18 @@ export class SchoolEntity extends OmitType(CreateSchoolDto, [
   @ApiProperty({ nullable: true })
   subdomain: string | null;
 
+  @ApiProperty({ nullable: true })
+  creation_decree_number: string | null;
+
+  @ApiProperty({ nullable: true })
+  description: string | null;
+
   @ApiProperty()
   created_at: Date;
+
+  @Exclude()
+  @ApiProperty()
+  created_by: string;
 
   constructor(props: SchoolEntity) {
     super(props);
@@ -151,3 +166,12 @@ export class UpdateSchoolDemandStatus {
     Object.assign(this, props);
   }
 }
+
+export class UpdateSchoolDto extends PartialType(
+  OmitType(SchoolEntity, [
+    'paid_amount',
+    'lead_funnel',
+    'school_rejection_reason',
+    'subdomain',
+  ])
+) {}
