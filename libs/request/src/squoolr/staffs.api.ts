@@ -2,13 +2,12 @@ import {
   BulkDisableStaffPayload,
   CoordinatorEntity,
   CreateStaffPayload,
-  ManageStaffRolesPayload,
   ResetStaffPasswordPayload,
   StaffEntity,
   StaffQueryParams,
   StaffRole,
   TeacherEntity,
-  UpdateStaffPayload,
+  UpdateStaffPayload
 } from '@glom/data-types/squoolr';
 import { GlomRequest } from '../lib/glom-request';
 
@@ -53,7 +52,7 @@ export class StaffApi {
 
   async disableManyStaff(disabledStaff: BulkDisableStaffPayload) {
     const resp = await this.request.delete(`/staffs`, {
-      queryParams: { disabledStaff },
+      queryParams: disabledStaff,
     });
     return resp.data;
   }
