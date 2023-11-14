@@ -2,20 +2,20 @@ import { GlomPrismaService } from '@glom/prisma';
 import {
   BadRequestException,
   ConflictException,
-  Injectable
+  Injectable,
 } from '@nestjs/common';
 import {
   AcademicYearStatus,
   CarryOverSystemEnum,
   EvaluationSubTypeEnum,
-  EvaluationTypeEnum
+  EvaluationTypeEnum,
 } from '@prisma/client';
 import { AnnualSessionData, UserRole } from '../../app/auth/auth';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import { Role } from '../../utils/enums';
 import {
   AcademicYearEntity,
-  CreateAcademicYearDto
+  CreateAcademicYearDto,
 } from './academic-years.dto';
 
 @Injectable()
@@ -28,7 +28,7 @@ export class AcademicYearsService {
   async create(
     school_id: string,
     { starts_at, ends_at }: CreateAcademicYearDto,
-    added_by: string
+    created_by: string
   ) {
     if (starts_at > ends_at)
       throw new BadRequestException('Invalid date range');
@@ -48,7 +48,7 @@ export class AcademicYearsService {
     const { matricule, login_id } =
       await this.prismaService.annualConfigurator.findUnique({
         select: { matricule: true, login_id: true },
-        where: { annual_configurator_id: added_by },
+        where: { annual_configurator_id: created_by },
       });
     const year_code = await this.codeGenerator.getYearCode(
       starts_at.getFullYear(),
@@ -59,15 +59,15 @@ export class AcademicYearsService {
       AnnualCarryOverSytems,
       AnnualSemesterExamAcess,
       AnnualEvaluationSubTypes,
-    } = await this.buildAcademicYearDefaultCreateInput(added_by);
+    } = await this.getDefaultSettings(created_by);
     const [academicYear] = await this.prismaService.$transaction([
       this.prismaService.academicYear.create({
         data: {
           ends_at,
           starts_at,
           year_code,
-          AnnualConfigurator: {
-            connect: { annual_configurator_id: added_by },
+          CreatedBy: {
+            connect: { annual_configurator_id: created_by },
           },
           School: { connect: { school_id } },
           AnnualCarryOverSytems,
@@ -80,8 +80,8 @@ export class AcademicYearsService {
           matricule,
           is_sudo: true,
           Login: { connect: { login_id } },
-          CreatedByAnnualConfigurator: {
-            connect: { annual_configurator_id: added_by },
+          CreatedBy: {
+            connect: { annual_configurator_id: created_by },
           },
           AcademicYear: {
             connect: { year_code },
@@ -557,16 +557,14 @@ export class AcademicYearsService {
     return annualSessionData;
   }
 
-  private async buildAcademicYearDefaultCreateInput(
-    annual_configurator_id: string
-  ) {
+  private async getDefaultSettings(annual_configurator_id: string) {
     const evaluationTypes = await this.prismaService.evaluationType.findMany();
 
     return {
       AnnualCarryOverSytems: {
         create: {
           carry_over_system: CarryOverSystemEnum.SUBJECT,
-          AnnualConfigurator: {
+          CreatedBy: {
             connect: { annual_configurator_id },
           },
         },

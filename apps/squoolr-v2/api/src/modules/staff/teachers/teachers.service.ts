@@ -159,7 +159,7 @@ export class TeachersService
           },
         },
         AcademicYear,
-        AnnualConfigurator: { connect: { annual_configurator_id: added_by } },
+        CreatedBy: { connect: { annual_configurator_id: added_by } },
       },
     });
 
@@ -295,7 +295,7 @@ export class TeachersService
             where: { login_id },
           },
         },
-        AnnualConfigurator: { connect: { annual_configurator_id: created_by } },
+        CreatedBy: { connect: { annual_configurator_id: created_by } },
       },
       update: { is_deleted: false },
       where: {

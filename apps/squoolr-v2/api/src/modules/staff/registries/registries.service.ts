@@ -100,7 +100,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
       data: {
         matricule: payload.matricule,
         private_code: payload.private_code,
-        AnnualConfigurator: {
+        CreatedBy: {
           connect: { annual_configurator_id: created_by },
         },
         ...StaffArgsFactory.getStaffCreateInput(payload),
@@ -184,7 +184,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
         private_code,
         Login: { connect: { login_id } },
         AcademicYear: { connect: { academic_year_id } },
-        AnnualConfigurator: {
+        CreatedBy: {
           connect: { annual_configurator_id: created_by },
         },
       },

@@ -91,7 +91,7 @@ export class DemandService {
     const schoolData = await this.prismaService.school.findUnique({
       select: {
         ...schoolSelectAttr.select,
-        Person: true,
+        CreatedBy: true,
         AcademicYears: {
           take: 1,
           orderBy: { created_at: 'asc' },
@@ -101,7 +101,7 @@ export class DemandService {
     });
     if (!schoolData) throw new NotFoundException('School demand not found');
     const {
-      Person: person,
+      CreatedBy: person,
       AcademicYears: [academicYear],
       ...school
     } = schoolData;
@@ -195,7 +195,7 @@ export class DemandService {
           data: {
             carry_over_system: CarryOverSystemEnum.SUBJECT,
             AcademicYear: { connect: { year_code } },
-            AnnualConfigurator: {
+            CreatedBy: {
               connect: { annual_configurator_id },
             },
           },
@@ -264,7 +264,7 @@ export class DemandService {
           school_phone_number,
           school_name,
           lead_funnel,
-          Person: {
+          CreatedBy: {
             connectOrCreate: {
               create: { ...person, phone_number },
               where: { email: person.email },

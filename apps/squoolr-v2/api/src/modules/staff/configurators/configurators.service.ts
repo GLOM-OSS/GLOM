@@ -133,7 +133,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
       },
       data: {
         matricule: payload.matricule,
-        CreatedByAnnualConfigurator: {
+        CreatedBy: {
           connect: { annual_configurator_id: created_by },
         },
         ...StaffArgsFactory.getStaffCreateInput(payload),
@@ -168,7 +168,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
       data: {
         is_deleted: isDeleted,
         deleted_at: isDeleted ? new Date() : null,
-        DeletedByAnnualConfigurator: isDeleted
+        DeletedBy: isDeleted
           ? {
               connect: { annual_configurator_id: audited_by },
             }
@@ -210,7 +210,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
         matricule,
         Login: { connect: { login_id } },
         AcademicYear: { connect: { academic_year_id } },
-        CreatedByAnnualConfigurator: {
+        CreatedBy: {
           connect: { annual_configurator_id: created_by },
         },
       },
