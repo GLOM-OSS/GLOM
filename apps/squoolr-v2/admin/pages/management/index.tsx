@@ -15,12 +15,12 @@ export function Index() {
       payload: [
         { route: undefined, title: formatMessage({ id: 'management' }) },
         {
-          route: `management/demands`,
-          title: formatMessage({ id: `demands` }),
+          route: `management/schools`,
+          title: formatMessage({ id: `schools` }),
         },
       ],
     });
-    push('/management/demands');
+    push('/management/schools');
   }, []);
 
   return <Box></Box>;

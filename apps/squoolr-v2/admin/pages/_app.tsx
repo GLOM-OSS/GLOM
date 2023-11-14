@@ -38,11 +38,6 @@ function App({ children }: { children?: JSX.Element }) {
       route: 'management',
       navItems: [
         {
-          icon: demand,
-          route: 'demands',
-          title: formatMessage({ id: 'demands' }),
-        },
-        {
           icon: schools,
           route: 'schools',
           title: formatMessage({ id: 'schools' }),
