@@ -171,6 +171,37 @@ export default function index() {
                 columnGap: 2,
               }}
             >
+              <ReviewColumn
+                data={
+                  isFetchingschoolData || !schoolData
+                    ? {
+                        school_name: <Skeleton width={100} />,
+                        school_acronym: <Skeleton width={100} />,
+                        school_email: <Skeleton width={100} />,
+                        school_phone_number: <Skeleton width={100} />,
+                        start_at: <Skeleton width={100} />,
+                        end_at: <Skeleton width={100} />,
+                        lead_funnel: <Skeleton width={100} />,
+                        ambassador_email: <Skeleton width={100} />,
+                      }
+                    : {
+                        ...schoolData.school,
+                        ...schoolData.academicYear,
+                      }
+                }
+                order={[
+                  'school_name',
+                  'school_acronym',
+                  'school_email',
+                  'school_phone_number',
+                  'starts_at',
+                  'ends_at',
+                  'lead_funnel',
+                  'ambassador_email',
+                ]}
+                title={formatMessage({ id: 'institutionData' })}
+              />
+
               <Box sx={{ display: 'grid', rowGap: 2 }}>
                 <ReviewColumn
                   data={
@@ -202,8 +233,9 @@ export default function index() {
                     sx={{
                       display: 'grid',
                       gridAutoFlow: 'column',
-                      columnGap: 5,
+                      columnGap: 2,
                       alignSelf: 'end',
+                      justifyContent: 'end',
                     }}
                   >
                     <Button
@@ -236,45 +268,14 @@ export default function index() {
                 )}
                 {schoolData?.school.school_demand_status === 'VALIDATED' && (
                   <Button
-                    variant="contained"
+                    variant="outlined"
                     color="error"
                     onClick={() => setIsConfirmSuspendDialogOpen(true)}
-                    sx={{ alignSelf: 'end' }}
                   >
                     {formatMessage({ id: 'suspend' })}
                   </Button>
                 )}
               </Box>
-              <ReviewColumn
-                data={
-                  isFetchingschoolData || !schoolData
-                    ? {
-                        school_name: <Skeleton width={100} />,
-                        school_acronym: <Skeleton width={100} />,
-                        school_email: <Skeleton width={100} />,
-                        school_phone_number: <Skeleton width={100} />,
-                        start_at: <Skeleton width={100} />,
-                        end_at: <Skeleton width={100} />,
-                        lead_funnel: <Skeleton width={100} />,
-                        ambassador_email: <Skeleton width={100} />,
-                      }
-                    : {
-                        ...schoolData.school,
-                        ...schoolData.academicYear,
-                      }
-                }
-                order={[
-                  'school_name',
-                  'school_acronym',
-                  'school_email',
-                  'school_phone_number',
-                  'starts_at',
-                  'ends_at',
-                  'lead_funnel',
-                  'ambassador_email',
-                ]}
-                title={formatMessage({ id: 'institutionData' })}
-              />
             </Box>
           </Box>
         </Box>
