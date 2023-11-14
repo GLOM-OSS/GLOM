@@ -1,4 +1,8 @@
-import { SchemaCreateResponseBody, SchemaRequestBody } from '../../api-helper';
+import {
+  SchemaCreateResponseBody,
+  SchemaRequestBody,
+  SchemaResponseBody,
+} from '../../api-helper';
 import { operations } from '../docs';
 
 export type CreateMajorPayload = SchemaRequestBody<
@@ -10,6 +14,8 @@ export type MajorEntity = SchemaCreateResponseBody<
   operations,
   'MajorsController_createMajor'
 >;
+export type CycleEntity = MajorEntity['cycle'];
+export type CycleName = CycleEntity['cycle_name'];
 
 export type UpdateMajorPayload = SchemaRequestBody<
   operations,

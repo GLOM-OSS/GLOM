@@ -18,9 +18,7 @@ export const annualMajorSelect = Prisma.validator<Prisma.AnnualMajorSelect>()({
   major_id: true,
   created_at: true,
   is_deleted: true,
-  Major: {
-    select: { Cycle: { select: { cycle_id: true, cycle_name: true } } },
-  },
+  Major: { select: { Cycle: true } },
   Department: {
     select: { department_id: true, department_acronym: true },
   },
@@ -56,7 +54,7 @@ export class MajorsService {
 
     return annualMajors.map(
       ({ Major: { Cycle: cycle }, Department: department, ...major }) =>
-        new AnnualMajorEntity({ ...major, ...cycle, ...department })
+        new AnnualMajorEntity({ cycle, ...major, ...department })
     );
   }
 
@@ -69,7 +67,7 @@ export class MajorsService {
       select: annualMajorSelect,
       where: { annual_major_id },
     });
-    return new AnnualMajorEntity({ ...major, ...cycle, ...department });
+    return new AnnualMajorEntity({ cycle, ...major, ...department });
   }
 
   async create(
@@ -117,10 +115,8 @@ export class MajorsService {
     ] = await this.prismaService.$transaction([
       this.prismaService.annualMajor.create({
         include: {
+          Major: { select: { Cycle: true } },
           Department: { select: { department_acronym: true } },
-          Major: {
-            select: { Cycle: { select: { cycle_id: true, cycle_name: true } } },
-          },
         },
         data: {
           major_name,
@@ -160,7 +156,7 @@ export class MajorsService {
       }),
     ]);
     return new AnnualMajorEntity({
-      ...majorCycle,
+      cycle: majorCycle,
       ...department,
       ...newAnnualMajor,
     });
