@@ -26,23 +26,26 @@ export interface paths {
   "/v1/auth/user": {
     get: operations["AuthController_getUser"];
   };
-  "/v1/demands": {
-    get: operations["DemandController_getAllDemands"];
+  "/v1/schools": {
+    get: operations["SchoolsController_getAllDemands"];
   };
-  "/v1/demands/{school_id}": {
-    get: operations["DemandController_getDemandStatus"];
+  "/v1/schools/{school_id}": {
+    get: operations["SchoolsController_getDemandStatus"];
   };
-  "/v1/demands/{school_id}/details": {
-    get: operations["DemandController_getDemandDetails"];
+  "/v1/schools/{school_code}": {
+    get: operations["SchoolsController_getDemandStatus"];
   };
-  "/v1/demands/new": {
-    post: operations["DemandController_submitDemand"];
+  "/v1/schools/{school_id}/details": {
+    get: operations["SchoolsController_getDemandDetails"];
   };
-  "/v1/demands/{school_id}/validate": {
-    put: operations["DemandController_validateDemand"];
+  "/v1/schools/new": {
+    post: operations["SchoolsController_submitDemand"];
   };
-  "/v1/demands/{school_id}/status": {
-    put: operations["DemandController_updateSchoolStatus"];
+  "/v1/schools/{school_id}/validate": {
+    put: operations["SchoolsController_validateDemand"];
+  };
+  "/v1/schools/{school_id}/status": {
+    put: operations["SchoolsController_updateSchoolStatus"];
   };
   "/v1/academic-years": {
     get: operations["AcademicYearsController_getAcademicYears"];
@@ -260,7 +263,7 @@ export interface components {
       /** Format: date-time */
       ends_at: string;
     };
-    DemandDetails: {
+    SchoolDemandDetails: {
       school: components["schemas"]["SchoolEntity"];
       person: components["schemas"]["PersonEntity"];
       academicYear: components["schemas"]["CreateAcademicYearDto"];
@@ -290,18 +293,18 @@ export interface components {
       /** Format: date-time */
       initial_year_ends_at: string;
     };
-    SubmitDemandDto: {
+    SubmitSchoolDemandDto: {
       payment_phone?: string;
       configurator: components["schemas"]["CreatePersonDto"];
       school: components["schemas"]["CreateSchoolDto"];
     };
-    ValidateDemandDto: {
+    ValidateSchoolDemandDto: {
       rejection_reason?: string;
       subdomain?: string;
     };
-    UpdateSchoolStatus: {
+    UpdateSchoolDemandStatus: {
       /** @enum {string} */
-      school_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED";
+      school_demand_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED";
     };
     UserAnnualRoles: {
       active_year_id?: string;
@@ -677,7 +680,7 @@ export interface operations {
   };
   AuthController_logOut: {
     responses: {
-      200: {
+      204: {
         content: never;
       };
     };
@@ -691,7 +694,7 @@ export interface operations {
       };
     };
   };
-  DemandController_getAllDemands: {
+  SchoolsController_getAllDemands: {
     responses: {
       200: {
         content: {
@@ -700,7 +703,7 @@ export interface operations {
       };
     };
   };
-  DemandController_getDemandStatus: {
+  SchoolsController_getDemandStatus: {
     parameters: {
       path: {
         school_id: string;
@@ -714,7 +717,7 @@ export interface operations {
       };
     };
   };
-  DemandController_getDemandDetails: {
+  SchoolsController_getDemandDetails: {
     parameters: {
       path: {
         school_id: string;
@@ -723,15 +726,15 @@ export interface operations {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["DemandDetails"];
+          "application/json": components["schemas"]["SchoolDemandDetails"];
         };
       };
     };
   };
-  DemandController_submitDemand: {
+  SchoolsController_submitDemand: {
     requestBody: {
       content: {
-        "application/json": components["schemas"]["SubmitDemandDto"];
+        "application/json": components["schemas"]["SubmitSchoolDemandDto"];
       };
     };
     responses: {
@@ -742,7 +745,7 @@ export interface operations {
       };
     };
   };
-  DemandController_validateDemand: {
+  SchoolsController_validateDemand: {
     parameters: {
       path: {
         school_id: string;
@@ -750,7 +753,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["ValidateDemandDto"];
+        "application/json": components["schemas"]["ValidateSchoolDemandDto"];
       };
     };
     responses: {
@@ -759,7 +762,7 @@ export interface operations {
       };
     };
   };
-  DemandController_updateSchoolStatus: {
+  SchoolsController_updateSchoolStatus: {
     parameters: {
       path: {
         school_id: string;
@@ -767,7 +770,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["UpdateSchoolStatus"];
+        "application/json": components["schemas"]["UpdateSchoolDemandStatus"];
       };
     };
     responses: {

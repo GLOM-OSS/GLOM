@@ -5,7 +5,7 @@ export * from './academic-years';
 export * from './ambassadors';
 export * from './auth';
 export * from './classrooms';
-export * from './demands';
+export * from './schools';
 export * from './departments';
 export * from './inquiries';
 export * from './majors';
