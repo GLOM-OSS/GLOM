@@ -1,8 +1,8 @@
 import { ConfirmDialog } from '@glom/components';
 import {
   useSchoolDemandDetails,
-  useUpdateDemandStaus,
-  useValidateDemand,
+  useUpdateSchoolStatus,
+  useValidateSchoolDemand,
 } from '@glom/data-access/squoolr';
 import { useTheme } from '@glom/theme';
 import {
@@ -26,7 +26,6 @@ export default function index() {
   const theme = useTheme();
   const {
     query: { school_id },
-    asPath,
   } = useRouter();
   const schoolId = school_id as string;
   const {
@@ -42,24 +41,22 @@ export default function index() {
     useState<boolean>(false);
 
   const { mutate: updateDemandStatus, isPending: isConfirmingSuspension } =
-    useUpdateDemandStaus(schoolId);
+    useUpdateSchoolStatus(schoolId);
   function suspendSchool() {
     updateDemandStatus('SUSPENDED', {
       onSuccess() {
         refetchSchoolData();
-        //TODO: TOAST SUSPENDING AND DONE SUSPENDING
       },
     });
   }
   const { mutate: validateDemand, isPending: isValidatingDemand } =
-    useValidateDemand(schoolId);
+    useValidateSchoolDemand(schoolId);
 
   function rejectSchool(rejectionReason: string) {
     validateDemand(
       { rejection_reason: rejectionReason },
       {
         onSuccess() {
-          //TODO: TOAST REJECTING AND DONE REJECTING
           refetchSchoolData();
         },
       }
@@ -71,7 +68,6 @@ export default function index() {
       { subdomain },
       {
         onSuccess() {
-          //TODO: TOAST validating and done validating
           refetchSchoolData();
         },
       }

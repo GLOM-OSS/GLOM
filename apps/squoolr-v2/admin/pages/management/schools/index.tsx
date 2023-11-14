@@ -1,6 +1,6 @@
 import { NoTableElement, TableHeaderItem } from '@glom/components';
-import { useSchoolDemands } from '@glom/data-access/squoolr';
-import { DemandStatus } from '@glom/data-types/squoolr';
+import { useSchools } from '@glom/data-access/squoolr';
+import { SchoolDemandStatus } from '@glom/data-types/squoolr';
 import { useDispatchBreadcrumb } from '@glom/squoolr-v2/side-nav';
 import { useTheme } from '@glom/theme';
 import reset from '@iconify/icons-fluent/arrow-counterclockwise-48-regular';
@@ -63,15 +63,15 @@ export function Index() {
   const [searchValue, setSearchValue] = useState<string>('');
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState<DemandStatus[]>([]);
+  const [selectedStatus, setSelectedStatus] = useState<SchoolDemandStatus[]>([]);
 
   const {
     data: demandData,
     refetch: refetchDemands,
     isFetching: isFetchingDemandData,
-  } = useSchoolDemands(selectedStatus);
+  } = useSchools(selectedStatus);
 
-  function onChangeFilter(demandStatus: DemandStatus) {
+  function onChangeFilter(demandStatus: SchoolDemandStatus) {
     setSelectedStatus(
       selectedStatus.includes(demandStatus)
         ? selectedStatus.filter((element) => element !== demandStatus)
