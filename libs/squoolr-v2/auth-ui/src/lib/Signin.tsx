@@ -2,6 +2,7 @@ import { useTheme } from '@glom/theme';
 import {
   Box,
   Button,
+  CircularProgress,
   IconButton,
   TextField,
   Tooltip,
@@ -148,7 +149,18 @@ export function Signin({ app }: { app: IAppType }) {
             }}
           />
 
-          <Button type="submit" variant="contained" color="primary" fullWidth>
+          <Button
+            fullWidth
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={isSubmitting}
+            startIcon={
+              isSubmitting && (
+                <CircularProgress color="primary" size={18} />
+              )
+            }
+          >
             {formatMessage({ id: 'login' })}
           </Button>
         </Box>

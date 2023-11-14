@@ -5,6 +5,7 @@ import { Icon } from '@iconify/react';
 import {
   Box,
   Button,
+  CircularProgress,
   IconButton,
   TextField,
   Tooltip,
@@ -167,6 +168,11 @@ export function ResetPassword() {
             color="primary"
             fullWidth
             disabled={isSubmitting}
+            startIcon={
+              isSubmitting && (
+                <CircularProgress color="primary" size={18} />
+              )
+            }
           >
             {formatMessage({ id: 'login' })}
           </Button>

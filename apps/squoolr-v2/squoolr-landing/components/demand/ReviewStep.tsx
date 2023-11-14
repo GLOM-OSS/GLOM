@@ -1,4 +1,4 @@
-import { Box, Button } from '@mui/material';
+import { Box, Button, CircularProgress } from '@mui/material';
 import { useIntl } from 'react-intl';
 import ReviewColumn from './ReviewColumn';
 import { IPersonalInformation } from './forms/PersonnalInformation';
@@ -82,6 +82,9 @@ export default function ReviewStep({
           color="primary"
           onClick={onNext}
           disabled={isSubmitting}
+          startIcon={
+            isSubmitting && <CircularProgress color="primary" size={18} />
+          }
         >
           {data.referral.referral_code
             ? formatMessage({
