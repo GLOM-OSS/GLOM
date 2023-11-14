@@ -5,7 +5,14 @@ import {
   useValidateDemand,
 } from '@glom/data-access/squoolr';
 import { useTheme } from '@glom/theme';
-import { Box, Button, Chip, CircularProgress, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Skeleton,
+  Typography,
+} from '@mui/material';
 import RejectDemandDialog from 'apps/squoolr-v2/admin/component/management/demands/RejectDemandDialog';
 import ReviewColumn from 'apps/squoolr-v2/admin/component/management/demands/ReviewColumn';
 import ValidateDemandDialog from 'apps/squoolr-v2/admin/component/management/demands/ValidateDemandDialog';
@@ -22,8 +29,11 @@ export default function index() {
     asPath,
   } = useRouter();
   const schoolId = school_id as string;
-  const { data: schoolData, refetch: refetchSchoolData } =
-    useSchoolDemandDetails(schoolId);
+  const {
+    data: schoolData,
+    refetch: refetchSchoolData,
+    isFetching: isFetchingschoolData,
+  } = useSchoolDemandDetails(schoolId);
 
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState<boolean>(false);
   const [isValidateDialogOpen, setIsValidateDialogOpen] =
@@ -111,7 +121,7 @@ export default function index() {
         }`}
         danger
       />
-      {schoolData && (
+      {
         <Box sx={{ display: 'grid', alignContent: 'start', rowGap: 5 }}>
           <Box
             sx={{
@@ -122,28 +132,36 @@ export default function index() {
               columnGap: 1,
             }}
           >
-            <Typography
-              variant="h3"
-              sx={{
-                color: `${theme.common.body} !important`,
-                paddingBottom: '0 !important',
-              }}
-            >{`${schoolData?.school.school_acronym} - ${schoolData?.school.school_name}`}</Typography>
-            <Chip
-              size="small"
-              variant={
-                STATUS_CHIP_VARIANT[schoolData.school.school_demand_status]
-              }
-              color={STATUS_CHIP_COLOR[schoolData.school.school_demand_status]}
-              label={formatMessage({
-                id: schoolData.school.school_demand_status.toLowerCase(),
-              })}
-              sx={{
-                ...(schoolData.school.school_demand_status === 'VALIDATED'
-                  ? { color: 'white' }
-                  : {}),
-              }}
-            />
+            {isFetchingschoolData || !schoolData ? (
+              <Skeleton />
+            ) : (
+              <>
+                <Typography
+                  variant="h3"
+                  sx={{
+                    color: `${theme.common.body} !important`,
+                    paddingBottom: '0 !important',
+                  }}
+                >{`${schoolData.school.school_acronym} - ${schoolData.school.school_name}`}</Typography>
+                <Chip
+                  size="small"
+                  variant={
+                    STATUS_CHIP_VARIANT[schoolData.school.school_demand_status]
+                  }
+                  color={
+                    STATUS_CHIP_COLOR[schoolData.school.school_demand_status]
+                  }
+                  label={formatMessage({
+                    id: schoolData.school.school_demand_status.toLowerCase(),
+                  })}
+                  sx={{
+                    ...(schoolData.school.school_demand_status === 'VALIDATED'
+                      ? { color: 'white' }
+                      : {}),
+                  }}
+                />
+              </>
+            )}
           </Box>
           <Box sx={{ display: 'grid', rowGap: 4, alignContent: 'start' }}>
             <Box
@@ -155,7 +173,18 @@ export default function index() {
             >
               <Box sx={{ display: 'grid', rowGap: 2 }}>
                 <ReviewColumn
-                  data={schoolData['person']}
+                  data={
+                    isFetchingschoolData || !schoolData
+                      ? {
+                          first_name: <Skeleton width={100} />,
+                          last_name: <Skeleton width={100} />,
+                          email: <Skeleton width={100} />,
+                          phone_number: <Skeleton width={100} />,
+                          birth: <Skeleton width={100} />,
+                          gender: <Skeleton width={100} />,
+                        }
+                      : schoolData?.person
+                  }
                   order={[
                     'first_name',
                     'last_name',
@@ -167,7 +196,7 @@ export default function index() {
                   title={formatMessage({ id: 'configuratorInformation' })}
                 />
                 {['PENDING', 'PROCESSING'].includes(
-                  schoolData.school.school_demand_status
+                  schoolData?.school.school_demand_status
                 ) && (
                   <Box
                     sx={{
@@ -205,7 +234,7 @@ export default function index() {
                     </Button>
                   </Box>
                 )}
-                {schoolData.school.school_demand_status === 'VALIDATED' && (
+                {schoolData?.school.school_demand_status === 'VALIDATED' && (
                   <Button
                     variant="contained"
                     color="error"
@@ -217,10 +246,23 @@ export default function index() {
                 )}
               </Box>
               <ReviewColumn
-                data={{
-                  ...schoolData['school'],
-                  ...schoolData['academicYear'],
-                }}
+                data={
+                  isFetchingschoolData || !schoolData
+                    ? {
+                        school_name: <Skeleton width={100} />,
+                        school_acronym: <Skeleton width={100} />,
+                        school_email: <Skeleton width={100} />,
+                        school_phone_number: <Skeleton width={100} />,
+                        start_at: <Skeleton width={100} />,
+                        end_at: <Skeleton width={100} />,
+                        lead_funnel: <Skeleton width={100} />,
+                        ambassador_email: <Skeleton width={100} />,
+                      }
+                    : {
+                        ...schoolData.school,
+                        ...schoolData.academicYear,
+                      }
+                }
                 order={[
                   'school_name',
                   'school_acronym',
@@ -236,7 +278,7 @@ export default function index() {
             </Box>
           </Box>
         </Box>
-      )}
+      }
     </>
   );
 }

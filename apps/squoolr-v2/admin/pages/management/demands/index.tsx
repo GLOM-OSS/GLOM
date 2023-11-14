@@ -24,6 +24,7 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import FilterMenu from '../../../component/management/demands/FilterMenu';
+import TableSkeleton from 'libs/components/src/table/TableSkeleton';
 
 export const STATUS_CHIP_VARIANT: Record<string, 'outlined' | 'filled'> = {
   PROCESSING: 'filled',
@@ -64,8 +65,11 @@ export function Index() {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<DemandStatus[]>([]);
 
-  const { data: demandData, refetch: refetchDemands } =
-    useSchoolDemands(selectedStatus);
+  const {
+    data: demandData,
+    refetch: refetchDemands,
+    isFetching: isFetchingDemandData,
+  } = useSchoolDemands(selectedStatus);
 
   function onChangeFilter(demandStatus: DemandStatus) {
     setSelectedStatus(
@@ -176,7 +180,9 @@ export function Index() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {!demandData || demandData.length === 0 ? (
+              {isFetchingDemandData ? (
+                <TableSkeleton hasCheckbox hasMore />
+              ) : demandData.length === 0 ? (
                 <NoTableElement />
               ) : (
                 demandData.map(
