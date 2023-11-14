@@ -20,44 +20,48 @@ export default function TableSkeleton({
 }) {
   const leftCols = cols - (hasMore ? 1 : 0) - (hasCheckbox ? 1 : 0);
   return (
-    <TableRow
-      sx={{
-        '&:last-child td, &:last-child th': { border: 0 },
-        '& td': {
-          padding: '7px',
-        },
-      }}
-    >
-      {hasCheckbox && (
-        <TableCell>
-          <Checkbox
-            checked={false}
-            disabled
-            icon={
-              <Icon
-                icon={unchecked}
-                style={{
-                  color: '#D1D5DB',
-                  height: '100%',
-                  width: '21px',
-                }}
+    <>
+      {[...new Array(4)].map(() => (
+        <TableRow
+          sx={{
+            '&:last-child td, &:last-child th': { border: 0 },
+            '& td': {
+              padding: '7px',
+            },
+          }}
+        >
+          {hasCheckbox && (
+            <TableCell>
+              <Checkbox
+                checked={false}
+                disabled
+                icon={
+                  <Icon
+                    icon={unchecked}
+                    style={{
+                      color: '#D1D5DB',
+                      height: '100%',
+                      width: '21px',
+                    }}
+                  />
+                }
               />
-            }
-          />
-        </TableCell>
-      )}
-      {[...new Array(leftCols)].map((_, index) => (
-        <TableCell key={index}>
-          <Skeleton animation="wave" />
-        </TableCell>
+            </TableCell>
+          )}
+          {[...new Array(leftCols)].map((_, index) => (
+            <TableCell key={index}>
+              <Skeleton animation="wave" />
+            </TableCell>
+          ))}
+          {hasMore && (
+            <TableCell align="right">
+              <IconButton size="small" disabled={true}>
+                <Icon icon={more} />
+              </IconButton>
+            </TableCell>
+          )}
+        </TableRow>
       ))}
-      {hasMore && (
-        <TableCell align="right">
-          <IconButton size="small" disabled={true}>
-            <Icon icon={more} />
-          </IconButton>
-        </TableCell>
-      )}
-    </TableRow>
+    </>
   );
 }
