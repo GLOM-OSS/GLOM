@@ -8,6 +8,7 @@ import {
   Put,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -34,10 +35,11 @@ import {
   UpdateStaffRoleDto,
 } from './staff.dto';
 import { StaffService } from './staff.service';
+import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 
 @ApiTags('Staffs')
 @Controller('staffs')
-// @UseGuards(AuthenticatedGuard)
+@UseGuards(AuthenticatedGuard)
 @ApiExtraModels(TeacherEntity, CoordinatorEntity)
 export class StaffController {
   constructor(private staffService: StaffService) {}
@@ -134,7 +136,7 @@ export class StaffController {
     ':annual_configurator_id',
     ':annual_registry_id',
   ])
-  @Roles(Role.CONFIGURATOR)
+  @Roles(Role.ADMIN, Role.CONFIGURATOR)
   @ApiNoContentResponse()
   async disableStaff(
     @Req() request: Request,
@@ -152,7 +154,7 @@ export class StaffController {
   }
 
   @Delete()
-  @Roles(Role.CONFIGURATOR)
+  @Roles(Role.ADMIN, Role.CONFIGURATOR)
   @ApiOkResponse({ type: BatchPayloadDto })
   async disableManyStaff(
     @Req() request: Request,
