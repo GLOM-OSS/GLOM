@@ -70,14 +70,17 @@ export class DepartmentsService {
       where: { department_id },
     });
     if (payload?.is_deleted)
-      await Promise.all(
-        annualMajors.map((_) =>
-          this.majorsService.update(
-            _.annual_major_id,
-            { is_deleted: true },
-            audited_by
-          )
-        )
+      await this.majorsService.disableMany(
+        annualMajors.map((_) => _.annual_major_id),
+        audited_by
       );
+  }
+
+  async disableMany(departmentIds: string[], disabled_by: string) {
+    await Promise.all(
+      departmentIds.map((departmentId) =>
+        this.update(departmentId, { is_deleted: true }, disabled_by)
+      )
+    );
   }
 }

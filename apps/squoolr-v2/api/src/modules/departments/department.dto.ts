@@ -44,3 +44,9 @@ export class DepartmentEntity implements Department {
     Object.assign(this, props);
   }
 }
+
+export class DisableDepartmentsDto {
+  @IsString({ each: true })
+  @ApiProperty({ type: [String] })
+  departmentIds: string[];
+}
