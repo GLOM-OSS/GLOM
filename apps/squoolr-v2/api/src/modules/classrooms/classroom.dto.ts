@@ -1,20 +1,20 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  OmitType,
+  PartialType,
+  PickType,
+} from '@nestjs/swagger';
 import { AnnualClassroom } from '@prisma/client';
 import { Exclude } from 'class-transformer';
-import { IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsNumber,
+  IsNumberString,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 import { QueryParamsDto } from '../modules.dto';
-
-export class UpdateClassroomDto {
-  @IsNumber()
-  @IsOptional()
-  @ApiPropertyOptional()
-  registration_fee?: number;
-
-  @IsNumber()
-  @IsOptional()
-  @ApiPropertyOptional()
-  total_fee_due?: number;
-}
 
 export class ClassroomDivisionQueryDto {
   @IsString()
@@ -68,4 +68,16 @@ export class AnnualClassroomEntity implements AnnualClassroom {
   constructor(props: AnnualClassroomEntity) {
     Object.assign(this, props);
   }
+}
+
+export class UpdateClassroomDto {
+  @ApiProperty()
+  @IsNumberString()
+  number_of_divisions: number;
+}
+
+export class DisanleClassroomsDto {
+  @IsString({ each: true })
+  @ApiProperty({ type: [String] })
+  annualClassroomIds: string[];
 }

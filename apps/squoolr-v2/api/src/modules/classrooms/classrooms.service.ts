@@ -77,4 +77,12 @@ export class ClassroomsService {
       where: { annual_classroom_id },
     });
   }
+
+  async disableMany(annualClassroomIds: string[], disabled_by: string) {
+    await Promise.all(
+      annualClassroomIds.map((annualClassroomId) =>
+        this.update(annualClassroomId, { is_deleted: true }, disabled_by)
+      )
+    );
+  }
 }
