@@ -1,9 +1,10 @@
 import {
   SchemaCreateResponseBody,
   SchemaRequestBody,
+  SchemaRequestQuery,
   SchemaResponseBody,
 } from '../../api-helper';
-import { operations } from '../docs';
+import { components, operations } from '../docs';
 
 export type CreateStaffPayload = SchemaRequestBody<
   operations,
@@ -15,7 +16,44 @@ export type UpdateStaffPayload = SchemaRequestBody<
   'StaffController_updateStaff'
 >;
 
-export type StaffEntity = SchemaCreateResponseBody<
+export type StaffEntity = SchemaResponseBody<
   operations,
-  'StaffController_createStaff'
+  'StaffController_getAllStaff'
 >;
+
+export type TeacherEntity = components['schemas']['TeacherEntity'];
+export type CoordinatorEntity = components['schemas']['CoordinatorEntity'];
+
+export type BulkDisableStaffPayload = SchemaRequestQuery<
+  operations,
+  'StaffController_disableManyStaff'
+>;
+
+export type BatchUpdatePayload = SchemaResponseBody<
+  operations,
+  'StaffController_disableManyStaff'
+>;
+
+export type UpdateStaffPayload = SchemaRequestBody<
+  operations,
+  'StaffController_updateStaff'
+>;
+
+export type ManageStaffRolesPayload = SchemaRequestBody<
+  operations,
+  'StaffController_updateStaffRoles'
+>;
+
+export type ResetStaffPasswordPayload = SchemaRequestBody<
+  operations,
+  'StaffController_resetStaffPasswords'
+>;
+
+export type StaffQueryParams = SchemaRequestQuery<
+  operations,
+  'StaffController_getAllStaff'
+>;
+export type StaffRole = SchemaRequestQuery<
+  operations,
+  'StaffController_getStaff'
+>['role'];

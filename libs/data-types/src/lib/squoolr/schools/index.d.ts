@@ -9,29 +9,29 @@ import { operations } from '../docs';
 /** ------------- CREATE SCHOOL DEMAND ------------- */
 export type SubmitSchoolDemandPayload = SchemaRequestBody<
   operations,
-  'DemandController_submitDemand'
+  'SchoolsController_submitDemand'
 >;
 
 export type SchoolEntity = SchemaCreateResponseBody<
   operations,
-  'DemandController_submitDemand'
+  'SchoolsController_submitDemand'
 >;
 
-export type DemandStatus = SchoolEntity['school_demand_status'];
+export type SchoolDemandStatus = SchoolEntity['school_demand_status'];
 
 export type SchoolDemandDetails = SchemaResponseBody<
   operations,
-  'DemandController_getDemandDetails'
+  'SchoolsController_getDemandDetails'
 >;
 
 /** ------------- VALIDATE SCHOOL DEMAND ------------- */
 export type ValidateSchoolDemandPayload = SchemaRequestBody<
   operations,
-  'DemandController_validateDemand'
+  'SchoolsController_validateDemand'
 >;
 
 /** ------------- CHANGE SCHOOL DEMAND STATUS TO PROCESSING ------------- */
-export type ProcessDemandPayload = SchemaRequestParams<
+export type UpdateSchoolStatusPayload = SchemaRequestParams<
   operations,
-  'DemandController_updateDemandStatus'
+  'SchoolsController_updateSchoolStatus'
 >;

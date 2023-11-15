@@ -1,10 +1,10 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { StaffRole } from '../../../utils/enums';
-import { BatchPayload } from '../../module';
 import {
   CreateStaffInput,
   IStaffService,
+  StaffCreateFromInput,
   StaffSelectParams,
   UpdateStaffInput,
 } from '../staff';
@@ -14,11 +14,28 @@ import { StaffEntity } from '../staff.dto';
 @Injectable()
 export class ConfiguratorsService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
+  async resetPrivateCodes(
+    annualStaffIds: string[],
+    codes: string[],
+    reset_by: string
+  ): Promise<void> {
+    throw new NotImplementedException(
+      '`resetPrivateCodes` method is not supported for configurators'
+    );
+  }
+
   async findOne(annual_configurator_id: string) {
     const {
       matricule,
-      Login: { login_id, Person },
-    } = await this.prismaService.annualConfigurator.findFirst({
+      is_deleted,
+      Login: {
+        login_id,
+        Person,
+        Teacher,
+        Logs: [log],
+        AnnualRegistries: [registry],
+      },
+    } = await this.prismaService.annualConfigurator.findFirstOrThrow({
       select: {
         matricule: true,
         ...StaffArgsFactory.getStaffSelect(),
@@ -32,9 +49,23 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
       login_id,
       ...Person,
       matricule,
-      roles: [],
-      last_connected: null,
+      is_deleted,
       annual_configurator_id,
+      last_connected: log?.logged_in_at ?? null,
+      roles: [{ registry }, { teacher: Teacher?.AnnualTeachers }].reduce<
+        StaffRole[]
+      >(
+        (roles, _) =>
+          _.registry
+            ? [...roles, StaffRole.REGISTRY]
+            : _.teacher
+            ? _.teacher[0].AnnualClassroomDivisions
+              ? [...roles, StaffRole.TEACHER, StaffRole.COORDINATOR]
+              : [...roles, StaffRole.TEACHER]
+            : roles,
+        [StaffRole.CONFIGURATOR]
+      ),
+      role: StaffRole.CONFIGURATOR,
     });
   }
 
@@ -52,8 +83,9 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
     });
     return configurators.map(
       ({
-        annual_configurator_id,
         matricule,
+        is_deleted,
+        annual_configurator_id,
         Login: {
           login_id,
           Person,
@@ -66,6 +98,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
           login_id,
           ...Person,
           matricule,
+          is_deleted,
           annual_configurator_id,
           last_connected: log?.logged_in_at ?? null,
           roles: [{ registry }, { teacher: Teacher?.AnnualTeachers }].reduce<
@@ -81,6 +114,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
                 : roles,
             [StaffRole.CONFIGURATOR]
           ),
+          role: StaffRole.CONFIGURATOR,
         })
     );
   }
@@ -88,6 +122,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
   async create(payload: CreateStaffInput, created_by: string) {
     const {
       matricule,
+      is_deleted,
       annual_configurator_id,
       Login: { login_id, Person },
     } = await this.prismaService.annualConfigurator.create({
@@ -98,7 +133,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
       },
       data: {
         matricule: payload.matricule,
-        CreatedByAnnualConfigurator: {
+        CreatedBy: {
           connect: { annual_configurator_id: created_by },
         },
         ...StaffArgsFactory.getStaffCreateInput(payload),
@@ -109,36 +144,91 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
       ...Person,
       matricule,
       roles: [],
+      is_deleted,
       last_connected: null,
       annual_configurator_id,
+      role: StaffRole.REGISTRY,
     });
   }
 
   async update(
     annual_configurator_id: string,
     payload: UpdateStaffInput,
-    audited_by: string
+    audited_by: string,
+    isAdmin = false
   ) {
     const {
+      is_deleted,
       Login: { Person: person },
     } = await this.prismaService.annualConfigurator.findUniqueOrThrow({
       select: StaffArgsFactory.getStaffSelect(),
       where: { annual_configurator_id },
     });
+    const isDeleted = payload.delete ? !is_deleted : undefined;
     await this.prismaService.annualConfigurator.update({
       data: {
-        Login: {
-          update: {
-            Person: {
-              update: {
-                ...payload,
-                PersonAudits: { create: { ...person, audited_by } },
+        is_deleted: isDeleted,
+        deleted_at: isDeleted ? new Date() : null,
+        [isAdmin ? 'DisabledBy' : 'DeletedBy']: isDeleted
+          ? {
+              connect: {
+                [isAdmin ? 'login_id' : 'annual_configurator_id']: audited_by,
               },
-            },
-          },
-        },
+            }
+          : { disconnect: true },
+        Login:
+          isDeleted !== undefined
+            ? undefined
+            : {
+                update: {
+                  Person: {
+                    update: {
+                      ...payload,
+                      PersonAudits: { create: { ...person, audited_by } },
+                    },
+                  },
+                },
+              },
       },
       where: { annual_configurator_id },
+    });
+  }
+
+  async createFrom(
+    login_id: string,
+    { matricule, academic_year_id }: StaffCreateFromInput,
+    created_by: string
+  ) {
+    const {
+      is_deleted,
+      annual_configurator_id,
+      Login: { Person },
+    } = await this.prismaService.annualConfigurator.upsert({
+      select: {
+        ...StaffArgsFactory.getStaffSelect(),
+        annual_configurator_id: true,
+        matricule: true,
+      },
+      create: {
+        matricule,
+        Login: { connect: { login_id } },
+        AcademicYear: { connect: { academic_year_id } },
+        CreatedBy: {
+          connect: { annual_configurator_id: created_by },
+        },
+      },
+      update: { is_deleted: false },
+      where: { login_id_academic_year_id: { login_id, academic_year_id } },
+    });
+    return new StaffEntity({
+      login_id,
+      ...Person,
+      matricule,
+      roles: [],
+      is_deleted,
+      last_connected: null,
+      annual_configurator_id,
+      role: StaffRole.CONFIGURATOR,
     });
   }
 }

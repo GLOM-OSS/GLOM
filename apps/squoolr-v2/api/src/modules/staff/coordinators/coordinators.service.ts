@@ -1,24 +1,109 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { excludeKeys } from '@glom/utils';
+import {
+  Injectable,
+  NotFoundException,
+  NotImplementedException,
+} from '@nestjs/common';
 import { StaffRole } from '../../../utils/enums';
-import { BatchPayload } from '../../module';
 import { BatchPayloadDto } from '../../modules.dto';
 import {
   CreateCoordinatorInput,
   IStaffService,
+  StaffCreateFromInput,
   StaffSelectParams,
   UpdateCoordinatorInput,
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
-import { StaffEntity } from '../staff.dto';
-import { excludeKeys } from '@glom/utils';
+import { CoordinatorEntity, StaffEntity } from '../staff.dto';
 
 @Injectable()
-export class CoordinatorsService implements IStaffService<StaffEntity> {
+export class CoordinatorsService
+  implements IStaffService<StaffEntity | CoordinatorEntity>
+{
   constructor(private prismaService: GlomPrismaService) {}
-  async findOne(annual_coordinator_id: string): Promise<StaffEntity> {
+  createFrom(
+    login_id: string,
+    payload: StaffCreateFromInput,
+    created_by: string
+  ): Promise<CoordinatorEntity> {
     throw new NotImplementedException(
-      '`findOne` method is not supported for coordinators. Use teacher instead'
+      '`createFrom` method is not supported for coordinators. Use teacher instead'
+    );
+  }
+  async resetPrivateCodes(
+    annualStaffIds: string[],
+    roles: string[],
+    reset_by: string
+  ): Promise<void> {
+    throw new NotImplementedException(
+      '`resetPrivateCodes` method is not supported for coordinators. Use teacher instead'
+    );
+  }
+  async findOne(annual_coordinator_id: string) {
+    const coordinatedClasses =
+      await this.prismaService.annualClassroomDivision.findMany({
+        distinct: ['annual_coordinator_id'],
+        select: {
+          annual_classroom_id: true,
+          AnnualTeacher: {
+            select: StaffArgsFactory.getTeacherSelect(),
+          },
+        },
+        where: { annual_coordinator_id },
+      });
+    if (coordinatedClasses.length === 0)
+      throw new NotFoundException('Coordinated classrooms not found !!!');
+    return coordinatedClasses.reduce<CoordinatorEntity>(
+      (
+        coordo,
+        {
+          annual_classroom_id,
+          AnnualTeacher: {
+            Teacher: {
+              Login: {
+                login_id,
+                Person,
+                Logs: [log],
+                AnnualConfigurators: [configrator],
+                AnnualRegistries: [registry],
+              },
+              ...teacher
+            },
+            ...annual_teacher
+          },
+        }
+      ) =>
+        new CoordinatorEntity(
+          coordo
+            ? {
+                ...coordo,
+                annualClassroomIds: coordo.annualClassroomIds.includes(
+                  annual_classroom_id
+                )
+                  ? coordo.annualClassroomIds
+                  : [...coordo.annualClassroomIds, annual_classroom_id],
+              }
+            : {
+                login_id,
+                ...Person,
+                ...teacher,
+                ...annual_teacher,
+                last_connected: log?.logged_in_at ?? null,
+                annualClassroomIds: [annual_classroom_id],
+                roles: [{ registry }, { configrator }].reduce<StaffRole[]>(
+                  (roles, _) =>
+                    _.registry
+                      ? [...roles, StaffRole.REGISTRY]
+                      : _.configrator
+                      ? [...roles, StaffRole.CONFIGURATOR]
+                      : roles,
+                  [StaffRole.TEACHER, StaffRole.COORDINATOR]
+                ),
+                role: StaffRole.COORDINATOR,
+              }
+        ),
+      CoordinatorEntity.prototype
     );
   }
 
@@ -28,27 +113,22 @@ export class CoordinatorsService implements IStaffService<StaffEntity> {
         distinct: ['annual_coordinator_id'],
         select: {
           AnnualTeacher: {
-            select: {
-              annual_teacher_id: true,
-              Teacher: {
-                select: {
-                  matricule: true,
-                  ...StaffArgsFactory.getStaffSelect(staffParams),
-                },
-              },
-            },
+            select: StaffArgsFactory.getTeacherSelect(),
           },
         },
         where: {
-          AnnualTeacher: StaffArgsFactory.getStaffWhereInput(staffParams),
+          is_deleted: false,
+          AnnualTeacher: {
+            Teacher: StaffArgsFactory.getStaffWhereInput(staffParams),
+          },
         },
       });
     return coordinators.map(
       ({
         AnnualTeacher: {
-          annual_teacher_id,
           Teacher: {
             matricule,
+            is_deleted,
             Login: {
               login_id,
               Person,
@@ -57,12 +137,14 @@ export class CoordinatorsService implements IStaffService<StaffEntity> {
               AnnualRegistries: [registry],
             },
           },
+          annual_teacher_id,
         },
       }) =>
         new StaffEntity({
           login_id,
-          matricule,
           ...Person,
+          matricule,
+          is_deleted,
           annual_teacher_id,
           last_connected: log?.logged_in_at ?? null,
           roles: [{ registry }, { configrator }].reduce<StaffRole[]>(
@@ -74,6 +156,7 @@ export class CoordinatorsService implements IStaffService<StaffEntity> {
                 : roles,
             [StaffRole.TEACHER, StaffRole.COORDINATOR]
           ),
+          role: StaffRole.COORDINATOR,
         })
     );
   }

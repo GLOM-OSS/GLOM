@@ -1,6 +1,10 @@
 import { NotchPayService } from '@glom/payment';
 import { GlomPrismaService } from '@glom/prisma';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import {
   CarryOverSystemEnum,
   Prisma,
@@ -10,12 +14,13 @@ import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import {
-  DemandDetails,
+  SchoolDemandDetails,
   SchoolEntity,
-  SubmitDemandDto,
-  UpdateSchoolStatus,
-  ValidateDemandDto,
-} from './demand.dto';
+  SubmitSchoolDemandDto,
+  UpdateSchoolDemandStatus,
+  ValidateSchoolDemandDto,
+} from './schools.dto';
+import { AxiosError } from 'axios';
 
 const schoolSelectAttr = Prisma.validator<Prisma.SchoolArgs>()({
   select: {
@@ -66,27 +71,27 @@ const getSchoolEntity = (
 };
 
 @Injectable()
-export class DemandService {
+export class SchoolsService {
   constructor(
     private prismaService: GlomPrismaService,
     private notchPayService: NotchPayService,
     private codeGenerator: CodeGeneratorFactory
   ) {}
 
-  async findOne(school_id: string) {
-    const school = await this.prismaService.school.findUnique({
+  async findOne(identifier: string) {
+    const school = await this.prismaService.school.findFirstOrThrow({
       ...schoolSelectAttr,
-      where: { school_id },
+      where: { OR: [{ school_id: identifier }, { school_code: identifier }] },
     });
-    if (!school) throw new NotFoundException('School demand not found');
+    // if (!school) throw new NotFoundException('School demand not found');
     return getSchoolEntity(school);
   }
 
   async findDetails(school_id: string) {
     const schoolData = await this.prismaService.school.findUnique({
-      include: {
+      select: {
         ...schoolSelectAttr.select,
-        Person: true,
+        CreatedBy: true,
         AcademicYears: {
           take: 1,
           orderBy: { created_at: 'asc' },
@@ -96,11 +101,11 @@ export class DemandService {
     });
     if (!schoolData) throw new NotFoundException('School demand not found');
     const {
-      Person: person,
+      CreatedBy: person,
       AcademicYears: [academicYear],
       ...school
     } = schoolData;
-    return new DemandDetails({
+    return new SchoolDemandDetails({
       person,
       academicYear: {
         ends_at: academicYear?.ended_at,
@@ -138,7 +143,7 @@ export class DemandService {
       initial_year_starts_at: starts_at,
     },
     configurator: { password, phone_number, ...person },
-  }: SubmitDemandDto) {
+  }: SubmitSchoolDemandDto) {
     const academic_year_id = randomUUID();
     const annual_configurator_id = randomUUID();
     const year_code = await this.codeGenerator.getYearCode(
@@ -190,7 +195,7 @@ export class DemandService {
           data: {
             carry_over_system: CarryOverSystemEnum.SUBJECT,
             AcademicYear: { connect: { year_code } },
-            AnnualConfigurator: {
+            CreatedBy: {
               connect: { annual_configurator_id },
             },
           },
@@ -201,13 +206,13 @@ export class DemandService {
               academic_year_id,
               payment_percentage: 0,
               annual_semester_number: 1,
-              configured_by: annual_configurator_id,
+              created_by: annual_configurator_id,
             },
             {
               academic_year_id,
               payment_percentage: 0,
               annual_semester_number: 2,
-              configured_by: annual_configurator_id,
+              created_by: annual_configurator_id,
             },
           ],
         }),
@@ -215,7 +220,7 @@ export class DemandService {
     };
   }
 
-  async create(demandpayload: SubmitDemandDto) {
+  async create(demandpayload: SubmitSchoolDemandDto) {
     const {
       payment_phone,
       school: {
@@ -237,7 +242,15 @@ export class DemandService {
     let payment_ref: string;
     let onboarding_fee: number;
     if (payment_phone) {
-      const payment = await this.payOnboardingFee(payment_phone);
+      const payment = await this.payOnboardingFee(payment_phone).catch(
+        (error: AxiosError) => {
+          throw new UnprocessableEntityException(
+            `Payment failed for: ${
+              error.response.data['message'] || error.message
+            }`
+          );
+        }
+      );
       payment_ref = payment.reference;
       onboarding_fee = payment.amount;
     }
@@ -251,7 +264,7 @@ export class DemandService {
           school_phone_number,
           school_name,
           lead_funnel,
-          Person: {
+          CreatedBy: {
             connectOrCreate: {
               create: { ...person, phone_number },
               where: { email: person.email },
@@ -282,7 +295,7 @@ export class DemandService {
 
   async validateDemand(
     school_id: string,
-    { rejection_reason, subdomain }: ValidateDemandDto,
+    { rejection_reason, subdomain }: ValidateSchoolDemandDto,
     audited_by: string
   ) {
     const schoolDemand = await this.prismaService.schoolDemand.findFirst({
@@ -323,7 +336,7 @@ export class DemandService {
 
   async updateStatus(
     school_id: string,
-    payload: UpdateSchoolStatus,
+    payload: UpdateSchoolDemandStatus,
     audited_by: string
   ) {
     const schoolDemand = await this.prismaService.schoolDemand.findFirst({
@@ -334,7 +347,7 @@ export class DemandService {
     const { demand_status, ambassador_id, rejection_reason } = schoolDemand;
     await this.prismaService.schoolDemand.update({
       data: {
-        demand_status: payload.school_status,
+        demand_status: payload.school_demand_status,
         SchoolDemandAudits: {
           create: {
             audited_by,

@@ -80,7 +80,7 @@ function CustomApp({ Component, pageProps }: AppProps) {
             openContactUs={() => setIsContactUsDialogOpen(true)}
             openEarlyAccess={() => setIsEarlyAccesDialogOpen(true)}
             openStatusDialog={() => setIsStatusDialogOpen(true)}
-            canDemand={false}
+            canDemand={true}
           />
           <Box
             sx={{

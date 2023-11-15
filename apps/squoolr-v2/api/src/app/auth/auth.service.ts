@@ -13,8 +13,9 @@ import { Login, Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { AcademicYearsService } from '../../modules/academic-years/academic-years.service';
-import { PassportUser, SessionData } from './auth';
-import { KeyRole, StaffRole } from '../../utils/enums';
+import { KeyRole, Role, StaffRole } from '../../utils/enums';
+import { AnnualSessionData, PassportUser } from './auth';
+import { UserEntity } from './auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -136,22 +137,20 @@ export class AuthService {
   }
 
   async updateUserSession(request: Request, login_id: string) {
-    let sessionData: SessionData = null;
+    let annualSessionData: AnnualSessionData;
     const academicYears = await this.academicYearService.findAll(login_id);
     const numberOfAcademicYear = academicYears.length;
     if (numberOfAcademicYear === 0)
       throw new NotFoundException('No academic year was found');
     else if (numberOfAcademicYear === 1) {
       const [{ academic_year_id }] = academicYears;
-      const { sessionData: session } =
-        await this.academicYearService.selectAcademicYear(
-          login_id,
-          academic_year_id
-        );
+      annualSessionData = await this.academicYearService.selectAcademicYear(
+        login_id,
+        academic_year_id
+      );
       await this.updateSession(request, { academic_year_id });
-      sessionData = session;
     }
-    return { academicYears, sessionData };
+    return { academicYears, annualSessionData };
   }
 
   async updateSession(
@@ -240,23 +239,25 @@ export class AuthService {
     });
   }
 
-  async deserializeUser(user: PassportUser): Promise<Express.User> {
-    const { academic_year_id, login_id } = user;
+  async deserializeUser({
+    academic_year_id,
+    login_id,
+  }: PassportUser): Promise<Express.User> {
     const login = await this.prismaService.login.findFirst({
       include: { Person: true },
       where: { login_id },
     });
     if (!login) return null;
-    const { Person: person } = login;
+    const { Person: person, is_parent, school_id } = login;
     let deserialedUser: Express.User;
     if (academic_year_id) {
-      const { sessionData: availableRoles } =
+      const academicYearData =
         await this.academicYearService.selectAcademicYear(
           login_id,
           academic_year_id
         );
-      deserialedUser = { ...deserialedUser, ...availableRoles };
-    } else if (login.is_parent) {
+      deserialedUser = { ...deserialedUser, ...academicYearData };
+    } else if (is_parent) {
       //check for parent students
       const parentStudents = await this.prismaService.student.findMany({
         select: { student_id: true },
@@ -267,7 +268,7 @@ export class AuthService {
         tutorStudentIds: parentStudents.map((_) => _.student_id),
       };
     }
-    return { login_id, ...person, ...deserialedUser };
+    return { login_id, school_id, ...person, ...deserialedUser };
   }
 
   async openSession(request: Request, login_id: string) {
@@ -312,9 +313,23 @@ export class AuthService {
     );
   }
 
-  async getPerson(email: string) {
-    return this.prismaService.person.findUnique({
-      where: { email },
+  async getUser({
+    activeYear,
+    annualConfigurator,
+    annualRegistry,
+    annualStudent,
+    annualTeacher,
+    ...person
+  }: Express.User) {
+    return new UserEntity({
+      ...person,
+      active_year_id: activeYear?.academic_year_id,
+      roles: [
+        ...(annualConfigurator ? [Role.CONFIGURATOR] : []),
+        ...(annualRegistry ? [Role.REGISTRY] : []),
+        ...(annualStudent ? [Role.STUDENT] : []),
+        ...(annualTeacher ? [Role.TEACHER] : []),
+      ],
     });
   }
 
@@ -326,7 +341,7 @@ export class AuthService {
 
     if (role === StaffRole.TEACHER) {
       const teacher = await this.prismaService.teacher.findUnique({
-        where: { teacher_id: user_id },
+        where: { login_id: user_id },
       });
       privateCode = teacher?.private_code;
     } else {

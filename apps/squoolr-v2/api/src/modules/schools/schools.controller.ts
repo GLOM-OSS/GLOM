@@ -20,45 +20,45 @@ import { Request } from 'express';
 import { IsPublic, Roles } from '../../app/auth/auth.decorator';
 import { Role } from '../../utils/enums';
 import {
-  DemandDetails,
+  SchoolDemandDetails,
   SchoolEntity,
-  SubmitDemandDto,
-  UpdateSchoolStatus,
-  ValidateDemandDto,
-} from './demand.dto';
-import { DemandService } from './demand.service';
+  SubmitSchoolDemandDto,
+  UpdateSchoolDemandStatus,
+  ValidateSchoolDemandDto,
+} from './schools.dto';
+import { SchoolsService } from './schools.service';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 
-@ApiTags('Demands')
+@ApiTags('Schools')
 @Roles(Role.ADMIN)
-@Controller('demands')
+@Controller('schools')
 @UseGuards(AuthenticatedGuard)
-export class DemandController {
-  constructor(private demandService: DemandService) {}
+export class SchoolsController {
+  constructor(private schoolsService: SchoolsService) {}
 
   @Get()
   @ApiOkResponse({ type: [SchoolEntity] })
   getAllDemands() {
-    return this.demandService.findAll();
+    return this.schoolsService.findAll();
   }
 
   @IsPublic()
-  @Get(':school_id')
+  @Get([':school_id', ':school_code'])
   @ApiOkResponse({ type: SchoolEntity })
-  getDemandStatus(@Param('school_id') schoolId: string) {
-    return this.demandService.findOne(schoolId);
+  getDemandStatus(@Param('school_id') identifier: string) {
+    return this.schoolsService.findOne(identifier);
   }
 
   @Get(':school_id/details')
-  @ApiOkResponse({ type: DemandDetails })
+  @ApiOkResponse({ type: SchoolDemandDetails })
   getDemandDetails(@Param('school_id') schoolId: string) {
-    return this.demandService.findDetails(schoolId);
+    return this.schoolsService.findDetails(schoolId);
   }
 
   @IsPublic()
   @Post('new')
   @ApiCreatedResponse({ type: SchoolEntity })
-  submitDemand(@Body() schoolDemandPayload: SubmitDemandDto) {
+  submitDemand(@Body() schoolDemandPayload: SubmitSchoolDemandDto) {
     const {
       payment_phone,
       school: { referral_code },
@@ -71,7 +71,7 @@ export class DemandController {
       throw new BadRequestException(
         'please provide payment number or referral code'
       );
-    return this.demandService.create(schoolDemandPayload);
+    return this.schoolsService.create(schoolDemandPayload);
   }
 
   @ApiNoContentResponse()
@@ -79,7 +79,7 @@ export class DemandController {
   validateDemand(
     @Req() request: Request,
     @Param('school_id') schoolId: string,
-    @Body() validatedDemand: ValidateDemandDto
+    @Body() validatedDemand: ValidateSchoolDemandDto
   ) {
     const userId = request.user.login_id;
     const { rejection_reason, subdomain } = validatedDemand;
@@ -87,18 +87,18 @@ export class DemandController {
       throw new BadRequestException(
         'rejection_reason and subdomain cannot coexist'
       );
-    return this.demandService.validateDemand(schoolId, validatedDemand, userId);
+    return this.schoolsService.validateDemand(schoolId, validatedDemand, userId);
   }
 
   @Put(':school_id/status')
   @ApiOkResponse()
-  // @UseGuards(AuthenticatedGuard)
+  @UseGuards(AuthenticatedGuard)
   updateSchoolStatus(
     @Req() request: Request,
     @Param('school_id') schoolId: string,
-    @Body() payload: UpdateSchoolStatus
+    @Body() payload: UpdateSchoolDemandStatus
   ) {
     const userId = request.user.login_id;
-    return this.demandService.updateStatus(schoolId, payload, userId);
+    return this.schoolsService.updateStatus(schoolId, payload, userId);
   }
 }

@@ -2,6 +2,7 @@ import { useTheme } from '@glom/theme';
 import {
   Box,
   Button,
+  CircularProgress,
   IconButton,
   TextField,
   Tooltip,
@@ -17,15 +18,18 @@ import Footer from './Footer';
 import { Icon } from '@iconify/react';
 import eye from '@iconify/icons-fluent/eye-32-regular';
 import eyeSlash from '@iconify/icons-fluent/eye-hide-24-regular';
+import { SignInPayload } from '@glom/data-types/squoolr';
+import { useSignIn } from '@glom/data-access/squoolr';
+import { useRouter } from 'next/router';
 
 export function Signin({ app }: { app: IAppType }) {
   const { formatMessage } = useIntl();
   const theme = useTheme();
+  const { push } = useRouter();
 
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  const initialValues: { email: string; password: string } = {
+  const initialValues: SignInPayload = {
     email: '',
     password: '',
   };
@@ -37,16 +41,19 @@ export function Signin({ app }: { app: IAppType }) {
     password: Yup.string().required(formatMessage({ id: 'requiredField' })),
   });
 
+  const { mutate: signIn, isPending: isSubmitting } = useSignIn();
   const formik = useFormik({
     initialValues,
     validationSchema,
     enableReinitialize: true,
     onSubmit: (values, { resetForm }) => {
-      //TODO: INTEGRATE SIGN IN HERE
       //TODO: CHECK ON THE NOTIF HERE, AND UPDATE OneUI own
-      alert(JSON.stringify(values));
-      setIsSubmitting(true);
-      resetForm();
+      signIn(values, {
+        onSuccess() {
+          push('/management');
+          resetForm();
+        },
+      });
     },
   });
 
@@ -142,7 +149,18 @@ export function Signin({ app }: { app: IAppType }) {
             }}
           />
 
-          <Button type="submit" variant="contained" color="primary" fullWidth>
+          <Button
+            fullWidth
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={isSubmitting}
+            startIcon={
+              isSubmitting && (
+                <CircularProgress color="primary" size={18} />
+              )
+            }
+          >
             {formatMessage({ id: 'login' })}
           </Button>
         </Box>

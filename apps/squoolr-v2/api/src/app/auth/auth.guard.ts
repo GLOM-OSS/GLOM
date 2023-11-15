@@ -21,7 +21,7 @@ export class AuthenticatedGuard implements CanActivate {
       IS_PUBLIC,
       context.getHandler()
     );
-    if(isPublic) return isPublic
+    if (isPublic) return isPublic;
     const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES, [
       context.getHandler(),
       context.getClass(),
@@ -73,14 +73,14 @@ export class AuthenticatedGuard implements CanActivate {
   }
 
   async validatePrivateCode(request: Request, roles: Role[]) {
-    const { annualTeacher, annualRegistry } = request.user;
+    const { login_id, annualRegistry } = request.user;
     const private_code = request.body['private_code'];
 
     return (
       (roles.includes(Role.TEACHER) &&
         (await this.authService.verifyPrivateCode(StaffRole.TEACHER, {
           private_code,
-          user_id: annualTeacher?.teacher_id,
+          user_id: login_id,
         }))) ||
       (roles.includes(Role.REGISTRY) &&
         (await this.authService.verifyPrivateCode(StaffRole.REGISTRY, {
