@@ -657,4 +657,6 @@ export const website = {
   classesOf: 'Salles de classe de',
   numberOfDivisionsExplanation:
     "Représente les divisions que nous faisons dans les classes lorsqu'il y a beaucoup d'élèves. Cela permet de séparer la même classe en différentes divisions de, par exemple, 50 élèves chacune pour un meilleur contrôle !",
+  staff: 'Personnel',
+  schoolProfile: "Profil de l'école",
 };

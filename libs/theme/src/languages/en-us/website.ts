@@ -633,4 +633,7 @@ export const website = {
   classesOf: 'Classrooms of',
   numberOfDivisionsExplanation:
     'Represents the seperations we do in classes when there are a lot of students. It permits to seperate same class in different divisions of say 50 students each bringing better control!',
+
+  staff: 'Staff',
+  schoolProfile: 'School Profile',
 };
