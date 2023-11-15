@@ -3,6 +3,6 @@ import { Prisma } from '@prisma/client';
 export type UpdateClassroomPayload = Partial<
   Pick<
     Prisma.AnnualClassroomUpdateInput,
-    'total_fee_due' | 'registration_fee'
-  > & { is_deleted: true }
+    'classroom_level' | 'number_of_divisions'
+  > & { is_deleted: boolean }
 >;

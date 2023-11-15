@@ -436,7 +436,7 @@ export class AcademicYearsService {
             Classroom: { select: { classroom_code: true, level: true } },
           },
         },
-        AnnualStudentHasCreditUnits: {
+        AnnualStudentHasModules: {
           distinct: ['semester_number'],
           select: { semester_number: true },
         },
@@ -454,7 +454,7 @@ export class AcademicYearsService {
         Student: {
           Classroom: { classroom_code, level: classroom_level },
         },
-        AnnualStudentHasCreditUnits: crediUnits,
+        AnnualStudentHasModules: crediUnits,
       } = annualStudent;
       annualSessionData = {
         ...annualSessionData,
@@ -574,12 +574,12 @@ export class AcademicYearsService {
           data: [
             {
               annual_semester_number: 1,
-              configured_by: annual_configurator_id,
+              created_by: annual_configurator_id,
               payment_percentage: 0,
             },
             {
               annual_semester_number: 2,
-              configured_by: annual_configurator_id,
+              created_by: annual_configurator_id,
               payment_percentage: 0,
             },
           ],
