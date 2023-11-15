@@ -743,7 +743,6 @@ model AnnualClassroom {
 
 model AnnualClassroomAudit {
     annual_classroom_audit_id String             @id @default(uuid()) @db.VarChar(36)
-    classroom_level           Int
     number_of_divisions       Int
     is_deleted                Boolean            @db.TinyInt
     audited_at                DateTime           @default(now()) @db.DateTime(0)
