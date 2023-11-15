@@ -1,20 +1,20 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  OmitType,
+  PartialType,
+  PickType,
+} from '@nestjs/swagger';
 import { AnnualClassroom } from '@prisma/client';
 import { Exclude } from 'class-transformer';
-import { IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsNumber,
+  IsNumberString,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 import { QueryParamsDto } from '../modules.dto';
-
-export class UpdateClassroomDto {
-  @IsNumber()
-  @IsOptional()
-  @ApiPropertyOptional()
-  registration_fee?: number;
-
-  @IsNumber()
-  @IsOptional()
-  @ApiPropertyOptional()
-  total_fee_due?: number;
-}
 
 export class ClassroomDivisionQueryDto {
   @IsString()
@@ -45,9 +45,6 @@ export class AnnualClassroomEntity implements AnnualClassroom {
   classroom_name: string;
 
   @ApiProperty()
-  classroom_code: string;
-
-  @ApiProperty()
   classroom_acronym: string;
 
   @ApiProperty()
@@ -60,23 +57,27 @@ export class AnnualClassroomEntity implements AnnualClassroom {
   is_deleted: boolean;
 
   @ApiProperty({ nullable: true })
-  total_fee_due: number | null;
-
-  @ApiProperty({ nullable: true })
-  registration_fee: number | null;
-
-  @ApiProperty({ nullable: true })
   annual_coordinator_id: string | null;
 
-  @Exclude()
   @ApiProperty()
   classroom_id: string;
 
-  @Exclude()
   @ApiProperty()
   created_at: Date;
 
   constructor(props: AnnualClassroomEntity) {
     Object.assign(this, props);
   }
+}
+
+export class UpdateClassroomDto {
+  @ApiProperty()
+  @IsNumberString()
+  number_of_divisions: number;
+}
+
+export class DisanleClassroomsDto {
+  @IsString({ each: true })
+  @ApiProperty({ type: [String] })
+  annualClassroomIds: string[];
 }

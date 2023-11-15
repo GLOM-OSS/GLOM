@@ -128,8 +128,8 @@ export class CodeGeneratorFactory {
       where: { school_id },
     });
     const starts_with = `UE${school_acronym}${acronym}`;
-    const number_of_modules = await this.prismaService.annualCreditUnit.count({
-      where: { credit_unit_code: { startsWith: starts_with } },
+    const number_of_modules = await this.prismaService.annualModule.count({
+      where: { module_code: { startsWith: starts_with } },
     });
 
     return `${starts_with}${this.formatNumber(number_of_modules) + 1}`;
@@ -142,7 +142,7 @@ export class CodeGeneratorFactory {
     });
     const starts_with = `UV${school_acronym}${acronym}`;
     const number_of_subjects =
-      await this.prismaService.annualCreditUnitSubject.findMany({
+      await this.prismaService.annualSubject.findMany({
         distinct: ['subject_code'],
         where: { subject_code: { startsWith: starts_with } },
       });
@@ -151,14 +151,14 @@ export class CodeGeneratorFactory {
 
   async getGroupCodes(annual_subject_id: string, number_of_groups: number) {
     const { subject_code } =
-      await this.prismaService.annualCreditUnitSubject.findUniqueOrThrow({
-        where: { annual_credit_unit_subject_id: annual_subject_id },
+      await this.prismaService.annualSubject.findUniqueOrThrow({
+        where: { annual_subject_id },
       });
     const number_of_created_groups = (
       await this.prismaService.assignmentGroupMember.findMany({
         distinct: 'group_code',
         where: {
-          Assessment: { annual_credit_unit_subject_id: annual_subject_id },
+          Assessment: { annual_subject_id },
         },
       })
     ).length;
