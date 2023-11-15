@@ -16,6 +16,7 @@ import unchecked from '@iconify/icons-fluent/checkbox-unchecked-16-filled';
 import filter from '@iconify/icons-fluent/filter-28-regular';
 import more from '@iconify/icons-fluent/more-vertical-48-regular';
 import search from '@iconify/icons-fluent/search-48-regular';
+import questionMark from '@iconify/icons-fluent/book-question-mark-24-regular';
 import { Icon } from '@iconify/react';
 import {
   Box,
@@ -459,6 +460,28 @@ export default function Index() {
                     />
                   ) : index > 0 && columnTitle === '' ? (
                     ''
+                  ) : index === 3 ? (
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'auto 1fr',
+                        justifyItems: 'start',
+                        alignItems: 'center',
+                        columnGap: 0.3,
+                      }}
+                    >
+                      {formatMessage({ id: columnTitle })}
+                      <Tooltip
+                        placement="top"
+                        title={formatMessage({
+                          id: 'numberOfDivisionsExplanation',
+                        })}
+                      >
+                        <IconButton size="small">
+                          <Icon icon={questionMark} />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
                   ) : (
                     formatMessage({ id: columnTitle })
                   )}
