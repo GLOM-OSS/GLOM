@@ -160,7 +160,7 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
           fontWeight: 600,
           fontSize: '24px',
           lineHeight: '32px',
-          letterSpacing: '-1.75%',
+          letterSpacing: '-0.42px',
           paddingBottom: '10px',
         },
         h4: {
