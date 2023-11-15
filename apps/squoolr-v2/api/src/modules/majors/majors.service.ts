@@ -80,6 +80,9 @@ export class MajorsService {
     }: CreateMajorPayload,
     created_by: string
   ) {
+    await this.prismaService.department.findFirstOrThrow({
+      where: { department_id, is_deleted: false },
+    });
     const [cycle, major] = await Promise.all([
       this.prismaService.cycle.findUniqueOrThrow({
         where: { cycle_id },

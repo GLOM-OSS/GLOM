@@ -51,12 +51,12 @@ export class DepartmentsService {
     audited_by: string
   ) {
     const departmentAudit =
-      await this.prismaService.department.findUniqueOrThrow({
+      await this.prismaService.department.findFirstOrThrow({
         select: {
           is_deleted: true,
           department_name: true,
         },
-        where: { department_id },
+        where: { department_id, is_deleted: false },
       });
     await this.prismaService.department.update({
       data: {
