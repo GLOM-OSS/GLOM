@@ -574,12 +574,12 @@ export class AcademicYearsService {
           data: [
             {
               annual_semester_number: 1,
-              configured_by: annual_configurator_id,
+              created_by: annual_configurator_id,
               payment_percentage: 0,
             },
             {
               annual_semester_number: 2,
-              configured_by: annual_configurator_id,
+              created_by: annual_configurator_id,
               payment_percentage: 0,
             },
           ],

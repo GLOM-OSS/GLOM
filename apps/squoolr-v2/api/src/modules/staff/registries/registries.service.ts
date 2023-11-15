@@ -142,7 +142,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
           create: {
             is_deleted,
             private_code,
-            AnnualConfigurator: {
+            AuditedBy: {
               connect: { annual_configurator_id: audited_by },
             },
           },
@@ -225,7 +225,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
                 create: {
                   is_deleted,
                   private_code,
-                  AnnualConfigurator: {
+                  AuditedBy: {
                     connect: { annual_configurator_id: reset_by },
                   },
                 },
