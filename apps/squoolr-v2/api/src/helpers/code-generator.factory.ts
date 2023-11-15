@@ -41,45 +41,6 @@ export class CodeGeneratorFactory {
     return `${acronym}${this.formatNumber(number_of_schools + 1)}`;
   }
 
-  async getDepartmentCode(acronym: string, school_id: string) {
-    const number_of_departments = await this.prismaService.department.count({
-      where: { school_id },
-    });
-
-    const { school_acronym } = await this.prismaService.school.findUnique({
-      where: { school_id },
-    });
-    return `${school_acronym}${acronym}${this.formatNumber(
-      number_of_departments + 1
-    )}`;
-  }
-
-  async getMajorCode(acronym: string, department_code: string) {
-    const { department_acronym } =
-      await this.prismaService.department.findUnique({
-        where: { department_code },
-      });
-    const major_acronym = `${department_acronym}${acronym}`;
-    const number_of_majors = await this.prismaService.major.count({
-      where: { major_acronym },
-    });
-    return `${department_acronym}${acronym}${this.formatNumber(
-      number_of_majors + 1
-    )}`;
-  }
-
-  async getClassCode(level: number, major_code: string) {
-    const { major_acronym } = await this.prismaService.major.findUnique({
-      where: { major_code },
-    });
-    const classroom_acronym = `${major_acronym}${level}`;
-    const number_of_classrooms = await this.prismaService.classroom.count({
-      where: { classroom_acronym },
-    });
-
-    return `${classroom_acronym}${this.formatNumber(number_of_classrooms + 1)}`;
-  }
-
   async getPersonnelCode(school_id: string, role: StaffRole) {
     const { school_acronym } = await this.prismaService.school.findUnique({
       select: { school_acronym: true },
@@ -122,7 +83,7 @@ export class CodeGeneratorFactory {
     }
   }
 
-  async getCreditUnitCode(school_id: string, acronym: string) {
+  async getModuleCode(school_id: string, acronym: string) {
     const { school_acronym } = await this.prismaService.school.findUnique({
       select: { school_acronym: true },
       where: { school_id },
@@ -135,7 +96,7 @@ export class CodeGeneratorFactory {
     return `${starts_with}${this.formatNumber(number_of_modules) + 1}`;
   }
 
-  async getCreditUnitSubjectCode(school_id: string, acronym: string) {
+  async getSubjectCode(school_id: string, acronym: string) {
     const { school_acronym } = await this.prismaService.school.findUnique({
       select: { school_acronym: true },
       where: { school_id },
