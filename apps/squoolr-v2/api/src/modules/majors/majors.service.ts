@@ -227,4 +227,11 @@ export class MajorsService {
         : []),
     ]);
   }
+  async disableMany(annualMajorIds: string[], disabled_by: string) {
+    await Promise.all(
+      annualMajorIds.map((annualMajorId) =>
+        this.update(annualMajorId, { is_deleted: true }, disabled_by)
+      )
+    );
+  }
 }
