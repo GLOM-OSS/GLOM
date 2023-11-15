@@ -220,7 +220,7 @@ export class MajorsService {
     payload: UpdateMajorPayload,
     audited_by: string
   ) {
-    const annualMajorAudit =
+    const { AnnualModules, ...annualMajorAudit } =
       await this.prismaService.annualMajor.findFirstOrThrow({
         select: {
           annual_major_id: true,
@@ -228,20 +228,43 @@ export class MajorsService {
           major_code: true,
           major_name: true,
           is_deleted: true,
+          AnnualModules: true,
         },
         where: { annual_major_id },
       });
-    await this.prismaService.annualMajor.update({
-      data: {
-        ...payload,
-        AnnualMajorAudits: {
-          create: {
-            audited_by,
-            ...annualMajorAudit,
+    await this.prismaService.$transaction([
+      this.prismaService.annualMajor.update({
+        data: {
+          ...payload,
+          AnnualMajorAudits: {
+            create: {
+              audited_by,
+              ...annualMajorAudit,
+            },
           },
         },
-      },
-      where: { annual_major_id },
-    });
+        where: { annual_major_id },
+      }),
+      ...(payload.is_deleted
+        ? [
+            this.prismaService.annualModule.updateMany({
+              data: { is_deleted: true },
+              where: { annual_major_id },
+            }),
+            this.prismaService.annualSubject.updateMany({
+              data: { is_deleted: true },
+              where: {
+                OR: AnnualModules.map(({ annual_module_id }) => ({
+                  annual_module_id,
+                })),
+              },
+            }),
+            this.prismaService.annualClassroom.updateMany({
+              data: { is_deleted: true },
+              where: { annual_major_id },
+            }),
+          ]
+        : []),
+    ]);
   }
 }
