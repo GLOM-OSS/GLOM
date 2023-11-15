@@ -1,8 +1,8 @@
 import {
-  ConfirmDialog,
-  NoTableElement,
-  TableHeaderItem,
-  TableSkeleton,
+    ConfirmDialog,
+    NoTableElement,
+    TableHeaderItem,
+    TableSkeleton,
 } from '@glom/components';
 import { MajorEntity } from '@glom/data-types/squoolr';
 import { useDispatchBreadcrumb } from '@glom/squoolr-v2/side-nav';
@@ -16,24 +16,25 @@ import more from '@iconify/icons-fluent/more-vertical-48-regular';
 import search from '@iconify/icons-fluent/search-48-regular';
 import { Icon } from '@iconify/react';
 import {
-  Box,
-  Button,
-  Checkbox,
-  IconButton,
-  InputAdornment,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Tooltip,
+    Box,
+    Button,
+    Checkbox,
+    IconButton,
+    InputAdornment,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TextField,
+    Tooltip,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import FilterMenu from '../../../components/configuration/departments/FilterMenu';
+import AddMajorDialog from '../../../components/configuration/majors/AddMajorDialog';
 import EditMajorDialog from '../../../components/configuration/majors/EditMajorDialog';
 import ManageMajorMenu from '../../../components/configuration/majors/ManageMajorMenu';
 
@@ -167,6 +168,10 @@ export function Index() {
 
   return (
     <>
+      <AddMajorDialog
+        isDialogOpen={isNewMajorDialogOpen}
+        closeDialog={() => setIsNewMajorDialogOpen(false)}
+      />
       {editableMajor && (
         <EditMajorDialog
           isDialogOpen={isEditMajorDialogOpen}
