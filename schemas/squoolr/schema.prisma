@@ -665,10 +665,9 @@ model Major {
     created_by         String             @db.VarChar(36)
     AnnualConfigurator AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
-    MajorAudits   MajorAudit[]
-    AnnualMajors  AnnualMajor[]
-    Classrooms    Classroom[]
-    AnnualModules AnnualModule[]
+    MajorAudits  MajorAudit[]
+    AnnualMajors AnnualMajor[]
+    Classrooms   Classroom[]
 
     @@fulltext([major_name])
     @@fulltext([major_name, major_acronym])
@@ -706,6 +705,7 @@ model AnnualMajor {
 
     AnnualMajorAudits AnnualMajorAudit[]
     AnnualClassrooms  AnnualClassroom[]
+    AnnualModules     AnnualModule[]
 
     @@unique([major_code, academic_year_id])
     @@fulltext([major_name])
@@ -816,8 +816,8 @@ model AnnualModule {
     is_resit_published Boolean       @default(false) @db.TinyInt
     is_deleted         Boolean       @default(false) @db.TinyInt
     created_at         DateTime      @default(now()) @db.DateTime(0)
-    major_id           String        @db.VarChar(36)
-    Major              Major         @relation(fields: [major_id], references: [major_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_major_id    String        @db.VarChar(36)
+    AnnualMajor        AnnualMajor   @relation(fields: [annual_major_id], references: [annual_major_id], onDelete: Cascade, onUpdate: Cascade)
     academic_year_id   String        @db.VarChar(36)
     AcademicYear       AcademicYear  @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
     created_by         String        @db.VarChar(36)
