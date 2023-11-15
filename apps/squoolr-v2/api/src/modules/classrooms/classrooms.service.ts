@@ -10,7 +10,7 @@ export class ClassroomsService {
   async findAll(annual_major_id: string, params?: QueryClassroomDto) {
     const classrooms = await this.prismaService.annualClassroom.findMany({
       include: {
-        Classroom: { select: { level: true } },
+        AnnualMajor: { select: { major_acronym: true, major_name: true } },
         AnnualClassroomDivisions: { select: { annual_coordinator_id: true } },
       },
       where: {
@@ -18,27 +18,34 @@ export class ClassroomsService {
         OR: [
           {
             is_deleted: params?.is_deleted,
-            Classroom: params?.level ? { level: params.level } : undefined,
+            classroom_level: params?.level,
           },
           {
-            classroom_name: {
-              search: params?.keywords,
-            },
+            AnnualMajor: params?.keywords
+              ? {
+                  major_name: {
+                    search: params?.keywords,
+                  },
+                }
+              : undefined,
           },
         ],
       },
     });
     return classrooms.map(
       ({
-        Classroom: { level },
+        classroom_level,
+        AnnualMajor: { major_acronym, major_name },
         AnnualClassroomDivisions: [{ annual_coordinator_id }],
-        ...data
+        ...classroomData
       }) =>
         new AnnualClassroomEntity({
-          ...data,
+          classroom_level,
+          annual_major_id,
           annual_coordinator_id,
-          classroom_level: level,
-          number_of_divisions: 1,
+          classroom_name: `${major_name} ${classroom_level}`,
+          classroom_acronym: `${major_acronym}${classroom_level}`,
+          ...classroomData,
         })
     );
   }
@@ -51,9 +58,9 @@ export class ClassroomsService {
     const annualClassroomAudit =
       await this.prismaService.annualClassroom.findFirstOrThrow({
         select: {
-          registration_fee: true,
-          total_fee_due: true,
           is_deleted: true,
+          classroom_level: true,
+          number_of_divisions: true,
         },
         where: { annual_classroom_id, is_deleted: false },
       });

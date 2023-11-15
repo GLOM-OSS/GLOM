@@ -45,9 +45,6 @@ export class AnnualClassroomEntity implements AnnualClassroom {
   classroom_name: string;
 
   @ApiProperty()
-  classroom_code: string;
-
-  @ApiProperty()
   classroom_acronym: string;
 
   @ApiProperty()
@@ -58,12 +55,6 @@ export class AnnualClassroomEntity implements AnnualClassroom {
 
   @ApiProperty()
   is_deleted: boolean;
-
-  @ApiProperty({ nullable: true })
-  total_fee_due: number | null;
-
-  @ApiProperty({ nullable: true })
-  registration_fee: number | null;
 
   @ApiProperty({ nullable: true })
   annual_coordinator_id: string | null;
