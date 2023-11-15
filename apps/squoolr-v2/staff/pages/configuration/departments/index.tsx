@@ -62,7 +62,6 @@ export function Index() {
           created_at: new Date().toISOString(),
           created_by: '',
           department_acronym: 'DS',
-          department_code: 'EF1203',
           department_id: 'EF1203',
           department_name: 'Department des Sciences',
           is_deleted: false,

@@ -124,15 +124,12 @@ export default function Index() {
           annual_coordinator_id: '',
           annual_major_id: 'bostoin123',
           classroom_acronym: 'RT3',
-          classroom_code: 'Bostone234',
           classroom_id: 'wieos',
           classroom_level: 3,
           classroom_name: 'Reseaux Telecommunications',
           created_at: new Date().toISOString(),
           is_deleted: false,
           number_of_divisions: 3,
-          registration_fee: null,
-          total_fee_due: null,
         },
       ]);
       setIsMajorDataFetching(false);
