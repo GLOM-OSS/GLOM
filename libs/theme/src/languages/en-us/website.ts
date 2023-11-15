@@ -614,4 +614,24 @@ export const website = {
     'This action will unarchive these selected major. Note that all sub-entities will need to be unarchived manually. Do you want to continue?',
   confirmUnarchiveMajorDialogMessage:
     'This action will unarchive this major. Note that all sub-entities will need to be unarchived manually. Do you still want to continue?',
+
+  numberOfDivisions: 'Number of divisions',
+  className: 'Classroom name',
+  editNumberOfDivisions: 'Edit number of divisions',
+  confirmArchiveClassroomsDialogMessage:
+    'This action will archive the selected classrooms removing it for flow. Are you sure you want to continue?',
+  confirmArchiveClassroomDialogMessage:
+    'This action will archive this classroom removing it for usage. Are you sure you want to continue?',
+  confirmUnarchiveClassroomsDialogMessage:
+    'This action will unarchive these selected classrooms. Are you sure you want to continue?',
+  confirmUnarchiveClassroomDialogMessage:
+    'This Action will unarchive this classroom. Are you sure you want to continue?',
+  archiveClassrooms: 'Archive classrooms',
+  archiveClassroom: 'Archive classroom',
+  unarchiveClassrooms: 'Unarchive classrooms',
+  unarchiveClassroom: 'Unarchive classroom',
+  loading: 'Loading...',
+  classesOf: 'Classrooms of',
+  numberOfDivisionsExplanation:
+    'Represents the seperations we do in classes when there are a lot of students. It permits to seperate same class in different divisions of say 50 students each bringing better control!',
 };

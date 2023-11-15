@@ -638,4 +638,24 @@ export const website = {
     'Cette action désarchivera ces filières sélectionnées. Notez que toutes les sous-entités devront être désarchivées manuellement. Souhaitez-vous continuer ?',
   confirmUnarchiveMajorDialogMessage:
     'Cette action désarchivera cette filière. Notez que toutes les sous-entités devront être désarchivées manuellement. Confirmez-vous toujours la désarchivage ?',
+
+  numberOfDivisions: 'Nombre de divisions',
+  className: 'Nom de la salle de classe',
+  editNumberOfDivisions: 'Modifier le nombre de divisions',
+  confirmArchiveClassroomsDialogMessage:
+    'Cette action archivera les salles de classe sélectionnées, les retirant du flux. Êtes-vous sûr de vouloir continuer ?',
+  confirmArchiveClassroomDialogMessage:
+    "Cette action archivera cette salle de classe, la retirant de l'utilisation. Êtes-vous sûr de vouloir continuer ?",
+  confirmUnarchiveClassroomsDialogMessage:
+    'Cette action désarchivera les salles de classe sélectionnées. Êtes-vous sûr de vouloir continuer ?',
+  confirmUnarchiveClassroomDialogMessage:
+    'Cette action désarchivera cette salle de classe. Êtes-vous sûr de vouloir continuer ?',
+  archiveClassrooms: 'Archiver les salles de classe',
+  archiveClassroom: 'Archiver la salle de classe',
+  unarchiveClassrooms: 'Désarchiver les salles de classe',
+  unarchiveClassroom: 'Désarchiver la salle de classe',
+  loading: 'Chargement...',
+  classesOf: 'Salles de classe de',
+  numberOfDivisionsExplanation:
+    "Représente les divisions que nous faisons dans les classes lorsqu'il y a beaucoup d'élèves. Cela permet de séparer la même classe en différentes divisions de, par exemple, 50 élèves chacune pour un meilleur contrôle !",
 };
