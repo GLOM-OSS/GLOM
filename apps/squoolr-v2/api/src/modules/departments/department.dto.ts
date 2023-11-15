@@ -24,9 +24,6 @@ export class DepartmentEntity implements Department {
   @ApiProperty()
   department_acronym: string;
 
-  @ApiProperty()
-  department_code: string;
-
   @Exclude()
   @ApiProperty()
   created_at: Date;

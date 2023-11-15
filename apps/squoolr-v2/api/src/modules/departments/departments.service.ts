@@ -4,12 +4,13 @@ import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import { QueryParamsDto } from '../modules.dto';
 import { CreateDepartmentPayload, UpdateDepartmentPayload } from './department';
 import { DepartmentEntity } from './department.dto';
+import { MajorsService } from '../majors/majors.service';
 
 @Injectable()
 export class DepartmentsService {
   constructor(
     private prismaService: GlomPrismaService,
-    private codeGenerator: CodeGeneratorFactory
+    private majorsService: MajorsService
   ) {}
 
   async findAll(school_id: string, params?: QueryParamsDto) {
@@ -27,17 +28,13 @@ export class DepartmentsService {
     return departments.map((department) => new DepartmentEntity(department));
   }
 
-  async create(payload: CreateDepartmentPayload, created_by: string) {
-    const { school_id, department_acronym, department_name } = payload;
-    const departmentCode = await this.codeGenerator.getDepartmentCode(
-      department_acronym,
-      school_id
-    );
+  async create(
+    { school_id, ...departmentData }: CreateDepartmentPayload,
+    created_by: string
+  ) {
     const department = await this.prismaService.department.create({
       data: {
-        department_name,
-        department_acronym,
-        department_code: departmentCode,
+        ...departmentData,
         School: { connect: { school_id } },
         AnnualConfigurator: { connect: { annual_configurator_id: created_by } },
       },
@@ -50,11 +47,13 @@ export class DepartmentsService {
     payload: UpdateDepartmentPayload,
     audited_by: string
   ) {
-    const departmentAudit =
+    const { AnnualMajors: annualMajors, ...departmentAudit } =
       await this.prismaService.department.findFirstOrThrow({
         select: {
           is_deleted: true,
           department_name: true,
+          department_acronym: true,
+          AnnualMajors: true,
         },
         where: { department_id, is_deleted: false },
       });
@@ -70,5 +69,15 @@ export class DepartmentsService {
       },
       where: { department_id },
     });
+    if (payload?.is_deleted)
+      await Promise.all(
+        annualMajors.map((_) =>
+          this.majorsService.update(
+            _.annual_major_id,
+            { is_deleted: true },
+            audited_by
+          )
+        )
+      );
   }
 }

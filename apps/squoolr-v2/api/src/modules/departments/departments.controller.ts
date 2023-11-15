@@ -77,7 +77,7 @@ export class DepartmentsController {
   @Delete(':department_id')
   @Roles(Role.CONFIGURATOR)
   @ApiNoContentResponse()
-  async deleteDepartment(
+  async disableDepartment(
     @Req() request: Request,
     @Param('department_id') department_id: string
   ) {
