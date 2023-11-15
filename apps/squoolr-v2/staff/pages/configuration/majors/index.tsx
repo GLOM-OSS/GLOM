@@ -119,7 +119,7 @@ export function Index() {
   }
 
   const [activeMajorId, setActiveMajorId] = useState<string>();
-  const [isActiveDepartmentArchived, setIsActiveMajorArchived] =
+  const [isActiveMajorArchived, setIsActiveMajorArchived] =
     useState<boolean>(false);
 
   const [isConfirmArchiveDialogOpen, setIsConfirmArchiveDialogOpen] =
@@ -193,7 +193,7 @@ export function Index() {
         anchorEl={anchorEl}
         closeMenu={() => setAnchorEl(null)}
         isOpen={!!anchorEl}
-        isArchived={isActiveDepartmentArchived}
+        isArchived={isActiveMajorArchived}
         confirmArchive={() => setIsConfirmArchiveDialogOpen(true)}
         confirmUnarchive={() => setIsConfirmUnarchiveDialogOpen(true)}
         editMajor={() => {
