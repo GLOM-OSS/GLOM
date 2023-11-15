@@ -104,7 +104,7 @@ export class MajorsController {
   @ApiNoContentResponse()
   async disableMajors(
     @Req() request: Request,
-    @Param() { annualMajorIds }: DisableMajorsDto
+    @Query() { annualMajorIds }: DisableMajorsDto
   ) {
     const {
       annualConfigurator: { annual_configurator_id },

@@ -65,3 +65,9 @@ export class AnnualMajorEntity extends OmitType(CreateMajorDto, ['cycle_id']) {
     Object.assign(this, props);
   }
 }
+
+export class DisableMajorsDto {
+  @IsString({ each: true })
+  @ApiProperty({ type: [String] })
+  annualMajorIds: string[];
+}
