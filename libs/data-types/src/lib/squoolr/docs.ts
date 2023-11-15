@@ -79,10 +79,14 @@ export interface paths {
   };
   "/v1/departments/{department_id}": {
     put: operations["DepartmentsController_updateDepartment"];
-    delete: operations["DepartmentsController_deleteDepartment"];
+    delete: operations["DepartmentsController_disableDepartment"];
   };
-  "/v1/majors/all": {
+  "/v1/departments": {
+    delete: operations["DepartmentsController_disableManyDepartments"];
+  };
+  "/v1/majors": {
     get: operations["MajorsController_getMajors"];
+    delete: operations["MajorsController_disableMajors"];
   };
   "/v1/majors/{annual_major_id}": {
     get: operations["MajorsController_getMajor"];
@@ -98,6 +102,9 @@ export interface paths {
   "/v1/classrooms/{annual_classroom_id}": {
     put: operations["ClassroomsController_updateClassroom"];
     delete: operations["ClassroomsController_deleteClassroom"];
+  };
+  "/v1/classrooms": {
+    delete: operations["ClassroomsController_disableManyClassrooms"];
   };
   "/v1/staffs": {
     get: operations["StaffController_getAllStaff"];
@@ -338,7 +345,6 @@ export interface components {
       department_id: string;
       department_name: string;
       department_acronym: string;
-      department_code: string;
       /** Format: date-time */
       created_at: string;
       created_by: string;
@@ -387,21 +393,17 @@ export interface components {
       annual_classroom_id: string;
       annual_major_id: string;
       classroom_name: string;
-      classroom_code: string;
       classroom_acronym: string;
       classroom_level: number;
       number_of_divisions: number;
       is_deleted: boolean;
-      total_fee_due: number | null;
-      registration_fee: number | null;
       annual_coordinator_id: string | null;
       classroom_id: string;
       /** Format: date-time */
       created_at: string;
     };
     UpdateClassroomDto: {
-      registration_fee?: number;
-      total_fee_due?: number;
+      number_of_divisions: number;
     };
     TeacherEntity: {
       first_name: string;
@@ -919,10 +921,22 @@ export interface operations {
       };
     };
   };
-  DepartmentsController_deleteDepartment: {
+  DepartmentsController_disableDepartment: {
     parameters: {
       path: {
         department_id: string;
+      };
+    };
+    responses: {
+      204: {
+        content: never;
+      };
+    };
+  };
+  DepartmentsController_disableManyDepartments: {
+    parameters: {
+      query: {
+        departmentIds: string[];
       };
     };
     responses: {
@@ -941,6 +955,18 @@ export interface operations {
     };
     responses: {
       200: {
+        content: never;
+      };
+    };
+  };
+  MajorsController_disableMajors: {
+    parameters: {
+      query: {
+        annualMajorIds: string[];
+      };
+    };
+    responses: {
+      204: {
         content: never;
       };
     };
@@ -1038,6 +1064,18 @@ export interface operations {
     parameters: {
       path: {
         annual_classroom_id: string;
+      };
+    };
+    responses: {
+      204: {
+        content: never;
+      };
+    };
+  };
+  ClassroomsController_disableManyClassrooms: {
+    parameters: {
+      query: {
+        annualClassroomIds: string[];
       };
     };
     responses: {
