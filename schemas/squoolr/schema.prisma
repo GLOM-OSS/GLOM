@@ -469,7 +469,7 @@ model AnnualRegistryAudit {
     annual_registry_id       String             @db.VarChar(36)
     AnnualRegistry           AnnualRegistry     @relation(fields: [annual_registry_id], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
     audited_by               String             @db.VarChar(36)
-    AnnualConfigurator       AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+    AuditedBy                AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model TeacherType {
@@ -513,7 +513,7 @@ model TeacherAudit {
     login_id              String             @db.VarChar(36)
     Teacher               Teacher            @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
     audited_by            String             @db.VarChar(36)
-    AnnualConfigurator    AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+    AuditedBy             AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model AnnualTeacher {
@@ -575,10 +575,10 @@ model AnnualTeacherAudit {
     has_signed_convention   Boolean            @default(false) @db.TinyInt
     is_deleted              Boolean            @default(false) @db.TinyInt
     audited_at              DateTime           @default(now()) @db.DateTime(0)
-    audited_by              String             @db.VarChar(36)
-    AnnualConfigurator      AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
     annual_teacher_id       String             @db.VarChar(36)
     AnnualTeacher           AnnualTeacher      @relation(fields: [annual_teacher_id], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by              String             @db.VarChar(36)
+    AuditedBy               AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 enum AuthMethod {

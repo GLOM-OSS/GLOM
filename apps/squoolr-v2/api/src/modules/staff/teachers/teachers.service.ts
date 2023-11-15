@@ -242,7 +242,7 @@ export class TeachersService
         AnnualTeacherAudits: {
           create: {
             ...annualTeacher,
-            AnnualConfigurator: {
+            AuditedBy: {
               connect: { annual_configurator_id: audited_by },
             },
           },
@@ -353,7 +353,7 @@ export class TeachersService
                       has_tax_payers_card,
                       tax_payer_card_number,
                       TeacherType: { connect: { teacher_type_id } },
-                      AnnualConfigurator: {
+                      AuditedBy: {
                         connect: { annual_configurator_id: reset_by },
                       },
                     },
