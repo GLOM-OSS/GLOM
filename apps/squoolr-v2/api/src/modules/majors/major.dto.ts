@@ -4,9 +4,8 @@ import {
   OmitType,
   PartialType,
 } from '@nestjs/swagger';
-import { IsBoolean, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsOptional, IsString, IsUUID } from 'class-validator';
 import { CycleEntity, QueryParamsDto } from '../modules.dto';
-import { Exclude } from 'class-transformer';
 
 export class CreateMajorDto {
   @IsString()
