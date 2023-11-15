@@ -34,7 +34,7 @@ import {
 import ManageConfiguratorMenu from '../../../component/management/configurators/ManageConfiguratorMenu';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
-import TableSkeleton from 'libs/components/src/table/TableSkeleton';
+import { TableSkeleton } from '@glom/components';
 
 export function Index() {
   const theme = useTheme();
