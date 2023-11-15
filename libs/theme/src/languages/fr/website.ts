@@ -612,4 +612,30 @@ export const website = {
     "Cette action archivera ces départements sélectionnés ainsi que toutes leurs sous-entités (filères, classes et matières), empêchant toute action ultérieure. C'est une action dangereuse ! Confirmez-vous toujours l'archivage ?",
   confirmUnarchiveDepartmentsDialogMessage:
     'Cette action désarchivera ces départements sélectionnés. Notez que toutes les sous-entités doivent être désarchivées manuellement. Souhaitez-vous continuer ?',
+
+  archiveSelectedMajors: 'Archiver les filières sélectionnées',
+  unarchiveSelectedMajors: 'Désarchiver les filières sélectionnées',
+  BTS: 'BTS',
+  DUT: 'DUT',
+  DTS: 'DTS',
+  BACHELOR: 'Licence',
+  majorName: 'Nom de la filière',
+  majorAcronym: 'Acronyme de la filière',
+  departmentCode: 'Code du département',
+  cursus: 'Programme',
+  goToClasses: 'Ouvrir les salles de classe',
+  editMajor: 'Modifier la filière',
+  createMajor: 'Créer une filière',
+  archiveMajors: 'Archiver les filières sélectionnées',
+  archiveMajor: 'Archiver la filière',
+  unarchiveMajors: 'Désarchiver les filières sélectionnées',
+  unarchiveMajor: 'Désarchiver la filière',
+  confirmArchiveMajorsDialogMessage:
+    "Cette action archivera ces filières sélectionnées ainsi que toutes leurs sous-entités (salles de classe et matières), empêchant toute action ultérieure. C'est une action dangereuse ! Confirmez-vous toujours l'archivage ?",
+  confirmArchiveMajorDialogMessage:
+    "Cette action archivera cette filière ainsi que toutes ses sous-entités (salles de classe et matières), empêchant toute action ultérieure. C'est une action dangereuse. Confirmez-vous toujours l'archivage ?",
+  confirmUnarchiveMajorsDialogMessage:
+    'Cette action désarchivera ces filières sélectionnées. Notez que toutes les sous-entités devront être désarchivées manuellement. Souhaitez-vous continuer ?',
+  confirmUnarchiveMajorDialogMessage:
+    'Cette action désarchivera cette filière. Notez que toutes les sous-entités devront être désarchivées manuellement. Confirmez-vous toujours la désarchivage ?',
 };

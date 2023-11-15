@@ -585,7 +585,33 @@ export const website = {
   archiveDepartments: 'Archive Selected Departments',
   unarchiveDepartments: 'Unarchive Selected Departments',
   confirmArchiveDepartmentsDialogMessage:
-    'This action will archive these selected departments and all their sub-entities (majors, classrooms, and subjects) preventing anything from being done. This is dangerous action! Do you still want to archive?',
+    'This action will archive these selected departments and all their sub-entities (majors, classrooms, and subjects) preventing anything from being done. This is a dangerous action! Do you still want to archive?',
   confirmUnarchiveDepartmentsDialogMessage:
     'This action will unarchive these selected departments. Note that all sub-entities need to be unarchived manually. Do you want to continue?',
+
+  archiveSelectedMajors: 'Archive selected majors',
+  unarchiveSelectedMajors: 'Unarchive selected majors',
+  BTS: 'HND',
+  DUT: 'DUT',
+  DTS: 'DTS',
+  BACHELOR: 'Bachelor',
+  majorName: 'Major name',
+  majorAcronym: 'Major acronym',
+  departmentCode: 'Department code',
+  cursus: 'Program',
+  goToClasses: 'Open classrooms',
+  editMajor: 'Edit major',
+  createMajor: 'Create major',
+  archiveMajors: 'Archive Selected Majors',
+  archiveMajor: 'Archive Major',
+  unarchiveMajors: 'Unarchive Selected Majors',
+  unarchiveMajor: 'Unarchive Major',
+  confirmArchiveMajorsDialogMessage:
+    'This action will archive these selected majors and all their sub-entities (classrooms and subjects) preventing anything from being done. This is a dangerous action! Do you still want to archive?',
+  confirmArchiveMajorDialogMessage:
+    "This action will archive this major and all it's sub-entities (classrooms and subjects) preventing anything from being done. This is a dangerous action. Do you still want to archive?",
+  confirmUnarchiveMajorsDialogMessage:
+    'This action will unarchive these selected major. Note that all sub-entities will need to be unarchived manually. Do you want to continue?',
+  confirmUnarchiveMajorDialogMessage:
+    'This action will unarchive this major. Note that all sub-entities will need to be unarchived manually. Do you still want to continue?',
 };
