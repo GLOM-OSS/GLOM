@@ -16,9 +16,9 @@ export type UpdateStaffPayload = SchemaRequestBody<
   'StaffController_updateStaff'
 >;
 
-export type SatffEntity = SchemaResponseBody<
+export type SatffEntity = SchemaCreateResponseBody<
   operations,
-  'StaffController_getAllStaff'
+  'StaffController_createStaff'
 >;
 
 export type TeacherEntity = components['schemas']['TeacherEntity'];
