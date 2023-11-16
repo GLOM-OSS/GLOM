@@ -15,6 +15,7 @@ import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import ManageStaffMenu from './ManageStaffMenu';
 import StaffRoles from './StaffRoles';
+import { ConfirmDialog } from '@glom/components';
 
 export default function StaffRow({
   staff: {
@@ -49,6 +50,22 @@ export default function StaffRow({
   const { formatDate, formatMessage } = useIntl();
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [
+    isConfirmResetPasswordDialogOpen,
+    setIsConfirmResetPasswordDialogOpen,
+  ] = useState<boolean>(false);
+  const [isResettingStaffPassword, setIsResettingStaffPassword] =
+    useState<boolean>(false);
+
+  function confirmResetPassword() {
+    //TODO: CALL API HERE RESET USER PASSWORD WITH DATA staff.login_id
+    setIsResettingStaffPassword(true);
+    setTimeout(() => {
+      alert('done resetting password');
+      setIsResettingStaffPassword(false);
+      setIsConfirmResetPasswordDialogOpen(false);
+    }, 3000);
+  }
 
   return (
     <>
@@ -60,10 +77,23 @@ export default function StaffRow({
         editStaff={() => alert('edit')}
         isOpen={!!anchorEl}
         manageRoles={() => alert('manage roles')}
-        resetPassword={() => alert('reset password')}
+        resetPassword={() => setIsConfirmResetPasswordDialogOpen(true)}
         resetPrivateCode={() => alert('reset private code')}
         isArchived={showArchived}
         staffRoles={roles}
+      />
+      <ConfirmDialog
+        closeDialog={() => setIsConfirmResetPasswordDialogOpen(false)}
+        confirm={confirmResetPassword}
+        dialogMessage={formatMessage({
+          id: 'confirmResetStaffPasswordDialogMessage',
+        })}
+        isDialogOpen={isConfirmResetPasswordDialogOpen}
+        closeOnConfirm
+        confirmButton={formatMessage({ id: 'resetPassword' })}
+        danger
+        dialogTitle={formatMessage({ id: 'resetStaffPassword' })}
+        isSubmitting={isResettingStaffPassword}
       />
       <TableRow
         sx={{
