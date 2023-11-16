@@ -1,9 +1,10 @@
+import { StaffRole } from '@glom/data-types';
 import { useTheme } from '@glom/theme';
 import archive from '@iconify/icons-fluent/archive-48-regular';
 import edit from '@iconify/icons-fluent/edit-48-regular';
+import key from '@iconify/icons-fluent/key-reset-24-regular';
 import account from '@iconify/icons-fluent/person-accounts-24-regular';
 import shield from '@iconify/icons-fluent/shield-task-48-regular';
-import key from '@iconify/icons-fluent/key-reset-24-regular';
 import { Icon } from '@iconify/react';
 import { Menu, MenuItem, Stack, Typography } from '@mui/material';
 import { useIntl } from 'react-intl';
@@ -19,6 +20,7 @@ export default function ManageStaffMenu({
   manageRoles,
   resetPassword,
   resetPrivateCode,
+  staffRoles,
 }: {
   closeMenu: () => void;
   anchorEl: HTMLElement | null;
@@ -29,6 +31,7 @@ export default function ManageStaffMenu({
   manageRoles: () => void;
   resetPassword: () => void;
   resetPrivateCode: () => void;
+  staffRoles: StaffRole[];
   isArchived?: boolean;
 }) {
   const { formatMessage } = useIntl();
@@ -83,19 +86,22 @@ export default function ManageStaffMenu({
           </Stack>
         </MenuItem>
       )}
-      {!isArchived && (
-        <MenuItem
-          onClick={() => {
-            closeMenu();
-            resetPrivateCode();
-          }}
-        >
-          <Stack direction="row" spacing={1} alignItems={'center'}>
-            <Icon icon={shield} fontSize={24} />
-            <Typography>{formatMessage({ id: 'resetPrivateCode' })}</Typography>
-          </Stack>
-        </MenuItem>
-      )}
+      {!isArchived &&
+        (staffRoles.includes('TEACHER') || staffRoles.includes('REGISTRY')) && (
+          <MenuItem
+            onClick={() => {
+              closeMenu();
+              resetPrivateCode();
+            }}
+          >
+            <Stack direction="row" spacing={1} alignItems={'center'}>
+              <Icon icon={shield} fontSize={24} />
+              <Typography>
+                {formatMessage({ id: 'resetPrivateCode' })}
+              </Typography>
+            </Stack>
+          </MenuItem>
+        )}
       {!isArchived && (
         <MenuItem
           onClick={() => {

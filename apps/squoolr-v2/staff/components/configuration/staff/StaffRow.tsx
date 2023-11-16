@@ -11,10 +11,10 @@ import {
   TableRow,
   Tooltip,
 } from '@mui/material';
-import { useIntl } from 'react-intl';
-import StaffRoles from './StaffRoles';
 import { useState } from 'react';
+import { useIntl } from 'react-intl';
 import ManageStaffMenu from './ManageStaffMenu';
+import StaffRoles from './StaffRoles';
 
 export default function StaffRow({
   staff: {
@@ -63,6 +63,7 @@ export default function StaffRow({
         resetPassword={() => alert('reset password')}
         resetPrivateCode={() => alert('reset private code')}
         isArchived={showArchived}
+        staffRoles={roles}
       />
       <TableRow
         sx={{
