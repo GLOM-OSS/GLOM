@@ -48,21 +48,12 @@ import ManageMajorMenu from '../../../components/configuration/majors/ManageMajo
 import FilterMenu from '../../../components/configuration/staff/FilterMenu';
 import StaffRoles from '../../../components/configuration/staff/StaffRoles';
 import TableHeader from '../../../components/configuration/staff/TableHeader';
+import StaffTableHead from 'apps/squoolr-v2/staff/components/configuration/staff/StaffTableHead';
 export default function Staff() {
   const theme = useTheme();
   const { push, asPath } = useRouter();
   const breadcrumbDispatch = useDispatchBreadcrumb();
   const { formatMessage, formatDate, formatNumber } = useIntl();
-
-  const tableHeaders = [
-    '',
-    'staffName',
-    'telephone',
-    'email',
-    'roles',
-    'lastConnected',
-    '',
-  ];
 
   //TODO: REPLACE WITH with reactQuery own
   const [isStaffDataFetching, setIsStaffDataFetching] = useState<boolean>(true);
@@ -432,70 +423,23 @@ export default function Staff() {
           }}
         >
           <Table stickyHeader>
-            <TableHead>
-              <TableRow
-                sx={{
-                  '& th': {
-                    padding: '8.5px',
-                  },
-                }}
-              >
-                {tableHeaders.map((columnTitle, index) => {
-                  return (
-                    <TableCell key={index} align="left">
-                      {index === 0 ? (
-                        <Checkbox
-                          disabled={
-                            !staffData ||
-                            isStaffDataFetching ||
-                            isArchiving ||
-                            isUnarchiving ||
-                            isEditingStaff
-                          }
-                          onClick={() =>
-                            isArchiving || isUnarchiving || isEditingStaff
-                              ? null
-                              : selectAllStaff()
-                          }
-                          checked={
-                            totalNumberOfIds === numberOfSelectedStaffIds &&
-                            !!staffData
-                          }
-                          icon={
-                            <Icon
-                              icon={unchecked}
-                              style={{
-                                color: '#D1D5DB',
-                                height: '100%',
-                                width: '21px',
-                              }}
-                            />
-                          }
-                          checkedIcon={
-                            <Icon
-                              icon={checked}
-                              style={{
-                                color: theme.palette.primary.main,
-                                height: '100%',
-                                width: '21px',
-                              }}
-                            />
-                          }
-                          indeterminate={
-                            numberOfSelectedStaffIds > 1 &&
-                            numberOfSelectedStaffIds < totalNumberOfIds
-                          }
-                        />
-                      ) : index > 0 && columnTitle === '' ? (
-                        ''
-                      ) : (
-                        formatMessage({ id: columnTitle })
-                      )}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            </TableHead>
+            <StaffTableHead
+              selectAllStaff={selectAllStaff}
+              disabled={
+                !staffData ||
+                isStaffDataFetching ||
+                isArchiving ||
+                isUnarchiving ||
+                isEditingStaff
+              }
+              isAllSelected={
+                totalNumberOfIds === numberOfSelectedStaffIds && !!staffData
+              }
+              isIndeterminate={
+                numberOfSelectedStaffIds > 1 &&
+                numberOfSelectedStaffIds < totalNumberOfIds
+              }
+            />
             <TableBody>
               {!staffData || isStaffDataFetching ? (
                 <TableSkeleton cols={7} hasCheckbox hasMore />
