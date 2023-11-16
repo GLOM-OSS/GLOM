@@ -46,21 +46,12 @@ import AddMajorDialog from '../../../components/configuration/majors/AddMajorDia
 import EditMajorDialog from '../../../components/configuration/majors/EditMajorDialog';
 import ManageMajorMenu from '../../../components/configuration/majors/ManageMajorMenu';
 import FilterMenu from '../../../components/configuration/staff/FilterMenu';
+import StaffRoles from '../../../components/configuration/staff/StaffRoles';
 export default function Staff() {
   const theme = useTheme();
   const { push, asPath } = useRouter();
   const breadcrumbDispatch = useDispatchBreadcrumb();
   const { formatMessage, formatDate, formatNumber } = useIntl();
-
-  const ROLE_COLOR: Record<
-    StaffRole,
-    'warning' | 'success' | 'secondary' | 'primary'
-  > = {
-    CONFIGURATOR: 'warning',
-    COORDINATOR: 'success',
-    REGISTRY: 'secondary',
-    TEACHER: 'primary',
-  };
 
   const tableHeaders = [
     '',
@@ -776,35 +767,7 @@ export default function Staff() {
                             : theme.common.body,
                         }}
                       >
-                        <Box
-                          sx={{
-                            display: 'grid',
-                            gridAutoFlow: 'column',
-                            columnGap: 0.5,
-                          }}
-                        >
-                          {roles
-                            .sort((a, b) => (a > b ? 1 : -1))
-                            .map((role, index) => (
-                              <Chip
-                                key={index}
-                                color={ROLE_COLOR[role]}
-                                size="small"
-                                variant="outlined"
-                                label={formatMessage({
-                                  id: role.toLowerCase(),
-                                })}
-                                sx={{
-                                  color: theme.common.titleActive,
-                                  fontWeight: '600',
-                                  backgroundColor: lighten(
-                                    theme.palette[ROLE_COLOR[role]].main,
-                                    0.9
-                                  ),
-                                }}
-                              />
-                            ))}
-                        </Box>
+                        <StaffRoles roles={roles} />
                       </TableCell>
                       <TableCell
                         sx={{
