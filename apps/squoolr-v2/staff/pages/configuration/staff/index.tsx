@@ -50,6 +50,7 @@ import StaffRoles from '../../../components/configuration/staff/StaffRoles';
 import TableHeader from '../../../components/configuration/staff/TableHeader';
 import StaffTableHead from 'apps/squoolr-v2/staff/components/configuration/staff/StaffTableHead';
 import StaffRow from 'apps/squoolr-v2/staff/components/configuration/staff/StaffRow';
+import NewStaffMenu from 'apps/squoolr-v2/staff/components/configuration/staff/NewStaffMenu';
 export default function Staff() {
   const theme = useTheme();
   const { push, asPath } = useRouter();
@@ -162,7 +163,9 @@ export default function Staff() {
     setIsConfirmResetPasswordDialogOpen,
   ] = useState<boolean>(false);
 
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [newStaffAnchorEl, setNewStaffAnchorEl] = useState<HTMLElement | null>(
+    null
+  );
   const [filterAnchorEl, setFilterAnchorEl] = useState<HTMLElement | null>(
     null
   );
@@ -341,6 +344,15 @@ export default function Staff() {
         selectedRoles={selectedRoles}
         onSelect={selectRole}
       />
+      <NewStaffMenu
+        addConfigurator={() => alert('add configurator')}
+        addCoordinator={() => alert('add coordinator')}
+        addRegistry={() => alert('add registry')}
+        addTeacher={() => alert('add teacher')}
+        anchorEl={newStaffAnchorEl}
+        closeMenu={() => setNewStaffAnchorEl(null)}
+        isOpen={!!newStaffAnchorEl}
+      />
 
       {/* <ManageMajorMenu
         anchorEl={anchorEl}
@@ -466,11 +478,11 @@ export default function Staff() {
         {!!staffData && !isStaffDataFetching && (
           <Tooltip
             arrow
-            title={formatMessage({ id: 'addNewMajor' })}
+            title={formatMessage({ id: 'addNewStaff' })}
             placement="left"
           >
             <IconButton
-              onClick={() => setIsNewMajorDialogOpen(true)}
+              onClick={(event) => setNewStaffAnchorEl(event.currentTarget)}
               color="primary"
               sx={{
                 position: 'absolute',
