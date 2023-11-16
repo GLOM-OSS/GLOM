@@ -537,14 +537,19 @@ export default function Staff() {
                   {formatMessage({ id: 'resetSelectedStaffPasswords' })}
                 </Button>
               )}
-              <Stack direction="row" spacing={0} alignItems={'center'}>
+              <Stack
+                direction="row"
+                spacing={0}
+                alignItems={'center'}
+                onClick={() =>
+                  isArchiving || isUnarchiving || isEditingStaff
+                    ? null
+                    : setShowArchives((prev) => !prev)
+                }
+                sx={{ cursor: 'pointer' }}
+              >
                 <Checkbox
                   checked={showArchives}
-                  onClick={() =>
-                    isArchiving || isUnarchiving || isEditingStaff
-                      ? null
-                      : setShowArchives((prev) => !prev)
-                  }
                   icon={
                     <Icon
                       icon={unchecked}
@@ -571,6 +576,9 @@ export default function Staff() {
                     color: showArchives
                       ? theme.palette.primary.main
                       : theme.common.body,
+                    '&:hover': {
+                      color: theme.palette.primary.dark,
+                    },
                   }}
                 >
                   {formatMessage({ id: 'showArchived' })}
