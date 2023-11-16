@@ -18,19 +18,7 @@ export class TeachersService
   constructor(private prismaService: GlomPrismaService) {}
   async findOne(annual_teacher_id: string) {
     const {
-      Teacher: {
-        Login: {
-          login_id,
-          Person,
-          Logs: [log],
-          AnnualConfigurators: [configrator],
-          AnnualRegistries: [registry],
-          Teacher: {
-            AnnualTeachers: [{ AnnualClassroomDivisions: codinatedClass }],
-          },
-        },
-        ...teacher
-      },
+      Teacher: { Login, is_deleted, matricule, ...teacher },
       ...annual_teacher
     } = await this.prismaService.annualTeacher.findFirstOrThrow({
       select: StaffArgsFactory.getTeacherSelect(),
@@ -38,25 +26,10 @@ export class TeachersService
     });
 
     return new TeacherEntity({
-      login_id,
-      annual_teacher_id,
       ...teacher,
-      ...Person,
       ...annual_teacher,
-      last_connected: log?.logged_in_at ?? null,
-      roles: [{ registry }, { configrator }, { codinatedClass }].reduce<
-        StaffRole[]
-      >(
-        (roles, _) =>
-          _.registry
-            ? [...roles, StaffRole.REGISTRY]
-            : _.configrator
-            ? [...roles, StaffRole.CONFIGURATOR]
-            : _.codinatedClass
-            ? [...roles, StaffRole.COORDINATOR]
-            : roles,
-        [StaffRole.TEACHER]
-      ),
+      ...StaffArgsFactory.getStaffEntity({ Login, is_deleted, matricule }),
+      annual_teacher_id,
       role: StaffRole.TEACHER,
     });
   }
@@ -66,10 +39,7 @@ export class TeachersService
       select: {
         annual_teacher_id: true,
         Teacher: {
-          select: {
-            matricule: true,
-            ...StaffArgsFactory.getStaffSelect(staffParams),
-          },
+          select: StaffArgsFactory.getStaffSelect(staffParams),
         },
       },
       where: StaffArgsFactory.getStaffWhereInput(staffParams),
