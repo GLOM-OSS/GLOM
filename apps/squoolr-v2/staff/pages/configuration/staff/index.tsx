@@ -148,6 +148,24 @@ export default function Staff() {
     teacherIds: [],
   });
 
+  /**
+   * This function helps to select/unselect all staff members.
+   * It does by: 
+   * 
+   * Def:
+   * Staff role: roles of a staff member
+   * 
+   * To unselect all, it counts all staff roles except coordinator in the staff list
+   * and compares it to the joint list of elements in the selectedStaff list categories.
+   * 
+   * if both numbers are same, then we've selected all and have to unselect all
+   * hence returning empty arrays.
+   * 
+   * if they're different, then all are not selected, and hence it selects all.
+   * To select all, it maps through the staff member list.
+   * for each of them, it verifies if they have configurator, registry and teacher ids,
+   * and adds them to the corresponding list if they're not they yet
+   */
   function selectAllStaff() {
     let configurators = selectedStaff.configuratorIds;
     let registries = selectedStaff.registryIds;
@@ -168,11 +186,7 @@ export default function Staff() {
       configurators = [];
       registries = [];
       teachers = [];
-    } else {
-      let configurators = selectedStaff.configuratorIds;
-      let registries = selectedStaff.registryIds;
-      let teachers = selectedStaff.teacherIds;
-
+    } else
       staffData.forEach(
         ({ annual_configurator_id, annual_registry_id, annual_teacher_id }) => {
           if (
@@ -186,7 +200,6 @@ export default function Staff() {
             teachers.push(annual_teacher_id);
         }
       );
-    }
 
     setSelectedStaff({
       configuratorIds: configurators,
@@ -195,6 +208,16 @@ export default function Staff() {
     });
   }
 
+  /**
+   * This function helps to add a staff member in the selected staff list
+   * it does so by checking if a role_id exists
+   * and adding it to the corresponding role's list in selectedStaff
+   * or removing it from the list if it already exists there.
+   *
+   * @param {string=} annual_configurator_id - staff's configurator id if exists
+   * @param {string=} annual_registry_id - staff's registry id if exists
+   * @param {string=} annual_teacher_id - staffs teacher id if exists
+   */
   function selectStaff(
     annual_configurator_id?: string,
     annual_registry_id?: string,
