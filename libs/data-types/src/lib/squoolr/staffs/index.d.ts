@@ -16,10 +16,10 @@ export type UpdateStaffPayload = SchemaRequestBody<
   'StaffController_updateStaff'
 >;
 
-export type SatffEntity = SchemaCreateResponseBody<
+export type StaffEntity = SchemaResponseBody<
   operations,
-  'StaffController_createStaff'
->;
+  'StaffController_getStaffs'
+>[0];
 
 export type TeacherEntity = components['schemas']['TeacherEntity'];
 export type CoordinatorEntity = components['schemas']['CoordinatorEntity'];

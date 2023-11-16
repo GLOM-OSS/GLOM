@@ -97,7 +97,7 @@ export interface paths {
     delete: operations["ClassroomsController_deleteClassroom"];
   };
   "/v1/staffs": {
-    get: operations["StaffController_getAllStaff"];
+    get: operations["StaffController_getStaffs"];
     delete: operations["StaffController_disableManyStaff"];
   };
   "/v1/staffs/{annual_teacher_id}": {
@@ -1073,7 +1073,7 @@ export interface operations {
       };
     };
   };
-  StaffController_getAllStaff: {
+  StaffController_getStaffs: {
     parameters: {
       query?: {
         is_deleted?: boolean;
