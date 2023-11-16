@@ -8,7 +8,7 @@ import {
 import {
   AnnualDocumentSigner,
   AnnualSchoolSetting,
-  MarkManagementRoleEnum,
+  MarkInsertionSource,
   SchoolDemandStatus,
 } from '@prisma/client';
 import { Exclude, Transform, Type } from 'class-transformer';
@@ -214,6 +214,10 @@ export class DocumentSignerEntity
   is_deleted: boolean;
 
   @Exclude()
+  @ApiProperty()
+  created_by: string;
+
+  @Exclude()
   @ApiProperty({ nullable: true })
   deleted_by: string;
 
@@ -233,8 +237,8 @@ export class SchoolSettingEntity implements AnnualSchoolSetting {
   @ApiProperty()
   can_pay_fee: boolean;
 
-  @ApiProperty({ enum: MarkManagementRoleEnum })
-  mask_management: MarkManagementRoleEnum;
+  @ApiProperty({ enum: MarkInsertionSource })
+  mark_insertion_source: MarkInsertionSource;
 
   @ApiProperty()
   created_at: Date;
@@ -247,13 +251,14 @@ export class SchoolSettingEntity implements AnnualSchoolSetting {
   documentSigners: DocumentSignerEntity[];
 }
 
-export class UpdateSchoolSettingDto extends PartialType(
-  PickType(SchoolSettingEntity, ['can_pay_fee', 'mask_management'])
+export class UpdateSchoolSettingDto extends PickType(
+  PartialType(SchoolSettingEntity),
+  ['can_pay_fee', 'mark_insertion_source']
 ) {
   @IsOptional()
   @ApiPropertyOptional()
   @IsString({ each: true })
-  annualDocumentSignerIds?: string[];
+  deletedSignerIds?: string[];
 
   @IsOptional()
   @ApiPropertyOptional()

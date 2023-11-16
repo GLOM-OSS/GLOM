@@ -286,6 +286,51 @@ export class SchoolsService {
     });
   }
 
+  async updateSettings(
+    academic_year_id: string,
+    {
+      can_pay_fee,
+      mark_insertion_source,
+      deletedSignerIds,
+      newDocumentSigners,
+    }: UpdateSchoolSettingDto,
+    audited_by: string
+  ) {
+    const schoolSetting =
+      await this.prismaService.annualSchoolSetting.findFirst({
+        select: { can_pay_fee: true, mark_insertion_source: true },
+        where: { academic_year_id },
+      });
+    await this.prismaService.$transaction([
+      this.prismaService.annualDocumentSigner.updateMany({
+        data: { is_deleted: true },
+        where: { annual_document_signer_id: { in: deletedSignerIds } },
+      }),
+      this.prismaService.annualSchoolSetting.update({
+        data: {
+          can_pay_fee,
+          mark_insertion_source,
+          AnnualSchoolSettingAudits: {
+            create: {
+              ...schoolSetting,
+              AuditedBy: { connect: { annual_configurator_id: audited_by } },
+            },
+          },
+          AnnualDocumentSigners: {
+            createMany: {
+              data: newDocumentSigners.map((signer) => ({
+                ...signer,
+                created_by: audited_by,
+              })),
+              skipDuplicates: true,
+            },
+          },
+        },
+        where: { academic_year_id },
+      }),
+    ]);
+  }
+
   private async payOnboardingFee(phone: string) {
     const settings =
       await this.prismaService.platformSettings.findFirstOrThrow();
@@ -353,7 +398,7 @@ export class SchoolsService {
                 School: { connect: { school_code } },
                 AnnualSchoolSetting: {
                   create: {
-                    mask_management: 'Teacher',
+                    mark_insertion_source: 'Teacher',
                     CreatedBy: { connect: { annual_configurator_id } },
                   },
                 },

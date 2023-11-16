@@ -4,7 +4,6 @@ import {
   Controller,
   Get,
   Param,
-  Patch,
   Post,
   Put,
   Req,
@@ -18,6 +17,7 @@ import {
 } from '@nestjs/swagger';
 import { Request } from 'express';
 import { IsPublic, Roles } from '../../app/auth/auth.decorator';
+import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 import { Role } from '../../utils/enums';
 import {
   SchoolDemandDetails,
@@ -25,10 +25,10 @@ import {
   SubmitSchoolDemandDto,
   UpdateSchoolDemandStatus,
   UpdateSchoolDto,
+  UpdateSchoolSettingDto,
   ValidateSchoolDemandDto,
 } from './schools.dto';
 import { SchoolsService } from './schools.service';
-import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 
 @ApiTags('Schools')
 @Roles(Role.ADMIN)
@@ -88,11 +88,7 @@ export class SchoolsController {
       throw new BadRequestException(
         'rejection_reason and subdomain cannot coexist'
       );
-    return this.schoolsService.validate(
-      schoolId,
-      validatedDemand,
-      userId
-    );
+    return this.schoolsService.validate(schoolId, validatedDemand, userId);
   }
 
   @Put(':school_id')
@@ -108,6 +104,24 @@ export class SchoolsController {
     } = request.user;
     return this.schoolsService.update(
       schoolId,
+      payload,
+      annual_configurator_id
+    );
+  }
+
+  @Put(':school_id/settings')
+  @ApiOkResponse()
+  @Roles(Role.CONFIGURATOR)
+  updateSchoolSettings(
+    @Req() request: Request,
+    @Body() payload: UpdateSchoolSettingDto
+  ) {
+    const {
+      activeYear: { academic_year_id },
+      annualConfigurator: { annual_configurator_id },
+    } = request.user;
+    return this.schoolsService.updateSettings(
+      academic_year_id,
       payload,
       annual_configurator_id
     );

@@ -61,7 +61,7 @@ enum PaymentReasonEnum {
     @@map("payment_reason_enum")
 }
 
-enum MarkManagementRoleEnum {
+enum MarkInsertionSource {
     Teacher
     Registry
 
@@ -228,25 +228,28 @@ model SchoolAudit {
 }
 
 model AnnualSchoolSetting {
-    annual_school_setting_id String                 @id @default(uuid()) @db.VarChar(36)
-    can_pay_fee              Boolean                @default(false) @db.TinyInt
-    mask_management          MarkManagementRoleEnum
-    created_at               DateTime               @default(now()) @db.DateTime(0)
-    academic_year_id         String                 @unique @db.VarChar(36)
-    AcademicYear             AcademicYear           @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
-    created_by               String                 @db.VarChar(36)
-    CreatedBy                AnnualConfigurator     @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_school_setting_id String              @id @default(uuid()) @db.VarChar(36)
+    can_pay_fee              Boolean             @default(false) @db.TinyInt
+    mark_insertion_source    MarkInsertionSource
+    created_at               DateTime            @default(now()) @db.DateTime(0)
+    academic_year_id         String              @unique @db.VarChar(36)
+    AcademicYear             AcademicYear        @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    created_by               String              @db.VarChar(36)
+    CreatedBy                AnnualConfigurator  @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AnnualDocumentSigners AnnualDocumentSigner[]
+    AnnualDocumentSigners     AnnualDocumentSigner[]
+    AnnualSchoolSettingAudits AnnualSchoolSettingAudit[]
 }
 
 model AnnualSchoolSettingAudit {
-    annual_school_setting_id String                 @id @default(uuid()) @db.VarChar(36)
-    can_pay_fee              Boolean                @db.TinyInt
-    audited_at               DateTime               @default(now()) @db.DateTime(0)
-    mask_management          MarkManagementRoleEnum
-    audited_by               String                 @db.VarChar(36)
-    AuditedBy                AnnualConfigurator     @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_school_setting_audit_id String              @id @default(uuid()) @db.VarChar(36)
+    can_pay_fee                    Boolean             @db.TinyInt
+    mark_insertion_source          MarkInsertionSource
+    annual_school_setting_id       String              @db.VarChar(36)
+    AnnualSchoolSetting            AnnualSchoolSetting @relation(fields: [annual_school_setting_id], references: [annual_school_setting_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_at                     DateTime            @default(now()) @db.DateTime(0)
+    audited_by                     String              @db.VarChar(36)
+    AuditedBy                      AnnualConfigurator  @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model AnnualDocumentSigner {
@@ -258,8 +261,11 @@ model AnnualDocumentSigner {
     annual_school_setting_id  String              @db.VarChar(36)
     AnnualSchoolSetting       AnnualSchoolSetting @relation(fields: [annual_school_setting_id], references: [annual_school_setting_id], onDelete: Cascade, onUpdate: Cascade)
     is_deleted                Boolean             @default(false) @db.TinyInt
+    created_at                DateTime            @default(now()) @db.DateTime(0)
+    created_by                String              @db.VarChar(36)
+    CreatedBy                 AnnualConfigurator  @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
     deleted_by                String?             @db.VarChar(36)
-    DeletedBy                 AnnualConfigurator? @relation(fields: [deleted_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+    DeletedBy                 AnnualConfigurator? @relation(name: "DeletedBy_AnnualConfigurator", fields: [deleted_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Ambassador {
@@ -425,6 +431,7 @@ model AnnualConfigurator {
     AnnualCarryOverSytems         AnnualCarryOverSytem[]
     AnnualSemesterExamAcess       AnnualSemesterExamAcess[]
     AnnualDocumentSigners         AnnualDocumentSigner[]
+    DeletedAnnualDocumentSigners  AnnualDocumentSigner[]         @relation(name: "DeletedBy_AnnualConfigurator")
     AnnualSchoolSettings          AnnualSchoolSetting[]
     AnnualSchoolSettingAudits     AnnualSchoolSettingAudit[]
 
