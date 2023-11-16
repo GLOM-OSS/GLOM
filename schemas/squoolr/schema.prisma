@@ -61,6 +61,13 @@ enum PaymentReasonEnum {
     @@map("payment_reason_enum")
 }
 
+enum MarkManagementRoleEnum {
+    Teacher
+    Registry
+
+    @@map("mark_management_role_enum")
+}
+
 model Payment {
     payment_id     String            @id @default(uuid()) @db.VarChar(36)
     amount         Float
@@ -220,6 +227,39 @@ model SchoolAudit {
     AuditedBy              AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
+model AnnualSchoolSetting {
+    annual_school_setting_id String                 @id @default(uuid()) @db.VarChar(36)
+    can_pay_fee              Boolean                @default(false) @db.TinyInt
+    mask_management          MarkManagementRoleEnum
+    academic_year_id         String
+    AcademicYear             AcademicYear           @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    created_by               String                 @db.VarChar(36)
+    CreatedBy                AnnualConfigurator     @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+
+    AnnualDocumentSigners AnnualDocumentSigner[]
+}
+
+model AnnualSchoolSettingAudit {
+    annual_school_setting_id String                 @id @default(uuid()) @db.VarChar(36)
+    can_pay_fee              Boolean                @db.TinyInt
+    mask_management          MarkManagementRoleEnum
+    audited_by               String                 @db.VarChar(36)
+    AuditedBy                AnnualConfigurator     @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model AnnualDocumentSigner {
+    annual_document_signer_id String              @id @default(uuid()) @db.VarChar(36)
+    signer_name               String              @db.VarChar(199)
+    signer_title              String              @db.VarChar(45)
+    honorific                 String              @db.VarChar(45)
+    hierarchy_level           Int
+    annual_school_setting_id  String              @db.VarChar(36)
+    AnnualSchoolSetting       AnnualSchoolSetting @relation(fields: [annual_school_setting_id], references: [annual_school_setting_id], onDelete: Cascade, onUpdate: Cascade)
+    is_deleted                Boolean             @default(false) @db.TinyInt
+    deleted_by                String              @db.VarChar(36)
+    DeletedBy                 AnnualConfigurator  @relation(fields: [deleted_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+}
+
 model Ambassador {
     ambassador_id String   @id @default(uuid()) @db.VarChar(36)
     referral_code String   @unique @db.VarChar(36)
@@ -306,6 +346,7 @@ model AcademicYear {
     AnnualSemesterExamAcess        AnnualSemesterExamAcess[]
     AnnualGradeWeightings          AnnualGradeWeighting[]
     AnnualEvaluationSubTypes       AnnualEvaluationSubType[]
+    AnnualSchoolSettings           AnnualSchoolSetting[]
 }
 
 model Login {
@@ -381,6 +422,9 @@ model AnnualConfigurator {
     DeletedAnnualConfigurators    AnnualConfigurator[]           @relation(name: "DeletedBy_AnnualConfigurator")
     AnnualCarryOverSytems         AnnualCarryOverSytem[]
     AnnualSemesterExamAcess       AnnualSemesterExamAcess[]
+    AnnualDocumentSigners         AnnualDocumentSigner[]
+    AnnualSchoolSettings          AnnualSchoolSetting[]
+    AnnualSchoolSettingAudits     AnnualSchoolSettingAudit[]
 
     @@unique([login_id, academic_year_id])
 }
