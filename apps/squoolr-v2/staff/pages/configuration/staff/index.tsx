@@ -455,7 +455,6 @@ export default function Staff() {
                     showMoreIcon={numberOfSelectedStaffIds > 0}
                     selectedStaff={selectedStaff}
                     selectStaff={selectStaff}
-                    setAnchorEl={setAnchorEl}
                     showArchived={showArchives}
                   />
                 ))
