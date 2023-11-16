@@ -75,11 +75,63 @@ export default function Staff() {
   //TODO: REPLACE WITH with reactQuery own
   const [isStaffDataFetching, setIsStaffDataFetching] = useState<boolean>(true);
 
-  //TODO: FETCH LIST OF majors HERE
+  const [canSearchExpand, setCanSearchExpand] = useState<boolean>(false);
+  const [searchValue, setSearchValue] = useState<string>('');
+  const [showArchives, setShowArchives] = useState<boolean>(false);
   const [staffData, setStaffData] = useState<StaffEntity[]>();
+  const [numberOfSelectedStaffIds, setNumberOfSelectedStaffIds] =
+    useState<number>(0);
+  const [totalNumberOfIds, setTotalNumberOfIds] = useState<number>(0);
+  const [selectedStaff, setSelectedStaff] = useState<
+    Record<keyof BulkDisableStaffPayload, string[]>
+  >({
+    configuratorIds: [],
+    registryIds: [],
+    teacherIds: [],
+  });
+  const [selectedRoles, setSelectedRoles] = useState<StaffRole[]>([
+    'CONFIGURATOR',
+    'COORDINATOR',
+    'REGISTRY',
+    'TEACHER',
+  ]);
+  function selectRole(role: StaffRole) {
+    setSelectedRoles((prev) =>
+      prev.includes(role) ? prev.filter((_) => _ !== role) : [...prev, role]
+    );
+  }
+
+  useEffect(() => {
+    setNumberOfSelectedStaffIds(
+      Object.keys(selectedStaff)
+        .map((category) => selectedStaff[category].length)
+        .reduce((totalIds, categoryIdLength) => totalIds + categoryIdLength, 0)
+    );
+  }, [selectedStaff]);
+
+  useEffect(() => {
+    if (staffData) {
+      setTotalNumberOfIds(
+        staffData
+          .map(({ roles }) =>
+            roles.includes('COORDINATOR') ? roles.length - 1 : roles.length
+          )
+          .reduce(
+            (totalRoles, staffNumberOfRoles) => totalRoles + staffNumberOfRoles,
+            0
+          )
+      );
+    }
+  }, [staffData]);
+
+  useEffect(() => {
+    //TODO: CALL fetch staff API HERE with searchValue, showArchives and selectedRoles use it to filter. MUTATE majors DATA WHEN IT'S DONE
+    alert('hello world');
+  }, [searchValue, showArchives, selectedRoles]);
 
   //TODO: REMOVE THIS WHEN INTEGRATION IS DONE
   useEffect(() => {
+    //TODO: FETCH staff list HERE
     setTimeout(() => {
       setStaffData([
         {
@@ -114,53 +166,37 @@ export default function Staff() {
     }, 3000);
   }, []);
 
-  const [canSearchExpand, setCanSearchExpand] = useState<boolean>(false);
-  const [searchValue, setSearchValue] = useState<string>('');
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [showArchives, setShowArchives] = useState<boolean>(false);
-  const [selectedRoles, setSelectedRoles] = useState<StaffRole[]>([
-    'CONFIGURATOR',
-    'COORDINATOR',
-    'REGISTRY',
-    'TEACHER',
-  ]);
-  function selectRole(role: StaffRole) {
-    setSelectedRoles((prev) =>
-      prev.includes(role) ? prev.filter((_) => _ !== role) : [...prev, role]
-    );
-  }
+  const [isConfirmBanDialogOpen, setIsConfirmBanDialogOpen] =
+    useState<boolean>(false);
+  const [isConfirmUnBanDialogOpen, setIsConfirmUnBanDialogOpen] =
+    useState<boolean>(false);
+  const [
+    isConfirmResetPrivateCodeDialogOpen,
+    setIsConfirmResetPrivateCodeDialogOpen,
+  ] = useState<boolean>(false);
+  const [
+    isConfirmResetPasswordDialogOpen,
+    setIsConfirmResetPasswordDialogOpen,
+  ] = useState<boolean>(false);
 
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [filterAnchorEl, setFilterAnchorEl] = useState<HTMLElement | null>(
     null
   );
 
-  useEffect(() => {
-    //TODO: CALL fetch staff API HERE with searchValue, showArchives and selectedRoles use it to filter. MUTATE majors DATA WHEN IT'S DONE
-    alert('hello world');
-  }, [searchValue, showArchives, selectedRoles]);
-
-  const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>([]);
-  const [selectedStaff, setSelectedStaff] = useState<
-    Record<keyof BulkDisableStaffPayload, string[]>
-  >({
-    configuratorIds: [],
-    registryIds: [],
-    teacherIds: [],
-  });
-
   /**
    * This function helps to select/unselect all staff members.
-   * It does by: 
-   * 
+   * It does by:
+   *
    * Def:
    * Staff role: roles of a staff member
-   * 
+   *
    * To unselect all, it counts all staff roles except coordinator in the staff list
    * and compares it to the joint list of elements in the selectedStaff list categories.
-   * 
+   *
    * if both numbers are same, then we've selected all and have to unselect all
    * hence returning empty arrays.
-   * 
+   *
    * if they're different, then all are not selected, and hence it selects all.
    * To select all, it maps through the staff member list.
    * for each of them, it verifies if they have configurator, registry and teacher ids,
@@ -251,28 +287,6 @@ export default function Staff() {
       });
     }
   }
-
-  const [isAllStaffSelected, setIsAllStaffSelected] = useState<boolean>(false);
-  useEffect(() => {
-    if (!!staffData) {
-      setIsAllStaffSelected(
-        staffData
-          .map(({ roles }) =>
-            roles.includes('COORDINATOR') ? roles.length - 1 : roles.length
-          )
-          .reduce(
-            (totalRoles, staffNumberOfRoles) => totalRoles + staffNumberOfRoles,
-            0
-          ) ===
-          Object.keys(selectedStaff)
-            .map((category) => selectedStaff[category].length)
-            .reduce(
-              (totalIds, categoryIdLength) => totalIds + categoryIdLength,
-              0
-            )
-      );
-    }
-  }, [selectedStaff]);
 
   const [activeStaffId, setActiveStaffId] = useState<string>();
   const [isActiveStaffArchived, setIsActiveStaffArchived] =
@@ -481,24 +495,46 @@ export default function Staff() {
                 columnGap: 2,
               }}
             >
-              {selectedStaffIds.length > 0 && showArchives && (
+              {numberOfSelectedStaffIds > 0 && !showArchives && (
                 <Button
                   variant="outlined"
                   color="warning"
                   disabled={isArchiving || isUnarchiving || isEditingStaff}
-                  onClick={() => setIsConfirmUnarchiveDialogOpen(true)}
+                  onClick={() => setIsConfirmBanDialogOpen(true)}
                 >
-                  {formatMessage({ id: 'unarchiveSelectedMajors' })}
+                  {formatMessage({ id: 'banSelectedStaff' })}
                 </Button>
               )}
-              {selectedStaffIds.length > 0 && !showArchives && (
+              {numberOfSelectedStaffIds > 0 && showArchives && (
                 <Button
                   variant="outlined"
                   color="warning"
                   disabled={isArchiving || isUnarchiving || isEditingStaff}
-                  onClick={() => setIsConfirmArchiveDialogOpen(true)}
+                  onClick={() => setIsConfirmUnBanDialogOpen(true)}
                 >
-                  {formatMessage({ id: 'archiveSelectedMajors' })}
+                  {formatMessage({ id: 'unBanSelectedStaff' })}
+                </Button>
+              )}
+              {numberOfSelectedStaffIds > 0 &&
+                !showArchives &&
+                !selectedRoles.includes('CONFIGURATOR') && (
+                  <Button
+                    variant="outlined"
+                    color="warning"
+                    disabled={isArchiving || isUnarchiving || isEditingStaff}
+                    onClick={() => setIsConfirmResetPrivateCodeDialogOpen(true)}
+                  >
+                    {formatMessage({ id: 'resetSelectedStaffPrivateCode' })}
+                  </Button>
+                )}
+              {numberOfSelectedStaffIds > 0 && !showArchives && (
+                <Button
+                  variant="outlined"
+                  color="warning"
+                  disabled={isArchiving || isUnarchiving || isEditingStaff}
+                  onClick={() => setIsConfirmResetPasswordDialogOpen(true)}
+                >
+                  {formatMessage({ id: 'resetSelectedStaffPasswords' })}
                 </Button>
               )}
               <Stack direction="row" spacing={0} alignItems={'center'}>
@@ -566,55 +602,60 @@ export default function Staff() {
                   },
                 }}
               >
-                {tableHeaders.map((columnTitle, index) => (
-                  <TableCell key={index} align="left">
-                    {index === 0 ? (
-                      <Checkbox
-                        disabled={
-                          !staffData ||
-                          isStaffDataFetching ||
-                          isArchiving ||
-                          isUnarchiving ||
-                          isEditingStaff
-                        }
-                        onClick={() =>
-                          isArchiving || isUnarchiving || isEditingStaff
-                            ? null
-                            : selectAllStaff()
-                        }
-                        checked={isAllStaffSelected}
-                        icon={
-                          <Icon
-                            icon={unchecked}
-                            style={{
-                              color: '#D1D5DB',
-                              height: '100%',
-                              width: '21px',
-                            }}
-                          />
-                        }
-                        checkedIcon={
-                          <Icon
-                            icon={checked}
-                            style={{
-                              color: theme.palette.primary.main,
-                              height: '100%',
-                              width: '21px',
-                            }}
-                          />
-                        }
-                        indeterminate={
-                          selectedStaffIds.length > 1 &&
-                          selectedStaffIds.length < staffData.length
-                        }
-                      />
-                    ) : index > 0 && columnTitle === '' ? (
-                      ''
-                    ) : (
-                      formatMessage({ id: columnTitle })
-                    )}
-                  </TableCell>
-                ))}
+                {tableHeaders.map((columnTitle, index) => {
+                  return (
+                    <TableCell key={index} align="left">
+                      {index === 0 ? (
+                        <Checkbox
+                          disabled={
+                            !staffData ||
+                            isStaffDataFetching ||
+                            isArchiving ||
+                            isUnarchiving ||
+                            isEditingStaff
+                          }
+                          onClick={() =>
+                            isArchiving || isUnarchiving || isEditingStaff
+                              ? null
+                              : selectAllStaff()
+                          }
+                          checked={
+                            totalNumberOfIds === numberOfSelectedStaffIds &&
+                            !!staffData
+                          }
+                          icon={
+                            <Icon
+                              icon={unchecked}
+                              style={{
+                                color: '#D1D5DB',
+                                height: '100%',
+                                width: '21px',
+                              }}
+                            />
+                          }
+                          checkedIcon={
+                            <Icon
+                              icon={checked}
+                              style={{
+                                color: theme.palette.primary.main,
+                                height: '100%',
+                                width: '21px',
+                              }}
+                            />
+                          }
+                          indeterminate={
+                            numberOfSelectedStaffIds > 1 &&
+                            numberOfSelectedStaffIds < totalNumberOfIds
+                          }
+                        />
+                      ) : index > 0 && columnTitle === '' ? (
+                        ''
+                      ) : (
+                        formatMessage({ id: columnTitle })
+                      )}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -774,7 +815,7 @@ export default function Staff() {
                         })}
                       </TableCell>
                       <TableCell align="right">
-                        {selectedStaffIds.length > 0 ? (
+                        {numberOfSelectedStaffIds > 0 ? (
                           ''
                         ) : (
                           <Tooltip arrow title={formatMessage({ id: 'more' })}>
