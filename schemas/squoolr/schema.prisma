@@ -534,6 +534,7 @@ model TeachingGrade {
 }
 
 model Teacher {
+    teacher_id            String      @id @default(uuid()) @db.VarChar(36)
     has_tax_payers_card   Boolean     @default(false)
     tax_payer_card_number String?
     matricule             String      @db.VarChar(75)
@@ -554,8 +555,8 @@ model TeacherAudit {
     private_code          String             @db.VarChar(75)
     teacher_type_id       String             @db.VarChar(36)
     TeacherType           TeacherType        @relation(fields: [teacher_type_id], references: [teacher_type_id], onDelete: Cascade, onUpdate: Cascade)
-    login_id              String             @db.VarChar(36)
-    Teacher               Teacher            @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+    teacher_id            String             @db.VarChar(36)
+    Teacher               Teacher            @relation(fields: [teacher_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
     audited_by            String             @db.VarChar(36)
     AuditedBy             AnnualConfigurator @relation(fields: [audited_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 }
@@ -652,6 +653,8 @@ model ResetPassword {
     AnnualConfigurator         AnnualConfigurator? @relation(fields: [generated_by_confiigurator], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
     generated_by_admin         String?             @db.VarChar(36)
     Admin                      Login?              @relation("Admin_Generated_ResetPassword", fields: [generated_by_admin], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
+
+    @@unique([login_id, is_valid])
 }
 
 model Department {

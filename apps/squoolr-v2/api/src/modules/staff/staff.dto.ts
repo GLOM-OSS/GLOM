@@ -82,9 +82,6 @@ export class StaffEntity
   @ApiPropertyOptional()
   annual_teacher_id?: string;
 
-  @ApiPropertyOptional()
-  annual_coordinator_id?: string;
-
   @ApiProperty({ enum: StaffRole, isArray: true })
   roles: StaffRole[];
 
