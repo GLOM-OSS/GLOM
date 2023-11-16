@@ -93,7 +93,9 @@ export class CoordinatorsService
         },
         where: {
           is_deleted: false,
-          AnnualTeacher: StaffArgsFactory.getStaffWhereInput(staffParams),
+          AnnualTeacher: {
+            Teacher: StaffArgsFactory.getStaffWhereInput(staffParams),
+          },
         },
       });
     return coordinators.map(({ AnnualTeacher: { Teacher: teacher } }) =>

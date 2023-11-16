@@ -28,15 +28,11 @@ export type ActiveYear = {
   year_code: string;
 };
 
-export type SessionData = {
-  login_id: string;
-  school_id?: string;
+export type AnnualSessionData = {
   annualStudent?: {
+    student_id: string;
     annual_student_id: string;
     activeSemesters: number[];
-    classroom_code: string;
-    classroom_level: number;
-    student_id: string;
   }; //Student
   //Personnel
   annualConfigurator?: {
@@ -68,6 +64,9 @@ declare module 'express-session' {
 }
 declare global {
   namespace Express {
-    interface User extends SessionData, Person {}
+    interface User extends AnnualSessionData, Person {
+      login_id: string;
+      school_id?: string;
+    }
   }
 }

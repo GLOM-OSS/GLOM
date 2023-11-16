@@ -24,10 +24,10 @@ export class GlomExceptionsFilter implements ExceptionFilter {
     };
     if (exception instanceof AxiosError) {
       console.log(exception.response.data);
-      const errorObj = exception.toJSON();
-      status = errorObj['status'];
+      const errorObj = exception.response.data;
+      status = exception.status;
       error = {
-        error: errorObj['code'],
+        error: exception.code,
         message: errorObj['message'],
       };
     } else {
@@ -36,7 +36,7 @@ export class GlomExceptionsFilter implements ExceptionFilter {
     }
     Logger[status === 500 ? 'error' : 'debug'](
       `Called {${request.url}, ${request.method}}`,
-      error.error
+      error.message
     );
 
     response.status(status).json(

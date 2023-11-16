@@ -8,6 +8,7 @@ import {
   Put,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -34,10 +35,11 @@ import {
   UpdateStaffRoleDto,
 } from './staff.dto';
 import { StaffService } from './staff.service';
+import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 
 @ApiTags('Staffs')
 @Controller('staffs')
-// @UseGuards(AuthenticatedGuard)
+@UseGuards(AuthenticatedGuard)
 @ApiExtraModels(TeacherEntity, CoordinatorEntity)
 export class StaffController {
   constructor(private staffService: StaffService) {}
@@ -134,34 +136,35 @@ export class StaffController {
     ':annual_configurator_id',
     ':annual_registry_id',
   ])
-  @Roles(Role.CONFIGURATOR)
+  @Roles(Role.ADMIN, Role.CONFIGURATOR)
   @ApiNoContentResponse()
   async disableStaff(
     @Req() request: Request,
     @Param('annual_teacher_id') annualTeacherId: string,
     @Query() payload: StaffRoleDto
   ) {
-    const {
-      annualConfigurator: { annual_configurator_id },
-    } = request.user;
+    const { login_id, annualConfigurator } = request.user;
     return this.staffService.disable(
       annualTeacherId,
       payload,
-      annual_configurator_id
+      annualConfigurator?.annual_configurator_id || login_id,
+      !annualConfigurator
     );
   }
 
   @Delete()
-  @Roles(Role.CONFIGURATOR)
+  @Roles(Role.ADMIN, Role.CONFIGURATOR)
   @ApiOkResponse({ type: BatchPayloadDto })
   async disableManyStaff(
     @Req() request: Request,
     @Query() disabledStaff: ManageStaffDto
   ) {
-    const {
-      annualConfigurator: { annual_configurator_id },
-    } = request.user;
-    return this.staffService.disableMany(disabledStaff, annual_configurator_id);
+    const { login_id, annualConfigurator } = request.user;
+    return this.staffService.disableMany(
+      disabledStaff,
+      annualConfigurator?.annual_configurator_id || login_id,
+      !annualConfigurator
+    );
   }
 
   @Post('reset-passwords')
@@ -174,7 +177,7 @@ export class StaffController {
     const { login_id, annualConfigurator } = request.user;
     return this.staffService.resetPasswords(
       disabledStaff,
-      annualConfigurator?.annual_configurator_id ?? login_id,
+      annualConfigurator?.annual_configurator_id || login_id,
       !annualConfigurator
     );
   }
@@ -200,7 +203,7 @@ export class StaffController {
   }
 
   @Put('private-codes')
-  @Roles(Role.ADMIN, Role.CONFIGURATOR)
+  @Roles(Role.CONFIGURATOR)
   @ApiOkResponse({ type: BatchPayloadDto })
   async resetStaffPrivateCodes(
     @Req() request: Request,

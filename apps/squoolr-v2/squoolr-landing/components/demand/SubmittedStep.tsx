@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import copy from '@iconify/icons-fluent/copy-24-regular';
 
-export default function SubmittedStep({ demandCode }: { demandCode: string }) {
+export default function SubmittedStep({ schoolCode }: { schoolCode: string }) {
   const { formatMessage } = useIntl();
   const { push } = useRouter();
   const theme = useTheme();
@@ -54,14 +54,14 @@ export default function SubmittedStep({ demandCode }: { demandCode: string }) {
           }
           onClick={() => {
             if (!isCopied) {
-              navigator.clipboard.writeText(demandCode);
+              navigator.clipboard.writeText(schoolCode);
               setIsCopied(true);
             }
           }}
         >
           {isCopied
             ? formatMessage({ id: 'copied' })
-            : `${formatMessage({ id: 'code' })}: ${demandCode}`}
+            : `${formatMessage({ id: 'code' })}: ${schoolCode}`}
         </Button>
       </Tooltip>
       <Box sx={{ display: 'grid', gridAutoFlow: 'column', columnGap: 4 }}>
@@ -71,7 +71,7 @@ export default function SubmittedStep({ demandCode }: { demandCode: string }) {
         <Button
           color="primary"
           variant="contained"
-          onClick={() => push(`/?status=${demandCode}`)}
+          onClick={() => push(`/?status=${schoolCode}`)}
         >
           {formatMessage({ id: 'verifyStatus' })}
         </Button>

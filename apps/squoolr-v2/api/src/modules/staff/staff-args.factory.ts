@@ -16,21 +16,23 @@ export class StaffArgsFactory {
   }: StaffSelectParams) => ({
     academic_year_id,
     is_deleted: params?.is_deleted ?? false,
-    ...Prisma.validator<Prisma.LoginWhereInput>()({
-      Person: {
-        OR: {
-          email: {
-            search: params?.keywords,
+    Login: params?.keywords
+      ? Prisma.validator<Prisma.LoginWhereInput>()({
+          Person: {
+            OR: {
+              email: {
+                search: params.keywords,
+              },
+              last_name: {
+                search: params.keywords,
+              },
+              first_name: {
+                search: params.keywords,
+              },
+            },
           },
-          last_name: {
-            search: params?.keywords,
-          },
-          first_name: {
-            search: params?.keywords,
-          },
-        },
-      },
-    }),
+        })
+      : undefined,
   });
 
   static getStaffSelect = (staffParams?: StaffSelectParams) => ({

@@ -1,0 +1,16 @@
+{
+  "name": "squoolr-v2-side-nav",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/squoolr-v2/side-nav/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/squoolr-v2/side-nav/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  }
+}

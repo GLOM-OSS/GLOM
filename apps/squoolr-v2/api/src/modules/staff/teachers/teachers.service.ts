@@ -42,7 +42,7 @@ export class TeachersService
           select: StaffArgsFactory.getStaffSelect(staffParams),
         },
       },
-      where: StaffArgsFactory.getStaffWhereInput(staffParams),
+      where: { Teacher: StaffArgsFactory.getStaffWhereInput(staffParams) },
     });
     return teachers.map(
       ({
@@ -131,7 +131,7 @@ export class TeachersService
           },
         },
         AcademicYear,
-        AnnualConfigurator: { connect: { annual_configurator_id: added_by } },
+        CreatedBy: { connect: { annual_configurator_id: added_by } },
       },
     });
 
@@ -214,7 +214,7 @@ export class TeachersService
         AnnualTeacherAudits: {
           create: {
             ...annualTeacher,
-            AnnualConfigurator: {
+            AuditedBy: {
               connect: { annual_configurator_id: audited_by },
             },
           },
@@ -267,7 +267,7 @@ export class TeachersService
             where: { login_id },
           },
         },
-        AnnualConfigurator: { connect: { annual_configurator_id: created_by } },
+        CreatedBy: { connect: { annual_configurator_id: created_by } },
       },
       update: { is_deleted: false },
       where: {
@@ -325,7 +325,7 @@ export class TeachersService
                       has_tax_payers_card,
                       tax_payer_card_number,
                       TeacherType: { connect: { teacher_type_id } },
-                      AnnualConfigurator: {
+                      AuditedBy: {
                         connect: { annual_configurator_id: reset_by },
                       },
                     },

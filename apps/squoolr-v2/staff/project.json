@@ -1,0 +1,55 @@
+{
+  "name": "squoolr-v2-staff",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/squoolr-v2/staff",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/next:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "root": "apps/squoolr-v2/staff",
+        "outputPath": "dist/apps/squoolr-v2/staff"
+      },
+      "configurations": {
+        "development": {
+          "outputPath": "apps/squoolr-v2/staff"
+        },
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/next:server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "squoolr-v2-staff:build",
+        "dev": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "squoolr-v2-staff:build:development",
+          "dev": true
+        },
+        "production": {
+          "buildTarget": "squoolr-v2-staff:build:production",
+          "dev": false
+        }
+      }
+    },
+    "export": {
+      "executor": "@nrwl/next:export",
+      "options": {
+        "buildTarget": "squoolr-v2-staff:build:production"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/squoolr-v2/staff/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  },
+  "tags": []
+}

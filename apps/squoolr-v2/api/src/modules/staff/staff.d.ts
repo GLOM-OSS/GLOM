@@ -72,7 +72,8 @@ export interface IStaffService<
   update: (
     annual_staff_id: string,
     payload: U,
-    audited_by: string
+    audited_by: string,
+    isAdmin?: boolean
   ) => Promise<void>;
   createFrom: (login_id: string, payload: K, created_by: string) => Promise<T>;
   resetPrivateCodes: (

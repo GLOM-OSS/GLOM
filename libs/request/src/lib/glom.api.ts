@@ -1,8 +1,11 @@
 import {
+  AcademicYearApi,
   AmbassadorsApi,
-  DemandsApi,
+  AuthApi,
+  SchoolsApi,
   InquiriesApi,
   PlatformSettingsApi,
+  StaffApi,
 } from '../squoolr';
 import { GlomRequest, RequestParams } from './glom-request';
 
@@ -23,15 +26,17 @@ export const getURI = (app: keyof typeof GLOM_HOSTS) => {
 
 export class GlomApi {
   public squoolr: {
-    demands: DemandsApi;
+    auth: AuthApi;
+    staffs: StaffApi;
+    schools: SchoolsApi;
     inquiries: InquiriesApi;
     ambassadors: AmbassadorsApi;
+    academicYears: AcademicYearApi;
     platformSettings: PlatformSettingsApi;
   };
 
   constructor(public params?: Partial<RequestParams>) {
     const { host } = getURI('squoolr');
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const squoolrRequest = new GlomRequest({
       ...params,
       prefix: '',
@@ -39,9 +44,12 @@ export class GlomApi {
     });
 
     this.squoolr = {
-      demands: new DemandsApi(squoolrRequest),
+      auth: new AuthApi(squoolrRequest),
+      staffs: new StaffApi(squoolrRequest),
+      schools: new SchoolsApi(squoolrRequest),
       inquiries: new InquiriesApi(squoolrRequest),
       ambassadors: new AmbassadorsApi(squoolrRequest),
+      academicYears: new AcademicYearApi(squoolrRequest),
       platformSettings: new PlatformSettingsApi(squoolrRequest),
     };
   }

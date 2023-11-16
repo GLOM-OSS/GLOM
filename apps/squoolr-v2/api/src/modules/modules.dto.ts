@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Cycle, CycleName, CycleType, Prisma } from '@prisma/client';
+import { Cycle, CycleName, Prisma } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { QueryParams } from './module';
@@ -22,9 +22,6 @@ export class CycleEntity implements Cycle {
 
   @ApiProperty({ enum: CycleName })
   cycle_name: CycleName;
-
-  @ApiProperty({ enum: CycleType })
-  cycle_type: CycleType;
 
   @ApiProperty()
   number_of_years: number;

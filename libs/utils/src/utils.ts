@@ -30,6 +30,16 @@ export function random() {
   return Math.floor(Math.random() * 10);
 }
 
+/**
+ * @description function is used to generate kinda like acronyms from given words
+ * it does so by taking a string, splitting it with the space separator and for every word,
+ * with the exception of the first word whose first letter is used in all cases,
+ * other words need to be longer than 3 characters before their first letters are considered.
+ * this avoids us adding is, and, de, etc to acronyms
+ *
+ * @param {string} value - the value to generate short version
+ * @returns  {string} - the generated acronym in uppercase
+ */
 export function generateShort(value: string) {
   let code = '';
   value.split(' ').forEach((word, index) => {

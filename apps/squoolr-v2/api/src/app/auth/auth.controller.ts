@@ -19,11 +19,11 @@ import {
 import { AcademicYear } from '@prisma/client';
 import { Request, Response } from 'express';
 import {
-  PersonEntity,
   ResetPasswordDto,
   SetNewPasswordDto,
   SignInDto,
   SingInResponse,
+  UserEntity,
 } from './auth.dto';
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
@@ -46,10 +46,13 @@ export class AuthController {
         user.login_id
       );
       academicYears = result.academicYears;
-      user = { ...user, ...result.sessionData };
+      user = { ...user, ...result.annualSessionData };
     }
     await this.authService.openSession(request, user.login_id);
-    return new SingInResponse({ user, academicYears });
+    return new SingInResponse({
+      academicYears,
+      user: await this.authService.getUser(user),
+    });
   }
 
   @Post('reset-password')
@@ -77,6 +80,7 @@ export class AuthController {
   }
 
   @Delete('log-out')
+  @ApiNoContentResponse()
   @UseGuards(AuthenticatedGuard)
   async logOut(@Req() request: Request, @Res() response: Response) {
     const sessionName = process.env.SESSION_NAME;
@@ -100,13 +104,9 @@ export class AuthController {
   }
 
   @Get('user')
-  @ApiOkResponse({ type: PersonEntity })
+  @ApiOkResponse({ type: UserEntity })
   @UseGuards(AuthenticatedGuard)
   async getUser(@Req() request: Request) {
-    const email = request.query.email as string;
-    const person = email
-      ? await this.authService.getPerson(email)
-      : request.user;
-    return new PersonEntity(person);
+    return this.authService.getUser(request.user);
   }
 }

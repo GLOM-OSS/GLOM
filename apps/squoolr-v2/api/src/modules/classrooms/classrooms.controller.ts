@@ -13,6 +13,7 @@ import { ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 import {
   AnnualClassroomEntity,
+  DisanleClassroomsDto,
   QueryClassroomDto,
   UpdateClassroomDto,
 } from './classroom.dto';
@@ -69,6 +70,22 @@ export class ClassroomsController {
     return this.classroomsService.update(
       annual_classroom_id,
       { is_deleted: true },
+      annual_configurator_id
+    );
+  }
+
+  @Delete()
+  @ApiNoContentResponse()
+  @Roles(Role.CONFIGURATOR)
+  async disableManyClassrooms(
+    @Req() request: Request,
+    @Query() { annualClassroomIds }: DisanleClassroomsDto
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user;
+    return this.classroomsService.disableMany(
+      annualClassroomIds,
       annual_configurator_id
     );
   }

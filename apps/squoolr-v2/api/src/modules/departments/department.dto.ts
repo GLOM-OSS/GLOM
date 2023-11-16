@@ -24,9 +24,6 @@ export class DepartmentEntity implements Department {
   @ApiProperty()
   department_acronym: string;
 
-  @ApiProperty()
-  department_code: string;
-
   @Exclude()
   @ApiProperty()
   created_at: Date;
@@ -46,4 +43,10 @@ export class DepartmentEntity implements Department {
   constructor(props: DepartmentEntity) {
     Object.assign(this, props);
   }
+}
+
+export class DisableDepartmentsDto {
+  @IsString({ each: true })
+  @ApiProperty({ type: [String] })
+  departmentIds: string[];
 }

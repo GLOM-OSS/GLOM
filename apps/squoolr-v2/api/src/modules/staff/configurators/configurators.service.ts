@@ -68,7 +68,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
       },
       data: {
         matricule: payload.matricule,
-        CreatedByAnnualConfigurator: {
+        CreatedBy: {
           connect: { annual_configurator_id: created_by },
         },
         ...StaffArgsFactory.getStaffCreateInput(payload),
@@ -89,7 +89,8 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
   async update(
     annual_configurator_id: string,
     payload: UpdateStaffInput,
-    audited_by: string
+    audited_by: string,
+    isAdmin = false
   ) {
     const {
       is_deleted,
@@ -103,9 +104,11 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
       data: {
         is_deleted: isDeleted,
         deleted_at: isDeleted ? new Date() : null,
-        DeletedByAnnualConfigurator: isDeleted
+        [isAdmin ? 'DisabledBy' : 'DeletedBy']: isDeleted
           ? {
-              connect: { annual_configurator_id: audited_by },
+              connect: {
+                [isAdmin ? 'login_id' : 'annual_configurator_id']: audited_by,
+              },
             }
           : { disconnect: true },
         Login:
@@ -145,7 +148,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
         matricule,
         Login: { connect: { login_id } },
         AcademicYear: { connect: { academic_year_id } },
-        CreatedByAnnualConfigurator: {
+        CreatedBy: {
           connect: { annual_configurator_id: created_by },
         },
       },
