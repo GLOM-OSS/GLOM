@@ -47,6 +47,7 @@ import EditMajorDialog from '../../../components/configuration/majors/EditMajorD
 import ManageMajorMenu from '../../../components/configuration/majors/ManageMajorMenu';
 import FilterMenu from '../../../components/configuration/staff/FilterMenu';
 import StaffRoles from '../../../components/configuration/staff/StaffRoles';
+import TableHeader from '../../../components/configuration/staff/TableHeader';
 export default function Staff() {
   const theme = useTheme();
   const { push, asPath } = useRouter();
@@ -66,7 +67,6 @@ export default function Staff() {
   //TODO: REPLACE WITH with reactQuery own
   const [isStaffDataFetching, setIsStaffDataFetching] = useState<boolean>(true);
 
-  const [canSearchExpand, setCanSearchExpand] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>('');
   const [showArchives, setShowArchives] = useState<boolean>(false);
   const [staffData, setStaffData] = useState<StaffEntity[]>();
@@ -409,183 +409,22 @@ export default function Staff() {
         isSubmitting={isArchiving || isUnarchiving}
       /> */}
       <Box sx={{ height: '100%', position: 'relative' }}>
-        <Box
-          sx={{
-            borderTopLeftRadius: '8px',
-            borderTopRightRadius: '8px',
-            border: `1px solid ${theme.common.line}`,
-            borderBottom: 'none',
-            padding: '8px',
-            display: 'grid',
-            gridTemplateColumns: 'auto 1fr',
-            alignItems: 'center',
-            justifyItems: 'end',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'grid',
-              gridAutoFlow: 'column',
-              columnGap: 2,
-              alignItems: 'center',
-              justifyContent: 'start',
-            }}
-          >
-            <TextField
-              onClick={() => setCanSearchExpand(true)}
-              onBlur={() =>
-                !searchValue
-                  ? setCanSearchExpand(false)
-                  : setCanSearchExpand(true)
-              }
-              onChange={(e) => setSearchValue(e.target.value)}
-              variant="outlined"
-              size="small"
-              sx={{
-                transition: 'width 0.3s',
-                '& .MuiInputBase-root': {
-                  paddingLeft: '8px',
-                },
-                '& .MuiInputBase-input': {
-                  padding: '8.5px 0',
-                  transition: 'width 0.3s',
-                  width: canSearchExpand ? '100%' : 0,
-                },
-                '&:hover': {
-                  width: '100%',
-                  '& .MuiInputBase-input': {
-                    width: '100%',
-                  },
-                },
-              }}
-              placeholder={formatMessage({ id: 'search' })}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start" sx={{ width: 'auto' }}>
-                    <Icon icon={search} fontSize={20} />
-                  </InputAdornment>
-                ),
-              }}
-            />
-
-            <TableHeaderItem
-              icon={reset}
-              title={formatMessage({ id: 'reload' })}
-              onClick={() => {
-                //TODO: MUTATE TABLE VALUES HERE AND SEARCH AGAIN.
-                alert('hello world');
-              }}
-            />
-          </Box>
-          {
-            <Box
-              sx={{
-                display: 'grid',
-                gridAutoFlow: 'column',
-                alignItems: 'center',
-                columnGap: 2,
-              }}
-            >
-              {numberOfSelectedStaffIds > 0 && !showArchives && (
-                <Button
-                  variant="outlined"
-                  color="warning"
-                  disabled={isArchiving || isUnarchiving || isEditingStaff}
-                  onClick={() => setIsConfirmBanDialogOpen(true)}
-                >
-                  {formatMessage({ id: 'banSelectedStaff' })}
-                </Button>
-              )}
-              {numberOfSelectedStaffIds > 0 && showArchives && (
-                <Button
-                  variant="outlined"
-                  color="warning"
-                  disabled={isArchiving || isUnarchiving || isEditingStaff}
-                  onClick={() => setIsConfirmUnBanDialogOpen(true)}
-                >
-                  {formatMessage({ id: 'unBanSelectedStaff' })}
-                </Button>
-              )}
-              {numberOfSelectedStaffIds > 0 &&
-                !showArchives &&
-                !selectedRoles.includes('CONFIGURATOR') && (
-                  <Button
-                    variant="outlined"
-                    color="warning"
-                    disabled={isArchiving || isUnarchiving || isEditingStaff}
-                    onClick={() => setIsConfirmResetPrivateCodeDialogOpen(true)}
-                  >
-                    {formatMessage({ id: 'resetSelectedStaffPrivateCode' })}
-                  </Button>
-                )}
-              {numberOfSelectedStaffIds > 0 && !showArchives && (
-                <Button
-                  variant="outlined"
-                  color="warning"
-                  disabled={isArchiving || isUnarchiving || isEditingStaff}
-                  onClick={() => setIsConfirmResetPasswordDialogOpen(true)}
-                >
-                  {formatMessage({ id: 'resetSelectedStaffPasswords' })}
-                </Button>
-              )}
-              <Stack
-                direction="row"
-                spacing={0}
-                alignItems={'center'}
-                onClick={() =>
-                  isArchiving || isUnarchiving || isEditingStaff
-                    ? null
-                    : setShowArchives((prev) => !prev)
-                }
-                sx={{ cursor: 'pointer' }}
-              >
-                <Checkbox
-                  checked={showArchives}
-                  icon={
-                    <Icon
-                      icon={unchecked}
-                      style={{
-                        color: '#D1D5DB',
-                        height: '100%',
-                        width: '24px',
-                      }}
-                    />
-                  }
-                  checkedIcon={
-                    <Icon
-                      icon={checked}
-                      style={{
-                        color: theme.palette.primary.main,
-                        height: '100%',
-                        width: '24px',
-                      }}
-                    />
-                  }
-                />
-                <Typography
-                  sx={{
-                    color: showArchives
-                      ? theme.palette.primary.main
-                      : theme.common.body,
-                    '&:hover': {
-                      color: theme.palette.primary.dark,
-                    },
-                  }}
-                >
-                  {formatMessage({ id: 'showArchived' })}
-                </Typography>
-              </Stack>
-
-              <TableHeaderItem
-                icon={filter}
-                title={formatMessage({ id: 'filter' })}
-                onClick={(event) => {
-                  setFilterAnchorEl(event.currentTarget);
-                }}
-              />
-            </Box>
+        <TableHeader
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+          showArchives={showArchives}
+          setShowArchives={setShowArchives}
+          numberOfSelectedStaffIds={numberOfSelectedStaffIds}
+          disabled={
+            !staffData || isArchiving || isUnarchiving || isEditingStaff
           }
-        </Box>
+          canResetPrivateCode={!selectedRoles.includes('CONFIGURATOR')}
+          setFilterAnchorEl={setFilterAnchorEl}
+          resetPassword={() => setIsConfirmResetPasswordDialogOpen(true)}
+          banUsers={() => setIsConfirmBanDialogOpen(true)}
+          unbanUsers={() => setIsConfirmUnBanDialogOpen(true)}
+          resetPrivateCode={() => setIsConfirmResetPrivateCodeDialogOpen(true)}
+        />
         <TableContainer
           sx={{
             borderTopLeftRadius: 0,
