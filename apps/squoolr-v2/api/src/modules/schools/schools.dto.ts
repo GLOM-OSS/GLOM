@@ -3,8 +3,14 @@ import {
   ApiPropertyOptional,
   OmitType,
   PartialType,
+  PickType,
 } from '@nestjs/swagger';
-import { SchoolDemandStatus } from '@prisma/client';
+import {
+  AnnualDocumentSigner,
+  AnnualSchoolSetting,
+  MarkManagementRoleEnum,
+  SchoolDemandStatus,
+} from '@prisma/client';
 import { Exclude, Transform, Type } from 'class-transformer';
 import {
   IsDate,
@@ -175,3 +181,83 @@ export class UpdateSchoolDto extends PartialType(
     'subdomain',
   ])
 ) {}
+
+export class CreateDocumentSignerDto {
+  @ApiProperty({ example: 'Yongua' })
+  signer_name: string;
+
+  @ApiProperty({ example: 'The Rector' })
+  signer_title: string;
+
+  @ApiProperty({ example: 'Mr, Ms, Dr, etc' })
+  honorific: string;
+
+  @ApiProperty()
+  hierarchy_level: number;
+
+  constructor(props: CreateDocumentSignerDto) {
+    Object.assign(this, props);
+  }
+}
+
+export class DocumentSignerEntity
+  extends CreateDocumentSignerDto
+  implements AnnualDocumentSigner
+{
+  @ApiProperty()
+  annual_document_signer_id: string;
+
+  @ApiProperty()
+  annual_school_setting_id: string;
+
+  @ApiProperty()
+  is_deleted: boolean;
+
+  @Exclude()
+  @ApiProperty({ nullable: true })
+  deleted_by: string;
+
+  constructor(props: DocumentSignerEntity) {
+    super(props);
+    Object.assign(this, props);
+  }
+}
+
+export class SchoolSettingEntity implements AnnualSchoolSetting {
+  @ApiProperty()
+  annual_school_setting_id: string;
+
+  @ApiProperty()
+  academic_year_id: string;
+
+  @ApiProperty()
+  can_pay_fee: boolean;
+
+  @ApiProperty({ enum: MarkManagementRoleEnum })
+  mask_management: MarkManagementRoleEnum;
+
+  @ApiProperty()
+  created_at: Date;
+
+  @Exclude()
+  @ApiProperty()
+  created_by: string;
+
+  @ApiProperty({ type: [DocumentSignerEntity] })
+  documentSigners: DocumentSignerEntity[];
+}
+
+export class UpdateSchoolSettingDto extends PartialType(
+  PickType(SchoolSettingEntity, ['can_pay_fee', 'mask_management'])
+) {
+  @IsOptional()
+  @ApiPropertyOptional()
+  @IsString({ each: true })
+  annualDocumentSignerIds?: string[];
+
+  @IsOptional()
+  @ApiPropertyOptional()
+  @ValidateNested({ each: true })
+  @Type(() => CreateDocumentSignerDto)
+  newDocumentSigners?: CreateDocumentSignerDto[];
+}

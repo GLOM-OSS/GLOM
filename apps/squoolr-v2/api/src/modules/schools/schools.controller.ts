@@ -88,7 +88,7 @@ export class SchoolsController {
       throw new BadRequestException(
         'rejection_reason and subdomain cannot coexist'
       );
-    return this.schoolsService.validateDemand(
+    return this.schoolsService.validate(
       schoolId,
       validatedDemand,
       userId

@@ -19,6 +19,7 @@ import {
   SubmitSchoolDemandDto,
   UpdateSchoolDemandStatus,
   UpdateSchoolDto,
+  UpdateSchoolSettingDto,
   ValidateSchoolDemandDto,
 } from './schools.dto';
 import { AxiosError } from 'axios';
@@ -131,7 +132,7 @@ export class SchoolsService {
     const {
       transactions: academicYearSetupTransactions,
       data: { school_code },
-    } = await this.getFistAcademicYearSetup(demandpayload);
+    } = await this.getFistYearSetup(demandpayload);
 
     let payment_ref: string;
     let onboarding_fee: number;
@@ -187,7 +188,7 @@ export class SchoolsService {
     return getSchoolEntity(school);
   }
 
-  async validateDemand(
+  async validate(
     school_id: string,
     { rejection_reason, subdomain }: ValidateSchoolDemandDto,
     audited_by: string
@@ -299,7 +300,7 @@ export class SchoolsService {
     return newPayment;
   }
 
-  private async getFistAcademicYearSetup({
+  private async getFistYearSetup({
     school: {
       school_acronym,
       initial_year_ends_at: ends_at,
@@ -350,6 +351,12 @@ export class SchoolsService {
                 year_code,
                 academic_year_id,
                 School: { connect: { school_code } },
+                AnnualSchoolSetting: {
+                  create: {
+                    mask_management: 'Teacher',
+                    CreatedBy: { connect: { annual_configurator_id } },
+                  },
+                },
               },
             },
           },
