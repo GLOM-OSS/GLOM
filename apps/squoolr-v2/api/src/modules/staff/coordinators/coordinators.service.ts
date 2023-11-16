@@ -144,6 +144,8 @@ export class CoordinatorsService
           matricule,
           is_deleted,
           annual_teacher_id,
+          annual_registry_id: registry?.annual_registry_id,
+          annual_configurator_id: configrator?.annual_configurator_id,
           last_connected: log?.logged_in_at ?? null,
           roles: [{ registry }, { configrator }].reduce<StaffRole[]>(
             (roles, _) =>

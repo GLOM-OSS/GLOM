@@ -99,6 +99,8 @@ export class TeachersService
           is_deleted,
           annual_teacher_id,
           last_connected: log?.logged_in_at ?? null,
+          annual_registry_id: registry?.annual_registry_id,
+          annual_configurator_id: configrator?.annual_configurator_id,
           roles: [{ registry }, { configrator }, { codinatedClass }].reduce<
             StaffRole[]
           >(

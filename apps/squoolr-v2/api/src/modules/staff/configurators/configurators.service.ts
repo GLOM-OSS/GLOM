@@ -100,6 +100,8 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
           matricule,
           is_deleted,
           annual_configurator_id,
+          annual_registry_id: registry?.annual_registry_id,
+          annual_teacher_id: Teacher?.AnnualTeachers[0]?.annual_teacher_id,
           last_connected: log?.logged_in_at ?? null,
           roles: [{ registry }, { teacher: Teacher?.AnnualTeachers }].reduce<
             StaffRole[]

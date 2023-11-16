@@ -44,7 +44,7 @@ export class StaffController {
 
   @Get()
   @ApiOkResponse({ type: [StaffEntity] })
-  async getAllStaff(
+  async getStaffs(
     @Req() request: Request,
     @Query() { roles, ...params }: QueryStaffDto
   ) {
