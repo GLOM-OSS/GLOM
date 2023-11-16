@@ -5,14 +5,16 @@ import unchecked from '@iconify/icons-fluent/checkbox-unchecked-16-filled';
 import more from '@iconify/icons-fluent/more-vertical-48-regular';
 import { Icon } from '@iconify/react';
 import {
-    Checkbox,
-    IconButton,
-    TableCell,
-    TableRow,
-    Tooltip,
+  Checkbox,
+  IconButton,
+  TableCell,
+  TableRow,
+  Tooltip,
 } from '@mui/material';
 import { useIntl } from 'react-intl';
 import StaffRoles from './StaffRoles';
+import { useState } from 'react';
+import ManageStaffMenu from './ManageStaffMenu';
 
 export default function StaffRow({
   staff: {
@@ -30,7 +32,6 @@ export default function StaffRow({
   selectStaff,
   showMoreIcon,
   disabled,
-  setAnchorEl,
   showArchived,
 }: {
   staff: StaffEntity;
@@ -42,121 +43,138 @@ export default function StaffRow({
   ) => void;
   showMoreIcon: boolean;
   disabled: boolean;
-  setAnchorEl: (el: HTMLElement) => void;
   showArchived: boolean;
 }) {
   const theme = useTheme();
   const { formatDate, formatMessage } = useIntl();
 
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
   return (
-    <TableRow
-      sx={{
-        '&:last-child td, &:last-child th': { border: 0 },
-        '& td': {
-          padding: '7px',
-        },
-      }}
-    >
-      <TableCell>
-        <Checkbox
-          checked={
-            annual_configurator_id
-              ? selectedStaff.configuratorIds.includes(annual_configurator_id)
-              : annual_registry_id
-              ? selectedStaff.registryIds.includes(annual_registry_id)
-              : annual_teacher_id
-              ? selectedStaff.teacherIds.includes(annual_teacher_id)
-              : false
-          }
-          onClick={() =>
-            selectStaff(
-              annual_configurator_id,
-              annual_registry_id,
-              annual_teacher_id
-            )
-          }
-          icon={
-            <Icon
-              icon={unchecked}
-              style={{
-                color: '#D1D5DB',
-                height: '100%',
-                width: '21px',
-              }}
-            />
-          }
-          checkedIcon={
-            <Icon
-              icon={checked}
-              style={{
-                color: theme.palette.primary.main,
-                height: '100%',
-                width: '21px',
-              }}
-            />
-          }
-        />
-      </TableCell>
-      <TableCell
+    <>
+      <ManageStaffMenu
+        anchorEl={anchorEl}
+        closeMenu={() => setAnchorEl(null)}
+        confirmArchive={() => alert('archive')}
+        confirmUnarchive={() => alert('unarchive')}
+        editStaff={() => alert('edit')}
+        isOpen={!!anchorEl}
+        manageRoles={() => alert('manage roles')}
+        resetPassword={() => alert('reset password')}
+        resetPrivateCode={() => alert('reset private code')}
+        isArchived={showArchived}
+      />
+      <TableRow
         sx={{
-          color: showArchived ? theme.common.line : theme.common.body,
+          '&:last-child td, &:last-child th': { border: 0 },
+          '& td': {
+            padding: '7px',
+          },
         }}
       >
-        {`${first_name} ${last_name}`}
-      </TableCell>
-      <TableCell
-        sx={{
-          color: showArchived ? theme.common.line : theme.common.body,
-        }}
-      >
-        {phone_number.split('+')[1]?.replace(/(.{3})/g, ' $1')}
-      </TableCell>
-      <TableCell
-        sx={{
-          color: showArchived ? theme.common.line : theme.palette.primary.main,
-        }}
-      >
-        {email}
-      </TableCell>
-      <TableCell
-        sx={{
-          color: showArchived ? theme.common.line : theme.common.body,
-        }}
-      >
-        <StaffRoles roles={roles} />
-      </TableCell>
-      <TableCell
-        sx={{
-          color: showArchived ? theme.common.line : theme.common.body,
-        }}
-      >
-        {formatDate(last_connected, {
-          weekday: 'short',
-          month: 'short',
-          hour: '2-digit',
-          minute: '2-digit',
-          year: '2-digit',
-          day: '2-digit',
-        })}
-      </TableCell>
-      <TableCell align="right">
-        {showMoreIcon ? (
-          ''
-        ) : (
-          <Tooltip arrow title={formatMessage({ id: 'more' })}>
-            <IconButton
-              size="small"
-              disabled={disabled}
-              onClick={(event) => {
-                if (disabled) return null;
-                setAnchorEl(event.currentTarget);
-              }}
-            >
-              <Icon icon={more} />
-            </IconButton>
-          </Tooltip>
-        )}
-      </TableCell>
-    </TableRow>
+        <TableCell>
+          <Checkbox
+            checked={
+              annual_configurator_id
+                ? selectedStaff.configuratorIds.includes(annual_configurator_id)
+                : annual_registry_id
+                ? selectedStaff.registryIds.includes(annual_registry_id)
+                : annual_teacher_id
+                ? selectedStaff.teacherIds.includes(annual_teacher_id)
+                : false
+            }
+            onClick={() =>
+              selectStaff(
+                annual_configurator_id,
+                annual_registry_id,
+                annual_teacher_id
+              )
+            }
+            icon={
+              <Icon
+                icon={unchecked}
+                style={{
+                  color: '#D1D5DB',
+                  height: '100%',
+                  width: '21px',
+                }}
+              />
+            }
+            checkedIcon={
+              <Icon
+                icon={checked}
+                style={{
+                  color: theme.palette.primary.main,
+                  height: '100%',
+                  width: '21px',
+                }}
+              />
+            }
+          />
+        </TableCell>
+        <TableCell
+          sx={{
+            color: showArchived ? theme.common.line : theme.common.body,
+          }}
+        >
+          {`${first_name} ${last_name}`}
+        </TableCell>
+        <TableCell
+          sx={{
+            color: showArchived ? theme.common.line : theme.common.body,
+          }}
+        >
+          {phone_number.split('+')[1]?.replace(/(.{3})/g, ' $1')}
+        </TableCell>
+        <TableCell
+          sx={{
+            color: showArchived
+              ? theme.common.line
+              : theme.palette.primary.main,
+          }}
+        >
+          {email}
+        </TableCell>
+        <TableCell
+          sx={{
+            color: showArchived ? theme.common.line : theme.common.body,
+          }}
+        >
+          <StaffRoles roles={roles} />
+        </TableCell>
+        <TableCell
+          sx={{
+            color: showArchived ? theme.common.line : theme.common.body,
+          }}
+        >
+          {formatDate(last_connected, {
+            weekday: 'short',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+            year: '2-digit',
+            day: '2-digit',
+          })}
+        </TableCell>
+        <TableCell align="right">
+          {showMoreIcon ? (
+            ''
+          ) : (
+            <Tooltip arrow title={formatMessage({ id: 'more' })}>
+              <IconButton
+                size="small"
+                disabled={disabled}
+                onClick={(event) => {
+                  if (disabled) return null;
+                  setAnchorEl(event.currentTarget);
+                }}
+              >
+                <Icon icon={more} />
+              </IconButton>
+            </Tooltip>
+          )}
+        </TableCell>
+      </TableRow>
+    </>
   );
 }
