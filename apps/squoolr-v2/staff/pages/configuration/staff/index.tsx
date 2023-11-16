@@ -49,6 +49,7 @@ import FilterMenu from '../../../components/configuration/staff/FilterMenu';
 import StaffRoles from '../../../components/configuration/staff/StaffRoles';
 import TableHeader from '../../../components/configuration/staff/TableHeader';
 import StaffTableHead from 'apps/squoolr-v2/staff/components/configuration/staff/StaffTableHead';
+import StaffRow from 'apps/squoolr-v2/staff/components/configuration/staff/StaffRow';
 export default function Staff() {
   const theme = useTheme();
   const { push, asPath } = useRouter();
@@ -446,159 +447,18 @@ export default function Staff() {
               ) : staffData.length === 0 ? (
                 <NoTableElement />
               ) : (
-                staffData.map((staff, index) => {
-                  const {
-                    roles,
-                    first_name,
-                    last_name,
-                    phone_number,
-                    email,
-                    last_connected,
-                    is_deleted,
-                    annual_configurator_id,
-                    annual_registry_id,
-                    annual_teacher_id,
-                  } = staff;
-
-                  return (
-                    <TableRow
-                      key={index}
-                      sx={{
-                        '&:last-child td, &:last-child th': { border: 0 },
-                        '& td': {
-                          padding: '7px',
-                        },
-                      }}
-                    >
-                      <TableCell>
-                        <Checkbox
-                          checked={
-                            annual_configurator_id
-                              ? selectedStaff.configuratorIds.includes(
-                                  annual_configurator_id
-                                )
-                              : annual_registry_id
-                              ? selectedStaff.registryIds.includes(
-                                  annual_registry_id
-                                )
-                              : annual_teacher_id
-                              ? selectedStaff.teacherIds.includes(
-                                  annual_teacher_id
-                                )
-                              : false
-                          }
-                          onClick={() =>
-                            selectStaff(
-                              annual_configurator_id,
-                              annual_registry_id,
-                              annual_teacher_id
-                            )
-                          }
-                          icon={
-                            <Icon
-                              icon={unchecked}
-                              style={{
-                                color: '#D1D5DB',
-                                height: '100%',
-                                width: '21px',
-                              }}
-                            />
-                          }
-                          checkedIcon={
-                            <Icon
-                              icon={checked}
-                              style={{
-                                color: theme.palette.primary.main,
-                                height: '100%',
-                                width: '21px',
-                              }}
-                            />
-                          }
-                        />
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          color: is_deleted
-                            ? theme.common.line
-                            : theme.common.body,
-                        }}
-                      >
-                        {`${first_name} ${last_name}`}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          color: is_deleted
-                            ? theme.common.line
-                            : theme.common.body,
-                        }}
-                      >
-                        {phone_number.split('+')[1]?.replace(/(.{3})/g, ' $1')}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          color: is_deleted
-                            ? theme.common.line
-                            : theme.palette.primary.main,
-                        }}
-                      >
-                        {email}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          color: is_deleted
-                            ? theme.common.line
-                            : theme.common.body,
-                        }}
-                      >
-                        <StaffRoles roles={roles} />
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          color: is_deleted
-                            ? theme.common.line
-                            : theme.common.body,
-                        }}
-                      >
-                        {formatDate(last_connected, {
-                          weekday: 'short',
-                          month: 'short',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          year: '2-digit',
-                          day: '2-digit',
-                        })}
-                      </TableCell>
-                      <TableCell align="right">
-                        {numberOfSelectedStaffIds > 0 ? (
-                          ''
-                        ) : (
-                          <Tooltip arrow title={formatMessage({ id: 'more' })}>
-                            <IconButton
-                              size="small"
-                              disabled={
-                                isArchiving || isUnarchiving || isEditingStaff
-                              }
-                              onClick={(event) => {
-                                if (
-                                  isArchiving ||
-                                  isUnarchiving ||
-                                  isEditingStaff
-                                )
-                                  return null;
-                                setAnchorEl(event.currentTarget);
-                                // setActiveStaffId(annual_major_id);
-                                setIsActiveStaffArchived(is_deleted);
-                                // setEditableMajor(major);
-                              }}
-                            >
-                              <Icon icon={more} />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
+                staffData.map((staff, index) => (
+                  <StaffRow
+                    key={index}
+                    staff={staff}
+                    disabled={isArchiving || isUnarchiving || isEditingStaff}
+                    showMoreIcon={numberOfSelectedStaffIds > 0}
+                    selectedStaff={selectedStaff}
+                    selectStaff={selectStaff}
+                    setAnchorEl={setAnchorEl}
+                    showArchived={showArchives}
+                  />
+                ))
               )}
             </TableBody>
           </Table>
