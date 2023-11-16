@@ -159,7 +159,7 @@ export class StaffService {
       ...(teacherIds?.length > 0
         ? [
             this.prismaService.annualTeacher.findMany({
-              select: { Teacher: { select: { login_id: true } } },
+              select: { login_id: true },
               where: {
                 OR: teacherIds.map((annual_teacher_id) => ({
                   annual_teacher_id,
@@ -191,24 +191,30 @@ export class StaffService {
           ]
         : []),
     ]);
-    const { count } = await this.prismaService.resetPassword.createMany({
-      data: [
-        ...[
-          ...registries,
-          ...configurators,
-          ...teachers.map((_) => _.Teacher),
-        ].map(({ login_id }) => ({
-          expires_at: new Date(Date.now() + 6 * 3600 * 1000),
-          login_id,
-          [isAdmin ? 'generated_by_admin' : 'generated_by_confiigurator']:
-            disabledBy,
-        })),
-      ],
-      skipDuplicates: true,
-    });
+    const loginIds = [...registries, ...configurators, ...teachers].map(
+      (_) => _.login_id
+    );
+    const [created, updated] = await this.prismaService.$transaction([
+      this.prismaService.resetPassword.createMany({
+        data: [
+          ...loginIds.map((login_id) => ({
+            expires_at: new Date(Date.now() + 6 * 3600 * 1000),
+            login_id,
+            [isAdmin ? 'generated_by_admin' : 'generated_by_confiigurator']:
+              disabledBy,
+          })),
+        ],
+        skipDuplicates: true,
+      }),
+      this.prismaService.resetPassword.updateMany({
+        data: { expires_at: new Date(), is_valid: false },
+        where: { OR: loginIds.map((login_id) => ({ login_id })) },
+      }),
+    ]);
+    const count = created.count + updated.count;
     return new BatchPayloadDto({
       count,
-      message: `Added ${count} records in database`,
+      message: `${count} records Affected`,
     });
   }
 
