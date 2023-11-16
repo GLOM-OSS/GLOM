@@ -4,7 +4,12 @@ import {
   TableHeaderItem,
   TableSkeleton,
 } from '@glom/components';
-import { MajorEntity, SatffEntity, StaffRole } from '@glom/data-types/squoolr';
+import {
+  MajorEntity,
+  StaffEntity,
+  StaffRole,
+  BulkDisableStaffPayload,
+} from '@glom/data-types/squoolr';
 import { useDispatchBreadcrumb } from '@glom/squoolr-v2/side-nav';
 import { useTheme } from '@glom/theme';
 import add from '@iconify/icons-fluent/add-48-regular';
@@ -71,7 +76,7 @@ export default function Staff() {
   const [isStaffDataFetching, setIsStaffDataFetching] = useState<boolean>(true);
 
   //TODO: FETCH LIST OF majors HERE
-  const [staffData, setStaffData] = useState<SatffEntity[]>();
+  const [staffData, setStaffData] = useState<StaffEntity[]>();
 
   //TODO: REMOVE THIS WHEN INTEGRATION IS DONE
   useEffect(() => {
@@ -90,6 +95,19 @@ export default function Staff() {
           last_connected: new Date().toISOString(),
           login_id: 'lsi',
           matricule: 'massa',
+          // has_signed_convention: false,
+          // has_tax_payers_card: false,
+          // hourly_rate: 2000,
+          // origin_institute: 'IAI',
+          // teacher_type_id: '',
+          // teaching_grade_id: '',
+          address: '',
+          annual_configurator_id: 'configurator_id',
+          annual_coordinator_id: '',
+          annual_registry_id: 'registry_id',
+          annual_teacher_id: 'teacger_id',
+          national_id_number: '000316122',
+          // tax_payer_card_number: '',
         },
       ]);
       setIsStaffDataFetching(false);
@@ -122,14 +140,116 @@ export default function Staff() {
   }, [searchValue, showArchives, selectedRoles]);
 
   const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>([]);
+  const [selectedStaff, setSelectedStaff] = useState<
+    Record<keyof BulkDisableStaffPayload, string[]>
+  >({
+    configuratorIds: [],
+    registryIds: [],
+    teacherIds: [],
+  });
 
   function selectAllStaff() {
-    alert('select all staff');
+    let configurators = selectedStaff.configuratorIds;
+    let registries = selectedStaff.registryIds;
+    let teachers = selectedStaff.teacherIds;
+    if (
+      staffData
+        .map(({ roles }) =>
+          roles.includes('COORDINATOR') ? roles.length - 1 : roles.length
+        )
+        .reduce(
+          (totalRoles, staffNumberOfRoles) => totalRoles + staffNumberOfRoles,
+          0
+        ) ===
+      Object.keys(selectedStaff)
+        .map((category) => selectedStaff[category].length)
+        .reduce((totalIds, categoryIdLength) => totalIds + categoryIdLength, 0)
+    ) {
+      configurators = [];
+      registries = [];
+      teachers = [];
+    } else {
+      let configurators = selectedStaff.configuratorIds;
+      let registries = selectedStaff.registryIds;
+      let teachers = selectedStaff.teacherIds;
+
+      staffData.forEach(
+        ({ annual_configurator_id, annual_registry_id, annual_teacher_id }) => {
+          if (
+            !!annual_configurator_id &&
+            !configurators.includes(annual_configurator_id)
+          )
+            configurators.push(annual_configurator_id);
+          if (!!annual_registry_id && !registries.includes(annual_registry_id))
+            registries.push(annual_registry_id);
+          if (!!annual_teacher_id && !teachers.includes(annual_teacher_id))
+            teachers.push(annual_teacher_id);
+        }
+      );
+    }
+
+    setSelectedStaff({
+      configuratorIds: configurators,
+      registryIds: registries,
+      teacherIds: teachers,
+    });
   }
 
-  function selectStaff(annual_major_id: string) {
-    alert('boston lor');
+  function selectStaff(
+    annual_configurator_id?: string,
+    annual_registry_id?: string,
+    annual_teacher_id?: string
+  ) {
+    if (annual_configurator_id || annual_registry_id || annual_teacher_id) {
+      let configurators = selectedStaff.configuratorIds;
+      let registries = selectedStaff.registryIds;
+      let teachers = selectedStaff.teacherIds;
+
+      if (!!annual_configurator_id) {
+        configurators = configurators.includes(annual_configurator_id)
+          ? configurators.filter((_) => _ !== annual_configurator_id)
+          : [...configurators, annual_configurator_id];
+      }
+      if (!!annual_registry_id) {
+        registries = registries.includes(annual_registry_id)
+          ? registries.filter((_) => _ !== annual_registry_id)
+          : [...registries, annual_registry_id];
+      }
+      if (!!annual_teacher_id) {
+        teachers = teachers.includes(annual_teacher_id)
+          ? teachers.filter((_) => _ !== annual_teacher_id)
+          : [...teachers, annual_teacher_id];
+      }
+
+      setSelectedStaff({
+        configuratorIds: configurators,
+        registryIds: registries,
+        teacherIds: teachers,
+      });
+    }
   }
+
+  const [isAllStaffSelected, setIsAllStaffSelected] = useState<boolean>(false);
+  useEffect(() => {
+    if (!!staffData) {
+      setIsAllStaffSelected(
+        staffData
+          .map(({ roles }) =>
+            roles.includes('COORDINATOR') ? roles.length - 1 : roles.length
+          )
+          .reduce(
+            (totalRoles, staffNumberOfRoles) => totalRoles + staffNumberOfRoles,
+            0
+          ) ===
+          Object.keys(selectedStaff)
+            .map((category) => selectedStaff[category].length)
+            .reduce(
+              (totalIds, categoryIdLength) => totalIds + categoryIdLength,
+              0
+            )
+      );
+    }
+  }, [selectedStaff]);
 
   const [activeStaffId, setActiveStaffId] = useState<string>();
   const [isActiveStaffArchived, setIsActiveStaffArchived] =
@@ -439,10 +559,7 @@ export default function Staff() {
                             ? null
                             : selectAllStaff()
                         }
-                        checked={
-                          !!staffData &&
-                          selectedStaffIds.length === staffData.length
-                        }
+                        checked={isAllStaffSelected}
                         icon={
                           <Icon
                             icon={unchecked}
@@ -483,17 +600,20 @@ export default function Staff() {
               ) : staffData.length === 0 ? (
                 <NoTableElement />
               ) : (
-                staffData.map((major, index) => {
+                staffData.map((staff, index) => {
                   const {
+                    roles,
                     first_name,
                     last_name,
                     phone_number,
                     email,
-                    roles,
                     last_connected,
-                    login_id,
                     is_deleted,
-                  } = major;
+                    annual_configurator_id,
+                    annual_registry_id,
+                    annual_teacher_id,
+                  } = staff;
+
                   return (
                     <TableRow
                       key={index}
@@ -506,8 +626,28 @@ export default function Staff() {
                     >
                       <TableCell>
                         <Checkbox
-                          checked={selectedStaffIds.includes(login_id)}
-                          onClick={() => selectStaff(login_id)}
+                          checked={
+                            annual_configurator_id
+                              ? selectedStaff.configuratorIds.includes(
+                                  annual_configurator_id
+                                )
+                              : annual_registry_id
+                              ? selectedStaff.registryIds.includes(
+                                  annual_registry_id
+                                )
+                              : annual_teacher_id
+                              ? selectedStaff.teacherIds.includes(
+                                  annual_teacher_id
+                                )
+                              : false
+                          }
+                          onClick={() =>
+                            selectStaff(
+                              annual_configurator_id,
+                              annual_registry_id,
+                              annual_teacher_id
+                            )
+                          }
                           icon={
                             <Icon
                               icon={unchecked}
