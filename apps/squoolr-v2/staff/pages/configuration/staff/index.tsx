@@ -22,6 +22,7 @@ import {
   Chip,
   IconButton,
   InputAdornment,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -30,20 +31,31 @@ import {
   TableRow,
   TextField,
   Tooltip,
+  Typography,
   lighten,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
-import FilterMenu from '../../../components/configuration/departments/FilterMenu';
 import AddMajorDialog from '../../../components/configuration/majors/AddMajorDialog';
 import EditMajorDialog from '../../../components/configuration/majors/EditMajorDialog';
 import ManageMajorMenu from '../../../components/configuration/majors/ManageMajorMenu';
+import FilterMenu from '../../../components/configuration/staff/FilterMenu';
 export default function Staff() {
   const theme = useTheme();
   const { push, asPath } = useRouter();
   const breadcrumbDispatch = useDispatchBreadcrumb();
   const { formatMessage, formatDate, formatNumber } = useIntl();
+
+  const ROLE_COLOR: Record<
+    StaffRole,
+    'warning' | 'success' | 'secondary' | 'primary'
+  > = {
+    CONFIGURATOR: 'warning',
+    COORDINATOR: 'success',
+    REGISTRY: 'secondary',
+    TEACHER: 'primary',
+  };
 
   const tableHeaders = [
     '',
@@ -88,14 +100,26 @@ export default function Staff() {
   const [searchValue, setSearchValue] = useState<string>('');
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [showArchives, setShowArchives] = useState<boolean>(false);
+  const [selectedRoles, setSelectedRoles] = useState<StaffRole[]>([
+    'CONFIGURATOR',
+    'COORDINATOR',
+    'REGISTRY',
+    'TEACHER',
+  ]);
+  function selectRole(role: StaffRole) {
+    setSelectedRoles((prev) =>
+      prev.includes(role) ? prev.filter((_) => _ !== role) : [...prev, role]
+    );
+  }
+
   const [filterAnchorEl, setFilterAnchorEl] = useState<HTMLElement | null>(
     null
   );
 
   useEffect(() => {
-    //TODO: CALL fetch list of major API HERE with searchValue and showArchives use it to filter. MUTATE majors DATA WHEN IT'S DONE
+    //TODO: CALL fetch staff API HERE with searchValue, showArchives and selectedRoles use it to filter. MUTATE majors DATA WHEN IT'S DONE
     alert('hello world');
-  }, [searchValue, showArchives]);
+  }, [searchValue, showArchives, selectedRoles]);
 
   const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>([]);
 
@@ -155,16 +179,6 @@ export default function Staff() {
 
   const [editableMajor, setEditableMajor] = useState<MajorEntity>();
 
-  const ROLE_COLOR: Record<
-    StaffRole,
-    'warning' | 'success' | 'secondary' | 'primary'
-  > = {
-    CONFIGURATOR: 'warning',
-    COORDINATOR: 'success',
-    REGISTRY: 'secondary',
-    TEACHER: 'primary',
-  };
-
   return (
     <>
       {/* <AddMajorDialog
@@ -183,9 +197,9 @@ export default function Staff() {
           setFilterAnchorEl(null);
         }}
         isOpen={!!filterAnchorEl}
-        onShowArchives={() => setShowArchives((prev) => !prev)}
         anchorEl={filterAnchorEl}
-        showArchives={showArchives}
+        selectedRoles={selectedRoles}
+        onSelect={selectRole}
       />
 
       {/* <ManageMajorMenu
@@ -344,6 +358,46 @@ export default function Staff() {
                   {formatMessage({ id: 'archiveSelectedMajors' })}
                 </Button>
               )}
+              <Stack direction="row" spacing={0} alignItems={'center'}>
+                <Checkbox
+                  checked={showArchives}
+                  onClick={() =>
+                    isArchiving || isUnarchiving || isEditingStaff
+                      ? null
+                      : setShowArchives((prev) => !prev)
+                  }
+                  icon={
+                    <Icon
+                      icon={unchecked}
+                      style={{
+                        color: '#D1D5DB',
+                        height: '100%',
+                        width: '24px',
+                      }}
+                    />
+                  }
+                  checkedIcon={
+                    <Icon
+                      icon={checked}
+                      style={{
+                        color: theme.palette.primary.main,
+                        height: '100%',
+                        width: '24px',
+                      }}
+                    />
+                  }
+                />
+                <Typography
+                  sx={{
+                    color: showArchives
+                      ? theme.palette.primary.main
+                      : theme.common.body,
+                  }}
+                >
+                  {formatMessage({ id: 'showArchived' })}
+                </Typography>
+              </Stack>
+
               <TableHeaderItem
                 icon={filter}
                 title={formatMessage({ id: 'filter' })}
