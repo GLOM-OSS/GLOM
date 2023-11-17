@@ -428,8 +428,6 @@ model AnnualConfigurator {
     AnnualRegistryAudit           AnnualRegistryAudit[]
     TeacherAudits                 TeacherAudit[]
     DeletedAnnualConfigurators    AnnualConfigurator[]           @relation(name: "DeletedBy_AnnualConfigurator")
-    AnnualCarryOverSytems         AnnualCarryOverSytem[]
-    AnnualSemesterExamAcess       AnnualSemesterExamAcess[]
     AnnualDocumentSigners         AnnualDocumentSigner[]
     DeletedAnnualDocumentSigners  AnnualDocumentSigner[]         @relation(name: "DeletedBy_AnnualConfigurator")
     AnnualSchoolSettings          AnnualSchoolSetting[]
@@ -512,6 +510,8 @@ model AnnualRegistry {
     AnnualEvaluationTypeWeightings      AnnualEvaluationTypeWeighting[]
     Evaluations                         Evaluation[]
     AnnualEvaluationSubTypeAudits       AnnualEvaluationSubTypeAudit[]
+    AnnualCarryOverSytems               AnnualCarryOverSytem[]
+    AnnualSemesterExamAcess             AnnualSemesterExamAcess[]
 
     @@unique([login_id, matricule])
     @@unique([login_id, academic_year_id])
@@ -974,7 +974,7 @@ model AnnualCarryOverSytem {
     academic_year_id            String              @unique @db.VarChar(36)
     AcademicYear                AcademicYear        @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
     created_by                  String              @db.VarChar(36)
-    CreatedBy                   AnnualConfigurator  @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+    CreatedBy                   AnnualRegistry      @relation(fields: [created_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualCarryOverSytemAudits AnnualCarryOverSytemAudit[]
 
@@ -1172,16 +1172,16 @@ model AnnualAcademicProfileAudit {
 }
 
 model AnnualSemesterExamAcess {
-    annual_semester_exam_access_id String             @id @default(uuid()) @db.VarChar(36)
+    annual_semester_exam_access_id String         @id @default(uuid()) @db.VarChar(36)
     payment_percentage             Int
     annual_semester_number         Int
-    created_at                     DateTime           @default(now()) @db.DateTime(0)
-    cycle_id                       String             @db.VarChar(36)
-    Cycle                          Cycle              @relation(fields: [cycle_id], references: [cycle_id], onDelete: Cascade, onUpdate: Cascade)
-    academic_year_id               String             @db.VarChar(36)
-    AcademicYear                   AcademicYear       @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
-    created_by                     String             @db.VarChar(36)
-    CreatedBy                      AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+    created_at                     DateTime       @default(now()) @db.DateTime(0)
+    cycle_id                       String         @db.VarChar(36)
+    Cycle                          Cycle          @relation(fields: [cycle_id], references: [cycle_id], onDelete: Cascade, onUpdate: Cascade)
+    academic_year_id               String         @db.VarChar(36)
+    AcademicYear                   AcademicYear   @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    created_by                     String         @db.VarChar(36)
+    CreatedBy                      AnnualRegistry @relation(fields: [created_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualSemesterExamAcessAudits AnnualSemesterExamAcessAudit[]
 
