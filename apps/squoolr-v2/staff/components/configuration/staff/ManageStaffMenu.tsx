@@ -1,9 +1,10 @@
 import { StaffRole } from '@glom/data-types';
 import { useTheme } from '@glom/theme';
-import archive from '@iconify/icons-fluent/archive-48-regular';
 import edit from '@iconify/icons-fluent/edit-48-regular';
 import key from '@iconify/icons-fluent/key-reset-24-regular';
 import account from '@iconify/icons-fluent/person-accounts-24-regular';
+import personProhibited from '@iconify/icons-fluent/person-prohibited-28-regular';
+import personSync from '@iconify/icons-fluent/person-sync-48-regular';
 import shield from '@iconify/icons-fluent/shield-task-48-regular';
 import { Icon } from '@iconify/react';
 import { Menu, MenuItem, Stack, Typography } from '@mui/material';
@@ -111,12 +112,12 @@ export default function ManageStaffMenu({
         >
           <Stack direction="row" spacing={1} alignItems={'center'}>
             <Icon
-              icon={archive}
+              icon={personProhibited}
               fontSize={24}
               style={{ color: theme.palette.warning.main }}
             />
             <Typography sx={{ color: theme.palette.warning.main }}>
-              {formatMessage({ id: 'archive' })}
+              {formatMessage({ id: 'archiveStaffMember' })}
             </Typography>
           </Stack>
         </MenuItem>
@@ -130,12 +131,12 @@ export default function ManageStaffMenu({
         >
           <Stack direction="row" spacing={1} alignItems={'center'}>
             <Icon
-              icon={archive}
+              icon={personSync}
               fontSize={24}
               style={{ color: theme.palette.warning.main }}
             />
             <Typography sx={{ color: theme.palette.warning.main }}>
-              {formatMessage({ id: 'unarchive' })}
+              {formatMessage({ id: 'revokeBan' })}
             </Typography>
           </Stack>
         </MenuItem>
