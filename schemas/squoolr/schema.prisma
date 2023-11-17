@@ -349,7 +349,7 @@ model AcademicYear {
     AnnualConfigurators            AnnualConfigurator[]
     AnnualModules                  AnnualModule[]
     AnnualCarryOverSytems          AnnualCarryOverSytem[]
-    AnnualMinimumModulationScores  AnnualModulationSetting[]
+    AnnualModulationSettings       AnnualModulationSetting[]
     AnnualEvaluationTypeWeightings AnnualEvaluationTypeWeighting[]
     AnnualAcademicProfiles         AnnualAcademicProfile[]
     AnnualSemesterExamAcess        AnnualSemesterExamAcess[]
@@ -434,6 +434,7 @@ model AnnualConfigurator {
     DeletedAnnualDocumentSigners  AnnualDocumentSigner[]         @relation(name: "DeletedBy_AnnualConfigurator")
     AnnualSchoolSettings          AnnualSchoolSetting[]
     AnnualSchoolSettingAudits     AnnualSchoolSettingAudit[]
+    AnnualEvaluationSubTypes      AnnualEvaluationSubType[]
 
     @@unique([login_id, academic_year_id])
 }
@@ -498,8 +499,8 @@ model AnnualRegistry {
 
     AnnualRegistryAudits                AnnualRegistryAudit[]
     AnnualCarryOverSytemAudits          AnnualCarryOverSytemAudit[]
-    AnnualMinimumModulationScore        AnnualModulationSetting[]
-    AnnualMinimumModulationScoreAudits  AnnualModulationSettingAudit[]
+    AnnualModulationSettings            AnnualModulationSetting[]
+    AnnualModulationSettingAudits       AnnualModulationSettingAudit[]
     AnnualEvaluationTypeWeightingAudits AnnualEvaluationTypeWeightingAudit[]
     AnnualWeightings                    AnnualWeighting[]
     AnnualWeightingAudits               AnnualWeightingAudit[]
@@ -510,6 +511,7 @@ model AnnualRegistry {
     AnnualSemesterExamAcessAudits       AnnualSemesterExamAcessAudit[]
     AnnualEvaluationTypeWeightings      AnnualEvaluationTypeWeighting[]
     Evaluations                         Evaluation[]
+    AnnualEvaluationSubTypeAudits       AnnualEvaluationSubTypeAudit[]
 
     @@unique([login_id, matricule])
     @@unique([login_id, academic_year_id])
@@ -715,10 +717,12 @@ model Cycle {
 
     Majors                         Major[]
     MajorAudits                    MajorAudit[]
-    AnnualMinimumModulationScores  AnnualModulationSetting[]
+    AnnualModulationSettings       AnnualModulationSetting[]
     AnnualGradeWeightings          AnnualGradeWeighting[]
     AnnualEvaluationTypeWeightings AnnualEvaluationTypeWeighting[]
     AnnualAcademicProfiles         AnnualAcademicProfile[]
+    AnnualCarryOverSytems          AnnualCarryOverSytem[]
+    AnnualSemesterExamAcess        AnnualSemesterExamAcess[]
 }
 
 model Major {
@@ -965,12 +969,16 @@ model AnnualCarryOverSytem {
     annual_carry_over_system_id String              @id @default(uuid()) @db.VarChar(36)
     carry_over_system           CarryOverSystemEnum
     created_at                  DateTime            @default(now()) @db.DateTime(0)
+    cycle_id                    String              @db.VarChar(36)
+    Cycle                       Cycle               @relation(fields: [cycle_id], references: [cycle_id], onDelete: Cascade, onUpdate: Cascade)
     academic_year_id            String              @unique @db.VarChar(36)
     AcademicYear                AcademicYear        @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
     created_by                  String              @db.VarChar(36)
     CreatedBy                   AnnualConfigurator  @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualCarryOverSytemAudits AnnualCarryOverSytemAudit[]
+
+    @@unique([academic_year_id, cycle_id])
 }
 
 model AnnualCarryOverSytemAudit {
@@ -994,7 +1002,7 @@ model AnnualModulationSetting {
     created_by                   String         @db.VarChar(36)
     CreatedBy                    AnnualRegistry @relation(fields: [created_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AnnualMinimumModulationScoreAudits AnnualModulationSettingAudit[]
+    AnnualModulationSettingAudits AnnualModulationSettingAudit[]
 
     @@unique([academic_year_id, cycle_id])
 }
@@ -1030,7 +1038,7 @@ model AnnualEvaluationTypeWeighting {
 
     AnnualEvaluationTypeWeightingAudits AnnualEvaluationTypeWeightingAudit[]
 
-    @@unique([academic_year_id, cycle_id])
+    @@unique([academic_year_id, cycle_id, evaluation_type])
 }
 
 model AnnualEvaluationTypeWeightingAudit {
@@ -1050,6 +1058,8 @@ model AnnualEvaluationSubType {
     evaluation_sub_type_weight    Int
     academic_year_id              String             @db.VarChar(36)
     AcademicYear                  AcademicYear       @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    created_by                    String             @db.VarChar(36)
+    CreatedBy                     AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualEvaluationSubTypeAudits AnnualEvaluationSubTypeAudit[]
     Evaluations                   Evaluation[]
@@ -1061,6 +1071,8 @@ model AnnualEvaluationSubTypeAudit {
     evaluation_sub_type_weight          Int
     annual_evaluation_sub_type_id       String                  @db.VarChar(36)
     AnnualEvaluationSubType             AnnualEvaluationSubType @relation(fields: [annual_evaluation_sub_type_id], references: [annual_evaluation_sub_type_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by                          String                  @db.VarChar(36)
+    AuditedBy                           AnnualRegistry          @relation(fields: [audited_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model AnnualWeighting {
@@ -1164,6 +1176,8 @@ model AnnualSemesterExamAcess {
     payment_percentage             Int
     annual_semester_number         Int
     created_at                     DateTime           @default(now()) @db.DateTime(0)
+    cycle_id                       String             @db.VarChar(36)
+    Cycle                          Cycle              @relation(fields: [cycle_id], references: [cycle_id], onDelete: Cascade, onUpdate: Cascade)
     academic_year_id               String             @db.VarChar(36)
     AcademicYear                   AcademicYear       @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
     created_by                     String             @db.VarChar(36)
@@ -1171,13 +1185,12 @@ model AnnualSemesterExamAcess {
 
     AnnualSemesterExamAcessAudits AnnualSemesterExamAcessAudit[]
 
-    @@unique([academic_year_id, annual_semester_number])
+    @@unique([academic_year_id, cycle_id, annual_semester_number])
 }
 
 model AnnualSemesterExamAcessAudit {
     annual_semester_exam_access_audit_id String                  @id @default(uuid()) @db.VarChar(36)
     payment_percentage                   Int
-    annual_semester_number               Int
     audited_at                           DateTime                @default(now()) @db.DateTime(0)
     annual_semester_exam_access_id       String                  @db.VarChar(36)
     AnnualSemesterExamAcess              AnnualSemesterExamAcess @relation(fields: [annual_semester_exam_access_id], references: [annual_semester_exam_access_id], onDelete: Cascade, onUpdate: Cascade)

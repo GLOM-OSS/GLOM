@@ -25,6 +25,7 @@ import {
 } from './schools.dto';
 import { AxiosError } from 'axios';
 import { excludeKeys } from '@glom/utils';
+import { getAcademicYearSetup } from '../academic-years/academic-years.service';
 
 const schoolSelectAttr = Prisma.validator<Prisma.SchoolArgs>()({
   include: {
@@ -409,40 +410,13 @@ export class SchoolsService {
                 year_code,
                 academic_year_id,
                 School: { connect: { school_code } },
-                AnnualSchoolSetting: {
-                  create: {
-                    mark_insertion_source: 'Teacher',
-                    CreatedBy: { connect: { annual_configurator_id } },
-                  },
-                },
               },
             },
           },
         }),
-        this.prismaService.annualCarryOverSytem.create({
-          data: {
-            carry_over_system: CarryOverSystemEnum.SUBJECT,
-            AcademicYear: { connect: { year_code } },
-            CreatedBy: {
-              connect: { annual_configurator_id },
-            },
-          },
-        }),
-        this.prismaService.annualSemesterExamAcess.createMany({
-          data: [
-            {
-              academic_year_id,
-              payment_percentage: 0,
-              annual_semester_number: 1,
-              created_by: annual_configurator_id,
-            },
-            {
-              academic_year_id,
-              payment_percentage: 0,
-              annual_semester_number: 2,
-              created_by: annual_configurator_id,
-            },
-          ],
+        this.prismaService.academicYear.update({
+          data: getAcademicYearSetup(annual_configurator_id),
+          where: { year_code },
         }),
       ],
     };
