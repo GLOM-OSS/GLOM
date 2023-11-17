@@ -1,21 +1,20 @@
 import { NotchPayService } from '@glom/payment';
 import { GlomPrismaService } from '@glom/prisma';
+import { excludeKeys } from '@glom/utils';
 import {
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import {
-  CarryOverSystemEnum,
-  Prisma,
-  SchoolDemandStatus,
-} from '@prisma/client';
+import { SchoolDemandStatus } from '@prisma/client';
+import { AxiosError } from 'axios';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
+import { AcademicYearArgsFactory } from '../academic-years/academic-year-args.factory';
+import { SchoolArgsFactory } from './school-args.factory';
 import {
   SchoolDemandDetails,
-  SchoolEntity,
   SchoolSettingEntity,
   SubmitSchoolDemandDto,
   UpdateSchoolDemandStatus,
@@ -23,48 +22,6 @@ import {
   UpdateSchoolSettingDto,
   ValidateSchoolDemandDto,
 } from './schools.dto';
-import { AxiosError } from 'axios';
-import { excludeKeys } from '@glom/utils';
-import { getAcademicYearSetup } from '../academic-years/academic-years.service';
-
-const schoolSelectAttr = Prisma.validator<Prisma.SchoolArgs>()({
-  include: {
-    SchoolDemand: {
-      include: {
-        Payment: true,
-        Ambassador: {
-          select: {
-            Login: {
-              select: {
-                Person: { select: { email: true } },
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-});
-const getSchoolEntity = (
-  data: Prisma.SchoolGetPayload<typeof schoolSelectAttr>
-) => {
-  const {
-    SchoolDemand: {
-      demand_status,
-      rejection_reason,
-      Payment: { amount: paid_amount },
-      Ambassador,
-    },
-    ...school
-  } = data;
-  return new SchoolEntity({
-    ...school,
-    paid_amount,
-    school_demand_status: demand_status,
-    school_rejection_reason: rejection_reason,
-    ambassador_email: Ambassador?.Login.Person.email,
-  });
-};
 
 @Injectable()
 export class SchoolsService {
@@ -76,16 +33,17 @@ export class SchoolsService {
 
   async findOne(identifier: string) {
     const school = await this.prismaService.school.findFirstOrThrow({
-      ...schoolSelectAttr,
+      ...SchoolArgsFactory.getSchoolSelect(),
       where: { OR: [{ school_id: identifier }, { school_code: identifier }] },
     });
-    return getSchoolEntity(school);
+    return SchoolArgsFactory.getSchoolEntity(school);
   }
 
   async findDetails(school_id: string) {
+    const { include: includeArgs } = SchoolArgsFactory.getSchoolSelect();
     const schoolData = await this.prismaService.school.findUnique({
       include: {
-        ...schoolSelectAttr.include,
+        ...includeArgs,
         CreatedBy: true,
         AcademicYears: {
           take: 1,
@@ -106,15 +64,15 @@ export class SchoolsService {
         ends_at: academicYear?.ended_at,
         starts_at: academicYear?.starts_at,
       },
-      school: getSchoolEntity(school),
+      school: SchoolArgsFactory.getSchoolEntity(school),
     });
   }
 
   async findAll() {
     const schools = await this.prismaService.school.findMany({
-      ...schoolSelectAttr,
+      ...SchoolArgsFactory.getSchoolSelect(),
     });
-    return schools.map((school) => getSchoolEntity(school));
+    return schools.map((school) => SchoolArgsFactory.getSchoolEntity(school));
   }
 
   async create(demandpayload: SubmitSchoolDemandDto) {
@@ -153,7 +111,7 @@ export class SchoolsService {
     }
     const [school] = await this.prismaService.$transaction([
       this.prismaService.school.create({
-        ...schoolSelectAttr,
+        ...SchoolArgsFactory.getSchoolSelect(),
         data: {
           school_email,
           school_code,
@@ -187,7 +145,7 @@ export class SchoolsService {
       }),
       ...academicYearSetupTransactions,
     ]);
-    return getSchoolEntity(school);
+    return SchoolArgsFactory.getSchoolEntity(school);
   }
 
   async validate(
@@ -415,7 +373,7 @@ export class SchoolsService {
           },
         }),
         this.prismaService.academicYear.update({
-          data: getAcademicYearSetup(annual_configurator_id),
+          data: AcademicYearArgsFactory.getInitialSetup(annual_configurator_id),
           where: { year_code },
         }),
       ],
