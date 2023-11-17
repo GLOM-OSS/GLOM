@@ -56,7 +56,6 @@ export default function AddMajorDialog({
       created_at: new Date().toISOString(),
       created_by: '',
       department_acronym: 'DS',
-      department_code: 'EF1203',
       department_id: 'EF1203',
       department_name: 'Department des Sciences',
       is_deleted: false,
@@ -66,7 +65,6 @@ export default function AddMajorDialog({
       created_at: new Date().toISOString(),
       created_by: '',
       department_acronym: 'DST',
-      department_code: 'DSTO0',
       department_id: 'DST1203',
       department_name: 'Department des Technologies',
       is_deleted: false,
@@ -209,11 +207,11 @@ export default function AddMajorDialog({
             >
               {departments.map(
                 (
-                  { department_id, department_code, department_name },
+                  { department_id, department_acronym, department_name },
                   index
                 ) => (
                   <MenuItem key={index} value={department_id}>
-                    {`${department_name} (${department_code})`}
+                    {`${department_name} (${department_acronym})`}
                   </MenuItem>
                 )
               )}
