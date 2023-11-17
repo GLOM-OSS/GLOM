@@ -22,6 +22,7 @@ import { Role } from '../../utils/enums';
 import {
   SchoolDemandDetails,
   SchoolEntity,
+  SchoolSettingEntity,
   SubmitSchoolDemandDto,
   UpdateSchoolDemandStatus,
   UpdateSchoolDto,
@@ -109,7 +110,17 @@ export class SchoolsController {
     );
   }
 
-  @Put(':school_id/settings')
+  @Get('settings')
+  @ApiOkResponse({ type: SchoolSettingEntity })
+  @Roles(Role.CONFIGURATOR)
+  getSchoolSettings(@Req() request: Request) {
+    const {
+      activeYear: { academic_year_id },
+    } = request.user;
+    return this.schoolsService.getSettings(academic_year_id);
+  }
+
+  @Put('settings')
   @ApiOkResponse()
   @Roles(Role.CONFIGURATOR)
   updateSchoolSettings(

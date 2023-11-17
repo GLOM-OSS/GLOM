@@ -1,4 +1,5 @@
 import {
+  ApiHideProperty,
   ApiProperty,
   ApiPropertyOptional,
   OmitType,
@@ -210,15 +211,19 @@ export class DocumentSignerEntity
   @ApiProperty()
   annual_school_setting_id: string;
 
-  @ApiProperty()
+  @Exclude()
+  @ApiHideProperty()
   is_deleted: boolean;
 
-  @Exclude()
   @ApiProperty()
+  created_at: Date;
+
+  @Exclude()
+  @ApiHideProperty()
   created_by: string;
 
   @Exclude()
-  @ApiProperty({ nullable: true })
+  @ApiHideProperty()
   deleted_by: string;
 
   constructor(props: DocumentSignerEntity) {
@@ -244,11 +249,15 @@ export class SchoolSettingEntity implements AnnualSchoolSetting {
   created_at: Date;
 
   @Exclude()
-  @ApiProperty()
+  @ApiHideProperty()
   created_by: string;
 
   @ApiProperty({ type: [DocumentSignerEntity] })
   documentSigners: DocumentSignerEntity[];
+
+  constructor(props: SchoolSettingEntity) {
+    Object.assign(this, props);
+  }
 }
 
 export class UpdateSchoolSettingDto extends PickType(
@@ -261,7 +270,7 @@ export class UpdateSchoolSettingDto extends PickType(
   deletedSignerIds?: string[];
 
   @IsOptional()
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: CreateDocumentSignerDto })
   @ValidateNested({ each: true })
   @Type(() => CreateDocumentSignerDto)
   newDocumentSigners?: CreateDocumentSignerDto[];

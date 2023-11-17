@@ -16,6 +16,7 @@ import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import {
   SchoolDemandDetails,
   SchoolEntity,
+  SchoolSettingEntity,
   SubmitSchoolDemandDto,
   UpdateSchoolDemandStatus,
   UpdateSchoolDto,
@@ -301,34 +302,46 @@ export class SchoolsService {
         select: { can_pay_fee: true, mark_insertion_source: true },
         where: { academic_year_id },
       });
-    await this.prismaService.$transaction([
-      this.prismaService.annualDocumentSigner.updateMany({
-        data: { is_deleted: true },
-        where: { annual_document_signer_id: { in: deletedSignerIds } },
-      }),
-      this.prismaService.annualSchoolSetting.update({
-        data: {
-          can_pay_fee,
-          mark_insertion_source,
-          AnnualSchoolSettingAudits: {
-            create: {
-              ...schoolSetting,
-              AuditedBy: { connect: { annual_configurator_id: audited_by } },
-            },
-          },
-          AnnualDocumentSigners: {
-            createMany: {
-              data: newDocumentSigners.map((signer) => ({
-                ...signer,
-                created_by: audited_by,
-              })),
-              skipDuplicates: true,
-            },
+    await this.prismaService.annualSchoolSetting.update({
+      data: {
+        can_pay_fee,
+        mark_insertion_source,
+        AnnualSchoolSettingAudits: {
+          create: {
+            ...schoolSetting,
+            AuditedBy: { connect: { annual_configurator_id: audited_by } },
           },
         },
+        AnnualDocumentSigners: {
+          createMany: {
+            data: newDocumentSigners.map((signer) => ({
+              ...signer,
+              created_by: audited_by,
+            })),
+            skipDuplicates: true,
+          },
+          updateMany:
+            deletedSignerIds && deletedSignerIds.length > 0
+              ? {
+                  data: { is_deleted: true },
+                  where: {
+                    annual_document_signer_id: { in: deletedSignerIds },
+                  },
+                }
+              : undefined,
+        },
+      },
+      where: { academic_year_id },
+    });
+  }
+
+  async getSettings(academic_year_id: string) {
+    const { AnnualDocumentSigners: documentSigners, ...schoolSetting } =
+      await this.prismaService.annualSchoolSetting.findUniqueOrThrow({
+        include: { AnnualDocumentSigners: { where: { is_deleted: false } } },
         where: { academic_year_id },
-      }),
-    ]);
+      });
+    return new SchoolSettingEntity({ ...schoolSetting, documentSigners });
   }
 
   private async payOnboardingFee(phone: string) {
