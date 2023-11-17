@@ -656,7 +656,33 @@ export const website = {
   loading: 'Chargement...',
   classesOf: 'Salles de classe de',
   numberOfDivisionsExplanation:
-    "Représente les divisions que nous faisons dans les classes lorsqu'il y a beaucoup d'élèves. Cela permet de séparer la même classe en différentes divisions de, par exemple, 50 élèves chacune pour un meilleur contrôle !",
+    "Facilite la division des grandes classes en groupes plus petits, permettant un meilleur contrôle et une meilleure gestion au sein de divisions distinctes, chacune pouvant accueillir jusqu'à, disons, 50 étudiants.",
   staff: 'Personnel',
   schoolProfile: "Profil de l'école",
+  telephone: 'Téléphone',
+  roles: 'Rôles',
+  staffName: 'Nom du personnel',
+  configurator: 'Configurateur',
+  banSelectedStaff: 'Interdire la sélection',
+  resetSelectedStaffPasswords: 'Réinitialiser les mots de passe',
+  unBanSelectedStaff: "Lever l'interdiction de la sélection",
+  resetSelectedPrivateCode: 'Réinitialiser les codes privés de la sélection',
+  manageRoles: 'Gérer les rôles',
+  addNewStaff: 'Ajouter un nouveau personnel',
+  addConfigurator: 'Ajouter un configurateur',
+  addRegistry: 'Ajouter un registre',
+  resetStaffPassword: 'Réinitialiser le mot de passe du personnel',
+  confirmResetStaffPasswordDialogMessage:
+    "Confirmez pour révoquer l'accès au compte et initier l'envoi d'un lien de réinitialisation du mot de passe à l'e-mail du personnel. Procédez uniquement si vous avez reçu une demande par e-mail valide. Continuer ?",
+  resetStaffPrivateCode: 'Réinitialiser le code privé du personnel',
+  confirmResetStaffPrivateCodeDialogMessage:
+    "Confirmez pour désactiver l'ancien code et émettre un nouveau pour le membre du personnel. Procédez uniquement si vous avez reçu une demande valide. Continuer ?",
+  archiveStaffMember: 'Interdire le membre du personnel',
+  confirmArchiveStaffDialogMessage:
+    "Confirmez pour révoquer l'accès du membre du personnel à la plateforme. Procédez uniquement si vous avez reçu une demande par e-mail valide. Continuer ?",
+  confirmUnarchiveStaffDialogMessage:
+    "Confirmez pour lever l'interdiction du compte du membre du personnel. Notez que cela ne restaurera pas les salles de classe coordonnées mais rétablira tous les autres rôles. Continuer ?",
+  unarchiveStaffMember: "Lever l'interdiction du membre du personnel",
+  ban: 'Interdire',
+  revokeBan: "Révoquer l'interdiction",
 };

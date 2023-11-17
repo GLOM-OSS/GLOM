@@ -632,8 +632,34 @@ export const website = {
   loading: 'Loading...',
   classesOf: 'Classrooms of',
   numberOfDivisionsExplanation:
-    'Represents the seperations we do in classes when there are a lot of students. It permits to seperate same class in different divisions of say 50 students each bringing better control!',
-
+    'Facilitates dividing large classes into smaller groups, enabling better control and management within separate divisions, each accommodating up to say 50 students.',
   staff: 'Staff',
   schoolProfile: 'School Profile',
+
+  telephone: 'Telephone',
+  roles: 'Roles',
+  staffName: 'Staff Name',
+  configurator: 'Configurator',
+  banSelectedStaff: 'Ban Selected',
+  resetSelectedStaffPasswords: 'Reset Passwords',
+  unBanSelectedStaff: 'Unban Selected',
+  resetSelectedPrivateCode: 'Reset Private Codes',
+  manageRoles: 'Manage Roles',
+  addNewStaff: 'Add New Staff',
+  addConfigurator: 'Add Configurator',
+  addRegistry: 'Add Registry',
+  resetStaffPassword: 'Reset Staff Password',
+  confirmResetStaffPasswordDialogMessage:
+    "Confirm to revoke account access and initiate a password reset link sent to the staff's email. Proceed only if you've received a valid email request. Continue?",
+  resetStaffPrivateCode: 'Reset Staff Private Code',
+  confirmResetStaffPrivateCodeDialogMessage:
+    "Confirm to disable the previous code and issue a new one for the staff member. Proceed only if you've received a valid request. Continue?",
+  archiveStaffMember: 'Ban Staff Member',
+  confirmArchiveStaffDialogMessage:
+    "Confirm to revoke staff member's platform access. Proceed only if you've received a valid email request. Continue?",
+  confirmUnarchiveStaffDialogMessage:
+    "Confirm to lift the ban on the staff member's account. Note that this won't restore coordinated classrooms but will reinstate all other roles. Continue?",
+  unarchiveStaffMember: 'Revoke Staff Member Ban',
+  ban: 'Ban',
+  revokeBan: 'Revoke Ban',
 };
