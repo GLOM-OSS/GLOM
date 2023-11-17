@@ -1,9 +1,22 @@
-import { Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
-import { CycleSettingsService } from './cycle-settings.service';
-import { Request } from 'express';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
+import { Roles } from '../../app/auth/auth.decorator';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
-import { ExamAccessSettingEntitty } from './cycle-settings.dto';
+import { Role } from '../../utils/enums';
+import {
+  ExamAccessSettingEntitty,
+  UpdateExamAcessSettingDto,
+} from './cycle-settings.dto';
+import { CycleSettingsService } from './cycle-settings.service';
 
 @ApiTags('Cycle Settings')
 @Controller('cycle-settings')
@@ -15,14 +28,33 @@ export class CycleSettingsController {
   @ApiOkResponse({ type: [ExamAccessSettingEntitty] })
   async getExamAcessSettings(
     @Req() request: Request,
-    @Param('cycle_id') cycleId: string
+    @Param('cycle_id') cycle_id: string
   ) {
     const {
       activeYear: { academic_year_id },
     } = request.user;
-    return this.cyleSettingsService.getExamAccessSettings(
+    return this.cyleSettingsService.getExamAccessSettings({
       academic_year_id,
-      cycleId
+      cycle_id,
+    });
+  }
+
+  @ApiOkResponse()
+  @Roles(Role.REGISTRY)
+  @Put(':cycle_id/exam-access')
+  async updateExamAcessSettings(
+    @Req() request: Request,
+    @Param('cycle_id') cycle_id: string,
+    @Body() { payload }: UpdateExamAcessSettingDto
+  ) {
+    const {
+      activeYear: { academic_year_id },
+      annualRegistry: { annual_registry_id },
+    } = request.user;
+    return this.cyleSettingsService.updateExamAcessSettings(
+      payload,
+      { academic_year_id, cycle_id },
+      annual_registry_id
     );
   }
 }
