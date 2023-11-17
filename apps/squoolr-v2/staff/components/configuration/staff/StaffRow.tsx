@@ -54,9 +54,9 @@ export default function StaffRow({
     isConfirmResetPasswordDialogOpen,
     setIsConfirmResetPasswordDialogOpen,
   ] = useState<boolean>(false);
+  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
   const [isResettingStaffPassword, setIsResettingStaffPassword] =
     useState<boolean>(false);
-
   function confirmResetPassword() {
     //TODO: CALL API HERE RESET USER PASSWORD WITH DATA staff.login_id
     setIsResettingStaffPassword(true);
@@ -67,18 +67,63 @@ export default function StaffRow({
     }, 3000);
   }
 
+  const [
+    isConfirmResetPrivateCodeDialogOpen,
+    setIsConfirmResetPrivateCodeDialogOpen,
+  ] = useState<boolean>(false);
+  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
+  const [isResettingStaffPrivateCode, setIsResettingStaffPrivateCode] =
+    useState<boolean>(false);
+  function confirmResetPrivateCode() {
+    //TODO: CALL API HERE RESET USER private code WITH DATA staff.annual_teacher_id or staff.annual_registry_id
+    setIsResettingStaffPrivateCode(true);
+    setTimeout(() => {
+      alert('done resetting private code');
+      setIsResettingStaffPrivateCode(false);
+      setIsConfirmResetPrivateCodeDialogOpen(false);
+    }, 3000);
+  }
+
+  const [isConfirmArchiveDialogOpen, setIsConfirmArchiveDialogOpen] =
+    useState<boolean>(false);
+  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
+  const [isArchiving, setIsArchiving] = useState<boolean>(false);
+  function confirmArchive() {
+    //TODO: CALL API HERE archive user WITH DATA staff.annual_teacher_id and/or staff.annual_registry_id and/or annual_configurator_id
+    setIsArchiving(true);
+    setTimeout(() => {
+      alert('done archiving');
+      setIsArchiving(false);
+      setIsConfirmArchiveDialogOpen(false);
+    }, 3000);
+  }
+
+  const [isConfirmUnarchiveDialogOpen, setIsConfirmUnarchiveDialogOpen] =
+    useState<boolean>(false);
+  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
+  const [isUnarchiving, setIsUnarchiving] = useState<boolean>(false);
+  function confirmUnarchive() {
+    //TODO: CALL API HERE unarchive user WITH DATA staff.annual_teacher_id and/or staff.annual_registry_id and/or annual_configurator_id
+    setIsUnarchiving(true);
+    setTimeout(() => {
+      alert('done unarchiving');
+      setIsUnarchiving(false);
+      setIsConfirmUnarchiveDialogOpen(false);
+    }, 3000);
+  }
+
   return (
     <>
       <ManageStaffMenu
         anchorEl={anchorEl}
         closeMenu={() => setAnchorEl(null)}
-        confirmArchive={() => alert('archive')}
-        confirmUnarchive={() => alert('unarchive')}
+        confirmArchive={() => setIsConfirmArchiveDialogOpen(true)}
+        confirmUnarchive={() => setIsConfirmUnarchiveDialogOpen(true)}
         editStaff={() => alert('edit')}
         isOpen={!!anchorEl}
         manageRoles={() => alert('manage roles')}
         resetPassword={() => setIsConfirmResetPasswordDialogOpen(true)}
-        resetPrivateCode={() => alert('reset private code')}
+        resetPrivateCode={() => setIsConfirmResetPrivateCodeDialogOpen(true)}
         isArchived={showArchived}
         staffRoles={roles}
       />
@@ -94,6 +139,45 @@ export default function StaffRow({
         danger
         dialogTitle={formatMessage({ id: 'resetStaffPassword' })}
         isSubmitting={isResettingStaffPassword}
+      />
+      <ConfirmDialog
+        closeDialog={() => setIsConfirmResetPrivateCodeDialogOpen(false)}
+        confirm={confirmResetPrivateCode}
+        dialogMessage={formatMessage({
+          id: 'confirmResetStaffPrivateCodeDialogMessage',
+        })}
+        isDialogOpen={isConfirmResetPrivateCodeDialogOpen}
+        closeOnConfirm
+        confirmButton={formatMessage({ id: 'resetPrivateCode' })}
+        danger
+        dialogTitle={formatMessage({ id: 'resetStaffPrivateCode' })}
+        isSubmitting={isResettingStaffPrivateCode}
+      />
+      <ConfirmDialog
+        closeDialog={() => setIsConfirmArchiveDialogOpen(false)}
+        confirm={confirmArchive}
+        dialogMessage={formatMessage({
+          id: 'confirmArchiveStaffDialogMessage',
+        })}
+        isDialogOpen={isConfirmArchiveDialogOpen}
+        closeOnConfirm
+        confirmButton={formatMessage({ id: 'ban' })}
+        danger
+        dialogTitle={formatMessage({ id: 'archiveStaffMember' })}
+        isSubmitting={isArchiving}
+      />
+      <ConfirmDialog
+        closeDialog={() => setIsConfirmUnarchiveDialogOpen(false)}
+        confirm={confirmUnarchive}
+        dialogMessage={formatMessage({
+          id: 'confirmUnarchiveStaffDialogMessage',
+        })}
+        isDialogOpen={isConfirmUnarchiveDialogOpen}
+        closeOnConfirm
+        confirmButton={formatMessage({ id: 'revokeBan' })}
+        danger
+        dialogTitle={formatMessage({ id: 'unarchiveStaffMember' })}
+        isSubmitting={isUnarchiving}
       />
       <TableRow
         sx={{
