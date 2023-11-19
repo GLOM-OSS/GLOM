@@ -51,6 +51,7 @@ import TableHeader from '../../../components/configuration/staff/TableHeader';
 import StaffTableHead from 'apps/squoolr-v2/staff/components/configuration/staff/StaffTableHead';
 import StaffRow from 'apps/squoolr-v2/staff/components/configuration/staff/StaffRow';
 import NewStaffMenu from 'apps/squoolr-v2/staff/components/configuration/staff/NewStaffMenu';
+import AddCoordinatorDialog from 'apps/squoolr-v2/staff/components/configuration/staff/AddCoordinatorDialog';
 export default function Staff() {
   const theme = useTheme();
   const { push, asPath } = useRouter();
@@ -274,6 +275,9 @@ export default function Staff() {
     }
   }
 
+  const [isNewCoordinatorDialogOpen, setIsNewCoordinatorDialogOpen] =
+    useState<boolean>(false);
+
   const [activeStaffId, setActiveStaffId] = useState<string>();
   const [isActiveStaffArchived, setIsActiveStaffArchived] =
     useState<boolean>(false);
@@ -335,6 +339,10 @@ export default function Staff() {
           editableMajor={editableMajor}
         />
       )} */}
+      <AddCoordinatorDialog
+        isDialogOpen={isNewCoordinatorDialogOpen}
+        closeDialog={() => setIsNewCoordinatorDialogOpen(false)}
+      />
       <FilterMenu
         closeMenu={() => {
           setFilterAnchorEl(null);
@@ -346,7 +354,10 @@ export default function Staff() {
       />
       <NewStaffMenu
         addConfigurator={() => alert('add configurator')}
-        addCoordinator={() => alert('add coordinator')}
+        addCoordinator={() => {
+          setIsNewCoordinatorDialogOpen(true);
+          setNewStaffAnchorEl(null);
+        }}
         addRegistry={() => alert('add registry')}
         addTeacher={() => alert('add teacher')}
         anchorEl={newStaffAnchorEl}
