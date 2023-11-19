@@ -245,6 +245,24 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
           }),
         },
       },
+      MuiFormLabel: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            top: '-8px !important',
+          }),
+        },
+      },
+      MuiInputBase: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            borderRadius: '8px',
+            background: theme.common.offWhite,
+            '& .MuiOutlinedInput-notchedOutline': {
+              border: `1px solid ${theme.common.line}`,
+            },
+          }),
+        },
+      },
       MuiTextField: {
         styleOverrides: {
           root: ({ theme }) => ({
