@@ -1,57 +1,35 @@
 import {
-  ConfirmDialog,
   NoTableElement,
-  TableHeaderItem,
-  TableSkeleton,
+  TableSkeleton
 } from '@glom/components';
 import {
+  BulkDisableStaffPayload,
   MajorEntity,
   StaffEntity,
   StaffRole,
-  BulkDisableStaffPayload,
 } from '@glom/data-types/squoolr';
 import { useDispatchBreadcrumb } from '@glom/squoolr-v2/side-nav';
 import { useTheme } from '@glom/theme';
 import add from '@iconify/icons-fluent/add-48-regular';
-import reset from '@iconify/icons-fluent/arrow-counterclockwise-48-regular';
-import checked from '@iconify/icons-fluent/checkbox-checked-16-filled';
-import unchecked from '@iconify/icons-fluent/checkbox-unchecked-16-filled';
-import filter from '@iconify/icons-fluent/filter-28-regular';
-import more from '@iconify/icons-fluent/more-vertical-48-regular';
-import search from '@iconify/icons-fluent/search-48-regular';
 import { Icon } from '@iconify/react';
 import {
   Box,
-  Button,
-  Checkbox,
-  Chip,
   IconButton,
-  InputAdornment,
-  Stack,
   Table,
   TableBody,
-  TableCell,
   TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Tooltip,
-  Typography,
-  lighten,
+  Tooltip
 } from '@mui/material';
+import AddCoordinatorDialog from 'apps/squoolr-v2/staff/components/configuration/staff/AddCoordinatorDialog';
+import AddStaffDialog from 'apps/squoolr-v2/staff/components/configuration/staff/AddStaffDialog';
+import NewStaffMenu from 'apps/squoolr-v2/staff/components/configuration/staff/NewStaffMenu';
+import StaffRow from 'apps/squoolr-v2/staff/components/configuration/staff/StaffRow';
+import StaffTableHead from 'apps/squoolr-v2/staff/components/configuration/staff/StaffTableHead';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
-import AddMajorDialog from '../../../components/configuration/majors/AddMajorDialog';
-import EditMajorDialog from '../../../components/configuration/majors/EditMajorDialog';
-import ManageMajorMenu from '../../../components/configuration/majors/ManageMajorMenu';
 import FilterMenu from '../../../components/configuration/staff/FilterMenu';
-import StaffRoles from '../../../components/configuration/staff/StaffRoles';
 import TableHeader from '../../../components/configuration/staff/TableHeader';
-import StaffTableHead from 'apps/squoolr-v2/staff/components/configuration/staff/StaffTableHead';
-import StaffRow from 'apps/squoolr-v2/staff/components/configuration/staff/StaffRow';
-import NewStaffMenu from 'apps/squoolr-v2/staff/components/configuration/staff/NewStaffMenu';
-import AddCoordinatorDialog from 'apps/squoolr-v2/staff/components/configuration/staff/AddCoordinatorDialog';
 export default function Staff() {
   const theme = useTheme();
   const { push, asPath } = useRouter();
@@ -277,6 +255,10 @@ export default function Staff() {
 
   const [isNewCoordinatorDialogOpen, setIsNewCoordinatorDialogOpen] =
     useState<boolean>(false);
+  const [isNewStaffDialogOpen, setIsNewStaffDialogOpen] =
+    useState<boolean>(false);
+  const [newStaffType, setNewStaffType] =
+    useState<Exclude<StaffRole, 'TEACHER' | 'COORDINATOR'>>();
 
   const [activeStaffId, setActiveStaffId] = useState<string>();
   const [isActiveStaffArchived, setIsActiveStaffArchived] =
@@ -328,20 +310,14 @@ export default function Staff() {
 
   return (
     <>
-      {/* <AddMajorDialog
-        isDialogOpen={isNewMajorDialogOpen}
-        closeDialog={() => setIsNewMajorDialogOpen(false)}
-      /> */}
-      {/* {editableMajor && (
-        <EditMajorDialog
-          isDialogOpen={isEditMajorDialogOpen}
-          closeDialog={() => setIsEditMajorDialogOpen(false)}
-          editableMajor={editableMajor}
-        />
-      )} */}
       <AddCoordinatorDialog
         isDialogOpen={isNewCoordinatorDialogOpen}
         closeDialog={() => setIsNewCoordinatorDialogOpen(false)}
+      />
+      <AddStaffDialog
+        closeDialog={() => setNewStaffType(undefined)}
+        isDialogOpen={!!newStaffType}
+        usage={newStaffType}
       />
       <FilterMenu
         closeMenu={() => {
@@ -353,76 +329,24 @@ export default function Staff() {
         onSelect={selectRole}
       />
       <NewStaffMenu
-        addConfigurator={() => alert('add configurator')}
+        addConfigurator={() => {
+          setNewStaffType('CONFIGURATOR');
+          setNewStaffAnchorEl(null);
+        }}
         addCoordinator={() => {
           setIsNewCoordinatorDialogOpen(true);
           setNewStaffAnchorEl(null);
         }}
-        addRegistry={() => alert('add registry')}
+        addRegistry={() => {
+          setNewStaffType('REGISTRY');
+          setNewStaffAnchorEl(null);
+        }}
         addTeacher={() => alert('add teacher')}
         anchorEl={newStaffAnchorEl}
         closeMenu={() => setNewStaffAnchorEl(null)}
         isOpen={!!newStaffAnchorEl}
       />
 
-      {/* <ManageMajorMenu
-        anchorEl={anchorEl}
-        closeMenu={() => setAnchorEl(null)}
-        isOpen={!!anchorEl}
-        isArchived={isActiveStaffArchived}
-        confirmArchive={() => setIsConfirmArchiveDialogOpen(true)}
-        confirmUnarchive={() => setIsConfirmUnarchiveDialogOpen(true)}
-        editMajor={() => {
-          setActiveStaffId(undefined);
-          setIsEditMajorDialogOpen(true);
-        }}
-        openClassrooms={() => {
-          breadcrumbDispatch({
-            action: 'ADD',
-            payload: [
-              {
-                title: editableMajor.major_acronym,
-                route: editableMajor.annual_major_id,
-              },
-            ],
-          });
-          push(`${asPath}/${editableMajor.annual_major_id}`);
-        }}
-      /> */}
-      {/* <ConfirmDialog
-        closeDialog={() => {
-          setIsConfirmArchiveDialogOpen(false);
-          setIsConfirmUnarchiveDialogOpen(false);
-        }}
-        dialogMessage={formatMessage({
-          id: isConfirmArchiveDialogOpen
-            ? selectedStaffIds.length > 1
-              ? 'confirmArchiveMajorsDialogMessage'
-              : 'confirmArchiveMajorDialogMessage'
-            : selectedStaffIds.length > 1
-            ? 'confirmUnarchiveMajorsDialogMessage'
-            : 'confirmUnarchiveMajorDialogMessage',
-        })}
-        isDialogOpen={
-          isConfirmArchiveDialogOpen || isConfirmUnarchiveDialogOpen
-        }
-        confirm={confirmArchiveUnarchive}
-        dialogTitle={formatMessage({
-          id: isConfirmArchiveDialogOpen
-            ? selectedStaffIds.length > 1
-              ? 'archiveMajors'
-              : 'archiveMajor'
-            : selectedStaffIds.length > 1
-            ? 'unarchiveMajors'
-            : 'unarchiveMajor',
-        })}
-        confirmButton={formatMessage({
-          id: isConfirmArchiveDialogOpen ? 'archive' : 'unarchive',
-        })}
-        danger
-        closeOnConfirm
-        isSubmitting={isArchiving || isUnarchiving}
-      /> */}
       <Box sx={{ height: '100%', position: 'relative' }}>
         <TableHeader
           searchValue={searchValue}
