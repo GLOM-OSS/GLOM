@@ -340,7 +340,7 @@ model AcademicYear {
     created_by       String?             @db.VarChar(36)
     CreatedBy        AnnualConfigurator? @relation(name: "CreatedBy_AnnualConfigurator", fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AnnualWeighting         AnnualWeighting?
+    AnnualWeighting         AnnualWeighting[]
     AnnualSchoolSetting     AnnualSchoolSetting?
     AnnualRegistries        AnnualRegistry[]
     AnnualTeachers          AnnualTeacher[]
@@ -1054,12 +1054,14 @@ model AnnualWeighting {
     created_at          DateTime       @default(now()) @db.DateTime(0)
     cycle_id            String         @db.VarChar(36)
     Cycle               Cycle          @relation(fields: [cycle_id], references: [cycle_id], onDelete: Cascade, onUpdate: Cascade)
-    academic_year_id    String         @unique @db.VarChar(36)
+    academic_year_id    String         @db.VarChar(36)
     AcademicYear        AcademicYear   @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
     created_by          String         @db.VarChar(36)
     CreatedBy           AnnualRegistry @relation(fields: [created_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualWeightingAudits AnnualWeightingAudit[]
+
+    @@unique([academic_year_id, cycle_id])
 }
 
 model AnnualWeightingAudit {

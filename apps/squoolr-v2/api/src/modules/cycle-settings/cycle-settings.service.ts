@@ -185,4 +185,36 @@ export class CycleSettingsService {
     });
     return new WeightingSystemEntity(weightingSystem);
   }
+
+  async updateWeightingSystem(
+    weighting_system: number,
+    metaParams: CycleSettingMeta,
+    audited_by: string
+  ) {
+    const weightingSystem = await this.prismaService.annualWeighting.findFirst({
+      select: { annual_weighting_id: true, weighting_system: true },
+      where: metaParams,
+    });
+
+    await this.prismaService.annualWeighting.upsert({
+      create: {
+        weighting_system,
+        CreatedBy: { connect: { annual_registry_id: audited_by } },
+        AcademicYear: {
+          connect: { academic_year_id: metaParams.academic_year_id },
+        },
+        Cycle: { connect: { cycle_id: metaParams.cycle_id } },
+      },
+      update: {
+        weighting_system,
+        AnnualWeightingAudits: {
+          create: {
+            ...weightingSystem,
+            AuditedBy: { connect: { annual_registry_id: audited_by } },
+          },
+        },
+      },
+      where: { academic_year_id_cycle_id: metaParams },
+    });
+  }
 }
