@@ -340,21 +340,21 @@ model AcademicYear {
     created_by       String?             @db.VarChar(36)
     CreatedBy        AnnualConfigurator? @relation(name: "CreatedBy_AnnualConfigurator", fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AnnualWeighting                AnnualWeighting?
-    AnnualSchoolSetting            AnnualSchoolSetting?
-    AnnualRegistries               AnnualRegistry[]
-    AnnualTeachers                 AnnualTeacher[]
-    AnnualStudents                 AnnualStudent[]
-    AnnualMajors                   AnnualMajor[]
-    AnnualConfigurators            AnnualConfigurator[]
-    AnnualModules                  AnnualModule[]
-    AnnualCarryOverSytems          AnnualCarryOverSytem[]
-    AnnualModulationSettings       AnnualModulationSetting[]
-    AnnualEvaluationTypeWeightings AnnualEvaluationTypeWeighting[]
-    AnnualAcademicProfiles         AnnualAcademicProfile[]
-    AnnualSemesterExamAcess        AnnualSemesterExamAcess[]
-    AnnualGradeWeightings          AnnualGradeWeighting[]
-    AnnualEvaluationSubTypes       AnnualEvaluationSubType[]
+    AnnualWeighting          AnnualWeighting?
+    AnnualSchoolSetting      AnnualSchoolSetting?
+    AnnualRegistries         AnnualRegistry[]
+    AnnualTeachers           AnnualTeacher[]
+    AnnualStudents           AnnualStudent[]
+    AnnualMajors             AnnualMajor[]
+    AnnualConfigurators      AnnualConfigurator[]
+    AnnualModules            AnnualModule[]
+    AnnualCarryOverSytems    AnnualCarryOverSytem[]
+    AnnualModulationSettings AnnualModulationSetting[]
+    AnnualEvaluationTypes    AnnualEvaluationType[]
+    AnnualAcademicProfiles   AnnualAcademicProfile[]
+    AnnualSemesterExamAcess  AnnualSemesterExamAcess[]
+    AnnualGradeWeightings    AnnualGradeWeighting[]
+    AnnualEvaluationSubtypes AnnualEvaluationSubtype[]
 }
 
 model Login {
@@ -432,7 +432,7 @@ model AnnualConfigurator {
     DeletedAnnualDocumentSigners  AnnualDocumentSigner[]         @relation(name: "DeletedBy_AnnualConfigurator")
     AnnualSchoolSettings          AnnualSchoolSetting[]
     AnnualSchoolSettingAudits     AnnualSchoolSettingAudit[]
-    AnnualEvaluationSubTypes      AnnualEvaluationSubType[]
+    AnnualEvaluationSubtypes      AnnualEvaluationSubtype[]
 
     @@unique([login_id, academic_year_id])
 }
@@ -495,23 +495,23 @@ model AnnualRegistry {
     login_id           String
     Login              Login              @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AnnualRegistryAudits                AnnualRegistryAudit[]
-    AnnualCarryOverSytemAudits          AnnualCarryOverSytemAudit[]
-    AnnualModulationSettings            AnnualModulationSetting[]
-    AnnualModulationSettingAudits       AnnualModulationSettingAudit[]
-    AnnualEvaluationTypeWeightingAudits AnnualEvaluationTypeWeightingAudit[]
-    AnnualWeightings                    AnnualWeighting[]
-    AnnualWeightingAudits               AnnualWeightingAudit[]
-    AnnualGradeWeightings               AnnualGradeWeighting[]
-    AnnualGradeWeightingAudits          AnnualGradeWeightingAudit[]
-    AnnualAcademicProfiles              AnnualAcademicProfile[]
-    AnnualAcademicProfileAudits         AnnualAcademicProfileAudit[]
-    AnnualSemesterExamAcessAudits       AnnualSemesterExamAcessAudit[]
-    AnnualEvaluationTypeWeightings      AnnualEvaluationTypeWeighting[]
-    Evaluations                         Evaluation[]
-    AnnualEvaluationSubTypeAudits       AnnualEvaluationSubTypeAudit[]
-    AnnualCarryOverSytems               AnnualCarryOverSytem[]
-    AnnualSemesterExamAcess             AnnualSemesterExamAcess[]
+    AnnualRegistryAudits          AnnualRegistryAudit[]
+    AnnualCarryOverSytemAudits    AnnualCarryOverSytemAudit[]
+    AnnualModulationSettings      AnnualModulationSetting[]
+    AnnualModulationSettingAudits AnnualModulationSettingAudit[]
+    AnnualEvaluationTypeAudits    AnnualEvaluationTypeAudit[]
+    AnnualWeightings              AnnualWeighting[]
+    AnnualWeightingAudits         AnnualWeightingAudit[]
+    AnnualGradeWeightings         AnnualGradeWeighting[]
+    AnnualGradeWeightingAudits    AnnualGradeWeightingAudit[]
+    AnnualAcademicProfiles        AnnualAcademicProfile[]
+    AnnualAcademicProfileAudits   AnnualAcademicProfileAudit[]
+    AnnualSemesterExamAcessAudits AnnualSemesterExamAcessAudit[]
+    AnnualEvaluationTypes         AnnualEvaluationType[]
+    Evaluations                   Evaluation[]
+    AnnualEvaluationSubtypeAudits AnnualEvaluationSubtypeAudit[]
+    AnnualCarryOverSytems         AnnualCarryOverSytem[]
+    AnnualSemesterExamAcess       AnnualSemesterExamAcess[]
 
     @@unique([login_id, matricule])
     @@unique([login_id, academic_year_id])
@@ -715,14 +715,14 @@ model Cycle {
     number_of_years Int
     created_at      DateTime  @default(now()) @db.DateTime(0)
 
-    Majors                         Major[]
-    MajorAudits                    MajorAudit[]
-    AnnualModulationSettings       AnnualModulationSetting[]
-    AnnualGradeWeightings          AnnualGradeWeighting[]
-    AnnualEvaluationTypeWeightings AnnualEvaluationTypeWeighting[]
-    AnnualAcademicProfiles         AnnualAcademicProfile[]
-    AnnualCarryOverSytems          AnnualCarryOverSytem[]
-    AnnualSemesterExamAcess        AnnualSemesterExamAcess[]
+    Majors                   Major[]
+    MajorAudits              MajorAudit[]
+    AnnualModulationSettings AnnualModulationSetting[]
+    AnnualGradeWeightings    AnnualGradeWeighting[]
+    AnnualEvaluationTypes    AnnualEvaluationType[]
+    AnnualAcademicProfiles   AnnualAcademicProfile[]
+    AnnualCarryOverSytems    AnnualCarryOverSytem[]
+    AnnualSemesterExamAcess  AnnualSemesterExamAcess[]
 }
 
 model Major {
@@ -1024,53 +1024,55 @@ enum EvaluationTypeEnum {
     @@map("evaluation_type_enum")
 }
 
-model AnnualEvaluationTypeWeighting {
-    annual_evaluation_type_weighting_id String             @id @default(uuid()) @db.VarChar(36)
-    evaluation_type_weight              Int
-    created_at                          DateTime           @default(now()) @db.DateTime(0)
-    cycle_id                            String             @db.VarChar(36)
-    Cycle                               Cycle              @relation(fields: [cycle_id], references: [cycle_id], onDelete: Cascade, onUpdate: Cascade)
-    academic_year_id                    String             @db.VarChar(36)
-    AcademicYear                        AcademicYear       @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
-    evaluation_type                     EvaluationTypeEnum
-    created_by                          String             @db.VarChar(36)
-    CreatedBy                           AnnualRegistry     @relation(fields: [created_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
+model AnnualEvaluationType {
+    annual_evaluation_type_id String             @id @default(uuid()) @db.VarChar(36)
+    evaluation_type_weight    Int
+    evaluation_type           EvaluationTypeEnum
+    created_at                DateTime           @default(now()) @db.DateTime(0)
+    cycle_id                  String             @db.VarChar(36)
+    Cycle                     Cycle              @relation(fields: [cycle_id], references: [cycle_id], onDelete: Cascade, onUpdate: Cascade)
+    academic_year_id          String             @db.VarChar(36)
+    AcademicYear              AcademicYear       @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    created_by                String             @db.VarChar(36)
+    CreatedBy                 AnnualRegistry     @relation(fields: [created_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AnnualEvaluationTypeWeightingAudits AnnualEvaluationTypeWeightingAudit[]
+    AnnualEvaluationTypeAudits AnnualEvaluationTypeAudit[]
+    AnnualEvaluationSubtypes   AnnualEvaluationSubtype[]
 
     @@unique([academic_year_id, cycle_id, evaluation_type])
 }
 
-model AnnualEvaluationTypeWeightingAudit {
-    annual_evaluation_type_weighting_audit_id String                        @id @default(uuid()) @db.VarChar(36)
-    evaluation_type_weight                    Int
-    audited_at                                DateTime                      @default(now()) @db.DateTime(0)
-    annual_evaluation_type_weighting_id       String                        @db.VarChar(36)
-    AnnualEvaluationTypeWeighting             AnnualEvaluationTypeWeighting @relation(fields: [annual_evaluation_type_weighting_id], references: [annual_evaluation_type_weighting_id], onDelete: Cascade, onUpdate: Cascade)
-    audited_by                                String                        @db.VarChar(36)
-    AuditedBy                                 AnnualRegistry                @relation(fields: [audited_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
+model AnnualEvaluationTypeAudit {
+    annual_evaluation_type_audit_id String               @id @default(uuid()) @db.VarChar(36)
+    evaluation_type_weight          Int
+    audited_at                      DateTime             @default(now()) @db.DateTime(0)
+    annual_evaluation_type_id       String               @db.VarChar(36)
+    AnnualEvaluationType            AnnualEvaluationType @relation(fields: [annual_evaluation_type_id], references: [annual_evaluation_type_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by                      String               @db.VarChar(36)
+    AuditedBy                       AnnualRegistry       @relation(fields: [audited_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-model AnnualEvaluationSubType {
-    annual_evaluation_sub_type_id String             @id @default(uuid()) @db.VarChar(36)
-    evaluation_type               EvaluationTypeEnum
-    evaluation_sub_type_name      String
-    evaluation_sub_type_weight    Int
-    academic_year_id              String             @db.VarChar(36)
-    AcademicYear                  AcademicYear       @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
-    created_by                    String             @db.VarChar(36)
-    CreatedBy                     AnnualConfigurator @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
+model AnnualEvaluationSubtype {
+    annual_evaluation_subtype_id String               @id @default(uuid()) @db.VarChar(36)
+    evaluation_subtype_name      String
+    evaluation_subtype_weight    Int
+    annual_evaluation_type_id    String               @db.VarChar(36)
+    AnnualEvaluationType         AnnualEvaluationType @relation(fields: [annual_evaluation_type_id], references: [annual_evaluation_type_id], onDelete: Cascade, onUpdate: Cascade)
+    academic_year_id             String               @db.VarChar(36)
+    AcademicYear                 AcademicYear         @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    created_by                   String               @db.VarChar(36)
+    CreatedBy                    AnnualConfigurator   @relation(fields: [created_by], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AnnualEvaluationSubTypeAudits AnnualEvaluationSubTypeAudit[]
+    AnnualEvaluationSubtypeAudits AnnualEvaluationSubtypeAudit[]
     Evaluations                   Evaluation[]
 }
 
-model AnnualEvaluationSubTypeAudit {
+model AnnualEvaluationSubtypeAudit {
     annual_evaluation_sub_type_audit_id String                  @id @default(uuid()) @db.VarChar(36)
-    evaluation_sub_type_name            String                  @db.VarChar(45)
-    evaluation_sub_type_weight          Int
-    annual_evaluation_sub_type_id       String                  @db.VarChar(36)
-    AnnualEvaluationSubType             AnnualEvaluationSubType @relation(fields: [annual_evaluation_sub_type_id], references: [annual_evaluation_sub_type_id], onDelete: Cascade, onUpdate: Cascade)
+    evaluation_subtype_name             String                  @db.VarChar(45)
+    evaluation_subtype_weight           Int
+    annual_evaluation_subtype_id        String                  @db.VarChar(36)
+    AnnualEvaluationSubtype             AnnualEvaluationSubtype @relation(fields: [annual_evaluation_subtype_id], references: [annual_evaluation_subtype_id], onDelete: Cascade, onUpdate: Cascade)
     audited_by                          String                  @db.VarChar(36)
     AuditedBy                           AnnualRegistry          @relation(fields: [audited_by], references: [annual_registry_id], onDelete: Cascade, onUpdate: Cascade)
 }
@@ -1201,8 +1203,8 @@ model AnnualSemesterExamAcessAudit {
 model Evaluation {
     evaluation_id                 String                  @id @default(uuid()) @db.VarChar(36)
     examination_date              DateTime?               @db.DateTime(0)
-    annual_evaluation_sub_type_id String                  @db.VarChar(36)
-    AnnualEvaluationSubType       AnnualEvaluationSubType @relation(fields: [annual_evaluation_sub_type_id], references: [annual_evaluation_sub_type_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_evaluation_subtype_id String                  @db.VarChar(36)
+    AnnualEvaluationSubtype       AnnualEvaluationSubtype @relation(fields: [annual_evaluation_subtype_id], references: [annual_evaluation_subtype_id], onDelete: Cascade, onUpdate: Cascade)
     annual_subject_id             String                  @db.VarChar(36)
     AnnualSubject                 AnnualSubject           @relation(fields: [annual_subject_id], references: [annual_subject_id], onDelete: Cascade, onUpdate: Cascade)
     created_at                    DateTime                @default(now()) @db.DateTime(0)
