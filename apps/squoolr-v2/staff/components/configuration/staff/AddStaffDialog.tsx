@@ -1,4 +1,11 @@
 import {
+  CreateStaffPayload,
+  StaffEntity,
+  StaffRole,
+} from '@glom/data-types/squoolr';
+import { useTheme } from '@glom/theme';
+import { LocationOnOutlined } from '@mui/icons-material';
+import {
   Autocomplete,
   Box,
   Button,
@@ -18,22 +25,12 @@ import {
   capitalize,
   debounce,
 } from '@mui/material';
-import { useIntl } from 'react-intl';
-import {
-  ClassroomEntity,
-  CoordinatorEntity,
-  CreateStaffPayload,
-  StaffRole,
-  TeacherEntity,
-} from '@glom/data-types/squoolr';
-import * as Yup from 'yup';
+import { MobileDatePicker } from '@mui/x-date-pickers';
+import parse from 'autosuggest-highlight/parse';
 import { useFormik } from 'formik';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowDropDown, LocationOnOutlined } from '@mui/icons-material';
-import { useTheme } from '@glom/theme';
-import { MobileDatePicker } from '@mui/x-date-pickers';
-import dayjs from 'dayjs';
-import parse from 'autosuggest-highlight/parse';
+import { useIntl } from 'react-intl';
+import * as Yup from 'yup';
 
 interface MainTextMatchedSubstrings {
   offset: number;
@@ -67,24 +64,26 @@ export default function AddStaffDialog({
   closeDialog,
   isDialogOpen,
   usage,
+  staff,
 }: {
   closeDialog: () => void;
   isDialogOpen: boolean;
   usage: Exclude<StaffRole, 'TEACHER' | 'COORDINATOR'>;
+  staff?: StaffEntity;
 }) {
   const { formatMessage } = useIntl();
   const theme = useTheme();
 
   const initialValues: CreateStaffPayload['payload'] = {
     role: 'CONFIGURATOR',
-    email: '',
-    first_name: '',
-    last_name: '',
-    phone_number: '',
-    address: '',
-    birthdate: '',
-    gender: 'Female',
-    national_id_number: '',
+    email: staff ? staff.email : '',
+    first_name: staff ? staff.first_name : '',
+    last_name: staff ? staff.last_name : '',
+    phone_number: staff ? staff.phone_number.split('+237')[1] : '',
+    address: staff ? staff.address : '',
+    birthdate: staff ? staff.birthdate : '',
+    gender: staff ? staff.gender : 'Female',
+    national_id_number: staff ? staff.national_id_number : '',
   };
   const validationSchema = Yup.object().shape({
     gender: Yup.string()
@@ -123,6 +122,16 @@ export default function AddStaffDialog({
         ...values,
         role: usage,
         phone_number: `+237${values.phone_number}`,
+        ...(staff
+          ? {
+              ...(staff.annual_configurator_id
+                ? { annual_configurator_id: staff.annual_configurator_id }
+                : {}),
+              ...(staff.annual_registry_id
+                ? { annual_registry_id: staff.annual_registry_id }
+                : {}),
+            }
+          : {}),
       };
       //TODO; call api here to create staff with data submitValue
       setTimeout(() => {
@@ -135,6 +144,7 @@ export default function AddStaffDialog({
   });
 
   function close() {
+    formik.resetForm();
     closeDialog();
   }
 
@@ -225,7 +235,9 @@ export default function AddStaffDialog({
     >
       <DialogTitle>
         {formatMessage({
-          id: `add${capitalize(usage ? usage.toLowerCase() : '')}`,
+          id: `${staff ? 'edit' : 'add'}${capitalize(
+            usage ? usage.toLowerCase() : ''
+          )}`,
         })}
       </DialogTitle>
       <DialogContent>
@@ -468,13 +480,26 @@ export default function AddStaffDialog({
             <Button
               color="primary"
               variant="contained"
-              disabled={isSubmitting}
+              disabled={
+                isSubmitting ||
+                (staff &&
+                  staff.address === formik.values.address &&
+                  staff.birthdate === formik.values.birthdate &&
+                  staff.email === formik.values.email &&
+                  staff.first_name === formik.values.first_name &&
+                  staff.gender === formik.values.gender &&
+                  staff.last_name === formik.values.last_name &&
+                  staff.national_id_number ===
+                    formik.values.national_id_number &&
+                  staff.phone_number.split('+237')[1] ===
+                    formik.values.phone_number)
+              }
               type="submit"
               startIcon={
                 isSubmitting && <CircularProgress color="primary" size={18} />
               }
             >
-              {formatMessage({ id: 'save' })}
+              {formatMessage({ id: staff ? 'save' : 'create' })}
             </Button>
           </DialogActions>
         </Box>
