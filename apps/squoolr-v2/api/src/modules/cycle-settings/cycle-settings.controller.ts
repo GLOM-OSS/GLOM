@@ -16,6 +16,7 @@ import {
   EvaluationTypeEntity,
   ExamAccessSettingEntitty,
   QueryCycleSettingsDto,
+  UpdateEvaluaTypeDto,
   UpdateExamAcessSettingDto,
 } from './cycle-settings.dto';
 import { CycleSettingsService } from './cycle-settings.service';
@@ -72,5 +73,23 @@ export class CycleSettingsController {
       academic_year_id,
       cycle_id,
     });
+  }
+
+  @ApiOkResponse()
+  @Roles(Role.REGISTRY)
+  @Put('evaluation-types')
+  async updateEvaluationTypes(
+    @Req() request: Request,
+    @Body() { cycle_id, payload }: UpdateEvaluaTypeDto
+  ) {
+    const {
+      activeYear: { academic_year_id },
+      annualRegistry: { annual_registry_id },
+    } = request.user;
+    return this.cyleSettingsService.updateEvaluationTypes(
+      payload,
+      { academic_year_id, cycle_id },
+      annual_registry_id
+    );
   }
 }

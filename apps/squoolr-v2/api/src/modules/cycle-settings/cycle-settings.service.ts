@@ -1,8 +1,13 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { CycleSettingMeta, ExamAccessSettingInput } from './cycle-settings';
+import {
+  CycleSettingMeta,
+  EvaluationTypeInput,
+  ExamAccessSettingInput,
+} from './cycle-settings';
 import {
   EvaluationTypeEntity,
   ExamAccessSettingEntitty,
+  UpdateEvaluaTypeDto,
 } from './cycle-settings.dto';
 
 export class CycleSettingsService {
@@ -77,5 +82,49 @@ export class CycleSettingsService {
     return evaluationTypes.map(
       (evaluationType) => new EvaluationTypeEntity(evaluationType)
     );
+  }
+
+  async updateEvaluationTypes(
+    updatePayload: [EvaluationTypeInput, EvaluationTypeInput],
+    metaParams: CycleSettingMeta,
+    audited_by: string
+  ) {
+    const evaluationTypeAudits =
+      await this.prismaService.annualEvaluationType.findMany({
+        take: 2,
+        select: {
+          annual_evaluation_type_id: true,
+          evaluation_type_weight: true,
+        },
+        where: metaParams,
+      });
+    await this.prismaService.$transaction([
+      ...updatePayload.map(({ evaluation_type, evaluation_type_weight }) =>
+        this.prismaService.annualEvaluationType.upsert({
+          create: {
+            evaluation_type,
+            evaluation_type_weight,
+            Cycle: { connect: { cycle_id: metaParams.cycle_id } },
+            AcademicYear: {
+              connect: { academic_year_id: metaParams.academic_year_id },
+            },
+            CreatedBy: { connect: { annual_registry_id: audited_by } },
+          },
+          update: { evaluation_type_weight },
+          where: {
+            academic_year_id_cycle_id_evaluation_type: {
+              ...metaParams,
+              evaluation_type,
+            },
+          },
+        })
+      ),
+      this.prismaService.annualEvaluationTypeAudit.createMany({
+        data: evaluationTypeAudits.map((evaluationTypeAudit) => ({
+          ...evaluationTypeAudit,
+          audited_by,
+        })),
+      }),
+    ]);
   }
 }

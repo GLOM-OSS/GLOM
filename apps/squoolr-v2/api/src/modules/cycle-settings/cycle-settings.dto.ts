@@ -87,7 +87,7 @@ export class EvaluationTypePayload {
   }
 }
 
-export class UpdateEvaluaTypeWeightingsDto {
+export class UpdateEvaluaTypeDto extends QueryCycleSettingsDto {
   @ArrayMaxSize(2)
   @ArrayMinSize(2)
   @ValidateNested({ each: true })
