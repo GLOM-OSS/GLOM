@@ -9,6 +9,11 @@ export class CycleSettingsService {
     academic_year_id,
     cycle_id,
   }: CycleSettingMeta) {
+    const schoolSettings =
+      await this.prismaService.annualSchoolSetting.findFirst({
+        where: { academic_year_id },
+      });
+    if (!schoolSettings?.can_pay_fee) return [];
     const examAccessSettings =
       await this.prismaService.annualSemesterExamAcess.findMany({
         take: 2,
@@ -24,6 +29,9 @@ export class CycleSettingsService {
     { academic_year_id, cycle_id }: CycleSettingMeta,
     audited_by: string
   ) {
+    await this.prismaService.annualSchoolSetting.findFirstOrThrow({
+      where: { academic_year_id, can_pay_fee: true },
+    });
     const examAccessSettings =
       await this.prismaService.annualSemesterExamAcess.findMany({
         take: 2,
