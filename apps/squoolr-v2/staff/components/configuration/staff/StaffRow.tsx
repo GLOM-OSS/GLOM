@@ -17,6 +17,7 @@ import ManageStaffMenu from './ManageStaffMenu';
 import StaffRoles from './StaffRoles';
 import { ConfirmDialog } from '@glom/components';
 import AddStaffDialog from './AddStaffDialog';
+import StaffDetailsDialog from './StaffDetailsDialog';
 
 export default function StaffRow({
   staff: {
@@ -115,6 +116,8 @@ export default function StaffRow({
   }
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] =
+    useState<boolean>(false);
 
   return (
     <>
@@ -125,7 +128,7 @@ export default function StaffRow({
         confirmUnarchive={() => setIsConfirmUnarchiveDialogOpen(true)}
         editStaff={() => setIsEditDialogOpen(true)}
         isOpen={!!anchorEl}
-        openDetails={() => alert('open details')}
+        openDetails={() => setIsDetailsDialogOpen(true)}
         manageRoles={() => alert('manage roles')}
         resetPassword={() => setIsConfirmResetPasswordDialogOpen(true)}
         resetPrivateCode={() => setIsConfirmResetPrivateCodeDialogOpen(true)}
@@ -137,6 +140,15 @@ export default function StaffRow({
         isDialogOpen={isEditDialogOpen && !roles.includes('TEACHER')}
         usage={roles.includes('CONFIGURATOR') ? 'CONFIGURATOR' : 'REGISTRY'}
         staff={staff}
+      />
+      <StaffDetailsDialog
+        closeDialog={() => setIsDetailsDialogOpen(false)}
+        isDialogOpen={isDetailsDialogOpen && !roles.includes('TEACHER')}
+        staff={staff}
+        handleEdit={() => {
+          setIsDetailsDialogOpen(false);
+          setIsEditDialogOpen(true);
+        }}
       />
       <ConfirmDialog
         closeDialog={() => setIsConfirmResetPasswordDialogOpen(false)}
