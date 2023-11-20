@@ -5,7 +5,7 @@ import {
   Put,
   Query,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -13,6 +13,7 @@ import { Roles } from '../../app/auth/auth.decorator';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 import { Role } from '../../utils/enums';
 import {
+  EvaluationTypeEntity,
   ExamAccessSettingEntitty,
   QueryCycleSettingsDto,
   UpdateExamAcessSettingDto,
@@ -56,5 +57,20 @@ export class CycleSettingsController {
       { academic_year_id, cycle_id },
       annual_registry_id
     );
+  }
+
+  @Get('evaluation-types')
+  @ApiOkResponse({ type: [EvaluationTypeEntity] })
+  async getEvaluationTypes(
+    @Req() request: Request,
+    @Query() { cycle_id }: QueryCycleSettingsDto
+  ) {
+    const {
+      activeYear: { academic_year_id },
+    } = request.user;
+    return this.cyleSettingsService.getEvaluationTypes({
+      academic_year_id,
+      cycle_id,
+    });
   }
 }

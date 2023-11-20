@@ -1,6 +1,9 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { CycleSettingMeta, ExamAccessSettingInput } from './cycle-settings';
-import { ExamAccessSettingEntitty } from './cycle-settings.dto';
+import {
+  EvaluationTypeEntity,
+  ExamAccessSettingEntitty,
+} from './cycle-settings.dto';
 
 export class CycleSettingsService {
   constructor(private prismaService: GlomPrismaService) {}
@@ -64,5 +67,15 @@ export class CycleSettingsService {
         ),
       }),
     ]);
+  }
+
+  async getEvaluationTypes(metaParams: CycleSettingMeta) {
+    const evaluationTypes =
+      await this.prismaService.annualEvaluationType.findMany({
+        where: metaParams,
+      });
+    return evaluationTypes.map(
+      (evaluationType) => new EvaluationTypeEntity(evaluationType)
+    );
   }
 }

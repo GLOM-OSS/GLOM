@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  AnnualSemesterExamAcess
+  AnnualEvaluationType,
+  AnnualSemesterExamAcess,
+  EvaluationTypeEnum,
 } from '@prisma/client';
 import { Exclude, Type } from 'class-transformer';
 import {
@@ -68,6 +70,55 @@ export class ExamAccessSettingEntitty
   created_by: string;
 
   constructor(props: ExamAccessSettingEntitty) {
+    super(props);
+    Object.assign(this, props);
+  }
+}
+
+export class EvaluationTypePayload {
+  @ApiProperty()
+  evaluation_type_weight: number;
+
+  @ApiProperty({ enum: EvaluationTypeEnum })
+  evaluation_type: EvaluationTypeEnum;
+
+  constructor(props: EvaluationTypePayload) {
+    Object.assign(this, props);
+  }
+}
+
+export class UpdateEvaluaTypeWeightingsDto {
+  @ArrayMaxSize(2)
+  @ArrayMinSize(2)
+  @ValidateNested({ each: true })
+  @Type(() => EvaluationTypePayload)
+  @ApiProperty({
+    type: [EvaluationTypePayload, EvaluationTypePayload],
+  })
+  payload: [EvaluationTypePayload, EvaluationTypePayload];
+}
+
+export class EvaluationTypeEntity
+  extends EvaluationTypePayload
+  implements AnnualEvaluationType
+{
+  @ApiProperty()
+  annual_evaluation_type_id: string;
+
+  @ApiProperty()
+  cycle_id: string;
+
+  @ApiProperty()
+  created_at: Date;
+
+  @ApiProperty()
+  academic_year_id: string;
+
+  @Exclude()
+  @ApiProperty()
+  created_by: string;
+
+  constructor(props: EvaluationTypeEntity) {
     super(props);
     Object.assign(this, props);
   }
