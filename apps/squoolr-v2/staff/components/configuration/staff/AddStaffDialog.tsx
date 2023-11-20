@@ -1,3 +1,4 @@
+import { DialogTransition } from '@glom/components';
 import {
   CreateStaffPayload,
   StaffEntity,
@@ -225,6 +226,7 @@ export default function AddStaffDialog({
 
   return (
     <Dialog
+      TransitionComponent={DialogTransition}
       open={isDialogOpen}
       onClose={() => (isSubmitting ? null : close())}
       sx={{
