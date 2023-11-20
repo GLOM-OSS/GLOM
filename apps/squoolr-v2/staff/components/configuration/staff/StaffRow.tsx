@@ -125,6 +125,7 @@ export default function StaffRow({
         confirmUnarchive={() => setIsConfirmUnarchiveDialogOpen(true)}
         editStaff={() => setIsEditDialogOpen(true)}
         isOpen={!!anchorEl}
+        openDetails={() => alert('open details')}
         manageRoles={() => alert('manage roles')}
         resetPassword={() => setIsConfirmResetPasswordDialogOpen(true)}
         resetPrivateCode={() => setIsConfirmResetPrivateCodeDialogOpen(true)}

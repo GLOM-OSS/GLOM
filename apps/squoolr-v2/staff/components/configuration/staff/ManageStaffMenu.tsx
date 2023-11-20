@@ -3,6 +3,7 @@ import { useTheme } from '@glom/theme';
 import edit from '@iconify/icons-fluent/edit-48-regular';
 import key from '@iconify/icons-fluent/key-reset-24-regular';
 import account from '@iconify/icons-fluent/person-accounts-24-regular';
+import person from '@iconify/icons-fluent/person-48-regular';
 import personProhibited from '@iconify/icons-fluent/person-prohibited-28-regular';
 import personSync from '@iconify/icons-fluent/person-sync-48-regular';
 import shield from '@iconify/icons-fluent/shield-task-48-regular';
@@ -21,6 +22,7 @@ export default function ManageStaffMenu({
   manageRoles,
   resetPassword,
   resetPrivateCode,
+  openDetails,
   staffRoles,
 }: {
   closeMenu: () => void;
@@ -32,6 +34,7 @@ export default function ManageStaffMenu({
   manageRoles: () => void;
   resetPassword: () => void;
   resetPrivateCode: () => void;
+  openDetails: () => void;
   staffRoles: StaffRole[];
   isArchived?: boolean;
 }) {
@@ -48,6 +51,19 @@ export default function ManageStaffMenu({
       open={isOpen}
       onClose={closeMenu}
     >
+      {!isArchived && (
+        <MenuItem
+          onClick={() => {
+            closeMenu();
+            openDetails();
+          }}
+        >
+          <Stack direction="row" spacing={1} alignItems={'center'}>
+            <Icon icon={person} fontSize={24} />
+            <Typography>{formatMessage({ id: 'details' })}</Typography>
+          </Stack>
+        </MenuItem>
+      )}
       {!isArchived && (
         <MenuItem
           onClick={() => {
