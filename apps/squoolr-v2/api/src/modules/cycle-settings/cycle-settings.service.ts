@@ -5,19 +5,16 @@ import { ExamAccessSettingEntitty } from './cycle-settings.dto';
 export class CycleSettingsService {
   constructor(private prismaService: GlomPrismaService) {}
 
-  async getExamAccessSettings({
-    academic_year_id,
-    cycle_id,
-  }: CycleSettingMeta) {
+  async getExamAccessSettings(metaParams: CycleSettingMeta) {
     const schoolSettings =
       await this.prismaService.annualSchoolSetting.findFirst({
-        where: { academic_year_id },
+        where: { academic_year_id: metaParams.academic_year_id },
       });
     if (!schoolSettings?.can_pay_fee) return [];
     const examAccessSettings =
       await this.prismaService.annualSemesterExamAcess.findMany({
         take: 2,
-        where: { academic_year_id, cycle_id },
+        where: metaParams,
       });
     return examAccessSettings.map(
       (accessSetting) => new ExamAccessSettingEntitty(accessSetting)

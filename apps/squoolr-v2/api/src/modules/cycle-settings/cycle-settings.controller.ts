@@ -2,10 +2,10 @@ import {
   Body,
   Controller,
   Get,
-  Param,
   Put,
+  Query,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -14,6 +14,7 @@ import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 import { Role } from '../../utils/enums';
 import {
   ExamAccessSettingEntitty,
+  QueryCycleSettingsDto,
   UpdateExamAcessSettingDto,
 } from './cycle-settings.dto';
 import { CycleSettingsService } from './cycle-settings.service';
@@ -24,11 +25,11 @@ import { CycleSettingsService } from './cycle-settings.service';
 export class CycleSettingsController {
   constructor(private cyleSettingsService: CycleSettingsService) {}
 
-  @Get(':cycle_id/exam-access')
+  @Get('exam-access')
   @ApiOkResponse({ type: [ExamAccessSettingEntitty] })
   async getExamAcessSettings(
     @Req() request: Request,
-    @Param('cycle_id') cycle_id: string
+    @Query() { cycle_id }: QueryCycleSettingsDto
   ) {
     const {
       activeYear: { academic_year_id },
@@ -41,11 +42,10 @@ export class CycleSettingsController {
 
   @ApiOkResponse()
   @Roles(Role.REGISTRY)
-  @Put(':cycle_id/exam-access')
+  @Put('exam-access')
   async updateExamAcessSettings(
     @Req() request: Request,
-    @Param('cycle_id') cycle_id: string,
-    @Body() { payload }: UpdateExamAcessSettingDto
+    @Body() { cycle_id, payload }: UpdateExamAcessSettingDto
   ) {
     const {
       activeYear: { academic_year_id },

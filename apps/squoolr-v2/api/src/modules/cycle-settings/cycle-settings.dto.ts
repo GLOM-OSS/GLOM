@@ -1,14 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { AnnualSemesterExamAcess } from '@prisma/client';
+import {
+  AnnualSemesterExamAcess
+} from '@prisma/client';
 import { Exclude, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayMinSize,
   IsIn,
   IsPositive,
+  IsString,
   Max,
-  ValidateNested
+  ValidateNested,
 } from 'class-validator';
+
+export class QueryCycleSettingsDto {
+  @IsString()
+  @ApiProperty()
+  cycle_id: string;
+
+  constructor(props: QueryCycleSettingsDto) {
+    Object.assign(this, props);
+  }
+}
 
 export class ExamAcessSettingPayload {
   @IsIn([1, 2])
@@ -25,7 +38,7 @@ export class ExamAcessSettingPayload {
   }
 }
 
-export class UpdateExamAcessSettingDto {
+export class UpdateExamAcessSettingDto extends QueryCycleSettingsDto {
   @ArrayMaxSize(2)
   @ArrayMinSize(2)
   @ValidateNested({ each: true })
