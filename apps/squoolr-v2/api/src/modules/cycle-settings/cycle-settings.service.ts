@@ -110,6 +110,13 @@ export class CycleSettingsService {
               connect: { academic_year_id: metaParams.academic_year_id },
             },
             CreatedBy: { connect: { annual_registry_id: audited_by } },
+            AnnualEvaluationSubtypes: {
+              create: {
+                evaluation_subtype_name: evaluation_type,
+                evaluation_subtype_weight: 100,
+                CreatedBy: { connect: { annual_registry_id: audited_by } },
+              },
+            },
           },
           update: { evaluation_type_weight },
           where: {
