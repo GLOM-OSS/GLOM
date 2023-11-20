@@ -7,7 +7,7 @@ import {
 import {
   EvaluationTypeEntity,
   ExamAccessSettingEntitty,
-  UpdateEvaluaTypeDto,
+  ModuleSettingEntity
 } from './cycle-settings.dto';
 
 export class CycleSettingsService {
@@ -126,5 +126,13 @@ export class CycleSettingsService {
         })),
       }),
     ]);
+  }
+
+  async getModuleSettings(metaParams: CycleSettingMeta) {
+    const moduleSetting =
+      await this.prismaService.annualModuleSetting.findFirst({
+        where: metaParams,
+      });
+    return new ModuleSettingEntity(moduleSetting);
   }
 }

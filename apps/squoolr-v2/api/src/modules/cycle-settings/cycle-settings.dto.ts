@@ -1,14 +1,19 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   AnnualEvaluationType,
+  AnnualModuleSetting,
   AnnualSemesterExamAcess,
+  CarryOverSystemEnum,
   EvaluationTypeEnum,
 } from '@prisma/client';
 import { Exclude, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayMinSize,
+  IsEnum,
   IsIn,
+  IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
   Max,
@@ -76,9 +81,11 @@ export class ExamAccessSettingEntitty
 }
 
 export class EvaluationTypePayload {
+  @IsNumber()
   @ApiProperty()
   evaluation_type_weight: number;
 
+  @IsEnum(EvaluationTypeEnum)
   @ApiProperty({ enum: EvaluationTypeEnum })
   evaluation_type: EvaluationTypeEnum;
 
@@ -119,6 +126,53 @@ export class EvaluationTypeEntity
   created_by: string;
 
   constructor(props: EvaluationTypeEntity) {
+    super(props);
+    Object.assign(this, props);
+  }
+}
+
+export class ModuleSettingPayload {
+  @IsEnum(CarryOverSystemEnum)
+  @ApiProperty({ enum: CarryOverSystemEnum })
+  carry_over_system: CarryOverSystemEnum;
+
+  @IsNumber()
+  @ApiPropertyOptional()
+  minimum_modulation_score: number;
+
+  constructor(props: ModuleSettingPayload) {
+    Object.assign(this, props);
+  }
+}
+
+export class UpdateModuleSettingDto extends QueryCycleSettingsDto {
+  @ValidateNested()
+  @Type(() => ModuleSettingPayload)
+  @ApiProperty({ type: ModuleSettingPayload })
+  payload: ModuleSettingPayload;
+}
+
+export class ModuleSettingEntity
+  extends ModuleSettingPayload
+  implements AnnualModuleSetting
+{
+  @ApiProperty()
+  annual_module_setting_id: string;
+
+  @ApiProperty()
+  cycle_id: string;
+
+  @ApiProperty()
+  created_at: Date;
+
+  @ApiProperty()
+  academic_year_id: string;
+
+  @Exclude()
+  @ApiProperty()
+  created_by: string;
+
+  constructor(props: ModuleSettingEntity) {
     super(props);
     Object.assign(this, props);
   }

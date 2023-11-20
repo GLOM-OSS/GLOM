@@ -92,4 +92,19 @@ export class CycleSettingsController {
       annual_registry_id
     );
   }
+
+  @Get('module-settings')
+  @ApiOkResponse({ type: [EvaluationTypeEntity] })
+  async getModuleSettings(
+    @Req() request: Request,
+    @Query() { cycle_id }: QueryCycleSettingsDto
+  ) {
+    const {
+      activeYear: { academic_year_id },
+    } = request.user;
+    return this.cyleSettingsService.getModuleSettings({
+      academic_year_id,
+      cycle_id,
+    });
+  }
 }

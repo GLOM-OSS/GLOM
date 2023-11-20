@@ -6,11 +6,16 @@ export type CycleSettingMeta = {
 };
 
 export type ExamAccessSettingInput = Pick<
-  Prisma.AnnualSemesterExamAcessCreateManyInput,
+  Prisma.AnnualSemesterExamAcessCreateInput,
   'annual_semester_number' | 'payment_percentage'
 >;
 
 export type EvaluationTypeInput = Pick<
-  Prisma.AnnualEvaluationTypeCreateManyInput,
+  Prisma.AnnualEvaluationTypeCreateInput,
   'evaluation_type' | 'evaluation_type_weight'
+>;
+
+export type ModuleSettingInput = Pick<
+  Prisma.AnnualModuleSettingCreateInput,
+  'carry_over_system' | 'minimum_modulation_score'
 >;
