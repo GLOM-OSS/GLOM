@@ -96,7 +96,7 @@ export class CycleSettingsController {
   }
 
   @Get('module-settings')
-  @ApiOkResponse({ type: [ModuleSettingEntity] })
+  @ApiOkResponse({ type: ModuleSettingEntity })
   async getModuleSettings(
     @Req() request: Request,
     @Query() { cycle_id }: QueryCycleSettingsDto
@@ -115,7 +115,7 @@ export class CycleSettingsController {
   @Put('module-settings')
   async updateModuleSettings(
     @Req() request: Request,
-    @Body() { cycle_id, payload }: UpdateModuleSettingDto
+    @Body() { cycle_id, ...payload }: UpdateModuleSettingDto
   ) {
     const {
       activeYear: { academic_year_id },
@@ -123,10 +123,7 @@ export class CycleSettingsController {
     } = request.user;
     return this.cyleSettingsService.updateModuleSettings(
       payload,
-      {
-        academic_year_id,
-        cycle_id,
-      },
+      { academic_year_id, cycle_id },
       annual_registry_id
     );
   }

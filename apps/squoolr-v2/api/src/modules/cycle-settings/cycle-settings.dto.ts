@@ -131,7 +131,7 @@ export class EvaluationTypeEntity
   }
 }
 
-export class ModuleSettingPayload {
+export class UpdateModuleSettingDto extends QueryCycleSettingsDto {
   @IsEnum(CarryOverSystemEnum)
   @ApiProperty({ enum: CarryOverSystemEnum })
   carry_over_system: CarryOverSystemEnum;
@@ -140,20 +140,14 @@ export class ModuleSettingPayload {
   @ApiPropertyOptional()
   minimum_modulation_score: number;
 
-  constructor(props: ModuleSettingPayload) {
+  constructor(props: UpdateModuleSettingDto) {
+    super(props);
     Object.assign(this, props);
   }
 }
 
-export class UpdateModuleSettingDto extends QueryCycleSettingsDto {
-  @ValidateNested()
-  @Type(() => ModuleSettingPayload)
-  @ApiProperty({ type: ModuleSettingPayload })
-  payload: ModuleSettingPayload;
-}
-
 export class ModuleSettingEntity
-  extends ModuleSettingPayload
+  extends UpdateModuleSettingDto
   implements AnnualModuleSetting
 {
   @ApiProperty()
