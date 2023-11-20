@@ -1,7 +1,4 @@
-import {
-  NoTableElement,
-  TableSkeleton
-} from '@glom/components';
+import { NoTableElement, TableSkeleton } from '@glom/components';
 import {
   BulkDisableStaffPayload,
   MajorEntity,
@@ -18,7 +15,7 @@ import {
   Table,
   TableBody,
   TableContainer,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
 import AddCoordinatorDialog from 'apps/squoolr-v2/staff/components/configuration/staff/AddCoordinatorDialog';
 import AddStaffDialog from 'apps/squoolr-v2/staff/components/configuration/staff/AddStaffDialog';
@@ -116,7 +113,7 @@ export default function Staff() {
           // origin_institute: 'IAI',
           // teacher_type_id: '',
           // teaching_grade_id: '',
-          address: '',
+          address: 'GLOM SARL',
           annual_configurator_id: 'configurator_id',
           annual_coordinator_id: '',
           annual_registry_id: 'registry_id',
