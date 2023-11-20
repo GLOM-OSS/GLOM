@@ -18,6 +18,7 @@ import StaffRoles from './StaffRoles';
 import { ConfirmDialog } from '@glom/components';
 import AddStaffDialog from './AddStaffDialog';
 import StaffDetailsDialog from './StaffDetailsDialog';
+import AddTeacherDialog from './AddTeacherDialog';
 
 export default function StaffRow({
   staff: {
@@ -139,6 +140,11 @@ export default function StaffRow({
         closeDialog={() => setIsEditDialogOpen(false)}
         isDialogOpen={isEditDialogOpen && !roles.includes('TEACHER')}
         usage={roles.includes('CONFIGURATOR') ? 'CONFIGURATOR' : 'REGISTRY'}
+        staff={staff}
+      />
+      <AddTeacherDialog
+        closeDialog={() => setIsEditDialogOpen(false)}
+        isDialogOpen={isEditDialogOpen && roles.includes('TEACHER')}
         staff={staff}
       />
       <StaffDetailsDialog

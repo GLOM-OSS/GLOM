@@ -27,6 +27,7 @@ import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import FilterMenu from '../../../components/configuration/staff/FilterMenu';
 import TableHeader from '../../../components/configuration/staff/TableHeader';
+import AddTeacherDialog from 'apps/squoolr-v2/staff/components/configuration/staff/AddTeacherDialog';
 export default function Staff() {
   const theme = useTheme();
   const { push, asPath } = useRouter();
@@ -107,12 +108,12 @@ export default function Staff() {
           last_connected: new Date().toISOString(),
           login_id: 'lsi',
           matricule: 'massa',
-          // has_signed_convention: false,
-          // has_tax_payers_card: false,
-          // hourly_rate: 2000,
-          // origin_institute: 'IAI',
-          // teacher_type_id: '',
-          // teaching_grade_id: '',
+          has_signed_convention: true,
+          has_tax_payers_card: false,
+          hourly_rate: 2000,
+          origin_institute: 'IAI',
+          teacher_type_id: '2',
+          teaching_grade_id: '1',
           address: 'GLOM SARL',
           annual_configurator_id: 'configurator_id',
           annual_coordinator_id: '',
@@ -252,7 +253,7 @@ export default function Staff() {
 
   const [isNewCoordinatorDialogOpen, setIsNewCoordinatorDialogOpen] =
     useState<boolean>(false);
-  const [isNewStaffDialogOpen, setIsNewStaffDialogOpen] =
+  const [isNewTeacherDialogOpen, setIsNewTeacherDialogOpen] =
     useState<boolean>(false);
   const [newStaffType, setNewStaffType] =
     useState<Exclude<StaffRole, 'TEACHER' | 'COORDINATOR'>>();
@@ -316,6 +317,10 @@ export default function Staff() {
         isDialogOpen={!!newStaffType}
         usage={newStaffType}
       />
+      <AddTeacherDialog
+        closeDialog={() => setIsNewTeacherDialogOpen(false)}
+        isDialogOpen={isNewTeacherDialogOpen}
+      />
       <FilterMenu
         closeMenu={() => {
           setFilterAnchorEl(null);
@@ -338,7 +343,7 @@ export default function Staff() {
           setNewStaffType('REGISTRY');
           setNewStaffAnchorEl(null);
         }}
-        addTeacher={() => alert('add teacher')}
+        addTeacher={() => setIsNewTeacherDialogOpen(true)}
         anchorEl={newStaffAnchorEl}
         closeMenu={() => setNewStaffAnchorEl(null)}
         isOpen={!!newStaffAnchorEl}
