@@ -1,4 +1,8 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  ApiHideProperty,
+  ApiProperty,
+  ApiPropertyOptional,
+} from '@nestjs/swagger';
 import {
   AnnualEvaluationType,
   AnnualModuleSetting,
@@ -14,11 +18,10 @@ import {
   IsEnum,
   IsIn,
   IsNumber,
-  IsOptional,
   IsPositive,
   IsString,
   Max,
-  ValidateNested,
+  ValidateNested
 } from 'class-validator';
 
 export class QueryCycleSettingsDto {
@@ -123,7 +126,7 @@ export class EvaluationTypeEntity
   academic_year_id: string;
 
   @Exclude()
-  @ApiProperty()
+  @ApiHideProperty()
   created_by: string;
 
   constructor(props: EvaluationTypeEntity) {
@@ -164,7 +167,7 @@ export class ModuleSettingEntity
   academic_year_id: string;
 
   @Exclude()
-  @ApiProperty()
+  @ApiHideProperty()
   created_by: string;
 
   constructor(props: ModuleSettingEntity) {
@@ -198,7 +201,7 @@ export class WeightingSystemEntity
   academic_year_id: string;
 
   @Exclude()
-  @ApiProperty()
+  @ApiHideProperty()
   created_by: string;
 
   constructor(props: WeightingSystemEntity) {
