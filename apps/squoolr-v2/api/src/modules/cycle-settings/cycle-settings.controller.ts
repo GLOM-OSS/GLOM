@@ -20,6 +20,7 @@ import {
   UpdateEvaluaTypeDto,
   UpdateExamAcessSettingDto,
   UpdateModuleSettingDto,
+  WeightingSystemEntity,
 } from './cycle-settings.dto';
 import { CycleSettingsService } from './cycle-settings.service';
 
@@ -126,5 +127,20 @@ export class CycleSettingsController {
       { academic_year_id, cycle_id },
       annual_registry_id
     );
+  }
+
+  @Get('weighting-system')
+  @ApiOkResponse({ type: WeightingSystemEntity })
+  async getWeightingSystem(
+    @Req() request: Request,
+    @Query() { cycle_id }: QueryCycleSettingsDto
+  ) {
+    const {
+      activeYear: { academic_year_id },
+    } = request.user;
+    return this.cyleSettingsService.getWeightingSystem({
+      academic_year_id,
+      cycle_id,
+    });
   }
 }

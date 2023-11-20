@@ -9,8 +9,11 @@ import {
   EvaluationTypeEntity,
   ExamAccessSettingEntitty,
   ModuleSettingEntity,
+  WeightingSystemEntity,
 } from './cycle-settings.dto';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class CycleSettingsService {
   constructor(private prismaService: GlomPrismaService) {}
 
@@ -174,5 +177,12 @@ export class CycleSettingsService {
       update: updatePayload,
       where: { academic_year_id_cycle_id: metaParams },
     });
+  }
+
+  async getWeightingSystem(metaParams: CycleSettingMeta) {
+    const weightingSystem = await this.prismaService.annualWeighting.findFirst({
+      where: metaParams,
+    });
+    return new WeightingSystemEntity(weightingSystem);
   }
 }

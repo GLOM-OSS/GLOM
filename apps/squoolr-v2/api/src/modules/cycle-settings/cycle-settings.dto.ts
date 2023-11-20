@@ -3,6 +3,7 @@ import {
   AnnualEvaluationType,
   AnnualModuleSetting,
   AnnualSemesterExamAcess,
+  AnnualWeighting,
   CarryOverSystemEnum,
   EvaluationTypeEnum,
 } from '@prisma/client';
@@ -167,6 +168,40 @@ export class ModuleSettingEntity
   created_by: string;
 
   constructor(props: ModuleSettingEntity) {
+    super(props);
+    Object.assign(this, props);
+  }
+}
+
+export class UpdateWeightingSystemDto extends QueryCycleSettingsDto {
+  @IsNumber()
+  @ApiProperty()
+  weighting_system: number;
+
+  constructor(props: UpdateWeightingSystemDto) {
+    super(props);
+    Object.assign(this, props);
+  }
+}
+
+export class WeightingSystemEntity
+  extends UpdateWeightingSystemDto
+  implements AnnualWeighting
+{
+  @ApiProperty()
+  annual_weighting_id: string;
+
+  @ApiProperty()
+  created_at: Date;
+
+  @ApiProperty()
+  academic_year_id: string;
+
+  @Exclude()
+  @ApiProperty()
+  created_by: string;
+
+  constructor(props: WeightingSystemEntity) {
     super(props);
     Object.assign(this, props);
   }

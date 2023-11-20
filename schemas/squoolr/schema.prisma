@@ -718,6 +718,7 @@ model Cycle {
     AnnualEvaluationTypes   AnnualEvaluationType[]
     AnnualAcademicProfiles  AnnualAcademicProfile[]
     AnnualSemesterExamAcess AnnualSemesterExamAcess[]
+    AnnualWeightings        AnnualWeighting[]
 }
 
 model Major {
@@ -1049,7 +1050,10 @@ model AnnualEvaluationSubtypeAudit {
 
 model AnnualWeighting {
     annual_weighting_id String         @id @default(uuid()) @db.VarChar(36)
+    weighting_system    Int
     created_at          DateTime       @default(now()) @db.DateTime(0)
+    cycle_id            String         @db.VarChar(36)
+    Cycle               Cycle          @relation(fields: [cycle_id], references: [cycle_id], onDelete: Cascade, onUpdate: Cascade)
     academic_year_id    String         @unique @db.VarChar(36)
     AcademicYear        AcademicYear   @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
     created_by          String         @db.VarChar(36)
@@ -1070,8 +1074,8 @@ model AnnualWeightingAudit {
 
 model AnnualGradeWeighting {
     annual_grade_weighting_id String         @id @default(uuid()) @db.VarChar(36)
-    minimum                   Int?
-    maximum                   Int?
+    minimum                   Float?
+    maximum                   Float?
     point                     Float
     grade                     String         @db.Char(2)
     is_deleted                Boolean        @default(false) @db.TinyInt
@@ -1090,8 +1094,8 @@ model AnnualGradeWeighting {
 
 model AnnualGradeWeightingAudit {
     annual_grade_weighting_audit_id String               @id @default(uuid()) @db.VarChar(36)
-    minimum                         Int?
-    maximum                         Int?
+    minimum                         Float?
+    maximum                         Float?
     point                           Float
     grade                           String               @db.VarChar(36)
     is_deleted                      Boolean              @db.TinyInt
