@@ -15,9 +15,11 @@ import { Role } from '../../utils/enums';
 import {
   EvaluationTypeEntity,
   ExamAccessSettingEntitty,
+  ModuleSettingEntity,
   QueryCycleSettingsDto,
   UpdateEvaluaTypeDto,
   UpdateExamAcessSettingDto,
+  UpdateModuleSettingDto,
 } from './cycle-settings.dto';
 import { CycleSettingsService } from './cycle-settings.service';
 
@@ -94,7 +96,7 @@ export class CycleSettingsController {
   }
 
   @Get('module-settings')
-  @ApiOkResponse({ type: [EvaluationTypeEntity] })
+  @ApiOkResponse({ type: [ModuleSettingEntity] })
   async getModuleSettings(
     @Req() request: Request,
     @Query() { cycle_id }: QueryCycleSettingsDto
@@ -106,5 +108,26 @@ export class CycleSettingsController {
       academic_year_id,
       cycle_id,
     });
+  }
+
+  @ApiOkResponse()
+  @Roles(Role.REGISTRY)
+  @Put('module-settings')
+  async updateModuleSettings(
+    @Req() request: Request,
+    @Body() { cycle_id, payload }: UpdateModuleSettingDto
+  ) {
+    const {
+      activeYear: { academic_year_id },
+      annualRegistry: { annual_registry_id },
+    } = request.user;
+    return this.cyleSettingsService.updateModuleSettings(
+      payload,
+      {
+        academic_year_id,
+        cycle_id,
+      },
+      annual_registry_id
+    );
   }
 }

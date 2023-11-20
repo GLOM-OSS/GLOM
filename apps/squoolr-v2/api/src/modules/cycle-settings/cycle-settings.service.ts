@@ -3,11 +3,12 @@ import {
   CycleSettingMeta,
   EvaluationTypeInput,
   ExamAccessSettingInput,
+  ModuleSettingInput,
 } from './cycle-settings';
 import {
   EvaluationTypeEntity,
   ExamAccessSettingEntitty,
-  ModuleSettingEntity
+  ModuleSettingEntity,
 } from './cycle-settings.dto';
 
 export class CycleSettingsService {
@@ -134,5 +135,37 @@ export class CycleSettingsService {
         where: metaParams,
       });
     return new ModuleSettingEntity(moduleSetting);
+  }
+
+  async updateModuleSettings(
+    updatePayload: ModuleSettingInput,
+    metaParams: CycleSettingMeta,
+    audited_by: string
+  ) {
+    const moduleSetting =
+      await this.prismaService.annualModuleSetting.findFirst({
+        select: { carry_over_system: true, minimum_modulation_score: true },
+        where: metaParams,
+      });
+    await this.prismaService.annualModuleSetting.upsert({
+      create: {
+        ...updatePayload,
+        AnnualModuleSettingAudits: moduleSetting
+          ? {
+              create: {
+                ...moduleSetting,
+                AuditedBy: { connect: { annual_registry_id: audited_by } },
+              },
+            }
+          : undefined,
+        AcademicYear: {
+          connect: { academic_year_id: metaParams.academic_year_id },
+        },
+        Cycle: { connect: { cycle_id: metaParams.cycle_id } },
+        CreatedBy: { connect: { annual_registry_id: audited_by } },
+      },
+      update: updatePayload,
+      where: { academic_year_id_cycle_id: metaParams },
+    });
   }
 }
