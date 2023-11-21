@@ -83,19 +83,24 @@ export default function ManageStaffRolesDialog({
         teacherPayload: { ...data, role: 'TEACHER' },
         newRoles: [...submitValue.newRoles, 'TEACHER'],
       });
-    } else if (doesTeacherDataExist) {
-      if (submitValue.newRoles.includes('TEACHER'))
+    } else {
+      if (submitValue.newRoles.includes('TEACHER')) {
         setSubmitValue({
           ...submitValue,
           newRoles: submitValue.newRoles.filter((role) => role !== 'TEACHER'),
         });
-      else
+        if (!!staff.annualClassroomIds) {
+          setNewClassrooms(
+            classrooms.filter(({ annual_classroom_id: ac_id }) =>
+              staff.annualClassroomIds.includes(ac_id)
+            )
+          );
+        }
+      } else
         setSubmitValue({
           ...submitValue,
           newRoles: [...submitValue.newRoles, 'TEACHER'],
         });
-    } else {
-      setIsCompleteInfoDialogOpen(true);
     }
   }
 
@@ -107,7 +112,7 @@ export default function ManageStaffRolesDialog({
             submitValue.disabledStaffPayload.teacherIds.includes(
               annual_teacher_id
             )
-          )
+          ) {
             setSubmitValue({
               ...submitValue,
               disabledStaffPayload: {
@@ -115,7 +120,13 @@ export default function ManageStaffRolesDialog({
                 teacherIds: [],
               },
             });
-          else
+            if (!!staff.annualClassroomIds)
+              setNewClassrooms(
+                classrooms.filter(({ annual_classroom_id: ac_id }) =>
+                  staff.annualClassroomIds.includes(ac_id)
+                )
+              );
+          } else
             setSubmitValue({
               ...submitValue,
               disabledStaffPayload: {
@@ -250,9 +261,10 @@ export default function ManageStaffRolesDialog({
     }
   }, [classrooms, staff.annualClassroomIds, isDialogOpen]);
 
-  function submitDialog() {
+  function submitManageRoles() {
     const submitValues: ManageStaffRolesPayload = {
       ...submitValue,
+      teacherPayload: undefined,
       coordinatorPayload: {
         annualClassroomIds: newClassrooms.map(
           ({ annual_classroom_id }) => annual_classroom_id
@@ -263,9 +275,31 @@ export default function ManageStaffRolesDialog({
     setIsSubmitting(true);
     //TODO: CALL API HERE TO MANAGE ROLES WITH DATA submitValues
     setTimeout(() => {
-      alert('SUBMITTED DATA SUCCESSFULLY');
-      setIsSubmitting(false);
       alert(JSON.stringify(submitValues));
+      setIsSubmitting(false);
+      //TODO: DURING INTEGRATION, execute this code only if require teacher complete info, ps: change the condition to suite
+      if (submitValues.newRoles.includes('TEACHER')) {
+        setIsCompleteInfoDialogOpen(true);
+      } else close();
+    }, 3000);
+  }
+
+  function submitTeacherData(staff: ManageStaffRolesPayload['teacherPayload']) {
+    const submitValues: ManageStaffRolesPayload = {
+      ...submitValue,
+      teacherPayload: { ...staff, role: 'TEACHER' },
+      coordinatorPayload: {
+        annualClassroomIds: newClassrooms.map(
+          ({ annual_classroom_id }) => annual_classroom_id
+        ),
+      },
+    };
+
+    setIsSubmitting(true);
+    //TODO: CALL API HERE TO complete teacher information with data submitValues
+    setTimeout(() => {
+      alert(JSON.stringify(submitValues));
+      setIsSubmitting(false);
       close();
     }, 3000);
   }
@@ -291,6 +325,25 @@ export default function ManageStaffRolesDialog({
     });
     setNewClassrooms([]);
     closeDialog();
+    setIsCompleteInfoDialogOpen(false);
+  }
+
+  function areCoordinatedClassroomsSame() {
+    const ac_ids = newClassrooms.map(({ annual_classroom_id: ac_id }) => ac_id);
+    const initialClassrooms = staff.annualClassroomIds ?? [];
+
+    return (
+      ac_ids.sort((a, b) => (a > b ? 1 : -1)).join('*') ===
+      initialClassrooms.sort((a, b) => (a > b ? 1 : -1)).join('*')
+    );
+  }
+
+  function areThereAnyDisabledRoles() {
+    return (
+      submitValue.disabledStaffPayload.configuratorIds.length > 0 ||
+      submitValue.disabledStaffPayload.registryIds.length > 0 ||
+      submitValue.disabledStaffPayload.teacherIds.length > 0
+    );
   }
 
   return (
@@ -298,9 +351,8 @@ export default function ManageStaffRolesDialog({
       <CompleteTeacherInfoDialog
         closeDialog={() => setIsCompleteInfoDialogOpen(false)}
         isDialogOpen={isCompleteInfoDialogOpen}
-        confirm={(staff: ManageStaffRolesPayload['teacherPayload']) =>
-          confirmNewTeacherRole(staff)
-        }
+        isSubmitting={isSubmitting}
+        confirm={submitTeacherData}
       />
       <Dialog
         sx={{
@@ -522,8 +574,13 @@ export default function ManageStaffRolesDialog({
             <Button
               color="primary"
               variant="contained"
-              disabled={isSubmitting}
-              onClick={submitDialog}
+              disabled={
+                isSubmitting ||
+                (areCoordinatedClassroomsSame() &&
+                  submitValue.newRoles.length === 0 &&
+                  !areThereAnyDisabledRoles())
+              }
+              onClick={submitManageRoles}
               startIcon={
                 isSubmitting && <CircularProgress color="primary" size={18} />
               }
