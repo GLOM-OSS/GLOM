@@ -82,6 +82,32 @@ export class GradeWeightingsService {
     });
   }
 
+  async delete(annual_grade_weighting_id: string, audited_by: string) {
+    const gradeWeighting =
+      await this.prismaService.annualGradeWeighting.findFirstOrThrow({
+        select: {
+          point: true,
+          grade: true,
+          maximum: true,
+          minimum: true,
+          is_deleted: true,
+        },
+        where: { annual_grade_weighting_id, is_deleted: false },
+      });
+    await this.prismaService.annualGradeWeighting.update({
+      data: {
+        is_deleted: true,
+        AnnualGradeWeightingAudits: {
+          create: {
+            ...gradeWeighting,
+            AuditedBy: { connect: { annual_registry_id: audited_by } },
+          },
+        },
+      },
+      where: { annual_grade_weighting_id },
+    });
+  }
+
   async validateOrThrow(
     {
       point,

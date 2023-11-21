@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -75,6 +76,22 @@ export class GradeWeightingsController {
     return this.gradeWeightingsService.update(
       annualGradeWeightingId,
       updatePayload,
+      annual_registry_id
+    );
+  }
+
+  @ApiOkResponse()
+  @Roles(Role.REGISTRY)
+  @Delete(':annual_grade_weighting_id')
+  deleteGradeWeighting(
+    @Req() request: Request,
+    @Param('annual_grade_weighting_id') annualGradeWeightingId: string
+  ) {
+    const {
+      annualRegistry: { annual_registry_id },
+    } = request.user;
+    return this.gradeWeightingsService.delete(
+      annualGradeWeightingId,
       annual_registry_id
     );
   }
