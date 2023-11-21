@@ -1,4 +1,9 @@
-import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import {
+  ApiHideProperty,
+  ApiProperty,
+  OmitType,
+  PartialType,
+} from '@nestjs/swagger';
 import { AnnualAcademicProfile } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 import { IsPositive, IsString } from 'class-validator';
@@ -26,6 +31,11 @@ export class CreateAcademicProfileDto {
     });
   }
 }
+
+export class UpdateAcademicProfileDto extends OmitType(
+  PartialType(CreateAcademicProfileDto),
+  ['cycle_id']
+) {}
 
 export class AcademicProfileEntity
   extends CreateAcademicProfileDto

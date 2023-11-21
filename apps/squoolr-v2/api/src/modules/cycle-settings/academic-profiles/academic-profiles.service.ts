@@ -11,6 +11,7 @@ import {
   UpdateAcademicProfileDto,
 } from './academic-profile.dto';
 import { CycleSettingMeta } from '../cycle-settings';
+import { excludeKeys } from '@glom/utils';
 
 @Injectable()
 export class AcademicProfilesService {
@@ -59,6 +60,41 @@ export class AcademicProfilesService {
     return new AcademicProfileEntity(academicProfile);
   }
 
+  async update(
+    annual_academic_profile_id: string,
+    { comment, maximum_point, minimum_point }: UpdateAcademicProfileDto,
+    audited_by: string
+  ) {
+    const { academic_year_id, cycle_id, ...academicProfileAudit } =
+      await this.prismaService.annualAcademicProfile.findFirstOrThrow({
+        where: { is_deleted: false, annual_academic_profile_id },
+      });
+    await this.validateOrThrow(
+      minimum_point,
+      maximum_point,
+      { academic_year_id, cycle_id },
+      annual_academic_profile_id
+    );
+    await this.prismaService.annualAcademicProfile.update({
+      data: {
+        comment,
+        maximum_point,
+        minimum_point,
+        AnnualAcademicProfileAudits: {
+          create: {
+            ...excludeKeys(academicProfileAudit, [
+              'annual_academic_profile_id',
+              'created_at',
+              'created_by',
+            ]),
+            AuditedBy: { connect: { annual_registry_id: audited_by } },
+          },
+        },
+      },
+      where: { annual_academic_profile_id },
+    });
+  }
+
   async validateOrThrow(
     minimum_point: number,
     maximum_point: number,
@@ -77,26 +113,29 @@ export class AcademicProfilesService {
       throw new BadRequestException(
         'maximum point cannot be greater than weighting system'
       );
-    const profile = await this.prismaService.annualAcademicProfile.findFirst({
-      where: {
-        ...metaParams,
-        is_deleted: false,
-        annual_academic_profile_id: { not: annual_academic_profile_id ?? null },
-        OR: [
-          { minimum_point: { gte: minimum_point, lte: maximum_point } },
-          { maximum_point: { gte: minimum_point, lte: maximum_point } },
-          {
-            minimum_point: { gte: minimum_point },
-            maximum_point: { lte: maximum_point },
+    const academicProfile =
+      await this.prismaService.annualAcademicProfile.findFirst({
+        where: {
+          ...metaParams,
+          is_deleted: false,
+          annual_academic_profile_id: {
+            not: annual_academic_profile_id ?? null,
           },
-          {
-            minimum_point: { lte: minimum_point },
-            maximum_point: { gte: maximum_point },
-          },
-        ],
-      },
-    });
-    if (profile)
+          OR: [
+            { minimum_point: { gte: minimum_point, lte: maximum_point } },
+            { maximum_point: { gte: minimum_point, lte: maximum_point } },
+            {
+              minimum_point: { gte: minimum_point },
+              maximum_point: { lte: maximum_point },
+            },
+            {
+              minimum_point: { lte: minimum_point },
+              maximum_point: { gte: maximum_point },
+            },
+          ],
+        },
+      });
+    if (academicProfile)
       throw new ConflictException('Academic profile overlapping !!!');
   }
 }
