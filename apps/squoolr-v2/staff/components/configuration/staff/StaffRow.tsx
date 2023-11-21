@@ -149,7 +149,7 @@ export default function StaffRow({
       />
       <StaffDetailsDialog
         closeDialog={() => setIsDetailsDialogOpen(false)}
-        isDialogOpen={isDetailsDialogOpen && !roles.includes('TEACHER')}
+        isDialogOpen={isDetailsDialogOpen}
         staff={staff}
         handleEdit={() => {
           setIsDetailsDialogOpen(false);
