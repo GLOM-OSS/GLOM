@@ -294,7 +294,15 @@ export default function CompleteTeacherInfoDialog({
             <Button
               color="primary"
               variant="contained"
-              disabled={isSubmitting}
+              disabled={
+                isSubmitting ||
+                (formik.values.teacher_type_id === '' &&
+                  formik.values.teaching_grade_id === '' &&
+                  formik.values.origin_institute === '' &&
+                  formik.values.hourly_rate === 0 &&
+                  formik.values.has_signed_convention === false &&
+                  formik.values.has_tax_payers_card === false)
+              }
               type="submit"
               startIcon={
                 isSubmitting && <CircularProgress color="primary" size={18} />
