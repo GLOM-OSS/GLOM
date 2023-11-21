@@ -5,6 +5,10 @@ export type CycleSettingMeta = {
   cycle_id: string;
 };
 
+export type QueryWeightingSettings = CycleSettingMeta & {
+  weighting_system: number;
+};
+
 export type ExamAccessSettingInput = Pick<
   Prisma.AnnualSemesterExamAcessCreateInput,
   'annual_semester_number' | 'payment_percentage'

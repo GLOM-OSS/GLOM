@@ -1,23 +1,22 @@
 import { GlomPrismaService } from '@glom/prisma';
+import { excludeKeys } from '@glom/utils';
 import {
   BadRequestException,
   ConflictException,
   Injectable,
 } from '@nestjs/common';
-import { QueryAcademicProfile } from './academic-profile';
+import { CycleSettingMeta, QueryWeightingSettings } from '../cycle-settings';
 import {
   AcademicProfileEntity,
   CreateAcademicProfileDto,
   UpdateAcademicProfileDto,
 } from './academic-profile.dto';
-import { CycleSettingMeta } from '../cycle-settings';
-import { excludeKeys } from '@glom/utils';
 
 @Injectable()
 export class AcademicProfilesService {
   constructor(private prismaService: GlomPrismaService) {}
 
-  async findAll(metaParams: QueryAcademicProfile) {
+  async findAll(metaParams: QueryWeightingSettings) {
     const academicProfiles =
       await this.prismaService.annualAcademicProfile.findMany({
         orderBy: { maximum_point: 'desc' },
