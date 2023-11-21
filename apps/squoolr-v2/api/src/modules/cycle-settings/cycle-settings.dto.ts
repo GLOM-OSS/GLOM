@@ -21,7 +21,7 @@ import {
   IsPositive,
   IsString,
   Max,
-  ValidateNested
+  ValidateNested,
 } from 'class-validator';
 
 export class QueryCycleSettingsDto {
@@ -30,7 +30,9 @@ export class QueryCycleSettingsDto {
   cycle_id: string;
 
   constructor(props: QueryCycleSettingsDto) {
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
@@ -45,7 +47,9 @@ export class ExamAcessSettingPayload {
   payment_percentage: number;
 
   constructor(props: ExamAcessSettingPayload) {
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
@@ -80,7 +84,9 @@ export class ExamAccessSettingEntitty
 
   constructor(props: ExamAccessSettingEntitty) {
     super(props);
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
@@ -94,7 +100,9 @@ export class EvaluationTypePayload {
   evaluation_type: EvaluationTypeEnum;
 
   constructor(props: EvaluationTypePayload) {
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
@@ -131,7 +139,9 @@ export class EvaluationTypeEntity
 
   constructor(props: EvaluationTypeEntity) {
     super(props);
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
@@ -146,7 +156,9 @@ export class UpdateModuleSettingDto extends QueryCycleSettingsDto {
 
   constructor(props: UpdateModuleSettingDto) {
     super(props);
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
@@ -172,7 +184,9 @@ export class ModuleSettingEntity
 
   constructor(props: ModuleSettingEntity) {
     super(props);
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
@@ -183,7 +197,9 @@ export class UpdateWeightingSystemDto extends QueryCycleSettingsDto {
 
   constructor(props: UpdateWeightingSystemDto) {
     super(props);
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
@@ -206,6 +222,8 @@ export class WeightingSystemEntity
 
   constructor(props: WeightingSystemEntity) {
     super(props);
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }

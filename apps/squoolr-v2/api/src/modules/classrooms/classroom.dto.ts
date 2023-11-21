@@ -1,12 +1,5 @@
-import {
-  ApiProperty,
-  ApiPropertyOptional,
-  OmitType,
-  PartialType,
-  PickType,
-} from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { AnnualClassroom } from '@prisma/client';
-import { Exclude } from 'class-transformer';
 import {
   IsNumber,
   IsNumberString,
@@ -66,7 +59,9 @@ export class AnnualClassroomEntity implements AnnualClassroom {
   created_at: Date;
 
   constructor(props: AnnualClassroomEntity) {
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 

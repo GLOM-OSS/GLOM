@@ -5,10 +5,8 @@ import {
   IntersectionType,
   OmitType,
   PartialType,
-  PickType,
   getSchemaPath,
 } from '@nestjs/swagger';
-import { Gender } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
@@ -48,7 +46,9 @@ export class CreatePersonWithRoleDto extends OmitType(CreatePersonDto, [
 
   constructor(props: CreatePersonWithRoleDto) {
     super(props);
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
@@ -87,7 +87,9 @@ export class StaffEntity
 
   constructor(props: StaffEntity) {
     super(props);
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
@@ -152,7 +154,9 @@ export class CreateTeacherDto extends CreatePersonWithRoleDto {
 
   constructor(props: CreateTeacherDto) {
     super(props);
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
@@ -178,7 +182,9 @@ export class TeacherEntity extends CreateTeacherDto {
 
   constructor(props: TeacherEntity) {
     super(props);
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
@@ -192,7 +198,9 @@ export class CoordinatorEntity extends OmitType(TeacherEntity, ['role']) {
 
   constructor(props: CoordinatorEntity) {
     super(props);
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 

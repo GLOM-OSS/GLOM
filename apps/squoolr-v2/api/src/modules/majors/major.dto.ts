@@ -25,7 +25,9 @@ export class CreateMajorDto {
   cycle_id: string;
 
   constructor(props: CreateMajorDto) {
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
@@ -62,7 +64,9 @@ export class AnnualMajorEntity extends OmitType(CreateMajorDto, ['cycle_id']) {
 
   constructor(props: AnnualMajorEntity) {
     super(props);
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 

@@ -21,7 +21,9 @@ export class CreateAcademicProfileDto {
   comment: string;
 
   constructor(props: CreateAcademicProfileDto) {
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
@@ -48,6 +50,8 @@ export class AcademicProfileEntity
 
   constructor(props: AcademicProfileEntity) {
     super(props);
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
