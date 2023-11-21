@@ -44,11 +44,13 @@ export default function CompleteTeacherInfoDialog({
   closeDialog,
   isDialogOpen,
   staff,
+  isSubmitting,
   confirm,
 }: {
   closeDialog: () => void;
   isDialogOpen: boolean;
   confirm: (staff: ManageStaffRolesPayload['teacherPayload']) => void;
+  isSubmitting: boolean;
   staff?: ManageStaffRolesPayload['teacherPayload'];
 }) {
   const { formatMessage } = useIntl();
@@ -100,7 +102,6 @@ export default function CompleteTeacherInfoDialog({
   });
 
   //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const formik = useFormik({
     initialValues,
     validationSchema,
@@ -108,7 +109,6 @@ export default function CompleteTeacherInfoDialog({
     onSubmit: (values, { resetForm }) => {
       resetForm();
       confirm(values);
-      close();
     },
   });
 
@@ -154,7 +154,7 @@ export default function CompleteTeacherInfoDialog({
                 size="small"
                 label={formatMessage({ id: 'teacherType' })}
                 {...formik.getFieldProps('teacher_type_id')}
-                disabled={isFetchingTeacherTypes}
+                disabled={isFetchingTeacherTypes || isSubmitting}
                 required
               >
                 {teacherTypes.map(
@@ -186,7 +186,7 @@ export default function CompleteTeacherInfoDialog({
                 size="small"
                 label={formatMessage({ id: 'teacherGrade' })}
                 {...formik.getFieldProps('teaching_grade_id')}
-                disabled={isFetchingTeacherGrades}
+                disabled={isFetchingTeacherGrades || isSubmitting}
                 required
               >
                 {teacherGrades.map(
@@ -251,11 +251,13 @@ export default function CompleteTeacherInfoDialog({
                 formik.touched.hourly_rate && formik.errors.hourly_rate
               }
               {...formik.getFieldProps('hourly_rate')}
+              disabled={isSubmitting}
             />
           </Box>
           <Box sx={{ display: 'grid', gridAutoFlow: 'column', columnGap: 1 }}>
             <FormControlLabel
               checked={formik.values.has_signed_convention}
+              disabled={isSubmitting}
               onChange={(event, checked) =>
                 formik.setFieldValue('has_signed_convention', checked)
               }
@@ -264,6 +266,7 @@ export default function CompleteTeacherInfoDialog({
             />
             <FormControlLabel
               checked={formik.values.has_tax_payers_card}
+              disabled={isSubmitting}
               onChange={(event, checked) =>
                 formik.setFieldValue('has_tax_payers_card', checked)
               }
