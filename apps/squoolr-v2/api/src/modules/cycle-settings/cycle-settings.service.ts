@@ -160,21 +160,21 @@ export class CycleSettingsService {
     await this.prismaService.annualModuleSetting.upsert({
       create: {
         ...updatePayload,
-        AnnualModuleSettingAudits: moduleSetting
-          ? {
-              create: {
-                ...moduleSetting,
-                AuditedBy: { connect: { annual_registry_id: audited_by } },
-              },
-            }
-          : undefined,
         AcademicYear: {
           connect: { academic_year_id: metaParams.academic_year_id },
         },
         Cycle: { connect: { cycle_id: metaParams.cycle_id } },
         CreatedBy: { connect: { annual_registry_id: audited_by } },
       },
-      update: updatePayload,
+      update: {
+        ...updatePayload,
+        AnnualModuleSettingAudits: {
+          create: {
+            ...moduleSetting,
+            AuditedBy: { connect: { annual_registry_id: audited_by } },
+          },
+        },
+      },
       where: { academic_year_id_cycle_id: metaParams },
     });
   }
