@@ -87,12 +87,16 @@ export default function AddTeacherDialog({
   const { formatMessage } = useIntl();
   const theme = useTheme();
 
+  //   TODO: REMOVE THIS STATE AND USE reactQuery own
+  const [isFetchingTeacherTypes] = useState<boolean>(false);
   //TODO: CALL API HER TO FETCH teacherTypes
   const [teacherTypes, setTeacherTypes] = useState<TeacherTypeEntity[]>([
     { teacher_type: 'Vacataire', teacher_type_id: '1' },
     { teacher_type: 'Permanent', teacher_type_id: '3' },
     { teacher_type: 'Missionnaire', teacher_type_id: '2' },
   ]);
+  //   TODO: REMOVE THIS STATE AND USE reactQuery own
+  const [isFetchingTeacherGrades] = useState<boolean>(false);
   //TODO: CALL API HER TO FETCH teacherGrades
   const [teacherGrades, setTeacherGrades] = useState<TeacherGradeEntity[]>([
     { teacher_grade: 'Professeur', teacher_grade_id: '1' },
@@ -525,7 +529,7 @@ export default function AddTeacherDialog({
                 size="small"
                 label={formatMessage({ id: 'teacherType' })}
                 {...formik.getFieldProps('teacher_type_id')}
-                disabled={isSubmitting}
+                disabled={isSubmitting || isFetchingTeacherTypes}
                 required
               >
                 {teacherTypes.map(
@@ -557,7 +561,7 @@ export default function AddTeacherDialog({
                 size="small"
                 label={formatMessage({ id: 'teacherGrade' })}
                 {...formik.getFieldProps('teaching_grade_id')}
-                disabled={isSubmitting}
+                disabled={isSubmitting || isFetchingTeacherGrades}
                 required
               >
                 {teacherGrades.map(
