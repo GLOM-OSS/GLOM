@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PlatformSettings } from '@prisma/client';
+import { PlatformSettings, TeacherType } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 
 export class PlatformSettingsEntity implements PlatformSettings {
@@ -20,5 +20,22 @@ export class PlatformSettingsEntity implements PlatformSettings {
 
   constructor(props: PlatformSettingsEntity) {
     Object.assign(this, props);
+  }
+}
+
+export class TeacherTypeEntity implements TeacherType {
+  @ApiProperty()
+  teacher_type_id: string;
+
+  @ApiProperty()
+  teacher_type: string;
+
+  @ApiProperty()
+  created_at: Date;
+
+  constructor(props: TeacherTypeEntity) {
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
