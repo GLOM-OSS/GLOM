@@ -16,6 +16,7 @@ import {
   Button,
   Checkbox,
   CircularProgress,
+  Collapse,
   Dialog,
   DialogActions,
   DialogContent,
@@ -445,7 +446,17 @@ export default function ManageStaffRolesDialog({
               }
             />
           </Box>
-          <Box sx={{ paddingTop: '12px' }}>
+          <Box
+            component={Collapse}
+            in={
+              (!!annual_teacher_id &&
+                !submitValue.disabledStaffPayload.teacherIds.includes(
+                  annual_teacher_id
+                )) ||
+              (!annual_teacher_id && submitValue.newRoles.includes('TEACHER'))
+            }
+            sx={{ paddingTop: '12px' }}
+          >
             <Typography
               sx={{ color: `${theme.common.titleActive} !important` }}
               className="p1"
