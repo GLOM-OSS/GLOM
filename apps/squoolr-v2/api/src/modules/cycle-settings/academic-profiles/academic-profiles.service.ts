@@ -8,6 +8,7 @@ import { QueryAcademicProfile } from './academic-profile';
 import {
   AcademicProfileEntity,
   CreateAcademicProfileDto,
+  UpdateAcademicProfileDto,
 } from './academic-profile.dto';
 import { CycleSettingMeta } from '../cycle-settings';
 
@@ -36,39 +37,10 @@ export class AcademicProfilesService {
     academic_year_id: string,
     audited_by: string
   ) {
-    if (maximum_point < minimum_point)
-      throw new BadRequestException(
-        'maximum point must be greater than minimum point'
-      );
-    const { weighting_system } =
-      await this.prismaService.annualWeighting.findUniqueOrThrow({
-        where: { academic_year_id_cycle_id: { academic_year_id, cycle_id } },
-      });
-    if (maximum_point > weighting_system)
-      throw new BadRequestException(
-        'maximum point cannot be greater than weighting system'
-      );
-    const profile = await this.prismaService.annualAcademicProfile.findFirst({
-      where: {
-        cycle_id,
-        academic_year_id,
-        is_deleted: false,
-        OR: [
-          { minimum_point: { gte: minimum_point, lte: maximum_point } },
-          { maximum_point: { gte: minimum_point, lte: maximum_point } },
-          {
-            minimum_point: { gte: minimum_point },
-            maximum_point: { lte: maximum_point },
-          },
-          {
-            minimum_point: { lte: minimum_point },
-            maximum_point: { gte: maximum_point },
-          },
-        ],
-      },
+    await this.validateOrThrow(minimum_point, maximum_point, {
+      academic_year_id,
+      cycle_id,
     });
-    if (profile)
-      throw new ConflictException('Academic profile overlapping !!!');
 
     const academicProfile =
       await this.prismaService.annualAcademicProfile.create({
@@ -85,5 +57,46 @@ export class AcademicProfilesService {
       });
 
     return new AcademicProfileEntity(academicProfile);
+  }
+
+  async validateOrThrow(
+    minimum_point: number,
+    maximum_point: number,
+    metaParams: CycleSettingMeta,
+    annual_academic_profile_id?: string
+  ) {
+    if (maximum_point < minimum_point)
+      throw new BadRequestException(
+        'maximum point must be greater than minimum point'
+      );
+    const { weighting_system } =
+      await this.prismaService.annualWeighting.findUniqueOrThrow({
+        where: { academic_year_id_cycle_id: metaParams },
+      });
+    if (maximum_point > weighting_system)
+      throw new BadRequestException(
+        'maximum point cannot be greater than weighting system'
+      );
+    const profile = await this.prismaService.annualAcademicProfile.findFirst({
+      where: {
+        ...metaParams,
+        is_deleted: false,
+        annual_academic_profile_id: { not: annual_academic_profile_id ?? null },
+        OR: [
+          { minimum_point: { gte: minimum_point, lte: maximum_point } },
+          { maximum_point: { gte: minimum_point, lte: maximum_point } },
+          {
+            minimum_point: { gte: minimum_point },
+            maximum_point: { lte: maximum_point },
+          },
+          {
+            minimum_point: { lte: minimum_point },
+            maximum_point: { gte: maximum_point },
+          },
+        ],
+      },
+    });
+    if (profile)
+      throw new ConflictException('Academic profile overlapping !!!');
   }
 }
