@@ -121,7 +121,7 @@ export default function CompleteTeacherInfoDialog({
     <Dialog
       TransitionComponent={DialogTransition}
       open={isDialogOpen}
-      onClose={() => (isSubmitting ? null : close())}
+      onClose={() => null}
       sx={{
         '& .MuiPaper-root': {
           padding: { laptop: '2% 10%', mobile: 0 },
