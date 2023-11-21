@@ -16,3 +16,13 @@ export type PlatformSettingsEntity = SchemaResponseBody<
   operations,
   'AppController_getPlatformSettings'
 >;
+
+export type TeacherTypeEntity = SchemaResponseBody<
+  operations,
+  'AppController_getTeacherTypes'
+>;
+
+export type TeachingGradeEntity = SchemaResponseBody<
+  operations,
+  'AppController_getTeachingGrades'
+>;
