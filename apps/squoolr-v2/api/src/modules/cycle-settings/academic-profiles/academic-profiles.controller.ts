@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -72,6 +73,22 @@ export class AcademicProfilesController {
     return this.academicProfilesService.update(
       academicProfileId,
       academicPayload,
+      annual_registry_id
+    );
+  }
+
+  @ApiOkResponse()
+  @Roles(Role.REGISTRY)
+  @Delete(':annual_academic_profile_id')
+  deleteAcademicProfile(
+    @Req() request: Request,
+    @Param('annual_academic_profile_id') academicProfileId: string
+  ) {
+    const {
+      annualRegistry: { annual_registry_id },
+    } = request.user;
+    return this.academicProfilesService.delete(
+      academicProfileId,
       annual_registry_id
     );
   }

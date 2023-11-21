@@ -20,6 +20,7 @@ export class AcademicProfilesService {
   async findAll(metaParams: QueryAcademicProfile) {
     const academicProfiles =
       await this.prismaService.annualAcademicProfile.findMany({
+        orderBy: { maximum_point: 'desc' },
         where: { ...metaParams, is_deleted: false },
       });
 
@@ -87,6 +88,31 @@ export class AcademicProfilesService {
               'created_at',
               'created_by',
             ]),
+            AuditedBy: { connect: { annual_registry_id: audited_by } },
+          },
+        },
+      },
+      where: { annual_academic_profile_id },
+    });
+  }
+
+  async delete(annual_academic_profile_id: string, audited_by: string) {
+    const academicProfile =
+      await this.prismaService.annualAcademicProfile.findFirstOrThrow({
+        select: {
+          comment: true,
+          is_deleted: true,
+          maximum_point: true,
+          minimum_point: true,
+        },
+        where: { annual_academic_profile_id, is_deleted: false },
+      });
+    await this.prismaService.annualAcademicProfile.update({
+      data: {
+        is_deleted: true,
+        AnnualAcademicProfileAudits: {
+          create: {
+            ...academicProfile,
             AuditedBy: { connect: { annual_registry_id: audited_by } },
           },
         },
