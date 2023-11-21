@@ -19,6 +19,7 @@ import { ConfirmDialog } from '@glom/components';
 import AddStaffDialog from './AddStaffDialog';
 import StaffDetailsDialog from './StaffDetailsDialog';
 import AddTeacherDialog from './AddTeacherDialog';
+import ManageStaffRolesDialog from './ManageStaffRolesDialog';
 
 export default function StaffRow({
   staff: {
@@ -119,6 +120,8 @@ export default function StaffRow({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] =
     useState<boolean>(false);
+  const [isManageRolesDialogOpen, setIsManageRolesDialogOpen] =
+    useState<boolean>(false);
 
   return (
     <>
@@ -130,11 +133,16 @@ export default function StaffRow({
         editStaff={() => setIsEditDialogOpen(true)}
         isOpen={!!anchorEl}
         openDetails={() => setIsDetailsDialogOpen(true)}
-        manageRoles={() => alert('manage roles')}
+        manageRoles={() => setIsManageRolesDialogOpen(true)}
         resetPassword={() => setIsConfirmResetPasswordDialogOpen(true)}
         resetPrivateCode={() => setIsConfirmResetPrivateCodeDialogOpen(true)}
         isArchived={showArchived}
         staffRoles={roles}
+      />
+      <ManageStaffRolesDialog
+        isDialogOpen={isManageRolesDialogOpen}
+        closeDialog={() => setIsManageRolesDialogOpen(false)}
+        staff={staff}
       />
       <AddStaffDialog
         closeDialog={() => setIsEditDialogOpen(false)}
