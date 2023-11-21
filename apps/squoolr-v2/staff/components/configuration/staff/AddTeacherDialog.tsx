@@ -177,6 +177,9 @@ export default function AddTeacherDialog({
               ...(staff.annual_registry_id
                 ? { annual_registry_id: staff.annual_registry_id }
                 : {}),
+              ...(staff.annual_teacher_id
+                ? { annual_registry_id: staff.annual_teacher_id }
+                : {}),
             }
           : {}),
       };
