@@ -1,4 +1,9 @@
-import { ApiHideProperty, ApiProperty, PartialType } from '@nestjs/swagger';
+import {
+  ApiHideProperty,
+  ApiProperty,
+  OmitType,
+  PartialType,
+} from '@nestjs/swagger';
 import { AnnualGradeWeighting } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 import { IsNumber, IsPositive, IsString, Length, Max } from 'class-validator';
@@ -33,9 +38,9 @@ export class CreateGradeWeightingDto {
   }
 }
 
-export class UpdateCreateWeightingDto extends PartialType(
-  CreateGradeWeightingDto
-) {}
+export class UpdateGradeWeightingDto extends OmitType(CreateGradeWeightingDto, [
+  'cycle_id',
+]) {}
 
 export class GradeWeightingEntity
   extends CreateGradeWeightingDto

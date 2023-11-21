@@ -2,7 +2,9 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -14,6 +16,7 @@ import { QueryWeightingSettingsDto } from '../cycle-settings.dto';
 import {
   CreateGradeWeightingDto,
   GradeWeightingEntity,
+  UpdateGradeWeightingDto,
 } from './grade-weighting.dto';
 import { GradeWeightingsService } from './grade-weightings.service';
 import { Roles } from '../../../app/auth/auth.decorator';
@@ -54,6 +57,24 @@ export class GradeWeightingsController {
     return this.gradeWeightingsService.create(
       newGradeWeighting,
       academic_year_id,
+      annual_registry_id
+    );
+  }
+
+  @ApiOkResponse()
+  @Roles(Role.REGISTRY)
+  @Put(':annual_grade_weighting_id')
+  updateGradeWeighting(
+    @Req() request: Request,
+    @Param('annual_grade_weighting_id') annualGradeWeightingId: string,
+    @Body() updatePayload: UpdateGradeWeightingDto
+  ) {
+    const {
+      annualRegistry: { annual_registry_id },
+    } = request.user;
+    return this.gradeWeightingsService.update(
+      annualGradeWeightingId,
+      updatePayload,
       annual_registry_id
     );
   }

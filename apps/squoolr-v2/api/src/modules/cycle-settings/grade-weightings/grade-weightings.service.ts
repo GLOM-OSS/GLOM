@@ -1,4 +1,5 @@
 import { GlomPrismaService } from '@glom/prisma';
+import { excludeKeys } from '@glom/utils';
 import {
   BadRequestException,
   ConflictException,
@@ -8,6 +9,7 @@ import { CycleSettingMeta, QueryWeightingSettings } from '../cycle-settings';
 import {
   CreateGradeWeightingDto,
   GradeWeightingEntity,
+  UpdateGradeWeightingDto,
 } from './grade-weighting.dto';
 
 @Injectable()
@@ -46,6 +48,38 @@ export class GradeWeightingsService {
       }
     );
     return new GradeWeightingEntity(gradeWeighting);
+  }
+
+  async update(
+    annual_grade_weighting_id: string,
+    updatePayload: UpdateGradeWeightingDto,
+    audited_by: string
+  ) {
+    const { academic_year_id, cycle_id, ...gradeWeighting } =
+      await this.prismaService.annualGradeWeighting.findFirst({
+        where: { annual_grade_weighting_id, is_deleted: true },
+      });
+    await this.validateOrThrow(
+      updatePayload,
+      { academic_year_id, cycle_id },
+      annual_grade_weighting_id
+    );
+    await this.prismaService.annualGradeWeighting.update({
+      data: {
+        ...updatePayload,
+        AnnualGradeWeightingAudits: {
+          create: {
+            ...excludeKeys(gradeWeighting, [
+              'annual_grade_weighting_id',
+              'created_at',
+              'created_by',
+            ]),
+            AuditedBy: { connect: { annual_registry_id: audited_by } },
+          },
+        },
+      },
+      where: { annual_grade_weighting_id },
+    });
   }
 
   async validateOrThrow(
