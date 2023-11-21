@@ -1,10 +1,13 @@
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { AnnualAcademicProfile } from '@prisma/client';
 import { Exclude } from 'class-transformer';
-import { IsNumber, IsPositive, IsString } from 'class-validator';
-import { QueryCycleSettingsDto } from '../cycle-settings.dto';
+import { IsPositive, IsString } from 'class-validator';
 
 export class CreateAcademicProfileDto {
+  @IsString()
+  @ApiProperty()
+  cycle_id: string;
+
   @IsPositive()
   @ApiProperty()
   minimum_point: number;
@@ -31,9 +34,6 @@ export class AcademicProfileEntity
 
   @ApiProperty()
   created_at: Date;
-
-  @ApiProperty()
-  cycle_id: string;
 
   @ApiProperty()
   academic_year_id: string;
