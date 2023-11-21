@@ -649,15 +649,7 @@ export default function AddTeacherDialog({
               label={formatMessage({ id: 'hasTaxPayersCard' })}
             />
           </Box>
-          <DialogActions
-            sx={{
-              justifyContent: 'center',
-              display: 'grid',
-              gridAutoFlow: 'column',
-              columnGap: '20px',
-              padding: '30px 0 0 0 !important',
-            }}
-          >
+          <DialogActions>
             <Button
               color="inherit"
               variant="outlined"
