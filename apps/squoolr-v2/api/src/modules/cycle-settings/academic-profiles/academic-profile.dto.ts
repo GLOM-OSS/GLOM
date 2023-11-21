@@ -33,7 +33,7 @@ export class CreateAcademicProfileDto {
 }
 
 export class UpdateAcademicProfileDto extends OmitType(
-  PartialType(CreateAcademicProfileDto),
+  CreateAcademicProfileDto,
   ['cycle_id']
 ) {}
 
