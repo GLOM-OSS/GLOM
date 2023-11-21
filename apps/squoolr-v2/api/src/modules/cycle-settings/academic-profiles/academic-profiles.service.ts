@@ -16,11 +16,15 @@ import {
 export class AcademicProfilesService {
   constructor(private prismaService: GlomPrismaService) {}
 
-  async findAll(metaParams: QueryWeightingSettings) {
+  async findAll({ weighting_system, ...metaParams }: QueryWeightingSettings) {
     const academicProfiles =
       await this.prismaService.annualAcademicProfile.findMany({
         orderBy: { maximum_point: 'desc' },
-        where: { ...metaParams, is_deleted: false },
+        where: {
+          ...metaParams,
+          is_deleted: false,
+          maximum_point: { lte: weighting_system },
+        },
       });
 
     return academicProfiles.map(

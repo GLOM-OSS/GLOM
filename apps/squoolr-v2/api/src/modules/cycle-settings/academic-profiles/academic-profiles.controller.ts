@@ -13,7 +13,7 @@ import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles } from '../../../app/auth/auth.decorator';
 import { Role } from '../../../utils/enums';
-import { UpdateWeightingSystemDto } from '../cycle-settings.dto';
+import { QueryWeightingSettingsDto } from '../cycle-settings.dto';
 import {
   AcademicProfileEntity,
   CreateAcademicProfileDto,
@@ -30,7 +30,7 @@ export class AcademicProfilesController {
   @ApiOkResponse({ type: [AcademicProfileEntity] })
   getAcademicProfiles(
     @Req() request: Request,
-    @Query() params: UpdateWeightingSystemDto
+    @Query() params: QueryWeightingSettingsDto
   ) {
     const {
       activeYear: { academic_year_id },

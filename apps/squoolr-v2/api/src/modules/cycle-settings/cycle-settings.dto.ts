@@ -203,6 +203,8 @@ export class UpdateWeightingSystemDto extends QueryCycleSettingsDto {
   }
 }
 
+export class QueryWeightingSettingsDto extends UpdateWeightingSystemDto {}
+
 export class WeightingSystemEntity
   extends UpdateWeightingSystemDto
   implements AnnualWeighting
