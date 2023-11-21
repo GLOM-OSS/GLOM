@@ -1,5 +1,6 @@
 import { DialogTransition } from '@glom/components';
 import {
+  ClassroomEntity,
   ManageStaffRolesPayload,
   StaffEntity,
   StaffRole,
@@ -8,15 +9,21 @@ import { useTheme } from '@glom/theme';
 import checked from '@iconify/icons-fluent/checkbox-checked-16-filled';
 import unchecked from '@iconify/icons-fluent/checkbox-unchecked-16-filled';
 import { Icon } from '@iconify/react';
+import { ArrowDropDown } from '@mui/icons-material';
 import {
+  Autocomplete,
   Box,
+  Button,
   Checkbox,
+  CircularProgress,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogTitle,
+  TextField,
   Typography,
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import CompleteTeacherInfoDialog from './CompleteTeacherInfoDialog';
 
@@ -34,7 +41,11 @@ export default function ManageStaffRolesDialog({
   const theme = useTheme();
   const [submitValue, setSubmitValue] = useState<ManageStaffRolesPayload>({
     newRoles: [],
-    coordinatorPayload: { annualClassroomIds: [] },
+    coordinatorPayload: {
+      annualClassroomIds: [
+        ...(!!staff.annualClassroomIds ? staff.annualClassroomIds : []),
+      ],
+    },
     disabledStaffPayload: {
       configuratorIds: [],
       teacherIds: [],
@@ -58,7 +69,6 @@ export default function ManageStaffRolesDialog({
 
   function confirmNewTeacherRole(
     data?: ManageStaffRolesPayload['teacherPayload']
-    // close?: boolean
   ) {
     const doesTeacherDataExist =
       !!submitValue.teacherPayload.hourly_rate &&
@@ -93,7 +103,7 @@ export default function ManageStaffRolesDialog({
       case 'TEACHER': {
         if (!!annual_teacher_id) {
           if (
-            submitValue.disabledStaffPayload.registryIds.includes(
+            submitValue.disabledStaffPayload.teacherIds.includes(
               annual_teacher_id
             )
           )
@@ -196,6 +206,92 @@ export default function ManageStaffRolesDialog({
     }
   }
 
+  //TODO: REMOVE THIS DURING INTEGRATION. USE reactQuery own
+  const [isFetchingClassrooms, setIsFetchingClassrooms] =
+    useState<boolean>(false);
+  //TODO: CALL API HERE TO FETCH CLASSROOMS
+  const [classrooms, setClassrooms] = useState<ClassroomEntity[]>([
+    {
+      annual_classroom_id: 'wieos',
+      annual_coordinator_id: '',
+      annual_major_id: '',
+      classroom_acronym: 'IRT',
+      classroom_id: 'clesan',
+      classroom_level: 2,
+      classroom_name: 'Informatique Reseau telecommunications',
+      created_at: new Date().toISOString(),
+      is_deleted: false,
+      number_of_divisions: 1,
+    },
+    {
+      annual_classroom_id: 'wsieos',
+      annual_coordinator_id: '',
+      annual_major_id: '',
+      classroom_acronym: 'IMB',
+      classroom_id: 'clesan',
+      classroom_level: 3,
+      classroom_name: 'Ingenieurie, Biomedical',
+      created_at: new Date().toISOString(),
+      is_deleted: false,
+      number_of_divisions: 1,
+    },
+  ]);
+
+  const [newClassrooms, setNewClassrooms] = useState<ClassroomEntity[]>([]);
+
+  useEffect(() => {
+    if (!!classrooms && !!staff.annualClassroomIds) {
+      setNewClassrooms(
+        classrooms.filter(({ annual_classroom_id: ac_id }) =>
+          staff.annualClassroomIds.includes(ac_id)
+        )
+      );
+    }
+  }, [classrooms, staff.annualClassroomIds, isDialogOpen]);
+
+  function submitDialog() {
+    const submitValues: ManageStaffRolesPayload = {
+      ...submitValue,
+      coordinatorPayload: {
+        annualClassroomIds: newClassrooms.map(
+          ({ annual_classroom_id }) => annual_classroom_id
+        ),
+      },
+    };
+
+    setIsSubmitting(true);
+    //TODO: CALL API HERE TO MANAGE ROLES WITH DATA submitValues
+    setTimeout(() => {
+      alert('SUBMITTED DATA SUCCESSFULLY');
+      setIsSubmitting(false);
+      alert(JSON.stringify(submitValues));
+      close();
+    }, 3000);
+  }
+
+  function close() {
+    setSubmitValue({
+      newRoles: [],
+      coordinatorPayload: { annualClassroomIds: [] },
+      disabledStaffPayload: {
+        configuratorIds: [],
+        registryIds: [],
+        teacherIds: [],
+      },
+      teacherPayload: {
+        role: 'TEACHER',
+        has_signed_convention: false,
+        has_tax_payers_card: false,
+        hourly_rate: 0,
+        origin_institute: '',
+        teacher_type_id: '',
+        teaching_grade_id: '',
+      },
+    });
+    setNewClassrooms([]);
+    closeDialog();
+  }
+
   return (
     <>
       <CompleteTeacherInfoDialog
@@ -213,12 +309,14 @@ export default function ManageStaffRolesDialog({
         }}
         TransitionComponent={DialogTransition}
         open={isDialogOpen && !isCompleteInfoDialogOpen}
-        onClose={closeDialog}
+        onClose={close}
       >
         <DialogTitle>
           <>
             {formatMessage({ id: 'manageRoles' })}
-            <Typography>attribute and remove roles here</Typography>
+            <Typography>
+              {formatMessage({ id: 'manageRolesSubHeading' })}
+            </Typography>
           </>
         </DialogTitle>
         <DialogContent>
@@ -347,6 +445,81 @@ export default function ManageStaffRolesDialog({
               }
             />
           </Box>
+          <Box sx={{ paddingTop: '12px' }}>
+            <Typography
+              sx={{ color: `${theme.common.titleActive} !important` }}
+              className="p1"
+            >
+              {formatMessage({ id: 'coordinator' })}
+            </Typography>
+            <Typography variant="body2" sx={{ marginBottom: 1 }}>
+              {formatMessage({ id: 'selectedCoordinatedClassrooms' })}
+            </Typography>
+            <Autocomplete
+              multiple
+              options={classrooms ?? []}
+              autoHighlight
+              size="small"
+              disabled={isSubmitting || !classrooms || isFetchingClassrooms}
+              value={newClassrooms}
+              popupIcon={
+                isFetchingClassrooms ? (
+                  <CircularProgress color="primary" size={18} />
+                ) : (
+                  <ArrowDropDown />
+                )
+              }
+              getOptionLabel={(option) => {
+                const { classroom_acronym, classroom_level } =
+                  option as ClassroomEntity;
+                return `${classroom_acronym} ${classroom_level}`;
+              }}
+              renderOption={(
+                props,
+                { classroom_acronym, classroom_level, annual_classroom_id }
+              ) => {
+                return (
+                  <Typography
+                    {...props}
+                    key={annual_classroom_id}
+                    component="li"
+                  >{`${classroom_acronym} ${classroom_level}`}</Typography>
+                );
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder={formatMessage({ id: 'selectClassrooms' })}
+                  inputProps={{
+                    ...params.inputProps,
+                    autoComplete: 'autocomplete',
+                  }}
+                />
+              )}
+              onChange={(e, val) => setNewClassrooms(val)}
+            />
+          </Box>
+          <DialogActions>
+            <Button
+              color="inherit"
+              variant="outlined"
+              onClick={() => (isSubmitting ? null : close())}
+              disabled={isSubmitting}
+            >
+              {formatMessage({ id: 'cancel' })}
+            </Button>
+            <Button
+              color="primary"
+              variant="contained"
+              disabled={isSubmitting}
+              onClick={submitDialog}
+              startIcon={
+                isSubmitting && <CircularProgress color="primary" size={18} />
+              }
+            >
+              {formatMessage({ id: 'save' })}
+            </Button>
+          </DialogActions>
         </DialogContent>
       </Dialog>
     </>
