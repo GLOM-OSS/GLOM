@@ -1,6 +1,10 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
-import { PlatformSettingsEntity, TeacherTypeEntity } from './app.dto';
+import {
+  PlatformSettingsEntity,
+  TeacherTypeEntity,
+  TeachingGradeEntity,
+} from './app.dto';
 
 @Injectable()
 export class AppService {
@@ -20,6 +24,13 @@ export class AppService {
     const teacherTypes = await this.prismaService.teacherType.findMany();
     return teacherTypes.map(
       (teacherType) => new TeacherTypeEntity(teacherType)
+    );
+  }
+
+  async getTeachingGrades() {
+    const teacherGrades = await this.prismaService.teachingGrade.findMany();
+    return teacherGrades.map(
+      (teacherGrade) => new TeachingGradeEntity(teacherGrade)
     );
   }
 }
