@@ -4,6 +4,10 @@ import { Exclude } from 'class-transformer';
 import { IsNumber, IsPositive, IsString, Length, Max } from 'class-validator';
 
 export class CreateGradeWeightingDto {
+  @IsString()
+  @ApiProperty()
+  cycle_id: string;
+
   @Max(99)
   @IsPositive()
   @ApiProperty()
@@ -42,9 +46,6 @@ export class GradeWeightingEntity
 
   @ApiProperty()
   created_at: Date;
-
-  @ApiProperty()
-  cycle_id: string;
 
   @ApiProperty()
   academic_year_id: string;
