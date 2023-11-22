@@ -265,6 +265,12 @@ export class StaffService {
             ],
       []
     );
+    let isRequiringMoreData = false;
+    if (addedRoles.includes(StaffRole.TEACHER)) {
+      isRequiringMoreData = !(await this.prismaService.annualTeacher.findFirst({
+        where: { academic_year_id, login_id },
+      }));
+    }
     await Promise.all(
       addedRoles.map(async (role) => {
         const matricule = await this.codeGenerator.getPersonnelCode(
@@ -275,32 +281,45 @@ export class StaffService {
           this.codeGenerator.formatNumber(Math.floor(Math.random() * 10000)),
           Number(process.env.SALT)
         );
-        if (role === StaffRole.TEACHER && !teacherPayload)
-          throw new BadGatewayException(
-            `Teacher role cannot exist without teacherPayload. Please complete teacher's information`
-          );
-        return this.staffServices[role]
-          .createFrom(
-            login_id,
-            {
-              matricule,
-              private_code,
-              academic_year_id,
-              ...(teacherPayload ? excludeKeys(teacherPayload, ['role']) : {}),
-            },
-            audited_by
-          )
-          .then((staff) => {
-            if (coordinatorPayload && role === StaffRole.TEACHER)
-              this.update(
-                staff.annual_teacher_id,
-                {
-                  role: StaffRole.COORDINATOR,
-                  annualClassroomIds: coordinatorPayload.annualClassroomIds,
-                },
-                audited_by
-              );
-          });
+        if (role === StaffRole.TEACHER) {
+          const disabledTeacher =
+            await this.prismaService.annualTeacher.findFirst({
+              where: { academic_year_id, login_id, is_deleted: true },
+            });
+          if (!disabledTeacher && !teacherPayload) {
+            isRequiringMoreData = true;
+            return;
+          }
+          return this.staffServices[role]
+            .createFrom(
+              login_id,
+              {
+                matricule,
+                private_code,
+                academic_year_id,
+                ...(teacherPayload
+                  ? excludeKeys(teacherPayload, ['role'])
+                  : {}),
+              },
+              audited_by
+            )
+            .then((staff) => {
+              if (coordinatorPayload && role === StaffRole.TEACHER)
+                this.update(
+                  staff.annual_teacher_id,
+                  {
+                    role: StaffRole.COORDINATOR,
+                    annualClassroomIds: coordinatorPayload.annualClassroomIds,
+                  },
+                  audited_by
+                );
+            });
+        }
+        return this.staffServices[role].createFrom(
+          login_id,
+          { matricule, private_code, academic_year_id },
+          audited_by
+        );
       })
     );
     const totalUpdateRecords =
@@ -314,6 +333,9 @@ export class StaffService {
     return new BatchPayloadDto({
       count: totalUpdateRecords,
       message: `Updated ${totalUpdateRecords} records in database`,
+      next_action: isRequiringMoreData
+        ? "Requires teacher's payload"
+        : undefined,
     });
   }
 
