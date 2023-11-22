@@ -60,14 +60,14 @@ export class SchoolsController {
   @ApiCreatedResponse({ type: SchoolEntity })
   submitDemand(@Body() schoolDemandPayload: SubmitSchoolDemandDto) {
     const {
-      payment_phone,
+      payment_id,
       school: { referral_code },
     } = schoolDemandPayload;
-    if (payment_phone && referral_code)
+    if (payment_id && referral_code)
       throw new BadRequestException(
         'payment number and referral code cannot be both provided'
       );
-    if (!payment_phone && !referral_code)
+    if (!payment_id && !referral_code)
       throw new BadRequestException(
         'please provide payment number or referral code'
       );
@@ -87,7 +87,11 @@ export class SchoolsController {
       throw new BadRequestException(
         'rejection_reason and subdomain cannot coexist'
       );
-    return this.schoolsService.validateDemand(schoolId, validatedDemand, userId);
+    return this.schoolsService.validateDemand(
+      schoolId,
+      validatedDemand,
+      userId
+    );
   }
 
   @Put(':school_id/status')

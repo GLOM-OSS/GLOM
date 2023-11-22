@@ -122,18 +122,11 @@ export class SchoolsService {
     return schools.map((school) => getSchoolEntity(school));
   }
 
-  private async payOnboardingFee(phone: string) {
-    const settings =
-      await this.prismaService.platformSettings.findFirstOrThrow();
-    const newPayment = await this.notchPayService.initiatePayment({
-      amount: settings.onboarding_fee,
-      phone,
+  private async verifyPayment(payment_id: string) {
+    const payment = await this.prismaService.payment.findUniqueOrThrow({
+      where: { payment_id },
     });
-    await this.notchPayService.completePayment(newPayment.reference, {
-      channel: 'cm.mobile',
-      phone,
-    });
-    return newPayment;
+    return this.notchPayService.verifyPayment(payment.payment_ref);
   }
 
   private async getFistAcademicYearSetup({
@@ -222,7 +215,7 @@ export class SchoolsService {
 
   async create(demandpayload: SubmitSchoolDemandDto) {
     const {
-      payment_phone,
+      payment_id,
       school: {
         school_email,
         school_phone_number,
@@ -239,20 +232,10 @@ export class SchoolsService {
       data: { school_code },
     } = await this.getFistAcademicYearSetup(demandpayload);
 
-    let payment_ref: string;
-    let onboarding_fee: number;
-    if (payment_phone) {
-      const payment = await this.payOnboardingFee(payment_phone).catch(
-        (error: AxiosError) => {
-          throw new UnprocessableEntityException(
-            `Payment failed for: ${
-              error.response.data['message'] || error.message
-            }`
-          );
-        }
-      );
-      payment_ref = payment.reference;
-      onboarding_fee = payment.amount;
+    if (payment_id) {
+      const payment = await this.verifyPayment(payment_id);
+      if (payment.status !== 'complete')
+        throw new UnprocessableEntityException('Payment was not completed');
     }
     const [school] = await this.prismaService.$transaction([
       this.prismaService.school.create({
@@ -272,15 +255,10 @@ export class SchoolsService {
           },
           SchoolDemand: {
             create: {
-              ...(payment_phone
+              ...(payment_id
                 ? {
                     Payment: {
-                      create: {
-                        payment_ref,
-                        provider: 'NotchPay',
-                        amount: onboarding_fee,
-                        payment_reason: 'Onboarding',
-                      },
+                      connect: { payment_id },
                     },
                   }
                 : { Ambassador: { connect: { referral_code } } }),

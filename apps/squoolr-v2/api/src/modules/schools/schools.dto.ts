@@ -62,7 +62,7 @@ export class SubmitSchoolDemandDto {
   @IsString()
   @IsOptional()
   @ApiPropertyOptional()
-  payment_phone?: string;
+  payment_id?: string;
 
   @IsNotEmptyObject()
   @ValidateNested()
