@@ -34,6 +34,8 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
 import { StaffModule } from '../modules/staff/staff.module';
+import { PaymentsModule } from '../modules/payments/payments.module';
+import { GlomPaymentModule } from '@glom/payment';
 
 @Module({
   imports: [
@@ -54,7 +56,20 @@ import { StaffModule } from '../modules/staff/staff.module';
       isGlobal: true,
       // seedData,
     }),
+    GlomPaymentModule.forRoot({
+      isGlobal: true,
+      aggrConfigs: [
+        {
+          aggr: 'notchpay',
+          options: {
+            apiKey: process.env.NOTCH_API_KEY,
+            endpoint: 'api.notchpay.co',
+          },
+        },
+      ],
+    }),
     AuthModule,
+    PaymentsModule,
     SchoolsModule,
     AcademicYearsModule,
     InquiriesModule,
