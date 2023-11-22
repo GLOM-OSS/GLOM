@@ -36,3 +36,17 @@ export class PaymentEntity implements Payment {
     });
   }
 }
+
+export class InitPaymentResponse {
+  @ApiProperty({ type: PaymentEntity })
+  payment: PaymentEntity;
+
+  @ApiProperty()
+  authorization_url: string;
+
+  constructor(props: InitPaymentResponse) {
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
+  }
+}
