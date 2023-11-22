@@ -19,6 +19,7 @@ import {
   QueryCycleSettingsDto,
   UpdateEvaluaTypeDto,
   UpdateExamAcessSettingDto,
+  UpdateMajorSettingsDto,
   UpdateModuleSettingDto,
   UpdateWeightingSystemDto,
   WeightingSystemEntity,
@@ -159,6 +160,22 @@ export class CycleSettingsController {
     return this.cyleSettingsService.updateWeightingSystem(
       weighting_system,
       { academic_year_id, cycle_id },
+      annual_registry_id
+    );
+  }
+
+  @ApiOkResponse()
+  @Roles(Role.REGISTRY)
+  @Put('major-settings')
+  async updateMajorSettings(
+    @Req() request: Request,
+    @Body() majorSettings: UpdateMajorSettingsDto
+  ) {
+    const {
+      annualRegistry: { annual_registry_id },
+    } = request.user;
+    return this.cyleSettingsService.updateMajorSettings(
+      majorSettings,
       annual_registry_id
     );
   }

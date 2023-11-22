@@ -15,6 +15,7 @@ import { Exclude, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayMinSize,
+  IsBoolean,
   IsEnum,
   IsIn,
   IsNumber,
@@ -228,4 +229,14 @@ export class WeightingSystemEntity
       if (key in this) this[key] = value;
     });
   }
+}
+
+export class UpdateMajorSettingsDto {
+  @IsBoolean()
+  @ApiProperty()
+  uses_module_system: boolean;
+
+  @IsString({ each: true })
+  @ApiProperty({ type: [String] })
+  annualMajorIds: string[];
 }

@@ -9,6 +9,7 @@ import {
   EvaluationTypeEntity,
   ExamAccessSettingEntitty,
   ModuleSettingEntity,
+  UpdateMajorSettingsDto,
   WeightingSystemEntity,
 } from './cycle-settings.dto';
 import { Injectable } from '@nestjs/common';
@@ -216,5 +217,33 @@ export class CycleSettingsService {
       },
       where: { academic_year_id_cycle_id: metaParams },
     });
+  }
+
+  async updateMajorSettings(
+    { annualMajorIds, uses_module_system }: UpdateMajorSettingsDto,
+    audited_by: string
+  ) {
+    const annualMajors = await this.prismaService.annualMajor.findMany({
+      select: {
+        annual_major_id: true,
+        major_acronym: true,
+        major_name: true,
+        uses_module_system: true,
+        is_deleted: true,
+      },
+      where: { annual_major_id: { in: annualMajorIds } },
+    });
+    await this.prismaService.$transaction([
+      this.prismaService.annualMajor.updateMany({
+        data: { uses_module_system },
+        where: { annual_major_id: { in: annualMajorIds } },
+      }),
+      this.prismaService.annualMajorAudit.createMany({
+        data: annualMajors.map((annualMajor) => ({
+          ...annualMajor,
+          teaching_system_audited_by: audited_by,
+        })),
+      }),
+    ]);
   }
 }
