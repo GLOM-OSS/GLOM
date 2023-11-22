@@ -2,17 +2,10 @@ import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { randomUUID } from 'crypto';
-import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import { CreateMajorPayload, UpdateMajorPayload } from './major';
 import { AnnualMajorEntity, QueryMajorDto } from './major.dto';
 
 export const annualMajorSelect = Prisma.validator<Prisma.AnnualMajorSelect>()({
-  annual_major_id: true,
-  major_name: true,
-  major_acronym: true,
-  major_id: true,
-  created_at: true,
-  is_deleted: true,
   Major: { select: { Cycle: true } },
   Department: {
     select: { department_id: true, department_acronym: true },
@@ -25,7 +18,7 @@ export class MajorsService {
 
   async findAll(academic_year_id: string, params?: QueryMajorDto) {
     const annualMajors = await this.prismaService.annualMajor.findMany({
-      select: annualMajorSelect,
+      include: annualMajorSelect,
       where: {
         academic_year_id,
         OR: params
@@ -56,7 +49,7 @@ export class MajorsService {
       Department: department,
       ...major
     } = await this.prismaService.annualMajor.findUniqueOrThrow({
-      select: annualMajorSelect,
+      include: annualMajorSelect,
       where: { annual_major_id },
     });
     return new AnnualMajorEntity({ cycle, ...major, ...department });
@@ -103,7 +96,7 @@ export class MajorsService {
           major_acronym,
           Major: {
             create: {
-              Cycle: { connect: { cycle_id } }, 
+              Cycle: { connect: { cycle_id } },
               CreatedBy: {
                 connect: { annual_configurator_id: created_by },
               },

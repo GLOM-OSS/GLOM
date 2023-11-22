@@ -60,6 +60,9 @@ export class AnnualMajorEntity extends OmitType(CreateMajorDto, ['cycle_id']) {
   created_at: Date;
 
   @ApiProperty()
+  uses_module_system: boolean;
+
+  @ApiProperty()
   is_deleted: boolean;
 
   constructor(props: AnnualMajorEntity) {
