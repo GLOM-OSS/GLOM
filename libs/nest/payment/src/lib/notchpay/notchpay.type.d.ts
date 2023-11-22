@@ -23,6 +23,19 @@ export type CompletePaymentPayload = {
   phone: string;
 };
 
+export type NotchPaymentStatus =
+  | 'pending'
+  | 'failed'
+  | 'complete'
+  | 'rejected'
+  | 'canceled'
+  | 'abandoned'
+  | 'expired'
+  | 'hold'
+  | 'incomplete'
+  | 'processing'
+  | 'refunded';
+
 export type NotchpayTransaction = {
   fee: number;
   amount: number;
@@ -32,7 +45,7 @@ export type NotchpayTransaction = {
   description: string;
   reference: string;
   merchant_reference: string;
-  status: 'pending';
+  status: NotchPaymentStatus;
   currency: string;
   initiated_at: string;
   updated_at: string;
