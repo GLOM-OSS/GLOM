@@ -515,4 +515,76 @@ export const website = {
   disciplineManagement: 'Discipline Management',
   parentsPlatform: 'Parents Platform',
   allFunctionalities: 'All Functionalities',
+
+  welcomeBackAdmin: 'Welcome Back Admin!',
+  welcomeBackStaff: 'Welcome Back Staff!',
+  pleaseEnterYourDetails: 'Please enter your details',
+  login: 'Login',
+
+  showPassword: 'Show password',
+  hidePassword: 'Hide password',
+  newPassword: 'New password',
+  enterYourNewPassword: 'Enter Your New Password',
+
+  hideSideNav: 'Hide',
+  showSideNav: 'Expand',
+  byGlom: 'By GLOM LLC',
+
+  noTitleAvailable: 'No Title Available',
+  demand: 'Demand',
+  overview: 'Overview',
+
+  nothingToDisplay: 'Nothing to display',
+  processing: 'Processing',
+  suspended: 'Suspended',
+  'code#': 'Code#',
+  filter: 'Filter',
+  reload: 'Reload',
+  lost: 'Lost',
+
+  starts_at: 'First academic year start date',
+  ends_at: 'First Academic year estimated end date',
+  lead_funnel: 'Lead Funnel',
+  ambassador_email: 'Ambassador Email',
+  configuratorInformation: 'Configurator Information',
+
+  confirmSuspendSchoolDialogMessage:
+    " This action will cut all access to the school's platform! Are you sure you want to suspend this school?",
+  suspend: 'Suspend',
+  yesSuspend: 'Yes, suspend',
+  fromSquoolr: 'from Squoolr?',
+  name: 'Name',
+  lastConnected: 'Last Connected',
+  disableAccounts: 'Disable Accounts',
+  disableAccount: 'Disable account',
+  resetPasswords: 'Reset Passwords',
+  resetConfiguratorPasswordDialogMessage:
+    "This action will send a reset password link to the configurator's email for them to reset their password! Are you sure you want to continue?",
+  resetConfiguratorPasswordsDialogMessage:
+    'This action will send a reset password link to selected configurators emails for them to reset their password! Are you sure you want to continue?',
+  disableConfiguratorAccountDialogMessage:
+    'This action will prevent the configurator from accessing their account! Are you sure you want to disable this account?',
+  disableConfiguratorAccountsDialogMessage:
+    'This action will prevent these configurators from accessing their accounts! Are you sure you want to disable these accounts?',
+  academicYears: 'Academic Years',
+  configuration: 'Configuration',
+
+  departmentName: 'Department Name',
+  departmentAcronym: 'Department Acronym',
+  createdAt: 'Created At',
+  confirmArchiveDepartmentDialogMessage:
+    "This action will archive this department and all it's sub-entities (majors, classrooms, and subjects) preventing anything from being done. This is dangerous action! Do you still want to archive?",
+  confirmUnarchiveDepartmentDialogMessage:
+    'This action will unarchive this department. Note that all sub-entities need to be unarchived manually. Do you want to continue?',
+  archiveDepartment: 'Archive Department',
+  unarchiveDepartment: 'Unarchive Department',
+
+  unarchiveSelected: 'Unarchive selected departments',
+  archiveSelected: 'Archive selected departments',
+  archiveDepartments: 'Archive Selected Departments',
+  unarchiveDepartments: 'Unarchive Selected Departments',
+  confirmArchiveDepartmentsDialogMessage:
+    'This action will archive these selected departments and all their sub-entities (majors, classrooms, and subjects) preventing anything from being done. This is dangerous action! Do you still want to archive?',
+  confirmUnarchiveDepartmentsDialogMessage:
+    'This action will unarchive these selected departments. Note that all sub-entities need to be unarchived manually. Do you want to continue?',
 };

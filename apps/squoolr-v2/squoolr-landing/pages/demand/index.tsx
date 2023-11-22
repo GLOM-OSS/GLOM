@@ -24,7 +24,7 @@ import SchoolInformation, {
 } from '../../components/demand/forms/SchoolInformation';
 import {
   usePlatformSettings,
-  useSubmitDemand,
+  useSubmitSchoolDemand,
 } from '@glom/data-access/squoolr';
 
 interface IStep {
@@ -43,7 +43,7 @@ export default function Demand() {
 
   const steps: string[] = ['yourInfo', 'schoolInfo', 'ambassador', 'review'];
   const { data: platformSettings } = usePlatformSettings();
-  const [demandCode, setDemandCode] = useState<string>('');
+  const [schoolCode, setSchoolCode] = useState<string>('');
 
   const [personnalData, setPersonnalData] = useState<IPersonalInformation>({
     confirm_password: '',
@@ -79,7 +79,8 @@ export default function Demand() {
     setActiveStep((prev) => (prev > 0 ? prev - 1 : prev));
   }
 
-  const { mutate: submitDemand, isPending: isSubmitting } = useSubmitDemand();
+  const { mutate: submitDemand, isPending: isSubmitting } =
+    useSubmitSchoolDemand();
 
   function handleSubmitDemand() {
     const submitData: SubmitSchoolDemandPayload = {
@@ -90,7 +91,7 @@ export default function Demand() {
     if (referralData.referral_code || validatePhoneNumber(payingPhone) !== -1) {
       submitDemand(submitData, {
         onSuccess(data) {
-          setDemandCode(data.school_code);
+          setSchoolCode(data.school_code);
           handleNext();
         },
       });
@@ -150,7 +151,7 @@ export default function Demand() {
     3: {
       description: (
         <ReviewDescription
-          isSubmitting={isSubmitting || !!demandCode}
+          isSubmitting={isSubmitting || !!schoolCode}
           payingPhone={payingPhone}
           setPayingPhone={setPayingPhone}
           referral_code={referralData.referral_code}
@@ -170,7 +171,7 @@ export default function Demand() {
             referral: referralData,
             payingNumber: payingPhone,
           }}
-          isSubmitting={isSubmitting || !!demandCode}
+          isSubmitting={isSubmitting || !!schoolCode}
           onboarding_fee={platformSettings?.onboarding_fee ?? 0}
           onPrev={handleBack}
           onNext={handleSubmitDemand}
@@ -180,7 +181,7 @@ export default function Demand() {
     4: {
       description: <SubmittedDescription />,
       title: formatMessage({ id: 'demandSubmitted' }),
-      form: <SubmittedStep demandCode={demandCode} />,
+      form: <SubmittedStep schoolCode={schoolCode} />,
     },
   };
 
@@ -243,7 +244,7 @@ export default function Demand() {
                   currentStep={currentStep}
                   position={index}
                   openStep={() =>
-                    currentStep >= index && !isSubmitting && !demandCode
+                    currentStep >= index && !isSubmitting && !schoolCode
                       ? setActiveStep(index)
                       : null
                   }

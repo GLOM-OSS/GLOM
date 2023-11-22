@@ -1,0 +1,37 @@
+import {
+  SchemaCreateResponseBody,
+  SchemaRequestBody,
+  SchemaRequestParams,
+  SchemaResponseBody,
+} from '../../api-helper';
+import { operations } from '../docs';
+
+/** ------------- CREATE SCHOOL DEMAND ------------- */
+export type SubmitSchoolDemandPayload = SchemaRequestBody<
+  operations,
+  'SchoolsController_submitDemand'
+>;
+
+export type SchoolEntity = SchemaCreateResponseBody<
+  operations,
+  'SchoolsController_submitDemand'
+>;
+
+export type SchoolDemandStatus = SchoolEntity['school_demand_status'];
+
+export type SchoolDemandDetails = SchemaResponseBody<
+  operations,
+  'SchoolsController_getDemandDetails'
+>;
+
+/** ------------- VALIDATE SCHOOL DEMAND ------------- */
+export type ValidateSchoolDemandPayload = SchemaRequestBody<
+  operations,
+  'SchoolsController_validateDemand'
+>;
+
+/** ------------- CHANGE SCHOOL DEMAND STATUS TO PROCESSING ------------- */
+export type UpdateSchoolStatusPayload = SchemaRequestParams<
+  operations,
+  'SchoolsController_updateSchoolStatus'
+>;

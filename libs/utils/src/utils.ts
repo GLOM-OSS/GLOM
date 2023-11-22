@@ -30,6 +30,16 @@ export function random() {
   return Math.floor(Math.random() * 10);
 }
 
+/**
+ * @description function is used to generate kinda like acronyms from given words
+ * it does so by taking a string, splitting it with the space separator and for every word,
+ * with the exception of the first word whose first letter is used in all cases,
+ * other words need to be longer than 3 characters before their first letters are considered.
+ * this avoids us adding is, and, de, etc to acronyms
+ *
+ * @param {string} value - the value to generate short version
+ * @returns  {string} - the generated acronym in uppercase
+ */
 export function generateShort(value: string) {
   let code = '';
   value.split(' ').forEach((word, index) => {
@@ -71,4 +81,20 @@ export function pickKeys<T extends object, K extends keyof T>(
     if (!keys.includes(key as K)) delete obj[key as keyof T];
   });
   return obj;
+}
+
+/**
+ * Generate password with numbers, special characters, upper and lower case letters
+ * @param [useSpecialChar=false] Whether or not to use special characters
+ * @param [length=8] password length
+ */
+export function generatePassword(useSpecialChar: boolean = false, length = 8) {
+  let charset = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789${
+      useSpecialChar ? '!@#$%^&*?.-' : ''
+    }`,
+    retVal = '';
+  for (let i = 0, n = charset.length; i < length; ++i) {
+    retVal += charset.charAt(Math.floor(Math.random() * n));
+  }
+  return retVal;
 }

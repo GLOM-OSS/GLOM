@@ -6,12 +6,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import {
-  APP_FILTER,
-  APP_GUARD,
-  APP_INTERCEPTOR,
-  APP_PIPE
-} from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
@@ -21,21 +16,24 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 
 import { GlomExceptionsFilter } from '@glom/execeptions';
-import { TasksModule } from '@glom/nest-tasks';
 import { GlomPrismaModule } from '@glom/prisma';
 
 import { GlomRedisModule, GlomRedisService } from '@glom/redis';
 import { CacheInterceptor } from '@nestjs/cache-manager';
-import { AcademicYearsModule } from './academic-years/academic-years.module';
-import { AmbassadorsModule } from './ambassadors/ambassadors.module';
+import { AcademicYearsModule } from '../modules/academic-years/academic-years.module';
+import { AmbassadorsModule } from '../modules/ambassadors/ambassadors.module';
+import { ClassroomsModule } from '../modules/classrooms/classrooms.module';
+import { SchoolsModule } from '../modules/schools/schools.module';
+import { DepartmentsModule } from '../modules/departments/departments.module';
+import { MajorsModule } from '../modules/majors/majors.module';
 import { seedData } from './app-seeder.factory';
 import { AppController } from './app.controller';
 import { AppInterceptor } from './app.interceptor';
 import { AppMiddleware } from './app.middleware';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { DemandModule } from './demand/demand.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
+import { StaffModule } from '../modules/staff/staff.module';
 
 @Module({
   imports: [
@@ -54,14 +52,17 @@ import { InquiriesModule } from './inquiries/inquiries.module';
     }),
     GlomPrismaModule.forRoot({
       isGlobal: true,
-      seedData,
+      // seedData,
     }),
-    TasksModule,
     AuthModule,
-    DemandModule,
+    SchoolsModule,
     AcademicYearsModule,
     InquiriesModule,
     AmbassadorsModule,
+    DepartmentsModule,
+    MajorsModule,
+    ClassroomsModule,
+    StaffModule,
   ],
   controllers: [AppController],
   providers: [
