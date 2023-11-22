@@ -58,6 +58,7 @@ export type NotchpayResponse = {
 };
 
 export type InitializePaymentResponse = NotchpayResponse & {
+  authorization_url: string;
   transaction: NotchpayTransaction;
 };
 
