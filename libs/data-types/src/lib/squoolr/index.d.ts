@@ -5,10 +5,11 @@ export * from './academic-years';
 export * from './ambassadors';
 export * from './auth';
 export * from './classrooms';
-export * from './schools';
 export * from './departments';
 export * from './inquiries';
 export * from './majors';
+export * from './payments';
+export * from './schools';
 export * from './staffs';
 
 /** ------------- GET SETTINGS ------------- */
