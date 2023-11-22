@@ -226,6 +226,10 @@ export interface components {
       /** @enum {string} */
       payment_reason: "Fee" | "Platform" | "Onboarding" | "Registration";
     };
+    InitPaymentResponse: {
+      payment: components["schemas"]["PaymentEntity"];
+      authorization_url: string;
+    };
     SchoolEntity: {
       school_name: string;
       school_acronym: string;
@@ -718,7 +722,7 @@ export interface operations {
     responses: {
       201: {
         content: {
-          "application/json": components["schemas"]["PaymentEntity"][];
+          "application/json": components["schemas"]["InitPaymentResponse"];
         };
       };
     };
