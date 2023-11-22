@@ -6,6 +6,7 @@ import {
   InquiriesApi,
   PlatformSettingsApi,
   StaffApi,
+  PaymentsApi,
 } from '../squoolr';
 import { GlomRequest, RequestParams } from './glom-request';
 
@@ -29,6 +30,7 @@ export class GlomApi {
     auth: AuthApi;
     staffs: StaffApi;
     schools: SchoolsApi;
+    payments: PaymentsApi;
     inquiries: InquiriesApi;
     ambassadors: AmbassadorsApi;
     academicYears: AcademicYearApi;
@@ -47,6 +49,7 @@ export class GlomApi {
       auth: new AuthApi(squoolrRequest),
       staffs: new StaffApi(squoolrRequest),
       schools: new SchoolsApi(squoolrRequest),
+      payments: new PaymentsApi(squoolrRequest),
       inquiries: new InquiriesApi(squoolrRequest),
       ambassadors: new AmbassadorsApi(squoolrRequest),
       academicYears: new AcademicYearApi(squoolrRequest),
