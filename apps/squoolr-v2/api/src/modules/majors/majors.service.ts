@@ -21,19 +21,10 @@ export class MajorsService {
       include: annualMajorSelect,
       where: {
         academic_year_id,
-        OR: params
-          ? [
-              {
-                is_deleted: params.is_deleted,
-                department_id: params.department_id,
-              },
-              {
-                major_name: {
-                  search: params.keywords,
-                },
-              },
-            ]
-          : undefined,
+        is_deleted: params?.is_deleted,
+        department_id: params?.department_id,
+        uses_module_system: params?.uses_module_system,
+        major_name: params ? { search: params.keywords } : undefined,
       },
     });
 
