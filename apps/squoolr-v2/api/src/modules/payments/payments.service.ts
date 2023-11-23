@@ -1,7 +1,11 @@
 import { NotchPayService } from '@glom/payment';
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
-import { InitPaymentResponse, PaymentEntity } from './payment.dto';
+import {
+  EntryFeePaymentDto,
+  InitPaymentResponse,
+  PaymentEntity,
+} from './payment.dto';
 
 @Injectable()
 export class PaymentsService {
@@ -10,23 +14,26 @@ export class PaymentsService {
     private notchPayService: NotchPayService
   ) {}
 
-  async initOnboardFeePayment(phoneNumber: string) {
+  async initOnboardFeePayment({
+    callback_url,
+    payment_phone,
+  }: EntryFeePaymentDto) {
     const settings =
       await this.prismaService.platformSettings.findFirstOrThrow();
     const {
       authorization_url,
       transaction: { reference },
     } = await this.notchPayService.initiatePayment({
+      phone: payment_phone,
+      callback: callback_url,
       amount: settings.onboarding_fee,
-      phone: phoneNumber,
     });
-    console.log({ phoneNumber, authorization_url });
     const payment = await this.prismaService.payment.create({
       data: {
         provider: 'NotchPay',
         payment_ref: reference,
         payment_reason: 'Onboarding',
-        amount: settings.platform_fee,
+        amount: settings.onboarding_fee,
       },
     });
     return new InitPaymentResponse({

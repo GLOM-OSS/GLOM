@@ -241,6 +241,7 @@ export default function Demand() {
       submitDemand(submitData, {
         onSuccess(data) {
           setSchoolCode(data.school_code);
+          localStorage.removeItem('schoolDemandData');
           handleNext();
         },
         onSettled() {
