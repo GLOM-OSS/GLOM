@@ -22,6 +22,7 @@ export class GlomRedisModule {
         CacheModule.register({
           isGlobal,
           ttl: 60000,
+          store: require('cache-manager-ioredis'),
         }),
       ],
     };
