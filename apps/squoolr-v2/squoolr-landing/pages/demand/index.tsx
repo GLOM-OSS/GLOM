@@ -5,9 +5,15 @@ import {
 } from '@glom/data-access/squoolr';
 import { SubmitSchoolDemandPayload } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
-import { excludeKeys, validatePhoneNumber } from '@glom/utils';
-import { Box, Divider, Paper, Typography } from '@mui/material';
-import { Fragment, useState } from 'react';
+import { excludeKeys, pickKeys, validatePhoneNumber } from '@glom/utils';
+import {
+  Box,
+  CircularProgress,
+  Divider,
+  Paper,
+  Typography,
+} from '@mui/material';
+import { Fragment, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import DemandContactUs from '../../components/demand/DemandContactUs';
 import ReviewStep from '../../components/demand/ReviewStep';
@@ -27,7 +33,8 @@ import ReferralInformation, {
 import SchoolInformation, {
   ISchoolInformation,
 } from '../../components/demand/forms/SchoolInformation';
-import PaymentDialog from '../../components/payment-dialog/PaymentDialog';
+import { useRouter } from 'next/router';
+import { decrypt, encrypt } from '@glom/encrypter';
 
 interface IStep {
   title: string | JSX.Element;
@@ -38,6 +45,7 @@ interface IStep {
 export default function Demand() {
   const theme = useTheme();
   const { formatMessage } = useIntl();
+  const router = useRouter();
 
   const [activeStep, setActiveStep] = useState<number>(0);
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -81,48 +89,48 @@ export default function Demand() {
     setActiveStep((prev) => (prev > 0 ? prev - 1 : prev));
   }
 
-  const { mutate: submitDemand, isPending: isSubmitting } =
+  const { mutate: submitDemand, isPending: isSubmittingDemand } =
     useSubmitSchoolDemand();
-  const { mutate: payOnboardingFee } = useInitEntryFeePayment();
+  const { mutate: payOnboardingFee, isPending: isPayingFee } =
+    useInitEntryFeePayment();
+  const isSubmitting = isPayingFee || isSubmittingDemand;
 
-  const [iframeURI, setIframURI] = useState<string>();
-  const [paymentId, setPaymentId] = useState<string>();
-  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   function handlePayAndSubmitDemand() {
-    if (!referralData.referral_code)
+    if (referralData.referral_code) handleSubmitDemand();
+    else if (validatePhoneNumber(payingPhone) !== -1)
       payOnboardingFee(
-        { payment_phone: `+237${payingPhone}` },
+        { payment_phone: `+237${payingPhone}`, callback_url: location.href },
         {
           onSuccess({ authorization_url, payment }) {
-            console.log({ authorization_url });
-            setPaymentId(payment.payment_id);
-            setIframURI(authorization_url);
-            setIsPaymentDialogOpen(true);
+            const submitData: SubmitSchoolDemandPayload = {
+              payment_id: payment.payment_id,
+              configurator: {
+                ...excludeKeys(personnalData, ['confirm_password']),
+              },
+              school: { ...institutionData, ...referralData },
+            };
+            localStorage.setItem('schoolDemandData', encrypt(submitData));
+            window.open(authorization_url, '_top');
           },
         }
       );
-    else handleSubmitDemand();
+    //TODO change to toast
+    else alert(formatMessage({ id: 'enterValidPhoneForPayment' }));
   }
 
   function handleSubmitDemand() {
-    setIsPaymentDialogOpen(false);
     const submitData: SubmitSchoolDemandPayload = {
-      payment_id: paymentId,
       configurator: {
         ...excludeKeys(personnalData, ['confirm_password']),
       },
       school: { ...institutionData, ...referralData },
     };
-    if (referralData.referral_code || validatePhoneNumber(payingPhone) !== -1) {
-      submitDemand(submitData, {
-        onSuccess(data) {
-          setSchoolCode(data.school_code);
-          handleNext();
-        },
-      });
-    }
-    //TODO change to toast
-    else alert(formatMessage({ id: 'enterValidPhoneForPayment' }));
+    submitDemand(submitData, {
+      onSuccess(data) {
+        setSchoolCode(data.school_code);
+        handleNext();
+      },
+    });
   }
 
   const stepp: Record<string, IStep> = {
@@ -210,15 +218,42 @@ export default function Demand() {
     },
   };
 
+  const [isCallback, setIsCallback] = useState(false);
+
+  useEffect(() => {
+    const { reference, status } = router.query;
+    if (status === 'complete' && reference) {
+      setIsCallback(true);
+      const submitData = decrypt<SubmitSchoolDemandPayload>(
+        localStorage.getItem('schoolDemandData')
+      );
+      setActiveStep(3);
+      setCurrentStep(3);
+      setInstitutionData(submitData.school);
+      setReferralData({
+        lead_funnel: submitData.school.lead_funnel,
+        referral_code: submitData.school.referral_code,
+      });
+      setPersonnalData({
+        ...submitData.configurator,
+        confirm_password: submitData.configurator.password,
+      });
+      submitDemand(submitData, {
+        onSuccess(data) {
+          setSchoolCode(data.school_code);
+          handleNext();
+        },
+        onSettled() {
+          setIsCallback(false);
+          router.push('/demand');
+        },
+      });
+    }
+  }, [router.query]);
+
   return (
     <>
       <DemandContactUs />
-      <PaymentDialog
-        link={iframeURI}
-        isOpen={isPaymentDialogOpen}
-        onCompleted={() => handleSubmitDemand()}
-        onClose={() => setIsPaymentDialogOpen(false)}
-      />
       <Box
         sx={{
           marginTop: '150px',
@@ -295,7 +330,20 @@ export default function Demand() {
             title={stepp[activeStep].title}
             description={stepp[activeStep].description}
           />
-          {stepp[activeStep].form}
+          {isCallback ? (
+            <Box
+              sx={{
+                display: 'grid',
+                gridAutoFlow: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <CircularProgress size={100} />
+            </Box>
+          ) : (
+            stepp[activeStep].form
+          )}
         </Box>
       </Box>
     </>
