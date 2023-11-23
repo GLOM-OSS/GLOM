@@ -7,7 +7,9 @@ export type EntryFeePaymentPayload = SchemaRequestBody<
   'PaymentsController_initEntryFeePayment'
 >;
 
-export type PaymentEntity = SchemaCreateResponseBody<
+export type InitPaymentResponse = SchemaCreateResponseBody<
   operations,
   'PaymentsController_initEntryFeePayment'
->[0];
+>;
+
+export type PaymentEntity = InitPaymentResponse['payment'];
