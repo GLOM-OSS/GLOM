@@ -20,6 +20,7 @@ export class PaymentsService {
       amount: settings.onboarding_fee,
       phone: phoneNumber,
     });
+    console.log({ phoneNumber, authorization_url });
     const payment = await this.prismaService.payment.create({
       data: {
         provider: 'NotchPay',
