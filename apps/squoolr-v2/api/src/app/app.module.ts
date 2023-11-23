@@ -116,7 +116,7 @@ export class AppModule implements NestModule {
           resave: false,
           rolling: true,
           cookie: {
-            maxAge: 60 * 60 * 1000, //60 minutes of inativity,
+            maxAge: Number(process.env.SESSION_AGE),
           },
         }),
         passport.initialize(),
