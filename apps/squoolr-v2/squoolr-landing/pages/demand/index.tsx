@@ -1,6 +1,11 @@
+import {
+  useInitEntryFeePayment,
+  usePlatformSettings,
+  useSubmitSchoolDemand,
+} from '@glom/data-access/squoolr';
 import { SubmitSchoolDemandPayload } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
-import { validatePhoneNumber, excludeKeys } from '@glom/utils';
+import { excludeKeys, validatePhoneNumber } from '@glom/utils';
 import { Box, Divider, Paper, Typography } from '@mui/material';
 import { Fragment, useState } from 'react';
 import { useIntl } from 'react-intl';
@@ -22,10 +27,7 @@ import ReferralInformation, {
 import SchoolInformation, {
   ISchoolInformation,
 } from '../../components/demand/forms/SchoolInformation';
-import {
-  usePlatformSettings,
-  useSubmitSchoolDemand,
-} from '@glom/data-access/squoolr';
+import PaymentDialog from '../../components/payment-dialog/PaymentDialog';
 
 interface IStep {
   title: string | JSX.Element;
@@ -81,12 +83,35 @@ export default function Demand() {
 
   const { mutate: submitDemand, isPending: isSubmitting } =
     useSubmitSchoolDemand();
+  const { mutate: payOnboardingFee } = useInitEntryFeePayment();
+
+  const [iframeURI, setIframURI] = useState<string>();
+  const [paymentId, setPaymentId] = useState<string>();
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  function handlePayAndSubmitDemand() {
+    if (!referralData.referral_code)
+      payOnboardingFee(
+        { payment_phone: `+237${payingPhone}` },
+        {
+          onSuccess({ authorization_url, payment }) {
+            console.log({ authorization_url });
+            setPaymentId(payment.payment_id);
+            setIframURI(authorization_url);
+            setIsPaymentDialogOpen(true);
+          },
+        }
+      );
+    else handleSubmitDemand();
+  }
 
   function handleSubmitDemand() {
+    setIsPaymentDialogOpen(false);
     const submitData: SubmitSchoolDemandPayload = {
-      configurator: { ...excludeKeys(personnalData, ['confirm_password']) },
+      payment_id: paymentId,
+      configurator: {
+        ...excludeKeys(personnalData, ['confirm_password']),
+      },
       school: { ...institutionData, ...referralData },
-      payment_phone: payingPhone,
     };
     if (referralData.referral_code || validatePhoneNumber(payingPhone) !== -1) {
       submitDemand(submitData, {
@@ -174,7 +199,7 @@ export default function Demand() {
           isSubmitting={isSubmitting || !!schoolCode}
           onboarding_fee={platformSettings?.onboarding_fee ?? 0}
           onPrev={handleBack}
-          onNext={handleSubmitDemand}
+          onNext={handlePayAndSubmitDemand}
         />
       ),
     },
@@ -188,7 +213,12 @@ export default function Demand() {
   return (
     <>
       <DemandContactUs />
-
+      <PaymentDialog
+        link={iframeURI}
+        isOpen={isPaymentDialogOpen}
+        onCompleted={() => handleSubmitDemand()}
+        onClose={() => setIsPaymentDialogOpen(false)}
+      />
       <Box
         sx={{
           marginTop: '150px',
