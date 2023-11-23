@@ -23,12 +23,12 @@ export class GlomExceptionsFilter implements ExceptionFilter {
       message: 'Request could not be completed!!!',
     };
     if (exception instanceof AxiosError) {
-      console.log(exception.response.data);
-      const errorObj = exception.response.data;
+      console.log(exception.response?.data);
+      const errorObj = exception.response?.data;
       status = exception.status;
       error = {
         error: exception.code,
-        message: errorObj['message'],
+        message: errorObj ? errorObj['message']: 'Unknown error',
       };
     } else {
       status = exception.getStatus();
