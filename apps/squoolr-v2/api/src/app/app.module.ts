@@ -35,7 +35,7 @@ import { AppMiddleware } from './app.middleware';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
-import { GlomRedisModule } from '@glom/redis';
+import { GlomRedisModule, GlomRedisService } from '@glom/redis';
 
 @Module({
   imports: [
@@ -108,7 +108,7 @@ import { GlomRedisModule } from '@glom/redis';
   ],
 })
 export class AppModule implements NestModule {
-  constructor(@InjectRedis() private redisClient: Redis) {}
+  constructor(private redisClient: GlomRedisService) {}
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(
