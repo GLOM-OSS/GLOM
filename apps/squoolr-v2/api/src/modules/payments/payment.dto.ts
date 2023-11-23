@@ -1,11 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Payment, PaymentProvider, PaymentReasonEnum } from '@prisma/client';
-import { IsPhoneNumber } from 'class-validator';
+import { IsPhoneNumber, IsString } from 'class-validator';
 
 export class EntryFeePaymentDto {
   @ApiProperty()
   @IsPhoneNumber()
   payment_phone: string;
+
+  @IsString()
+  @ApiProperty()
+  callback_url: string;
 }
 
 export class PaymentEntity implements Payment {

@@ -14,6 +14,6 @@ export class PaymentsController {
   @Post('onboarding-fee')
   @ApiCreatedResponse({ type: InitPaymentResponse })
   initEntryFeePayment(@Body() payload: EntryFeePaymentDto) {
-    return this.paymentsService.initOnboardFeePayment(payload.payment_phone);
+    return this.paymentsService.initOnboardFeePayment(payload);
   }
 }
