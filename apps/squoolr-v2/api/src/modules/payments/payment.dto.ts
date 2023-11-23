@@ -6,12 +6,6 @@ export class EntryFeePaymentDto {
   @ApiProperty()
   @IsPhoneNumber()
   payment_phone: string;
-
-  constructor(props: PaymentEntity) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
-  }
 }
 
 export class PaymentEntity implements Payment {
@@ -31,9 +25,7 @@ export class PaymentEntity implements Payment {
   payment_reason: PaymentReasonEnum;
 
   constructor(props: PaymentEntity) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -45,8 +37,6 @@ export class InitPaymentResponse {
   authorization_url: string;
 
   constructor(props: InitPaymentResponse) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }

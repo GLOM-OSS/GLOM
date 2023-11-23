@@ -54,7 +54,7 @@ import { GlomPaymentModule } from '@glom/payment';
     }),
     GlomPrismaModule.forRoot({
       isGlobal: true,
-      // seedData,
+      seedData,
     }),
     GlomPaymentModule.forRoot({
       isGlobal: true,
