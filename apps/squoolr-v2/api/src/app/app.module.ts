@@ -35,6 +35,7 @@ import { AppMiddleware } from './app.middleware';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
+import { GlomRedisModule } from '@glom/redis';
 
 @Module({
   imports: [
@@ -45,18 +46,18 @@ import { InquiriesModule } from './inquiries/inquiries.module';
     PassportModule.register({
       session: true,
     }),
-    // GlomRedisModule.forRoot({
-    //   isGlobal: true,
-    //   config: {
-    //     url: process.env.REDIS_URL,
-    //   },
-    // }),
-
-    RedisModule.forRoot({
+    GlomRedisModule.forRoot({
+      isGlobal: true,
       config: {
         url: process.env.REDIS_URL,
       },
     }),
+
+    // RedisModule.forRoot({
+    //   config: {
+    //     url: process.env.REDIS_URL,
+    //   },
+    // }),
     GlomPrismaModule.forRoot({
       isGlobal: true,
       seedData,
