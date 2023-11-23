@@ -1,7 +1,5 @@
 import { RedisModule } from '@nestjs-modules/ioredis';
-import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
-import { redisStore } from 'cache-manager-ioredis-yet';
 import { GlomRedisModuleOptions } from './glom-redis';
 import { GlomRedisService } from './glom-redis.service';
 
@@ -20,11 +18,11 @@ export class GlomRedisModule {
             url: config.url,
           },
         }),
-        CacheModule.register({
-          isGlobal,
-          ttl: 60000,
-          store: redisStore,
-        }),
+        // CacheModule.register({
+        //   isGlobal,
+        //   ttl: 60000,
+        //   store: redisStore,
+        // }),
       ],
     };
   }

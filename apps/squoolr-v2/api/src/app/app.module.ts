@@ -19,9 +19,7 @@ import { GlomExceptionsFilter } from '@glom/execeptions';
 import { GlomPrismaModule } from '@glom/prisma';
 
 import { GlomPaymentModule } from '@glom/payment';
-import { GlomRedisModule } from '@glom/redis';
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
-import { CacheInterceptor } from '@nestjs/cache-manager';
+import { InjectRedis, Redis, RedisModule } from '@nestjs-modules/ioredis';
 import { AcademicYearsModule } from '../modules/academic-years/academic-years.module';
 import { AmbassadorsModule } from '../modules/ambassadors/ambassadors.module';
 import { ClassroomsModule } from '../modules/classrooms/classrooms.module';
@@ -47,8 +45,14 @@ import { InquiriesModule } from './inquiries/inquiries.module';
     PassportModule.register({
       session: true,
     }),
-    GlomRedisModule.forRoot({
-      isGlobal: true,
+    // GlomRedisModule.forRoot({
+    //   isGlobal: true,
+    //   config: {
+    //     url: process.env.REDIS_URL,
+    //   },
+    // }),
+
+    RedisModule.forRoot({
       config: {
         url: process.env.REDIS_URL,
       },
@@ -83,9 +87,11 @@ import { InquiriesModule } from './inquiries/inquiries.module';
   controllers: [AppController],
   providers: [
     AppService,
-    ...[AppInterceptor, ClassSerializerInterceptor, CacheInterceptor].map(
-      (Interceptor) => ({ provide: APP_INTERCEPTOR, useClass: Interceptor })
-    ),
+    // ...[AppInterceptor, ClassSerializerInterceptor, CacheInterceptor].map(
+    ...[AppInterceptor, ClassSerializerInterceptor].map((Interceptor) => ({
+      provide: APP_INTERCEPTOR,
+      useClass: Interceptor,
+    })),
     {
       provide: APP_FILTER,
       useClass: GlomExceptionsFilter,
