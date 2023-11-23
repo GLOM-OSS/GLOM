@@ -1,28 +1,22 @@
-import { Module, Provider } from '@nestjs/common';
+import { RedisModule } from '@nestjs-modules/ioredis';
+import { CacheModule } from '@nestjs/cache-manager';
+import { Module } from '@nestjs/common';
+import { redisStore } from 'cache-manager-ioredis-yet';
 import { GlomRedisModuleOptions } from './glom-redis';
 import { GlomRedisService } from './glom-redis.service';
-import { CacheModule } from '@nestjs/cache-manager';
-import { redisStore } from 'cache-manager-ioredis-yet';
-import { RedisModule } from '@nestjs-modules/ioredis';
 
 @Module({})
 export class GlomRedisModule {
   static async forRoot({ isGlobal = false, config }: GlomRedisModuleOptions) {
-    const providers: Provider[] = [
-      {
-        provide: GlomRedisService,
-        useValue: new GlomRedisService(config.url, config),
-      },
-    ];
-
     return {
-      providers,
       global: isGlobal,
-      exports: providers,
       module: GlomRedisModule,
+      providers: [GlomRedisService],
+      exports: [GlomRedisService],
       imports: [
         RedisModule.forRoot({
           config: {
+            ...config,
             url: config.url,
           },
         }),
