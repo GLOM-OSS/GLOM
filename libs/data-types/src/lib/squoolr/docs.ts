@@ -216,6 +216,7 @@ export interface components {
     };
     EntryFeePaymentDto: {
       payment_phone: string;
+      callback_url: string;
     };
     PaymentEntity: {
       payment_id: string;

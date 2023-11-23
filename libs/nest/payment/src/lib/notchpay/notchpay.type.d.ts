@@ -16,6 +16,7 @@ export type InitiatePaymentPayload = {
   currency?: string;
   /**The customer's fullname or business name */
   name?: string;
+  callback?: string;
 };
 
 export type CompletePaymentPayload = {
