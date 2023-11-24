@@ -3,15 +3,14 @@
  * This is only a minimal backend to get started.
  */
 
-import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
+import { Logger, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
-import { AppModule } from './app/app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppModule } from './app/app.module';
 
 import path = require('path');
-import { GlomExceptionsFilter } from '@glom/execeptions';
 
 async function bootstrap() {
   const origin =
