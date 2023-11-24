@@ -1,0 +1,65 @@
+version: '3.3'
+
+services:
+  redis:
+    image: 'bitnami/redis:latest'
+    restart: always
+    command: redis-server --save '' --appendonly no --loglevel warning --protected-mode no
+    volumes:
+      - squoolr_prod_cache:/data
+  mysql:
+    image: mysql:latest
+    # ports:
+    #   - "5047:3306"
+    volumes:
+      - squoolr_prod_data:/var/lib/mysql
+  api:
+    build:
+      dockerfile: ./Dockerfile.squoolr-v2.api
+      context: .
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=mysql://Dr457!c:3wXKrxqP8szwjoMx49NyJfr82JnUqf8WdP6GSMtV5qxZ!@mysql/squoolr_prod_db
+      - REDIS_URL=redis
+      - SESSION_SECRET=squoolr-session-secret
+      - SESSION_NAME=__sqlrId
+      - SESSION_AGE=3600000
+      - CRYPTJS_SECRET=I_hate_trash
+      - APP_PORT=8000
+      - SALT=12
+      - ADMIN_URL=https://admin.squoolr.com
+      - NX_API_BASE_URL=https://api.squoolr.com
+      - NOTCH_API_KEY=sb.uAcDvJnHIxUNecc9Nd3Mka6SggHkLVsZZfHmZNqKbacGeW4GfoI8R6wOyLvQgulWRv8vni1EfWasH8iU5sUFckDPLtb2cZzjW0YIhGUDXmEtv9e3vTyMex2JlLXwF
+      - ADMIN_PASSWORD=default-password
+      - PLATFORM_FEE=2000
+      - ONBOARDING_FEE=50000
+      - ADMIN_EMAIL=glomexam@gmail.com
+    ports:
+      - "86:8080"
+    depends_on:
+      - mysql
+      - redis
+  landing:
+    build:
+      dockerfile: ./Dockerfile.squoolr-v2.landing
+      context: .
+    restart: always
+    ports:
+      - "91:3000"
+    depends_on:
+      - api
+  admin:
+    build:
+      dockerfile: ./Dockerfile.squoolr-v2.admin
+      context: .
+    restart: always
+    ports:
+      - "85:3000"
+    depends_on:
+      - api
+volumes:
+  squoolr_prod_cache:
+    driver: local
+  squoolr_prod_data:
+    driver: local
