@@ -11,7 +11,12 @@ import { AppModule } from './app/app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import path = require('path');
+import * as shell from 'shelljs';
 import { GlomExceptionsFilter } from '@glom/execeptions';
+
+if (process.env.NODE_ENV === 'production') {
+  shell.exec(`npx prisma migrate deploy && ls`);
+}
 
 async function bootstrap() {
   const origin =
