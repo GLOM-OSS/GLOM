@@ -11,6 +11,11 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
 
 import path = require('path');
+import * as shell from 'shelljs';
+
+if (process.env.NODE_ENV === 'production') {
+  shell.exec(`npx prisma migrate deploy && ls`);
+}
 
 async function bootstrap() {
   const origin =
