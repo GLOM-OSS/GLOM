@@ -39,7 +39,7 @@ services:
       - ONBOARDING_FEE=50000
       - ADMIN_EMAIL=glomexam@gmail.com
     ports:
-      - "86:8080"
+      - "86:8000"
     depends_on:
       - mysql
       - redis
