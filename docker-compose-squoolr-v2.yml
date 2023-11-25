@@ -23,7 +23,7 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=mysql://Pr0W073:rxqP8szwjoMx49NyJfr82J@mysql/squoolr_prod_db
+      - DATABASE_URL=mysql://root:12345678@mysql/squoolr_prod_db
       - REDIS_URL=redis
       - SESSION_SECRET=squoolr-session-secret
       - SESSION_NAME=__sqlrId
