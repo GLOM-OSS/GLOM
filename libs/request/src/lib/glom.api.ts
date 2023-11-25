@@ -12,7 +12,7 @@ import { GlomRequest, RequestParams } from './glom-request';
 
 export const GLOM_HOSTS = {
   lynkr: 'https://api.lynkr.net',
-  squoolr: 'https://api.squoolr.com',
+  squoolr: 'https://be.squoolr.com',
 };
 export const getURI = (app: keyof typeof GLOM_HOSTS) => {
   const DEV_PORT = 8000;

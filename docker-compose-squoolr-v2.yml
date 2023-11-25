@@ -32,7 +32,7 @@ services:
       - APP_PORT=8000
       - SALT=12
       - ADMIN_URL=https://admin.squoolr.com
-      - NX_API_BASE_URL=https://api.squoolr.com
+      - NX_API_BASE_URL=https://be.squoolr.com
       - NOTCH_API_KEY=sb.uAcDvJnHIxUNecc9Nd3Mka6SggHkLVsZZfHmZNqKbacGeW4GfoI8R6wOyLvQgulWRv8vni1EfWasH8iU5sUFckDPLtb2cZzjW0YIhGUDXmEtv9e3vTyMex2JlLXwF
       - ADMIN_PASSWORD=default-password
       - PLATFORM_FEE=2000
