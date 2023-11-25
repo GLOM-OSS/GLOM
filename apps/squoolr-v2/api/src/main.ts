@@ -14,7 +14,10 @@ import path = require('path');
 import * as shell from 'shelljs';
 
 if (process.env.NODE_ENV === 'production') {
-  shell.exec(`npx prisma migrate deploy && ls`);
+  shell.exec(
+    // `npx prisma migrate deploy && ls`
+    `npx prisma migrate reset --force && npx prisma migrate dev --name deploy && npx prisma migrate deploy`
+    );
 }
 
 async function bootstrap() {
