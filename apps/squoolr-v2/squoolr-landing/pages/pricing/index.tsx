@@ -21,7 +21,12 @@ export default function Pricing({
   const { data: platformSettings } = usePlatformSettings();
 
   return (
-    <>
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateRows: '1fr auto',
+      }}
+    >
       <Box
         sx={{
           mt: '103px',
@@ -174,6 +179,6 @@ export default function Pricing({
         openContactUs={() => setIsContactUsDialogOpen(true)}
         openEarlyAccess={() => setIsEarlyAccesDialogOpen(true)}
       />
-    </>
+    </Box>
   );
 }
