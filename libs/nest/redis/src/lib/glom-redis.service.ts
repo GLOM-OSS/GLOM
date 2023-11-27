@@ -4,7 +4,5 @@ import { Redis } from 'ioredis';
 
 @Injectable()
 export class GlomRedisService {
-  constructor(@InjectRedis() redis: Redis) {
-    Object.assign(this, redis);
-  }
+  constructor(@InjectRedis() public client: Redis) {}
 }
