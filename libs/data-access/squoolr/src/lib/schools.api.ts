@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 
 import {
   SchoolDemandStatus,
+  SchoolQueryParams,
   SubmitSchoolDemandPayload,
   ValidateSchoolDemandPayload,
 } from '@glom/data-types';
@@ -20,8 +21,7 @@ export function useSubmitSchoolDemand() {
   });
 }
 
-export const getSchool = (schoolId: string) =>
-  demands.getSchool(schoolId);
+export const getSchool = (schoolId: string) => demands.getSchool(schoolId);
 
 export function useSchool(schoolId: string) {
   return useQuery({
@@ -31,10 +31,10 @@ export function useSchool(schoolId: string) {
   });
 }
 
-export function useSchools(demandStatus?: SchoolDemandStatus[]) {
+export function useSchools(params?: SchoolQueryParams) {
   return useQuery({
-    queryKey: ['get-school-demands'],
-    queryFn: () => demands.getSchools(demandStatus),
+    queryKey: ['get-school-demands', params],
+    queryFn: () => demands.getSchools(params),
   });
 }
 
