@@ -94,13 +94,14 @@ export default function index() {
   const breadcrumbDispatch = useDispatchBreadcrumb();
   const breadcrumbs = useBreadcrumb();
   useEffect(() => {
+    const doesBreadcrumbHaveItem = breadcrumbs.find(
+      ({ route }) =>
+        route && route.includes(schoolData?.school.school_code as string)
+    );
     if (!!schoolData) {
       const {
         school: { school_demand_status, school_code, school_acronym },
       } = schoolData;
-      const doesBreadcrumbHaveItem = breadcrumbs.find(
-        ({ route }) => route && route.includes(schoolData.school.school_code)
-      );
 
       if (!doesBreadcrumbHaveItem)
         breadcrumbDispatch({
@@ -127,10 +128,11 @@ export default function index() {
           });
       }, 2 * 60 * 1000);
     } else {
-      breadcrumbDispatch({
-        action: 'ADD',
-        payload: [{ title: formatMessage({ id: 'loading' }), route: asPath }],
-      });
+      if (!doesBreadcrumbHaveItem)
+        breadcrumbDispatch({
+          action: 'ADD',
+          payload: [{ title: formatMessage({ id: 'loading' }), route: asPath }],
+        });
     }
   }, [schoolData]);
 
