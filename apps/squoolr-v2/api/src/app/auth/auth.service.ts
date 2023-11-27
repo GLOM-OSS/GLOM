@@ -105,11 +105,9 @@ export class AuthService {
     if (!loginData) throw new UnauthorizedException('Wrong origin !!!');
     const numberOfActiveSessions = await this.prismaService.log.count({
       where: {
+        closed_at: null,
+        logged_out_at: null,
         login_id: loginData.login.login_id,
-        OR: {
-          logged_out_at: null,
-          closed_at: null,
-        },
       },
     });
     if (numberOfActiveSessions > 2)
