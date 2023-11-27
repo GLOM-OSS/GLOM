@@ -587,4 +587,11 @@ export const website = {
     'This action will archive these selected departments and all their sub-entities (majors, classrooms, and subjects) preventing anything from being done. This is dangerous action! Do you still want to archive?',
   confirmUnarchiveDepartmentsDialogMessage:
     'This action will unarchive these selected departments. Note that all sub-entities need to be unarchived manually. Do you want to continue?',
+  enableAccounts: 'Enable Accounts',
+  enableAccount: 'Enable Account',
+  enableConfiguratorAccountsDialogMessage:
+    "This action will reinstate the users' priviledges on their institutions. Do you want to proceed?",
+  enableConfiguratorAccountDialogMessage:
+    "This action will reinstate the user's priviledges on their institution. Do you want to proceed?",
+  notAvailable: 'N/A',
 };
