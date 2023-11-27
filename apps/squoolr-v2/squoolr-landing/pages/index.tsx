@@ -26,7 +26,7 @@ export function Index({
       if (query.status !== 'true') setDemandCode(query.status as string);
       setIsStatusDialogOpen(true);
     }
-  }, []);
+  }, [query.status]);
 
   return (
     <>
