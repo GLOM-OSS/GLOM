@@ -41,7 +41,10 @@ export default function StatusDialog({
       getSchool(values.demandCode)
         .then((school) => setSchool(school))
         //TODO toast error
-        .catch((error) => console.log(error))
+        .catch((error) => {
+          console.log(error.error);
+          console.log(error);
+        })
         .finally(() => setIsSubmitting(false));
     },
   });
@@ -111,50 +114,48 @@ export default function StatusDialog({
           />
         </Box>
 
-        {school &&
-          school.school_code === formik.values.demandCode && (
-            <Box
+        {school && school.school_code === formik.values.demandCode && (
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'auto 1fr',
+              columnGap: 0.5,
+              alignItems: 'center',
+              justifySelf: 'center',
+            }}
+          >
+            <Icon
+              icon={checkCircle}
+              style={{
+                color:
+                  school.school_demand_status === 'VALIDATED'
+                    ? theme.palette.success.main
+                    : school.school_demand_status === 'PROCESSING'
+                    ? theme.palette.primary.main
+                    : theme.palette.error.main,
+                height: '20px',
+                width: '20px',
+              }}
+            />
+
+            <Typography
+              className="p3--space"
               sx={{
-                display: 'grid',
-                gridTemplateColumns: 'auto 1fr',
-                columnGap: 0.5,
-                alignItems: 'center',
-                justifySelf: 'center',
+                color: `${
+                  school.school_demand_status === 'VALIDATED'
+                    ? theme.palette.success.main
+                    : school.school_demand_status === 'PROCESSING'
+                    ? theme.palette.primary.main
+                    : theme.palette.error.main
+                } !important`,
               }}
             >
-              <Icon
-                icon={checkCircle}
-                style={{
-                  color:
-                    school.school_demand_status === 'VALIDATED'
-                      ? theme.palette.success.main
-                      : school.school_demand_status === 'PROCESSING'
-                      ? theme.palette.primary.main
-                      : theme.palette.error.main,
-                  height: '20px',
-                  width: '20px',
-                }}
-              />
+              {formatMessage({ id: school.school_demand_status })}
+            </Typography>
+          </Box>
+        )}
 
-              <Typography
-                className="p3--space"
-                sx={{
-                  color: `${
-                    school.school_demand_status === 'VALIDATED'
-                      ? theme.palette.success.main
-                      : school.school_demand_status === 'PROCESSING'
-                      ? theme.palette.primary.main
-                      : theme.palette.error.main
-                  } !important`,
-                }}
-              >
-                {formatMessage({ id: school.school_demand_status })}
-              </Typography>
-            </Box>
-          )}
-
-        {school &&
-        school.school_demand_status === formik.values.demandCode ? (
+        {school && school.school_demand_status === formik.values.demandCode ? (
           <Box>
             <Typography
               className="p3--space"
