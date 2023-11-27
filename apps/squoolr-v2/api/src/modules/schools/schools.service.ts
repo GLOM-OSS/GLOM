@@ -20,7 +20,7 @@ import {
   UpdateSchoolDemandStatus,
   ValidateSchoolDemandDto,
 } from './schools.dto';
-import { AxiosError } from 'axios';
+import { QueryParams } from '../module';
 
 const schoolSelectAttr = Prisma.validator<Prisma.SchoolArgs>()({
   select: {
@@ -115,9 +115,13 @@ export class SchoolsService {
     });
   }
 
-  async findAll() {
+  async findAll(params?: QueryParams) {
     const schools = await this.prismaService.school.findMany({
       ...schoolSelectAttr,
+      where: {
+        is_deleted: params?.is_deleted,
+        school_name: params ? { search: params?.keywords } : undefined,
+      },
     });
     return schools.map((school) => getSchoolEntity(school));
   }

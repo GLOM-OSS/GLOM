@@ -3,16 +3,14 @@ import { SchoolDemandStatus } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
 import {
   IsDate,
-  IsDateString,
   IsEmail,
   IsEnum,
   IsNotEmptyObject,
-  IsNumber,
   IsOptional,
   IsPhoneNumber,
   IsString,
   NotContains,
-  ValidateNested,
+  ValidateNested
 } from 'class-validator';
 import { CreatePersonDto, PersonEntity } from '../../app/auth/auth.dto';
 import { CreateAcademicYearDto } from '../academic-years/academic-years.dto';

@@ -4,11 +4,11 @@ import {
   Controller,
   Get,
   Param,
-  Patch,
   Post,
   Put,
+  Query,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -18,7 +18,9 @@ import {
 } from '@nestjs/swagger';
 import { Request } from 'express';
 import { IsPublic, Roles } from '../../app/auth/auth.decorator';
+import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 import { Role } from '../../utils/enums';
+import { QueryParamsDto } from '../modules.dto';
 import {
   SchoolDemandDetails,
   SchoolEntity,
@@ -27,7 +29,6 @@ import {
   ValidateSchoolDemandDto,
 } from './schools.dto';
 import { SchoolsService } from './schools.service';
-import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 
 @ApiTags('Schools')
 @Roles(Role.ADMIN)
@@ -38,8 +39,8 @@ export class SchoolsController {
 
   @Get()
   @ApiOkResponse({ type: [SchoolEntity] })
-  getAllDemands() {
-    return this.schoolsService.findAll();
+  getAllDemands(@Query() params?: QueryParamsDto) {
+    return this.schoolsService.findAll(params);
   }
 
   @IsPublic()
