@@ -346,14 +346,16 @@ export function Index() {
                   columnGap: 2,
                 }}
               >
-                <Button
-                  variant="outlined"
-                  color="error"
-                  disabled={isResettingPassword || isDisablingAccount}
-                  onClick={() => setIsConfirmResetDialogOpen(true)}
-                >
-                  {formatMessage({ id: 'resetPasswords' })}
-                </Button>
+                {!showArchives && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    disabled={isResettingPassword || isDisablingAccount}
+                    onClick={() => setIsConfirmResetDialogOpen(true)}
+                  >
+                    {formatMessage({ id: 'resetPasswords' })}
+                  </Button>
+                )}
                 {showArchives ? (
                   <Button
                     variant="outlined"
