@@ -729,6 +729,12 @@ export interface operations {
     };
   };
   SchoolsController_getAllDemands: {
+    parameters: {
+      query?: {
+        is_deleted?: boolean;
+        keywords?: string;
+      };
+    };
     responses: {
       200: {
         content: {
