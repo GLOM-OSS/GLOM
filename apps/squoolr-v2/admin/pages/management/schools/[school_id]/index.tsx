@@ -4,6 +4,10 @@ import {
   useUpdateSchoolStatus,
   useValidateSchoolDemand,
 } from '@glom/data-access/squoolr';
+import {
+  useBreadcrumb,
+  useDispatchBreadcrumb,
+} from '@glom/squoolr-v2/side-nav';
 import { useTheme } from '@glom/theme';
 import {
   Box,
@@ -26,6 +30,7 @@ export default function index() {
   const theme = useTheme();
   const {
     query: { school_id },
+    asPath,
   } = useRouter();
   const schoolId = school_id as string;
   const {
@@ -86,11 +91,34 @@ export default function index() {
     );
   }
 
+  const breadcrumbDispatch = useDispatchBreadcrumb();
+  const breadcrumbs = useBreadcrumb();
   useEffect(() => {
-    if (schoolData) {
+    const doesBreadcrumbHaveItem = breadcrumbs.find(
+      ({ route }) =>
+        route && route.includes(schoolData.school.school_code as string)
+    );
+    if (!!schoolData) {
       const {
-        school: { school_demand_status },
+        school: { school_demand_status, school_code, school_acronym },
       } = schoolData;
+
+      if (!doesBreadcrumbHaveItem)
+        breadcrumbDispatch({
+          action: 'ADD',
+          payload: [{ title: school_acronym, route: asPath }],
+        });
+      else if (doesBreadcrumbHaveItem.title !== school_acronym) {
+        const tt = breadcrumbs.filter(
+          ({ route }) =>
+            (route && !route.includes(school_code as string)) || !route
+        );
+        breadcrumbDispatch({
+          action: 'RESET',
+          payload: [...tt, { title: school_acronym, route: asPath }],
+        });
+      }
+
       setTimeout(() => {
         if (school_demand_status === 'PENDING')
           updateDemandStatus('PROCESSING', {
@@ -99,6 +127,12 @@ export default function index() {
             },
           });
       }, 2 * 60 * 1000);
+    } else {
+      if (!doesBreadcrumbHaveItem)
+        breadcrumbDispatch({
+          action: 'ADD',
+          payload: [{ title: formatMessage({ id: 'loading' }), route: asPath }],
+        });
     }
   }, [schoolData]);
 
