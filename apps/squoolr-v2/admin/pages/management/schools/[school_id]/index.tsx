@@ -49,26 +49,37 @@ export default function index() {
       },
     });
   }
-  const { mutate: validateDemand, isPending: isValidatingDemand } =
-    useValidateSchoolDemand(schoolId);
+  const [isValidatingDemand, setIsValidatingDemand] = useState<boolean>(false);
+  const [isRejectingDemand, setIsRejectingDemand] = useState<boolean>(false);
+  const { mutate: validateDemand } = useValidateSchoolDemand(schoolId);
 
   function rejectSchool(rejectionReason: string) {
+    setIsRejectingDemand(true);
     validateDemand(
       { rejection_reason: rejectionReason },
       {
         onSuccess() {
           refetchSchoolData();
+          setIsRejectingDemand(false);
+        },
+        onError() {
+          setIsRejectingDemand(false);
         },
       }
     );
   }
 
   function validateSchool(subdomain: string) {
+    setIsValidatingDemand(true);
     validateDemand(
       { subdomain },
       {
         onSuccess() {
           refetchSchoolData();
+          setIsValidatingDemand(false);
+        },
+        onError() {
+          setIsValidatingDemand(false);
         },
       }
     );
@@ -237,9 +248,9 @@ export default function index() {
                       variant="contained"
                       color="error"
                       onClick={() => setIsRejectDialogOpen(true)}
-                      disabled={isValidatingDemand || isValidatingDemand}
+                      disabled={isValidatingDemand || isRejectingDemand}
                       startIcon={
-                        isValidatingDemand && (
+                        isRejectingDemand && (
                           <CircularProgress color="error" size={18} />
                         )
                       }
@@ -250,7 +261,7 @@ export default function index() {
                       variant="contained"
                       color="primary"
                       onClick={() => setIsValidateDialogOpen(true)}
-                      disabled={isValidatingDemand || isValidatingDemand}
+                      disabled={isValidatingDemand || isRejectingDemand}
                       startIcon={
                         isValidatingDemand && (
                           <CircularProgress color="primary" size={18} />
