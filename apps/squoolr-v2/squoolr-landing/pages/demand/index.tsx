@@ -222,7 +222,7 @@ export default function Demand() {
 
   useEffect(() => {
     const { reference, status } = router.query;
-    if (status === 'complete' && reference) {
+    if (reference) {
       setIsCallback(true);
       const submitData = decrypt<SubmitSchoolDemandPayload>(
         localStorage.getItem('schoolDemandData')
@@ -238,17 +238,18 @@ export default function Demand() {
         ...submitData.configurator,
         confirm_password: submitData.configurator.password,
       });
-      submitDemand(submitData, {
-        onSuccess(data) {
-          setSchoolCode(data.school_code);
-          localStorage.removeItem('schoolDemandData');
-          handleNext();
-        },
-        onSettled() {
-          setIsCallback(false);
-          router.push('/demand');
-        },
-      });
+      if (status === 'complete')
+        submitDemand(submitData, {
+          onSuccess(data) {
+            setSchoolCode(data.school_code);
+            localStorage.removeItem('schoolDemandData');
+            handleNext();
+          },
+          onSettled() {
+            setIsCallback(false);
+            router.push('/demand');
+          },
+        });
     }
   }, [router.query]);
 

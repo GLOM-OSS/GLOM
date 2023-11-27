@@ -103,13 +103,13 @@ import { InquiriesModule } from './inquiries/inquiries.module';
   ],
 })
 export class AppModule implements NestModule {
-  constructor(private redisClient: GlomRedisService) {}
+  constructor(private redisService: GlomRedisService) {}
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(
         session({
           name: process.env.SESSION_NAME,
-          store: new RedisStore({ client: this.redisClient }),
+          store: new RedisStore({ client: this.redisService.client }),
           secret: process.env.SESSION_SECRET,
           genid: () => randomUUID(),
           saveUninitialized: false,
