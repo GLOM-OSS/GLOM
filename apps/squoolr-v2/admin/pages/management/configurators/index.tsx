@@ -12,6 +12,7 @@ import { useTheme } from '@glom/theme';
 import reset from '@iconify/icons-fluent/arrow-counterclockwise-48-regular';
 import checked from '@iconify/icons-fluent/checkbox-checked-16-filled';
 import unchecked from '@iconify/icons-fluent/checkbox-unchecked-16-filled';
+import filter from '@iconify/icons-fluent/filter-28-regular';
 import more from '@iconify/icons-fluent/more-vertical-48-regular';
 import search from '@iconify/icons-fluent/search-48-regular';
 import { Icon } from '@iconify/react';
@@ -31,10 +32,11 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import ManageConfiguratorMenu from '../../../component/management/configurators/ManageConfiguratorMenu';
+import TableSkeleton from 'libs/components/src/table/TableSkeleton';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
-import TableSkeleton from 'libs/components/src/table/TableSkeleton';
+import FilterMenu from '../../../component/management/configurators/FilterMenu';
+import ManageConfiguratorMenu from '../../../component/management/configurators/ManageConfiguratorMenu';
 
 export function Index() {
   const theme = useTheme();
@@ -43,11 +45,20 @@ export function Index() {
   const tableHeaders = ['', 'name', 'email', 'phone', 'lastConnected', ''];
 
   const [searchValue, setSearchValue] = useState<string>('');
+  const [showArchives, setShowArchives] = useState<boolean>(false);
+  const [filterAnchorEl, setFilterAnchorEl] = useState<HTMLElement | null>(
+    null
+  );
+
   const {
     data: configuratorsData,
     refetch: refetchStaffMembers,
     isLoading: isLoadingConfigurators,
-  } = useStaffMembers({ roles: ['CONFIGURATOR'], keywords: searchValue });
+  } = useStaffMembers({
+    roles: ['CONFIGURATOR'],
+    keywords: searchValue,
+    is_deleted: showArchives,
+  });
 
   const [canSearchExpand, setCanSearchExpand] = useState<boolean>(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -133,6 +144,15 @@ export function Index() {
 
   return (
     <>
+      <FilterMenu
+        closeMenu={() => {
+          setFilterAnchorEl(null);
+        }}
+        isOpen={!!filterAnchorEl}
+        onShowArchives={() => setShowArchives((prev) => !prev)}
+        anchorEl={filterAnchorEl}
+        showArchives={showArchives}
+      />
       <ManageConfiguratorMenu
         anchorEl={anchorEl}
         closeMenu={() => {
@@ -267,33 +287,49 @@ export function Index() {
               onClick={() => refetchStaffMembers()}
             />
           </Box>
-          {selectedConfiguratorIds.length > 0 && (
-            <Box
-              sx={{
-                display: 'grid',
-                gridAutoFlow: 'column',
-                alignItems: 'center',
-                columnGap: 2,
+          <Box
+            sx={{
+              display: 'grid',
+              gridAutoFlow: 'column',
+              alignItems: 'center',
+              columnGap: 2,
+            }}
+          >
+            {selectedConfiguratorIds.length > 0 && (
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridAutoFlow: 'column',
+                  alignItems: 'center',
+                  columnGap: 2,
+                }}
+              >
+                <Button
+                  variant="outlined"
+                  color="error"
+                  disabled={isResettingPassword || isDisablingAccount}
+                  onClick={() => setIsConfirmResetDialogOpen(true)}
+                >
+                  {formatMessage({ id: 'resetPasswords' })}
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="warning"
+                  disabled={isResettingPassword || isDisablingAccount}
+                  onClick={() => setIsConfirmDisableAccountDialogOpen(true)}
+                >
+                  {formatMessage({ id: 'disableAccounts' })}
+                </Button>
+              </Box>
+            )}
+            <TableHeaderItem
+              icon={filter}
+              title={formatMessage({ id: 'filter' })}
+              onClick={(event) => {
+                setFilterAnchorEl(event.currentTarget);
               }}
-            >
-              <Button
-                variant="outlined"
-                color="error"
-                disabled={isResettingPassword || isDisablingAccount}
-                onClick={() => setIsConfirmResetDialogOpen(true)}
-              >
-                {formatMessage({ id: 'resetPasswords' })}
-              </Button>
-              <Button
-                variant="outlined"
-                color="warning"
-                disabled={isResettingPassword || isDisablingAccount}
-                onClick={() => setIsConfirmDisableAccountDialogOpen(true)}
-              >
-                {formatMessage({ id: 'disableAccounts' })}
-              </Button>
-            </Box>
-          )}
+            />
+          </Box>
         </Box>
         <TableContainer
           sx={{
