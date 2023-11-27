@@ -36,6 +36,7 @@ export default function StatusDialog({
   const formik = useFormik({
     initialValues,
     validationSchema,
+    enableReinitialize: true,
     onSubmit: async (values) => {
       setIsSubmitting(true);
       getSchool(values.demandCode)
