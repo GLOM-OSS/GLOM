@@ -479,10 +479,7 @@ export function Index() {
                     >
                       <TableCell>
                         <Checkbox
-                          disabled={
-                            isResettingPassword ||
-                            isDisablingAccount
-                          }
+                          disabled={isResettingPassword || isDisablingAccount}
                           checked={selectedConfiguratorIds.includes(
                             annual_configurator_id
                           )}
@@ -527,16 +524,20 @@ export function Index() {
                             : theme.common.body,
                         }}
                       >
-                        <Typography
-                          component="a"
-                          href={`mailto:${email}`}
-                          target="_blank"
-                          style={{
-                            color: theme.palette.primary.main,
-                          }}
-                        >
-                          {email}
-                        </Typography>
+                        {is_deleted ? (
+                          email
+                        ) : (
+                          <Typography
+                            component="a"
+                            href={`mailto:${email}`}
+                            target="_blank"
+                            style={{
+                              color: theme.palette.primary.main,
+                            }}
+                          >
+                            {email}
+                          </Typography>
+                        )}
                       </TableCell>
                       <TableCell
                         sx={{
