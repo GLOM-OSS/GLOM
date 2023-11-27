@@ -126,9 +126,7 @@ export class AuthService {
           (env === 'production'
             ? `${subdomain}.squoolr.com`
             : 'localhost:4200')) ||
-      (role !== KeyRole.ADMIN &&
-        role !== KeyRole.PARENT &&
-        role !== KeyRole.STUDENT &&
+      (role === KeyRole.STAFF &&
         origin ===
           (env === 'production'
             ? `${subdomain}-staff.squoolr.com`
