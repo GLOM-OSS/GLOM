@@ -43,7 +43,6 @@ export default function StatusDialog({
         .then((school) => setSchool(school))
         //TODO toast error
         .catch((error) => {
-          console.log(error.error);
           console.log(error);
         })
         .finally(() => setIsSubmitting(false));
