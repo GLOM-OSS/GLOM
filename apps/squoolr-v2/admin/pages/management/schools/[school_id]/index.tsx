@@ -94,9 +94,9 @@ export default function index() {
   const breadcrumbDispatch = useDispatchBreadcrumb();
   const breadcrumbs = useBreadcrumb();
   useEffect(() => {
+    const tt = asPath.split('/');
     const doesBreadcrumbHaveItem = breadcrumbs.find(
-      ({ route }) =>
-        route && route.includes(schoolData?.school.school_code as string)
+      ({ route }) => route && route.includes(tt[length - 1])
     );
     if (!!schoolData) {
       const {
