@@ -46,6 +46,7 @@ export default function index() {
     updateDemandStatus('SUSPENDED', {
       onSuccess() {
         refetchSchoolData();
+        setIsConfirmSuspendDialogOpen(false);
       },
     });
   }
