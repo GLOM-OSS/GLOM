@@ -54,7 +54,7 @@ export class SchoolsApi {
     status: Extract<SchoolDemandStatus, 'PROCESSING' | 'SUSPENDED'>
   ) {
     const resp = await this.request.put(`/schools/${schoolId}/status`, {
-      school_status: status,
+      school_demand_status: status,
     });
     return resp.data;
   }

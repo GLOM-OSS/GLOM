@@ -6,7 +6,6 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 import ContactUs from '../components/contact-us/ContactUs';
@@ -35,17 +34,6 @@ function CustomApp({ Component, pageProps }: AppProps) {
 
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState<boolean>(false);
   const [demandCode, setDemandCode] = useState<string>('');
-  const { query, pathname } = useRouter();
-
-  useEffect(() => {
-    if (
-      typeof query.status !== 'undefined' &&
-      pathname.split('/').join('') === ''
-    ) {
-      if (query.status !== 'true') setDemandCode(query.status as string);
-      setIsStatusDialogOpen(true);
-    }
-  }, []);
 
   return (
     <GlomThemeProvider defaultLang="en">
@@ -94,6 +82,8 @@ function CustomApp({ Component, pageProps }: AppProps) {
               {...pageProps}
               setIsContactUsDialogOpen={setIsContactUsDialogOpen}
               setIsEarlyAccesDialogOpen={setIsEarlyAccesDialogOpen}
+              setDemandCode={setDemandCode}
+              setIsStatusDialogOpen={setIsStatusDialogOpen}
             />
           </Box>
         </Box>
