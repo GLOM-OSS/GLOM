@@ -96,7 +96,7 @@ export default function index() {
   useEffect(() => {
     const tt = asPath.split('/');
     const doesBreadcrumbHaveItem = breadcrumbs.find(
-      ({ route }) => route && route.includes(tt[length - 1])
+      ({ route }) => route && route.includes(tt[tt.length - 1])
     );
     if (!!schoolData) {
       const {
