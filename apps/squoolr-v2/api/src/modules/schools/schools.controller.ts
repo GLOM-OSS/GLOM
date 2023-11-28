@@ -8,7 +8,7 @@ import {
   Put,
   Query,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -105,6 +105,10 @@ export class SchoolsController {
     @Body() payload: UpdateSchoolDemandStatus
   ) {
     const userId = request.user.login_id;
-    return this.schoolsService.updateStatus(schoolId, payload, userId);
+    return this.schoolsService.updateStatus(
+      schoolId,
+      payload.school_demand_status,
+      userId
+    );
   }
 }

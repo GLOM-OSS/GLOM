@@ -1,6 +1,7 @@
 import { NotchPayService } from '@glom/payment';
 import { GlomPrismaService } from '@glom/prisma';
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
@@ -324,7 +325,7 @@ export class SchoolsService {
 
   async updateStatus(
     school_id: string,
-    payload: UpdateSchoolDemandStatus,
+    school_demand_status: SchoolDemandStatus,
     audited_by: string
   ) {
     const schoolDemand = await this.prismaService.schoolDemand.findFirst({
@@ -333,19 +334,27 @@ export class SchoolsService {
     if (!schoolDemand) throw new NotFoundException('School demand');
 
     const { demand_status, ambassador_id, rejection_reason } = schoolDemand;
-    await this.prismaService.schoolDemand.update({
-      data: {
-        demand_status: payload.school_demand_status,
-        SchoolDemandAudits: {
-          create: {
-            audited_by,
-            ambassador_id,
-            demand_status,
-            rejection_reason,
+    if (
+      (demand_status === 'VALIDATED' && school_demand_status !== 'SUSPENDED') ||
+      (demand_status === 'PENDING' && school_demand_status === 'PROCESSING')
+    )
+      await this.prismaService.schoolDemand.update({
+        data: {
+          demand_status: school_demand_status,
+          SchoolDemandAudits: {
+            create: {
+              audited_by,
+              ambassador_id,
+              demand_status,
+              rejection_reason,
+            },
           },
         },
-      },
-      where: { school_id },
-    });
+        where: { school_id },
+      });
+    else
+      throw new BadRequestException(
+        `Cannot change status from '${demand_status}' to ${school_demand_status}`
+      );
   }
 }
