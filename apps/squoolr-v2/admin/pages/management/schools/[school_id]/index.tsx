@@ -81,7 +81,6 @@ export default function index() {
       { subdomain },
       {
         onSuccess() {
-          console.log(schoolId)
           refetchSchoolData();
           setIsValidatingDemand(false);
         },

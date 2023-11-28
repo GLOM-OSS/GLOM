@@ -70,7 +70,7 @@ export class GlomRequest {
       // xsrfHeaderName: 'X-CSRFTOKEN',
       ...this.DEFAULT_REQUEST_OPTIONS,
       transformResponse: (data) =>
-        data.includes('error') ? data : decrypt<T>(data),
+        !data || data.includes('error') ? data : decrypt<T>(data),
       params: params.queryParams
         ? { data: encrypt(params.queryParams) }
         : undefined,

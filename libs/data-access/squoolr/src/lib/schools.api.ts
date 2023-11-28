@@ -56,7 +56,7 @@ export function useValidateSchoolDemand(schoolId: string) {
 
 export function useUpdateSchoolStatus(schoolId: string) {
   return useMutation({
-    mutationKey: ['update-school-demand-status'],
+    mutationKey: ['update-school-demand-status', schoolId],
     mutationFn: (
       schoolDemandStaus: Extract<SchoolDemandStatus, 'PROCESSING' | 'SUSPENDED'>
     ) => demands.updateSchoolStatus(schoolId, schoolDemandStaus),
