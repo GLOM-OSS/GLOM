@@ -24,6 +24,7 @@ import { QueryParamsDto } from '../modules.dto';
 import {
   SchoolDemandDetails,
   SchoolEntity,
+  QuerySchoolDto,
   SubmitSchoolDemandDto,
   UpdateSchoolDemandStatus,
   ValidateSchoolDemandDto,
@@ -39,7 +40,7 @@ export class SchoolsController {
 
   @Get()
   @ApiOkResponse({ type: [SchoolEntity] })
-  getAllDemands(@Query() params?: QueryParamsDto) {
+  getAllDemands(@Query() params?: QuerySchoolDto) {
     return this.schoolsService.findAll(params);
   }
 

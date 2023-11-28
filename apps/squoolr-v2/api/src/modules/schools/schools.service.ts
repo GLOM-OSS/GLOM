@@ -16,6 +16,7 @@ import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import {
   SchoolDemandDetails,
   SchoolEntity,
+  QuerySchoolDto,
   SubmitSchoolDemandDto,
   UpdateSchoolDemandStatus,
   ValidateSchoolDemandDto,
@@ -115,12 +116,17 @@ export class SchoolsService {
     });
   }
 
-  async findAll(params?: QueryParams) {
+  async findAll(params?: QuerySchoolDto) {
     const schools = await this.prismaService.school.findMany({
       ...schoolSelectAttr,
       where: {
         is_deleted: params?.is_deleted,
-        school_name: params ? { search: params?.keywords } : undefined,
+        school_name: params?.keywords
+          ? { search: params?.keywords }
+          : undefined,
+        SchoolDemand: params.school_demand_status
+          ? { demand_status: params?.school_demand_status }
+          : undefined,
       },
     });
     return schools.map((school) => getSchoolEntity(school));

@@ -10,10 +10,17 @@ import {
   IsPhoneNumber,
   IsString,
   NotContains,
-  ValidateNested
+  ValidateNested,
 } from 'class-validator';
 import { CreatePersonDto, PersonEntity } from '../../app/auth/auth.dto';
 import { CreateAcademicYearDto } from '../academic-years/academic-years.dto';
+import { QueryParamsDto } from '../modules.dto';
+
+export class QuerySchoolDto extends QueryParamsDto {
+  @IsEnum(SchoolDemandStatus)
+  @ApiProperty({ enum: SchoolDemandStatus })
+  school_demand_status: SchoolDemandStatus;
+}
 
 export class CreateSchoolDto {
   @ApiProperty()
