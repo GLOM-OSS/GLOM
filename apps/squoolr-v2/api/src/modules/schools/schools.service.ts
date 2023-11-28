@@ -124,7 +124,7 @@ export class SchoolsService {
         school_name: params?.keywords
           ? { search: params?.keywords }
           : undefined,
-        SchoolDemand: params.schoolDemandStatus
+        SchoolDemand: params?.schoolDemandStatus
           ? { demand_status: { in: params?.schoolDemandStatus } }
           : undefined,
       },

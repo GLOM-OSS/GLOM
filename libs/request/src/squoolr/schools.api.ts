@@ -21,8 +21,9 @@ export class SchoolsApi {
 
   async getSchools(params?: SchoolQueryParams) {
     const resp = await this.request.get<SchoolEntity[]>('/schools', {
-      ...params,
-      school_demand_status:
+      keywords: params?.keywords,
+      is_deleted: params?.is_deleted,
+      schoolDemandStatus:
         params?.schoolDemandStatus?.length > 0
           ? params?.schoolDemandStatus
           : undefined,
