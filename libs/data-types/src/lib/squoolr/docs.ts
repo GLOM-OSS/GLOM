@@ -733,7 +733,7 @@ export interface operations {
       query: {
         is_deleted?: boolean;
         keywords?: string;
-        school_demand_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED";
+        schoolDemandStatus: ("PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED")[];
       };
     };
     responses: {

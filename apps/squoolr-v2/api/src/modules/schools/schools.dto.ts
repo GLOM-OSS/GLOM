@@ -17,9 +17,9 @@ import { CreateAcademicYearDto } from '../academic-years/academic-years.dto';
 import { QueryParamsDto } from '../modules.dto';
 
 export class QuerySchoolDto extends QueryParamsDto {
-  @IsEnum(SchoolDemandStatus)
-  @ApiProperty({ enum: SchoolDemandStatus })
-  school_demand_status: SchoolDemandStatus;
+  @IsEnum(SchoolDemandStatus, { each: true })
+  @ApiProperty({ enum: SchoolDemandStatus, isArray: true })
+  schoolDemandStatus: SchoolDemandStatus[];
 }
 
 export class CreateSchoolDto {
