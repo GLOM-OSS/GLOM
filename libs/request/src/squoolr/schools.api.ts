@@ -23,8 +23,8 @@ export class SchoolsApi {
     const resp = await this.request.get<SchoolEntity[]>('/schools', {
       ...params,
       school_demand_status:
-        params?.school_demand_status?.length > 0
-          ? params?.school_demand_status
+        params?.schoolDemandStatus?.length > 0
+          ? params?.schoolDemandStatus
           : undefined,
     });
     return resp.data;
