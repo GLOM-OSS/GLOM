@@ -149,6 +149,45 @@ export interface paths {
   '/v1/staffs/private-codes': {
     put: operations['StaffController_resetStaffPrivateCodes'];
   };
+  "/v1/cycle-settings/exam-access": {
+    get: operations["CycleSettingsController_getExamAcessSettings"];
+    put: operations["CycleSettingsController_updateExamAcessSettings"];
+  };
+  "/v1/cycle-settings/evaluation-types": {
+    get: operations["CycleSettingsController_getEvaluationTypes"];
+    put: operations["CycleSettingsController_updateEvaluationTypes"];
+  };
+  "/v1/cycle-settings/module-settings": {
+    get: operations["CycleSettingsController_getModuleSettings"];
+    put: operations["CycleSettingsController_updateModuleSettings"];
+  };
+  "/v1/cycle-settings/weighting-system": {
+    get: operations["CycleSettingsController_getWeightingSystem"];
+    put: operations["CycleSettingsController_updateWeightingSystem"];
+  };
+  "/v1/cycle-settings/major-settings": {
+    put: operations["CycleSettingsController_updateMajorSettings"];
+  };
+  "/v1/academic-profiles": {
+    get: operations["AcademicProfilesController_getAcademicProfiles"];
+  };
+  "/v1/academic-profiles/new": {
+    post: operations["AcademicProfilesController_createAcademicProfile"];
+  };
+  "/v1/academic-profiles/{annual_academic_profile_id}": {
+    put: operations["AcademicProfilesController_updateAcademicProfile"];
+    delete: operations["AcademicProfilesController_deleteAcademicProfile"];
+  };
+  "/v1/grade-weightings": {
+    get: operations["GradeWeightingsController_getGradeWeightings"];
+  };
+  "/v1/grade-weightings/new": {
+    post: operations["GradeWeightingsController_createGradeWeighting"];
+  };
+  "/v1/grade-weightings/{annual_grade_weighting_id}": {
+    put: operations["GradeWeightingsController_updateGradeWeighting"];
+    delete: operations["GradeWeightingsController_deleteGradeWeighting"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -491,6 +530,7 @@ export interface components {
       cycle: components['schemas']['CycleEntity'];
       /** Format: date-time */
       created_at: string;
+      uses_module_system: boolean;
       is_deleted: boolean;
     };
     UpdateMajorDto: {
@@ -736,6 +776,123 @@ export interface components {
       disabledStaffPayload?: components['schemas']['ManageStaffDto'];
       coordinatorPayload?: components['schemas']['CoordinateClassDto'];
       teacherPayload?: components['schemas']['UpdateTeacherDto'];
+    };
+    ExamAccessSettingEntitty: {
+      annual_semester_number: number;
+      payment_percentage: number;
+      annual_semester_exam_access_id: string;
+      /** Format: date-time */
+      created_at: string;
+      cycle_id: string;
+      academic_year_id: string;
+      created_by: string;
+    };
+    ExamAcessSettingPayload: {
+      annual_semester_number: number;
+      payment_percentage: number;
+    };
+    UpdateExamAcessSettingDto: {
+      cycle_id: string;
+      payload: components["schemas"]["ExamAcessSettingPayload"][];
+    };
+    EvaluationTypeEntity: {
+      evaluation_type_weight: number;
+      /** @enum {string} */
+      evaluation_type: "CA" | "EXAM" | "RESIT";
+      annual_evaluation_type_id: string;
+      cycle_id: string;
+      /** Format: date-time */
+      created_at: string;
+      academic_year_id: string;
+    };
+    EvaluationTypePayload: {
+      evaluation_type_weight: number;
+      /** @enum {string} */
+      evaluation_type: "CA" | "EXAM" | "RESIT";
+    };
+    UpdateEvaluaTypeDto: {
+      cycle_id: string;
+      payload: components["schemas"]["EvaluationTypePayload"][];
+    };
+    ModuleSettingEntity: {
+      cycle_id: string;
+      /** @enum {string} */
+      carry_over_system: "SUBJECT" | "MODULE";
+      minimum_modulation_score?: number;
+      annual_module_setting_id: string;
+      /** Format: date-time */
+      created_at: string;
+      academic_year_id: string;
+    };
+    UpdateModuleSettingDto: {
+      cycle_id: string;
+      /** @enum {string} */
+      carry_over_system: "SUBJECT" | "MODULE";
+      minimum_modulation_score?: number;
+    };
+    WeightingSystemEntity: {
+      cycle_id: string;
+      weighting_system: number;
+      annual_weighting_id: string;
+      /** Format: date-time */
+      created_at: string;
+      academic_year_id: string;
+    };
+    UpdateWeightingSystemDto: {
+      cycle_id: string;
+      weighting_system: number;
+    };
+    UpdateMajorSettingsDto: {
+      uses_module_system: boolean;
+      annualMajorIds: string[];
+    };
+    AcademicProfileEntity: {
+      cycle_id: string;
+      minimum_point: number;
+      maximum_point: number;
+      comment: string;
+      annual_academic_profile_id: string;
+      /** Format: date-time */
+      created_at: string;
+      academic_year_id: string;
+    };
+    CreateAcademicProfileDto: {
+      cycle_id: string;
+      minimum_point: number;
+      maximum_point: number;
+      comment: string;
+    };
+    UpdateAcademicProfileDto: {
+      minimum_point: number;
+      maximum_point: number;
+      comment: string;
+    };
+    GradeWeightingEntity: {
+      cycle_id: string;
+      minimum: number;
+      maximum: number;
+      /** @example A+ */
+      grade: string;
+      point: number;
+      annual_grade_weighting_id: string;
+      /** Format: date-time */
+      created_at: string;
+      academic_year_id: string;
+    };
+    CreateGradeWeightingDto: {
+      cycle_id: string;
+      minimum: number;
+      maximum: number;
+      /** @example A+ */
+      grade: string;
+      point: number;
+    };
+    UpdateGradeWeightingDto: {
+      minimum: number;
+      maximum: number;
+      /** @example A+ */
+      grade: string;
+      point: number;
     };
   };
   responses: never;
@@ -1124,6 +1281,7 @@ export interface operations {
         is_deleted?: boolean;
         keywords?: string;
         department_id?: string;
+        uses_module_system?: boolean;
       };
     };
     responses: {
@@ -1404,6 +1562,238 @@ export interface operations {
         content: {
           'application/json': components['schemas']['BatchPayloadDto'];
         };
+      };
+    };
+  };
+  CycleSettingsController_getExamAcessSettings: {
+    parameters: {
+      query: {
+        cycle_id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["ExamAccessSettingEntitty"][];
+        };
+      };
+    };
+  };
+  CycleSettingsController_updateExamAcessSettings: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateExamAcessSettingDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  CycleSettingsController_getEvaluationTypes: {
+    parameters: {
+      query: {
+        cycle_id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["EvaluationTypeEntity"][];
+        };
+      };
+    };
+  };
+  CycleSettingsController_updateEvaluationTypes: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateEvaluaTypeDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  CycleSettingsController_getModuleSettings: {
+    parameters: {
+      query: {
+        cycle_id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["ModuleSettingEntity"];
+        };
+      };
+    };
+  };
+  CycleSettingsController_updateModuleSettings: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateModuleSettingDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  CycleSettingsController_getWeightingSystem: {
+    parameters: {
+      query: {
+        cycle_id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["WeightingSystemEntity"];
+        };
+      };
+    };
+  };
+  CycleSettingsController_updateWeightingSystem: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateWeightingSystemDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  CycleSettingsController_updateMajorSettings: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateMajorSettingsDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  AcademicProfilesController_getAcademicProfiles: {
+    parameters: {
+      query: {
+        cycle_id: string;
+        weighting_system: number;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["AcademicProfileEntity"][];
+        };
+      };
+    };
+  };
+  AcademicProfilesController_createAcademicProfile: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateAcademicProfileDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["AcademicProfileEntity"];
+        };
+      };
+    };
+  };
+  AcademicProfilesController_updateAcademicProfile: {
+    parameters: {
+      path: {
+        annual_academic_profile_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateAcademicProfileDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  AcademicProfilesController_deleteAcademicProfile: {
+    parameters: {
+      path: {
+        annual_academic_profile_id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  GradeWeightingsController_getGradeWeightings: {
+    parameters: {
+      query: {
+        cycle_id: string;
+        weighting_system: number;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["GradeWeightingEntity"][];
+        };
+      };
+    };
+  };
+  GradeWeightingsController_createGradeWeighting: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateGradeWeightingDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["GradeWeightingEntity"];
+        };
+      };
+    };
+  };
+  GradeWeightingsController_updateGradeWeighting: {
+    parameters: {
+      path: {
+        annual_grade_weighting_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateGradeWeightingDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  GradeWeightingsController_deleteGradeWeighting: {
+    parameters: {
+      path: {
+        annual_grade_weighting_id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
       };
     };
   };
