@@ -4,7 +4,7 @@ import {
   OmitType,
   PartialType,
 } from '@nestjs/swagger';
-import { IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, IsUUID } from 'class-validator';
 import { CycleEntity, QueryParamsDto } from '../modules.dto';
 
 export class CreateMajorDto {
@@ -25,7 +25,9 @@ export class CreateMajorDto {
   cycle_id: string;
 
   constructor(props: CreateMajorDto) {
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
@@ -35,10 +37,15 @@ export class UpdateMajorDto extends OmitType(PartialType(CreateMajorDto), [
 ]) {}
 
 export class QueryMajorDto extends QueryParamsDto {
-  @IsUUID()
+  @IsString()
   @IsOptional()
   @ApiPropertyOptional()
   department_id?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiPropertyOptional()
+  uses_module_system?: boolean;
 }
 
 export class AnnualMajorEntity extends OmitType(CreateMajorDto, ['cycle_id']) {
@@ -58,11 +65,16 @@ export class AnnualMajorEntity extends OmitType(CreateMajorDto, ['cycle_id']) {
   created_at: Date;
 
   @ApiProperty()
+  uses_module_system: boolean;
+
+  @ApiProperty()
   is_deleted: boolean;
 
   constructor(props: AnnualMajorEntity) {
     super(props);
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 

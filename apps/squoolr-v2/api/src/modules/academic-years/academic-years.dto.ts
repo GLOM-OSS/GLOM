@@ -36,7 +36,9 @@ export class CreateAcademicYearDto {
   ends_at: Date;
 
   constructor(props: CreateAcademicYearDto) {
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
@@ -92,6 +94,8 @@ export class AcademicYearEntity
 
   constructor(props: AcademicYearEntity) {
     super(props);
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
