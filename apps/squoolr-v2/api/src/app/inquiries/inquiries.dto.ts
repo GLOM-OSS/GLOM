@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { InquiryType, Inquiry } from '@prisma/client';
+import { Inquiry, InquiryType } from '@prisma/client';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class CreateInquiryDto {
@@ -27,7 +27,9 @@ export class CreateInquiryDto {
   type: InquiryType;
 
   constructor(props: CreateInquiryDto) {
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
@@ -40,6 +42,8 @@ export class InquiryEntity extends CreateInquiryDto implements Inquiry {
 
   constructor(props: InquiryEntity) {
     super(props);
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }

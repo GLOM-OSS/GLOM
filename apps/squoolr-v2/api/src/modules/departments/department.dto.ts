@@ -41,7 +41,9 @@ export class DepartmentEntity implements Department {
   is_deleted: boolean;
 
   constructor(props: DepartmentEntity) {
-    Object.assign(this, props);
+    Object.entries(props).forEach(([key, value]) => {
+      if (key in this) this[key] = value;
+    });
   }
 }
 
