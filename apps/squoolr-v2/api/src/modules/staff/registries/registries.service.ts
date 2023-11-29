@@ -67,6 +67,8 @@ export class RegistriesService implements IStaffService<StaffEntity> {
           is_deleted,
           annual_registry_id,
           last_connected: log?.logged_in_at ?? null,
+          annual_configurator_id: configrator?.annual_configurator_id,
+          annual_teacher_id: Teacher?.AnnualTeachers[0]?.annual_teacher_id,
           roles: [{ configrator }, { teacher: Teacher?.AnnualTeachers }].reduce<
             StaffRole[]
           >(

@@ -2,6 +2,7 @@ import {
   ConfirmDialog,
   NoTableElement,
   TableHeaderItem,
+  TableSkeleton,
 } from '@glom/components';
 import { DepartmentEntity } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
@@ -28,12 +29,11 @@ import {
   TextField,
   Tooltip,
 } from '@mui/material';
-import FilterMenu from 'apps/squoolr-v2/staff/components/configuration/departments/FilterMenu';
-import ManageDepartmentMenu from 'apps/squoolr-v2/staff/components/configuration/departments/ManageDepartmentMenu';
-import NewDepartmentDialog from 'apps/squoolr-v2/staff/components/configuration/departments/NewDepartmentDialog';
-import TableSkeleton from 'libs/components/src/table/TableSkeleton';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
+import FilterMenu from '../../../components/configuration/departments/FilterMenu';
+import ManageDepartmentMenu from '../../../components/configuration/departments/ManageDepartmentMenu';
+import NewDepartmentDialog from '../../../components/configuration/departments/NewDepartmentDialog';
 
 export function Index() {
   const theme = useTheme();
@@ -62,7 +62,6 @@ export function Index() {
           created_at: new Date().toISOString(),
           created_by: '',
           department_acronym: 'DS',
-          department_code: 'EF1203',
           department_id: 'EF1203',
           department_name: 'Department des Sciences',
           is_deleted: false,
@@ -118,9 +117,6 @@ export function Index() {
     useState<boolean>(false);
 
   //TODO: REMOVE THIS AND USE reactQuery own
-  const [isEditingDeparment, setIsEditingDepartment] = useState<boolean>(false);
-
-  //TODO: REMOVE THIS AND USE reactQuery own
   const [isArchiving, setIsArchiving] = useState<boolean>(false);
   //TODO: REMOVE THIS AND USE reactQuery own
   const [isUnarchiving, setIsUnarchiving] = useState<boolean>(false);
@@ -151,12 +147,22 @@ export function Index() {
 
   const [isNewDepartmentDialogOpen, setIsNewDepartmentDialogOpen] =
     useState<boolean>(false);
+  const [isEditDepartmentDialogOpen, setIsEditDepartmentDialogOpen] =
+    useState<boolean>(false);
+
+  const [editableDepartment, setEditableDepartment] =
+    useState<DepartmentEntity>();
 
   return (
     <>
       <NewDepartmentDialog
-        isDialogOpen={isNewDepartmentDialogOpen}
-        closeDialog={() => setIsNewDepartmentDialogOpen(false)}
+        isDialogOpen={isEditDepartmentDialogOpen || isNewDepartmentDialogOpen}
+        closeDialog={() => {
+          setEditableDepartment(undefined);
+          setIsNewDepartmentDialogOpen(false);
+          setIsEditDepartmentDialogOpen(false);
+        }}
+        editableDepartment={editableDepartment}
       />
       <FilterMenu
         closeMenu={() => {
@@ -173,8 +179,18 @@ export function Index() {
         closeMenu={() => setAnchorEl(null)}
         isOpen={!!anchorEl}
         isArchived={isActiveDepartmentArchived}
-        confirmArchive={() => setIsConfirmArchiveDialogOpen(true)}
-        confirmUnarchive={() => setIsConfirmUnarchiveDialogOpen(true)}
+        confirmArchive={() => {
+          setEditableDepartment(undefined);
+          setIsConfirmArchiveDialogOpen(true);
+        }}
+        confirmUnarchive={() => {
+          setEditableDepartment(undefined);
+          setIsConfirmUnarchiveDialogOpen(true);
+        }}
+        editDepartment={() => {
+          setActiveDepartmentId(undefined);
+          setIsEditDepartmentDialogOpen(true);
+        }}
       />
       <ConfirmDialog
         closeDialog={() => {
@@ -292,7 +308,7 @@ export function Index() {
                 <Button
                   variant="outlined"
                   color="warning"
-                  disabled={isArchiving || isUnarchiving || isEditingDeparment}
+                  disabled={isArchiving || isUnarchiving}
                   onClick={() => setIsConfirmUnarchiveDialogOpen(true)}
                 >
                   {formatMessage({ id: 'unarchiveSelected' })}
@@ -302,7 +318,7 @@ export function Index() {
                 <Button
                   variant="outlined"
                   color="warning"
-                  disabled={isArchiving || isUnarchiving || isEditingDeparment}
+                  disabled={isArchiving || isUnarchiving}
                   onClick={() => setIsConfirmArchiveDialogOpen(true)}
                 >
                   {formatMessage({ id: 'archiveSelected' })}
@@ -341,16 +357,15 @@ export function Index() {
                           !departmentData ||
                           isDepartmentDataFetching ||
                           isArchiving ||
-                          isUnarchiving ||
-                          isEditingDeparment
+                          isUnarchiving
                         }
                         onClick={() =>
-                          isArchiving || isUnarchiving || isEditingDeparment
+                          isArchiving || isUnarchiving
                             ? null
                             : selectAllDepartments()
                         }
                         checked={
-                          departmentData &&
+                          !!departmentData &&
                           selectedDepartmentIds.length === departmentData.length
                         }
                         icon={
@@ -389,23 +404,19 @@ export function Index() {
             </TableHead>
             <TableBody>
               {!departmentData || isDepartmentDataFetching ? (
-                [...new Array(4)].map((_, index) => (
-                  <TableSkeleton key={index} hasCheckbox hasMore />
-                ))
+                <TableSkeleton hasCheckbox hasMore />
               ) : departmentData.length === 0 ? (
                 <NoTableElement />
               ) : (
-                departmentData.map(
-                  (
-                    {
-                      created_at,
-                      department_acronym,
-                      department_name,
-                      department_id,
-                      is_deleted,
-                    },
-                    index
-                  ) => (
+                departmentData.map((department, index) => {
+                  const {
+                    created_at,
+                    department_acronym,
+                    department_name,
+                    department_id,
+                    is_deleted,
+                  } = department;
+                  return (
                     <TableRow
                       key={index}
                       sx={{
@@ -484,20 +495,12 @@ export function Index() {
                           <Tooltip arrow title={formatMessage({ id: 'more' })}>
                             <IconButton
                               size="small"
-                              disabled={
-                                isArchiving ||
-                                isUnarchiving ||
-                                isEditingDeparment
-                              }
+                              disabled={isArchiving || isUnarchiving}
                               onClick={(event) => {
-                                if (
-                                  isArchiving ||
-                                  isUnarchiving ||
-                                  isEditingDeparment
-                                )
-                                  return null;
+                                if (isArchiving || isUnarchiving) return null;
                                 setAnchorEl(event.currentTarget);
                                 setActiveDepartmentId(department_id);
+                                setEditableDepartment(department);
                                 setIsActiveDepartmentArchived(is_deleted);
                               }}
                             >
@@ -507,8 +510,8 @@ export function Index() {
                         )}
                       </TableCell>
                     </TableRow>
-                  )
-                )
+                  );
+                })
               )}
             </TableBody>
           </Table>

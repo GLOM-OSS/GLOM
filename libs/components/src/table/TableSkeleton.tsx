@@ -9,7 +9,7 @@ import {
   TableRow,
 } from '@mui/material';
 
-export default function TableSkeleton({
+export function TableSkeleton({
   hasCheckbox,
   hasMore,
   cols = 5,
@@ -21,8 +21,9 @@ export default function TableSkeleton({
   const leftCols = cols - (hasMore ? 1 : 0) - (hasCheckbox ? 1 : 0);
   return (
     <>
-      {[...new Array(4)].map(() => (
+      {[...new Array(4)].map((_, index) => (
         <TableRow
+          key={index}
           sx={{
             '&:last-child td, &:last-child th': { border: 0 },
             '& td': {

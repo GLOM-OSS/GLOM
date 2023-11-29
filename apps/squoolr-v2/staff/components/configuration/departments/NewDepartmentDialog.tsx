@@ -32,7 +32,7 @@ export default function NewDepartmentDialog({
 
   const initialValues: CreateDepartmentPayload = {
     department_acronym: editableDepartment?.department_acronym ?? '',
-    department_name: editableDepartment?.department_acronym ?? '',
+    department_name: editableDepartment?.department_name ?? '',
   };
 
   const validationSchema = Yup.object().shape({
@@ -161,7 +161,14 @@ export default function NewDepartmentDialog({
               variant="contained"
               color="primary"
               type="submit"
-              disabled={isSubmitting}
+              disabled={
+                isSubmitting ||
+                (!!editableDepartment &&
+                  editableDepartment.department_acronym ===
+                    formik.values.department_acronym &&
+                  editableDepartment.department_name ===
+                    formik.values.department_name)
+              }
               startIcon={
                 isSubmitting && <CircularProgress color="primary" size={18} />
               }
