@@ -2,6 +2,7 @@ import {
   SchemaCreateResponseBody,
   SchemaRequestBody,
   SchemaRequestParams,
+  SchemaRequestQuery,
   SchemaResponseBody,
 } from '../../api-helper';
 import { operations } from '../docs';
@@ -34,4 +35,9 @@ export type ValidateSchoolDemandPayload = SchemaRequestBody<
 export type UpdateSchoolStatusPayload = SchemaRequestParams<
   operations,
   'SchoolsController_updateSchoolStatus'
+>;
+
+export type SchoolQueryParams = SchemaRequestQuery<
+  operations,
+  'SchoolsController_getAllDemands'
 >;

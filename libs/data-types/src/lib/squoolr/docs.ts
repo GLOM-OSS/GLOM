@@ -773,6 +773,13 @@ export interface operations {
     };
   };
   SchoolsController_getAllDemands: {
+    parameters: {
+      query?: {
+        is_deleted?: boolean;
+        keywords?: string;
+        schoolDemandStatus?: ("PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED")[];
+      };
+    };
     responses: {
       200: {
         content: {

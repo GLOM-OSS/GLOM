@@ -3,11 +3,9 @@ import { SchoolDemandStatus } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
 import {
   IsDate,
-  IsDateString,
   IsEmail,
   IsEnum,
   IsNotEmptyObject,
-  IsNumber,
   IsOptional,
   IsPhoneNumber,
   IsString,
@@ -16,6 +14,14 @@ import {
 } from 'class-validator';
 import { CreatePersonDto, PersonEntity } from '../../app/auth/auth.dto';
 import { CreateAcademicYearDto } from '../academic-years/academic-years.dto';
+import { QueryParamsDto } from '../modules.dto';
+
+export class QuerySchoolDto extends QueryParamsDto {
+  @IsOptional()
+  @IsEnum(SchoolDemandStatus, { each: true })
+  @ApiPropertyOptional({ enum: SchoolDemandStatus, isArray: true })
+  schoolDemandStatus?: SchoolDemandStatus[];
+}
 
 export class CreateSchoolDto {
   @ApiProperty()

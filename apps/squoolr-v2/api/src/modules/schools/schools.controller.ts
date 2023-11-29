@@ -4,9 +4,9 @@ import {
   Controller,
   Get,
   Param,
-  Patch,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -18,16 +18,18 @@ import {
 } from '@nestjs/swagger';
 import { Request } from 'express';
 import { IsPublic, Roles } from '../../app/auth/auth.decorator';
+import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 import { Role } from '../../utils/enums';
+import { QueryParamsDto } from '../modules.dto';
 import {
   SchoolDemandDetails,
   SchoolEntity,
+  QuerySchoolDto,
   SubmitSchoolDemandDto,
   UpdateSchoolDemandStatus,
   ValidateSchoolDemandDto,
 } from './schools.dto';
 import { SchoolsService } from './schools.service';
-import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 
 @ApiTags('Schools')
 @Roles(Role.ADMIN)
@@ -38,8 +40,8 @@ export class SchoolsController {
 
   @Get()
   @ApiOkResponse({ type: [SchoolEntity] })
-  getAllDemands() {
-    return this.schoolsService.findAll();
+  getAllDemands(@Query() params?: QuerySchoolDto) {
+    return this.schoolsService.findAll(params);
   }
 
   @IsPublic()
@@ -103,6 +105,10 @@ export class SchoolsController {
     @Body() payload: UpdateSchoolDemandStatus
   ) {
     const userId = request.user.login_id;
-    return this.schoolsService.updateStatus(schoolId, payload, userId);
+    return this.schoolsService.updateStatus(
+      schoolId,
+      payload.school_demand_status,
+      userId
+    );
   }
 }
