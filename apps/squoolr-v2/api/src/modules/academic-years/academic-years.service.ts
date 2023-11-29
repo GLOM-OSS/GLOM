@@ -7,8 +7,8 @@ import {
 import {
   AcademicYearStatus,
   CarryOverSystemEnum,
-  EvaluationSubTypeEnum,
   EvaluationTypeEnum,
+  Prisma,
 } from '@prisma/client';
 import { AnnualSessionData, UserRole } from '../../app/auth/auth';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
@@ -17,6 +17,7 @@ import {
   AcademicYearEntity,
   CreateAcademicYearDto,
 } from './academic-years.dto';
+import { AcademicYearArgsFactory } from './academic-year-args.factory';
 
 @Injectable()
 export class AcademicYearsService {
@@ -55,11 +56,6 @@ export class AcademicYearsService {
       ends_at.getFullYear(),
       school_id
     );
-    const {
-      AnnualCarryOverSytems,
-      AnnualSemesterExamAcess,
-      AnnualEvaluationSubTypes,
-    } = await this.getDefaultSettings(created_by);
     const [academicYear] = await this.prismaService.$transaction([
       this.prismaService.academicYear.create({
         data: {
@@ -70,9 +66,7 @@ export class AcademicYearsService {
             connect: { annual_configurator_id: created_by },
           },
           School: { connect: { school_id } },
-          AnnualCarryOverSytems,
-          AnnualSemesterExamAcess,
-          AnnualEvaluationSubTypes,
+          ...AcademicYearArgsFactory.getInitialSetup(created_by),
         },
       }),
       this.prismaService.annualConfigurator.create({
@@ -431,11 +425,6 @@ export class AcademicYearsService {
       select: {
         student_id: true,
         annual_student_id: true,
-        Student: {
-          select: {
-            Classroom: { select: { classroom_code: true, level: true } },
-          },
-        },
         AnnualStudentHasModules: {
           distinct: ['semester_number'],
           select: { semester_number: true },
@@ -451,19 +440,14 @@ export class AcademicYearsService {
       const {
         student_id,
         annual_student_id,
-        Student: {
-          Classroom: { classroom_code, level: classroom_level },
-        },
-        AnnualStudentHasModules: crediUnits,
+        AnnualStudentHasModules: studentModules,
       } = annualStudent;
       annualSessionData = {
         ...annualSessionData,
         annualStudent: {
           student_id,
-          classroom_code,
-          classroom_level,
           annual_student_id,
-          activeSemesters: crediUnits.map((_) => _.semester_number),
+          activeSemesters: studentModules.map((_) => _.semester_number),
         },
       };
       retrivedRoles.push({
@@ -555,63 +539,5 @@ export class AcademicYearsService {
       }
     }
     return annualSessionData;
-  }
-
-  private async getDefaultSettings(annual_configurator_id: string) {
-    const evaluationTypes = await this.prismaService.evaluationType.findMany();
-
-    return {
-      AnnualCarryOverSytems: {
-        create: {
-          carry_over_system: CarryOverSystemEnum.SUBJECT,
-          CreatedBy: {
-            connect: { annual_configurator_id },
-          },
-        },
-      },
-      AnnualSemesterExamAcess: {
-        createMany: {
-          data: [
-            {
-              annual_semester_number: 1,
-              created_by: annual_configurator_id,
-              payment_percentage: 0,
-            },
-            {
-              annual_semester_number: 2,
-              created_by: annual_configurator_id,
-              payment_percentage: 0,
-            },
-          ],
-        },
-      },
-      AnnualEvaluationSubTypes: {
-        createMany: {
-          data: [
-            {
-              evaluation_sub_type_name: EvaluationSubTypeEnum.CA,
-              evaluation_type_id: evaluationTypes.find(
-                (_) => _.evaluation_type === EvaluationTypeEnum.CA
-              ).evaluation_type_id,
-              evaluation_sub_type_weight: 100,
-            },
-            {
-              evaluation_sub_type_name: EvaluationSubTypeEnum.EXAM,
-              evaluation_type_id: evaluationTypes.find(
-                (_) => _.evaluation_type === EvaluationTypeEnum.EXAM
-              ).evaluation_type_id,
-              evaluation_sub_type_weight: 100,
-            },
-            {
-              evaluation_sub_type_name: EvaluationSubTypeEnum.RESIT,
-              evaluation_type_id: evaluationTypes.find(
-                (_) => _.evaluation_type === EvaluationTypeEnum.EXAM
-              ).evaluation_type_id,
-              evaluation_sub_type_weight: 100,
-            },
-          ],
-        },
-      },
-    };
   }
 }

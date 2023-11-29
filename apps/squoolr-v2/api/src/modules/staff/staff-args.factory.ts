@@ -1,11 +1,14 @@
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { Role } from '../../utils/enums';
+import { Role, StaffRole } from '../../utils/enums';
 import {
   AnnualStaffCreateInput,
   CreateStaffInput,
   StaffSelectParams,
 } from './staff';
+import { StaffEntity } from './staff.dto';
+import { DefaultArgs } from '@prisma/client/runtime';
+
 export class StaffArgsFactory {
   static getStaffWhereInput = ({
     academic_year_id,
@@ -33,6 +36,7 @@ export class StaffArgsFactory {
   });
 
   static getStaffSelect = (staffParams?: StaffSelectParams) => ({
+    matricule: true,
     is_deleted: true,
     Login: Prisma.validator<Prisma.LoginFindManyArgs>()({
       select: {
@@ -139,4 +143,49 @@ export class StaffArgsFactory {
         },
       },
     });
+
+  private static select = StaffArgsFactory.getStaffSelect();
+  static getStaffEntity = ({
+    matricule,
+    is_deleted,
+    Login: {
+      login_id,
+      Person,
+      Teacher,
+      Logs: [log],
+      AnnualRegistries: [registry],
+      AnnualConfigurators: [configrator],
+    },
+  }: Prisma.AnnualConfiguratorGetPayload<{
+    select: typeof StaffArgsFactory.select;
+  }>) => {
+    let roles: StaffRole[] = [];
+    return new StaffEntity({
+      login_id,
+      ...Person,
+      matricule,
+      is_deleted,
+      last_connected: log?.logged_in_at ?? null,
+      annual_registry_id: registry?.annual_registry_id,
+      annual_configurator_id: configrator?.annual_configurator_id,
+      annual_teacher_id: Teacher?.AnnualTeachers[0]?.annual_teacher_id,
+      roles: [
+        { configrator },
+        { registry },
+        { teacher: Teacher?.AnnualTeachers },
+      ].reduce<StaffRole[]>((accRoles, _) => {
+        roles = _.configrator
+          ? [...accRoles, StaffRole.CONFIGURATOR]
+          : _.registry
+          ? [...accRoles, StaffRole.REGISTRY]
+          : _.teacher
+          ? _.teacher[0].AnnualClassroomDivisions
+            ? [...accRoles, StaffRole.TEACHER, StaffRole.COORDINATOR]
+            : [...accRoles, StaffRole.TEACHER]
+          : accRoles;
+        return roles;
+      }, []),
+      role: roles[0],
+    });
+  };
 }

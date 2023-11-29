@@ -29,22 +29,27 @@ export interface paths {
     post: operations["PaymentsController_initEntryFeePayment"];
   };
   "/v1/schools": {
-    get: operations["SchoolsController_getAllDemands"];
+    get: operations["SchoolsController_getSchools"];
   };
-  '/v1/schools/{school_id}': {
-    get: operations['SchoolsController_getDemandStatus'];
+  "/v1/schools/{school_id}": {
+    get: operations["SchoolsController_getSchool"];
+    put: operations["SchoolsController_updateSchool"];
   };
-  '/v1/schools/{school_code}': {
-    get: operations['SchoolsController_getDemandStatus'];
+  "/v1/schools/{school_code}": {
+    get: operations["SchoolsController_getSchool"];
   };
-  '/v1/schools/{school_id}/details': {
-    get: operations['SchoolsController_getDemandDetails'];
+  "/v1/schools/{school_id}/details": {
+    get: operations["SchoolsController_getSchoolDetails"];
   };
-  '/v1/schools/new': {
-    post: operations['SchoolsController_submitDemand'];
+  "/v1/schools/new": {
+    post: operations["SchoolsController_submitSchoolDemand"];
   };
-  '/v1/schools/{school_id}/validate': {
-    put: operations['SchoolsController_validateDemand'];
+  "/v1/schools/{school_id}/validate": {
+    put: operations["SchoolsController_validateSchoolDemand"];
+  };
+  "/v1/schools/settings": {
+    get: operations["SchoolsController_getSchoolSettings"];
+    put: operations["SchoolsController_updateSchoolSettings"];
   };
   '/v1/schools/{school_id}/status': {
     put: operations['SchoolsController_updateSchoolStatus'];
@@ -264,8 +269,11 @@ export interface components {
         | 'SUSPENDED';
       school_rejection_reason: string;
       subdomain: string | null;
+      creation_decree_number: string | null;
+      description: string | null;
       /** Format: date-time */
       created_at: string;
+      created_by: string;
     };
     PersonEntity: {
       first_name: string;
@@ -340,6 +348,61 @@ export interface components {
     ValidateSchoolDemandDto: {
       rejection_reason?: string;
       subdomain?: string;
+    };
+    UpdateSchoolDto: {
+      school_name?: string;
+      school_acronym?: string;
+      school_email?: string;
+      school_phone_number?: string;
+      school_id?: string;
+      school_code?: string;
+      ambassador_email?: string;
+      /** @enum {string} */
+      school_demand_status?: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED";
+      creation_decree_number?: string | null;
+      description?: string | null;
+      /** Format: date-time */
+      created_at?: string;
+      created_by?: string;
+    };
+    DocumentSignerEntity: {
+      /** @example Yongua */
+      signer_name: string;
+      /** @example The Rector */
+      signer_title: string;
+      /** @example Mr, Ms, Dr, etc */
+      honorific: string;
+      hierarchy_level: number;
+      annual_document_signer_id: string;
+      annual_school_setting_id: string;
+      /** Format: date-time */
+      created_at: string;
+    };
+    SchoolSettingEntity: {
+      annual_school_setting_id: string;
+      academic_year_id: string;
+      can_pay_fee: boolean;
+      /** @enum {string} */
+      mark_insertion_source: "Teacher" | "Registry";
+      /** Format: date-time */
+      created_at: string;
+      documentSigners: components["schemas"]["DocumentSignerEntity"][];
+    };
+    CreateDocumentSignerDto: {
+      /** @example Yongua */
+      signer_name: string;
+      /** @example The Rector */
+      signer_title: string;
+      /** @example Mr, Ms, Dr, etc */
+      honorific: string;
+      hierarchy_level: number;
+    };
+    UpdateSchoolSettingDto: {
+      can_pay_fee?: boolean;
+      /** @enum {string} */
+      mark_insertion_source?: "Teacher" | "Registry";
+      deletedSignerIds?: string[];
+      newDocumentSigners?: components["schemas"]["CreateDocumentSignerDto"];
     };
     UpdateSchoolDemandStatus: {
       /** @enum {string} */
@@ -531,8 +594,7 @@ export interface components {
       annual_configurator_id?: string;
       annual_registry_id?: string;
       annual_teacher_id?: string;
-      annual_coordinator_id?: string;
-      roles: ('TEACHER' | 'REGISTRY' | 'COORDINATOR' | 'CONFIGURATOR')[];
+      roles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
     };
     CreateConfiguratorDto: {
       first_name: string;
@@ -772,14 +834,14 @@ export interface operations {
       };
     };
   };
-  SchoolsController_getAllDemands: {
+  SchoolsController_getSchools: {
     parameters: {
       query?: {
         is_deleted?: boolean;
         keywords?: string;
         schoolDemandStatus?: ("PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED")[];
       };
-    };
+    };    
     responses: {
       200: {
         content: {
@@ -788,7 +850,7 @@ export interface operations {
       };
     };
   };
-  SchoolsController_getDemandStatus: {
+  SchoolsController_getSchool: {
     parameters: {
       path: {
         school_id: string;
@@ -802,7 +864,24 @@ export interface operations {
       };
     };
   };
-  SchoolsController_getDemandDetails: {
+  SchoolsController_updateSchool: {
+    parameters: {
+      path: {
+        school_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateSchoolDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  SchoolsController_getSchoolDetails: {
     parameters: {
       path: {
         school_id: string;
@@ -816,7 +895,7 @@ export interface operations {
       };
     };
   };
-  SchoolsController_submitDemand: {
+  SchoolsController_submitSchoolDemand: {
     requestBody: {
       content: {
         'application/json': components['schemas']['SubmitSchoolDemandDto'];
@@ -830,7 +909,7 @@ export interface operations {
       };
     };
   };
-  SchoolsController_validateDemand: {
+  SchoolsController_validateSchoolDemand: {
     parameters: {
       path: {
         school_id: string;
@@ -843,6 +922,27 @@ export interface operations {
     };
     responses: {
       204: {
+        content: never;
+      };
+    };
+  };
+  SchoolsController_getSchoolSettings: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["SchoolSettingEntity"];
+        };
+      };
+    };
+  };
+  SchoolsController_updateSchoolSettings: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateSchoolSettingDto"];
+      };
+    };
+    responses: {
+      200: {
         content: never;
       };
     };

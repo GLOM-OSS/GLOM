@@ -54,57 +54,30 @@ export class CoordinatorsService
       });
     if (coordinatedClasses.length === 0)
       throw new NotFoundException('Coordinated classrooms not found !!!');
-    return coordinatedClasses.reduce<CoordinatorEntity>(
-      (
-        coordo,
-        {
-          annual_classroom_id,
-          AnnualTeacher: {
-            Teacher: {
-              Login: {
-                login_id,
-                Person,
-                Logs: [log],
-                AnnualConfigurators: [configrator],
-                AnnualRegistries: [registry],
-              },
-              ...teacher
-            },
-            ...annual_teacher
-          },
-        }
-      ) =>
-        new CoordinatorEntity(
-          coordo
-            ? {
-                ...coordo,
-                annualClassroomIds: coordo.annualClassroomIds.includes(
-                  annual_classroom_id
-                )
-                  ? coordo.annualClassroomIds
-                  : [...coordo.annualClassroomIds, annual_classroom_id],
-              }
-            : {
-                login_id,
-                ...Person,
-                ...teacher,
-                ...annual_teacher,
-                last_connected: log?.logged_in_at ?? null,
-                annualClassroomIds: [annual_classroom_id],
-                roles: [{ registry }, { configrator }].reduce<StaffRole[]>(
-                  (roles, _) =>
-                    _.registry
-                      ? [...roles, StaffRole.REGISTRY]
-                      : _.configrator
-                      ? [...roles, StaffRole.CONFIGURATOR]
-                      : roles,
-                  [StaffRole.TEACHER, StaffRole.COORDINATOR]
-                ),
-                role: StaffRole.COORDINATOR,
-              }
-        ),
-      CoordinatorEntity.prototype
-    );
+    const [
+      {
+        annual_classroom_id,
+        AnnualTeacher: {
+          Teacher: { Login, is_deleted, matricule, ...teacher },
+          ...annualTeacher
+        },
+      },
+      ...otherClassess
+    ] = coordinatedClasses;
+    return new CoordinatorEntity({
+      ...teacher,
+      ...annualTeacher,
+      ...StaffArgsFactory.getStaffEntity({
+        Login,
+        is_deleted,
+        matricule,
+      }),
+      annualClassroomIds: [
+        annual_classroom_id,
+        ...(otherClassess ?? []).map((_) => _.annual_classroom_id),
+      ],
+      role: StaffRole.COORDINATOR,
+    });
   }
 
   async findAll(staffParams?: StaffSelectParams) {
@@ -113,7 +86,9 @@ export class CoordinatorsService
         distinct: ['annual_coordinator_id'],
         select: {
           AnnualTeacher: {
-            select: StaffArgsFactory.getTeacherSelect(),
+            select: {
+              Teacher: { select: StaffArgsFactory.getStaffSelect(staffParams) },
+            },
           },
         },
         where: {
@@ -123,43 +98,8 @@ export class CoordinatorsService
           },
         },
       });
-    return coordinators.map(
-      ({
-        AnnualTeacher: {
-          Teacher: {
-            matricule,
-            is_deleted,
-            Login: {
-              login_id,
-              Person,
-              Logs: [log],
-              AnnualConfigurators: [configrator],
-              AnnualRegistries: [registry],
-            },
-          },
-          annual_teacher_id,
-        },
-      }) =>
-        new StaffEntity({
-          login_id,
-          ...Person,
-          matricule,
-          is_deleted,
-          annual_teacher_id,
-          annual_registry_id: registry?.annual_registry_id,
-          annual_configurator_id: configrator?.annual_configurator_id,
-          last_connected: log?.logged_in_at ?? null,
-          roles: [{ registry }, { configrator }].reduce<StaffRole[]>(
-            (roles, _) =>
-              _.registry
-                ? [...roles, StaffRole.REGISTRY]
-                : _.configrator
-                ? [...roles, StaffRole.CONFIGURATOR]
-                : roles,
-            [StaffRole.TEACHER, StaffRole.COORDINATOR]
-          ),
-          role: StaffRole.COORDINATOR,
-        })
+    return coordinators.map(({ AnnualTeacher: { Teacher: teacher } }) =>
+      StaffArgsFactory.getStaffEntity(teacher)
     );
   }
 

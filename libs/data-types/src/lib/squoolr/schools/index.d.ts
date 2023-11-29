@@ -39,5 +39,16 @@ export type UpdateSchoolStatusPayload = SchemaRequestParams<
 
 export type SchoolQueryParams = SchemaRequestQuery<
   operations,
-  'SchoolsController_getAllDemands'
+  'SchoolsController_getSchools'
+>;
+export type AnnualSchoolSettings = SchemaResponseBody<
+  operations,
+  'SchoolsController_getSchoolSettings'
+>;
+
+export type DocumentSignerEntity = AnnualSchoolSettings['documentSigners'][0];
+
+export type UpdateSchoolSettingPayload = SchemaRequestBody<
+  operations,
+  'SchoolsController_updateSchoolSettings'
 >;

@@ -25,54 +25,22 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
   }
 
   async findOne(annual_configurator_id: string) {
-    const {
-      matricule,
-      is_deleted,
-      Login: {
-        login_id,
-        Person,
-        Teacher,
-        Logs: [log],
-        AnnualRegistries: [registry],
-      },
-    } = await this.prismaService.annualConfigurator.findFirstOrThrow({
-      select: {
-        matricule: true,
-        ...StaffArgsFactory.getStaffSelect(),
-      },
-      where: {
-        annual_configurator_id,
-        is_deleted: false,
-      },
-    });
-    return new StaffEntity({
-      login_id,
-      ...Person,
-      matricule,
-      is_deleted,
-      annual_configurator_id,
-      last_connected: log?.logged_in_at ?? null,
-      roles: [{ registry }, { teacher: Teacher?.AnnualTeachers }].reduce<
-        StaffRole[]
-      >(
-        (roles, _) =>
-          _.registry
-            ? [...roles, StaffRole.REGISTRY]
-            : _.teacher
-            ? _.teacher[0].AnnualClassroomDivisions
-              ? [...roles, StaffRole.TEACHER, StaffRole.COORDINATOR]
-              : [...roles, StaffRole.TEACHER]
-            : roles,
-        [StaffRole.CONFIGURATOR]
-      ),
-      role: StaffRole.CONFIGURATOR,
-    });
+    const configrator =
+      await this.prismaService.annualConfigurator.findFirstOrThrow({
+        select: StaffArgsFactory.getStaffSelect({
+          activeRole: StaffRole.CONFIGURATOR,
+        }),
+        where: {
+          annual_configurator_id,
+          is_deleted: false,
+        },
+      });
+    return StaffArgsFactory.getStaffEntity(configrator);
   }
 
   async findAll(staffParams?: StaffSelectParams) {
     const configurators = await this.prismaService.annualConfigurator.findMany({
       select: {
-        matricule: true,
         annual_configurator_id: true,
         ...StaffArgsFactory.getStaffSelect(staffParams),
       },
@@ -81,43 +49,8 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
         ...StaffArgsFactory.getStaffWhereInput(staffParams),
       },
     });
-    return configurators.map(
-      ({
-        matricule,
-        is_deleted,
-        annual_configurator_id,
-        Login: {
-          login_id,
-          Person,
-          Teacher,
-          Logs: [log],
-          AnnualRegistries: [registry],
-        },
-      }) =>
-        new StaffEntity({
-          login_id,
-          ...Person,
-          matricule,
-          is_deleted,
-          annual_configurator_id,
-          annual_registry_id: registry?.annual_registry_id,
-          annual_teacher_id: Teacher?.AnnualTeachers[0]?.annual_teacher_id,
-          last_connected: log?.logged_in_at ?? null,
-          roles: [{ registry }, { teacher: Teacher?.AnnualTeachers }].reduce<
-            StaffRole[]
-          >(
-            (roles, _) =>
-              _.registry
-                ? [...roles, StaffRole.REGISTRY]
-                : _.teacher
-                ? _.teacher[0].AnnualClassroomDivisions
-                  ? [...roles, StaffRole.TEACHER, StaffRole.COORDINATOR]
-                  : [...roles, StaffRole.TEACHER]
-                : roles,
-            [StaffRole.CONFIGURATOR]
-          ),
-          role: StaffRole.CONFIGURATOR,
-        })
+    return configurators.map((configrator) =>
+      StaffArgsFactory.getStaffEntity(configrator)
     );
   }
 

@@ -1,76 +1,27 @@
 import { NotchPayService } from '@glom/payment';
 import { GlomPrismaService } from '@glom/prisma';
+import { excludeKeys } from '@glom/utils';
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import {
-  CarryOverSystemEnum,
-  Prisma,
-  SchoolDemandStatus,
-} from '@prisma/client';
+import { SchoolDemandStatus } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
+import { AcademicYearArgsFactory } from '../academic-years/academic-year-args.factory';
+import { SchoolArgsFactory } from './school-args.factory';
 import {
-  SchoolDemandDetails,
-  SchoolEntity,
   QuerySchoolDto,
+  SchoolDemandDetails,
+  SchoolSettingEntity,
   SubmitSchoolDemandDto,
-  UpdateSchoolDemandStatus,
+  UpdateSchoolDto,
+  UpdateSchoolSettingDto,
   ValidateSchoolDemandDto,
 } from './schools.dto';
-import { QueryParams } from '../module';
-
-const schoolSelectAttr = Prisma.validator<Prisma.SchoolArgs>()({
-  select: {
-    school_id: true,
-    school_acronym: true,
-    school_code: true,
-    lead_funnel: true,
-    school_email: true,
-    school_name: true,
-    subdomain: true,
-    school_phone_number: true,
-    created_at: true,
-    SchoolDemand: {
-      include: {
-        Payment: true,
-        Ambassador: {
-          select: {
-            Login: {
-              select: {
-                Person: { select: { email: true } },
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-});
-const getSchoolEntity = (
-  data: Prisma.SchoolGetPayload<typeof schoolSelectAttr>
-) => {
-  const {
-    SchoolDemand: {
-      demand_status,
-      rejection_reason,
-      Payment: { amount: paid_amount },
-      Ambassador,
-    },
-    ...school
-  } = data;
-  return new SchoolEntity({
-    ...school,
-    paid_amount,
-    school_demand_status: demand_status,
-    school_rejection_reason: rejection_reason,
-    ambassador_email: Ambassador?.Login.Person.email,
-  });
-};
 
 @Injectable()
 export class SchoolsService {
@@ -82,17 +33,17 @@ export class SchoolsService {
 
   async findOne(identifier: string) {
     const school = await this.prismaService.school.findFirstOrThrow({
-      ...schoolSelectAttr,
+      ...SchoolArgsFactory.getSchoolSelect(),
       where: { OR: [{ school_id: identifier }, { school_code: identifier }] },
     });
-    // if (!school) throw new NotFoundException('School demand not found');
-    return getSchoolEntity(school);
+    return SchoolArgsFactory.getSchoolEntity(school);
   }
 
   async findDetails(school_id: string) {
+    const { include: includeArgs } = SchoolArgsFactory.getSchoolSelect();
     const schoolData = await this.prismaService.school.findUnique({
-      select: {
-        ...schoolSelectAttr.select,
+      include: {
+        ...includeArgs,
         CreatedBy: true,
         AcademicYears: {
           take: 1,
@@ -113,13 +64,13 @@ export class SchoolsService {
         ends_at: academicYear?.ended_at,
         starts_at: academicYear?.starts_at,
       },
-      school: getSchoolEntity(school),
+      school: SchoolArgsFactory.getSchoolEntity(school),
     });
   }
 
   async findAll(params?: QuerySchoolDto) {
     const schools = await this.prismaService.school.findMany({
-      ...schoolSelectAttr,
+      ...SchoolArgsFactory.getSchoolSelect(),
       where: {
         is_deleted: params?.is_deleted,
         school_name: params?.keywords
@@ -130,7 +81,135 @@ export class SchoolsService {
           : undefined,
       },
     });
-    return schools.map((school) => getSchoolEntity(school));
+    return schools.map((school) => SchoolArgsFactory.getSchoolEntity(school));
+  }
+
+  async validate(
+    school_id: string,
+    { rejection_reason, subdomain }: ValidateSchoolDemandDto,
+    audited_by: string
+  ) {
+    const {
+      demand_status,
+      rejection_reason: reason,
+      ambassador_id,
+      Payment: { amount: paid_amount },
+    } = await this.prismaService.schoolDemand.findFirstOrThrow({
+      include: { Payment: true },
+      where: {
+        School: { school_id },
+      },
+    });
+    await this.prismaService.schoolDemand.update({
+      data: {
+        rejection_reason,
+        demand_status: rejection_reason
+          ? SchoolDemandStatus.REJECTED
+          : SchoolDemandStatus.VALIDATED,
+        School: {
+          update: {
+            subdomain,
+            is_validated: true,
+            validated_at: new Date(),
+            ValidatedBy: { connect: { login_id: audited_by } },
+          },
+        },
+        SchoolDemandAudits: {
+          create: {
+            audited_by,
+            paid_amount,
+            ambassador_id,
+            demand_status,
+            rejection_reason: reason,
+          },
+        },
+      },
+      where: { school_id },
+    });
+  }
+
+  async update(
+    school_id: string,
+    payload: UpdateSchoolDto,
+    audited_by: string
+  ) {
+    const school = await this.prismaService.school.findUniqueOrThrow({
+      where: { school_id },
+    });
+    return this.prismaService.school.update({
+      data: {
+        ...payload,
+        SchoolAudits: {
+          create: {
+            ...excludeKeys(school, [
+              'lead_funnel',
+              'subdomain',
+              'created_at',
+              'created_by',
+            ]),
+            AuditedBy: { connect: { annual_configurator_id: audited_by } },
+          },
+        },
+      },
+      where: { school_id },
+    });
+  }
+
+  async updateSettings(
+    academic_year_id: string,
+    {
+      can_pay_fee,
+      mark_insertion_source,
+      deletedSignerIds,
+      newDocumentSigners,
+    }: UpdateSchoolSettingDto,
+    audited_by: string
+  ) {
+    const schoolSetting =
+      await this.prismaService.annualSchoolSetting.findFirst({
+        select: { can_pay_fee: true, mark_insertion_source: true },
+        where: { academic_year_id },
+      });
+    await this.prismaService.annualSchoolSetting.update({
+      data: {
+        can_pay_fee,
+        mark_insertion_source,
+        AnnualSchoolSettingAudits: {
+          create: {
+            ...schoolSetting,
+            AuditedBy: { connect: { annual_configurator_id: audited_by } },
+          },
+        },
+        AnnualDocumentSigners: {
+          createMany: {
+            data: newDocumentSigners.map((signer) => ({
+              ...signer,
+              created_by: audited_by,
+            })),
+            skipDuplicates: true,
+          },
+          updateMany:
+            deletedSignerIds && deletedSignerIds.length > 0
+              ? {
+                  data: { is_deleted: true },
+                  where: {
+                    annual_document_signer_id: { in: deletedSignerIds },
+                  },
+                }
+              : undefined,
+        },
+      },
+      where: { academic_year_id },
+    });
+  }
+
+  async getSettings(academic_year_id: string) {
+    const { AnnualDocumentSigners: documentSigners, ...schoolSetting } =
+      await this.prismaService.annualSchoolSetting.findUniqueOrThrow({
+        include: { AnnualDocumentSigners: { where: { is_deleted: false } } },
+        where: { academic_year_id },
+      });
+    return new SchoolSettingEntity({ ...schoolSetting, documentSigners });
   }
 
   private async verifyPayment(payment_id: string) {
@@ -140,7 +219,7 @@ export class SchoolsService {
     return this.notchPayService.verifyPayment(payment.payment_ref);
   }
 
-  private async getFistAcademicYearSetup({
+  private async getFistYearSetup({
     school: {
       school_acronym,
       initial_year_ends_at: ends_at,
@@ -195,30 +274,9 @@ export class SchoolsService {
             },
           },
         }),
-        this.prismaService.annualCarryOverSytem.create({
-          data: {
-            carry_over_system: CarryOverSystemEnum.SUBJECT,
-            AcademicYear: { connect: { year_code } },
-            CreatedBy: {
-              connect: { annual_configurator_id },
-            },
-          },
-        }),
-        this.prismaService.annualSemesterExamAcess.createMany({
-          data: [
-            {
-              academic_year_id,
-              payment_percentage: 0,
-              annual_semester_number: 1,
-              created_by: annual_configurator_id,
-            },
-            {
-              academic_year_id,
-              payment_percentage: 0,
-              annual_semester_number: 2,
-              created_by: annual_configurator_id,
-            },
-          ],
+        this.prismaService.academicYear.update({
+          data: AcademicYearArgsFactory.getInitialSetup(annual_configurator_id),
+          where: { year_code },
         }),
       ],
     };
@@ -241,7 +299,7 @@ export class SchoolsService {
     const {
       transactions: academicYearSetupTransactions,
       data: { school_code },
-    } = await this.getFistAcademicYearSetup(demandpayload);
+    } = await this.getFistYearSetup(demandpayload);
 
     if (payment_id) {
       const payment = await this.verifyPayment(payment_id);
@@ -250,7 +308,7 @@ export class SchoolsService {
     }
     const [school] = await this.prismaService.$transaction([
       this.prismaService.school.create({
-        ...schoolSelectAttr,
+        ...SchoolArgsFactory.getSchoolSelect(),
         data: {
           school_email,
           school_code,
@@ -279,48 +337,7 @@ export class SchoolsService {
       }),
       ...academicYearSetupTransactions,
     ]);
-    return getSchoolEntity(school);
-  }
-
-  async validateDemand(
-    school_id: string,
-    { rejection_reason, subdomain }: ValidateSchoolDemandDto,
-    audited_by: string
-  ) {
-    const schoolDemand = await this.prismaService.schoolDemand.findFirst({
-      include: { Payment: true },
-      where: {
-        School: { school_id },
-      },
-    });
-    if (!schoolDemand) throw new NotFoundException('School demand');
-    const {
-      demand_status,
-      rejection_reason: reason,
-      ambassador_id,
-      Payment: { amount: paid_amount },
-    } = schoolDemand;
-    await this.prismaService.schoolDemand.update({
-      data: {
-        rejection_reason,
-        demand_status: rejection_reason
-          ? SchoolDemandStatus.REJECTED
-          : SchoolDemandStatus.VALIDATED,
-        School: {
-          update: { subdomain, is_validated: true },
-        },
-        SchoolDemandAudits: {
-          create: {
-            audited_by,
-            paid_amount,
-            ambassador_id,
-            demand_status,
-            rejection_reason: reason,
-          },
-        },
-      },
-      where: { school_demand_id: schoolDemand.school_demand_id },
-    });
+    return SchoolArgsFactory.getSchoolEntity(school);
   }
 
   async updateStatus(
