@@ -71,7 +71,10 @@ export function Index() {
     data: schools,
     refetch: refetchSchools,
     isLoading: isLoadingSchools,
-  } = useSchools(selectedStatus);
+  } = useSchools({
+    keywords: searchValue,
+    schoolDemandStatus: selectedStatus,
+  });
 
   function onChangeFilter(demandStatus: SchoolDemandStatus) {
     setSelectedStatus(

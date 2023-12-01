@@ -12,7 +12,7 @@ const { staffs } = squoolrApi;
 
 export function useStaffMembers(params?: StaffQueryParams) {
   return useQuery({
-    queryKey: ['get-staff-members'],
+    queryKey: ['get-staff-members', params],
     queryFn: () => staffs.getStaffMembers(params),
     initialData: [],
   });

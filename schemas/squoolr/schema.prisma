@@ -187,6 +187,9 @@ model School {
     Departments   Department[]
     AcademicYears AcademicYear[]
     SchoolDemand  SchoolDemand?
+
+    @@fulltext([school_name])
+    @@fulltext([school_name, address])
 }
 
 model SchoolAudit {
