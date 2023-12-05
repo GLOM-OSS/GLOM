@@ -10,6 +10,7 @@ import {
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffEntity, TeacherEntity } from '../staff.dto';
+import { excludeKeys } from '@glom/utils';
 
 @Injectable()
 export class TeachersService
@@ -240,12 +241,12 @@ export class TeachersService
     }: TeacherCreateFromInput,
     created_by: string
   ) {
+    const existingTeacher = await this.prismaService.annualTeacher.findFirst({
+      where: { academic_year_id, login_id },
+    });
     const {
-      Teacher: {
-        Login: { Person: person },
-        ...teacher
-      },
-      ...annual_teacher
+      Teacher: { Login, ...teacher },
+      ...annualTeacher
     } = await this.prismaService.annualTeacher.upsert({
       select: StaffArgsFactory.getTeacherSelect(),
       create: {
@@ -269,20 +270,37 @@ export class TeachersService
         },
         CreatedBy: { connect: { annual_configurator_id: created_by } },
       },
-      update: { is_deleted: false },
+      update: {
+        is_deleted: false,
+        AnnualTeacherAudits: {
+          create: {
+            ...excludeKeys(existingTeacher, [
+              'created_at',
+              'created_by',
+              'academic_year_id',
+              'annual_teacher_id',
+            ]),
+            AuditedBy: {
+              connect: {
+                login_id_academic_year_id: { academic_year_id, login_id },
+              },
+            },
+          },
+        },
+      },
       where: {
         login_id_academic_year_id: { academic_year_id, login_id },
       },
     });
 
     return new TeacherEntity({
-      login_id,
-      matricule,
-      roles: [],
-      last_connected: null,
       ...teacher,
-      ...person,
-      ...annual_teacher,
+      ...annualTeacher,
+      ...StaffArgsFactory.getStaffEntity({
+        is_deleted: false,
+        matricule,
+        Login,
+      }),
       role: StaffRole.TEACHER,
     });
   }

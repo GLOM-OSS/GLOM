@@ -11,6 +11,12 @@ export interface paths {
   "/v1/platform-settings": {
     get: operations["AppController_getPlatformSettings"];
   };
+  "/v1/teacher-types": {
+    get: operations["AppController_getTeacherTypes"];
+  };
+  "/v1/teaching-grades": {
+    get: operations["AppController_getTeachingGrades"];
+  };
   "/v1/auth/signin": {
     post: operations["AuthController_signIn"];
   };
@@ -157,6 +163,18 @@ export interface components {
       platform_settings_id: string;
       platform_fee: number;
       onboarding_fee: number;
+      /** Format: date-time */
+      created_at: string;
+    };
+    TeacherTypeEntity: {
+      teacher_type_id: string;
+      teacher_type: string;
+      /** Format: date-time */
+      created_at: string;
+    };
+    TeachingGradeEntity: {
+      teaching_grade_id: string;
+      teaching_grade: string;
       /** Format: date-time */
       created_at: string;
     };
@@ -669,6 +687,8 @@ export interface components {
     BatchPayloadDto: {
       count: number;
       message: string;
+      /** @description describes the next action the client needs to perform */
+      next_action?: string;
     };
     ManageStaffDto: {
       teacherIds: string[];
@@ -710,6 +730,24 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["PlatformSettingsEntity"];
+        };
+      };
+    };
+  };
+  AppController_getTeacherTypes: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["TeacherTypeEntity"][];
+        };
+      };
+    };
+  };
+  AppController_getTeachingGrades: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["TeachingGradeEntity"][];
         };
       };
     };
