@@ -1286,11 +1286,12 @@ export interface operations {
   };
   ClassroomsController_getClassrooms: {
     parameters: {
-      query: {
+      query?: {
         is_deleted?: boolean;
         keywords?: string;
-        annual_major_id: string;
+        annual_major_id?: string;
         level?: number;
+        annual_coordinator_id?: string;
       };
     };
     responses: {
