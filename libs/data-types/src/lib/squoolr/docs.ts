@@ -51,6 +51,10 @@ export interface paths {
   "/v1/schools/{school_id}/validate": {
     put: operations["SchoolsController_validateSchoolDemand"];
   };
+  "/v1/schools/settings": {
+    get: operations["SchoolsController_getSchoolSettings"];
+    put: operations["SchoolsController_updateSchoolSettings"];
+  };
   "/v1/schools/{school_id}/status": {
     put: operations["SchoolsController_updateSchoolStatus"];
   };
@@ -346,6 +350,45 @@ export interface components {
       /** Format: date-time */
       created_at?: string;
       created_by?: string;
+    };
+    DocumentSignerEntity: {
+      /** @example Yongua */
+      signer_name: string;
+      /** @example The Rector */
+      signer_title: string;
+      /** @example Mr, Ms, Dr, etc */
+      honorific: string;
+      hierarchy_level: number;
+      annual_document_signer_id: string;
+      annual_school_setting_id: string;
+      /** Format: date-time */
+      created_at: string;
+    };
+    SchoolSettingEntity: {
+      annual_school_setting_id: string;
+      academic_year_id: string;
+      can_pay_fee: boolean;
+      /** @enum {string} */
+      mark_insertion_source: "Teacher" | "Registry";
+      /** Format: date-time */
+      created_at: string;
+      documentSigners: components["schemas"]["DocumentSignerEntity"][];
+    };
+    CreateDocumentSignerDto: {
+      /** @example Yongua */
+      signer_name: string;
+      /** @example The Rector */
+      signer_title: string;
+      /** @example Mr, Ms, Dr, etc */
+      honorific: string;
+      hierarchy_level: number;
+    };
+    UpdateSchoolSettingDto: {
+      can_pay_fee?: boolean;
+      /** @enum {string} */
+      mark_insertion_source?: "Teacher" | "Registry";
+      deletedSignerIds?: string[];
+      newDocumentSigners?: components["schemas"]["CreateDocumentSignerDto"];
     };
     UpdateSchoolDemandStatus: {
       /** @enum {string} */
@@ -644,6 +687,8 @@ export interface components {
     BatchPayloadDto: {
       count: number;
       message: string;
+      /** @description describes the next action the client needs to perform */
+      next_action?: string;
     };
     ManageStaffDto: {
       teacherIds: string[];
@@ -842,6 +887,27 @@ export interface operations {
     };
     responses: {
       204: {
+        content: never;
+      };
+    };
+  };
+  SchoolsController_getSchoolSettings: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["SchoolSettingEntity"];
+        };
+      };
+    };
+  };
+  SchoolsController_updateSchoolSettings: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateSchoolSettingDto"];
+      };
+    };
+    responses: {
+      200: {
         content: never;
       };
     };
