@@ -18,13 +18,18 @@ export class ClassroomDivisionQueryDto {
 export class QueryClassroomDto extends QueryParamsDto {
   @IsUUID()
   @IsOptional()
-  @ApiProperty()
-  annual_major_id: string;
+  @ApiPropertyOptional()
+  annual_major_id?: string;
 
   @IsNumber()
   @IsOptional()
   @ApiPropertyOptional()
   level?: number;
+
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional()
+  annual_coordinator_id?: string;
 }
 
 export class AnnualClassroomEntity implements AnnualClassroom {
