@@ -4,6 +4,8 @@ import building from '@iconify/icons-fluent/building-48-regular';
 import dashboard from '@iconify/icons-fluent/grid-28-regular';
 import hatGraduation from '@iconify/icons-fluent/hat-graduation-28-regular';
 import organization from '@iconify/icons-fluent/organization-48-regular';
+import staff from '@iconify/icons-fluent/people-team-48-regular';
+import calendar from '@iconify/icons-fluent/calendar-ltr-48-regular';
 import { Box } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -48,9 +50,19 @@ function App({ children }: { children?: JSX.Element }) {
           title: formatMessage({ id: 'majors' }),
         },
         {
-          icon: organization,
+          icon: staff,
+          route: 'staff',
+          title: formatMessage({ id: 'staff' }),
+        },
+        {
+          icon: calendar,
           route: 'academic-years',
           title: formatMessage({ id: 'academicYears' }),
+        },
+        {
+          icon: organization,
+          route: 'school-profile',
+          title: formatMessage({ id: 'schoolProfile' }),
         },
       ],
     },

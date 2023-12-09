@@ -1,10 +1,11 @@
 import {
-  ConfirmDialog,
-  NoTableElement,
-  TableHeaderItem,
-  TableSkeleton,
+    ConfirmDialog,
+    NoTableElement,
+    TableHeaderItem,
+    TableSkeleton,
 } from '@glom/components';
-import { DepartmentEntity } from '@glom/data-types/squoolr';
+import { MajorEntity } from '@glom/data-types/squoolr';
+import { useDispatchBreadcrumb } from '@glom/squoolr-v2/side-nav';
 import { useTheme } from '@glom/theme';
 import add from '@iconify/icons-fluent/add-48-regular';
 import reset from '@iconify/icons-fluent/arrow-counterclockwise-48-regular';
@@ -15,60 +16,72 @@ import more from '@iconify/icons-fluent/more-vertical-48-regular';
 import search from '@iconify/icons-fluent/search-48-regular';
 import { Icon } from '@iconify/react';
 import {
-  Box,
-  Button,
-  Checkbox,
-  IconButton,
-  InputAdornment,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Tooltip,
+    Box,
+    Button,
+    Checkbox,
+    IconButton,
+    InputAdornment,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TextField,
+    Tooltip,
 } from '@mui/material';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import FilterMenu from '../../../components/configuration/departments/FilterMenu';
-import ManageDepartmentMenu from '../../../components/configuration/departments/ManageDepartmentMenu';
-import NewDepartmentDialog from '../../../components/configuration/departments/NewDepartmentDialog';
+import AddMajorDialog from '../../../components/configuration/majors/AddMajorDialog';
+import EditMajorDialog from '../../../components/configuration/majors/EditMajorDialog';
+import ManageMajorMenu from '../../../components/configuration/majors/ManageMajorMenu';
 
 export function Index() {
   const theme = useTheme();
-  const { formatMessage, formatDate } = useIntl();
+  const { push, asPath } = useRouter();
+  const breadcrumbDispatch = useDispatchBreadcrumb();
+  const { formatMessage, formatDate, formatNumber } = useIntl();
 
   const tableHeaders = [
     '',
-    'departmentName',
-    'departmentAcronym',
+    'code#',
+    'majorName',
+    'departmentCode',
+    'cursus',
     'createdAt',
     '',
   ];
 
   //TODO: REPLACE WITH with reactQuery own
-  const [isDepartmentDataFetching, setIsDepartmentDataFetching] =
-    useState<boolean>(true);
+  const [isMajorDataFetching, setIsMajorDataFetching] = useState<boolean>(true);
 
-  //TODO: FETCH LIST OF departments HERE
-  const [departmentData, setDepartmentData] = useState<DepartmentEntity[]>();
+  //TODO: FETCH LIST OF majors HERE
+  const [majorData, setMajorData] = useState<MajorEntity[]>();
 
   //TODO: REMOVE THIS WHEN INTEGRATION IS DONE
   useEffect(() => {
     setTimeout(() => {
-      setDepartmentData([
+      setMajorData([
         {
+          annual_major_id: 'boston123',
+          cycle: {
+            cycle_id: 'Licence',
+            cycle_name: 'BACHELOR',
+            created_at: new Date().toISOString(),
+            number_of_years: 3,
+          },
+          department_acronym: 'DST',
+          department_id: 'boston1234',
+          major_acronym: 'IRT',
+          major_id: 'boston1234',
+          major_name: 'Informatique, Reseaux et Telecommunications',
           created_at: new Date().toISOString(),
-          created_by: '',
-          department_acronym: 'DS',
-          department_id: 'EF1203',
-          department_name: 'Department des Sciences',
           is_deleted: false,
-          school_id: 'slei',
         },
       ]);
-      setIsDepartmentDataFetching(false);
+      setIsMajorDataFetching(false);
     }, 3000);
   }, []);
 
@@ -81,34 +94,32 @@ export function Index() {
   );
 
   useEffect(() => {
-    //TODO: CALL fetch list of departments API HERE with searchValue and showArchives use it to filter. MUTATE DEMAND DATA WHEN IT'S DONE
+    //TODO: CALL fetch list of major API HERE with searchValue and showArchives use it to filter. MUTATE majors DATA WHEN IT'S DONE
     alert('hello world');
   }, [searchValue, showArchives]);
 
-  const [selectedDepartmentIds, setSelectedDepartmentIds] = useState<string[]>(
-    []
-  );
+  const [selectedMajorIds, setSelectedMajorIds] = useState<string[]>([]);
 
-  function selectAllDepartments() {
-    setSelectedDepartmentIds(
-      selectedDepartmentIds.length === departmentData.length
+  function selectAllMajors() {
+    setSelectedMajorIds(
+      selectedMajorIds.length === majorData.length
         ? []
-        : departmentData.map(({ department_id }) => department_id)
+        : majorData.map(({ annual_major_id }) => annual_major_id)
     );
   }
 
-  function selectDepartment(department_id: string) {
-    setSelectedDepartmentIds(
-      selectedDepartmentIds.includes(department_id)
-        ? selectedDepartmentIds.filter(
-            (selectedDepartmentId) => selectedDepartmentId !== department_id
+  function selectMajor(annual_major_id: string) {
+    setSelectedMajorIds(
+      selectedMajorIds.includes(annual_major_id)
+        ? selectedMajorIds.filter(
+            (selectedMajorId) => selectedMajorId !== annual_major_id
           )
-        : [...selectedDepartmentIds, department_id]
+        : [...selectedMajorIds, annual_major_id]
     );
   }
 
-  const [activeDepartmentId, setActiveDepartmentId] = useState<string>();
-  const [isActiveDepartmentArchived, setIsActiveDepartmentArchived] =
+  const [activeMajorId, setActiveMajorId] = useState<string>();
+  const [isActiveMajorArchived, setIsActiveMajorArchived] =
     useState<boolean>(false);
 
   const [isConfirmArchiveDialogOpen, setIsConfirmArchiveDialogOpen] =
@@ -117,53 +128,57 @@ export function Index() {
     useState<boolean>(false);
 
   //TODO: REMOVE THIS AND USE reactQuery own
+  const [isEditingMajor, setIsEditingDepartment] = useState<boolean>(false);
+
+  //TODO: REMOVE THIS AND USE reactQuery own
   const [isArchiving, setIsArchiving] = useState<boolean>(false);
   //TODO: REMOVE THIS AND USE reactQuery own
   const [isUnarchiving, setIsUnarchiving] = useState<boolean>(false);
   function confirmArchiveUnarchive() {
     if (isConfirmArchiveDialogOpen) {
       setIsArchiving(true);
-      //TODO: CALL API HERE TO ARCHIVE DEPARTMENT with data selectedDepartmentIds if length>1 or otherwise [activeDepartmentId]
+      //TODO: CALL API HERE TO ARCHIVE major with data selectedMajorIds if length>1 or otherwise [activeMajorId]
       setTimeout(() => {
         alert('done archiving');
-        //TODO: MUTATE departmentData here so the data updates
+        //TODO: MUTATE MajorData here so the data updates
         setIsArchiving(false);
         setIsConfirmArchiveDialogOpen(false);
-        setActiveDepartmentId(undefined);
+        setActiveMajorId(undefined);
       }, 3000);
     }
     if (isConfirmUnarchiveDialogOpen) {
       setIsUnarchiving(true);
-      //TODO: CALL API HERE TO ARCHIVE DEPARTMENT with data selectedDepartmentIds if length>1 or otherwise [activeDepartmentId]
+      //TODO: CALL API HERE TO ARCHIVE MAJOR with data selectedMajorIds if length>1 or otherwise [activeMajorId]
       setTimeout(() => {
         alert('done unarchiving');
-        //TODO: MUTATE departmentData here so the data updates
+        //TODO: MUTATE majorData here so the data updates
         setIsUnarchiving(false);
         setIsConfirmUnarchiveDialogOpen(false);
-        setActiveDepartmentId(undefined);
+        setActiveMajorId(undefined);
       }, 3000);
     }
   }
 
-  const [isNewDepartmentDialogOpen, setIsNewDepartmentDialogOpen] =
+  const [isNewMajorDialogOpen, setIsNewMajorDialogOpen] =
     useState<boolean>(false);
-  const [isEditDepartmentDialogOpen, setIsEditDepartmentDialogOpen] =
+  const [isEditMajorDialogOpen, setIsEditMajorDialogOpen] =
     useState<boolean>(false);
 
-  const [editableDepartment, setEditableDepartment] =
-    useState<DepartmentEntity>();
+  const [editableMajor, setEditableMajor] = useState<MajorEntity>();
 
   return (
     <>
-      <NewDepartmentDialog
-        isDialogOpen={isEditDepartmentDialogOpen || isNewDepartmentDialogOpen}
-        closeDialog={() => {
-          setEditableDepartment(undefined);
-          setIsNewDepartmentDialogOpen(false);
-          setIsEditDepartmentDialogOpen(false);
-        }}
-        editableDepartment={editableDepartment}
+      <AddMajorDialog
+        isDialogOpen={isNewMajorDialogOpen}
+        closeDialog={() => setIsNewMajorDialogOpen(false)}
       />
+      {editableMajor && (
+        <EditMajorDialog
+          isDialogOpen={isEditMajorDialogOpen}
+          closeDialog={() => setIsEditMajorDialogOpen(false)}
+          editableMajor={editableMajor}
+        />
+      )}
       <FilterMenu
         closeMenu={() => {
           setFilterAnchorEl(null);
@@ -174,22 +189,28 @@ export function Index() {
         showArchives={showArchives}
       />
 
-      <ManageDepartmentMenu
+      <ManageMajorMenu
         anchorEl={anchorEl}
         closeMenu={() => setAnchorEl(null)}
         isOpen={!!anchorEl}
-        isArchived={isActiveDepartmentArchived}
-        confirmArchive={() => {
-          setEditableDepartment(undefined);
-          setIsConfirmArchiveDialogOpen(true);
+        isArchived={isActiveMajorArchived}
+        confirmArchive={() => setIsConfirmArchiveDialogOpen(true)}
+        confirmUnarchive={() => setIsConfirmUnarchiveDialogOpen(true)}
+        editMajor={() => {
+          setActiveMajorId(undefined);
+          setIsEditMajorDialogOpen(true);
         }}
-        confirmUnarchive={() => {
-          setEditableDepartment(undefined);
-          setIsConfirmUnarchiveDialogOpen(true);
-        }}
-        editDepartment={() => {
-          setActiveDepartmentId(undefined);
-          setIsEditDepartmentDialogOpen(true);
+        openClassrooms={() => {
+          breadcrumbDispatch({
+            action: 'ADD',
+            payload: [
+              {
+                title: editableMajor.major_acronym,
+                route: editableMajor.annual_major_id,
+              },
+            ],
+          });
+          push(`${asPath}/${editableMajor.annual_major_id}`);
         }}
       />
       <ConfirmDialog
@@ -199,12 +220,12 @@ export function Index() {
         }}
         dialogMessage={formatMessage({
           id: isConfirmArchiveDialogOpen
-            ? selectedDepartmentIds.length > 1
-              ? 'confirmArchiveDepartmentsDialogMessage'
-              : 'confirmArchiveDepartmentDialogMessage'
-            : selectedDepartmentIds.length > 1
-            ? 'confirmUnarchiveDepartmentsDialogMessage'
-            : 'confirmUnarchiveDepartmentDialogMessage',
+            ? selectedMajorIds.length > 1
+              ? 'confirmArchiveMajorsDialogMessage'
+              : 'confirmArchiveMajorDialogMessage'
+            : selectedMajorIds.length > 1
+            ? 'confirmUnarchiveMajorsDialogMessage'
+            : 'confirmUnarchiveMajorDialogMessage',
         })}
         isDialogOpen={
           isConfirmArchiveDialogOpen || isConfirmUnarchiveDialogOpen
@@ -212,12 +233,12 @@ export function Index() {
         confirm={confirmArchiveUnarchive}
         dialogTitle={formatMessage({
           id: isConfirmArchiveDialogOpen
-            ? selectedDepartmentIds.length > 1
-              ? 'archiveDepartments'
-              : 'archiveDepartment'
-            : selectedDepartmentIds.length > 1
-            ? 'unarchiveDepartments'
-            : 'unarchiveDepartment',
+            ? selectedMajorIds.length > 1
+              ? 'archiveMajors'
+              : 'archiveMajor'
+            : selectedMajorIds.length > 1
+            ? 'unarchiveMajors'
+            : 'unarchiveMajor',
         })}
         confirmButton={formatMessage({
           id: isConfirmArchiveDialogOpen ? 'archive' : 'unarchive',
@@ -304,24 +325,24 @@ export function Index() {
                 columnGap: 2,
               }}
             >
-              {selectedDepartmentIds.length > 0 && showArchives && (
+              {selectedMajorIds.length > 0 && showArchives && (
                 <Button
                   variant="outlined"
                   color="warning"
-                  disabled={isArchiving || isUnarchiving}
+                  disabled={isArchiving || isUnarchiving || isEditingMajor}
                   onClick={() => setIsConfirmUnarchiveDialogOpen(true)}
                 >
-                  {formatMessage({ id: 'unarchiveSelected' })}
+                  {formatMessage({ id: 'unarchiveSelectedMajors' })}
                 </Button>
               )}
-              {selectedDepartmentIds.length > 0 && !showArchives && (
+              {selectedMajorIds.length > 0 && !showArchives && (
                 <Button
                   variant="outlined"
                   color="warning"
-                  disabled={isArchiving || isUnarchiving}
+                  disabled={isArchiving || isUnarchiving || isEditingMajor}
                   onClick={() => setIsConfirmArchiveDialogOpen(true)}
                 >
-                  {formatMessage({ id: 'archiveSelected' })}
+                  {formatMessage({ id: 'archiveSelectedMajors' })}
                 </Button>
               )}
               <TableHeaderItem
@@ -354,19 +375,20 @@ export function Index() {
                     {index === 0 ? (
                       <Checkbox
                         disabled={
-                          !departmentData ||
-                          isDepartmentDataFetching ||
+                          !majorData ||
+                          isMajorDataFetching ||
                           isArchiving ||
-                          isUnarchiving
+                          isUnarchiving ||
+                          isEditingMajor
                         }
                         onClick={() =>
-                          isArchiving || isUnarchiving
+                          isArchiving || isUnarchiving || isEditingMajor
                             ? null
-                            : selectAllDepartments()
+                            : selectAllMajors()
                         }
                         checked={
-                          !!departmentData &&
-                          selectedDepartmentIds.length === departmentData.length
+                          !!majorData &&
+                          selectedMajorIds.length === majorData.length
                         }
                         icon={
                           <Icon
@@ -389,8 +411,8 @@ export function Index() {
                           />
                         }
                         indeterminate={
-                          selectedDepartmentIds.length > 1 &&
-                          selectedDepartmentIds.length < departmentData.length
+                          selectedMajorIds.length > 1 &&
+                          selectedMajorIds.length < majorData.length
                         }
                       />
                     ) : index > 0 && columnTitle === '' ? (
@@ -403,19 +425,21 @@ export function Index() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {!departmentData || isDepartmentDataFetching ? (
-                <TableSkeleton hasCheckbox hasMore />
-              ) : departmentData.length === 0 ? (
+              {!majorData || isMajorDataFetching ? (
+                <TableSkeleton cols={7} hasCheckbox hasMore />
+              ) : majorData.length === 0 ? (
                 <NoTableElement />
               ) : (
-                departmentData.map((department, index) => {
+                majorData.map((major, index) => {
                   const {
-                    created_at,
+                    major_acronym,
+                    major_name,
                     department_acronym,
-                    department_name,
-                    department_id,
+                    cycle: { cycle_name, number_of_years },
+                    annual_major_id,
                     is_deleted,
-                  } = department;
+                    created_at,
+                  } = major;
                   return (
                     <TableRow
                       key={index}
@@ -428,10 +452,8 @@ export function Index() {
                     >
                       <TableCell>
                         <Checkbox
-                          checked={selectedDepartmentIds.includes(
-                            department_id
-                          )}
-                          onClick={() => selectDepartment(department_id)}
+                          checked={selectedMajorIds.includes(annual_major_id)}
+                          onClick={() => selectMajor(annual_major_id)}
                           icon={
                             <Icon
                               icon={unchecked}
@@ -461,7 +483,16 @@ export function Index() {
                             : theme.common.body,
                         }}
                       >
-                        {department_name}
+                        {major_acronym}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          color: is_deleted
+                            ? theme.common.line
+                            : theme.common.body,
+                        }}
+                      >
+                        {major_name}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -471,6 +502,19 @@ export function Index() {
                         }}
                       >
                         {department_acronym}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          color: theme.palette.primary.main,
+                        }}
+                      >
+                        {`${formatMessage({
+                          id: cycle_name,
+                        })} (${formatNumber(number_of_years, {
+                          style: 'unit',
+                          unit: 'year',
+                          unitDisplay: 'short',
+                        })})`}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -489,19 +533,26 @@ export function Index() {
                         })}
                       </TableCell>
                       <TableCell align="right">
-                        {selectedDepartmentIds.length > 0 ? (
+                        {selectedMajorIds.length > 0 ? (
                           ''
                         ) : (
                           <Tooltip arrow title={formatMessage({ id: 'more' })}>
                             <IconButton
                               size="small"
-                              disabled={isArchiving || isUnarchiving}
+                              disabled={
+                                isArchiving || isUnarchiving || isEditingMajor
+                              }
                               onClick={(event) => {
-                                if (isArchiving || isUnarchiving) return null;
+                                if (
+                                  isArchiving ||
+                                  isUnarchiving ||
+                                  isEditingMajor
+                                )
+                                  return null;
                                 setAnchorEl(event.currentTarget);
-                                setActiveDepartmentId(department_id);
-                                setEditableDepartment(department);
-                                setIsActiveDepartmentArchived(is_deleted);
+                                setActiveMajorId(annual_major_id);
+                                setIsActiveMajorArchived(is_deleted);
+                                setEditableMajor(major);
                               }}
                             >
                               <Icon icon={more} />
@@ -517,14 +568,14 @@ export function Index() {
           </Table>
         </TableContainer>
 
-        {!!departmentData && !isDepartmentDataFetching && (
+        {!!majorData && !isMajorDataFetching && (
           <Tooltip
             arrow
-            title={formatMessage({ id: 'addNewDepartment' })}
+            title={formatMessage({ id: 'addNewMajor' })}
             placement="left"
           >
             <IconButton
-              onClick={() => setIsNewDepartmentDialogOpen(true)}
+              onClick={() => setIsNewMajorDialogOpen(true)}
               color="primary"
               sx={{
                 position: 'absolute',

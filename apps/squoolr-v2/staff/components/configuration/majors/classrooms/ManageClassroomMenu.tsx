@@ -1,25 +1,22 @@
 import { useTheme } from '@glom/theme';
 import archive from '@iconify/icons-fluent/archive-48-regular';
-import edit from '@iconify/icons-fluent/edit-48-regular';
 import { Icon } from '@iconify/react';
 import { Menu, MenuItem, Stack, Typography } from '@mui/material';
 import { useIntl } from 'react-intl';
 
-export default function ManageDepartmentMenu({
+export default function ManageClassroomMenu({
   closeMenu,
   anchorEl,
   isOpen,
   isArchived = false,
   confirmArchive,
   confirmUnarchive,
-  editDepartment,
 }: {
   closeMenu: () => void;
   anchorEl: HTMLElement | null;
   isOpen: boolean;
   confirmArchive: () => void;
   confirmUnarchive: () => void;
-  editDepartment: () => void;
   isArchived?: boolean;
 }) {
   const { formatMessage } = useIntl();
@@ -35,19 +32,6 @@ export default function ManageDepartmentMenu({
       open={isOpen}
       onClose={closeMenu}
     >
-      {!isArchived && (
-        <MenuItem
-          onClick={() => {
-            closeMenu();
-            editDepartment();
-          }}
-        >
-          <Stack direction="row" spacing={1} alignItems={'center'}>
-            <Icon icon={edit} fontSize={24} />
-            <Typography>{formatMessage({ id: 'editDepartment' })}</Typography>
-          </Stack>
-        </MenuItem>
-      )}
       {!isArchived && (
         <MenuItem
           onClick={() => {

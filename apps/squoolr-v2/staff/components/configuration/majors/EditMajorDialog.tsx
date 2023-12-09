@@ -1,7 +1,4 @@
-import {
-  CreateDepartmentPayload,
-  UpdateDepartmentPayload,
-} from '@glom/data-types/squoolr';
+import { MajorEntity, UpdateMajorPayload } from '@glom/data-types/squoolr';
 import { generateShort } from '@glom/utils';
 import {
   Box,
@@ -18,30 +15,28 @@ import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import * as Yup from 'yup';
 
-export default function NewDepartmentDialog({
+export default function EditMajorDialog({
   closeDialog,
   isDialogOpen,
-  editableDepartment,
+  editableMajor,
 }: {
   isDialogOpen: boolean;
   closeDialog: () => void;
-  editableDepartment?: UpdateDepartmentPayload;
+  editableMajor: MajorEntity;
 }) {
-  //TODO: UpdateDepartmentPayload needs to have the department_id in it
+  //TODO: UpdateMajorPayload needs to have the annual_major_id in it
   const { formatMessage } = useIntl();
 
-  const initialValues: CreateDepartmentPayload = {
-    department_acronym: editableDepartment?.department_acronym ?? '',
-    department_name: editableDepartment?.department_name ?? '',
+  const initialValues: UpdateMajorPayload = {
+    major_acronym: editableMajor?.major_acronym ?? '',
+    major_name: editableMajor?.major_name ?? '',
   };
 
   const validationSchema = Yup.object().shape({
-    department_acronym: Yup.string().required(
+    major_acronym: Yup.string().required(
       formatMessage({ id: 'requiredField' })
     ),
-    department_name: Yup.string().required(
-      formatMessage({ id: 'requiredField' })
-    ),
+    major_name: Yup.string().required(formatMessage({ id: 'requiredField' })),
   });
 
   //TODO: REMOVE THIS AND USE reactQuery own
@@ -51,14 +46,10 @@ export default function NewDepartmentDialog({
     validationSchema,
     enableReinitialize: true,
     onSubmit: (values, { resetForm }) => {
-      if (!!editableDepartment) {
-        //TODO: CALL API HERE TO UPDATE DEPARTMENT WITH DATA values
-      } else {
-        //TODO: call api here to create department with data values
-      }
+      //TODO: CALL API HERE TO UPDATE MAJOR WITH DATA values for major with id: editableMajor.annual_major_id
       setIsSubmitting(true);
       setTimeout(() => {
-        alert('done creating');
+        alert('done editing');
         close();
         resetForm();
         setIsSubmitting(false);
@@ -66,9 +57,7 @@ export default function NewDepartmentDialog({
     },
   });
 
-  const [isCodeGenerated, setIsCodeGenerated] = useState<boolean>(
-    !editableDepartment
-  );
+  const [isCodeGenerated, setIsCodeGenerated] = useState<boolean>(false);
 
   function close() {
     closeDialog();
@@ -88,7 +77,7 @@ export default function NewDepartmentDialog({
     >
       <DialogTitle>
         {formatMessage({
-          id: !!editableDepartment ? 'editDepartment' : 'addNewDepartment',
+          id: 'editMajor',
         })}
       </DialogTitle>
       <DialogContent>
@@ -102,22 +91,19 @@ export default function NewDepartmentDialog({
             required
             autoFocus
             size="small"
-            label={formatMessage({ id: 'departmentName' })}
-            placeholder={formatMessage({ id: 'departmentName' })}
+            label={formatMessage({ id: 'majorName' })}
+            placeholder={formatMessage({ id: 'majorName' })}
             variant="outlined"
             error={
-              formik.touched.department_name &&
-              Boolean(formik.errors.department_name)
+              formik.touched.major_name && Boolean(formik.errors.major_name)
             }
-            helperText={
-              formik.touched.department_name && formik.errors.department_name
-            }
-            {...formik.getFieldProps('department_name')}
+            helperText={formik.touched.major_name && formik.errors.major_name}
+            {...formik.getFieldProps('major_name')}
             onChange={(event) => {
-              formik.setFieldValue('department_name', event.target.value);
+              formik.setFieldValue('major_name', event.target.value);
               if (isCodeGenerated)
                 formik.setFieldValue(
-                  'department_acronym',
+                  'major_acronym',
                   generateShort(event.target.value)
                 );
             }}
@@ -127,24 +113,23 @@ export default function NewDepartmentDialog({
             fullWidth
             required
             size="small"
-            label={formatMessage({ id: 'departmentAcronym' })}
-            placeholder={formatMessage({ id: 'departmentAcronym' })}
+            label={formatMessage({ id: 'majorAcronym' })}
+            placeholder={formatMessage({ id: 'majorAcronym' })}
             variant="outlined"
             error={
-              formik.touched.department_acronym &&
-              Boolean(formik.errors.department_acronym)
+              formik.touched.major_acronym &&
+              Boolean(formik.errors.major_acronym)
             }
             helperText={
-              formik.touched.department_acronym &&
-              formik.errors.department_acronym
+              formik.touched.major_acronym && formik.errors.major_acronym
             }
-            {...formik.getFieldProps('department_acronym')}
+            {...formik.getFieldProps('major_acronym')}
             onChange={(event) => {
               if (isCodeGenerated && event.target.value.length > 0)
                 setIsCodeGenerated(false);
               else if (!isCodeGenerated && event.target.value.length === 0)
                 setIsCodeGenerated(true);
-              formik.setFieldValue('department_acronym', event.target.value);
+              formik.setFieldValue('major_acronym', event.target.value);
             }}
             disabled={isSubmitting}
           />
@@ -163,17 +148,14 @@ export default function NewDepartmentDialog({
               type="submit"
               disabled={
                 isSubmitting ||
-                (!!editableDepartment &&
-                  editableDepartment.department_acronym ===
-                    formik.values.department_acronym &&
-                  editableDepartment.department_name ===
-                    formik.values.department_name)
+                (editableMajor.major_acronym === formik.values.major_acronym &&
+                  editableMajor.major_name === formik.values.major_name)
               }
               startIcon={
                 isSubmitting && <CircularProgress color="primary" size={18} />
               }
             >
-              {formatMessage({ id: !!editableDepartment ? 'save' : 'create' })}
+              {formatMessage({ id: 'save' })}
             </Button>
           </DialogActions>
         </Box>

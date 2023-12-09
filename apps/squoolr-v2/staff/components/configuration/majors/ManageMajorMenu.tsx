@@ -1,25 +1,28 @@
 import { useTheme } from '@glom/theme';
 import archive from '@iconify/icons-fluent/archive-48-regular';
 import edit from '@iconify/icons-fluent/edit-48-regular';
+import receipt from '@iconify/icons-fluent/receipt-32-regular';
 import { Icon } from '@iconify/react';
 import { Menu, MenuItem, Stack, Typography } from '@mui/material';
 import { useIntl } from 'react-intl';
 
-export default function ManageDepartmentMenu({
+export default function ManageMajorMenu({
   closeMenu,
   anchorEl,
   isOpen,
   isArchived = false,
   confirmArchive,
   confirmUnarchive,
-  editDepartment,
+  openClassrooms,
+  editMajor,
 }: {
   closeMenu: () => void;
   anchorEl: HTMLElement | null;
   isOpen: boolean;
   confirmArchive: () => void;
   confirmUnarchive: () => void;
-  editDepartment: () => void;
+  openClassrooms: () => void;
+  editMajor: () => void;
   isArchived?: boolean;
 }) {
   const { formatMessage } = useIntl();
@@ -39,12 +42,25 @@ export default function ManageDepartmentMenu({
         <MenuItem
           onClick={() => {
             closeMenu();
-            editDepartment();
+            openClassrooms();
+          }}
+        >
+          <Stack direction="row" spacing={1} alignItems={'center'}>
+            <Icon icon={receipt} fontSize={24} />
+            <Typography>{formatMessage({ id: 'goToClasses' })}</Typography>
+          </Stack>
+        </MenuItem>
+      )}
+      {!isArchived && (
+        <MenuItem
+          onClick={() => {
+            closeMenu();
+            editMajor();
           }}
         >
           <Stack direction="row" spacing={1} alignItems={'center'}>
             <Icon icon={edit} fontSize={24} />
-            <Typography>{formatMessage({ id: 'editDepartment' })}</Typography>
+            <Typography>{formatMessage({ id: 'editMajor' })}</Typography>
           </Stack>
         </MenuItem>
       )}
