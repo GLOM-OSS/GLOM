@@ -51,7 +51,7 @@ export type ResetStaffPasswordPayload = SchemaRequestBody<
 
 export type StaffQueryParams = SchemaRequestQuery<
   operations,
-  'StaffController_getAllStaff'
+  'StaffController_getStaffs'
 >;
 export type StaffRole = SchemaRequestQuery<
   operations,

@@ -50,5 +50,5 @@ export type UpdateSchoolSettingPayload = SchemaRequestBody<
 >;
 export type SchoolQueryParams = SchemaRequestQuery<
   operations,
-  'SchoolsController_getAllDemands'
+  'SchoolsController_getSchools'
 >;
