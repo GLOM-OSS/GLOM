@@ -1,13 +1,15 @@
 import {
+  BatchUpdatePayload,
   BulkDisableStaffPayload,
   CoordinatorEntity,
   CreateStaffPayload,
+  ManageStaffRolesPayload,
   ResetStaffPasswordPayload,
   StaffEntity,
   StaffQueryParams,
   StaffRole,
   TeacherEntity,
-  UpdateStaffPayload
+  UpdateStaffPayload,
 } from '@glom/data-types/squoolr';
 import { GlomRequest } from '../lib/glom-request';
 
@@ -60,6 +62,25 @@ export class StaffApi {
   async resetStaffPasswords(staffPayload: ResetStaffPasswordPayload) {
     const resp = await this.request.post(
       `/staffs/reset-passwords`,
+      staffPayload
+    );
+    return resp.data;
+  }
+
+  async updateStaffRoles(
+    loginId: string,
+    staffPayload: ManageStaffRolesPayload
+  ) {
+    const resp = await this.request.put<BatchUpdatePayload>(
+      `staffs/${loginId}/roles`,
+      staffPayload
+    );
+    return resp.data;
+  }
+
+  async resetStaffPrivateCodes(staffPayload: ResetStaffPasswordPayload) {
+    const resp = await this.request.put<BatchUpdatePayload>(
+      '/staffs/private-codes',
       staffPayload
     );
     return resp.data;

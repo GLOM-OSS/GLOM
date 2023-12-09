@@ -187,7 +187,7 @@ export class StaffController {
   @ApiOkResponse({ type: BatchPayloadDto })
   async updateStaffRoles(
     @Req() request: Request,
-    @Param('login_id') loginid: string,
+    @Param('login_id') loginId: string,
     @Body() staffPayload: UpdateStaffRoleDto
   ) {
     const {
@@ -196,7 +196,7 @@ export class StaffController {
       annualConfigurator: { annual_configurator_id },
     } = request.user;
     return this.staffService.updateStaffRoles(
-      loginid,
+      loginId,
       { academic_year_id, school_id, ...staffPayload },
       annual_configurator_id
     );
