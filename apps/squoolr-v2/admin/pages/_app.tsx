@@ -24,7 +24,7 @@ function App({ children }: { children?: JSX.Element }) {
   const navSections: INavSection[] = [
     {
       title: formatMessage({ id: 'dashboard' }),
-      route: 'dasboard',
+      route: 'dashboard',
       navItems: [
         {
           icon: dashboard,

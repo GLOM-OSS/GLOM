@@ -7,7 +7,7 @@ import {
   Post,
   Put,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -27,7 +27,7 @@ import {
   UpdateSchoolDemandStatus,
   UpdateSchoolDto,
   UpdateSchoolSettingDto,
-  ValidateSchoolDemandDto,
+  ValidateSchoolDemandDto
 } from './schools.dto';
 import { SchoolsService } from './schools.service';
 
@@ -62,14 +62,14 @@ export class SchoolsController {
   @ApiCreatedResponse({ type: SchoolEntity })
   submitSchoolDemand(@Body() schoolDemandPayload: SubmitSchoolDemandDto) {
     const {
-      payment_phone,
+      payment_id,
       school: { referral_code },
     } = schoolDemandPayload;
-    if (payment_phone && referral_code)
+    if (payment_id && referral_code)
       throw new BadRequestException(
         'payment number and referral code cannot be both provided'
       );
-    if (!payment_phone && !referral_code)
+    if (!payment_id && !referral_code)
       throw new BadRequestException(
         'please provide payment number or referral code'
       );
@@ -146,6 +146,10 @@ export class SchoolsController {
     @Body() payload: UpdateSchoolDemandStatus
   ) {
     const userId = request.user.login_id;
-    return this.schoolsService.updateStatus(schoolId, payload, userId);
+    return this.schoolsService.updateStatus(
+      schoolId,
+      payload.school_demand_status,
+      userId
+    );
   }
 }

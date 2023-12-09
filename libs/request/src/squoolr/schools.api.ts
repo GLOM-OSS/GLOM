@@ -4,6 +4,7 @@ import {
   SubmitSchoolDemandPayload,
   ValidateSchoolDemandPayload,
   SchoolDemandStatus,
+  SchoolQueryParams,
 } from '@glom/data-types/squoolr';
 import { GlomRequest } from '../lib/glom-request';
 
@@ -18,10 +19,14 @@ export class SchoolsApi {
     return resp.data;
   }
 
-  async getSchools(schoolDemandStaus?: SchoolDemandStatus[]) {
+  async getSchools(params?: SchoolQueryParams) {
     const resp = await this.request.get<SchoolEntity[]>('/schools', {
-      schoolDemandStaus:
-        schoolDemandStaus?.length > 0 ? schoolDemandStaus : undefined,
+      keywords: params?.keywords,
+      is_deleted: params?.is_deleted,
+      schoolDemandStatus:
+        params?.schoolDemandStatus?.length > 0
+          ? params?.schoolDemandStatus
+          : undefined,
     });
     return resp.data;
   }
@@ -54,7 +59,7 @@ export class SchoolsApi {
     status: Extract<SchoolDemandStatus, 'PROCESSING' | 'SUSPENDED'>
   ) {
     const resp = await this.request.put(`/schools/${schoolId}/status`, {
-      school_status: status,
+      school_demand_status: status,
     });
     return resp.data;
   }

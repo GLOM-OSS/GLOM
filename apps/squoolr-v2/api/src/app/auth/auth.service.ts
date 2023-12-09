@@ -79,7 +79,11 @@ export class AuthService {
         return {
           login,
           school: await this.prismaService.school.findFirst({
-            where: { school_id: schoolId, is_validated: true },
+            where: {
+              school_id: schoolId,
+              is_validated: true,
+              SchoolDemand: { demand_status: 'VALIDATED' },
+            },
           }),
           student: await this.prismaService.student.findFirst({
             where: { login_id, Login: { school_id: schoolId } },
@@ -101,11 +105,9 @@ export class AuthService {
     if (!loginData) throw new UnauthorizedException('Wrong origin !!!');
     const numberOfActiveSessions = await this.prismaService.log.count({
       where: {
+        closed_at: null,
+        logged_out_at: null,
         login_id: loginData.login.login_id,
-        OR: {
-          logged_out_at: null,
-          closed_at: null,
-        },
       },
     });
     if (numberOfActiveSessions > 2)
@@ -126,9 +128,7 @@ export class AuthService {
           (env === 'production'
             ? `${subdomain}.squoolr.com`
             : 'localhost:4200')) ||
-      (role !== KeyRole.ADMIN &&
-        role !== KeyRole.PARENT &&
-        role !== KeyRole.STUDENT &&
+      (role === KeyRole.STAFF &&
         origin ===
           (env === 'production'
             ? `${subdomain}-staff.squoolr.com`

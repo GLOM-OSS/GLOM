@@ -3,19 +3,28 @@
  * This is only a minimal backend to get started.
  */
 
-import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
+import { Logger, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
-import { AppModule } from './app/app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppModule } from './app/app.module';
 
 import path = require('path');
-import { GlomExceptionsFilter } from '@glom/execeptions';
+import * as shell from 'shelljs';
+
+if (process.env.NODE_ENV === 'production') {
+  shell.exec(
+    `npx prisma migrate deploy`
+    // `npx prisma migrate reset --force && npx prisma migrate dev --name deploy && npx prisma migrate deploy`
+  );
+}
 
 async function bootstrap() {
   const origin =
-    process.env.NODE_ENV === 'production' ? /\.squoolr\.com$/ : /localhost:420/;
+    process.env.NODE_ENV === 'production'
+      ? ['https://squoolr.com', /\.squoolr\.com$/]
+      : /localhost:420/;
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: {
       origin,

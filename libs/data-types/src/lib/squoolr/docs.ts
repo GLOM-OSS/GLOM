@@ -32,6 +32,9 @@ export interface paths {
   "/v1/auth/user": {
     get: operations["AuthController_getUser"];
   };
+  "/v1/payments/onboarding-fee": {
+    post: operations["PaymentsController_initEntryFeePayment"];
+  };
   "/v1/schools": {
     get: operations["SchoolsController_getSchools"];
   };
@@ -241,6 +244,23 @@ export interface components {
       reset_password_id: string;
       new_password: string;
     };
+    EntryFeePaymentDto: {
+      payment_phone: string;
+      callback_url: string;
+    };
+    PaymentEntity: {
+      payment_id: string;
+      amount: number;
+      payment_ref: string;
+      /** @enum {string} */
+      provider: "Stripe" | "NotchPay";
+      /** @enum {string} */
+      payment_reason: "Fee" | "Platform" | "Onboarding" | "Registration";
+    };
+    InitPaymentResponse: {
+      payment: components["schemas"]["PaymentEntity"];
+      authorization_url: string;
+    };
     SchoolEntity: {
       school_name: string;
       school_acronym: string;
@@ -327,7 +347,7 @@ export interface components {
       initial_year_ends_at: string;
     };
     SubmitSchoolDemandDto: {
-      payment_phone?: string;
+      payment_id?: string;
       configurator: components["schemas"]["CreatePersonDto"];
       school: components["schemas"]["CreateSchoolDto"];
     };
@@ -806,7 +826,28 @@ export interface operations {
       };
     };
   };
+  PaymentsController_initEntryFeePayment: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["EntryFeePaymentDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["InitPaymentResponse"];
+        };
+      };
+    };
+  };
   SchoolsController_getSchools: {
+    parameters: {
+      query?: {
+        is_deleted?: boolean;
+        keywords?: string;
+        schoolDemandStatus?: ("PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED")[];
+      };
+    };
     responses: {
       200: {
         content: {

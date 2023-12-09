@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `ambassador` ADD COLUMN `created_at` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0);

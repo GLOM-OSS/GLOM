@@ -26,7 +26,7 @@ export default function Features({
   const features: IFeature[] = [
     {
       description: formatMessage({ id: 'courseManagementDescription' }),
-      image: 'course_management.png',
+      image: 'course_management.svg',
       isComingSoon: true,
       title: formatMessage({ id: 'courseManagement' }),
     },
@@ -34,7 +34,7 @@ export default function Features({
       description: formatMessage({
         id: 'gradingAndResultPublicationDescription',
       }),
-      image: 'coming_soon.png',
+      image: 'coming_soon.svg',
       isComingSoon: true,
       title: formatMessage({ id: 'gradingAndResultPublication' }),
     },
@@ -42,13 +42,13 @@ export default function Features({
       description: formatMessage({
         id: 'configurationsDescription',
       }),
-      image: 'feature_configuration.png',
+      image: 'feature_configuration.svg',
       isComingSoon: true,
       title: formatMessage({ id: 'configurations' }),
     },
     {
       description: formatMessage({ id: 'andMoreFeaturesDescription' }),
-      image: 'more.png',
+      image: 'more.svg',
       isComingSoon: true,
       title: formatMessage({ id: 'andMoreFeatures' }),
     },
