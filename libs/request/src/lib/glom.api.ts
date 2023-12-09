@@ -6,12 +6,13 @@ import {
   InquiriesApi,
   PlatformSettingsApi,
   StaffApi,
+  PaymentsApi,
 } from '../squoolr';
 import { GlomRequest, RequestParams } from './glom-request';
 
 export const GLOM_HOSTS = {
   lynkr: 'https://api.lynkr.net',
-  squoolr: 'https://api.squoolr.com',
+  squoolr: 'https://be.squoolr.com',
 };
 export const getURI = (app: keyof typeof GLOM_HOSTS) => {
   const DEV_PORT = 8000;
@@ -29,6 +30,7 @@ export class GlomApi {
     auth: AuthApi;
     staffs: StaffApi;
     schools: SchoolsApi;
+    payments: PaymentsApi;
     inquiries: InquiriesApi;
     ambassadors: AmbassadorsApi;
     academicYears: AcademicYearApi;
@@ -47,6 +49,7 @@ export class GlomApi {
       auth: new AuthApi(squoolrRequest),
       staffs: new StaffApi(squoolrRequest),
       schools: new SchoolsApi(squoolrRequest),
+      payments: new PaymentsApi(squoolrRequest),
       inquiries: new InquiriesApi(squoolrRequest),
       ambassadors: new AmbassadorsApi(squoolrRequest),
       academicYears: new AcademicYearApi(squoolrRequest),

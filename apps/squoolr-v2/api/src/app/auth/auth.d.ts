@@ -30,11 +30,9 @@ export type ActiveYear = {
 
 export type AnnualSessionData = {
   annualStudent?: {
+    student_id: string;
     annual_student_id: string;
     activeSemesters: number[];
-    classroom_code: string;
-    classroom_level: number;
-    student_id: string;
   }; //Student
   //Personnel
   annualConfigurator?: {

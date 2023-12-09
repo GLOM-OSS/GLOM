@@ -12,6 +12,14 @@ export default class MyDocument extends Document {
             rel="stylesheet"
           />
           <link rel="icon" type="image/x-icon" href="/favicon.png" />
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+          />
+          <meta
+            name="description"
+            content="Innovative web platform designed to centralize and streamline the educational processes within private higher institutions. We aim to provide a cohesive platform for administrators, students and parents to access, manage, and analyze educational data seamlessly."
+          />
         </Head>
         <body>
           <Main />

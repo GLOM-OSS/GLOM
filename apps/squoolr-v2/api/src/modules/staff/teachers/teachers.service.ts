@@ -10,6 +10,7 @@ import {
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffEntity, TeacherEntity } from '../staff.dto';
+import { excludeKeys } from '@glom/utils';
 
 @Injectable()
 export class TeachersService
@@ -18,19 +19,7 @@ export class TeachersService
   constructor(private prismaService: GlomPrismaService) {}
   async findOne(annual_teacher_id: string) {
     const {
-      Teacher: {
-        Login: {
-          login_id,
-          Person,
-          Logs: [log],
-          AnnualConfigurators: [configrator],
-          AnnualRegistries: [registry],
-          Teacher: {
-            AnnualTeachers: [{ AnnualClassroomDivisions: codinatedClass }],
-          },
-        },
-        ...teacher
-      },
+      Teacher: { Login, is_deleted, matricule, ...teacher },
       ...annual_teacher
     } = await this.prismaService.annualTeacher.findFirstOrThrow({
       select: StaffArgsFactory.getTeacherSelect(),
@@ -38,25 +27,10 @@ export class TeachersService
     });
 
     return new TeacherEntity({
-      login_id,
-      annual_teacher_id,
       ...teacher,
-      ...Person,
       ...annual_teacher,
-      last_connected: log?.logged_in_at ?? null,
-      roles: [{ registry }, { configrator }, { codinatedClass }].reduce<
-        StaffRole[]
-      >(
-        (roles, _) =>
-          _.registry
-            ? [...roles, StaffRole.REGISTRY]
-            : _.configrator
-            ? [...roles, StaffRole.CONFIGURATOR]
-            : _.codinatedClass
-            ? [...roles, StaffRole.COORDINATOR]
-            : roles,
-        [StaffRole.TEACHER]
-      ),
+      ...StaffArgsFactory.getStaffEntity({ Login, is_deleted, matricule }),
+      annual_teacher_id,
       role: StaffRole.TEACHER,
     });
   }
@@ -66,10 +40,7 @@ export class TeachersService
       select: {
         annual_teacher_id: true,
         Teacher: {
-          select: {
-            matricule: true,
-            ...StaffArgsFactory.getStaffSelect(staffParams),
-          },
+          select: StaffArgsFactory.getStaffSelect(staffParams),
         },
       },
       where: { Teacher: StaffArgsFactory.getStaffWhereInput(staffParams) },
@@ -244,7 +215,7 @@ export class TeachersService
         AnnualTeacherAudits: {
           create: {
             ...annualTeacher,
-            AnnualConfigurator: {
+            AuditedBy: {
               connect: { annual_configurator_id: audited_by },
             },
           },
@@ -270,12 +241,12 @@ export class TeachersService
     }: TeacherCreateFromInput,
     created_by: string
   ) {
+    const existingTeacher = await this.prismaService.annualTeacher.findFirst({
+      where: { academic_year_id, login_id },
+    });
     const {
-      Teacher: {
-        Login: { Person: person },
-        ...teacher
-      },
-      ...annual_teacher
+      Teacher: { Login, ...teacher },
+      ...annualTeacher
     } = await this.prismaService.annualTeacher.upsert({
       select: StaffArgsFactory.getTeacherSelect(),
       create: {
@@ -299,20 +270,37 @@ export class TeachersService
         },
         CreatedBy: { connect: { annual_configurator_id: created_by } },
       },
-      update: { is_deleted: false },
+      update: {
+        is_deleted: false,
+        AnnualTeacherAudits: {
+          create: {
+            ...excludeKeys(existingTeacher, [
+              'created_at',
+              'created_by',
+              'academic_year_id',
+              'annual_teacher_id',
+            ]),
+            AuditedBy: {
+              connect: {
+                login_id_academic_year_id: { academic_year_id, login_id },
+              },
+            },
+          },
+        },
+      },
       where: {
         login_id_academic_year_id: { academic_year_id, login_id },
       },
     });
 
     return new TeacherEntity({
-      login_id,
-      matricule,
-      roles: [],
-      last_connected: null,
       ...teacher,
-      ...person,
-      ...annual_teacher,
+      ...annualTeacher,
+      ...StaffArgsFactory.getStaffEntity({
+        is_deleted: false,
+        matricule,
+        Login,
+      }),
       role: StaffRole.TEACHER,
     });
   }
@@ -355,7 +343,7 @@ export class TeachersService
                       has_tax_payers_card,
                       tax_payer_card_number,
                       TeacherType: { connect: { teacher_type_id } },
-                      AnnualConfigurator: {
+                      AuditedBy: {
                         connect: { annual_configurator_id: reset_by },
                       },
                     },

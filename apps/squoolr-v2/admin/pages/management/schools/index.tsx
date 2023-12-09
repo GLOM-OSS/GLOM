@@ -71,7 +71,10 @@ export function Index() {
     data: schools,
     refetch: refetchSchools,
     isLoading: isLoadingSchools,
-  } = useSchools(selectedStatus);
+  } = useSchools({
+    keywords: searchValue,
+    schoolDemandStatus: selectedStatus,
+  });
 
   function onChangeFilter(demandStatus: SchoolDemandStatus) {
     setSelectedStatus(
@@ -235,9 +238,10 @@ export function Index() {
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        {school_phone_number
-                          .split('+')[1]
-                          ?.replace(/(.{3})/g, ' $1')}
+                        {(school_phone_number.length > 9
+                          ? school_phone_number.split('+')[1]
+                          : school_phone_number
+                        ).replace(/(.{3})/g, ' $1')}
                       </TableCell>
                       <TableCell>
                         <Chip

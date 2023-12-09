@@ -431,11 +431,6 @@ export class AcademicYearsService {
       select: {
         student_id: true,
         annual_student_id: true,
-        Student: {
-          select: {
-            Classroom: { select: { classroom_code: true, level: true } },
-          },
-        },
         AnnualStudentHasModules: {
           distinct: ['semester_number'],
           select: { semester_number: true },
@@ -451,19 +446,14 @@ export class AcademicYearsService {
       const {
         student_id,
         annual_student_id,
-        Student: {
-          Classroom: { classroom_code, level: classroom_level },
-        },
-        AnnualStudentHasModules: crediUnits,
+        AnnualStudentHasModules: studentModules,
       } = annualStudent;
       annualSessionData = {
         ...annualSessionData,
         annualStudent: {
           student_id,
-          classroom_code,
-          classroom_level,
           annual_student_id,
-          activeSemesters: crediUnits.map((_) => _.semester_number),
+          activeSemesters: studentModules.map((_) => _.semester_number),
         },
       };
       retrivedRoles.push({

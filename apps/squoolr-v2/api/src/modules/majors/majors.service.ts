@@ -103,8 +103,8 @@ export class MajorsService {
           major_acronym,
           Major: {
             create: {
-              Cycle: { connect: { cycle_id } },
-              AnnualConfigurator: {
+              Cycle: { connect: { cycle_id } }, 
+              CreatedBy: {
                 connect: { annual_configurator_id: created_by },
               },
               Classrooms: {
@@ -116,7 +116,7 @@ export class MajorsService {
           },
           Department: { connect: { department_id } },
           AcademicYear: { connect: { academic_year_id } },
-          AnnualConfigurator: {
+          CreatedBy: {
             connect: { annual_configurator_id: created_by },
           },
         },

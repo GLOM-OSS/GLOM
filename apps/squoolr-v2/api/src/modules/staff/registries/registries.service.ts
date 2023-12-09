@@ -15,75 +15,25 @@ import { StaffEntity } from '../staff.dto';
 export class RegistriesService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
   async findOne(annual_registry_id: string) {
-    const {
-      matricule,
-      is_deleted,
-      Login: { login_id, Person },
-    } = await this.prismaService.annualRegistry.findFirstOrThrow({
-      select: {
-        matricule: true,
-        ...StaffArgsFactory.getStaffSelect(),
-      },
+    const registry = await this.prismaService.annualRegistry.findFirstOrThrow({
+      select: StaffArgsFactory.getStaffSelect({
+        activeRole: StaffRole.REGISTRY,
+      }),
       where: { annual_registry_id, is_deleted: false },
     });
-    return new StaffEntity({
-      login_id,
-      ...Person,
-      matricule,
-      roles: [],
-      is_deleted,
-      last_connected: null,
-      annual_registry_id,
-      role: StaffRole.REGISTRY,
-    });
+    return StaffArgsFactory.getStaffEntity(registry);
   }
 
   async findAll(staffParams?: StaffSelectParams) {
     const registries = await this.prismaService.annualRegistry.findMany({
       select: {
-        matricule: true,
         annual_registry_id: true,
         ...StaffArgsFactory.getStaffSelect(staffParams),
       },
       where: StaffArgsFactory.getStaffWhereInput(staffParams),
     });
-    return registries.map(
-      ({
-        matricule,
-        is_deleted,
-        annual_registry_id,
-        Login: {
-          login_id,
-          Person,
-          Teacher,
-          Logs: [log],
-          AnnualConfigurators: [configrator],
-        },
-      }) =>
-        new StaffEntity({
-          login_id,
-          ...Person,
-          matricule,
-          is_deleted,
-          annual_registry_id,
-          last_connected: log?.logged_in_at ?? null,
-          annual_configurator_id: configrator?.annual_configurator_id,
-          annual_teacher_id: Teacher?.AnnualTeachers[0]?.annual_teacher_id,
-          roles: [{ configrator }, { teacher: Teacher?.AnnualTeachers }].reduce<
-            StaffRole[]
-          >(
-            (roles, _) =>
-              _.configrator
-                ? [...roles, StaffRole.CONFIGURATOR]
-                : _.teacher
-                ? _.teacher[0].AnnualClassroomDivisions
-                  ? [...roles, StaffRole.TEACHER, StaffRole.COORDINATOR]
-                  : [...roles, StaffRole.TEACHER]
-                : roles,
-            [StaffRole.REGISTRY]
-          ),
-          role: StaffRole.REGISTRY,
-        })
+    return registries.map((registry) =>
+      StaffArgsFactory.getStaffEntity(registry)
     );
   }
 
@@ -144,7 +94,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
           create: {
             is_deleted,
             private_code,
-            AnnualConfigurator: {
+            AuditedBy: {
               connect: { annual_configurator_id: audited_by },
             },
           },
@@ -227,7 +177,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
                 create: {
                   is_deleted,
                   private_code,
-                  AnnualConfigurator: {
+                  AuditedBy: {
                     connect: { annual_configurator_id: reset_by },
                   },
                 },

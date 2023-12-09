@@ -10,8 +10,14 @@ export interface paths {
   '/v1/platform-settings': {
     get: operations['AppController_getPlatformSettings'];
   };
-  '/v1/auth/signin': {
-    post: operations['AuthController_signIn'];
+  "/v1/teacher-types": {
+    get: operations["AppController_getTeacherTypes"];
+  };
+  "/v1/teaching-grades": {
+    get: operations["AppController_getTeachingGrades"];
+  };
+  "/v1/auth/signin": {
+    post: operations["AuthController_signIn"];
   };
   '/v1/auth/reset-password': {
     post: operations['AuthController_resetPassword'];
@@ -25,23 +31,31 @@ export interface paths {
   '/v1/auth/user': {
     get: operations['AuthController_getUser'];
   };
-  '/v1/schools': {
-    get: operations['SchoolsController_getAllDemands'];
+  "/v1/payments/onboarding-fee": {
+    post: operations["PaymentsController_initEntryFeePayment"];
   };
-  '/v1/schools/{school_id}': {
-    get: operations['SchoolsController_getDemandStatus'];
+  "/v1/schools": {
+    get: operations["SchoolsController_getSchools"];
   };
-  '/v1/schools/{school_code}': {
-    get: operations['SchoolsController_getDemandStatus'];
+  "/v1/schools/{school_id}": {
+    get: operations["SchoolsController_getSchool"];
+    put: operations["SchoolsController_updateSchool"];
   };
-  '/v1/schools/{school_id}/details': {
-    get: operations['SchoolsController_getDemandDetails'];
+  "/v1/schools/{school_code}": {
+    get: operations["SchoolsController_getSchool"];
   };
-  '/v1/schools/new': {
-    post: operations['SchoolsController_submitDemand'];
+  "/v1/schools/{school_id}/details": {
+    get: operations["SchoolsController_getSchoolDetails"];
   };
-  '/v1/schools/{school_id}/validate': {
-    put: operations['SchoolsController_validateDemand'];
+  "/v1/schools/new": {
+    post: operations["SchoolsController_submitSchoolDemand"];
+  };
+  "/v1/schools/{school_id}/validate": {
+    put: operations["SchoolsController_validateSchoolDemand"];
+  };
+  "/v1/schools/settings": {
+    get: operations["SchoolsController_getSchoolSettings"];
+    put: operations["SchoolsController_updateSchoolSettings"];
   };
   '/v1/schools/{school_id}/status': {
     put: operations['SchoolsController_updateSchoolStatus'];
@@ -105,9 +119,9 @@ export interface paths {
   '/v1/classrooms': {
     delete: operations['ClassroomsController_disableManyClassrooms'];
   };
-  '/v1/staffs': {
-    get: operations['StaffController_getStaffs'];
-    delete: operations['StaffController_disableManyStaff'];
+  "/v1/staffs": {
+    get: operations["StaffController_getStaffs"];
+    delete: operations["StaffController_disableManyStaff"];
   };
   '/v1/staffs/{annual_teacher_id}': {
     get: operations['StaffController_getStaff'];
@@ -151,6 +165,18 @@ export interface components {
       platform_settings_id: string;
       platform_fee: number;
       onboarding_fee: number;
+      /** Format: date-time */
+      created_at: string;
+    };
+    TeacherTypeEntity: {
+      teacher_type_id: string;
+      teacher_type: string;
+      /** Format: date-time */
+      created_at: string;
+    };
+    TeachingGradeEntity: {
+      teaching_grade_id: string;
+      teaching_grade: string;
       /** Format: date-time */
       created_at: string;
     };
@@ -225,6 +251,23 @@ export interface components {
       reset_password_id: string;
       new_password: string;
     };
+    EntryFeePaymentDto: {
+      payment_phone: string;
+      callback_url: string;
+    };
+    PaymentEntity: {
+      payment_id: string;
+      amount: number;
+      payment_ref: string;
+      /** @enum {string} */
+      provider: "Stripe" | "NotchPay";
+      /** @enum {string} */
+      payment_reason: "Fee" | "Platform" | "Onboarding" | "Registration";
+    };
+    InitPaymentResponse: {
+      payment: components["schemas"]["PaymentEntity"];
+      authorization_url: string;
+    };
     SchoolEntity: {
       school_name: string;
       school_acronym: string;
@@ -244,8 +287,11 @@ export interface components {
         | 'SUSPENDED';
       school_rejection_reason: string;
       subdomain: string | null;
+      creation_decree_number: string | null;
+      description: string | null;
       /** Format: date-time */
       created_at: string;
+      created_by: string;
     };
     PersonEntity: {
       first_name: string;
@@ -313,13 +359,68 @@ export interface components {
       initial_year_ends_at: string;
     };
     SubmitSchoolDemandDto: {
-      payment_phone?: string;
-      configurator: components['schemas']['CreatePersonDto'];
-      school: components['schemas']['CreateSchoolDto'];
+      payment_id?: string;
+      configurator: components["schemas"]["CreatePersonDto"];
+      school: components["schemas"]["CreateSchoolDto"];
     };
     ValidateSchoolDemandDto: {
       rejection_reason?: string;
       subdomain?: string;
+    };
+    UpdateSchoolDto: {
+      school_name?: string;
+      school_acronym?: string;
+      school_email?: string;
+      school_phone_number?: string;
+      school_id?: string;
+      school_code?: string;
+      ambassador_email?: string;
+      /** @enum {string} */
+      school_demand_status?: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED";
+      creation_decree_number?: string | null;
+      description?: string | null;
+      /** Format: date-time */
+      created_at?: string;
+      created_by?: string;
+    };
+    DocumentSignerEntity: {
+      /** @example Yongua */
+      signer_name: string;
+      /** @example The Rector */
+      signer_title: string;
+      /** @example Mr, Ms, Dr, etc */
+      honorific: string;
+      hierarchy_level: number;
+      annual_document_signer_id: string;
+      annual_school_setting_id: string;
+      /** Format: date-time */
+      created_at: string;
+    };
+    SchoolSettingEntity: {
+      annual_school_setting_id: string;
+      academic_year_id: string;
+      can_pay_fee: boolean;
+      /** @enum {string} */
+      mark_insertion_source: "Teacher" | "Registry";
+      /** Format: date-time */
+      created_at: string;
+      documentSigners: components["schemas"]["DocumentSignerEntity"][];
+    };
+    CreateDocumentSignerDto: {
+      /** @example Yongua */
+      signer_name: string;
+      /** @example The Rector */
+      signer_title: string;
+      /** @example Mr, Ms, Dr, etc */
+      honorific: string;
+      hierarchy_level: number;
+    };
+    UpdateSchoolSettingDto: {
+      can_pay_fee?: boolean;
+      /** @enum {string} */
+      mark_insertion_source?: "Teacher" | "Registry";
+      deletedSignerIds?: string[];
+      newDocumentSigners?: components["schemas"]["CreateDocumentSignerDto"];
     };
     UpdateSchoolDemandStatus: {
       /** @enum {string} */
@@ -511,7 +612,6 @@ export interface components {
       annual_configurator_id?: string;
       annual_registry_id?: string;
       annual_teacher_id?: string;
-      annual_coordinator_id?: string;
       roles: ('TEACHER' | 'REGISTRY' | 'COORDINATOR' | 'CONFIGURATOR')[];
     };
     CreateConfiguratorDto: {
@@ -640,6 +740,8 @@ export interface components {
     BatchPayloadDto: {
       count: number;
       message: string;
+      /** @description describes the next action the client needs to perform */
+      next_action?: string;
     };
     ManageStaffDto: {
       teacherIds: string[];
@@ -680,6 +782,24 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['PlatformSettingsEntity'];
+        };
+      };
+    };
+  };
+  AppController_getTeacherTypes: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["TeacherTypeEntity"][];
+        };
+      };
+    };
+  };
+  AppController_getTeachingGrades: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["TeachingGradeEntity"][];
         };
       };
     };
@@ -738,7 +858,28 @@ export interface operations {
       };
     };
   };
-  SchoolsController_getAllDemands: {
+  PaymentsController_initEntryFeePayment: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["EntryFeePaymentDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["InitPaymentResponse"];
+        };
+      };
+    };
+  };
+  SchoolsController_getSchools: {
+    parameters: {
+      query?: {
+        is_deleted?: boolean;
+        keywords?: string;
+        schoolDemandStatus?: ("PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED")[];
+      };
+    };
     responses: {
       200: {
         content: {
@@ -747,7 +888,7 @@ export interface operations {
       };
     };
   };
-  SchoolsController_getDemandStatus: {
+  SchoolsController_getSchool: {
     parameters: {
       path: {
         school_id: string;
@@ -761,7 +902,24 @@ export interface operations {
       };
     };
   };
-  SchoolsController_getDemandDetails: {
+  SchoolsController_updateSchool: {
+    parameters: {
+      path: {
+        school_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateSchoolDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  SchoolsController_getSchoolDetails: {
     parameters: {
       path: {
         school_id: string;
@@ -775,7 +933,7 @@ export interface operations {
       };
     };
   };
-  SchoolsController_submitDemand: {
+  SchoolsController_submitSchoolDemand: {
     requestBody: {
       content: {
         'application/json': components['schemas']['SubmitSchoolDemandDto'];
@@ -789,7 +947,7 @@ export interface operations {
       };
     };
   };
-  SchoolsController_validateDemand: {
+  SchoolsController_validateSchoolDemand: {
     parameters: {
       path: {
         school_id: string;
@@ -802,6 +960,27 @@ export interface operations {
     };
     responses: {
       204: {
+        content: never;
+      };
+    };
+  };
+  SchoolsController_getSchoolSettings: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["SchoolSettingEntity"];
+        };
+      };
+    };
+  };
+  SchoolsController_updateSchoolSettings: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateSchoolSettingDto"];
+      };
+    };
+    responses: {
+      200: {
         content: never;
       };
     };

@@ -19,7 +19,8 @@ export class AppSeederFactory {
     const settingsId = '2eed9593-b796-4b2d-b9e8-98dd005b9b7b';
     const data: Prisma.PlatformSettingsCreateInput = {
       platform_settings_id: settingsId,
-      onboarding_fee: 10,
+      platform_fee: Number(process.env.PLATFORM_FEE),
+      onboarding_fee: Number(process.env.ONBOARDING_FEE),
     };
 
     await this.prismaService.platformSettings.upsert({

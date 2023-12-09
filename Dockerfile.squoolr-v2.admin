@@ -1,0 +1,46 @@
+FROM node:18.12.1-alpine3.16 as builder
+
+# #set the working directory
+WORKDIR /app
+
+# # install app dependencies
+COPY package*.json ./
+
+# #clean install dependecies
+RUN npm install --force
+
+# COPY workspace configs
+COPY ./tsconfig.base.json ./
+COPY ./nx.json ./
+
+# COPY REQUIRED LIBS AND CONCERNED APP
+COPY /libs/components ./libs/components
+# COPY /libs/confirm-dialogs ./libs/confirm-dialogs
+COPY /libs/squoolr-v2/auth-ui ./libs/squoolr-v2/auth-ui
+COPY /libs/squoolr-v2/side-nav ./libs/squoolr-v2/side-nav
+# COPY /libs/utils ./libs/utils
+COPY /libs/request ./libs/request
+COPY /libs/constants ./libs/constants
+COPY /libs/encrypter ./libs/encrypter
+COPY /libs/theme ./libs/theme
+COPY /libs/data-types ./libs/data-types
+COPY /libs/data-access/squoolr ./libs/data-access/squoolr
+COPY /apps/squoolr-v2/admin ./apps/squoolr-v2/admin
+
+# #build backend app
+RUN npx nx run squoolr-v2-admin:build:production
+
+# #DELETE SOURCE CODE FROM CONTAINER
+RUN rm -r ./apps
+RUN rm -r ./libs
+RUN rm nx.json
+RUN rm package.json
+RUN rm package-lock.json
+RUN rm tsconfig.base.json
+
+# # expose port 3011 to outer environment
+EXPOSE 3000
+
+# run app
+WORKDIR /app/dist/apps/squoolr-v2/admin
+CMD ["npm", "start"]

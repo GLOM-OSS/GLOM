@@ -43,7 +43,6 @@ export default function DemandContactUs() {
       submitDemandInquiry(values, {
         onSuccess() {
           //TODO: CHECK ON THE NOTIF HERE, AND UPDATE OneUI own
-          alert(JSON.stringify(values));
           setIsSubmitting(true);
           setIsDemandSubmitted(true);
           resetForm();

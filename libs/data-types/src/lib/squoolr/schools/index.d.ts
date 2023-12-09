@@ -2,6 +2,7 @@ import {
   SchemaCreateResponseBody,
   SchemaRequestBody,
   SchemaRequestParams,
+  SchemaRequestQuery,
   SchemaResponseBody,
 } from '../../api-helper';
 import { operations } from '../docs';
@@ -34,4 +35,20 @@ export type ValidateSchoolDemandPayload = SchemaRequestBody<
 export type UpdateSchoolStatusPayload = SchemaRequestParams<
   operations,
   'SchoolsController_updateSchoolStatus'
+>;
+
+export type AnnualSchoolSettings = SchemaResponseBody<
+  operations,
+  'SchoolsController_getSchoolSettings'
+>;
+
+export type DocumentSignerEntity = AnnualSchoolSettings['documentSigners'][0];
+
+export type UpdateSchoolSettingPayload = SchemaRequestBody<
+  operations,
+  'SchoolsController_updateSchoolSettings'
+>;
+export type SchoolQueryParams = SchemaRequestQuery<
+  operations,
+  'SchoolsController_getAllDemands'
 >;

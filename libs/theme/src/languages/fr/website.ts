@@ -611,6 +611,13 @@ export const website = {
     "Cette action archivera ces départements sélectionnés ainsi que toutes leurs sous-entités (filères, classes et matières), empêchant toute action ultérieure. C'est une action dangereuse ! Confirmez-vous toujours l'archivage ?",
   confirmUnarchiveDepartmentsDialogMessage:
     'Cette action désarchivera ces départements sélectionnés. Notez que toutes les sous-entités doivent être désarchivées manuellement. Souhaitez-vous continuer ?',
+  enableAccounts: 'Activer les comptes',
+  enableAccount: 'Activer le compte',
+  enableConfiguratorAccountsDialogMessage:
+    'Cette action rétablira les privilèges des utilisateurs dans leurs institutions. Souhaitez-vous continuer ?',
+  enableConfiguratorAccountDialogMessage:
+    "Cette action rétablira les privilèges de l'utilisateur dans son institution. Souhaitez-vous continuer ?",
+  notAvailable: 'N/A',
 
   archiveSelectedMajors: 'Archiver les filières sélectionnées',
   unarchiveSelectedMajors: 'Désarchiver les filières sélectionnées',
