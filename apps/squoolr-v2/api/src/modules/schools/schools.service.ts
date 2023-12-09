@@ -23,7 +23,7 @@ import {
   SubmitSchoolDemandDto,
   UpdateSchoolDto,
   UpdateSchoolSettingDto,
-  ValidateSchoolDemandDto
+  ValidateSchoolDemandDto,
 } from './schools.dto';
 
 const schoolSelectAttr = Prisma.validator<Prisma.SchoolArgs>()({
