@@ -3,12 +3,13 @@
  * Do not make direct changes to the file.
  */
 
+
 export interface paths {
-  '/v1': {
-    get: operations['AppController_getData'];
+  "/v1": {
+    get: operations["AppController_getData"];
   };
-  '/v1/platform-settings': {
-    get: operations['AppController_getPlatformSettings'];
+  "/v1/platform-settings": {
+    get: operations["AppController_getPlatformSettings"];
   };
   "/v1/teacher-types": {
     get: operations["AppController_getTeacherTypes"];
@@ -19,17 +20,17 @@ export interface paths {
   "/v1/auth/signin": {
     post: operations["AuthController_signIn"];
   };
-  '/v1/auth/reset-password': {
-    post: operations['AuthController_resetPassword'];
+  "/v1/auth/reset-password": {
+    post: operations["AuthController_resetPassword"];
   };
-  '/v1/auth/new-password': {
-    post: operations['AuthController_setNewPassword'];
+  "/v1/auth/new-password": {
+    post: operations["AuthController_setNewPassword"];
   };
-  '/v1/auth/log-out': {
-    delete: operations['AuthController_logOut'];
+  "/v1/auth/log-out": {
+    delete: operations["AuthController_logOut"];
   };
-  '/v1/auth/user': {
-    get: operations['AuthController_getUser'];
+  "/v1/auth/user": {
+    get: operations["AuthController_getUser"];
   };
   "/v1/payments/onboarding-fee": {
     post: operations["PaymentsController_initEntryFeePayment"];
@@ -57,103 +58,99 @@ export interface paths {
     get: operations["SchoolsController_getSchoolSettings"];
     put: operations["SchoolsController_updateSchoolSettings"];
   };
-  '/v1/schools/{school_id}/status': {
-    put: operations['SchoolsController_updateSchoolStatus'];
+  "/v1/schools/{school_id}/status": {
+    put: operations["SchoolsController_updateSchoolStatus"];
   };
-  '/v1/academic-years': {
-    get: operations['AcademicYearsController_getAcademicYears'];
+  "/v1/academic-years": {
+    get: operations["AcademicYearsController_getAcademicYears"];
   };
-  '/v1/academic-years/new': {
-    post: operations['AcademicYearsController_createAcademicYear'];
+  "/v1/academic-years/new": {
+    post: operations["AcademicYearsController_createAcademicYear"];
   };
-  '/v1/academic-years/{academic_year_id}/choose': {
-    patch: operations['AcademicYearsController_chooseActiveAcademicYear'];
+  "/v1/academic-years/{academic_year_id}/choose": {
+    patch: operations["AcademicYearsController_chooseActiveAcademicYear"];
   };
-  '/v1/inquiries': {
-    get: operations['InquiriesController_getAllInquiries'];
+  "/v1/inquiries": {
+    get: operations["InquiriesController_getAllInquiries"];
   };
-  '/v1/inquiries/new': {
-    post: operations['InquiriesController_createInquiry'];
+  "/v1/inquiries/new": {
+    post: operations["InquiriesController_createInquiry"];
   };
-  '/v1/ambassadors': {
-    get: operations['AmbassadorsController_getAmbassadors'];
+  "/v1/ambassadors": {
+    get: operations["AmbassadorsController_getAmbassadors"];
   };
-  '/v1/ambassadors/{ambassador_id}': {
-    get: operations['AmbassadorsController_getAmbassador'];
+  "/v1/ambassadors/{ambassador_id}": {
+    get: operations["AmbassadorsController_getAmbassador"];
   };
-  '/v1/ambassadors/{referral_code}/verify': {
-    get: operations['AmbassadorsController_getAmbassador'];
+  "/v1/ambassadors/{referral_code}/verify": {
+    get: operations["AmbassadorsController_getAmbassador"];
   };
-  '/v1/departments/all': {
-    get: operations['DepartmentsController_getDepartments'];
+  "/v1/departments": {
+    get: operations["DepartmentsController_getDepartments"];
+    delete: operations["DepartmentsController_disableManyDepartments"];
   };
-  '/v1/departments/new': {
-    post: operations['DepartmentsController_createDepartment'];
+  "/v1/departments/new": {
+    post: operations["DepartmentsController_createDepartment"];
   };
-  '/v1/departments/{department_id}': {
-    put: operations['DepartmentsController_updateDepartment'];
-    delete: operations['DepartmentsController_disableDepartment'];
+  "/v1/departments/{department_id}": {
+    put: operations["DepartmentsController_updateDepartment"];
+    delete: operations["DepartmentsController_disableDepartment"];
   };
-  '/v1/departments': {
-    delete: operations['DepartmentsController_disableManyDepartments'];
+  "/v1/majors": {
+    get: operations["MajorsController_getMajors"];
+    delete: operations["MajorsController_disableMajors"];
   };
-  '/v1/majors': {
-    get: operations['MajorsController_getMajors'];
-    delete: operations['MajorsController_disableMajors'];
+  "/v1/majors/{annual_major_id}": {
+    get: operations["MajorsController_getMajor"];
+    put: operations["MajorsController_updateMajor"];
+    delete: operations["MajorsController_deleteMajor"];
   };
-  '/v1/majors/{annual_major_id}': {
-    get: operations['MajorsController_getMajor'];
-    put: operations['MajorsController_updateMajor'];
-    delete: operations['MajorsController_deleteMajor'];
+  "/v1/majors/new": {
+    post: operations["MajorsController_createMajor"];
   };
-  '/v1/majors/new': {
-    post: operations['MajorsController_createMajor'];
+  "/v1/classrooms": {
+    get: operations["ClassroomsController_getClassrooms"];
+    delete: operations["ClassroomsController_disableManyClassrooms"];
   };
-  '/v1/classrooms/all': {
-    get: operations['ClassroomsController_getClassrooms'];
-  };
-  '/v1/classrooms/{annual_classroom_id}': {
-    put: operations['ClassroomsController_updateClassroom'];
-    delete: operations['ClassroomsController_deleteClassroom'];
-  };
-  '/v1/classrooms': {
-    delete: operations['ClassroomsController_disableManyClassrooms'];
+  "/v1/classrooms/{annual_classroom_id}": {
+    put: operations["ClassroomsController_updateClassroom"];
+    delete: operations["ClassroomsController_deleteClassroom"];
   };
   "/v1/staffs": {
     get: operations["StaffController_getStaffs"];
     delete: operations["StaffController_disableManyStaff"];
   };
-  '/v1/staffs/{annual_teacher_id}': {
-    get: operations['StaffController_getStaff'];
-    put: operations['StaffController_updateStaff'];
-    delete: operations['StaffController_disableStaff'];
+  "/v1/staffs/{annual_teacher_id}": {
+    get: operations["StaffController_getStaff"];
+    put: operations["StaffController_updateStaff"];
+    delete: operations["StaffController_disableStaff"];
   };
-  '/v1/staffs/{annual_coordinator_id}': {
-    get: operations['StaffController_getStaff'];
-    put: operations['StaffController_updateStaff'];
-    delete: operations['StaffController_disableStaff'];
+  "/v1/staffs/{annual_coordinator_id}": {
+    get: operations["StaffController_getStaff"];
+    put: operations["StaffController_updateStaff"];
+    delete: operations["StaffController_disableStaff"];
   };
-  '/v1/staffs/{annual_configurator_id}': {
-    get: operations['StaffController_getStaff'];
-    put: operations['StaffController_updateStaff'];
-    delete: operations['StaffController_disableStaff'];
+  "/v1/staffs/{annual_configurator_id}": {
+    get: operations["StaffController_getStaff"];
+    put: operations["StaffController_updateStaff"];
+    delete: operations["StaffController_disableStaff"];
   };
-  '/v1/staffs/{annual_registry_id}': {
-    get: operations['StaffController_getStaff'];
-    put: operations['StaffController_updateStaff'];
-    delete: operations['StaffController_disableStaff'];
+  "/v1/staffs/{annual_registry_id}": {
+    get: operations["StaffController_getStaff"];
+    put: operations["StaffController_updateStaff"];
+    delete: operations["StaffController_disableStaff"];
   };
-  '/v1/staffs/new': {
-    post: operations['StaffController_createStaff'];
+  "/v1/staffs/new": {
+    post: operations["StaffController_createStaff"];
   };
-  '/v1/staffs/reset-passwords': {
-    post: operations['StaffController_resetStaffPasswords'];
+  "/v1/staffs/reset-passwords": {
+    post: operations["StaffController_resetStaffPasswords"];
   };
-  '/v1/staffs/{login_id}/roles': {
-    put: operations['StaffController_updateStaffRoles'];
+  "/v1/staffs/{login_id}/roles": {
+    put: operations["StaffController_updateStaffRoles"];
   };
-  '/v1/staffs/private-codes': {
-    put: operations['StaffController_resetStaffPrivateCodes'];
+  "/v1/staffs/private-codes": {
+    put: operations["StaffController_resetStaffPrivateCodes"];
   };
 }
 
@@ -192,7 +189,7 @@ export interface components {
       /** Format: date-time */
       birthdate?: string;
       /** @enum {string} */
-      gender?: 'Male' | 'Female';
+      gender?: "Male" | "Female";
       address?: string;
       national_id_number?: string;
       person_id: string;
@@ -201,27 +198,19 @@ export interface components {
       longitude: number | null;
       latitude: number | null;
       /** @enum {string} */
-      preferred_lang: 'en' | 'fr';
+      preferred_lang: "en" | "fr";
       image_ref: string | null;
       home_region: string | null;
       religion: string | null;
       handicap: string;
       /** @enum {string} */
-      civil_status: 'Married' | 'Single' | 'Divorced';
+      civil_status: "Married" | "Single" | "Divorced";
       /** @enum {string|null} */
-      employment_status: 'Employed' | 'Unemployed' | 'SelfEmployed' | null;
+      employment_status: "Employed" | "Unemployed" | "SelfEmployed" | null;
       /** Format: date-time */
       created_at: string;
       active_year_id?: string;
-      roles: (
-        | 'ADMIN'
-        | 'PARENT'
-        | 'STUDENT'
-        | 'TEACHER'
-        | 'REGISTRY'
-        | 'COORDINATOR'
-        | 'CONFIGURATOR'
-      )[];
+      roles: ("ADMIN" | "PARENT" | "STUDENT" | "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
     };
     AcademicYearEntity: {
       /** Format: date-time */
@@ -235,14 +224,14 @@ export interface components {
       /** Format: date-time */
       ended_at: string;
       /** @enum {string} */
-      year_status: 'INACTIVE' | 'ACTIVE' | 'FINISHED';
+      year_status: "INACTIVE" | "ACTIVE" | "FINISHED";
       school_id: string;
       /** Format: date-time */
       created_at: string;
     };
     SingInResponse: {
-      user: components['schemas']['UserEntity'];
-      academicYears?: components['schemas']['AcademicYearEntity'][];
+      user: components["schemas"]["UserEntity"];
+      academicYears?: components["schemas"]["AcademicYearEntity"][];
     };
     ResetPasswordDto: {
       email: string;
@@ -279,12 +268,7 @@ export interface components {
       paid_amount: number;
       ambassador_email: string;
       /** @enum {string} */
-      school_demand_status:
-        | 'PENDING'
-        | 'PROCESSING'
-        | 'REJECTED'
-        | 'VALIDATED'
-        | 'SUSPENDED';
+      school_demand_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED";
       school_rejection_reason: string;
       subdomain: string | null;
       creation_decree_number: string | null;
@@ -301,7 +285,7 @@ export interface components {
       /** Format: date-time */
       birthdate?: string;
       /** @enum {string} */
-      gender?: 'Male' | 'Female';
+      gender?: "Male" | "Female";
       address?: string;
       national_id_number?: string;
       person_id: string;
@@ -310,15 +294,15 @@ export interface components {
       longitude: number | null;
       latitude: number | null;
       /** @enum {string} */
-      preferred_lang: 'en' | 'fr';
+      preferred_lang: "en" | "fr";
       image_ref: string | null;
       home_region: string | null;
       religion: string | null;
       handicap: string;
       /** @enum {string} */
-      civil_status: 'Married' | 'Single' | 'Divorced';
+      civil_status: "Married" | "Single" | "Divorced";
       /** @enum {string|null} */
-      employment_status: 'Employed' | 'Unemployed' | 'SelfEmployed' | null;
+      employment_status: "Employed" | "Unemployed" | "SelfEmployed" | null;
       /** Format: date-time */
       created_at: string;
     };
@@ -329,9 +313,9 @@ export interface components {
       ends_at: string;
     };
     SchoolDemandDetails: {
-      school: components['schemas']['SchoolEntity'];
-      person: components['schemas']['PersonEntity'];
-      academicYear: components['schemas']['CreateAcademicYearDto'];
+      school: components["schemas"]["SchoolEntity"];
+      person: components["schemas"]["PersonEntity"];
+      academicYear: components["schemas"]["CreateAcademicYearDto"];
     };
     CreatePersonDto: {
       first_name: string;
@@ -341,7 +325,7 @@ export interface components {
       /** Format: date-time */
       birthdate?: string;
       /** @enum {string} */
-      gender?: 'Male' | 'Female';
+      gender?: "Male" | "Female";
       address?: string;
       national_id_number?: string;
       password: string;
@@ -424,24 +408,11 @@ export interface components {
     };
     UpdateSchoolDemandStatus: {
       /** @enum {string} */
-      school_demand_status:
-        | 'PENDING'
-        | 'PROCESSING'
-        | 'REJECTED'
-        | 'VALIDATED'
-        | 'SUSPENDED';
+      school_demand_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED";
     };
     UserAnnualRoles: {
       active_year_id?: string;
-      roles: (
-        | 'ADMIN'
-        | 'PARENT'
-        | 'STUDENT'
-        | 'TEACHER'
-        | 'REGISTRY'
-        | 'COORDINATOR'
-        | 'CONFIGURATOR'
-      )[];
+      roles: ("ADMIN" | "PARENT" | "STUDENT" | "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
     };
     InquiryEntity: {
       email: string;
@@ -449,7 +420,7 @@ export interface components {
       name?: string;
       message?: string;
       /** @enum {string} */
-      type: 'Default' | 'EarlyAccess';
+      type: "Default" | "EarlyAccess";
       inquiry_id: string;
       /** Format: date-time */
       created_at: string;
@@ -460,7 +431,7 @@ export interface components {
       name?: string;
       message?: string;
       /** @enum {string} */
-      type: 'Default' | 'EarlyAccess';
+      type: "Default" | "EarlyAccess";
     };
     AmbassadorEntity: {
       ambassador_id: string;
@@ -494,7 +465,7 @@ export interface components {
     CycleEntity: {
       cycle_id: string;
       /** @enum {string} */
-      cycle_name: 'HND' | 'DUT' | 'DTS' | 'BACHELOR' | 'MASTER' | 'DOCTORATE';
+      cycle_name: "HND" | "DUT" | "DTS" | "BACHELOR" | "MASTER" | "DOCTORATE";
       number_of_years: number;
       /** Format: date-time */
       created_at: string;
@@ -506,7 +477,7 @@ export interface components {
       annual_major_id: string;
       major_id: string;
       department_acronym: string;
-      cycle: components['schemas']['CycleEntity'];
+      cycle: components["schemas"]["CycleEntity"];
       /** Format: date-time */
       created_at: string;
       is_deleted: boolean;
@@ -539,11 +510,11 @@ export interface components {
       /** Format: date-time */
       birthdate?: string;
       /** @enum {string} */
-      gender?: 'Male' | 'Female';
+      gender?: "Male" | "Female";
       address?: string;
       national_id_number?: string;
       /** @enum {string} */
-      role: 'TEACHER';
+      role: "TEACHER";
       teaching_grade_id: string;
       teacher_type_id: string;
       origin_institute: string;
@@ -558,7 +529,7 @@ export interface components {
       is_deleted: boolean;
       /** Format: date-time */
       last_connected: string;
-      roles: ('TEACHER' | 'REGISTRY' | 'COORDINATOR' | 'CONFIGURATOR')[];
+      roles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
     };
     CoordinatorEntity: {
       first_name: string;
@@ -568,7 +539,7 @@ export interface components {
       /** Format: date-time */
       birthdate?: string;
       /** @enum {string} */
-      gender?: 'Male' | 'Female';
+      gender?: "Male" | "Female";
       address?: string;
       national_id_number?: string;
       teaching_grade_id: string;
@@ -585,9 +556,9 @@ export interface components {
       is_deleted: boolean;
       /** Format: date-time */
       last_connected: string;
-      roles: ('TEACHER' | 'REGISTRY' | 'COORDINATOR' | 'CONFIGURATOR')[];
+      roles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
       /** @enum {string} */
-      role: 'COORDINATOR';
+      role: "COORDINATOR";
       annualClassroomIds: string[];
     };
     StaffEntity: {
@@ -598,11 +569,11 @@ export interface components {
       /** Format: date-time */
       birthdate?: string;
       /** @enum {string} */
-      gender?: 'Male' | 'Female';
+      gender?: "Male" | "Female";
       address?: string;
       national_id_number?: string;
       /** @enum {string} */
-      role: 'TEACHER' | 'REGISTRY' | 'COORDINATOR' | 'CONFIGURATOR';
+      role: "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR";
       login_id: string;
       matricule: string;
       /** @default false */
@@ -612,7 +583,7 @@ export interface components {
       annual_configurator_id?: string;
       annual_registry_id?: string;
       annual_teacher_id?: string;
-      roles: ('TEACHER' | 'REGISTRY' | 'COORDINATOR' | 'CONFIGURATOR')[];
+      roles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
     };
     CreateConfiguratorDto: {
       first_name: string;
@@ -622,11 +593,11 @@ export interface components {
       /** Format: date-time */
       birthdate?: string;
       /** @enum {string} */
-      gender?: 'Male' | 'Female';
+      gender?: "Male" | "Female";
       address?: string;
       national_id_number?: string;
       /** @enum {string} */
-      role: 'CONFIGURATOR';
+      role: "CONFIGURATOR";
     };
     CreateRegistryDto: {
       first_name: string;
@@ -636,15 +607,15 @@ export interface components {
       /** Format: date-time */
       birthdate?: string;
       /** @enum {string} */
-      gender?: 'Male' | 'Female';
+      gender?: "Male" | "Female";
       address?: string;
       national_id_number?: string;
       /** @enum {string} */
-      role: 'REGISTRY';
+      role: "REGISTRY";
     };
     CreateCoordinatorDto: {
       /** @enum {string} */
-      role: 'COORDINATOR';
+      role: "COORDINATOR";
       annual_teacher_id: string;
       annualClassroomIds: string[];
     };
@@ -656,11 +627,11 @@ export interface components {
       /** Format: date-time */
       birthdate?: string;
       /** @enum {string} */
-      gender?: 'Male' | 'Female';
+      gender?: "Male" | "Female";
       address?: string;
       national_id_number?: string;
       /** @enum {string} */
-      role: 'TEACHER';
+      role: "TEACHER";
       teaching_grade_id: string;
       teacher_type_id: string;
       origin_institute: string;
@@ -670,11 +641,7 @@ export interface components {
       tax_payer_card_number?: string;
     };
     CreateStaffDto: {
-      payload:
-        | components['schemas']['CreateConfiguratorDto']
-        | components['schemas']['CreateRegistryDto']
-        | components['schemas']['CreateCoordinatorDto']
-        | components['schemas']['CreateTeacherDto'];
+      payload: components["schemas"]["CreateConfiguratorDto"] | components["schemas"]["CreateRegistryDto"] | components["schemas"]["CreateCoordinatorDto"] | components["schemas"]["CreateTeacherDto"];
     };
     UpdateConfiguratorDto: {
       first_name?: string;
@@ -684,11 +651,11 @@ export interface components {
       /** Format: date-time */
       birthdate?: string;
       /** @enum {string} */
-      gender?: 'Male' | 'Female';
+      gender?: "Male" | "Female";
       address?: string;
       national_id_number?: string;
       /** @enum {string} */
-      role: 'CONFIGURATOR';
+      role: "CONFIGURATOR";
     };
     UpdateRegistryDto: {
       first_name?: string;
@@ -698,15 +665,15 @@ export interface components {
       /** Format: date-time */
       birthdate?: string;
       /** @enum {string} */
-      gender?: 'Male' | 'Female';
+      gender?: "Male" | "Female";
       address?: string;
       national_id_number?: string;
       /** @enum {string} */
-      role: 'REGISTRY';
+      role: "REGISTRY";
     };
     UpdateCoordinatorDto: {
       /** @enum {string} */
-      role: 'COORDINATOR';
+      role: "COORDINATOR";
       annualClassroomIds: string[];
     };
     UpdateTeacherDto: {
@@ -717,11 +684,11 @@ export interface components {
       /** Format: date-time */
       birthdate?: string;
       /** @enum {string} */
-      gender?: 'Male' | 'Female';
+      gender?: "Male" | "Female";
       address?: string;
       national_id_number?: string;
       /** @enum {string} */
-      role: 'TEACHER';
+      role: "TEACHER";
       teaching_grade_id?: string;
       teacher_type_id?: string;
       origin_institute?: string;
@@ -731,11 +698,7 @@ export interface components {
       tax_payer_card_number?: string;
     };
     UpdateStaffDto: {
-      payload:
-        | components['schemas']['UpdateConfiguratorDto']
-        | components['schemas']['UpdateRegistryDto']
-        | components['schemas']['UpdateCoordinatorDto']
-        | components['schemas']['UpdateTeacherDto'];
+      payload: components["schemas"]["UpdateConfiguratorDto"] | components["schemas"]["UpdateRegistryDto"] | components["schemas"]["UpdateCoordinatorDto"] | components["schemas"]["UpdateTeacherDto"];
     };
     BatchPayloadDto: {
       count: number;
@@ -752,10 +715,10 @@ export interface components {
       annualClassroomIds: string[];
     };
     UpdateStaffRoleDto: {
-      newRoles: ('TEACHER' | 'REGISTRY' | 'COORDINATOR' | 'CONFIGURATOR')[];
-      disabledStaffPayload?: components['schemas']['ManageStaffDto'];
-      coordinatorPayload?: components['schemas']['CoordinateClassDto'];
-      teacherPayload?: components['schemas']['UpdateTeacherDto'];
+      newRoles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
+      disabledStaffPayload?: components["schemas"]["ManageStaffDto"];
+      coordinatorPayload?: components["schemas"]["CoordinateClassDto"];
+      teacherPayload?: components["schemas"]["UpdateTeacherDto"];
     };
   };
   responses: never;
@@ -770,6 +733,7 @@ export type $defs = Record<string, never>;
 export type external = Record<string, never>;
 
 export interface operations {
+
   AppController_getData: {
     responses: {
       200: {
@@ -781,7 +745,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          'application/json': components['schemas']['PlatformSettingsEntity'];
+          "application/json": components["schemas"]["PlatformSettingsEntity"];
         };
       };
     };
@@ -807,13 +771,13 @@ export interface operations {
   AuthController_signIn: {
     requestBody: {
       content: {
-        'application/json': components['schemas']['SignInDto'];
+        "application/json": components["schemas"]["SignInDto"];
       };
     };
     responses: {
       201: {
         content: {
-          'application/json': components['schemas']['SingInResponse'];
+          "application/json": components["schemas"]["SingInResponse"];
         };
       };
     };
@@ -821,7 +785,7 @@ export interface operations {
   AuthController_resetPassword: {
     requestBody: {
       content: {
-        'application/json': components['schemas']['ResetPasswordDto'];
+        "application/json": components["schemas"]["ResetPasswordDto"];
       };
     };
     responses: {
@@ -833,7 +797,7 @@ export interface operations {
   AuthController_setNewPassword: {
     requestBody: {
       content: {
-        'application/json': components['schemas']['SetNewPasswordDto'];
+        "application/json": components["schemas"]["SetNewPasswordDto"];
       };
     };
     responses: {
@@ -853,7 +817,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          'application/json': components['schemas']['UserEntity'];
+          "application/json": components["schemas"]["UserEntity"];
         };
       };
     };
@@ -883,7 +847,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          'application/json': components['schemas']['SchoolEntity'][];
+          "application/json": components["schemas"]["SchoolEntity"][];
         };
       };
     };
@@ -897,7 +861,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          'application/json': components['schemas']['SchoolEntity'];
+          "application/json": components["schemas"]["SchoolEntity"];
         };
       };
     };
@@ -928,7 +892,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          'application/json': components['schemas']['SchoolDemandDetails'];
+          "application/json": components["schemas"]["SchoolDemandDetails"];
         };
       };
     };
@@ -936,13 +900,13 @@ export interface operations {
   SchoolsController_submitSchoolDemand: {
     requestBody: {
       content: {
-        'application/json': components['schemas']['SubmitSchoolDemandDto'];
+        "application/json": components["schemas"]["SubmitSchoolDemandDto"];
       };
     };
     responses: {
       201: {
         content: {
-          'application/json': components['schemas']['SchoolEntity'];
+          "application/json": components["schemas"]["SchoolEntity"];
         };
       };
     };
@@ -955,7 +919,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ValidateSchoolDemandDto'];
+        "application/json": components["schemas"]["ValidateSchoolDemandDto"];
       };
     };
     responses: {
@@ -993,7 +957,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UpdateSchoolDemandStatus'];
+        "application/json": components["schemas"]["UpdateSchoolDemandStatus"];
       };
     };
     responses: {
@@ -1006,7 +970,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          'application/json': components['schemas']['AcademicYearEntity'][];
+          "application/json": components["schemas"]["AcademicYearEntity"][];
         };
       };
     };
@@ -1014,13 +978,13 @@ export interface operations {
   AcademicYearsController_createAcademicYear: {
     requestBody: {
       content: {
-        'application/json': components['schemas']['CreateAcademicYearDto'];
+        "application/json": components["schemas"]["CreateAcademicYearDto"];
       };
     };
     responses: {
       201: {
         content: {
-          'application/json': components['schemas']['AcademicYearEntity'];
+          "application/json": components["schemas"]["AcademicYearEntity"];
         };
       };
     };
@@ -1034,7 +998,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          'application/json': components['schemas']['UserAnnualRoles'];
+          "application/json": components["schemas"]["UserAnnualRoles"];
         };
       };
     };
@@ -1043,7 +1007,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          'application/json': components['schemas']['InquiryEntity'][];
+          "application/json": components["schemas"]["InquiryEntity"][];
         };
       };
     };
@@ -1051,13 +1015,13 @@ export interface operations {
   InquiriesController_createInquiry: {
     requestBody: {
       content: {
-        'application/json': components['schemas']['CreateInquiryDto'];
+        "application/json": components["schemas"]["CreateInquiryDto"];
       };
     };
     responses: {
       201: {
         content: {
-          'application/json': components['schemas']['InquiryEntity'];
+          "application/json": components["schemas"]["InquiryEntity"];
         };
       };
     };
@@ -1066,7 +1030,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          'application/json': components['schemas']['AmbassadorEntity'][];
+          "application/json": components["schemas"]["AmbassadorEntity"][];
         };
       };
     };
@@ -1081,7 +1045,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          'application/json': components['schemas']['AmbassadorEntity'];
+          "application/json": components["schemas"]["AmbassadorEntity"];
         };
       };
     };
@@ -1096,21 +1060,33 @@ export interface operations {
     responses: {
       200: {
         content: {
-          'application/json': components['schemas']['DepartmentEntity'][];
+          "application/json": components["schemas"]["DepartmentEntity"][];
         };
+      };
+    };
+  };
+  DepartmentsController_disableManyDepartments: {
+    parameters: {
+      query: {
+        departmentIds: string[];
+      };
+    };
+    responses: {
+      204: {
+        content: never;
       };
     };
   };
   DepartmentsController_createDepartment: {
     requestBody: {
       content: {
-        'application/json': components['schemas']['CreateDepartmentDto'];
+        "application/json": components["schemas"]["CreateDepartmentDto"];
       };
     };
     responses: {
       201: {
         content: {
-          'application/json': components['schemas']['DepartmentEntity'];
+          "application/json": components["schemas"]["DepartmentEntity"];
         };
       };
     };
@@ -1123,7 +1099,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UpdateDepartmentDto'];
+        "application/json": components["schemas"]["UpdateDepartmentDto"];
       };
     };
     responses: {
@@ -1136,18 +1112,6 @@ export interface operations {
     parameters: {
       path: {
         department_id: string;
-      };
-    };
-    responses: {
-      204: {
-        content: never;
-      };
-    };
-  };
-  DepartmentsController_disableManyDepartments: {
-    parameters: {
-      query: {
-        departmentIds: string[];
       };
     };
     responses: {
@@ -1202,7 +1166,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UpdateMajorDto'];
+        "application/json": components["schemas"]["UpdateMajorDto"];
       };
     };
     responses: {
@@ -1226,13 +1190,13 @@ export interface operations {
   MajorsController_createMajor: {
     requestBody: {
       content: {
-        'application/json': components['schemas']['CreateMajorDto'];
+        "application/json": components["schemas"]["CreateMajorDto"];
       };
     };
     responses: {
       201: {
         content: {
-          'application/json': components['schemas']['AnnualMajorEntity'];
+          "application/json": components["schemas"]["AnnualMajorEntity"];
         };
       };
     };
@@ -1249,8 +1213,20 @@ export interface operations {
     responses: {
       200: {
         content: {
-          'application/json': components['schemas']['AnnualClassroomEntity'][];
+          "application/json": components["schemas"]["AnnualClassroomEntity"][];
         };
+      };
+    };
+  };
+  ClassroomsController_disableManyClassrooms: {
+    parameters: {
+      query: {
+        annualClassroomIds: string[];
+      };
+    };
+    responses: {
+      204: {
+        content: never;
       };
     };
   };
@@ -1262,7 +1238,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UpdateClassroomDto'];
+        "application/json": components["schemas"]["UpdateClassroomDto"];
       };
     };
     responses: {
@@ -1283,30 +1259,18 @@ export interface operations {
       };
     };
   };
-  ClassroomsController_disableManyClassrooms: {
-    parameters: {
-      query: {
-        annualClassroomIds: string[];
-      };
-    };
-    responses: {
-      204: {
-        content: never;
-      };
-    };
-  };
   StaffController_getStaffs: {
     parameters: {
       query?: {
         is_deleted?: boolean;
         keywords?: string;
-        roles?: ('TEACHER' | 'REGISTRY' | 'COORDINATOR' | 'CONFIGURATOR')[];
+        roles?: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
       };
     };
     responses: {
       200: {
         content: {
-          'application/json': components['schemas']['StaffEntity'][];
+          "application/json": components["schemas"]["StaffEntity"][];
         };
       };
     };
@@ -1322,7 +1286,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          'application/json': components['schemas']['BatchPayloadDto'];
+          "application/json": components["schemas"]["BatchPayloadDto"];
         };
       };
     };
@@ -1330,7 +1294,7 @@ export interface operations {
   StaffController_getStaff: {
     parameters: {
       query: {
-        role: 'TEACHER' | 'REGISTRY' | 'COORDINATOR' | 'CONFIGURATOR';
+        role: "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR";
       };
       path: {
         annual_teacher_id: string;
@@ -1340,10 +1304,7 @@ export interface operations {
       /** @description `StaffEntity`, `TeacherEntity` or `CoordinatorEntity` will ne returned depending on request query */
       200: {
         content: {
-          'application/json':
-            | components['schemas']['StaffEntity']
-            | components['schemas']['TeacherEntity']
-            | components['schemas']['CoordinatorEntity'];
+          "application/json": components["schemas"]["StaffEntity"] | components["schemas"]["TeacherEntity"] | components["schemas"]["CoordinatorEntity"];
         };
       };
     };
@@ -1356,7 +1317,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UpdateStaffDto'];
+        "application/json": components["schemas"]["UpdateStaffDto"];
       };
     };
     responses: {
@@ -1368,7 +1329,7 @@ export interface operations {
   StaffController_disableStaff: {
     parameters: {
       query: {
-        role: 'TEACHER' | 'REGISTRY' | 'COORDINATOR' | 'CONFIGURATOR';
+        role: "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR";
       };
       path: {
         annual_teacher_id: string;
@@ -1383,17 +1344,14 @@ export interface operations {
   StaffController_createStaff: {
     requestBody: {
       content: {
-        'application/json': components['schemas']['CreateStaffDto'];
+        "application/json": components["schemas"]["CreateStaffDto"];
       };
     };
     responses: {
       /** @description `StaffEntity`, `TeacherEntity` or `CoordinatorEntity` will ne returned depending on request body */
       201: {
         content: {
-          'application/json':
-            | components['schemas']['StaffEntity']
-            | components['schemas']['TeacherEntity']
-            | components['schemas']['CoordinatorEntity'];
+          "application/json": components["schemas"]["StaffEntity"] | components["schemas"]["TeacherEntity"] | components["schemas"]["CoordinatorEntity"];
         };
       };
     };
@@ -1401,13 +1359,13 @@ export interface operations {
   StaffController_resetStaffPasswords: {
     requestBody: {
       content: {
-        'application/json': components['schemas']['ManageStaffDto'];
+        "application/json": components["schemas"]["ManageStaffDto"];
       };
     };
     responses: {
       200: {
         content: {
-          'application/json': components['schemas']['BatchPayloadDto'];
+          "application/json": components["schemas"]["BatchPayloadDto"];
         };
       };
     };
@@ -1420,13 +1378,13 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UpdateStaffRoleDto'];
+        "application/json": components["schemas"]["UpdateStaffRoleDto"];
       };
     };
     responses: {
       200: {
         content: {
-          'application/json': components['schemas']['BatchPayloadDto'];
+          "application/json": components["schemas"]["BatchPayloadDto"];
         };
       };
     };
@@ -1434,13 +1392,13 @@ export interface operations {
   StaffController_resetStaffPrivateCodes: {
     requestBody: {
       content: {
-        'application/json': components['schemas']['ManageStaffDto'];
+        "application/json": components["schemas"]["ManageStaffDto"];
       };
     };
     responses: {
       200: {
         content: {
-          'application/json': components['schemas']['BatchPayloadDto'];
+          "application/json": components["schemas"]["BatchPayloadDto"];
         };
       };
     };
