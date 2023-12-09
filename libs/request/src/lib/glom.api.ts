@@ -2,13 +2,14 @@ import {
   AcademicYearApi,
   AmbassadorsApi,
   AuthApi,
-  SchoolsApi,
   InquiriesApi,
-  PlatformSettingsApi,
-  StaffApi,
   PaymentsApi,
+  PlatformSettingsApi,
+  SchoolsApi,
+  StaffApi,
 } from '../squoolr';
 import { DepartmentsApi } from '../squoolr/departments.api';
+import { MajorsApi } from '../squoolr/majors.api';
 import { GlomRequest, RequestParams } from './glom-request';
 
 export const GLOM_HOSTS = {
@@ -37,6 +38,7 @@ export class GlomApi {
     academicYears: AcademicYearApi;
     platformSettings: PlatformSettingsApi;
     departments: DepartmentsApi;
+    majors: MajorsApi;
   };
 
   constructor(public params?: Partial<RequestParams>) {
@@ -57,6 +59,7 @@ export class GlomApi {
       academicYears: new AcademicYearApi(squoolrRequest),
       platformSettings: new PlatformSettingsApi(squoolrRequest),
       departments: new DepartmentsApi(squoolrRequest),
+      majors: new MajorsApi(squoolrRequest),
     };
   }
 }
