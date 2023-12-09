@@ -28,7 +28,7 @@ import { Request } from 'express';
 export class ClassroomsController {
   constructor(private classroomsService: ClassroomsService) {}
 
-  @Get('all')
+  @Get()
   @ApiOkResponse({ type: [AnnualClassroomEntity] })
   async getClassrooms(
     @Query() { annual_major_id, ...params }: QueryClassroomDto

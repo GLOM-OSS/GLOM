@@ -20,3 +20,8 @@ export type DisableClassroomsPayload = SchemaRequestQuery<
   operations,
   'ClassroomsController_disableManyClassrooms'
 >;
+
+export type QueryClassroomParams = SchemaRequestQuery<
+  operations,
+  'ClassroomsController_getClassrooms'
+>;
