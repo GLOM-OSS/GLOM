@@ -275,7 +275,12 @@ export interface components {
       description: string | null;
       /** Format: date-time */
       created_at: string;
-      created_by: string;
+      longitude: number;
+      latitude: number;
+      address: string;
+      logo_ref: string;
+      is_validated: boolean;
+      is_deleted: boolean;
     };
     PersonEntity: {
       first_name: string;
@@ -356,16 +361,11 @@ export interface components {
       school_acronym?: string;
       school_email?: string;
       school_phone_number?: string;
-      school_id?: string;
-      school_code?: string;
-      ambassador_email?: string;
-      /** @enum {string} */
-      school_demand_status?: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED";
+      subdomain?: string | null;
       creation_decree_number?: string | null;
       description?: string | null;
-      /** Format: date-time */
-      created_at?: string;
-      created_by?: string;
+      address?: string;
+      logo_ref?: string;
     };
     DocumentSignerEntity: {
       /** @example Yongua */
