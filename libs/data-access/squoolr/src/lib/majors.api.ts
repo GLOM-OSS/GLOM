@@ -1,4 +1,4 @@
-import { CreateMajorPayload, QueryMajorParams } from '@glom/data-types';
+import { CreateMajorPayload, QueryMajorParams, UpdateMajorPayload } from '@glom/data-types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import squoolrApi from './api';
@@ -34,7 +34,7 @@ export function useCreateMajor() {
 }
 
 export function useUpdateMajor(annualMajorId: string) {
-  const mutationFn = (payload: CreateMajorPayload) =>
+  const mutationFn = (payload: UpdateMajorPayload) =>
     majors.updateMajor(annualMajorId, payload);
   return useMutation({
     mutationFn,

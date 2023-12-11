@@ -1,7 +1,10 @@
 import {
-  CreateMajorPayload,
-  CycleEntity,
-  DepartmentEntity,
+  useCreateMajor,
+  useCycles,
+  useDepartments,
+} from '@glom/data-access/squoolr';
+import {
+  CreateMajorPayload
 } from '@glom/data-types/squoolr';
 import { generateShort } from '@glom/utils';
 import {
@@ -31,46 +34,10 @@ export default function AddMajorDialog({
   isDialogOpen: boolean;
   closeDialog: () => void;
 }) {
-  //TODO: UpdateMajorPayload needs to have the annual_major_id in it
   const { formatMessage, formatNumber } = useIntl();
 
-  //TODO; call api here to fetch cycles
-  const cycles: CycleEntity[] = [
-    {
-      created_at: new Date().toISOString(),
-      cycle_id: 'bostonwe',
-      cycle_name: 'BACHELOR',
-      number_of_years: 3,
-    },
-    {
-      created_at: new Date().toISOString(),
-      cycle_id: 'bostonwes',
-      cycle_name: 'MASTER',
-      number_of_years: 5,
-    },
-  ];
-
-  //TODO: CALL API HERE TO FETCH DEPARTMENTS
-  const departments: DepartmentEntity[] = [
-    {
-      created_at: new Date().toISOString(),
-      created_by: '',
-      department_acronym: 'DS',
-      department_id: 'EF1203',
-      department_name: 'Department des Sciences',
-      is_deleted: false,
-      school_id: 'slei',
-    },
-    {
-      created_at: new Date().toISOString(),
-      created_by: '',
-      department_acronym: 'DST',
-      department_id: 'DST1203',
-      department_name: 'Department des Technologies',
-      is_deleted: false,
-      school_id: 'slei',
-    },
-  ];
+  const { data: cycles } = useCycles();
+  const { data: departments } = useDepartments();
 
   const initialValues: CreateMajorPayload = {
     major_acronym: '',
@@ -94,21 +61,18 @@ export default function AddMajorDialog({
       .required(formatMessage({ id: 'requiredField' })),
   });
 
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { mutate: createMajor, isPending: isSubmitting } = useCreateMajor();
   const formik = useFormik({
     initialValues,
     validationSchema,
     enableReinitialize: true,
     onSubmit: (values, { resetForm }) => {
-      //TODO: CALL API HERE TO create MAJOR WITH DATA values
-      setIsSubmitting(true);
-      setTimeout(() => {
-        alert('done creating');
-        close();
-        resetForm();
-        setIsSubmitting(false);
-      }, 3000);
+      createMajor(values, {
+        onSuccess() {
+          close();
+          resetForm();
+        },
+      });
     },
   });
 

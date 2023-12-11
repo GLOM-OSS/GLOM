@@ -4,19 +4,23 @@ import {
   TableHeaderItem,
   TableSkeleton,
 } from '@glom/components';
-import { ClassroomEntity, MajorEntity } from '@glom/data-types/squoolr';
+import {
+  useClassrooms,
+  useDisableClassrooms,
+  useMajor,
+} from '@glom/data-access/squoolr';
 import {
   useBreadcrumb,
   useDispatchBreadcrumb,
 } from '@glom/squoolr-v2/side-nav';
 import { useTheme } from '@glom/theme';
 import reset from '@iconify/icons-fluent/arrow-counterclockwise-48-regular';
+import questionMark from '@iconify/icons-fluent/book-question-mark-24-regular';
 import checked from '@iconify/icons-fluent/checkbox-checked-16-filled';
 import unchecked from '@iconify/icons-fluent/checkbox-unchecked-16-filled';
 import filter from '@iconify/icons-fluent/filter-28-regular';
 import more from '@iconify/icons-fluent/more-vertical-48-regular';
 import search from '@iconify/icons-fluent/search-48-regular';
-import questionMark from '@iconify/icons-fluent/book-question-mark-24-regular';
 import { Icon } from '@iconify/react';
 import {
   Box,
@@ -51,29 +55,10 @@ export default function Index() {
     asPath,
   } = useRouter();
 
-  const [majorData, setMajorData] = useState<MajorEntity>();
+  const { data: majorData } = useMajor(annual_major_id as string);
+
   useEffect(() => {
     if (!!annual_major_id) {
-      //TODO: CALL API HERE TO FETCH ACTIVE MAJOR DATA
-      setTimeout(() => {
-        setMajorData({
-          annual_major_id: 'boston123',
-          cycle: {
-            cycle_id: 'Licence',
-            cycle_name: 'BACHELOR',
-            created_at: new Date().toISOString(),
-            number_of_years: 3,
-          },
-          department_acronym: 'DST',
-          department_id: 'boston1234',
-          major_acronym: 'IRT',
-          major_id: 'boston1234',
-          major_name: 'Informatique, Reseaux et Telecommunications',
-          created_at: new Date().toISOString(),
-          is_deleted: false,
-        });
-      }, 3000);
-
       const doesBreadcrumbHaveItem = breadcrumbs.find(
         ({ route }) => route && route.includes(annual_major_id as string)
       );
@@ -108,46 +93,23 @@ export default function Index() {
 
   const tableHeaders = ['', 'code#', 'className', 'numberOfDivisions', ''];
 
-  //TODO: REPLACE WITH with reactQuery own
-  const [isClassroomDataFetching, setIsMajorDataFetching] =
-    useState<boolean>(true);
-
-  //TODO: FETCH LIST OF majors HERE
-  const [classroomData, setClassroomData] = useState<ClassroomEntity[]>();
-
-  //TODO: REMOVE THIS WHEN INTEGRATION IS DONE
-  useEffect(() => {
-    setTimeout(() => {
-      setClassroomData([
-        {
-          annual_classroom_id: 'boston123',
-          annual_coordinator_id: '',
-          annual_major_id: 'bostoin123',
-          classroom_acronym: 'RT3',
-          classroom_id: 'wieos',
-          classroom_level: 3,
-          classroom_name: 'Reseaux Telecommunications',
-          created_at: new Date().toISOString(),
-          is_deleted: false,
-          number_of_divisions: 3,
-        },
-      ]);
-      setIsMajorDataFetching(false);
-    }, 3000);
-  }, []);
+  const [searchValue, setSearchValue] = useState<string>('');
+  const [showArchives, setShowArchives] = useState<boolean>(false);
+  const {
+    data: classroomData,
+    isFetching: isClassroomDataFetching,
+    refetch: refetchClassrooms,
+  } = useClassrooms({
+    annual_major_id: annual_major_id as string,
+    is_deleted: showArchives,
+    keywords: searchValue,
+  });
 
   const [canSearchExpand, setCanSearchExpand] = useState<boolean>(false);
-  const [searchValue, setSearchValue] = useState<string>('');
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [showArchives, setShowArchives] = useState<boolean>(false);
   const [filterAnchorEl, setFilterAnchorEl] = useState<HTMLElement | null>(
     null
   );
-
-  useEffect(() => {
-    //TODO: CALL fetch list of major API HERE with searchValue and showArchives use it to filter. MUTATE majors DATA WHEN IT'S DONE
-    alert('hello world');
-  }, [searchValue, showArchives]);
 
   const [selectedClassroomsIds, setSelectedClassroomIds] = useState<string[]>(
     []
@@ -180,33 +142,22 @@ export default function Index() {
   const [isConfirmUnarchiveDialogOpen, setIsConfirmUnarchiveDialogOpen] =
     useState<boolean>(false);
 
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isArchiving, setIsArchiving] = useState<boolean>(false);
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isUnarchiving, setIsUnarchiving] = useState<boolean>(false);
+  const { mutate: archiveClassrooms, isPending: isHandlingArchive } =
+    useDisableClassrooms();
   function confirmArchiveUnarchive() {
-    if (isConfirmArchiveDialogOpen) {
-      setIsArchiving(true);
-      //TODO: CALL API HERE TO ARCHIVE classroom with data selectedClassroomIds if length>1 or otherwise [activeClassroomId]
-      setTimeout(() => {
-        alert('done archiving');
-        //TODO: MUTATE classroomData here so the data updates
-        setIsArchiving(false);
-        setIsConfirmArchiveDialogOpen(false);
-        setActiveClassroomId(undefined);
-      }, 3000);
-    }
-    if (isConfirmUnarchiveDialogOpen) {
-      setIsUnarchiving(true);
-      //TODO: CALL API HERE TO ARCHIVE classroom with data selectedClassroomIds if length>1 or otherwise [activeClassroomId]
-      setTimeout(() => {
-        alert('done unarchiving');
-        //TODO: MUTATE classroomData here so the data updates
-        setIsUnarchiving(false);
-        setIsConfirmUnarchiveDialogOpen(false);
-        setActiveClassroomId(undefined);
-      }, 3000);
-    }
+    archiveClassrooms(
+      selectedClassroomsIds.length > 1
+        ? selectedClassroomsIds
+        : [activeClassroomId],
+      {
+        onSuccess() {
+          (isConfirmArchiveDialogOpen
+            ? setIsConfirmArchiveDialogOpen
+            : setIsConfirmUnarchiveDialogOpen)(false);
+          setActiveClassroomId(undefined);
+        },
+      }
+    );
   }
 
   return (
@@ -261,7 +212,7 @@ export default function Index() {
         })}
         danger
         closeOnConfirm
-        isSubmitting={isArchiving || isUnarchiving}
+        isSubmitting={isHandlingArchive}
       />
       <Box
         sx={{
@@ -351,10 +302,7 @@ export default function Index() {
           <TableHeaderItem
             icon={reset}
             title={formatMessage({ id: 'reload' })}
-            onClick={() => {
-              //TODO: MUTATE TABLE VALUES HERE AND SEARCH AGAIN.
-              alert('hello world');
-            }}
+            onClick={() => refetchClassrooms()}
           />
         </Box>
         {
@@ -370,7 +318,7 @@ export default function Index() {
               <Button
                 variant="outlined"
                 color="warning"
-                disabled={isArchiving || isUnarchiving}
+                disabled={isHandlingArchive}
                 onClick={() => setIsConfirmUnarchiveDialogOpen(true)}
               >
                 {formatMessage({ id: 'unarchiveSelected' })}
@@ -380,7 +328,7 @@ export default function Index() {
               <Button
                 variant="outlined"
                 color="warning"
-                disabled={isArchiving || isUnarchiving}
+                disabled={isHandlingArchive}
                 onClick={() => setIsConfirmArchiveDialogOpen(true)}
               >
                 {formatMessage({ id: 'archiveSelected' })}
@@ -418,13 +366,10 @@ export default function Index() {
                       disabled={
                         !classroomData ||
                         isClassroomDataFetching ||
-                        isArchiving ||
-                        isUnarchiving
+                        isHandlingArchive
                       }
                       onClick={() =>
-                        isArchiving || isUnarchiving
-                          ? null
-                          : selectAllClassrooms()
+                        isHandlingArchive ? null : selectAllClassrooms()
                       }
                       checked={
                         !!classroomData &&
@@ -572,9 +517,9 @@ export default function Index() {
                         <Tooltip arrow title={formatMessage({ id: 'more' })}>
                           <IconButton
                             size="small"
-                            disabled={isArchiving || isUnarchiving}
+                            disabled={isHandlingArchive}
                             onClick={(event) => {
-                              if (isArchiving || isUnarchiving) return null;
+                              if (isHandlingArchive) return null;
                               setAnchorEl(event.currentTarget);
                               setActiveClassroomId(annual_classroom_id);
                               setIsActiveClassroomArchived(is_deleted);
