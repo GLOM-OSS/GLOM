@@ -1,12 +1,14 @@
 import {
   BulkDisableStaffPayload,
   CreateStaffPayload,
+  ManageStaffRolesPayload,
   ResetStaffPasswordPayload,
   StaffQueryParams,
   StaffRole,
-  UpdateStaffPayload
+  UpdateStaffPayload,
 } from '@glom/data-types/squoolr';
 import { useMutation, useQuery } from '@tanstack/react-query';
+
 import squoolrApi from './api';
 const { staffs } = squoolrApi;
 
@@ -30,6 +32,10 @@ export function useCreateStaffMember() {
   return useMutation({
     mutationKey: ['add-new-staff-member'],
     mutationFn: (newStaff: CreateStaffPayload) => staffs.createStaff(newStaff),
+    onError(error) {
+      console.log(error);
+      //TODO const notif = new useNotification();
+    },
   });
 }
 
@@ -38,6 +44,10 @@ export function useUpdateStaffMember(annualStaffId: string) {
     mutationKey: ['update-staff-member', annualStaffId],
     mutationFn: (payload: UpdateStaffPayload) =>
       staffs.updateStaff(annualStaffId, payload),
+    onError(error) {
+      console.log(error);
+      //TODO const notif = new useNotification();
+    },
   });
 }
 
@@ -45,6 +55,10 @@ export function useDisableStaffMember(annualStaffId: string) {
   return useMutation({
     mutationKey: ['disable-staff-member', annualStaffId],
     mutationFn: (role: StaffRole) => staffs.disableStaff(annualStaffId, role),
+    onError(error) {
+      console.log(error);
+      //TODO const notif = new useNotification();
+    },
   });
 }
 
@@ -53,6 +67,10 @@ export function useDisableStaffMembers() {
     mutationKey: ['disable-many-staff-member'],
     mutationFn: (staffPayload: BulkDisableStaffPayload) =>
       staffs.disableManyStaff(staffPayload),
+    onError(error) {
+      console.log(error);
+      //TODO const notif = new useNotification();
+    },
   });
 }
 
@@ -61,5 +79,21 @@ export function useResetStaffPasswords() {
     mutationKey: ['reset-many-staff-member'],
     mutationFn: (staffPayload: ResetStaffPasswordPayload) =>
       staffs.resetStaffPasswords(staffPayload),
+    onError(error) {
+      console.log(error);
+      //TODO const notif = new useNotification();
+    },
+  });
+}
+
+export function useManageStaffRoles(loginId: string) {
+  return useMutation({
+    mutationKey: ['manage-staff-member-roles'],
+    mutationFn: (staffPayload: ManageStaffRolesPayload) =>
+      staffs.updateStaffRoles(loginId, staffPayload),
+    onError(error) {
+      console.log(error);
+      //TODO const notif = new useNotification();
+    },
   });
 }
