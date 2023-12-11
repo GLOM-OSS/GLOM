@@ -4,6 +4,8 @@ import {
   SchoolDemandStatus,
   SchoolQueryParams,
   SubmitSchoolDemandPayload,
+  UpdateSchoolPayload,
+  UpdateSchoolSettingPayload,
   ValidateSchoolDemandPayload,
 } from '@glom/data-types';
 import squoolrApi from './api';
@@ -60,5 +62,28 @@ export function useUpdateSchoolStatus(schoolId: string) {
     mutationFn: (
       schoolDemandStaus: Extract<SchoolDemandStatus, 'PROCESSING' | 'SUSPENDED'>
     ) => demands.updateSchoolStatus(schoolId, schoolDemandStaus),
+  });
+}
+
+export function useUpdateSchool(schoolId: string) {
+  return useMutation({
+    mutationKey: ['update-school-profile', schoolId],
+    mutationFn: (updatePayload: UpdateSchoolPayload) =>
+      demands.updateSchool(updatePayload),
+  });
+}
+
+export function useSchoolSettings() {
+  return useQuery({
+    queryKey: ['fetch-school-settings'],
+    queryFn: () => demands.getSchoolSettings(),
+  });
+}
+
+export function useUpdateSchoolSettings() {
+  return useMutation({
+    mutationKey: ['update-school-settings'],
+    mutationFn: (updatePayload: UpdateSchoolSettingPayload) =>
+      demands.updateSchoolSettings(updatePayload),
   });
 }
