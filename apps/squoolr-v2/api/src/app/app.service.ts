@@ -5,6 +5,7 @@ import {
   TeacherTypeEntity,
   TeachingGradeEntity,
 } from './app.dto';
+import { CycleEntity } from '../modules/modules.dto';
 
 @Injectable()
 export class AppService {
@@ -32,5 +33,10 @@ export class AppService {
     return teacherGrades.map(
       (teacherGrade) => new TeachingGradeEntity(teacherGrade)
     );
+  }
+
+  async getCycles() {
+    const cycles = await this.prismaService.cycle.findMany();
+    return cycles.map((cycle) => new CycleEntity(cycle));
   }
 }

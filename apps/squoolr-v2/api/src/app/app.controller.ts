@@ -7,6 +7,7 @@ import {
   TeacherTypeEntity,
   TeachingGradeEntity,
 } from './app.dto';
+import { CycleEntity } from '../modules/modules.dto';
 
 @Controller()
 export class AppController {
@@ -33,5 +34,11 @@ export class AppController {
   @ApiOkResponse({ type: [TeachingGradeEntity] })
   getTeachingGrades() {
     return this.appService.getTeachingGrades();
+  }
+
+  @Get('cycles')
+  @ApiOkResponse({ type: [CycleEntity] })
+  getCycles() {
+    return this.appService.getCycles();
   }
 }
