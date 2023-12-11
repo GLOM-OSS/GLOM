@@ -287,6 +287,8 @@ export class SchoolsService {
               'subdomain',
               'created_at',
               'created_by',
+              'school_id',
+              'school_code',
             ]),
             AuditedBy: { connect: { annual_configurator_id: audited_by } },
           },

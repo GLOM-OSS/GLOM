@@ -211,11 +211,10 @@ model School {
 
 model SchoolAudit {
     school_audit_id        String             @id @default(uuid()) @db.VarChar(36)
-    address                String?            @db.VarChar(20)
     longitude              Float?
     latitude               Float?
+    address                String?            @db.VarChar(20)
     school_name            String             @db.VarChar(50)
-    school_code            String             @db.VarChar(45)
     school_acronym         String             @db.VarChar(45)
     school_email           String             @unique @db.VarChar(50)
     school_phone_number    String             @db.VarChar(15)
