@@ -1,6 +1,10 @@
 import {
+  useCreateDepartment,
+  useUpdateDepartment,
+} from '@glom/data-access/squoolr';
+import {
   CreateDepartmentPayload,
-  UpdateDepartmentPayload,
+  DepartmentEntity,
 } from '@glom/data-types/squoolr';
 import { generateShort } from '@glom/utils';
 import {
@@ -25,9 +29,8 @@ export default function NewDepartmentDialog({
 }: {
   isDialogOpen: boolean;
   closeDialog: () => void;
-  editableDepartment?: UpdateDepartmentPayload;
+  editableDepartment?: DepartmentEntity;
 }) {
-  //TODO: UpdateDepartmentPayload needs to have the department_id in it
   const { formatMessage } = useIntl();
 
   const initialValues: CreateDepartmentPayload = {
@@ -44,25 +47,31 @@ export default function NewDepartmentDialog({
     ),
   });
 
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { mutate: createDepartment, isPending: isCreatingDepartment } =
+    useCreateDepartment();
+  const { mutate: updateDepartment, isPending: isUpdatingDepartment } =
+    useUpdateDepartment(editableDepartment?.department_id);
+  const isSubmitting = isCreatingDepartment || isUpdatingDepartment;
   const formik = useFormik({
     initialValues,
     validationSchema,
     enableReinitialize: true,
     onSubmit: (values, { resetForm }) => {
       if (!!editableDepartment) {
-        //TODO: CALL API HERE TO UPDATE DEPARTMENT WITH DATA values
+        updateDepartment(values, {
+          onSuccess() {
+            close();
+            resetForm();
+          },
+        });
       } else {
-        //TODO: call api here to create department with data values
+        createDepartment(values, {
+          onSuccess() {
+            close();
+            resetForm();
+          },
+        });
       }
-      setIsSubmitting(true);
-      setTimeout(() => {
-        alert('done creating');
-        close();
-        resetForm();
-        setIsSubmitting(false);
-      }, 3000);
     },
   });
 
