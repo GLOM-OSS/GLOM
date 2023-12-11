@@ -67,8 +67,8 @@ export class SchoolsApi {
     return resp.data;
   }
 
-  async updateSchool(schoolId: string, payload: UpdateSchoolPayload) {
-    const resp = await this.request.put(`/schools/${schoolId}`, payload);
+  async updateSchool(payload: UpdateSchoolPayload) {
+    const resp = await this.request.put(`/schools/my-school`, payload);
     return resp.data;
   }
 

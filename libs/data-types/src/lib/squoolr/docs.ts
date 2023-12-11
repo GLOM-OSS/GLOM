@@ -40,7 +40,6 @@ export interface paths {
   };
   "/v1/schools/{school_id}": {
     get: operations["SchoolsController_getSchool"];
-    put: operations["SchoolsController_updateSchool"];
   };
   "/v1/schools/{school_code}": {
     get: operations["SchoolsController_getSchool"];
@@ -53,6 +52,9 @@ export interface paths {
   };
   "/v1/schools/{school_id}/validate": {
     put: operations["SchoolsController_validateSchoolDemand"];
+  };
+  "/v1/schools/my-school": {
+    put: operations["SchoolsController_updateSchool"];
   };
   "/v1/schools/settings": {
     get: operations["SchoolsController_getSchoolSettings"];
@@ -866,23 +868,6 @@ export interface operations {
       };
     };
   };
-  SchoolsController_updateSchool: {
-    parameters: {
-      path: {
-        school_id: string;
-      };
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateSchoolDto"];
-      };
-    };
-    responses: {
-      200: {
-        content: never;
-      };
-    };
-  };
   SchoolsController_getSchoolDetails: {
     parameters: {
       path: {
@@ -924,6 +909,18 @@ export interface operations {
     };
     responses: {
       204: {
+        content: never;
+      };
+    };
+  };
+  SchoolsController_updateSchool: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateSchoolDto"];
+      };
+    };
+    responses: {
+      200: {
         content: never;
       };
     };
