@@ -52,3 +52,18 @@ export type SchoolQueryParams = SchemaRequestQuery<
   operations,
   'SchoolsController_getSchools'
 >;
+
+export type UpdateSchoolPayload = SchemaRequestBody<
+  operations,
+  'SchoolsController_updateSchool'
+>;
+
+export type SchoolSettingEntity = SchemaResponseBody<
+  operations,
+  'SchoolsController_getSchoolSettings'
+>;
+
+export type UpdateSchoolSettingPayload = SchemaRequestBody<
+  operations,
+  'SchoolsController_updateSchoolSettings'
+>;
