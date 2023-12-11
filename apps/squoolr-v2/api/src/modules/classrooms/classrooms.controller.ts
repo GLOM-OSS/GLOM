@@ -30,13 +30,8 @@ export class ClassroomsController {
 
   @Get()
   @ApiOkResponse({ type: [AnnualClassroomEntity] })
-  async getClassrooms(
-    @Query() { annual_major_id, ...params }: QueryClassroomDto
-  ) {
-    return this.classroomsService.findAll(annual_major_id, {
-      annual_major_id,
-      ...params,
-    });
+  async getClassrooms(@Query() params: QueryClassroomDto) {
+    return this.classroomsService.findAll(params);
   }
 
   @ApiNoContentResponse()

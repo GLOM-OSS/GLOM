@@ -25,8 +25,8 @@ export class ClassroomDivisionQueryDto {
 export class QueryClassroomDto extends QueryParamsDto {
   @IsUUID()
   @IsOptional()
-  @ApiProperty()
-  annual_major_id: string;
+  @ApiPropertyOptional()
+  annual_major_id?: string;
 
   @IsNumber()
   @IsOptional()

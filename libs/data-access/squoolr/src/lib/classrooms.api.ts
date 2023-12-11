@@ -1,20 +1,13 @@
-import {
-    QueryClassroomParams,
-    UpdateClassroomPayload
-} from '@glom/data-types';
+import { QueryClassroomParams, UpdateClassroomPayload } from '@glom/data-types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import squoolrApi from './api';
 const { classrooms } = squoolrApi;
 
-export function useClassrooms({
-  annual_major_id,
-  ...params
-}: QueryClassroomParams) {
+export function useClassrooms(params?: QueryClassroomParams) {
   return useQuery({
-    enabled: !!annual_major_id,
-    queryKey: ['fetch-major-classrooms', annual_major_id, params],
-    queryFn: () => classrooms.getClassrooms({ annual_major_id, ...params }),
+    queryKey: ['fetch-major-classrooms', params],
+    queryFn: () => classrooms.getClassrooms(params),
   });
 }
 

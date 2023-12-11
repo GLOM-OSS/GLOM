@@ -7,29 +7,23 @@ import { AnnualClassroomEntity, QueryClassroomDto } from './classroom.dto';
 export class ClassroomsService {
   constructor(private prismaService: GlomPrismaService) {}
 
-  async findAll(annual_major_id: string, params?: QueryClassroomDto) {
+  async findAll(params?: QueryClassroomDto) {
     const classrooms = await this.prismaService.annualClassroom.findMany({
       include: {
         AnnualMajor: { select: { major_acronym: true, major_name: true } },
         AnnualClassroomDivisions: { select: { annual_coordinator_id: true } },
       },
       where: {
-        annual_major_id,
-        OR: [
-          {
-            is_deleted: params?.is_deleted,
-            classroom_level: params?.level,
-          },
-          {
-            AnnualMajor: params?.keywords
-              ? {
-                  major_name: {
-                    search: params?.keywords,
-                  },
-                }
-              : undefined,
-          },
-        ],
+        is_deleted: params?.is_deleted,
+        classroom_level: params?.level,
+        annual_major_id: params?.annual_major_id,
+        AnnualMajor: params?.keywords
+          ? {
+              major_name: {
+                search: params?.keywords,
+              },
+            }
+          : undefined,
       },
     });
     return classrooms.map(
@@ -41,7 +35,6 @@ export class ClassroomsService {
       }) =>
         new AnnualClassroomEntity({
           classroom_level,
-          annual_major_id,
           annual_coordinator_id,
           classroom_name: `${major_name} ${classroom_level}`,
           classroom_acronym: `${major_acronym}${classroom_level}`,
