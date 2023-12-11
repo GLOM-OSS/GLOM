@@ -21,9 +21,14 @@ export type PlatformSettingsEntity = SchemaResponseBody<
 export type TeacherTypeEntity = SchemaResponseBody<
   operations,
   'AppController_getTeacherTypes'
->;
+>[0];
 
 export type TeachingGradeEntity = SchemaResponseBody<
   operations,
   'AppController_getTeachingGrades'
->;
+>[0];
+
+export type CycleEntity = SchemaResponseBody<
+  operations,
+  'AppController_getCycles'
+>[0];

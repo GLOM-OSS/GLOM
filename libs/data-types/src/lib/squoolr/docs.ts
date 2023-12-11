@@ -17,6 +17,9 @@ export interface paths {
   "/v1/teaching-grades": {
     get: operations["AppController_getTeachingGrades"];
   };
+  "/v1/cycles": {
+    get: operations["AppController_getCycles"];
+  };
   "/v1/auth/signin": {
     post: operations["AuthController_signIn"];
   };
@@ -176,6 +179,14 @@ export interface components {
     TeachingGradeEntity: {
       teaching_grade_id: string;
       teaching_grade: string;
+      /** Format: date-time */
+      created_at: string;
+    };
+    CycleEntity: {
+      cycle_id: string;
+      /** @enum {string} */
+      cycle_name: "HND" | "DUT" | "DTS" | "BACHELOR" | "MASTER" | "DOCTORATE";
+      number_of_years: number;
       /** Format: date-time */
       created_at: string;
     };
@@ -463,14 +474,6 @@ export interface components {
       major_acronym: string;
       department_id: string;
       cycle_id: string;
-    };
-    CycleEntity: {
-      cycle_id: string;
-      /** @enum {string} */
-      cycle_name: "HND" | "DUT" | "DTS" | "BACHELOR" | "MASTER" | "DOCTORATE";
-      number_of_years: number;
-      /** Format: date-time */
-      created_at: string;
     };
     AnnualMajorEntity: {
       major_name: string;
@@ -766,6 +769,15 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["TeachingGradeEntity"][];
+        };
+      };
+    };
+  };
+  AppController_getCycles: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["CycleEntity"][];
         };
       };
     };
