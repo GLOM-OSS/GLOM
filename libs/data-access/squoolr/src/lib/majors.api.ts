@@ -6,7 +6,7 @@ const { majors } = squoolrApi;
 
 export function useMajors(params?: QueryMajorParams) {
   return useQuery({
-    queryKey: ['fetch-school-majors'],
+    queryKey: ['fetch-school-majors', params],
     queryFn: () => majors.getMajors(params),
     initialData: [],
   });
@@ -15,7 +15,7 @@ export function useMajors(params?: QueryMajorParams) {
 export function useMajor(annualMajorId: string) {
   return useQuery({
     enabled: !!annualMajorId,
-    queryKey: ['fetch-school-major'],
+    queryKey: ['fetch-school-major', annualMajorId],
     queryFn: () => majors.getMajor(annualMajorId),
   });
 }
