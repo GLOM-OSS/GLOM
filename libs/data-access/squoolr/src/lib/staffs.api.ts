@@ -3,6 +3,7 @@ import {
   CreateStaffPayload,
   ManageStaffRolesPayload,
   ResetStaffPasswordPayload,
+  StaffCreateResponseType,
   StaffQueryParams,
   StaffRole,
   UpdateStaffPayload,
@@ -20,18 +21,22 @@ export function useStaffMembers(params?: StaffQueryParams) {
   });
 }
 
-export function useStaffMember(annualStaffId: string, role: StaffRole) {
+export function useStaffMember<T extends StaffCreateResponseType>(
+  annualStaffId: string,
+  role: StaffRole
+) {
   return useQuery({
     enabled: !!annualStaffId,
     queryKey: ['get-staff-member', annualStaffId],
-    queryFn: () => staffs.getStaffMember(annualStaffId, role),
+    queryFn: () => staffs.getStaffMember<T>(annualStaffId, role),
   });
 }
 
-export function useCreateStaffMember() {
+export function useCreateStaffMember<T extends StaffCreateResponseType>() {
   return useMutation({
     mutationKey: ['add-new-staff-member'],
-    mutationFn: (newStaff: CreateStaffPayload) => staffs.createStaff(newStaff),
+    mutationFn: (newStaff: CreateStaffPayload) =>
+      staffs.createStaff<T>(newStaff),
     onError(error) {
       console.log(error);
       //TODO const notif = new useNotification();

@@ -57,3 +57,8 @@ export type StaffRole = SchemaRequestQuery<
   operations,
   'StaffController_getStaff'
 >['role'];
+
+export type StaffCreateResponseType =
+  | StaffEntity
+  | TeacherEntity
+  | CoordinatorEntity;
