@@ -18,7 +18,7 @@ export class StaffApi {
   constructor(private readonly request: GlomRequest) {}
 
   async getStaffMembers(params?: StaffQueryParams) {
-    const resp = await this.request.get<StaffEntity>('/staffs', params);
+    const resp = await this.request.get<StaffEntity[]>('/staffs', params);
     return resp.data;
   }
 
