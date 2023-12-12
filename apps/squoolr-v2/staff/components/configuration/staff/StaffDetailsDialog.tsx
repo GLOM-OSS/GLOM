@@ -55,7 +55,8 @@ export default function StaffDetailsDialog({
   ];
 
   const data = {
-    ...teacher,
+    ...staff,
+    ...teacher, 
     ...(staff.roles.includes('TEACHER')
       ? {
           teacher_grade: teachingGrades.find(
@@ -88,9 +89,9 @@ export default function StaffDetailsDialog({
     >
       <DialogTitle>
         {formatMessage({
-          id: teacher.roles.includes('TEACHER')
+          id: staff.roles.includes('TEACHER')
             ? 'teacherDetails'
-            : teacher.roles.includes('CONFIGURATOR')
+            : staff.roles.includes('CONFIGURATOR')
             ? 'configuratorDetails'
             : 'registryDetails',
         })}
