@@ -664,8 +664,6 @@ model ResetPassword {
     AnnualConfigurator         AnnualConfigurator? @relation(fields: [generated_by_confiigurator], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
     generated_by_admin         String?             @db.VarChar(36)
     Admin                      Login?              @relation("Admin_Generated_ResetPassword", fields: [generated_by_admin], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
-
-    @@unique([login_id, is_valid])
 }
 
 model Department {

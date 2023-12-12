@@ -28,7 +28,7 @@ export class AuthenticatedGuard implements CanActivate {
     ]);
     const isAuthenticated = request.isAuthenticated();
     if (!isAuthenticated) {
-      const sessionID = request.headers.cookie?.split('=s%3A')[1].split('.')[0];
+      const sessionID = request.headers.cookie?.split('=s%3A')[1]?.split('.')[0];
       if (sessionID) {
         await this.authService.closeSession(sessionID, {
           closed_at: new Date(),

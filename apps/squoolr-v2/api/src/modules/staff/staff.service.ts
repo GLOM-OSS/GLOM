@@ -169,7 +169,7 @@ export class StaffService {
     disabledBy: string,
     isAdmin?: boolean
   ) {
-    const getEmptyArray = () => [];
+    const getEmptyArray = () => [[]];
     const [teachers, configurators, registries] = await Promise.all([
       ...(teacherIds?.length > 0
         ? [
@@ -225,7 +225,6 @@ export class StaffService {
             };
           }),
         ],
-        skipDuplicates: true,
       }),
       this.prismaService.resetPassword.updateMany({
         data: { expires_at: new Date(), is_valid: false },
