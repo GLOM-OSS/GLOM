@@ -1,4 +1,9 @@
-import { CreateMajorPayload, QueryMajorParams, UpdateMajorPayload } from '@glom/data-types';
+import {
+  CreateMajorPayload,
+  DisableMajorsPayload,
+  QueryMajorParams,
+  UpdateMajorPayload,
+} from '@glom/data-types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import squoolrApi from './api';
@@ -59,8 +64,7 @@ export function useDisableMajor(annualMajorId: string) {
 }
 
 export function useDisableMajors() {
-  const mutationFn = (annualMajorIds: string[]) =>
-    majors.disableManyMajors(annualMajorIds);
+  const mutationFn = (payload: DisableMajorsPayload) => majors.disableManyMajors(payload);
   return useMutation({
     mutationFn,
     mutationKey: ['disable-many-majors'],

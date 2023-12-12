@@ -1147,6 +1147,7 @@ export interface operations {
     parameters: {
       query: {
         annualMajorIds: string[];
+        disable: boolean;
       };
     };
     responses: {

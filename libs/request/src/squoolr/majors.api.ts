@@ -1,8 +1,9 @@
 import {
-    CreateMajorPayload,
-    MajorEntity,
-    QueryMajorParams,
-    UpdateMajorPayload
+  CreateMajorPayload,
+  DisableMajorsPayload,
+  MajorEntity,
+  QueryMajorParams,
+  UpdateMajorPayload,
 } from '@glom/data-types';
 import { GlomRequest } from '../lib/glom-request';
 
@@ -22,7 +23,7 @@ export class MajorsApi {
   }
 
   async createMajor(payload: CreateMajorPayload) {
-    const resp = await this.request.post<MajorEntity>('majors/new', payload);
+    const resp = await this.request.post<MajorEntity>('/majors/new', payload);
     return resp.data;
   }
 
@@ -39,9 +40,9 @@ export class MajorsApi {
     return resp.data;
   }
 
-  async disableManyMajors(annualMajorIds: string[]) {
+  async disableManyMajors(payload: DisableMajorsPayload) {
     const resp = await this.request.delete(`/majors`, {
-      queryParams: { annualMajorIds },
+      queryParams: payload,
     });
     return resp.data;
   }
