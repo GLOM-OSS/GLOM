@@ -24,7 +24,7 @@ export default function FeaturesHeader() {
       >
         {formatMessage({ id: 'ourComprehensiveSolution' })}
       </Typography>
-      <Typography className="p1--space" sx={{ textAlign: 'justify' }}>
+      <Typography className="p1--space" sx={{ textAlign: 'center' }}>
         {formatMessage({ id: 'ourComprehensiveSolutionSubtitle' })}
       </Typography>
     </Box>
