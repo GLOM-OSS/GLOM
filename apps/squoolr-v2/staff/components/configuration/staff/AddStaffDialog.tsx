@@ -1,5 +1,8 @@
 import { DialogTransition } from '@glom/components';
-import { useCreateStaffMember } from '@glom/data-access/squoolr';
+import {
+  useCreateStaffMember,
+  useUpdateStaffMember,
+} from '@glom/data-access/squoolr';
 import {
   CreateStaffPayload,
   StaffEntity,
@@ -103,7 +106,8 @@ export default function AddStaffDialog({
         formatMessage({ id: 'invalidPhonenumber' })
       )
       .required(formatMessage({ id: 'requiredField' })),
-    address: Yup.string().required(formatMessage({ id: 'required' })),
+    address: Yup.string(),
+    // .required(formatMessage({ id: 'required' })),
     birthdate: Yup.date()
       .max(new Date(), formatMessage({ id: 'cannotBeGreaterThanToday' }))
       .required(formatMessage({ id: 'required' })),
@@ -112,8 +116,15 @@ export default function AddStaffDialog({
       .required(formatMessage({ id: 'required' })),
   });
 
-  const { mutate: createStaff, isPending: isSubmitting } =
-    useCreateStaffMember();
+  const { mutate: createStaff, isPending: isCreating } = useCreateStaffMember();
+  const { mutate: updateStaff, isPending: isUpdating } = useUpdateStaffMember(
+    !staff
+      ? null
+      : usage === 'CONFIGURATOR'
+      ? staff.annual_configurator_id
+      : staff.annual_registry_id
+  );
+  const isSubmitting = isCreating || isUpdating;
 
   const formik = useFormik({
     initialValues,
@@ -124,18 +135,8 @@ export default function AddStaffDialog({
         ...values,
         role: usage,
         phone_number: `+237${values.phone_number}`,
-        ...(staff
-          ? {
-              ...(staff.annual_configurator_id
-                ? { annual_configurator_id: staff.annual_configurator_id }
-                : {}),
-              ...(staff.annual_registry_id
-                ? { annual_registry_id: staff.annual_registry_id }
-                : {}),
-            }
-          : {}),
       };
-      createStaff(
+      (staff ? updateStaff : createStaff)(
         { payload: submitValue },
         {
           onSuccess() {
@@ -411,7 +412,7 @@ export default function AddStaffDialog({
               <TextField
                 {...params}
                 label={`${formatMessage({ id: 'address' })}`}
-                required
+                // required
                 color="primary"
                 variant="outlined"
                 fullWidth
