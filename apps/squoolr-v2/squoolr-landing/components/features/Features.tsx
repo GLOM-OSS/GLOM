@@ -111,8 +111,8 @@ export default function Features({
           sx={{
             position: { mobile: 'initial', laptop: 'absolute' },
             bottom: {
-              laptop: '70px',
-              desktop: screenWidth >= 1550 ? '120px' : '60px',
+              laptop: '50px',
+              desktop: screenWidth >= 1550 ? '100px' : '40px',
             },
 
             animation: 'shake .9s cubic-bezier(.45,.05,.55,.95) .5s forwards',
@@ -140,12 +140,12 @@ export default function Features({
             sx={{
               display: 'grid',
               alignItems: 'center',
-              minWidth: '400px',
+              minWidth: '350px',
               rowGap: 1,
             }}
           >
             <Box sx={{ position: 'relative' }}>
-                <Divider
+              <Divider
                 sx={{
                   backgroundColor: lighten(theme.palette.secondary.light, 0.7),
                   height: '5px',

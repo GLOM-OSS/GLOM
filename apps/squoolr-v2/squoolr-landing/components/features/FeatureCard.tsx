@@ -31,6 +31,7 @@ export default function FeatureCard({
           sx={{
             display: 'grid',
             rowGap: '32px',
+            minWidth: '300px',
             alignItems: 'start',
             alignSelf: 'center',
             justifySelf: 'start',
