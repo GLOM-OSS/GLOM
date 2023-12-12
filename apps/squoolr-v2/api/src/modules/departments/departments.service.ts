@@ -72,6 +72,7 @@ export class DepartmentsService {
     if (payload?.is_deleted)
       await this.majorsService.disableMany(
         annualMajors.map((_) => _.annual_major_id),
+        payload.is_deleted,
         audited_by
       );
   }
