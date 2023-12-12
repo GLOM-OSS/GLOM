@@ -81,9 +81,21 @@ export function useDisableStaffMembers() {
 
 export function useResetStaffPasswords() {
   return useMutation({
-    mutationKey: ['reset-many-staff-member'],
+    mutationKey: ['reset-staff-members-passwords'],
     mutationFn: (staffPayload: ResetStaffPasswordPayload) =>
       staffs.resetStaffPasswords(staffPayload),
+    onError(error) {
+      console.log(error);
+      //TODO const notif = new useNotification();
+    },
+  });
+}
+
+export function useResetStaffPrivateCode() {
+  return useMutation({
+    mutationKey: ['reset-staff-members-private-code'],
+    mutationFn: (staffPayload: ResetStaffPasswordPayload) =>
+      staffs.resetStaffPrivateCodes(staffPayload),
     onError(error) {
       console.log(error);
       //TODO const notif = new useNotification();
