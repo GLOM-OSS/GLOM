@@ -20,22 +20,23 @@ import {
 } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles } from '../../app/auth/auth.decorator';
+import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 import { Role } from '../../utils/enums';
 import { BatchPayloadDto } from '../modules.dto';
 import {
+  CategorizedStaffIDs,
   CoordinatorEntity,
   CreateStaffDto,
   ManageStaffDto,
   QueryOneStaffDto,
   QueryStaffDto,
   StaffEntity,
-  StaffRoleDto,
   TeacherEntity,
   UpdateStaffDto,
   UpdateStaffRoleDto,
+  UpdateStaffStatus,
 } from './staff.dto';
 import { StaffService } from './staff.service';
-import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 
 @ApiTags('Staffs')
 @Controller('staffs')
@@ -141,7 +142,7 @@ export class StaffController {
   async disableStaff(
     @Req() request: Request,
     @Param('annual_teacher_id') annualTeacherId: string,
-    @Query() payload: StaffRoleDto
+    @Query() payload: UpdateStaffStatus
   ) {
     const { login_id, annualConfigurator } = request.user;
     return this.staffService.disable(
@@ -157,11 +158,12 @@ export class StaffController {
   @ApiOkResponse({ type: BatchPayloadDto })
   async disableManyStaff(
     @Req() request: Request,
-    @Query() disabledStaff: ManageStaffDto
+    @Query() { disable, ...disabledStaff }: ManageStaffDto
   ) {
     const { login_id, annualConfigurator } = request.user;
     return this.staffService.disableMany(
       disabledStaff,
+      disable,
       annualConfigurator?.annual_configurator_id || login_id,
       !annualConfigurator
     );
@@ -172,7 +174,7 @@ export class StaffController {
   @ApiOkResponse({ type: BatchPayloadDto })
   async resetStaffPasswords(
     @Req() request: Request,
-    @Body() disabledStaff: ManageStaffDto
+    @Body() disabledStaff: CategorizedStaffIDs
   ) {
     const { login_id, annualConfigurator } = request.user;
     return this.staffService.resetPasswords(
@@ -207,7 +209,7 @@ export class StaffController {
   @ApiOkResponse({ type: BatchPayloadDto })
   async resetStaffPrivateCodes(
     @Req() request: Request,
-    @Body() staffPayload: ManageStaffDto
+    @Body() staffPayload: CategorizedStaffIDs
   ) {
     const {
       annualConfigurator: { annual_configurator_id },

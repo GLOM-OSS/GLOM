@@ -37,6 +37,12 @@ export class StaffRoleDto {
   role: StaffRole;
 }
 
+export class UpdateStaffStatus extends StaffRoleDto {
+  @ApiProperty()
+  @IsBoolean()
+  disable: boolean;
+}
+
 export class QueryOneStaffDto extends StaffRoleDto {}
 
 export class CreatePersonWithRoleDto extends OmitType(CreatePersonDto, [
@@ -272,6 +278,7 @@ export type UpdateStaffPayloadDto =
   UpdateTeacherDto
 )
 export class UpdateStaffDto {
+  @ValidateNested()
   @Type(() => StaffRoleDto, {
     discriminator: {
       property: 'role',
@@ -290,7 +297,7 @@ export class UpdateStaffDto {
   payload: UpdateStaffPayloadDto;
 }
 
-export class ManageStaffDto {
+export class CategorizedStaffIDs {
   @ApiProperty()
   @IsString({ each: true })
   teacherIds: string[];
@@ -304,6 +311,12 @@ export class ManageStaffDto {
   configuratorIds: string[];
 }
 
+export class ManageStaffDto extends CategorizedStaffIDs {
+  @IsBoolean()
+  @ApiProperty()
+  disable: boolean;
+}
+
 export class CoordinateClassDto extends OmitType(UpdateCoordinatorDto, [
   'role',
 ]) {}
@@ -315,9 +328,9 @@ export class UpdateStaffRoleDto {
 
   @IsOptional()
   @ValidateNested()
-  @Type(() => ManageStaffDto)
-  @ApiPropertyOptional({ type: ManageStaffDto })
-  disabledStaffPayload?: ManageStaffDto;
+  @Type(() => CategorizedStaffIDs)
+  @ApiPropertyOptional({ type: CategorizedStaffIDs })
+  disabledStaffPayload?: CategorizedStaffIDs;
 
   @IsOptional()
   @ValidateNested()

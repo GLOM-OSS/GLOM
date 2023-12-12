@@ -14,12 +14,13 @@ import { IStaffService, StaffSelectParams } from './staff';
 import {
   CreateCoordinatorDto,
   CreateStaffPayloadDto,
-  ManageStaffDto,
+  CategorizedStaffIDs,
   StaffEntity,
   StaffRoleDto,
   TeacherEntity,
   UpdateStaffPayloadDto,
   UpdateStaffRoleDto,
+  UpdateStaffStatus,
 } from './staff.dto';
 import { TeachersService } from './teachers/teachers.service';
 
@@ -80,6 +81,7 @@ export class StaffService {
         created_by
       );
     }
+
     const person = await this.prismaService.person.findUnique({
       where: { email: payload.email },
     });
@@ -93,12 +95,12 @@ export class StaffService {
     );
     return this.staffServices[payload.role].create(
       {
-        ...payload,
-        ...metadata,
         matricule,
         private_code,
-        person_id: person?.person_id,
         password: generatePassword(),
+        person_id: person?.person_id ?? randomUUID(),
+        ...metadata,
+        ...excludeKeys(payload, ['role']),
       },
       created_by
     );
@@ -112,7 +114,7 @@ export class StaffService {
   ) {
     return this.staffServices[payload.role].update(
       annual_staff_id,
-      payload,
+      excludeKeys(payload, ['role']),
       audited_by,
       isAdmin
     );
@@ -120,20 +122,21 @@ export class StaffService {
 
   async disable(
     annual_staff_id: string,
-    payload: StaffRoleDto,
+    payload: UpdateStaffStatus,
     disabled_by: string,
     isAdmin = false
   ) {
     return this.staffServices[payload.role].update(
       annual_staff_id,
-      { delete: true },
+      { delete: payload.disable },
       disabled_by,
       isAdmin
     );
   }
 
   async disableMany(
-    payload: ManageStaffDto,
+    payload: CategorizedStaffIDs,
+    disable: boolean,
     disabled_by: string,
     isAdmin = false
   ) {
@@ -146,10 +149,10 @@ export class StaffService {
       Object.keys(staffIDToRole).reduce<Promise<void>[]>(
         (methods, key) => [
           ...methods,
-          ...payload[key as keyof ManageStaffDto].map((staffId) =>
+          ...payload[key as keyof CategorizedStaffIDs].map((staffId) =>
             this.disable(
               staffId,
-              { role: staffIDToRole[key] },
+              { role: staffIDToRole[key], disable },
               disabled_by,
               isAdmin
             )
@@ -165,7 +168,7 @@ export class StaffService {
   }
 
   async resetPasswords(
-    { teacherIds, registryIds, configuratorIds }: ManageStaffDto,
+    { teacherIds, registryIds, configuratorIds }: CategorizedStaffIDs,
     disabledBy: string,
     isAdmin?: boolean
   ) {
@@ -252,7 +255,7 @@ export class StaffService {
     audited_by: string
   ) {
     if (disabledStaffPayload)
-      await this.disableMany(disabledStaffPayload, audited_by);
+      await this.disableMany(disabledStaffPayload, true, audited_by);
 
     const addedRoles: StaffRole[] = newRoles.reduce(
       (roles, role) =>
@@ -320,13 +323,13 @@ export class StaffService {
           audited_by
         );
       })
-    );
+    ).catch(console.log);
     const totalUpdateRecords =
       addedRoles.length +
       (coordinatorPayload?.annualClassroomIds.length ?? 0) +
       Object.keys(disabledStaffPayload).reduce(
         (count, key) =>
-          count + disabledStaffPayload[key as keyof ManageStaffDto].length,
+          count + disabledStaffPayload[key as keyof CategorizedStaffIDs].length,
         0
       );
     return new BatchPayloadDto({
@@ -338,7 +341,7 @@ export class StaffService {
     });
   }
 
-  async resetPrivateCodes(payload: ManageStaffDto, reset_by: string) {
+  async resetPrivateCodes(payload: CategorizedStaffIDs, reset_by: string) {
     const staffIDToRole: Record<string, StaffRole> = {
       registryIds: StaffRole.REGISTRY,
       teacherIds: StaffRole.TEACHER,
@@ -346,7 +349,7 @@ export class StaffService {
 
     const elts = await Promise.all(
       Object.keys(staffIDToRole).reduce<Promise<void>[]>((methods, key) => {
-        const staffIDKey = key as keyof ManageStaffDto;
+        const staffIDKey = key as keyof CategorizedStaffIDs;
         const annualStaffIds = payload[staffIDKey];
         return [
           ...methods,

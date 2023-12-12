@@ -711,7 +711,7 @@ export interface components {
       /** @description describes the next action the client needs to perform */
       next_action?: string;
     };
-    ManageStaffDto: {
+    CategorizedStaffIDs: {
       teacherIds: string[];
       registryIds: string[];
       configuratorIds: string[];
@@ -721,7 +721,7 @@ export interface components {
     };
     UpdateStaffRoleDto: {
       newRoles: ("TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
-      disabledStaffPayload?: components["schemas"]["ManageStaffDto"];
+      disabledStaffPayload?: components["schemas"]["CategorizedStaffIDs"];
       coordinatorPayload?: components["schemas"]["CoordinateClassDto"];
       teacherPayload?: components["schemas"]["UpdateTeacherDto"];
     };
@@ -1291,6 +1291,7 @@ export interface operations {
         teacherIds: string[];
         registryIds: string[];
         configuratorIds: string[];
+        disable: boolean;
       };
     };
     responses: {
@@ -1340,6 +1341,7 @@ export interface operations {
     parameters: {
       query: {
         role: "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR";
+        disable: boolean;
       };
       path: {
         annual_teacher_id: string;
@@ -1369,7 +1371,7 @@ export interface operations {
   StaffController_resetStaffPasswords: {
     requestBody: {
       content: {
-        "application/json": components["schemas"]["ManageStaffDto"];
+        "application/json": components["schemas"]["CategorizedStaffIDs"];
       };
     };
     responses: {
@@ -1402,7 +1404,7 @@ export interface operations {
   StaffController_resetStaffPrivateCodes: {
     requestBody: {
       content: {
-        "application/json": components["schemas"]["ManageStaffDto"];
+        "application/json": components["schemas"]["CategorizedStaffIDs"];
       };
     };
     responses: {
