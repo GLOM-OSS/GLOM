@@ -86,7 +86,8 @@ export class RegistriesService implements IStaffService<StaffEntity> {
       },
       where: { annual_registry_id },
     });
-    const isDeleted = payload.delete ? !is_deleted : undefined;
+    const isDeleted =
+      typeof payload.delete === 'boolean' ? !is_deleted : undefined;
     await this.prismaService.annualRegistry.update({
       data: {
         is_deleted: isDeleted,

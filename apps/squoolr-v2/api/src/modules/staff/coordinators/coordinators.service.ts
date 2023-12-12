@@ -81,25 +81,32 @@ export class CoordinatorsService
   }
 
   async findAll(staffParams?: StaffSelectParams) {
+    const teacherSelect = StaffArgsFactory.getStaffSelect(staffParams);
+    const { academic_year_id, is_deleted, ...teacherWhereInput } =
+      StaffArgsFactory.getStaffWhereInput(staffParams);
     const coordinators =
       await this.prismaService.annualClassroomDivision.findMany({
         distinct: ['annual_coordinator_id'],
         select: {
           AnnualTeacher: {
             select: {
-              Teacher: { select: StaffArgsFactory.getStaffSelect(staffParams) },
+              is_deleted: true,
+              Teacher: { select: excludeKeys(teacherSelect, ['is_deleted']) },
             },
           },
         },
         where: {
           is_deleted: false,
           AnnualTeacher: {
-            Teacher: StaffArgsFactory.getStaffWhereInput(staffParams),
+            academic_year_id,
+            is_deleted,
+            Teacher: teacherWhereInput,
           },
         },
       });
-    return coordinators.map(({ AnnualTeacher: { Teacher: teacher } }) =>
-      StaffArgsFactory.getStaffEntity(teacher)
+    return coordinators.map(
+      ({ AnnualTeacher: { is_deleted, Teacher: teacher } }) =>
+        StaffArgsFactory.getStaffEntity({ is_deleted, ...teacher })
     );
   }
 

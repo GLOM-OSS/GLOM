@@ -36,21 +36,23 @@ export class TeachersService
   }
 
   async findAll(staffParams?: StaffSelectParams) {
+    const teacherSelect = StaffArgsFactory.getStaffSelect(staffParams);
+    const { academic_year_id, is_deleted, ...teacherWhereInput } =
+      StaffArgsFactory.getStaffWhereInput(staffParams);
     const teachers = await this.prismaService.annualTeacher.findMany({
       select: {
+        is_deleted: true,
         annual_teacher_id: true,
-        Teacher: {
-          select: StaffArgsFactory.getStaffSelect(staffParams),
-        },
+        Teacher: { select: excludeKeys(teacherSelect, ['is_deleted']) },
       },
-      where: { Teacher: StaffArgsFactory.getStaffWhereInput(staffParams) },
+      where: { academic_year_id, Teacher: teacherWhereInput },
     });
     return teachers.map(
       ({
+        is_deleted,
         annual_teacher_id,
         Teacher: {
           matricule,
-          is_deleted,
           Login: {
             login_id,
             Person,
@@ -166,6 +168,7 @@ export class TeachersService
         Login: { Person },
         ...teacher
       },
+      is_deleted,
       ...annualTeacher
     } = await this.prismaService.annualTeacher.findUniqueOrThrow({
       select: {
@@ -174,7 +177,8 @@ export class TeachersService
       },
       where: { annual_teacher_id },
     });
-    const isDeleted = payload.delete ? !annualTeacher.is_deleted : undefined;
+    const isDeleted =
+      typeof payload.delete === 'boolean' ? !is_deleted : undefined;
     await this.prismaService.annualTeacher.update({
       data: {
         ...(isDeleted !== undefined
