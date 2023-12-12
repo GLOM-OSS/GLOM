@@ -50,11 +50,12 @@ body {
 
 .p1--space {
   font-size: 18px !important;
-  line-height: 32px !important;
+  font-weight: 400 !important;
+  // line-height: 32px !important;
 
   @media (max-width: $desktop) {
-    font-size: 12px !important;
-    line-height: 16px !important;
+    font-size: 16px !important;
+    // line-height: 20px !important;
   }
 }
 
