@@ -4,7 +4,7 @@ import {
   OmitType,
   PartialType,
 } from '@nestjs/swagger';
-import { IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, IsUUID } from 'class-validator';
 import { CycleEntity, QueryParamsDto } from '../modules.dto';
 
 export class CreateMajorDto {
@@ -70,4 +70,8 @@ export class DisableMajorsDto {
   @IsString({ each: true })
   @ApiProperty({ type: [String] })
   annualMajorIds: string[];
+
+  @IsBoolean()
+  @ApiProperty()
+  disable: boolean;
 }
