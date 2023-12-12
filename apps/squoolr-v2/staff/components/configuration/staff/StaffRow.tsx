@@ -1,3 +1,9 @@
+import { ConfirmDialog } from '@glom/components';
+import {
+  useDisableStaffMembers,
+  useResetStaffPasswords,
+  useResetStaffPrivateCode
+} from '@glom/data-access/squoolr';
 import { BulkDisableStaffPayload, StaffEntity } from '@glom/data-types';
 import { useTheme } from '@glom/theme';
 import checked from '@iconify/icons-fluent/checkbox-checked-16-filled';
@@ -13,13 +19,12 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
-import ManageStaffMenu from './ManageStaffMenu';
-import StaffRoles from './StaffRoles';
-import { ConfirmDialog } from '@glom/components';
 import AddStaffDialog from './AddStaffDialog';
-import StaffDetailsDialog from './StaffDetailsDialog';
 import AddTeacherDialog from './AddTeacherDialog';
+import ManageStaffMenu from './ManageStaffMenu';
 import ManageStaffRolesDialog from './ManageStaffRolesDialog';
+import StaffDetailsDialog from './StaffDetailsDialog';
+import StaffRoles from './StaffRoles';
 
 export default function StaffRow({
   staff: {
@@ -41,7 +46,7 @@ export default function StaffRow({
   showArchived,
 }: {
   staff: StaffEntity;
-  selectedStaff: Record<keyof BulkDisableStaffPayload, string[]>;
+  selectedStaff: BulkDisableStaffPayload;
   selectStaff: (
     configuratorId?: string,
     registryId?: string,
@@ -59,62 +64,57 @@ export default function StaffRow({
     isConfirmResetPasswordDialogOpen,
     setIsConfirmResetPasswordDialogOpen,
   ] = useState<boolean>(false);
-  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
-  const [isResettingStaffPassword, setIsResettingStaffPassword] =
-    useState<boolean>(false);
+
+  const { mutate: resetStaffPassword, isPending: isResettingStaffPassword } =
+    useResetStaffPasswords();
+
   function confirmResetPassword() {
-    //TODO: CALL API HERE RESET USER PASSWORD WITH DATA staff.login_id
-    setIsResettingStaffPassword(true);
-    setTimeout(() => {
-      alert('done resetting password');
-      setIsResettingStaffPassword(false);
-      setIsConfirmResetPasswordDialogOpen(false);
-    }, 3000);
+    resetStaffPassword(
+      {
+        configuratorIds: [annual_configurator_id],
+        teacherIds: [annual_teacher_id],
+        registryIds: [annual_registry_id],
+      },
+      {
+        onSuccess() {
+          setIsConfirmResetPasswordDialogOpen(false);
+        },
+      }
+    );
   }
 
   const [
     isConfirmResetPrivateCodeDialogOpen,
     setIsConfirmResetPrivateCodeDialogOpen,
   ] = useState<boolean>(false);
-  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
-  const [isResettingStaffPrivateCode, setIsResettingStaffPrivateCode] =
-    useState<boolean>(false);
+
+  const {
+    mutate: resetStaffPrivateCode,
+    isPending: isResettingStaffPrivateCode,
+  } = useResetStaffPrivateCode();
   function confirmResetPrivateCode() {
-    //TODO: CALL API HERE RESET USER private code WITH DATA staff.annual_teacher_id or staff.annual_registry_id
-    setIsResettingStaffPrivateCode(true);
-    setTimeout(() => {
-      alert('done resetting private code');
-      setIsResettingStaffPrivateCode(false);
-      setIsConfirmResetPrivateCodeDialogOpen(false);
-    }, 3000);
+    resetStaffPrivateCode(selectedStaff, {
+      onSuccess() {
+        setIsConfirmResetPrivateCodeDialogOpen(false);
+      },
+    });
   }
+
+  const { mutate: disableStaffMembers, isPending: isHandlingArchive } =
+    useDisableStaffMembers();
 
   const [isConfirmArchiveDialogOpen, setIsConfirmArchiveDialogOpen] =
     useState<boolean>(false);
-  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
-  const [isArchiving, setIsArchiving] = useState<boolean>(false);
-  function confirmArchive() {
-    //TODO: CALL API HERE archive user WITH DATA staff.annual_teacher_id and/or staff.annual_registry_id and/or annual_configurator_id
-    setIsArchiving(true);
-    setTimeout(() => {
-      alert('done archiving');
-      setIsArchiving(false);
-      setIsConfirmArchiveDialogOpen(false);
-    }, 3000);
-  }
-
   const [isConfirmUnarchiveDialogOpen, setIsConfirmUnarchiveDialogOpen] =
     useState<boolean>(false);
-  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
-  const [isUnarchiving, setIsUnarchiving] = useState<boolean>(false);
-  function confirmUnarchive() {
-    //TODO: CALL API HERE unarchive user WITH DATA staff.annual_teacher_id and/or staff.annual_registry_id and/or annual_configurator_id
-    setIsUnarchiving(true);
-    setTimeout(() => {
-      alert('done unarchiving');
-      setIsUnarchiving(false);
-      setIsConfirmUnarchiveDialogOpen(false);
-    }, 3000);
+  function handleArchive() {
+    disableStaffMembers(selectedStaff, {
+      onSuccess() {
+        (isConfirmArchiveDialogOpen
+          ? setIsConfirmArchiveDialogOpen
+          : setIsConfirmUnarchiveDialogOpen)(false);
+      },
+    });
   }
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
@@ -192,7 +192,7 @@ export default function StaffRow({
       />
       <ConfirmDialog
         closeDialog={() => setIsConfirmArchiveDialogOpen(false)}
-        confirm={confirmArchive}
+        confirm={handleArchive}
         dialogMessage={formatMessage({
           id: 'confirmArchiveStaffDialogMessage',
         })}
@@ -201,11 +201,11 @@ export default function StaffRow({
         confirmButton={formatMessage({ id: 'ban' })}
         danger
         dialogTitle={formatMessage({ id: 'archiveStaffMember' })}
-        isSubmitting={isArchiving}
+        isSubmitting={isHandlingArchive}
       />
       <ConfirmDialog
         closeDialog={() => setIsConfirmUnarchiveDialogOpen(false)}
-        confirm={confirmUnarchive}
+        confirm={handleArchive}
         dialogMessage={formatMessage({
           id: 'confirmUnarchiveStaffDialogMessage',
         })}
@@ -214,7 +214,7 @@ export default function StaffRow({
         confirmButton={formatMessage({ id: 'revokeBan' })}
         danger
         dialogTitle={formatMessage({ id: 'unarchiveStaffMember' })}
-        isSubmitting={isUnarchiving}
+        isSubmitting={isHandlingArchive}
       />
       <TableRow
         sx={{
