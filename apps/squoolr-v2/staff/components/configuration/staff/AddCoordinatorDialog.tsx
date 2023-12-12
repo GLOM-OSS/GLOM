@@ -1,4 +1,17 @@
 import {
+  useClassrooms,
+  useStaffMember,
+  useStaffMembers,
+  useUpdateStaffMember,
+} from '@glom/data-access/squoolr';
+import {
+  ClassroomEntity,
+  CoordinatorEntity,
+  CreateStaffPayload
+} from '@glom/data-types/squoolr';
+import { useTheme } from '@glom/theme';
+import { ArrowDropDown } from '@mui/icons-material';
+import {
   Autocomplete,
   Box,
   Button,
@@ -15,18 +28,10 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useIntl } from 'react-intl';
-import {
-  ClassroomEntity,
-  CoordinatorEntity,
-  CreateStaffPayload,
-  TeacherEntity,
-} from '@glom/data-types/squoolr';
-import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
-import { ArrowDropDown } from '@mui/icons-material';
-import { useTheme } from '@glom/theme';
+import { useIntl } from 'react-intl';
+import * as Yup from 'yup';
 
 export default function AddCoordinatorDialog({
   closeDialog,
@@ -39,60 +44,15 @@ export default function AddCoordinatorDialog({
   const theme = useTheme();
   // TODO: MAKE THE AUTOCOMPLETE INITIAL VALUES LOAD WHEN PRESENT... I CANT SEEM TO FIGURE IT OUT.
 
-  const [teachers, setTeachers] = useState<TeacherEntity[]>([
-    {
-      annual_teacher_id: 'boston123',
-      email: 'lorraintchakoumi@gmail.com',
-      first_name: 'Tchakoumi Lorrain',
-      has_signed_convention: false,
-      has_tax_payers_card: false,
-      hourly_rate: 200,
-      is_deleted: false,
-      last_connected: new Date().toISOString(),
-      last_name: 'Kouatchoua',
-      login_id: 'sei',
-      matricule: '17c005',
-      origin_institute: 'udm',
-      phone_number: '+237657140183',
-      role: 'TEACHER',
-      roles: ['TEACHER'],
-      teacher_type_id: 'sieols',
-      teaching_grade_id: '',
-    },
-  ]);
-  const [classrooms, setClassrooms] = useState<ClassroomEntity[]>([
-    {
-      annual_classroom_id: 'wieos',
-      annual_coordinator_id: '',
-      annual_major_id: '',
-      classroom_acronym: 'IRT',
-      classroom_id: 'clesan',
-      classroom_level: 2,
-      classroom_name: 'Informatique Reseau telecommunications',
-      created_at: new Date().toISOString(),
-      is_deleted: false,
-      number_of_divisions: 1,
-    },
-    {
-      annual_classroom_id: 'wsieos',
-      annual_coordinator_id: '',
-      annual_major_id: '',
-      classroom_acronym: 'IMB',
-      classroom_id: 'clesan',
-      classroom_level: 3,
-      classroom_name: 'Ingenieurie, Biomedical',
-      created_at: new Date().toISOString(),
-      is_deleted: false,
-      number_of_divisions: 1,
-    },
-  ]);
+  const { data: teachers, isFetching: isFetchingTeachers } = useStaffMembers({
+    roles: ['TEACHER'],
+  });
+
+  const { data: classrooms, isFetching: isFetchingClassrooms } =
+    useClassrooms();
 
   const [selectedCoordinator, setSelectedCoordinator] =
     useState<CoordinatorEntity>();
-
-  const [isFetchingTeachers, setIsFetchingTeachers] = useState<boolean>(false);
-  const [isFetchingClassrooms, setIsFetchingClassrooms] =
-    useState<boolean>(false);
 
   const initialValues: CreateStaffPayload['payload'] = {
     role: 'COORDINATOR',
@@ -129,61 +89,41 @@ export default function AddCoordinatorDialog({
       .required(formatMessage({ id: 'required' })),
   });
 
-  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { mutate: updateCoordinator, isPending: isSubmitting } =
+    useUpdateStaffMember(selectedCoordinator.annual_teacher_id);
   const formik = useFormik({
     initialValues,
     validationSchema,
     enableReinitialize: true,
     onSubmit: (values, { resetForm }) => {
-      setIsSubmitting(true);
-      //TODO; call api here to create or update coordinator
-      setTimeout(() => {
-        setIsSubmitting(false);
-        resetForm();
-        setSelectedCoordinator(undefined);
-        close();
-      }, 3000);
+      updateCoordinator(
+        {
+          payload: values,
+        },
+        {
+          onSuccess() {
+            resetForm();
+            setSelectedCoordinator(undefined);
+            close();
+          },
+        }
+      );
     },
   });
 
-  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
-  const [isLoadingCoordinatorDetails, setIsLoadingCoordinatorDetails] =
-    useState<boolean>(false);
+  const { data: fetchedCoordinator, isFetching: isLoadingCoordinatorDetails } =
+    useStaffMember<CoordinatorEntity>(
+      formik.values.annual_teacher_id,
+      'COORDINATOR'
+    );
   useEffect(() => {
-    if (!!formik.values.annual_teacher_id) {
-      //TODO: CALL API HERE TO FETCH COORDINATOR WITH DATA formik.values.annual_teacher_id
-      setIsLoadingCoordinatorDetails(true);
-      setTimeout(() => {
-        const teacherCoordinator: CoordinatorEntity = {
-          annual_teacher_id: 'boston123',
-          email: 'lorraintchakoumi@gmail.com',
-          first_name: 'Tchakoumi Lorrain',
-          has_signed_convention: false,
-          has_tax_payers_card: false,
-          hourly_rate: 200,
-          is_deleted: false,
-          last_connected: new Date().toISOString(),
-          last_name: 'Kouatchoua',
-          login_id: 'sei',
-          matricule: '17c005',
-          origin_institute: 'udm',
-          phone_number: '+237657140183',
-          role: 'COORDINATOR',
-          roles: ['TEACHER'],
-          teacher_type_id: 'sieols',
-          teaching_grade_id: '',
-          annualClassroomIds: [],
-        };
-        setIsLoadingCoordinatorDetails(false);
-        setSelectedCoordinator(teacherCoordinator);
-      }, 3000);
+    if (fetchedCoordinator) {
+      setSelectedCoordinator(fetchedCoordinator);
     }
-  }, [formik.values.annual_teacher_id]);
+  }, [fetchedCoordinator]);
 
   function close() {
     setSelectedCoordinator(undefined);
-    setIsLoadingCoordinatorDetails(false);
     closeDialog();
   }
 
