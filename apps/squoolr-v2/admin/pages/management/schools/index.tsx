@@ -1,4 +1,8 @@
-import { NoTableElement, TableHeaderItem } from '@glom/components';
+import {
+  NoTableElement,
+  TableHeaderItem,
+  TableSkeleton,
+} from '@glom/components';
 import { useSchools } from '@glom/data-access/squoolr';
 import { SchoolDemandStatus } from '@glom/data-types/squoolr';
 import { useDispatchBreadcrumb } from '@glom/squoolr-v2/side-nav';
@@ -24,7 +28,6 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import FilterMenu from '../../../component/management/demands/FilterMenu';
-import TableSkeleton from 'libs/components/src/table/TableSkeleton';
 
 export const STATUS_CHIP_VARIANT: Record<string, 'outlined' | 'filled'> = {
   PROCESSING: 'filled',
