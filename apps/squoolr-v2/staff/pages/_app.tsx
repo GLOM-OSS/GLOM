@@ -68,13 +68,14 @@ function App({ children }: { children?: JSX.Element }) {
     },
   ];
 
-  const noLayoutRoutes = ['/signin', '/reset-password', '/new-password'];
+  const noLayoutRoutes = ['/signin', '/reset-password'];
   const { asPath } = useRouter();
 
   const [shouldUseLayout, setShouldUseLayout] = useState<boolean>(false);
 
   useEffect(() => {
-    if (noLayoutRoutes.includes(asPath)) setShouldUseLayout(false);
+    if (noLayoutRoutes.includes(asPath) || asPath.includes('new-password'))
+      setShouldUseLayout(false);
     else setShouldUseLayout(true);
   }, [asPath]);
 
