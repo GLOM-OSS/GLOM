@@ -1,4 +1,10 @@
-import { StaffEntity } from '@glom/data-types';
+import { DialogTransition } from '@glom/components';
+import {
+  useStaffMember,
+  useTeacherTypes,
+  useTeachingGrades,
+} from '@glom/data-access/squoolr';
+import { StaffEntity, TeacherEntity } from '@glom/data-types';
 import {
   Button,
   Dialog,
@@ -8,20 +14,6 @@ import {
 } from '@mui/material';
 import { useIntl } from 'react-intl';
 import ReviewColumn from './ReviewColumn';
-import { DialogTransition } from '@glom/components';
-import { useState } from 'react';
-
-//TODO: EXPOSE THIS INTERFACES AN DELETE THIS
-interface TeacherTypeEntity {
-  teacher_type_id: string;
-  teacher_type: string;
-}
-
-//TODO: EXPOSE THIS INTERFACES AN DELETE THIS
-interface TeacherGradeEntity {
-  teacher_grade_id: string;
-  teacher_grade: string;
-}
 
 export default function StaffDetailsDialog({
   isDialogOpen,
@@ -36,18 +28,12 @@ export default function StaffDetailsDialog({
 }) {
   const { formatMessage } = useIntl();
 
-  //TODO: CALL API HER TO FETCH teacherTypes
-  const [teacherTypes, setTeacherTypes] = useState<TeacherTypeEntity[]>([
-    { teacher_type: 'Vacataire', teacher_type_id: '1' },
-    { teacher_type: 'Permanent', teacher_type_id: '3' },
-    { teacher_type: 'Missionnaire', teacher_type_id: '2' },
-  ]);
-  //TODO: CALL API HER TO FETCH teacherGrades
-  const [teacherGrades, setTeacherGrades] = useState<TeacherGradeEntity[]>([
-    { teacher_grade: 'Professeur', teacher_grade_id: '1' },
-    { teacher_grade: 'Maitre des conferences', teacher_grade_id: '2' },
-    { teacher_grade: 'Licencie', teacher_grade_id: '3' },
-  ]);
+  const { data: teacherTypes } = useTeacherTypes();
+  const { data: teachingGrades } = useTeachingGrades();
+  const { data: teacher } = useStaffMember<TeacherEntity>(
+    staff.annual_teacher_id,
+    'TEACHER'
+  );
 
   const ELEMENTS = [
     'email',
@@ -69,20 +55,21 @@ export default function StaffDetailsDialog({
   ];
 
   const data = {
-    ...staff,
+    ...teacher,
     ...(staff.roles.includes('TEACHER')
       ? {
-          teacher_grade: teacherGrades.find(
-            ({ teacher_grade_id: tg_id }) => tg_id === staff.teaching_grade_id
-          )?.teacher_grade,
+          teacher_grade: teachingGrades.find(
+            ({ teaching_grade_id: tg_id }) =>
+              tg_id === teacher.teaching_grade_id
+          )?.teaching_grade,
           teacher_type: teacherTypes.find(
-            ({ teacher_type_id: tt_id }) => tt_id === staff.teacher_type_id
+            ({ teacher_type_id: tt_id }) => tt_id === teacher.teacher_type_id
           )?.teacher_type,
           has_signed_convention: formatMessage({
-            id: staff.has_signed_convention ? 'yes' : 'no',
+            id: teacher.has_signed_convention ? 'yes' : 'no',
           }),
           has_tax_payers_card: formatMessage({
-            id: staff.has_tax_payers_card ? 'yes' : 'no',
+            id: teacher.has_tax_payers_card ? 'yes' : 'no',
           }),
         }
       : {}),
@@ -101,9 +88,9 @@ export default function StaffDetailsDialog({
     >
       <DialogTitle>
         {formatMessage({
-          id: staff.roles.includes('TEACHER')
+          id: teacher.roles.includes('TEACHER')
             ? 'teacherDetails'
-            : staff.roles.includes('CONFIGURATOR')
+            : teacher.roles.includes('CONFIGURATOR')
             ? 'configuratorDetails'
             : 'registryDetails',
         })}
