@@ -12,6 +12,8 @@ export const seedData = async (prisma: PrismaClient) => {
   await seeder.seedFirstAmbassador(adminId);
   //seed teacher types
   await seeder.seedTeacherTypes();
+  //seed teaching grades
+  await seeder.seedTeachingGrades();
 };
 
 export class AppSeederFactory {
@@ -88,6 +90,20 @@ export class AppSeederFactory {
         { teacher_type: 'PERMAMENT' },
         { teacher_type: 'MISSIONARY' },
       ],
+      skipDuplicates: true,
+    });
+  }
+
+  async seedTeachingGrades() {
+    await this.prismaService.teachingGrade.createMany({
+      data: [
+        { teaching_grade: 'CLASS_C' },
+        { teaching_grade: 'CLASS_D' },
+        { teaching_grade: 'LECTURER' },
+        { teaching_grade: 'COURSE_INSTRUTOR' },
+        { teaching_grade: 'ASSISTANT' },
+      ],
+      skipDuplicates: true,
     });
   }
 }
