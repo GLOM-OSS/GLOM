@@ -10,6 +10,8 @@ export const seedData = async (prisma: PrismaClient) => {
   const adminId = await seeder.seedDefautAdmin();
   //seed first ambassador
   await seeder.seedFirstAmbassador(adminId);
+  //seed teacher types
+  await seeder.seedTeacherTypes();
 };
 
 export class AppSeederFactory {
@@ -75,6 +77,17 @@ export class AppSeederFactory {
       create: data,
       update: data,
       where: { ambassador_id: ambassadorId },
+    });
+  }
+
+  async seedTeacherTypes() {
+    // vacataire, permanent, missionnaire
+    await this.prismaService.teacherType.createMany({
+      data: [
+        { teacher_type: 'PART_TIME' },
+        { teacher_type: 'PERMAMENT' },
+        { teacher_type: 'MISSIONARY' },
+      ],
     });
   }
 }
