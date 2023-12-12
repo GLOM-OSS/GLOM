@@ -108,15 +108,20 @@ export function Index() {
   const { mutate: archiveMajors, isPending: isHandlingArchive } =
     useDisableMajors();
 
-  function confirmArchiveUnarchive() {
+  function handleArchive() {
     archiveMajors(
-      selectedMajorIds.length > 1 ? selectedMajorIds : [activeMajorId],
+      {
+        disable: isConfirmArchiveDialogOpen || !isConfirmUnarchiveDialogOpen,
+        annualMajorIds:
+          selectedMajorIds.length > 1 ? selectedMajorIds : [activeMajorId],
+      },
       {
         onSuccess() {
           (isConfirmArchiveDialogOpen
             ? setIsConfirmArchiveDialogOpen
             : setIsConfirmUnarchiveDialogOpen)(false);
           setActiveMajorId(undefined);
+          refetchMajors();
         },
       }
     );
@@ -133,12 +138,18 @@ export function Index() {
     <>
       <AddMajorDialog
         isDialogOpen={isNewMajorDialogOpen}
-        closeDialog={() => setIsNewMajorDialogOpen(false)}
+        closeDialog={() => {
+          setIsNewMajorDialogOpen(false);
+          refetchMajors();
+        }}
       />
       {editableMajor && (
         <EditMajorDialog
           isDialogOpen={isEditMajorDialogOpen}
-          closeDialog={() => setIsEditMajorDialogOpen(false)}
+          closeDialog={() => {
+            refetchMajors();
+            setIsEditMajorDialogOpen(false);
+          }}
           editableMajor={editableMajor}
         />
       )}
@@ -193,7 +204,7 @@ export function Index() {
         isDialogOpen={
           isConfirmArchiveDialogOpen || isConfirmUnarchiveDialogOpen
         }
-        confirm={confirmArchiveUnarchive}
+        confirm={handleArchive}
         dialogTitle={formatMessage({
           id: isConfirmArchiveDialogOpen
             ? selectedMajorIds.length > 1

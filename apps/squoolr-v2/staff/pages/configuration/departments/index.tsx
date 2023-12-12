@@ -131,6 +131,7 @@ export function Index() {
           setEditableDepartment(undefined);
           setIsNewDepartmentDialogOpen(false);
           setIsEditDepartmentDialogOpen(false);
+          refetchDepartments();
         }}
         editableDepartment={editableDepartment}
       />
