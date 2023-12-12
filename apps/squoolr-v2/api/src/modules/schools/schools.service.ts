@@ -406,14 +406,15 @@ export class SchoolsService {
                 year_code,
                 academic_year_id,
                 School: { connect: { school_code } },
-                AnnualSchoolSetting: {
-                  create: {
-                    mark_insertion_source: 'Teacher',
-                    CreatedBy: { connect: { annual_configurator_id } },
-                  },
-                },
               },
             },
+          },
+        }),
+        this.prismaService.annualSchoolSetting.create({
+          data: {
+            mark_insertion_source: 'Teacher',
+            AcademicYear: { connect: { year_code } },
+            CreatedBy: { connect: { annual_configurator_id } },
           },
         }),
         this.prismaService.annualCarryOverSytem.create({
