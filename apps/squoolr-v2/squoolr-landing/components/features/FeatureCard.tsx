@@ -36,45 +36,47 @@ export default function FeatureCard({
             justifySelf: 'start',
           }}
         >
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { mobile: '1fr', laptop: '1fr auto' },
-              columnGap: 1,
-              alignItems: 'center',
-            }}
-          >
-            <Typography
-              className="title2-landing-page"
-              sx={{ color: `${theme.common.titleActive} !important` }}
+          <Box sx={{ display: 'grid', rowGap: 1.5 }}>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { mobile: '1fr', laptop: '1fr auto' },
+                columnGap: 1,
+                alignItems: 'center',
+              }}
             >
-              {title}
-            </Typography>
-
-            {isComingSoon && (
               <Typography
-                sx={{
-                  padding: { mobile: '4px 16px', laptop: '8px 32px' },
-                  backgroundColor: '#F0E82A',
-                  color: theme.common.titleActive,
-                  borderRadius: 100,
-                  fontWeight: 700,
-                  justifySelf: 'start',
-                }}
+                className="title2-landing-page"
+                sx={{ color: `${theme.common.titleActive} !important` }}
               >
-                {formatMessage({ id: 'comingSoon' })}
+                {title}
               </Typography>
-            )}
+
+              {isComingSoon && (
+                <Typography
+                  sx={{
+                    padding: { mobile: '4px 16px', laptop: '8px 32px' },
+                    backgroundColor: '#F0E82A',
+                    color: theme.common.titleActive,
+                    borderRadius: 100,
+                    fontWeight: 700,
+                    justifySelf: 'start',
+                  }}
+                >
+                  {formatMessage({ id: 'comingSoon' })}
+                </Typography>
+              )}
+            </Box>
+            <Typography
+              className="p1--space"
+              sx={{
+                color: `${theme.common.label} !important`,
+                textAlign: 'justify',
+              }}
+            >
+              {description}
+            </Typography>
           </Box>
-          <Typography
-            className="p1--space"
-            sx={{
-              color: `${theme.common.label} !important`,
-              textAlign: 'justify',
-            }}
-          >
-            {description}
-          </Typography>
           <Button
             variant="contained"
             size="large"
@@ -92,7 +94,7 @@ export default function FeatureCard({
           data-aos={'fade-left'}
           src={image}
           alt="more"
-          style={{ alignSelf: 'center', width: '100%' }}
+          style={{ alignSelf: 'center', width: '100%', maxWidth: '897.234px' }}
         />
       </Box>
     </Fade>

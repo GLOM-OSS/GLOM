@@ -10,7 +10,7 @@ export default function FeaturesHeader() {
         rowGap: 1,
         justifyItems: 'center',
         justifySelf: 'center',
-        padding: { mobile: '0 16px', desktop: '0 118px' },
+        padding: '0 16px',
       }}
     >
       <Typography
