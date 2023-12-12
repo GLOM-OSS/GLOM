@@ -9,6 +9,7 @@ export class ClassroomsService {
 
   async findAll(params?: QueryClassroomDto) {
     const classrooms = await this.prismaService.annualClassroom.findMany({
+      orderBy: { classroom_level: 'asc' },
       include: {
         AnnualMajor: { select: { major_acronym: true, major_name: true } },
         AnnualClassroomDivisions: { select: { annual_coordinator_id: true } },
