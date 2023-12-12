@@ -1,4 +1,5 @@
 import { DialogTransition } from '@glom/components';
+import { useCreateStaffMember } from '@glom/data-access/squoolr';
 import {
   CreateStaffPayload,
   StaffEntity,
@@ -111,14 +112,14 @@ export default function AddStaffDialog({
       .required(formatMessage({ id: 'required' })),
   });
 
-  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { mutate: createStaff, isPending: isSubmitting } =
+    useCreateStaffMember();
+
   const formik = useFormik({
     initialValues,
     validationSchema,
     enableReinitialize: true,
     onSubmit: (values, { resetForm }) => {
-      setIsSubmitting(true);
       const submitValue = {
         ...values,
         role: usage,
@@ -134,13 +135,15 @@ export default function AddStaffDialog({
             }
           : {}),
       };
-      //TODO; call api here to create staff with data submitValue
-      setTimeout(() => {
-        setIsSubmitting(false);
-        alert(JSON.stringify(submitValue));
-        resetForm();
-        close();
-      }, 3000);
+      createStaff(
+        { payload: submitValue },
+        {
+          onSuccess() {
+            resetForm();
+            close();
+          },
+        }
+      );
     },
   });
 
