@@ -102,7 +102,7 @@ export default function ManageStaffRolesDialog({
           ...submitValue,
           newRoles: submitValue.newRoles.filter((role) => role !== 'TEACHER'),
         });
-        if (!!coordinator.annualClassroomIds) {
+        if (!!coordinator?.annualClassroomIds) {
           setNewClassrooms(
             classrooms.filter(({ annual_classroom_id: ac_id }) =>
               coordinator.annualClassroomIds.includes(ac_id)
@@ -133,7 +133,7 @@ export default function ManageStaffRolesDialog({
                 teacherIds: [],
               },
             });
-            if (!!coordinator.annualClassroomIds)
+            if (!!coordinator?.annualClassroomIds)
               setNewClassrooms(
                 classrooms.filter(({ annual_classroom_id: ac_id }) =>
                   coordinator.annualClassroomIds.includes(ac_id)
@@ -237,14 +237,14 @@ export default function ManageStaffRolesDialog({
   const [newClassrooms, setNewClassrooms] = useState<ClassroomEntity[]>([]);
 
   useEffect(() => {
-    if (!!classrooms && !!coordinator.annualClassroomIds) {
+    if (!!classrooms && !!coordinator?.annualClassroomIds) {
       setNewClassrooms(
         classrooms.filter(({ annual_classroom_id: ac_id }) =>
           coordinator.annualClassroomIds.includes(ac_id)
         )
       );
     }
-  }, [classrooms, coordinator.annualClassroomIds, isDialogOpen]);
+  }, [classrooms, coordinator?.annualClassroomIds, isDialogOpen]);
 
   const [isCompleteInfoDialogOpen, setIsCompleteInfoDialogOpen] =
     useState<boolean>(false);
@@ -314,7 +314,7 @@ export default function ManageStaffRolesDialog({
 
   function areCoordinatedClassroomsSame() {
     const ac_ids = newClassrooms.map(({ annual_classroom_id: ac_id }) => ac_id);
-    const initialClassrooms = coordinator.annualClassroomIds ?? [];
+    const initialClassrooms = coordinator?.annualClassroomIds ?? [];
 
     return (
       ac_ids.sort((a, b) => (a > b ? 1 : -1)).join('*') ===
