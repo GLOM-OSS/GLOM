@@ -4,11 +4,12 @@ import {
   useStaffMember,
   useTeacherTypes,
   useTeachingGrades,
+  useUpdateStaffMember,
 } from '@glom/data-access/squoolr';
 import {
   CreateStaffPayload,
   StaffEntity,
-  TeacherEntity
+  TeacherEntity,
 } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
 import { LocationOnOutlined } from '@mui/icons-material';
@@ -31,7 +32,7 @@ import {
   Switch,
   TextField,
   Typography,
-  debounce
+  debounce,
 } from '@mui/material';
 import { MobileDatePicker } from '@mui/x-date-pickers';
 import parse from 'autosuggest-highlight/parse';
@@ -148,8 +149,12 @@ export default function AddTeacherDialog({
       .required(formatMessage({ id: 'required' })),
   });
 
-  const { mutate: createTeacher, isPending: isSubmitting } =
+  const { mutate: createTeacher, isPending: isCreating } =
     useCreateStaffMember();
+  const { mutate: updateStaff, isPending: isUpdating } = useUpdateStaffMember(
+    staff?.annual_teacher_id
+  );
+  const isSubmitting = isCreating || isUpdating;
 
   const formik = useFormik({
     initialValues,
@@ -159,15 +164,8 @@ export default function AddTeacherDialog({
       const submitValue = {
         ...values,
         phone_number: `+237${values.phone_number}`,
-        ...(teacher
-          ? {
-              ...(teacher.annual_teacher_id
-                ? { annual_registry_id: teacher.annual_teacher_id }
-                : {}),
-            }
-          : {}),
       };
-      createTeacher(
+      (teacher ? updateStaff : createTeacher)(
         { payload: submitValue },
         {
           onSuccess() {
@@ -515,8 +513,8 @@ export default function AddTeacherDialog({
                 required
               >
                 {teacherTypes.map(
-                  ({ teacher_type, teacher_type_id }, index) => (
-                    <MenuItem key={index} value={teacher_type_id}>
+                  ({ teacher_type, teacher_type_id }) => (
+                    <MenuItem key={teacher_type_id} value={teacher_type_id}>
                       {teacher_type}
                     </MenuItem>
                   )
@@ -547,8 +545,8 @@ export default function AddTeacherDialog({
                 required
               >
                 {teachingGrades.map(
-                  ({ teaching_grade, teaching_grade_id }, index) => (
-                    <MenuItem key={index} value={teaching_grade_id}>
+                  ({ teaching_grade, teaching_grade_id }) => (
+                    <MenuItem key={teaching_grade_id} value={teaching_grade_id}>
                       {teaching_grade}
                     </MenuItem>
                   )

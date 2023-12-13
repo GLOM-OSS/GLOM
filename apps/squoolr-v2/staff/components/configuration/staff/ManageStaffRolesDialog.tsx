@@ -53,7 +53,7 @@ export default function ManageStaffRolesDialog({
   const { formatMessage } = useIntl();
   const { data: coordinator } = useStaffMember<CoordinatorEntity>(
     staff.annual_teacher_id,
-    'COORDINATOR'
+    staff.roles.includes('COORDINATOR') ? 'COORDINATOR' : 'TEACHER'
   );
   const [submitValue, setSubmitValue] = useState<ManageStaffRolesPayload>({
     newRoles: [],
@@ -139,7 +139,8 @@ export default function ManageStaffRolesDialog({
                   coordinator.annualClassroomIds.includes(ac_id)
                 )
               );
-          } else
+          } else {
+            setNewClassrooms([]);
             setSubmitValue({
               ...submitValue,
               disabledStaffPayload: {
@@ -147,6 +148,7 @@ export default function ManageStaffRolesDialog({
                 teacherIds: [annual_teacher_id],
               },
             });
+          }
         } else {
           confirmNewTeacherRole();
         }
@@ -235,6 +237,7 @@ export default function ManageStaffRolesDialog({
     useClassrooms();
 
   const [newClassrooms, setNewClassrooms] = useState<ClassroomEntity[]>([]);
+  console.log(newClassrooms, coordinator?.annualClassroomIds);
 
   useEffect(() => {
     if (!!classrooms && !!coordinator?.annualClassroomIds) {
@@ -516,21 +519,19 @@ export default function ManageStaffRolesDialog({
                   <ArrowDropDown />
                 )
               }
-              getOptionLabel={(option) => {
-                const { classroom_acronym, classroom_level } =
-                  option as ClassroomEntity;
-                return `${classroom_acronym} ${classroom_level}`;
-              }}
+              getOptionLabel={(option) => option.classroom_acronym}
               renderOption={(
                 props,
-                { classroom_acronym, classroom_level, annual_classroom_id }
+                { classroom_acronym, annual_classroom_id }
               ) => {
                 return (
                   <Typography
                     {...props}
                     key={annual_classroom_id}
                     component="li"
-                  >{`${classroom_acronym} ${classroom_level}`}</Typography>
+                  >
+                    {classroom_acronym}
+                  </Typography>
                 );
               }}
               renderInput={(params) => (

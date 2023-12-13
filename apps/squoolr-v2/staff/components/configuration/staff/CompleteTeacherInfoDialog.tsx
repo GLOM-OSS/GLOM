@@ -45,8 +45,6 @@ export default function CompleteTeacherInfoDialog({
   const { data: teachingGrades, isFetching: isFetchingTeachingGrades } =
     useTeachingGrades();
 
-  console.log({ teacherTypes, teachingGrades });
-
   const initialValues: ManageStaffRolesPayload['teacherPayload'] = {
     role: 'TEACHER',
     has_signed_convention: staff ? staff.has_signed_convention : false,

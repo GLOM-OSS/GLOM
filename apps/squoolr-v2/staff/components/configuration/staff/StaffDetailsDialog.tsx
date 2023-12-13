@@ -56,8 +56,8 @@ export default function StaffDetailsDialog({
 
   const data = {
     ...staff,
-    ...teacher, 
-    ...(staff.roles.includes('TEACHER')
+    ...teacher,
+    ...(teacher && staff.roles.includes('TEACHER')
       ? {
           teacher_grade: teachingGrades.find(
             ({ teaching_grade_id: tg_id }) =>
