@@ -1,4 +1,4 @@
-import { NoTableElement, TableSkeleton } from '@glom/components';
+import { ConfirmDialog, NoTableElement, TableSkeleton } from '@glom/components';
 import {
   BulkDisableStaffPayload,
   MajorEntity,
@@ -28,34 +28,45 @@ import { useIntl } from 'react-intl';
 import FilterMenu from '../../../components/configuration/staff/FilterMenu';
 import TableHeader from '../../../components/configuration/staff/TableHeader';
 import AddTeacherDialog from 'apps/squoolr-v2/staff/components/configuration/staff/AddTeacherDialog';
+import {
+  useDisableStaffMembers,
+  useResetStaffPasswords,
+  useResetStaffPrivateCode,
+  useStaffMembers,
+} from '@glom/data-access/squoolr';
 export default function Staff() {
   const theme = useTheme();
   const { push, asPath } = useRouter();
   const breadcrumbDispatch = useDispatchBreadcrumb();
   const { formatMessage, formatDate, formatNumber } = useIntl();
 
-  //TODO: REPLACE WITH with reactQuery own
-  const [isStaffDataFetching, setIsStaffDataFetching] = useState<boolean>(true);
-
   const [searchValue, setSearchValue] = useState<string>('');
   const [showArchives, setShowArchives] = useState<boolean>(false);
-  const [staffData, setStaffData] = useState<StaffEntity[]>();
-  const [numberOfSelectedStaffIds, setNumberOfSelectedStaffIds] =
-    useState<number>(0);
-  const [totalNumberOfIds, setTotalNumberOfIds] = useState<number>(0);
-  const [selectedStaff, setSelectedStaff] = useState<
-    Record<keyof BulkDisableStaffPayload, string[]>
-  >({
-    configuratorIds: [],
-    registryIds: [],
-    teacherIds: [],
-  });
   const [selectedRoles, setSelectedRoles] = useState<StaffRole[]>([
     'CONFIGURATOR',
     'COORDINATOR',
     'REGISTRY',
     'TEACHER',
   ]);
+  const {
+    data: staffData,
+    isFetching: isStaffDataFetching,
+    refetch: refetchStaffData,
+  } = useStaffMembers({
+    is_deleted: showArchives,
+    keywords: searchValue,
+    roles: selectedRoles,
+  });
+  const [numberOfSelectedStaffIds, setNumberOfSelectedStaffIds] =
+    useState<number>(0);
+  const [totalNumberOfIds, setTotalNumberOfIds] = useState<number>(0);
+  const [selectedStaff, setSelectedStaff] = useState<
+    Omit<BulkDisableStaffPayload, 'disable'>
+  >({
+    configuratorIds: [],
+    registryIds: [],
+    teacherIds: [],
+  });
   function selectRole(role: StaffRole) {
     setSelectedRoles((prev) =>
       prev.includes(role) ? prev.filter((_) => _ !== role) : [...prev, role]
@@ -85,53 +96,6 @@ export default function Staff() {
     }
   }, [staffData]);
 
-  useEffect(() => {
-    //TODO: CALL fetch staff API HERE with searchValue, showArchives and selectedRoles use it to filter. MUTATE majors DATA WHEN IT'S DONE
-    alert('hello world');
-  }, [searchValue, showArchives, selectedRoles]);
-
-  //TODO: REMOVE THIS WHEN INTEGRATION IS DONE
-  useEffect(() => {
-    //TODO: FETCH staff list HERE
-    setTimeout(() => {
-      setStaffData([
-        {
-          first_name: 'Tchakoumi Lorrain',
-          last_name: 'Kouatchoua',
-          email: 'lorraintchakoumi@gmail.com',
-          phone_number: '+237657140183',
-          birthdate: '',
-          gender: 'Male',
-          role: 'TEACHER',
-          roles: ['TEACHER', 'REGISTRY', 'COORDINATOR', 'CONFIGURATOR'],
-          is_deleted: false,
-          last_connected: new Date().toISOString(),
-          login_id: 'lsi',
-          matricule: 'massa',
-          has_signed_convention: true,
-          has_tax_payers_card: false,
-          hourly_rate: 2000,
-          origin_institute: 'IAI',
-          teacher_type_id: '2',
-          teaching_grade_id: '1',
-          annualClassroomIds: ['wieos'],
-          address: 'GLOM SARL',
-          annual_configurator_id: 'configurator_id',
-          annual_coordinator_id: '',
-          annual_registry_id: 'registry_id',
-          annual_teacher_id: '',
-          national_id_number: '000316122',
-          // tax_payer_card_number: '',
-        },
-      ]);
-      setIsStaffDataFetching(false);
-    }, 3000);
-  }, []);
-
-  const [isConfirmBanDialogOpen, setIsConfirmBanDialogOpen] =
-    useState<boolean>(false);
-  const [isConfirmUnBanDialogOpen, setIsConfirmUnBanDialogOpen] =
-    useState<boolean>(false);
   const [
     isConfirmResetPrivateCodeDialogOpen,
     setIsConfirmResetPrivateCodeDialogOpen,
@@ -259,67 +223,74 @@ export default function Staff() {
   const [newStaffType, setNewStaffType] =
     useState<Exclude<StaffRole, 'TEACHER' | 'COORDINATOR'>>();
 
-  const [activeStaffId, setActiveStaffId] = useState<string>();
-  const [isActiveStaffArchived, setIsActiveStaffArchived] =
-    useState<boolean>(false);
-
   const [isConfirmArchiveDialogOpen, setIsConfirmArchiveDialogOpen] =
     useState<boolean>(false);
   const [isConfirmUnarchiveDialogOpen, setIsConfirmUnarchiveDialogOpen] =
     useState<boolean>(false);
 
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isEditingStaff, setIsEditingStaff] = useState<boolean>(false);
+  const { mutate: updateStaffStatus, isPending: isHandlingArchive } =
+    useDisableStaffMembers();
 
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isArchiving, setIsArchiving] = useState<boolean>(false);
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isUnarchiving, setIsUnarchiving] = useState<boolean>(false);
-  function confirmArchiveUnarchive() {
-    if (isConfirmArchiveDialogOpen) {
-      setIsArchiving(true);
-      //TODO: CALL API HERE TO ARCHIVE major with data selectedMajorIds if length>1 or otherwise [activeMajorId]
-      setTimeout(() => {
-        alert('done archiving');
-        //TODO: MUTATE MajorData here so the data updates
-        setIsArchiving(false);
-        setIsConfirmArchiveDialogOpen(false);
-        setActiveStaffId(undefined);
-      }, 3000);
-    }
-    if (isConfirmUnarchiveDialogOpen) {
-      setIsUnarchiving(true);
-      //TODO: CALL API HERE TO ARCHIVE MAJOR with data selectedMajorIds if length>1 or otherwise [activeMajorId]
-      setTimeout(() => {
-        alert('done unarchiving');
-        //TODO: MUTATE majorData here so the data updates
-        setIsUnarchiving(false);
-        setIsConfirmUnarchiveDialogOpen(false);
-        setActiveStaffId(undefined);
-      }, 3000);
-    }
+  function handleArchive() {
+    updateStaffStatus(
+      {
+        ...selectedStaff,
+        disable: isConfirmArchiveDialogOpen || !isConfirmUnarchiveDialogOpen,
+      },
+      {
+        onSuccess() {
+          refetchStaffData();
+          (isConfirmArchiveDialogOpen
+            ? setIsConfirmArchiveDialogOpen
+            : setIsConfirmUnarchiveDialogOpen)(false);
+        },
+      }
+    );
   }
 
-  const [isNewMajorDialogOpen, setIsNewMajorDialogOpen] =
-    useState<boolean>(false);
-  const [isEditMajorDialogOpen, setIsEditMajorDialogOpen] =
-    useState<boolean>(false);
-
-  const [editableMajor, setEditableMajor] = useState<MajorEntity>();
+  const { mutate: resetStaffPasswords, isPending: isResettingStaffPassword } =
+    useResetStaffPasswords();
+  const confirmResetPassword = () => {
+    resetStaffPasswords(selectedStaff, {
+      onSuccess() {
+        refetchStaffData();
+      },
+    });
+  };
+  const {
+    mutate: resetStaffPrivateCodes,
+    isPending: isResettingStaffPrivateCode,
+  } = useResetStaffPrivateCode();
+  const confirmResetPrivateCode = () => {
+    resetStaffPrivateCodes(selectedStaff, {
+      onSuccess() {
+        refetchStaffData();
+      },
+    });
+  };
 
   return (
     <>
       <AddCoordinatorDialog
         isDialogOpen={isNewCoordinatorDialogOpen}
-        closeDialog={() => setIsNewCoordinatorDialogOpen(false)}
+        closeDialog={() => {
+          refetchStaffData();
+          setIsNewCoordinatorDialogOpen(false);
+        }}
       />
       <AddStaffDialog
-        closeDialog={() => setNewStaffType(undefined)}
+        closeDialog={() => {
+          refetchStaffData();
+          setNewStaffType(undefined);
+        }}
         isDialogOpen={!!newStaffType}
         usage={newStaffType}
       />
       <AddTeacherDialog
-        closeDialog={() => setIsNewTeacherDialogOpen(false)}
+        closeDialog={() => {
+          refetchStaffData();
+          setIsNewTeacherDialogOpen(false);
+        }}
         isDialogOpen={isNewTeacherDialogOpen}
       />
       <FilterMenu
@@ -349,6 +320,58 @@ export default function Staff() {
         closeMenu={() => setNewStaffAnchorEl(null)}
         isOpen={!!newStaffAnchorEl}
       />
+      <ConfirmDialog
+        closeDialog={() => setIsConfirmResetPasswordDialogOpen(false)}
+        confirm={confirmResetPassword}
+        dialogMessage={formatMessage({
+          id: 'confirmResetStaffPasswordDialogMessage',
+        })}
+        isDialogOpen={isConfirmResetPasswordDialogOpen}
+        closeOnConfirm
+        confirmButton={formatMessage({ id: 'resetPassword' })}
+        danger
+        dialogTitle={formatMessage({ id: 'resetStaffPassword' })}
+        isSubmitting={isResettingStaffPassword}
+      />
+      <ConfirmDialog
+        closeDialog={() => setIsConfirmResetPrivateCodeDialogOpen(false)}
+        confirm={confirmResetPrivateCode}
+        dialogMessage={formatMessage({
+          id: 'confirmResetStaffPrivateCodeDialogMessage',
+        })}
+        isDialogOpen={isConfirmResetPrivateCodeDialogOpen}
+        closeOnConfirm
+        confirmButton={formatMessage({ id: 'resetPrivateCode' })}
+        danger
+        dialogTitle={formatMessage({ id: 'resetStaffPrivateCode' })}
+        isSubmitting={isResettingStaffPrivateCode}
+      />
+      <ConfirmDialog
+        closeDialog={() => setIsConfirmArchiveDialogOpen(false)}
+        confirm={handleArchive}
+        dialogMessage={formatMessage({
+          id: 'confirmArchiveStaffDialogMessage',
+        })}
+        isDialogOpen={isConfirmArchiveDialogOpen}
+        closeOnConfirm
+        confirmButton={formatMessage({ id: 'ban' })}
+        danger
+        dialogTitle={formatMessage({ id: 'archiveStaffMember' })}
+        isSubmitting={isHandlingArchive}
+      />
+      <ConfirmDialog
+        closeDialog={() => setIsConfirmUnarchiveDialogOpen(false)}
+        confirm={handleArchive}
+        dialogMessage={formatMessage({
+          id: 'confirmUnarchiveStaffDialogMessage',
+        })}
+        isDialogOpen={isConfirmUnarchiveDialogOpen}
+        closeOnConfirm
+        confirmButton={formatMessage({ id: 'revokeBan' })}
+        danger
+        dialogTitle={formatMessage({ id: 'unarchiveStaffMember' })}
+        isSubmitting={isHandlingArchive}
+      />
 
       <Box sx={{ height: '100%', position: 'relative' }}>
         <TableHeader
@@ -358,13 +381,16 @@ export default function Staff() {
           setShowArchives={setShowArchives}
           numberOfSelectedStaffIds={numberOfSelectedStaffIds}
           disabled={
-            !staffData || isArchiving || isUnarchiving || isEditingStaff
+            !staffData ||
+            isHandlingArchive ||
+            isResettingStaffPassword ||
+            isResettingStaffPrivateCode
           }
           canResetPrivateCode={!selectedRoles.includes('CONFIGURATOR')}
           setFilterAnchorEl={setFilterAnchorEl}
           resetPassword={() => setIsConfirmResetPasswordDialogOpen(true)}
-          banUsers={() => setIsConfirmBanDialogOpen(true)}
-          unbanUsers={() => setIsConfirmUnBanDialogOpen(true)}
+          banUsers={() => setIsConfirmArchiveDialogOpen(true)}
+          unbanUsers={() => setIsConfirmUnarchiveDialogOpen(true)}
           resetPrivateCode={() => setIsConfirmResetPrivateCodeDialogOpen(true)}
         />
         <TableContainer
@@ -379,9 +405,9 @@ export default function Staff() {
               disabled={
                 !staffData ||
                 isStaffDataFetching ||
-                isArchiving ||
-                isUnarchiving ||
-                isEditingStaff
+                isHandlingArchive ||
+                isResettingStaffPassword ||
+                isResettingStaffPrivateCode
               }
               isAllSelected={
                 totalNumberOfIds === numberOfSelectedStaffIds && !!staffData
@@ -401,11 +427,16 @@ export default function Staff() {
                   <StaffRow
                     key={index}
                     staff={staff}
-                    disabled={isArchiving || isUnarchiving || isEditingStaff}
+                    disabled={
+                      isHandlingArchive ||
+                      isResettingStaffPassword ||
+                      isResettingStaffPrivateCode
+                    }
                     showMoreIcon={numberOfSelectedStaffIds > 0}
                     selectedStaff={selectedStaff}
                     selectStaff={selectStaff}
                     showArchived={showArchives}
+                    refetchStaffData={refetchStaffData}
                   />
                 ))
               )}

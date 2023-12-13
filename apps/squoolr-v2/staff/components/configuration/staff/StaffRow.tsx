@@ -2,7 +2,7 @@ import { ConfirmDialog } from '@glom/components';
 import {
   useDisableStaffMembers,
   useResetStaffPasswords,
-  useResetStaffPrivateCode
+  useResetStaffPrivateCode,
 } from '@glom/data-access/squoolr';
 import { BulkDisableStaffPayload, StaffEntity } from '@glom/data-types';
 import { useTheme } from '@glom/theme';
@@ -44,9 +44,10 @@ export default function StaffRow({
   showMoreIcon,
   disabled,
   showArchived,
+  refetchStaffData,
 }: {
   staff: StaffEntity;
-  selectedStaff: BulkDisableStaffPayload;
+  selectedStaff: Omit<BulkDisableStaffPayload, 'disable'>;
   selectStaff: (
     configuratorId?: string,
     registryId?: string,
@@ -55,9 +56,15 @@ export default function StaffRow({
   showMoreIcon: boolean;
   disabled: boolean;
   showArchived: boolean;
+  refetchStaffData: () => void;
 }) {
   const theme = useTheme();
   const { formatDate, formatMessage } = useIntl();
+  const staffPayload: Omit<BulkDisableStaffPayload, 'disable'> = {
+    configuratorIds: annual_configurator_id ? [annual_configurator_id] : [],
+    teacherIds: annual_teacher_id ? [annual_teacher_id] : [],
+    registryIds: annual_registry_id ? [annual_registry_id] : [],
+  };
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [
@@ -69,18 +76,12 @@ export default function StaffRow({
     useResetStaffPasswords();
 
   function confirmResetPassword() {
-    resetStaffPassword(
-      {
-        configuratorIds: [annual_configurator_id],
-        teacherIds: [annual_teacher_id],
-        registryIds: [annual_registry_id],
+    resetStaffPassword(staffPayload, {
+      onSuccess() {
+        refetchStaffData();
+        setIsConfirmResetPasswordDialogOpen(false);
       },
-      {
-        onSuccess() {
-          setIsConfirmResetPasswordDialogOpen(false);
-        },
-      }
-    );
+    });
   }
 
   const [
@@ -93,8 +94,9 @@ export default function StaffRow({
     isPending: isResettingStaffPrivateCode,
   } = useResetStaffPrivateCode();
   function confirmResetPrivateCode() {
-    resetStaffPrivateCode(selectedStaff, {
+    resetStaffPrivateCode(staffPayload, {
       onSuccess() {
+        refetchStaffData();
         setIsConfirmResetPrivateCodeDialogOpen(false);
       },
     });
@@ -108,13 +110,20 @@ export default function StaffRow({
   const [isConfirmUnarchiveDialogOpen, setIsConfirmUnarchiveDialogOpen] =
     useState<boolean>(false);
   function handleArchive() {
-    disableStaffMembers(selectedStaff, {
-      onSuccess() {
-        (isConfirmArchiveDialogOpen
-          ? setIsConfirmArchiveDialogOpen
-          : setIsConfirmUnarchiveDialogOpen)(false);
+    disableStaffMembers(
+      {
+        ...staffPayload,
+        disable: isConfirmArchiveDialogOpen || !isConfirmUnarchiveDialogOpen,
       },
-    });
+      {
+        onSuccess() {
+          refetchStaffData();
+          (isConfirmArchiveDialogOpen
+            ? setIsConfirmArchiveDialogOpen
+            : setIsConfirmUnarchiveDialogOpen)(false);
+        },
+      }
+    );
   }
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
@@ -141,17 +150,26 @@ export default function StaffRow({
       />
       <ManageStaffRolesDialog
         isDialogOpen={isManageRolesDialogOpen}
-        closeDialog={() => setIsManageRolesDialogOpen(false)}
+        closeDialog={() => {
+          refetchStaffData();
+          setIsManageRolesDialogOpen(false);
+        }}
         staff={staff}
       />
       <AddStaffDialog
-        closeDialog={() => setIsEditDialogOpen(false)}
+        closeDialog={() => {
+          refetchStaffData();
+          setIsEditDialogOpen(false);
+        }}
         isDialogOpen={isEditDialogOpen && !roles.includes('TEACHER')}
         usage={roles.includes('CONFIGURATOR') ? 'CONFIGURATOR' : 'REGISTRY'}
         staff={staff}
       />
       <AddTeacherDialog
-        closeDialog={() => setIsEditDialogOpen(false)}
+        closeDialog={() => {
+          refetchStaffData();
+          setIsEditDialogOpen(false);
+        }}
         isDialogOpen={isEditDialogOpen && roles.includes('TEACHER')}
         staff={staff}
       />

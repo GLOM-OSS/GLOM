@@ -69,7 +69,7 @@ export class StaffApi {
     staffPayload: ManageStaffRolesPayload
   ) {
     const resp = await this.request.put<BatchUpdatePayload>(
-      `staffs/${loginId}/roles`,
+      `/staffs/${loginId}/roles`,
       staffPayload
     );
     return resp.data;
