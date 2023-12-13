@@ -144,17 +144,22 @@ export default function Index() {
 
   const { mutate: archiveClassrooms, isPending: isHandlingArchive } =
     useDisableClassrooms();
-  function confirmArchiveUnarchive() {
+  function handleArchive() {
     archiveClassrooms(
-      selectedClassroomsIds.length > 1
-        ? selectedClassroomsIds
-        : [activeClassroomId],
+      {
+        disable: isConfirmArchiveDialogOpen || !isConfirmUnarchiveDialogOpen,
+        annualClassroomIds:
+          selectedClassroomsIds.length > 1
+            ? selectedClassroomsIds
+            : [activeClassroomId],
+      },
       {
         onSuccess() {
           (isConfirmArchiveDialogOpen
             ? setIsConfirmArchiveDialogOpen
             : setIsConfirmUnarchiveDialogOpen)(false);
           setActiveClassroomId(undefined);
+          refetchClassrooms();
         },
       }
     );
@@ -197,7 +202,7 @@ export default function Index() {
         isDialogOpen={
           isConfirmArchiveDialogOpen || isConfirmUnarchiveDialogOpen
         }
-        confirm={confirmArchiveUnarchive}
+        confirm={handleArchive}
         dialogTitle={formatMessage({
           id: isConfirmArchiveDialogOpen
             ? selectedClassroomsIds.length > 1
