@@ -53,10 +53,9 @@ export class ClassroomsService {
       await this.prismaService.annualClassroom.findFirstOrThrow({
         select: {
           is_deleted: true,
-          classroom_level: true,
           number_of_divisions: true,
         },
-        where: { annual_classroom_id, is_deleted: false },
+        where: { annual_classroom_id, is_deleted: !payload.is_deleted },
       });
     await this.prismaService.annualClassroom.update({
       data: {
@@ -72,10 +71,14 @@ export class ClassroomsService {
     });
   }
 
-  async disableMany(annualClassroomIds: string[], disabled_by: string) {
+  async disableMany(
+    annualClassroomIds: string[],
+    disable: boolean,
+    disabled_by: string
+  ) {
     await Promise.all(
       annualClassroomIds.map((annualClassroomId) =>
-        this.update(annualClassroomId, { is_deleted: true }, disabled_by)
+        this.update(annualClassroomId, { is_deleted: disable }, disabled_by)
       )
     );
   }

@@ -13,7 +13,7 @@ import { ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 import {
   AnnualClassroomEntity,
-  DisanleClassroomsDto,
+  DisableClassroomsDto,
   QueryClassroomDto,
   UpdateClassroomDto,
 } from './classroom.dto';
@@ -74,13 +74,14 @@ export class ClassroomsController {
   @Roles(Role.CONFIGURATOR)
   async disableManyClassrooms(
     @Req() request: Request,
-    @Query() { annualClassroomIds }: DisanleClassroomsDto
+    @Query() { disable, annualClassroomIds }: DisableClassroomsDto
   ) {
     const {
       annualConfigurator: { annual_configurator_id },
     } = request.user;
     return this.classroomsService.disableMany(
       annualClassroomIds,
+      disable,
       annual_configurator_id
     );
   }

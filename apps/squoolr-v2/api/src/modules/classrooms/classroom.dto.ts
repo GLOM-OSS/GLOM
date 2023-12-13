@@ -8,6 +8,7 @@ import {
 import { AnnualClassroom } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 import {
+  IsBoolean,
   IsNumber,
   IsNumberString,
   IsOptional,
@@ -76,7 +77,11 @@ export class UpdateClassroomDto {
   number_of_divisions: number;
 }
 
-export class DisanleClassroomsDto {
+export class DisableClassroomsDto {
+  @IsBoolean()
+  @ApiProperty()
+  disable: boolean;
+
   @IsString({ each: true })
   @ApiProperty({ type: [String] })
   annualClassroomIds: string[];
