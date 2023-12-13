@@ -1,11 +1,6 @@
 import { DialogTransition } from '@glom/components';
-import {
-  useTeacherTypes,
-  useTeachingGrades
-} from '@glom/data-access/squoolr';
-import {
-  ManageStaffRolesPayload
-} from '@glom/data-types/squoolr';
+import { useTeacherTypes, useTeachingGrades } from '@glom/data-access/squoolr';
+import { ManageStaffRolesPayload } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
 import {
   Box,
@@ -49,6 +44,8 @@ export default function CompleteTeacherInfoDialog({
     useTeacherTypes();
   const { data: teachingGrades, isFetching: isFetchingTeachingGrades } =
     useTeachingGrades();
+
+  console.log({ teacherTypes, teachingGrades });
 
   const initialValues: ManageStaffRolesPayload['teacherPayload'] = {
     role: 'TEACHER',
@@ -133,13 +130,11 @@ export default function CompleteTeacherInfoDialog({
                 disabled={isFetchingTeacherTypes || isSubmitting}
                 required
               >
-                {teacherTypes.map(
-                  ({ teacher_type, teacher_type_id }, index) => (
-                    <MenuItem key={index} value={teacher_type_id}>
-                      {teacher_type}
-                    </MenuItem>
-                  )
-                )}
+                {teacherTypes.map(({ teacher_type, teacher_type_id }) => (
+                  <MenuItem key={teacher_type_id} value={teacher_type_id}>
+                    {teacher_type}
+                  </MenuItem>
+                ))}
               </Select>
               {formik.touched.teacher_type_id &&
                 !!formik.errors.teacher_type_id && (
@@ -165,19 +160,11 @@ export default function CompleteTeacherInfoDialog({
                 disabled={isFetchingTeachingGrades || isSubmitting}
                 required
               >
-                {teachingGrades.map(
-                  (
-                    {
-                      teaching_grade: teacher_grade,
-                      teaching_grade_id: teacher_grade_id,
-                    },
-                    index
-                  ) => (
-                    <MenuItem key={index} value={teacher_grade_id}>
-                      {teacher_grade}
-                    </MenuItem>
-                  )
-                )}
+                {teachingGrades.map(({ teaching_grade, teaching_grade_id }) => (
+                  <MenuItem key={teaching_grade_id} value={teaching_grade_id}>
+                    {teaching_grade}
+                  </MenuItem>
+                ))}
               </Select>
               {formik.touched.teaching_grade_id &&
                 !!formik.errors.teaching_grade_id && (

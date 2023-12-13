@@ -6,12 +6,9 @@ import {
   useTeachingGrades,
 } from '@glom/data-access/squoolr';
 import {
-  CoordinatorEntity,
   CreateStaffPayload,
   StaffEntity,
-  StaffRole,
-  TeacherEntity,
-  TeacherTypeEntity,
+  TeacherEntity
 } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
 import { LocationOnOutlined } from '@mui/icons-material';
@@ -34,8 +31,7 @@ import {
   Switch,
   TextField,
   Typography,
-  capitalize,
-  debounce,
+  debounce
 } from '@mui/material';
 import { MobileDatePicker } from '@mui/x-date-pickers';
 import parse from 'autosuggest-highlight/parse';
@@ -126,7 +122,8 @@ export default function AddTeacherDialog({
         formatMessage({ id: 'invalidPhonenumber' })
       )
       .required(formatMessage({ id: 'requiredField' })),
-    address: Yup.string().required(formatMessage({ id: 'required' })),
+    address: Yup.string(),
+    // .required(formatMessage({ id: 'required' })),
     birthdate: Yup.date()
       .max(new Date(), formatMessage({ id: 'cannotBeGreaterThanToday' }))
       .required(formatMessage({ id: 'required' })),
@@ -444,7 +441,7 @@ export default function AddTeacherDialog({
               <TextField
                 {...params}
                 label={`${formatMessage({ id: 'address' })}`}
-                required
+                // required
                 color="primary"
                 variant="outlined"
                 fullWidth
