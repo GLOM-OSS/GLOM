@@ -1,4 +1,8 @@
-import { QueryClassroomParams, UpdateClassroomPayload } from '@glom/data-types';
+import {
+  DisableClassroomsPayload,
+  QueryClassroomParams,
+  UpdateClassroomPayload,
+} from '@glom/data-types/squoolr';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import squoolrApi from './api';
@@ -8,6 +12,7 @@ export function useClassrooms(params?: QueryClassroomParams) {
   return useQuery({
     queryKey: ['fetch-major-classrooms', params],
     queryFn: () => classrooms.getClassrooms(params),
+    initialData: [],
   });
 }
 
@@ -37,8 +42,8 @@ export function usDisableClassroom(annualClassroomId: string) {
 }
 
 export function useDisableClassrooms() {
-  const mutationFn = (annualClassroomIds: string[]) =>
-    classrooms.disableManyClassrooms(annualClassroomIds);
+  const mutationFn = (payload: DisableClassroomsPayload) =>
+    classrooms.disableManyClassrooms(payload);
   return useMutation({
     mutationFn,
     mutationKey: ['disable-many-classrooms'],

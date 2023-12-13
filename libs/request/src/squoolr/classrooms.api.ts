@@ -1,7 +1,8 @@
 import {
-    ClassroomEntity,
-    QueryClassroomParams,
-    UpdateClassroomPayload
+  ClassroomEntity,
+  DisableClassroomsPayload,
+  QueryClassroomParams,
+  UpdateClassroomPayload,
 } from '@glom/data-types';
 import { GlomRequest } from '../lib/glom-request';
 
@@ -32,9 +33,9 @@ export class ClassroomsApi {
     return resp.data;
   }
 
-  async disableManyClassrooms(annualClassroomIds: string[]) {
+  async disableManyClassrooms(updatePayload: DisableClassroomsPayload) {
     const resp = await this.request.delete(`/classrooms`, {
-      queryParams: { annualClassroomIds },
+      queryParams: updatePayload,
     });
     return resp.data;
   }

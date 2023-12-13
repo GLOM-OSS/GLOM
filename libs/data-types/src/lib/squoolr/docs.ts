@@ -1231,6 +1231,7 @@ export interface operations {
   ClassroomsController_disableManyClassrooms: {
     parameters: {
       query: {
+        disable: boolean;
         annualClassroomIds: string[];
       };
     };
