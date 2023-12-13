@@ -1,5 +1,5 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { StaffRole } from '../../../utils/enums';
 import {
   CreateTeacherInput,
@@ -10,7 +10,7 @@ import {
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffEntity, TeacherEntity } from '../staff.dto';
-import { excludeKeys } from '@glom/utils';
+import { excludeKeys, pickKeys } from '@glom/utils';
 
 @Injectable()
 export class TeachersService
@@ -19,7 +19,8 @@ export class TeachersService
   constructor(private prismaService: GlomPrismaService) {}
   async findOne(annual_teacher_id: string) {
     const {
-      Teacher: { Login, is_deleted, matricule, ...teacher },
+      Teacher: { Login, matricule, ...teacher },
+      is_deleted,
       ...annual_teacher
     } = await this.prismaService.annualTeacher.findFirstOrThrow({
       select: StaffArgsFactory.getTeacherSelect(),
@@ -45,7 +46,7 @@ export class TeachersService
         annual_teacher_id: true,
         Teacher: { select: excludeKeys(teacherSelect, ['is_deleted']) },
       },
-      where: { academic_year_id, Teacher: teacherWhereInput },
+      where: { academic_year_id, is_deleted, Teacher: teacherWhereInput },
     });
     return teachers.map(
       ({
@@ -159,6 +160,7 @@ export class TeachersService
       origin_institute,
       has_signed_convention,
       hourly_rate,
+      delete: archive,
       ...payload
     }: UpdateTeacherInput,
     audited_by: string
@@ -177,53 +179,73 @@ export class TeachersService
       },
       where: { annual_teacher_id },
     });
-    const isDeleted =
-      typeof payload.delete === 'boolean' ? !is_deleted : undefined;
     await this.prismaService.annualTeacher.update({
       data: {
-        ...(isDeleted !== undefined
-          ? { is_deleted: isDeleted }
-          : {
-              hourly_rate,
-              origin_institute,
-              has_signed_convention,
-              TeachingGrade: teaching_grade_id
-                ? { connect: { teaching_grade_id } }
-                : undefined,
-              Teacher: {
+        hourly_rate,
+        origin_institute,
+        has_signed_convention,
+        TeachingGrade: teaching_grade_id
+          ? { connect: { teaching_grade_id } }
+          : undefined,
+        Teacher:
+          has_tax_payers_card ||
+          tax_payer_card_number ||
+          teacher_type_id ||
+          Object.keys(payload).length > 0
+            ? {
                 update: {
                   has_tax_payers_card,
                   tax_payer_card_number,
                   TeacherType: teacher_type_id
                     ? { connect: { teacher_type_id } }
                     : undefined,
-                  TeacherAudits: {
-                    create: {
-                      ...teacher,
-                      audited_by,
-                    },
-                  },
-                  Login: {
-                    update: {
-                      Person: {
-                        update: {
-                          ...payload,
-                          PersonAudits: { create: { ...Person } },
-                        },
-                      },
-                    },
+                  TeacherAudits:
+                    has_tax_payers_card ||
+                    tax_payer_card_number ||
+                    teacher_type_id
+                      ? {
+                          create: {
+                            ...excludeKeys(teacher, ['matricule']),
+                            audited_by,
+                          },
+                        }
+                      : undefined,
+                  Login:
+                    Object.keys(payload).length > 0
+                      ? {
+                          update: {
+                            Person: {
+                              update: {
+                                ...payload,
+                                PersonAudits: { create: { ...Person } },
+                              },
+                            },
+                          },
+                        }
+                      : undefined,
+                },
+              }
+            : undefined,
+        AnnualTeacherAudits:
+          hourly_rate ||
+          origin_institute ||
+          has_signed_convention ||
+          teaching_grade_id
+            ? {
+                create: {
+                  is_deleted,
+                  ...excludeKeys(annualTeacher, [
+                    'teaching_grade_id',
+                    'annual_teacher_id',
+                  ]),
+                  AuditedBy: {
+                    connect: { annual_configurator_id: audited_by },
                   },
                 },
-              },
-            }),
-        AnnualTeacherAudits: {
-          create: {
-            ...annualTeacher,
-            AuditedBy: {
-              connect: { annual_configurator_id: audited_by },
-            },
-          },
-        },
+              }
+            : undefined,
+
+        is_deleted: archive,
       },
       where: { annual_teacher_id },
     });
@@ -252,13 +274,18 @@ export class TeachersService
       Teacher: { Login, ...teacher },
       ...annualTeacher
     } = await this.prismaService.annualTeacher.upsert({
-      select: StaffArgsFactory.getTeacherSelect(),
+      select: {
+        annual_teacher_id: true,
+        ...StaffArgsFactory.getTeacherSelect(),
+      },
       create: {
-        hourly_rate,
-        origin_institute,
-        has_signed_convention,
+        hourly_rate: hourly_rate ?? 0,
+        origin_institute: origin_institute ?? '',
+        has_signed_convention: has_signed_convention,
         AcademicYear: { connect: { academic_year_id } },
-        TeachingGrade: { connect: { teaching_grade_id } },
+        TeachingGrade: {
+          connect: { teaching_grade_id: teaching_grade_id ?? '' },
+        },
         Teacher: {
           connectOrCreate: {
             create: {
@@ -267,7 +294,9 @@ export class TeachersService
               has_tax_payers_card,
               tax_payer_card_number,
               Login: { connect: { login_id } },
-              TeacherType: { connect: { teacher_type_id } },
+              TeacherType: {
+                connect: { teacher_type_id: teacher_type_id ?? '' },
+              },
             },
             where: { login_id },
           },
@@ -278,16 +307,21 @@ export class TeachersService
         is_deleted: false,
         AnnualTeacherAudits: {
           create: {
-            ...excludeKeys(existingTeacher, [
-              'created_at',
-              'created_by',
-              'academic_year_id',
-              'annual_teacher_id',
-            ]),
+            ...(existingTeacher
+              ? pickKeys(existingTeacher, [
+                  'is_deleted',
+                  'hourly_rate',
+                  'origin_institute',
+                  'has_signed_convention',
+                ])
+              : {
+                  hourly_rate,
+                  origin_institute,
+                  has_signed_convention,
+                  is_deleted: false,
+                }),
             AuditedBy: {
-              connect: {
-                login_id_academic_year_id: { academic_year_id, login_id },
-              },
+              connect: { annual_configurator_id: created_by },
             },
           },
         },
@@ -298,13 +332,13 @@ export class TeachersService
     });
 
     return new TeacherEntity({
-      ...teacher,
-      ...annualTeacher,
       ...StaffArgsFactory.getStaffEntity({
         is_deleted: false,
         matricule,
         Login,
       }),
+      ...teacher,
+      ...annualTeacher,
       role: StaffRole.TEACHER,
     });
   }
