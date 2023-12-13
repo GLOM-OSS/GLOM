@@ -1,6 +1,10 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { excludeKeys, generatePassword } from '@glom/utils';
-import { BadGatewayException, Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
@@ -12,11 +16,11 @@ import { CoordinatorsService } from './coordinators/coordinators.service';
 import { RegistriesService } from './registries/registries.service';
 import { IStaffService, StaffSelectParams } from './staff';
 import {
+  CategorizedStaffIDs,
+  CoordinatorEntity,
   CreateCoordinatorDto,
   CreateStaffPayloadDto,
-  CategorizedStaffIDs,
   StaffEntity,
-  StaffRoleDto,
   TeacherEntity,
   UpdateStaffPayloadDto,
   UpdateStaffRoleDto,
@@ -28,7 +32,7 @@ import { TeachersService } from './teachers/teachers.service';
 export class StaffService {
   private staffServices: Record<
     StaffRole,
-    IStaffService<StaffEntity | TeacherEntity>
+    IStaffService<StaffEntity | TeacherEntity | CoordinatorEntity>
   >;
   constructor(
     private prismaService: GlomPrismaService,
@@ -65,9 +69,7 @@ export class StaffService {
   }
 
   async findOne(role: StaffRole, annual_personnel_id: string) {
-    return this.staffServices[
-      role === StaffRole.COORDINATOR ? StaffRole.TEACHER : role
-    ].findOne(annual_personnel_id);
+    return this.staffServices[role].findOne(annual_personnel_id);
   }
 
   async create(
@@ -126,12 +128,19 @@ export class StaffService {
     disabled_by: string,
     isAdmin = false
   ) {
-    return this.staffServices[payload.role].update(
+    await this.staffServices[payload.role].update(
       annual_staff_id,
       { delete: payload.disable },
       disabled_by,
       isAdmin
     );
+    if (payload.role === StaffRole.TEACHER)
+      await this.staffServices[StaffRole.COORDINATOR].update(
+        annual_staff_id,
+        { annualClassroomIds: [] },
+        disabled_by,
+        isAdmin
+      );
   }
 
   async disableMany(
@@ -256,23 +265,20 @@ export class StaffService {
   ) {
     if (disabledStaffPayload)
       await this.disableMany(disabledStaffPayload, true, audited_by);
-
-    const addedRoles: StaffRole[] = newRoles.reduce(
-      (roles, role) =>
-        roles.includes(role)
-          ? roles
-          : [
-              ...roles,
-              role === StaffRole.COORDINATOR ? StaffRole.TEACHER : role,
-            ],
-      []
-    );
+    if (coordinatorPayload?.annualClassroomIds.length > 0)
+      newRoles.push(StaffRole.TEACHER);
+    const addedRoles: Exclude<StaffRole, StaffRole.COORDINATOR>[] =
+      newRoles.reduce(
+        (roles, role) =>
+          roles.includes(role)
+            ? roles
+            : [
+                ...roles,
+                role === StaffRole.COORDINATOR ? StaffRole.TEACHER : role,
+              ],
+        []
+      );
     let isRequiringMoreData = false;
-    if (addedRoles.includes(StaffRole.TEACHER)) {
-      isRequiringMoreData = !(await this.prismaService.annualTeacher.findFirst({
-        where: { academic_year_id, login_id },
-      }));
-    }
     await Promise.all(
       addedRoles.map(async (role) => {
         const matricule = await this.codeGenerator.getPersonnelCode(
@@ -286,7 +292,7 @@ export class StaffService {
         if (role === StaffRole.TEACHER) {
           const disabledTeacher =
             await this.prismaService.annualTeacher.findFirst({
-              where: { academic_year_id, login_id, is_deleted: true },
+              where: { academic_year_id, login_id },
             });
           if (!disabledTeacher && !teacherPayload) {
             isRequiringMoreData = true;
@@ -306,7 +312,7 @@ export class StaffService {
               audited_by
             )
             .then((staff) => {
-              if (coordinatorPayload && role === StaffRole.TEACHER)
+              if (coordinatorPayload?.annualClassroomIds)
                 this.update(
                   staff.annual_teacher_id,
                   {
@@ -323,7 +329,9 @@ export class StaffService {
           audited_by
         );
       })
-    ).catch(console.log);
+    ).catch((error) => {
+      throw new InternalServerErrorException(error.message);
+    });
     const totalUpdateRecords =
       addedRoles.length +
       (coordinatorPayload?.annualClassroomIds.length ?? 0) +
