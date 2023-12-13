@@ -15,7 +15,7 @@ export class ClassroomsService {
         AnnualClassroomDivisions: { select: { annual_coordinator_id: true } },
       },
       where: {
-        is_deleted: params?.is_deleted,
+        is_deleted: params?.is_deleted ?? false,
         classroom_level: params?.level,
         annual_major_id: params?.annual_major_id,
         AnnualMajor: params?.keywords

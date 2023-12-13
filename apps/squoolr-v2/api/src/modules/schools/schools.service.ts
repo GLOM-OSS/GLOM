@@ -113,7 +113,7 @@ export class SchoolsService {
     const schools = await this.prismaService.school.findMany({
       ...schoolSelectAttr,
       where: {
-        is_deleted: params?.is_deleted,
+        is_deleted: params?.is_deleted ?? false,
         school_name: params?.keywords
           ? { search: params?.keywords }
           : undefined,
