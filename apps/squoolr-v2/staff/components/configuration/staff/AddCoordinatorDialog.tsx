@@ -7,7 +7,7 @@ import {
 import {
   ClassroomEntity,
   CoordinatorEntity,
-  CreateStaffPayload
+  CreateStaffPayload,
 } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
 import { ArrowDropDown } from '@mui/icons-material';
@@ -90,7 +90,7 @@ export default function AddCoordinatorDialog({
   });
 
   const { mutate: updateCoordinator, isPending: isSubmitting } =
-    useUpdateStaffMember(selectedCoordinator.annual_teacher_id);
+    useUpdateStaffMember(selectedCoordinator?.annual_teacher_id);
   const formik = useFormik({
     initialValues,
     validationSchema,
