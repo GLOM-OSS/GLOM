@@ -1,7 +1,8 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { excludeKeys } from '@glom/utils';
+import { excludeKeys, pickKeys } from '@glom/utils';
 import {
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   NotImplementedException,
 } from '@nestjs/common';
@@ -16,6 +17,7 @@ import {
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { CoordinatorEntity, StaffEntity } from '../staff.dto';
+import { AnnualClassroomDivision, Prisma, PrismaPromise } from '@prisma/client';
 
 @Injectable()
 export class CoordinatorsService
@@ -43,7 +45,7 @@ export class CoordinatorsService
   async findOne(annual_coordinator_id: string) {
     const coordinatedClasses =
       await this.prismaService.annualClassroomDivision.findMany({
-        distinct: ['annual_coordinator_id'],
+        distinct: ['annual_classroom_id'],
         select: {
           annual_classroom_id: true,
           AnnualTeacher: {
@@ -58,20 +60,21 @@ export class CoordinatorsService
       {
         annual_classroom_id,
         AnnualTeacher: {
-          Teacher: { Login, is_deleted, matricule, ...teacher },
+          Teacher: { Login, matricule, ...teacher },
+          is_deleted,
           ...annualTeacher
         },
       },
       ...otherClassess
     ] = coordinatedClasses;
     return new CoordinatorEntity({
-      ...teacher,
-      ...annualTeacher,
       ...StaffArgsFactory.getStaffEntity({
         Login,
         is_deleted,
         matricule,
       }),
+      ...teacher,
+      ...annualTeacher,
       annualClassroomIds: [
         annual_classroom_id,
         ...(otherClassess ?? []).map((_) => _.annual_classroom_id),
@@ -96,7 +99,7 @@ export class CoordinatorsService
           },
         },
         where: {
-          is_deleted: false,
+          is_deleted,
           AnnualTeacher: {
             academic_year_id,
             is_deleted,
@@ -170,32 +173,40 @@ export class CoordinatorsService
       ({ annual_classroom_id }) =>
         !annualClassroomIds.find((id) => id === annual_classroom_id)
     );
-    await this.prismaService.$transaction([
-      this.prismaService.annualClassroomDivision.updateMany({
-        data: {
-          annual_coordinator_id,
-        },
-        where: {
-          OR: addedClasses.map((annual_classroom_id) => ({
-            annual_classroom_id,
+    const prismaTransactions: PrismaPromise<Prisma.BatchPayload>[] = [];
+    if (addedClasses.length > 0)
+      prismaTransactions.push(
+        this.prismaService.annualClassroomDivision.updateMany({
+          data: { annual_coordinator_id },
+          where: {
+            OR: addedClasses.map((annual_classroom_id) => ({
+              annual_classroom_id,
+            })),
+          },
+        })
+      );
+    if (deletedClasses.length > 0)
+      prismaTransactions.push(
+        this.prismaService.annualClassroomDivision.updateMany({
+          data: { annual_coordinator_id: null },
+          where: {
+            OR: deletedClasses.map(({ annual_classroom_id }) => ({
+              annual_classroom_id,
+            })),
+          },
+        }),
+        this.prismaService.annualClassroomDivisionAudit.createMany({
+          data: deletedClasses.map((deletedClass) => ({
+            audited_by,
+            ...pickKeys(deletedClass, [
+              'annual_classroom_division_id',
+              'annual_coordinator_id',
+              'is_deleted',
+            ]),
           })),
-        },
-      }),
-      this.prismaService.annualClassroomDivision.updateMany({
-        data: { is_deleted: true },
-        where: {
-          OR: deletedClasses.map(({ annual_classroom_id }) => ({
-            annual_classroom_id,
-          })),
-        },
-      }),
-      this.prismaService.annualClassroomDivisionAudit.createMany({
-        data: deletedClasses.map((deletedClass) => ({
-          audited_by,
-          ...excludeKeys(deletedClass, ['created_by', 'created_at']),
-        })),
-        skipDuplicates: true,
-      }),
-    ]);
+          skipDuplicates: true,
+        })
+      );
+    await this.prismaService.$transaction(prismaTransactions);
   }
 }
