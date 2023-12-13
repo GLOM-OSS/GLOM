@@ -34,9 +34,7 @@ export class TeacherTypeEntity implements TeacherType {
   created_at: Date;
 
   constructor(props: TeacherTypeEntity) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -51,8 +49,6 @@ export class TeachingGradeEntity implements TeachingGrade {
   created_at: Date;
 
   constructor(props: TeachingGradeEntity) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
