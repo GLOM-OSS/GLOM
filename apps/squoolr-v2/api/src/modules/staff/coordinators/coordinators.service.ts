@@ -2,10 +2,10 @@ import { GlomPrismaService } from '@glom/prisma';
 import { excludeKeys, pickKeys } from '@glom/utils';
 import {
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
-  NotImplementedException,
+  NotImplementedException
 } from '@nestjs/common';
+import { Prisma, PrismaPromise } from '@prisma/client';
 import { StaffRole } from '../../../utils/enums';
 import { BatchPayloadDto } from '../../modules.dto';
 import {
@@ -17,7 +17,6 @@ import {
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { CoordinatorEntity, StaffEntity } from '../staff.dto';
-import { AnnualClassroomDivision, Prisma, PrismaPromise } from '@prisma/client';
 
 @Injectable()
 export class CoordinatorsService
