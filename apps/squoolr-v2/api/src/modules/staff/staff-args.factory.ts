@@ -38,36 +38,27 @@ export class StaffArgsFactory {
     Login: Prisma.validator<Prisma.LoginFindManyArgs>()({
       select: {
         login_id: true,
-        AnnualConfigurators:
-          staffParams?.activeRole !== Role.CONFIGURATOR
-            ? {
-                select: { matricule: true, annual_configurator_id: true },
-                where: this.getStaffWhereInput(staffParams),
-              }
-            : undefined,
-        AnnualRegistries:
-          staffParams?.activeRole !== Role.REGISTRY
-            ? {
-                select: { matricule: true, annual_registry_id: true },
-                where: this.getStaffWhereInput(staffParams),
-              }
-            : undefined,
-        Teacher:
-          staffParams?.activeRole !== Role.TEACHER
-            ? {
-                select: {
-                  AnnualTeachers: {
-                    select: {
-                      annual_teacher_id: true,
-                      AnnualClassroomDivisions: {
-                        select: { annual_classroom_division_id: true },
-                      },
-                    },
-                    where: this.getStaffWhereInput(staffParams),
-                  },
+        AnnualConfigurators: {
+          select: { matricule: true, annual_configurator_id: true },
+          where: this.getStaffWhereInput(staffParams),
+        },
+        AnnualRegistries: {
+          select: { matricule: true, annual_registry_id: true },
+          where: this.getStaffWhereInput(staffParams),
+        },
+        Teacher: {
+          select: {
+            AnnualTeachers: {
+              select: {
+                annual_teacher_id: true,
+                AnnualClassroomDivisions: {
+                  select: { annual_classroom_division_id: true },
                 },
-              }
-            : undefined,
+              },
+              where: this.getStaffWhereInput(staffParams),
+            },
+          },
+        },
         Person: {
           select: {
             national_id_number: true,
@@ -123,9 +114,7 @@ export class StaffArgsFactory {
     });
 
   static getTeacherSelect = () => {
-    const { is_deleted, ...staffSelect } = StaffArgsFactory.getStaffSelect({
-      activeRole: StaffRole.TEACHER,
-    });
+    const { is_deleted, ...staffSelect } = StaffArgsFactory.getStaffSelect();
     return Prisma.validator<Prisma.AnnualTeacherSelect>()({
       has_signed_convention: true,
       teaching_grade_id: true,

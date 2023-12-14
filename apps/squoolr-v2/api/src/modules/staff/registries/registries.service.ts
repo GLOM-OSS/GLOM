@@ -16,9 +16,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
   constructor(private prismaService: GlomPrismaService) {}
   async findOne(annual_registry_id: string) {
     const registry = await this.prismaService.annualRegistry.findFirstOrThrow({
-      select: StaffArgsFactory.getStaffSelect({
-        activeRole: StaffRole.REGISTRY,
-      }),
+      select: StaffArgsFactory.getStaffSelect(),
       where: { annual_registry_id, is_deleted: false },
     });
     return StaffArgsFactory.getStaffEntity(registry);
@@ -26,10 +24,7 @@ export class RegistriesService implements IStaffService<StaffEntity> {
 
   async findAll(staffParams?: StaffSelectParams) {
     const registries = await this.prismaService.annualRegistry.findMany({
-      select: {
-        annual_registry_id: true,
-        ...StaffArgsFactory.getStaffSelect(staffParams),
-      },
+      select: StaffArgsFactory.getStaffSelect(staffParams),
       where: StaffArgsFactory.getStaffWhereInput(staffParams),
     });
     return registries.map((registry) =>

@@ -43,53 +43,16 @@ export class TeachersService
     const teachers = await this.prismaService.annualTeacher.findMany({
       select: {
         is_deleted: true,
-        annual_teacher_id: true,
         Teacher: { select: excludeKeys(teacherSelect, ['is_deleted']) },
       },
       where: { academic_year_id, is_deleted, Teacher: teacherWhereInput },
     });
-    return teachers.map(
-      ({
+    return teachers.map(({ is_deleted, Teacher: { matricule, Login } }) =>
+      StaffArgsFactory.getStaffEntity({
+        Login,
+        matricule,
         is_deleted,
-        annual_teacher_id,
-        Teacher: {
-          matricule,
-          Login: {
-            login_id,
-            Person,
-            Logs: [log],
-            AnnualConfigurators: [configrator],
-            AnnualRegistries: [registry],
-            Teacher: {
-              AnnualTeachers: [{ AnnualClassroomDivisions: codinatedClass }],
-            },
-          },
-        },
-      }) =>
-        new StaffEntity({
-          login_id,
-          ...Person,
-          matricule,
-          is_deleted,
-          annual_teacher_id,
-          last_connected: log?.logged_in_at ?? null,
-          annual_registry_id: registry?.annual_registry_id,
-          annual_configurator_id: configrator?.annual_configurator_id,
-          roles: [{ registry }, { configrator }, { codinatedClass }].reduce<
-            StaffRole[]
-          >(
-            (roles, _) =>
-              _.registry
-                ? [...roles, StaffRole.REGISTRY]
-                : _.configrator
-                ? [...roles, StaffRole.CONFIGURATOR]
-                : _.codinatedClass
-                ? [...roles, StaffRole.COORDINATOR]
-                : roles,
-            [StaffRole.TEACHER]
-          ),
-          role: StaffRole.TEACHER,
-        })
+      })
     );
   }
 
@@ -108,6 +71,14 @@ export class TeachersService
   ) {
     const { AcademicYear, Login } =
       StaffArgsFactory.getStaffCreateInput(payload);
+    const login = await this.prismaService.login.findUnique({
+      where: {
+        person_id_school_id: {
+          school_id: payload.school_id,
+          person_id: payload.person_id ?? '',
+        },
+      },
+    });
     const {
       Teacher: {
         Login: { login_id, Person: person },
@@ -131,7 +102,7 @@ export class TeachersService
               private_code: payload.private_code,
               TeacherType: { connect: { teacher_type_id } },
             },
-            where: {},
+            where: { login_id: login?.login_id ?? '' },
           },
         },
         AcademicYear,

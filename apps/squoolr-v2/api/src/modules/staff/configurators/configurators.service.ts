@@ -27,9 +27,7 @@ export class ConfiguratorsService implements IStaffService<StaffEntity> {
   async findOne(annual_configurator_id: string) {
     const configrator =
       await this.prismaService.annualConfigurator.findFirstOrThrow({
-        select: StaffArgsFactory.getStaffSelect({
-          activeRole: StaffRole.CONFIGURATOR,
-        }),
+        select: StaffArgsFactory.getStaffSelect(),
         where: {
           annual_configurator_id,
           is_deleted: false,
