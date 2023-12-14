@@ -8,8 +8,10 @@ import {
   ClassroomEntity,
   CoordinatorEntity,
   CreateStaffPayload,
+  PartialCoordinator,
 } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
+import { excludeKeys } from '@glom/utils';
 import { ArrowDropDown } from '@mui/icons-material';
 import {
   Autocomplete,
@@ -52,40 +54,25 @@ export default function AddCoordinatorDialog({
     useClassrooms();
 
   const [selectedCoordinator, setSelectedCoordinator] =
-    useState<CoordinatorEntity>();
+    useState<PartialCoordinator>();
 
   const initialValues: CreateStaffPayload['payload'] = {
     role: 'COORDINATOR',
-    annual_teacher_id: selectedCoordinator
-      ? selectedCoordinator.annual_teacher_id
-      : '',
-    annualClassroomIds: selectedCoordinator
-      ? selectedCoordinator.annualClassroomIds
-      : [],
+    annual_teacher_id: selectedCoordinator?.annual_teacher_id ?? '',
+    annualClassroomIds: selectedCoordinator?.annualClassroomIds ?? [],
   };
   const validationSchema = Yup.object().shape({
     annual_teacher_id: Yup.string()
-      .oneOf(
-        teachers
-          ? teachers.map(({ annual_teacher_id }) => annual_teacher_id)
-          : []
-      )
+      .oneOf(teachers?.map(({ annual_teacher_id }) => annual_teacher_id) ?? [])
       .required(formatMessage({ id: 'required' })),
     annualClassroomIds: Yup.array()
       .of(
         Yup.string().oneOf(
-          classrooms
-            ? classrooms.map(({ annual_classroom_id }) => annual_classroom_id)
-            : []
+          classrooms?.map(({ annual_classroom_id }) => annual_classroom_id) ??
+            []
         )
       )
-      .min(
-        selectedCoordinator
-          ? selectedCoordinator.annualClassroomIds.length > 0
-            ? 0
-            : 1
-          : 1
-      )
+      .min(selectedCoordinator?.annualClassroomIds?.length > 0 ? 0 : 1)
       .required(formatMessage({ id: 'required' })),
   });
 
@@ -98,7 +85,7 @@ export default function AddCoordinatorDialog({
     onSubmit: (values, { resetForm }) => {
       updateCoordinator(
         {
-          payload: values,
+          payload: excludeKeys(values, ['annual_teacher_id']),
         },
         {
           onSuccess() {
@@ -111,16 +98,18 @@ export default function AddCoordinatorDialog({
     },
   });
 
-  const { data: fetchedCoordinator, isFetching: isLoadingCoordinatorDetails } =
-    useStaffMember<CoordinatorEntity>(
-      formik.values.annual_teacher_id,
-      'COORDINATOR'
-    );
+  const {
+    data: coodinatedClassrooms,
+    isFetching: isLoadingCoordinatorDetails,
+  } = useClassrooms({ annual_coordinator_id: formik.values.annual_teacher_id });
   useEffect(() => {
-    if (fetchedCoordinator) {
-      setSelectedCoordinator(fetchedCoordinator);
-    }
-  }, [fetchedCoordinator]);
+    setSelectedCoordinator({
+      annual_teacher_id: formik.values.annual_teacher_id,
+      annualClassroomIds: coodinatedClassrooms.map(
+        (_) => _.annual_classroom_id
+      ),
+    });
+  }, [coodinatedClassrooms]);
 
   function close() {
     setSelectedCoordinator(undefined);
@@ -196,19 +185,15 @@ export default function AddCoordinatorDialog({
                 <ArrowDropDown />
               )
             }
-            getOptionLabel={({ classroom_acronym, classroom_level }) =>
-              `${classroom_acronym} ${classroom_level}`
-            }
+            getOptionLabel={(option) => option.classroom_acronym}
             renderOption={(
               props,
-              { classroom_acronym, classroom_level, annual_classroom_id }
+              { classroom_acronym, annual_classroom_id }
             ) => {
               return (
-                <Typography
-                  {...props}
-                  key={annual_classroom_id}
-                  component="li"
-                >{`${classroom_acronym} ${classroom_level}`}</Typography>
+                <Typography {...props} key={annual_classroom_id} component="li">
+                  {classroom_acronym}
+                </Typography>
               );
             }}
             renderInput={(params) => (
@@ -226,7 +211,9 @@ export default function AddCoordinatorDialog({
                 }}
               />
             )}
-            {...formik.getFieldProps('annual_classroom_id')}
+            value={classrooms.filter((_) =>
+              formik.values.annualClassroomIds.includes(_.annual_classroom_id)
+            )}
             onChange={(e, val) => {
               formik.setFieldValue(
                 'annualClassroomIds',
@@ -259,10 +246,7 @@ export default function AddCoordinatorDialog({
               disabled={
                 isSubmitting ||
                 formik.values.annualClassroomIds.join(',') ===
-                  (selectedCoordinator
-                    ? selectedCoordinator.annualClassroomIds
-                    : []
-                  ).join(',')
+                  (selectedCoordinator?.annualClassroomIds ?? []).join(',')
               }
               type="submit"
               startIcon={

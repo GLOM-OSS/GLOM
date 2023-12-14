@@ -237,7 +237,6 @@ export default function ManageStaffRolesDialog({
     useClassrooms();
 
   const [newClassrooms, setNewClassrooms] = useState<ClassroomEntity[]>([]);
-  console.log(newClassrooms, coordinator?.annualClassroomIds);
 
   useEffect(() => {
     if (!!classrooms && !!coordinator?.annualClassroomIds) {
