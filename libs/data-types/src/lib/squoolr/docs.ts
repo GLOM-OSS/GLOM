@@ -148,14 +148,14 @@ export interface paths {
   "/v1/staffs/new": {
     post: operations["StaffController_createStaff"];
   };
+  "/v1/staffs/private-codes": {
+    put: operations["StaffController_resetStaffPrivateCodes"];
+  };
   "/v1/staffs/reset-passwords": {
     post: operations["StaffController_resetStaffPasswords"];
   };
   "/v1/staffs/{login_id}/roles": {
     put: operations["StaffController_updateStaffRoles"];
-  };
-  "/v1/staffs/private-codes": {
-    put: operations["StaffController_resetStaffPrivateCodes"];
   };
 }
 
@@ -648,6 +648,17 @@ export interface components {
     CreateStaffDto: {
       payload: components["schemas"]["CreateConfiguratorDto"] | components["schemas"]["CreateRegistryDto"] | components["schemas"]["CreateCoordinatorDto"] | components["schemas"]["CreateTeacherDto"];
     };
+    CategorizedStaffIDs: {
+      teacherIds: string[];
+      registryIds: string[];
+      configuratorIds: string[];
+    };
+    BatchPayloadDto: {
+      count: number;
+      message: string;
+      /** @description describes the next action the client needs to perform */
+      next_action?: string;
+    };
     UpdateConfiguratorDto: {
       first_name?: string;
       last_name?: string;
@@ -704,17 +715,6 @@ export interface components {
     };
     UpdateStaffDto: {
       payload: components["schemas"]["UpdateConfiguratorDto"] | components["schemas"]["UpdateRegistryDto"] | components["schemas"]["UpdateCoordinatorDto"] | components["schemas"]["UpdateTeacherDto"];
-    };
-    BatchPayloadDto: {
-      count: number;
-      message: string;
-      /** @description describes the next action the client needs to perform */
-      next_action?: string;
-    };
-    CategorizedStaffIDs: {
-      teacherIds: string[];
-      registryIds: string[];
-      configuratorIds: string[];
     };
     CoordinateClassDto: {
       annualClassroomIds: string[];
@@ -1217,6 +1217,7 @@ export interface operations {
         is_deleted?: boolean;
         keywords?: string;
         annual_major_id?: string;
+        annual_coordinator_id?: string;
         level?: number;
       };
     };
@@ -1369,6 +1370,20 @@ export interface operations {
       };
     };
   };
+  StaffController_resetStaffPrivateCodes: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CategorizedStaffIDs"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["BatchPayloadDto"];
+        };
+      };
+    };
+  };
   StaffController_resetStaffPasswords: {
     requestBody: {
       content: {
@@ -1392,20 +1407,6 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": components["schemas"]["UpdateStaffRoleDto"];
-      };
-    };
-    responses: {
-      200: {
-        content: {
-          "application/json": components["schemas"]["BatchPayloadDto"];
-        };
-      };
-    };
-  };
-  StaffController_resetStaffPrivateCodes: {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CategorizedStaffIDs"];
       };
     };
     responses: {

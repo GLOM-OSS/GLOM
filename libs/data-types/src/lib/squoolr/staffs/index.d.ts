@@ -23,6 +23,10 @@ export type StaffEntity = SchemaResponseBody<
 
 export type TeacherEntity = components['schemas']['TeacherEntity'];
 export type CoordinatorEntity = components['schemas']['CoordinatorEntity'];
+export type PartialCoordinator = Pick<
+  CoordinatorEntity,
+  'annualClassroomIds' | 'annual_teacher_id'
+>;
 
 export type BulkDisableStaffPayload = SchemaRequestQuery<
   operations,
