@@ -392,6 +392,7 @@ export default function Staff() {
           banUsers={() => setIsConfirmArchiveDialogOpen(true)}
           unbanUsers={() => setIsConfirmUnarchiveDialogOpen(true)}
           resetPrivateCode={() => setIsConfirmResetPrivateCodeDialogOpen(true)}
+          refreshTableData={refetchStaffData}
         />
         <TableContainer
           sx={{
