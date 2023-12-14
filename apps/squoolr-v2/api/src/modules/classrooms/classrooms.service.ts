@@ -19,11 +19,10 @@ export class ClassroomsService {
         classroom_level: params?.level,
         annual_major_id: params?.annual_major_id,
         AnnualMajor: params?.keywords
-          ? {
-              major_name: {
-                search: params?.keywords,
-              },
-            }
+          ? { major_name: { search: params?.keywords } }
+          : undefined,
+        AnnualClassroomDivisions: params?.annual_coordinator_id
+          ? { some: { annual_coordinator_id: params.annual_coordinator_id } }
           : undefined,
       },
     });

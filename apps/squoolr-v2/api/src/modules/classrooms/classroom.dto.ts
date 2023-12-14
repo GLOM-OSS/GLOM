@@ -29,6 +29,11 @@ export class QueryClassroomDto extends QueryParamsDto {
   @ApiPropertyOptional()
   annual_major_id?: string;
 
+  @IsUUID()
+  @IsOptional()
+  @ApiPropertyOptional()
+  annual_coordinator_id?: string;
+
   @IsNumber()
   @IsOptional()
   @ApiPropertyOptional()
