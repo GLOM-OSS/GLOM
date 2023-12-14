@@ -108,6 +108,22 @@ export class StaffController {
     );
   }
 
+  @Put('private-codes')
+  @Roles(Role.CONFIGURATOR)
+  @ApiOkResponse({ type: BatchPayloadDto })
+  async resetStaffPrivateCodes(
+    @Req() request: Request,
+    @Body() staffPayload: CategorizedStaffIDs
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user;
+    return this.staffService.resetPrivateCodes(
+      staffPayload,
+      annual_configurator_id
+    );
+  }
+
   @Put([
     ':annual_teacher_id',
     ':annual_coordinator_id',
@@ -200,22 +216,6 @@ export class StaffController {
     return this.staffService.updateStaffRoles(
       loginId,
       { academic_year_id, school_id, ...staffPayload },
-      annual_configurator_id
-    );
-  }
-
-  @Put('private-codes')
-  @Roles(Role.CONFIGURATOR)
-  @ApiOkResponse({ type: BatchPayloadDto })
-  async resetStaffPrivateCodes(
-    @Req() request: Request,
-    @Body() staffPayload: CategorizedStaffIDs
-  ) {
-    const {
-      annualConfigurator: { annual_configurator_id },
-    } = request.user;
-    return this.staffService.resetPrivateCodes(
-      staffPayload,
       annual_configurator_id
     );
   }

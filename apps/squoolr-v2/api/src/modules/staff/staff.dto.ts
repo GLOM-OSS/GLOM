@@ -5,10 +5,8 @@ import {
   IntersectionType,
   OmitType,
   PartialType,
-  PickType,
-  getSchemaPath,
+  getSchemaPath
 } from '@nestjs/swagger';
-import { Gender } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsBoolean,

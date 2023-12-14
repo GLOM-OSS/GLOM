@@ -177,49 +177,15 @@ export class StaffService {
   }
 
   async resetPasswords(
-    { teacherIds, registryIds, configuratorIds }: CategorizedStaffIDs,
+    payload: CategorizedStaffIDs,
     disabledBy: string,
     isAdmin?: boolean
   ) {
-    const getEmptyArray = () => [[]];
-    const [teachers, configurators, registries] = await Promise.all([
-      ...(teacherIds?.length > 0
-        ? [
-            this.prismaService.annualTeacher.findMany({
-              select: { login_id: true },
-              where: {
-                OR: teacherIds.map((annual_teacher_id) => ({
-                  annual_teacher_id,
-                })),
-              },
-            }),
-          ]
-        : getEmptyArray()),
-      ...(configuratorIds?.length > 0
-        ? [
-            this.prismaService.annualConfigurator.findMany({
-              where: {
-                OR: configuratorIds.map((annual_configurator_id) => ({
-                  annual_configurator_id,
-                })),
-              },
-            }),
-          ]
-        : getEmptyArray()),
-      ...(registryIds?.length > 0
-        ? [
-            this.prismaService.annualRegistry.findMany({
-              where: {
-                OR: registryIds.map((annual_registry_id) => ({
-                  annual_registry_id,
-                })),
-              },
-            }),
-          ]
-        : getEmptyArray()),
-    ]);
-    const loginIds = [...registries, ...configurators, ...teachers].map(
-      (_) => _.login_id
+    const [teachers, registries, configurators] =
+      await this.getCategorizedStaffs(payload);
+    const loginIds = [];
+    [...registries, ...configurators, ...teachers].forEach((_) =>
+      !loginIds.includes(_.login_id) ? loginIds.push(_.login_id) : loginIds
     );
 
     const resetPassworIds: string[] = [];
@@ -350,6 +316,7 @@ export class StaffService {
   }
 
   async resetPrivateCodes(payload: CategorizedStaffIDs, reset_by: string) {
+    const privateCodes: { annualStaffId: string; privateCode: string }[] = [];
     const staffIDToRole: Record<string, StaffRole> = {
       registryIds: StaffRole.REGISTRY,
       teacherIds: StaffRole.TEACHER,
@@ -363,22 +330,67 @@ export class StaffService {
           ...methods,
           this.staffServices[staffIDToRole[staffIDKey]].resetPrivateCodes(
             annualStaffIds,
-            annualStaffIds.map(() =>
-              bcrypt.hashSync(
-                this.codeGenerator.formatNumber(
-                  Math.floor(Math.random() * 10000)
-                ),
-                Number(process.env.SALT)
-              )
-            ),
+            annualStaffIds.map((annualStaffId) => {
+              const privateCode = this.codeGenerator.formatNumber(
+                Math.floor(Math.random() * 10000)
+              );
+              privateCodes.push({ annualStaffId, privateCode });
+              return bcrypt.hashSync(privateCode, Number(process.env.SALT));
+            }),
             reset_by
           ),
         ];
       }, [])
     );
+
+    Logger.verbose(privateCodes, StaffService.name);
     return new BatchPayloadDto({
       count: elts.length,
       message: `Updated ${elts.length} records in database`,
     });
+  }
+
+  private getCategorizedStaffs({
+    teacherIds,
+    registryIds,
+    configuratorIds,
+  }: CategorizedStaffIDs) {
+    const getEmptyArray = () => [[]];
+    return Promise.all([
+      ...(teacherIds?.length > 0
+        ? [
+            this.prismaService.annualTeacher.findMany({
+              select: { login_id: true },
+              where: {
+                OR: teacherIds.map((annual_teacher_id) => ({
+                  annual_teacher_id,
+                })),
+              },
+            }),
+          ]
+        : getEmptyArray()),
+      ...(registryIds?.length > 0
+        ? [
+            this.prismaService.annualRegistry.findMany({
+              where: {
+                OR: registryIds.map((annual_registry_id) => ({
+                  annual_registry_id,
+                })),
+              },
+            }),
+          ]
+        : getEmptyArray()),
+      ...(configuratorIds?.length > 0
+        ? [
+            this.prismaService.annualConfigurator.findMany({
+              where: {
+                OR: configuratorIds.map((annual_configurator_id) => ({
+                  annual_configurator_id,
+                })),
+              },
+            }),
+          ]
+        : getEmptyArray()),
+    ]);
   }
 }
