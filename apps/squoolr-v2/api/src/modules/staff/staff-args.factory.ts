@@ -32,56 +32,60 @@ export class StaffArgsFactory {
       : undefined,
   });
 
-  static getStaffSelect = (staffParams?: StaffSelectParams) => ({
-    matricule: true,
-    is_deleted: true,
-    Login: Prisma.validator<Prisma.LoginFindManyArgs>()({
-      select: {
-        login_id: true,
-        AnnualConfigurators: {
-          select: { matricule: true, annual_configurator_id: true },
-          where: this.getStaffWhereInput(staffParams),
-        },
-        AnnualRegistries: {
-          select: { matricule: true, annual_registry_id: true },
-          where: this.getStaffWhereInput(staffParams),
-        },
-        Teacher: {
-          select: {
-            AnnualTeachers: {
-              select: {
-                annual_teacher_id: true,
-                AnnualClassroomDivisions: {
-                  select: { annual_classroom_division_id: true },
+  static getStaffSelect = (staffParams?: StaffSelectParams) => {
+    const { is_deleted, academic_year_id, Login } =
+      this.getStaffWhereInput(staffParams);
+    return {
+      matricule: true,
+      is_deleted: true,
+      Login: Prisma.validator<Prisma.LoginFindManyArgs>()({
+        select: {
+          login_id: true,
+          AnnualConfigurators: {
+            select: { matricule: true, annual_configurator_id: true },
+            where: { academic_year_id, is_deleted, Login },
+          },
+          AnnualRegistries: {
+            select: { matricule: true, annual_registry_id: true },
+            where: { academic_year_id, is_deleted, Login },
+          },
+          Teacher: {
+            select: {
+              AnnualTeachers: {
+                select: {
+                  annual_teacher_id: true,
+                  AnnualClassroomDivisions: {
+                    select: { annual_classroom_division_id: true },
+                  },
                 },
+                where: { academic_year_id, is_deleted, Teacher: { Login } },
               },
-              where: this.getStaffWhereInput(staffParams),
             },
           },
-        },
-        Person: {
-          select: {
-            national_id_number: true,
-            preferred_lang: true,
-            phone_number: true,
-            first_name: true,
-            last_name: true,
-            birthdate: true,
-            address: true,
-            gender: true,
-            email: true,
+          Person: {
+            select: {
+              national_id_number: true,
+              preferred_lang: true,
+              phone_number: true,
+              first_name: true,
+              last_name: true,
+              birthdate: true,
+              address: true,
+              gender: true,
+              email: true,
+            },
+          },
+          Logs: {
+            take: 1,
+            orderBy: {
+              logged_in_at: 'desc',
+            },
+            select: { logged_in_at: true },
           },
         },
-        Logs: {
-          take: 1,
-          orderBy: {
-            logged_in_at: 'desc',
-          },
-          select: { logged_in_at: true },
-        },
-      },
-    }),
-  });
+      }),
+    };
+  };
 
   static getStaffCreateInput = ({
     matricule,
