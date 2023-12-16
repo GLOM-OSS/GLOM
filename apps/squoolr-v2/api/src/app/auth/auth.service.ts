@@ -136,7 +136,7 @@ export class AuthService {
     );
   }
 
-  async updateUserSession(request: Request, login_id: string) {
+  async updateSession(request: Request, login_id: string) {
     let annualSessionData: AnnualSessionData;
     const academicYears = await this.academicYearService.findAll(login_id);
     const numberOfAcademicYear = academicYears.length;
@@ -148,12 +148,12 @@ export class AuthService {
         login_id,
         academic_year_id
       );
-      await this.updateSession(request, { academic_year_id });
+      await this.updateExpressSession(request, { academic_year_id });
     }
     return { academicYears, annualSessionData };
   }
 
-  async updateSession(
+  async updateExpressSession(
     request: Request,
     payload: Pick<PassportUser, 'academic_year_id'>
   ) {
@@ -272,7 +272,12 @@ export class AuthService {
     return { login_id, school_id, ...person, ...deserialedUser };
   }
 
-  async openSession(request: Request, login_id: string) {
+  /**
+   * Creates a log record of the user session in the database
+   * @param request Express.js request object
+   * @param login_id user login ID
+   */
+  async createLog(request: Request, login_id: string) {
     await this.prismaService.log.create({
       data: {
         log_id: request.sessionID,
