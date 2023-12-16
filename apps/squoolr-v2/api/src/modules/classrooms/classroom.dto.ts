@@ -65,9 +65,7 @@ export class AnnualClassroomEntity implements AnnualClassroom {
   created_at: Date;
 
   constructor(props: AnnualClassroomEntity) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 

@@ -31,9 +31,7 @@ export class CycleEntity implements Cycle {
   created_at: Date;
 
   constructor(props: Partial<CycleEntity>) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -50,8 +48,6 @@ export class BatchPayloadDto implements Prisma.BatchPayload {
   next_action?: string;
 
   constructor(props: BatchPayloadDto) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }

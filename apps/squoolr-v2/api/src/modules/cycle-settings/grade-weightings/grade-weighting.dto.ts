@@ -32,9 +32,7 @@ export class CreateGradeWeightingDto {
   point: number;
 
   constructor(props: CreateGradeWeightingDto) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -65,8 +63,6 @@ export class GradeWeightingEntity
 
   constructor(props: GradeWeightingEntity) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }

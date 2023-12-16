@@ -19,9 +19,7 @@ export class PlatformSettingsEntity implements PlatformSettings {
   created_by: string;
 
   constructor(props: PlatformSettingsEntity) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 

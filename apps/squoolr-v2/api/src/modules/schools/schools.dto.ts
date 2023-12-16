@@ -23,7 +23,7 @@ import {
   IsPhoneNumber,
   IsString,
   NotContains,
-  ValidateNested
+  ValidateNested,
 } from 'class-validator';
 import { CreatePersonDto, PersonEntity } from '../../app/auth/auth.dto';
 import { CreateAcademicYearDto } from '../academic-years/academic-years.dto';
@@ -73,9 +73,7 @@ export class CreateSchoolDto {
   initial_year_ends_at: Date;
 
   constructor(props: CreateSchoolDto) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -188,9 +186,7 @@ export class SchoolEntity
 
   constructor(props: SchoolEntity) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -208,9 +204,7 @@ export class SchoolDemandDetails {
   academicYear: CreateAcademicYearDto;
 
   constructor(props: SchoolDemandDetails) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -220,9 +214,7 @@ export class UpdateSchoolDemandStatus {
   school_demand_status: SchoolDemandStatus;
 
   constructor(props: UpdateSchoolDemandStatus) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -254,9 +246,7 @@ export class CreateDocumentSignerDto {
   hierarchy_level: number;
 
   constructor(props: CreateDocumentSignerDto) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -287,9 +277,7 @@ export class DocumentSignerEntity
 
   constructor(props: DocumentSignerEntity) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -317,9 +305,7 @@ export class SchoolSettingEntity implements AnnualSchoolSetting {
   documentSigners: DocumentSignerEntity[];
 
   constructor(props: SchoolSettingEntity) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 

@@ -92,9 +92,7 @@ export class CreatePersonDto {
   password: string;
 
   constructor(props: CreatePersonDto) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -144,9 +142,7 @@ export class PersonEntity
 
   constructor(props: PersonEntity) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -159,9 +155,7 @@ export class UserEntity extends PersonEntity {
 
   constructor(props: UserEntity) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -171,9 +165,7 @@ export class UserAnnualRoles extends PickType(UserEntity, [
 ]) {
   constructor(props: UserAnnualRoles) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -185,8 +177,6 @@ export class SingInResponse {
   academicYears?: AcademicYearEntity[];
 
   constructor(props: SingInResponse) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }

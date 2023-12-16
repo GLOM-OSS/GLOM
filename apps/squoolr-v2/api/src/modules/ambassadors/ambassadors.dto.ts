@@ -16,8 +16,6 @@ export class AmbassadorEntity implements Ambassador {
   created_at: Date;
 
   constructor(props: AmbassadorEntity) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
