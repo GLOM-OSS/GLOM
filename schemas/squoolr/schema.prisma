@@ -764,7 +764,6 @@ model AnnualMajor {
 
     AnnualMajorAudits AnnualMajorAudit[]
     AnnualClassrooms  AnnualClassroom[]
-    AnnualModules     AnnualModule[]
 
     @@fulltext([major_name])
     @@fulltext([major_name, major_acronym])
@@ -809,6 +808,7 @@ model AnnualClassroom {
     annual_major_id     String      @db.VarChar(36)
     AnnualMajor         AnnualMajor @relation(fields: [annual_major_id], references: [annual_major_id], onDelete: Cascade, onUpdate: Cascade)
 
+    AnnualModules            AnnualModule[]
     AnnualClassroomAudits    AnnualClassroomAudit[]
     AnnualClassroomDivisions AnnualClassroomDivision[]
 }
@@ -853,21 +853,21 @@ model AnnualClassroomDivisionAudit {
 }
 
 model AnnualModule {
-    annual_module_id   String        @id @default(uuid()) @db.VarChar(36)
-    module_code        String        @db.VarChar(45)
-    module_name        String        @db.VarChar(45)
-    credit_points      Int
-    semester_number    Int
-    is_exam_published  Boolean       @default(false) @db.TinyInt
-    is_resit_published Boolean       @default(false) @db.TinyInt
-    is_deleted         Boolean       @default(false) @db.TinyInt
-    created_at         DateTime      @default(now()) @db.DateTime(0)
-    annual_major_id    String        @db.VarChar(36)
-    AnnualMajor        AnnualMajor   @relation(fields: [annual_major_id], references: [annual_major_id], onDelete: Cascade, onUpdate: Cascade)
-    academic_year_id   String        @db.VarChar(36)
-    AcademicYear       AcademicYear  @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
-    created_by         String        @db.VarChar(36)
-    CreatedBy          AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_module_id    String          @id @default(uuid()) @db.VarChar(36)
+    module_code         String          @db.VarChar(45)
+    module_name         String          @db.VarChar(45)
+    credit_points       Int
+    semester_number     Int?
+    is_exam_published   Boolean         @default(false) @db.TinyInt
+    is_resit_published  Boolean         @default(false) @db.TinyInt
+    is_deleted          Boolean         @default(false) @db.TinyInt
+    created_at          DateTime        @default(now()) @db.DateTime(0)
+    annual_classroom_id String          @db.VarChar(36)
+    AnnualClassroom     AnnualClassroom @relation(fields: [annual_classroom_id], references: [annual_classroom_id], onDelete: Cascade, onUpdate: Cascade)
+    academic_year_id    String          @db.VarChar(36)
+    AcademicYear        AcademicYear    @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
+    created_by          String          @db.VarChar(36)
+    CreatedBy           AnnualTeacher   @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualModuleAudits      AnnualModuleAudit[]
     AnnualSubjects          AnnualSubject[]
