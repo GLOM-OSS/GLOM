@@ -83,7 +83,12 @@ export function ConfirmDialog({
             if (!closeOnConfirm) closeDialog();
           }}
           startIcon={
-            isSubmitting && <CircularProgress color="primary" size={18} />
+            isSubmitting && (
+              <CircularProgress
+                color={danger ? 'error' : 'primary'}
+                size={18}
+              />
+            )
           }
         >
           {confirmButton}

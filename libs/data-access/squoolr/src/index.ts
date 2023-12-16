@@ -4,5 +4,8 @@ export * from './lib/schools.api';
 export * from './lib/inquiries.api';
 export * from './lib/platform-settings.api';
 export * from './lib/staffs.api';
-
-
+export * from './lib/payments.api';
+export * from './lib/helpers.api';
+export * from './lib/departments.api';
+export * from './lib/majors.api';
+export * from './lib/classrooms.api';

@@ -9,16 +9,17 @@ export class ClassroomsService {
 
   async findAll(params?: QueryClassroomDto) {
     const classrooms = await this.prismaService.annualClassroom.findMany({
+      orderBy: { classroom_level: 'asc' },
       include: {
         AnnualMajor: { select: { major_acronym: true, major_name: true } },
         AnnualClassroomDivisions: { select: { annual_coordinator_id: true } },
       },
       where: {
+        is_deleted: params?.is_deleted ?? false,
         classroom_level: params?.level,
-        is_deleted: params?.is_deleted,
         annual_major_id: params?.annual_major_id,
         AnnualMajor: params?.keywords
-          ? { major_name: { search: params.keywords } }
+          ? { major_name: { search: params?.keywords } }
           : undefined,
         AnnualClassroomDivisions: params?.annual_coordinator_id
           ? { some: { annual_coordinator_id: params.annual_coordinator_id } }
@@ -51,10 +52,9 @@ export class ClassroomsService {
       await this.prismaService.annualClassroom.findFirstOrThrow({
         select: {
           is_deleted: true,
-          classroom_level: true,
           number_of_divisions: true,
         },
-        where: { annual_classroom_id, is_deleted: false },
+        where: { annual_classroom_id, is_deleted: !payload.is_deleted },
       });
     await this.prismaService.annualClassroom.update({
       data: {
@@ -70,10 +70,14 @@ export class ClassroomsService {
     });
   }
 
-  async disableMany(annualClassroomIds: string[], disabled_by: string) {
+  async disableMany(
+    annualClassroomIds: string[],
+    disable: boolean,
+    disabled_by: string
+  ) {
     await Promise.all(
       annualClassroomIds.map((annualClassroomId) =>
-        this.update(annualClassroomId, { is_deleted: true }, disabled_by)
+        this.update(annualClassroomId, { is_deleted: disable }, disabled_by)
       )
     );
   }

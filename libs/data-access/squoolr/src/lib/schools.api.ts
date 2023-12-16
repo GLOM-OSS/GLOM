@@ -2,7 +2,10 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 
 import {
   SchoolDemandStatus,
+  SchoolQueryParams,
   SubmitSchoolDemandPayload,
+  UpdateSchoolPayload,
+  UpdateSchoolSettingPayload,
   ValidateSchoolDemandPayload,
 } from '@glom/data-types';
 import squoolrApi from './api';
@@ -20,8 +23,7 @@ export function useSubmitSchoolDemand() {
   });
 }
 
-export const getSchool = (schoolId: string) =>
-  demands.getSchool(schoolId);
+export const getSchool = (schoolId: string) => demands.getSchool(schoolId);
 
 export function useSchool(schoolId: string) {
   return useQuery({
@@ -31,10 +33,10 @@ export function useSchool(schoolId: string) {
   });
 }
 
-export function useSchools(demandStatus?: SchoolDemandStatus[]) {
+export function useSchools(params?: SchoolQueryParams) {
   return useQuery({
-    queryKey: ['get-school-demands'],
-    queryFn: () => demands.getSchools(demandStatus),
+    queryKey: ['get-school-demands', params],
+    queryFn: () => demands.getSchools(params),
   });
 }
 
@@ -56,9 +58,32 @@ export function useValidateSchoolDemand(schoolId: string) {
 
 export function useUpdateSchoolStatus(schoolId: string) {
   return useMutation({
-    mutationKey: ['update-school-demand-status'],
+    mutationKey: ['update-school-demand-status', schoolId],
     mutationFn: (
       schoolDemandStaus: Extract<SchoolDemandStatus, 'PROCESSING' | 'SUSPENDED'>
     ) => demands.updateSchoolStatus(schoolId, schoolDemandStaus),
+  });
+}
+
+export function useUpdateSchool(schoolId: string) {
+  return useMutation({
+    mutationKey: ['update-school-profile', schoolId],
+    mutationFn: (updatePayload: UpdateSchoolPayload) =>
+      demands.updateSchool(updatePayload),
+  });
+}
+
+export function useSchoolSettings() {
+  return useQuery({
+    queryKey: ['fetch-school-settings'],
+    queryFn: () => demands.getSchoolSettings(),
+  });
+}
+
+export function useUpdateSchoolSettings() {
+  return useMutation({
+    mutationKey: ['update-school-settings'],
+    mutationFn: (updatePayload: UpdateSchoolSettingPayload) =>
+      demands.updateSchoolSettings(updatePayload),
   });
 }

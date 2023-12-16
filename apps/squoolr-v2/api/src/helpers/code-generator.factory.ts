@@ -65,7 +65,8 @@ export class CodeGeneratorFactory {
           number_of_configurators + 1
         )}`;
       }
-      case (StaffRole.TEACHER, StaffRole.COORDINATOR): {
+      case StaffRole.TEACHER:
+      case StaffRole.COORDINATOR: {
         const number_of_teachers = await this.prismaService.teacher.count({
           where: {
             AnnualTeachers: { some: { Teacher: { Login: { school_id } } } },
@@ -102,11 +103,10 @@ export class CodeGeneratorFactory {
       where: { school_id },
     });
     const starts_with = `UV${school_acronym}${acronym}`;
-    const number_of_subjects =
-      await this.prismaService.annualSubject.findMany({
-        distinct: ['subject_code'],
-        where: { subject_code: { startsWith: starts_with } },
-      });
+    const number_of_subjects = await this.prismaService.annualSubject.findMany({
+      distinct: ['subject_code'],
+      where: { subject_code: { startsWith: starts_with } },
+    });
     return `${starts_with}${this.formatNumber(number_of_subjects.length) + 1}`;
   }
 

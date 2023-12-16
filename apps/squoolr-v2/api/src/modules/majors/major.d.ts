@@ -14,6 +14,6 @@ export type CreateMajorPayload = Pick<
 
 export type UpdateMajorPayload = Partial<
   Pick<CreateMajorPayload, 'major_name' | 'major_acronym'> & {
-    is_deleted: true;
+    is_deleted: boolean;
   }
 >;

@@ -79,7 +79,11 @@ export class AuthService {
         return {
           login,
           school: await this.prismaService.school.findFirst({
-            where: { school_id: schoolId, is_validated: true },
+            where: {
+              school_id: schoolId,
+              is_validated: true,
+              SchoolDemand: { demand_status: 'VALIDATED' },
+            },
           }),
           student: await this.prismaService.student.findFirst({
             where: { login_id, Login: { school_id: schoolId } },
@@ -101,11 +105,9 @@ export class AuthService {
     if (!loginData) throw new UnauthorizedException('Wrong origin !!!');
     const numberOfActiveSessions = await this.prismaService.log.count({
       where: {
+        closed_at: null,
+        logged_out_at: null,
         login_id: loginData.login.login_id,
-        OR: {
-          logged_out_at: null,
-          closed_at: null,
-        },
       },
     });
     if (numberOfActiveSessions > 2)
@@ -126,9 +128,7 @@ export class AuthService {
           (env === 'production'
             ? `${subdomain}.squoolr.com`
             : 'localhost:4200')) ||
-      (role !== KeyRole.ADMIN &&
-        role !== KeyRole.PARENT &&
-        role !== KeyRole.STUDENT &&
+      (role === KeyRole.STAFF &&
         origin ===
           (env === 'production'
             ? `${subdomain}-staff.squoolr.com`
@@ -199,30 +199,31 @@ export class AuthService {
     new_password: string,
     subdomain: string
   ) {
-    const resetPassword = await this.prismaService.resetPassword.findFirst({
+    const {
+      Login: { School: school, ...login },
+    } = await this.prismaService.resetPassword.findFirstOrThrow({
       include: {
         Login: {
           select: {
             is_deleted: true,
             is_personnel: true,
             password: true,
+            School: { select: { subdomain: true } },
           },
         },
       },
       where: {
-        Login: {
-          School:
-            subdomain !== process.env.ADMIN_URL ? { subdomain } : undefined,
-        },
         is_valid: true,
         reset_password_id,
         expires_at: { gte: new Date() },
       },
     });
-    if (!resetPassword) throw new NotFoundException('Reset password not found');
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { Login: login } = resetPassword;
+    if (
+      school &&
+      !subdomain.includes('localhost') &&
+      !subdomain.includes(school.subdomain)
+    )
+      throw new UnauthorizedException('Unauthorized domain');
     return await this.prismaService.resetPassword.update({
       data: {
         is_valid: false,

@@ -9,13 +9,17 @@ export default function ManageConfiguratorMenu({
   closeMenu,
   anchorEl,
   isOpen,
+  isDisabled,
   onDisableAccount,
+  onEnableAccount,
   onResetPassword,
 }: {
   closeMenu: () => void;
+  isDisabled: boolean;
   anchorEl: HTMLElement | null;
   isOpen: boolean;
   onDisableAccount: () => void;
+  onEnableAccount: () => void;
   onResetPassword: () => void;
 }) {
   const { formatMessage } = useIntl();
@@ -42,23 +46,44 @@ export default function ManageConfiguratorMenu({
           <Typography>{formatMessage({ id: 'resetPassword' })}</Typography>
         </Stack>
       </MenuItem>
-      <MenuItem
-        onClick={() => {
-          onDisableAccount();
-          closeMenu();
-        }}
-      >
-        <Stack direction="row" spacing={1} alignItems={'center'}>
-          <Icon
-            icon={trash}
-            fontSize={24}
-            style={{ color: theme.palette.warning.main }}
-          />
-          <Typography sx={{ color: theme.palette.warning.main }}>
-            {formatMessage({ id: 'disableAccount' })}
-          </Typography>
-        </Stack>
-      </MenuItem>
+      {!isDisabled && (
+        <MenuItem
+          onClick={() => {
+            onDisableAccount();
+            closeMenu();
+          }}
+        >
+          <Stack direction="row" spacing={1} alignItems={'center'}>
+            <Icon
+              icon={trash}
+              fontSize={24}
+              style={{ color: theme.palette.warning.main }}
+            />
+            <Typography sx={{ color: theme.palette.warning.main }}>
+              {formatMessage({ id: 'disableAccount' })}
+            </Typography>
+          </Stack>
+        </MenuItem>
+      )}
+      {isDisabled && (
+        <MenuItem
+          onClick={() => {
+            onEnableAccount();
+            closeMenu();
+          }}
+        >
+          <Stack direction="row" spacing={1} alignItems={'center'}>
+            <Icon
+              icon={trash}
+              fontSize={24}
+              style={{ color: theme.palette.warning.main }}
+            />
+            <Typography sx={{ color: theme.palette.warning.main }}>
+              {formatMessage({ id: 'enableAccount' })}
+            </Typography>
+          </Stack>
+        </MenuItem>
+      )}
     </Menu>
   );
 }
