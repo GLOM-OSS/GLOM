@@ -2,7 +2,7 @@ import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { AnnualModule } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 
-export class ModuleEntity implements AnnualModule {
+export class CourseModuleEntity implements AnnualModule {
   @ApiProperty()
   annual_module_id: string;
 
@@ -31,7 +31,7 @@ export class ModuleEntity implements AnnualModule {
   created_at: Date;
 
   @ApiProperty()
-  annual_major_id: string;
+  annual_classroom_id: string;
 
   @Exclude()
   @ApiHideProperty()
@@ -41,7 +41,7 @@ export class ModuleEntity implements AnnualModule {
   @ApiHideProperty()
   created_by: string;
 
-  constructor(props: ModuleEntity) {
+  constructor(props: CourseModuleEntity) {
     Object.assign(this, props);
   }
 }

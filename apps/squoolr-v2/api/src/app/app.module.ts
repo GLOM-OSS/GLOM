@@ -37,6 +37,7 @@ import { AppMiddleware } from './app.middleware';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
+import { CoursesModule } from '../modules/courses/courses.module';
 
 @Module({
   imports: [
@@ -80,6 +81,7 @@ import { InquiriesModule } from './inquiries/inquiries.module';
     ClassroomsModule,
     StaffModule,
     CycleSettingsModule,
+    CoursesModule
   ],
   controllers: [AppController],
   providers: [
