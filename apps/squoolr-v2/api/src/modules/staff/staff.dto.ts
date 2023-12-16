@@ -52,9 +52,7 @@ export class CreatePersonWithRoleDto extends OmitType(CreatePersonDto, [
 
   constructor(props: CreatePersonWithRoleDto) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -93,9 +91,7 @@ export class StaffEntity
 
   constructor(props: StaffEntity) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -160,9 +156,7 @@ export class CreateTeacherDto extends CreatePersonWithRoleDto {
 
   constructor(props: CreateTeacherDto) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -188,9 +182,7 @@ export class TeacherEntity extends CreateTeacherDto {
 
   constructor(props: TeacherEntity) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -204,9 +196,7 @@ export class CoordinatorEntity extends OmitType(TeacherEntity, ['role']) {
 
   constructor(props: CoordinatorEntity) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
