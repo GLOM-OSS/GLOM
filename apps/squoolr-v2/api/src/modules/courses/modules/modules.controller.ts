@@ -10,17 +10,18 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles } from '../../../app/auth/auth.decorator';
 import { AuthenticatedGuard } from '../../../app/auth/auth.guard';
 import { Role } from '../../../utils/enums';
 import {
+  CreateCourseModuleDto,
   DisableCourseModuleDto,
+  ModuleEntity,
   QueryCourseModuleDto,
   UpdateCourseModuleDto,
 } from './module.dto';
-import { ModuleEntity, CreateCourseModuleDto } from './module.dto';
 import { CourseModulesService } from './modules.service';
 
 @ApiTags('Course modules')
@@ -37,7 +38,7 @@ export class CourseModulesController {
 
   @Post('new')
   @Roles(Role.COORDINATOR)
-  @ApiOkResponse({ type: ModuleEntity })
+  @ApiCreatedResponse({ type: ModuleEntity })
   createCourseModule(
     @Req() request: Request,
     @Body() newModule: CreateCourseModuleDto

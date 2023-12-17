@@ -11,7 +11,11 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles } from '../../../app/auth/auth.decorator';
 import { AuthenticatedGuard } from '../../../app/auth/auth.guard';
@@ -39,7 +43,7 @@ export class CourseSubjectsController {
 
   @Post('new')
   @Roles(Role.COORDINATOR)
-  @ApiOkResponse({ type: SubjectEntity })
+  @ApiCreatedResponse({ type: SubjectEntity })
   createSubject(
     @Req() request: Request,
     @Body() payload: CreateCourseSubjectDto
@@ -65,7 +69,6 @@ export class CourseSubjectsController {
 
   @Put(':annual_subject_id')
   @Roles(Role.COORDINATOR)
-  @ApiOkResponse({ type: SubjectEntity })
   updateSubject(
     @Req() request: Request,
     @Param('annual_subject_id') annualSubjectId: string,
@@ -83,7 +86,6 @@ export class CourseSubjectsController {
 
   @Delete(':annual_subject_id')
   @Roles(Role.COORDINATOR)
-  @ApiOkResponse({ type: SubjectEntity })
   disableSubject(
     @Req() request: Request,
     @Param('annual_subject_id') annualSubjectId: string,
@@ -101,7 +103,6 @@ export class CourseSubjectsController {
 
   @Delete()
   @Roles(Role.COORDINATOR)
-  @ApiOkResponse({ type: SubjectEntity })
   disableManySubjects(
     @Req() request: Request,
     @Query() disablePayload: DisableCourseSubjectDto
