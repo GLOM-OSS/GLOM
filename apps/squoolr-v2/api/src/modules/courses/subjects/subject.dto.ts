@@ -1,14 +1,21 @@
-import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import {
+  ApiHideProperty,
+  ApiProperty,
+  ApiPropertyOptional,
+  PickType,
+} from '@nestjs/swagger';
 import { AnnualSubject } from '@prisma/client';
 import { Exclude, Type } from 'class-transformer';
 import {
   IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
   Max,
-  ValidateNested,
+  ValidateNested
 } from 'class-validator';
 import { QueryParamsDto } from '../../modules.dto';
+import { CreateCourseModuleDto } from '../modules/module.dto';
 
 export class CreateSubjectPartDto {
   @IsNumber()
@@ -35,6 +42,12 @@ export class CourseSubjectPart extends CreateSubjectPartDto {
   }
 }
 
+export class CreateModuleNestedDto extends PickType(CreateCourseModuleDto, [
+  'credit_points',
+  'semester_number',
+  'annual_classroom_id',
+]) {}
+
 export class CreateCourseSubjectDto {
   @Max(100)
   @IsPositive()
@@ -53,14 +66,21 @@ export class CreateCourseSubjectDto {
   @ApiProperty()
   subject_name: string;
 
-  @IsString()
-  @ApiProperty()
-  annual_module_id: string;
-
   @ValidateNested({ each: true })
   @Type(() => CreateSubjectPartDto)
   @ApiProperty({ type: [CreateSubjectPartDto] })
   subjectParts: CreateSubjectPartDto[];
+
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional()
+  annual_module_id: string | null;
+
+  @IsOptional()
+  @ValidateNested()
+  @ApiPropertyOptional()
+  @Type(() => CreateModuleNestedDto)
+  module?: CreateModuleNestedDto;
 
   constructor(props: CreateCourseSubjectDto) {
     Object.assign(this, props);

@@ -1,11 +1,12 @@
 import {
-    Body,
-    Controller,
-    Get,
-    Post,
-    Query,
-    Req,
-    UseGuards,
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -13,9 +14,9 @@ import { Roles } from '../../../app/auth/auth.decorator';
 import { AuthenticatedGuard } from '../../../app/auth/auth.guard';
 import { Role } from '../../../utils/enums';
 import {
-    CreateCourseSubjectDto,
-    QueryCourseSubjectDto,
-    SubjectEntity,
+  CreateCourseSubjectDto,
+  QueryCourseSubjectDto,
+  SubjectEntity,
 } from './subject.dto';
 import { CourseSubjectsService } from './subjects.service';
 
@@ -38,6 +39,13 @@ export class CourseSubjectsController {
     @Req() request: Request,
     @Body() payload: CreateCourseSubjectDto
   ) {
+    if (
+      (payload.annual_module_id && payload.module) ||
+      (!payload.annual_module_id && !payload.module)
+    )
+      throw new BadRequestException(
+        'Only provide one the followings: `annual_module_id`, `module`'
+      );
     const {
       school_id,
       activeYear: { academic_year_id },

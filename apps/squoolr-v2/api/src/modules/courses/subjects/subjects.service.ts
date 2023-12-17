@@ -1,5 +1,5 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import {
   CreateCourseSubjectDto,
   QueryCourseSubjectDto,
@@ -8,6 +8,7 @@ import {
 import { MetaParams } from '../../module';
 import { generateShort } from '@glom/utils';
 import { CodeGeneratorFactory } from '../../../helpers/code-generator.factory';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CourseSubjectsService {
@@ -17,11 +18,31 @@ export class CourseSubjectsService {
   ) {}
 
   async findAll(params?: QueryCourseSubjectDto) {
+    const major = await this.prismaService.annualMajor.findFirstOrThrow({
+      where: {
+        AnnualClassrooms: {
+          some: {
+            AnnualModules: {
+              some: { annual_module_id: params?.annual_module_id },
+            },
+          },
+        },
+      },
+    });
     const subjects = await this.prismaService.annualSubject.findMany({
       include: {
         AnnualSubjectParts: {
           select: { number_of_hours: true, SubjectPart: true },
         },
+        AnnualModule: !major?.uses_module_system
+          ? {
+              select: {
+                credit_points: true,
+                semester_number: true,
+                annual_classroom_id: true,
+              },
+            }
+          : undefined,
       },
       where: {
         is_deleted: params?.is_deleted,
@@ -35,9 +56,10 @@ export class CourseSubjectsService {
       },
     });
     return subjects.map(
-      ({ AnnualSubjectParts: parts, ...subject }) =>
+      ({ AnnualModule: courseModule, AnnualSubjectParts: parts, ...subject }) =>
         new SubjectEntity({
           ...subject,
+          module: courseModule,
           subjectParts: parts.map(
             ({
               SubjectPart: { subject_part_id, subject_part_name },
@@ -56,10 +78,26 @@ export class CourseSubjectsService {
       objective,
       weighting,
       annual_module_id,
+      module: courseModule,
     }: CreateCourseSubjectDto,
     metaParams: MetaParams,
     created_by: string
   ) {
+    const { uses_module_system } =
+      await this.prismaService.annualMajor.findFirstOrThrow({
+        where: {
+          AnnualClassrooms: {
+            some: { AnnualModules: { some: { annual_module_id } } },
+          },
+        },
+      });
+    if (
+      (uses_module_system && courseModule) ||
+      (!uses_module_system && !courseModule)
+    )
+      throw new UnprocessableEntityException(
+        `major teaching system constraint violated`
+      );
     let subjectCode = subject_code;
     const subjectShort = generateShort(subject_name);
     if (!subjectCode || subjectCode === subjectShort)
@@ -67,6 +105,23 @@ export class CourseSubjectsService {
         metaParams.school_id,
         subjectShort
       );
+    let annualModule: Prisma.AnnualModuleCreateInput;
+    if (courseModule) {
+      const { annual_classroom_id, credit_points, semester_number } =
+        courseModule;
+      annualModule = {
+        credit_points,
+        semester_number,
+        module_code: subjectCode,
+        module_name: subject_name,
+        AnnualClassroom: { connect: { annual_classroom_id } },
+        CreatedBy: { connect: { annual_teacher_id: created_by } },
+        AcademicYear: {
+          connect: { academic_year_id: metaParams.academic_year_id },
+        },
+      };
+    }
+
     const { AnnualSubjectParts: parts, ...subject } =
       await this.prismaService.annualSubject.create({
         include: {
@@ -79,7 +134,9 @@ export class CourseSubjectsService {
           weighting,
           subject_name,
           subject_code: subjectCode,
-          AnnualModule: { connect: { annual_module_id } },
+          AnnualModule: annualModule
+            ? { create: annualModule }
+            : { connect: { annual_module_id } },
           CreatedBy: { connect: { annual_teacher_id: created_by } },
           AnnualSubjectParts: {
             createMany: {
