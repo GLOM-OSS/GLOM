@@ -2,13 +2,15 @@ import { GlomPrismaService } from '@glom/prisma';
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import {
   CreateCourseSubjectDto,
+  CreateModuleNestedDto,
   QueryCourseSubjectDto,
   SubjectEntity,
+  UpdateCourseSubjectDto,
 } from './subject.dto';
 import { MetaParams } from '../../module';
-import { generateShort } from '@glom/utils';
+import { excludeKeys, generateShort } from '@glom/utils';
 import { CodeGeneratorFactory } from '../../../helpers/code-generator.factory';
-import { Prisma } from '@prisma/client';
+import { AnnualMajor, Prisma } from '@prisma/client';
 
 @Injectable()
 export class CourseSubjectsService {
@@ -83,21 +85,8 @@ export class CourseSubjectsService {
     metaParams: MetaParams,
     created_by: string
   ) {
-    const { uses_module_system } =
-      await this.prismaService.annualMajor.findFirstOrThrow({
-        where: {
-          AnnualClassrooms: {
-            some: { AnnualModules: { some: { annual_module_id } } },
-          },
-        },
-      });
-    if (
-      (uses_module_system && courseModule) ||
-      (!uses_module_system && !courseModule)
-    )
-      throw new UnprocessableEntityException(
-        `major teaching system constraint violated`
-      );
+    if (courseModule) await this.validateInput(courseModule);
+
     let subjectCode = subject_code;
     const subjectShort = generateShort(subject_name);
     if (!subjectCode || subjectCode === subjectShort)
@@ -154,5 +143,111 @@ export class CourseSubjectsService {
         }) => ({ subject_part_id, subject_part_name, number_of_hours })
       ),
     });
+  }
+
+  private async validateInput(courseModule: CreateModuleNestedDto) {
+    const major = await this.prismaService.annualMajor.findFirstOrThrow({
+      where: {
+        AnnualClassrooms: {
+          some: { annual_classroom_id: courseModule.annual_classroom_id },
+        },
+      },
+    });
+    if (
+      (major.uses_module_system && courseModule) ||
+      (!major.uses_module_system && !courseModule)
+    )
+      throw new UnprocessableEntityException(
+        `major teaching system constraint violated`
+      );
+    return major;
+  }
+
+  async update(
+    annual_subject_id: string,
+    {
+      disable,
+      module: courseModule,
+      subjectParts,
+      ...updatePayload
+    }: UpdateCourseSubjectDto,
+    audited_by: string
+  ) {
+    if (courseModule) await this.validateInput(courseModule);
+    const {
+      AnnualModule: annualModule,
+      AnnualSubjectParts: annualSubjectParts,
+      ...annualSubjectAudit
+    } = await this.prismaService.annualSubject.findUniqueOrThrow({
+      include: {
+        AnnualSubjectParts: !!subjectParts,
+        AnnualModule: !!courseModule,
+      },
+      where: { annual_subject_id },
+    });
+    await this.prismaService.$transaction([
+      this.prismaService.annualSubject.update({
+        data: {
+          ...updatePayload,
+          is_deleted: disable,
+          AnnualSubjectParts: {
+            updateMany: {
+              data: subjectParts,
+              where: {
+                annual_subject_id: {
+                  in: subjectParts.map((_) => _.subject_part_id),
+                },
+              },
+            },
+          },
+          AnnualModule: courseModule
+            ? {
+                update: {
+                  ...courseModule,
+                  module_name: updatePayload?.subject_name,
+                  module_code: updatePayload?.subject_code,
+                  AnnualModuleAudits: {
+                    create: {
+                      ...excludeKeys(annualModule, [
+                        'academic_year_id',
+                        'annual_classroom_id',
+                        'annual_module_id',
+                        'created_at',
+                        'created_by',
+                      ]),
+                      AuditedBy: { connect: { annual_teacher_id: audited_by } },
+                    },
+                  },
+                },
+              }
+            : undefined,
+          AnnualSubjectAudits:
+            typeof disable === 'boolean' ||
+            Object.keys(updatePayload).length > 0
+              ? {
+                  create: {
+                    ...excludeKeys(annualSubjectAudit, [
+                      'annual_module_id',
+                      'annual_subject_id',
+                      'created_at',
+                      'created_by',
+                    ]),
+                    AuditedBy: { connect: { annual_teacher_id: audited_by } },
+                  },
+                }
+              : undefined,
+        },
+        where: { annual_subject_id },
+      }),
+      this.prismaService.annualSubjectPartAudit.createMany({
+        data: annualSubjectParts.map(
+          ({ number_of_hours, annual_subject_part_id }) => ({
+            number_of_hours,
+            annual_subject_part_id,
+            audited_by,
+          })
+        ),
+      }),
+    ]);
   }
 }

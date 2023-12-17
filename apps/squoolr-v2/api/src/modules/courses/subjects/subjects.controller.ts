@@ -3,7 +3,9 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -17,6 +19,7 @@ import {
   CreateCourseSubjectDto,
   QueryCourseSubjectDto,
   SubjectEntity,
+  UpdateCourseSubjectDto,
 } from './subject.dto';
 import { CourseSubjectsService } from './subjects.service';
 
@@ -54,6 +57,24 @@ export class CourseSubjectsController {
     return this.courseSubjectsService.create(
       payload,
       { school_id, academic_year_id },
+      annual_teacher_id
+    );
+  }
+
+  @Put(':annual_subject_id')
+  @Roles(Role.COORDINATOR)
+  @ApiOkResponse({ type: SubjectEntity })
+  updateSubject(
+    @Req() request: Request,
+    @Param('annual_subject_id') annualSubjectId: string,
+    @Body() payload: UpdateCourseSubjectDto
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user;
+    return this.courseSubjectsService.update(
+      annualSubjectId,
+      payload,
       annual_teacher_id
     );
   }

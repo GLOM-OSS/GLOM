@@ -2,17 +2,21 @@ import {
   ApiHideProperty,
   ApiProperty,
   ApiPropertyOptional,
+  OmitType,
+  PartialType,
   PickType,
 } from '@nestjs/swagger';
 import { AnnualSubject } from '@prisma/client';
 import { Exclude, Type } from 'class-transformer';
 import {
+  ArrayMinSize,
+  IsBoolean,
   IsNumber,
   IsOptional,
   IsPositive,
   IsString,
   Max,
-  ValidateNested
+  ValidateNested,
 } from 'class-validator';
 import { QueryParamsDto } from '../../modules.dto';
 import { CreateCourseModuleDto } from '../modules/module.dto';
@@ -55,8 +59,9 @@ export class CreateCourseSubjectDto {
   weighting: number;
 
   @IsString()
-  @ApiProperty()
-  objective: string;
+  @IsOptional()
+  @ApiPropertyOptional()
+  objective: string | null;
 
   @IsString()
   @ApiProperty()
@@ -66,6 +71,7 @@ export class CreateCourseSubjectDto {
   @ApiProperty()
   subject_name: string;
 
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => CreateSubjectPartDto)
   @ApiProperty({ type: [CreateSubjectPartDto] })
@@ -119,4 +125,13 @@ export class QueryCourseSubjectDto extends QueryParamsDto {
   @IsString()
   @ApiProperty()
   annual_module_id: string;
+}
+
+export class UpdateCourseSubjectDto extends OmitType(
+  PartialType(CreateCourseSubjectDto),
+  ['annual_module_id']
+) {
+  @IsBoolean()
+  @ApiProperty()
+  disable: boolean;
 }
