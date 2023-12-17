@@ -1,5 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PlatformSettings, TeacherType, TeachingGrade } from '@prisma/client';
+import {
+  PlatformSettings,
+  SubjectPart,
+  TeacherType,
+  TeachingGrade,
+} from '@prisma/client';
 import { Exclude } from 'class-transformer';
 
 export class PlatformSettingsEntity implements PlatformSettings {
@@ -49,6 +54,21 @@ export class TeachingGradeEntity implements TeachingGrade {
   created_at: Date;
 
   constructor(props: TeachingGradeEntity) {
+    Object.assign(this, props);
+  }
+}
+
+export class SubjectPartEntity implements SubjectPart {
+  @ApiProperty()
+  subject_part_id: string;
+
+  @ApiProperty()
+  subject_part_name: string;
+
+  @ApiProperty()
+  created_at: Date;
+
+  constructor(props: SubjectPartEntity) {
     Object.assign(this, props);
   }
 }

@@ -2,6 +2,7 @@ import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
 import {
   PlatformSettingsEntity,
+  SubjectPartEntity,
   TeacherTypeEntity,
   TeachingGradeEntity,
 } from './app.dto';
@@ -38,5 +39,10 @@ export class AppService {
   async getCycles() {
     const cycles = await this.prismaService.cycle.findMany();
     return cycles.map((cycle) => new CycleEntity(cycle));
+  }
+
+  async getSubjectParts() {
+    const subjectParts = await this.prismaService.subjectPart.findMany();
+    return subjectParts.map((cycle) => new SubjectPartEntity(cycle));
   }
 }

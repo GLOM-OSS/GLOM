@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ApiOkResponse } from '@nestjs/swagger';
 import {
   PlatformSettingsEntity,
+  SubjectPartEntity,
   TeacherTypeEntity,
   TeachingGradeEntity,
 } from './app.dto';
@@ -40,5 +41,11 @@ export class AppController {
   @ApiOkResponse({ type: [CycleEntity] })
   getCycles() {
     return this.appService.getCycles();
+  }
+
+  @Get('subject-parts')
+  @ApiOkResponse({ type: [SubjectPartEntity] })
+  getSubjectParts() {
+    return this.appService.getSubjectParts();
   }
 }

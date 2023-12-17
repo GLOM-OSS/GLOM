@@ -16,6 +16,8 @@ export const seedData = async (prisma: PrismaClient) => {
   await seeder.seedTeachingGrades();
   //seed cycles
   await seeder.seedCycles();
+  //seed subject parts
+  await seeder.seedSubjectParts();
 };
 
 export class AppSeederFactory {
@@ -175,6 +177,26 @@ export class AppSeederFactory {
           cycle_id: '11aa093f-e983-4f18-a40a-10b20bb2d069',
           cycle_name: 'DOCTORATE',
           number_of_years: 2,
+        },
+      ],
+      skipDuplicates: true,
+    });
+  }
+
+  async seedSubjectParts() {
+    await this.prismaService.subjectPart.createMany({
+      data: [
+        {
+          subject_part_id: 'f1ccf3c3-d854-4a4b-85ff-52dd130ac911',
+          subject_part_name: 'CM',
+        },
+        {
+          subject_part_id: 'c0f12af7-b762-41ff-ad8f-2002adfe1e0e',
+          subject_part_name: 'TD',
+        },
+        {
+          subject_part_id: 'c292bd43-f249-41ee-845c-ee6cb829f8c3',
+          subject_part_name: 'TP',
         },
       ],
       skipDuplicates: true,
