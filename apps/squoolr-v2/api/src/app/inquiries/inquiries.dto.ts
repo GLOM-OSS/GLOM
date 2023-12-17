@@ -27,9 +27,7 @@ export class CreateInquiryDto {
   type: InquiryType;
 
   constructor(props: CreateInquiryDto) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -42,8 +40,6 @@ export class InquiryEntity extends CreateInquiryDto implements Inquiry {
 
   constructor(props: InquiryEntity) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }

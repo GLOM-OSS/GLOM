@@ -35,6 +35,12 @@ export class StaffRoleDto {
   role: StaffRole;
 }
 
+export class UpdateStaffStatus extends StaffRoleDto {
+  @ApiProperty()
+  @IsBoolean()
+  disable: boolean;
+}
+
 export class QueryOneStaffDto extends StaffRoleDto {}
 
 export class CreatePersonWithRoleDto extends OmitType(CreatePersonDto, [
@@ -46,9 +52,7 @@ export class CreatePersonWithRoleDto extends OmitType(CreatePersonDto, [
 
   constructor(props: CreatePersonWithRoleDto) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -87,9 +91,7 @@ export class StaffEntity
 
   constructor(props: StaffEntity) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -154,9 +156,7 @@ export class CreateTeacherDto extends CreatePersonWithRoleDto {
 
   constructor(props: CreateTeacherDto) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -182,9 +182,7 @@ export class TeacherEntity extends CreateTeacherDto {
 
   constructor(props: TeacherEntity) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -198,9 +196,7 @@ export class CoordinatorEntity extends OmitType(TeacherEntity, ['role']) {
 
   constructor(props: CoordinatorEntity) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -280,6 +276,7 @@ export type UpdateStaffPayloadDto =
   UpdateTeacherDto
 )
 export class UpdateStaffDto {
+  @ValidateNested()
   @Type(() => StaffRoleDto, {
     discriminator: {
       property: 'role',
@@ -298,7 +295,7 @@ export class UpdateStaffDto {
   payload: UpdateStaffPayloadDto;
 }
 
-export class ManageStaffDto {
+export class CategorizedStaffIDs {
   @ApiProperty()
   @IsString({ each: true })
   teacherIds: string[];
@@ -312,6 +309,12 @@ export class ManageStaffDto {
   configuratorIds: string[];
 }
 
+export class ManageStaffDto extends CategorizedStaffIDs {
+  @IsBoolean()
+  @ApiProperty()
+  disable: boolean;
+}
+
 export class CoordinateClassDto extends OmitType(UpdateCoordinatorDto, [
   'role',
 ]) {}
@@ -323,9 +326,9 @@ export class UpdateStaffRoleDto {
 
   @IsOptional()
   @ValidateNested()
-  @Type(() => ManageStaffDto)
-  @ApiPropertyOptional({ type: ManageStaffDto })
-  disabledStaffPayload?: ManageStaffDto;
+  @Type(() => CategorizedStaffIDs)
+  @ApiPropertyOptional({ type: CategorizedStaffIDs })
+  disabledStaffPayload?: CategorizedStaffIDs;
 
   @IsOptional()
   @ValidateNested()

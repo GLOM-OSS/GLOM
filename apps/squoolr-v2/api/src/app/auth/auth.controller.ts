@@ -38,20 +38,17 @@ export class AuthController {
   @UseGuards(LocalGuard)
   @ApiCreatedResponse({ type: SingInResponse })
   async signIn(@Req() request: Request, @Body() login: SignInDto) {
-    let user = request.user;
+    let { login_id, ...user } = request.user;
     let academicYears: AcademicYear[] = [];
     if (user.school_id) {
-      const result = await this.authService.updateUserSession(
-        request,
-        user.login_id
-      );
+      const result = await this.authService.updateSession(request, login_id);
       academicYears = result.academicYears;
       user = { ...user, ...result.annualSessionData };
     }
-    await this.authService.openSession(request, user.login_id);
+    await this.authService.createLog(request, login_id);
     return new SingInResponse({
       academicYears,
-      user: await this.authService.getUser(user),
+      user: await this.authService.getUser({ ...user, login_id }),
     });
   }
 

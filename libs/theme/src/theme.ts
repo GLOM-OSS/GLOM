@@ -160,7 +160,7 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
           fontWeight: 600,
           fontSize: '24px',
           lineHeight: '32px',
-          letterSpacing: '-1.75%',
+          letterSpacing: '-0.42px',
           paddingBottom: '10px',
         },
         h4: {
@@ -245,6 +245,24 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
           }),
         },
       },
+      MuiFormLabel: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            // top: '-8px !important',
+          }),
+        },
+      },
+      MuiInputBase: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            borderRadius: '8px',
+            background: theme.common.offWhite,
+            '& .MuiOutlinedInput-notchedOutline': {
+              border: `1px solid ${theme.common.line}`,
+            },
+          }),
+        },
+      },
       MuiTextField: {
         styleOverrides: {
           root: ({ theme }) => ({
@@ -265,6 +283,7 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
             '& .MuiPaper-root': {
               borderRadius: 0,
               backgroundColor: theme.common.background,
+              maxWidth: '55vw',
             },
           }),
         },
@@ -275,6 +294,7 @@ export function generateTheme(newTheme?: ThemeOptions): Theme {
             '&.MuiDialogTitle-root': {
               ...theme.typography.h1,
               paddingBottom: '24px',
+              textAlign: 'center',
             },
           }),
         },

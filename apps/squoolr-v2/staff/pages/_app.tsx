@@ -4,6 +4,8 @@ import building from '@iconify/icons-fluent/building-48-regular';
 import dashboard from '@iconify/icons-fluent/grid-28-regular';
 import hatGraduation from '@iconify/icons-fluent/hat-graduation-28-regular';
 import organization from '@iconify/icons-fluent/organization-48-regular';
+import staff from '@iconify/icons-fluent/people-team-48-regular';
+import calendar from '@iconify/icons-fluent/calendar-ltr-48-regular';
 import { Box } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -24,7 +26,7 @@ function App({ children }: { children?: JSX.Element }) {
   const navSections: INavSection[] = [
     {
       title: formatMessage({ id: 'dashboard' }),
-      route: 'dasboard',
+      route: 'dashboard',
       navItems: [
         {
           icon: dashboard,
@@ -48,21 +50,32 @@ function App({ children }: { children?: JSX.Element }) {
           title: formatMessage({ id: 'majors' }),
         },
         {
-          icon: organization,
+          icon: staff,
+          route: 'staff',
+          title: formatMessage({ id: 'staff' }),
+        },
+        {
+          icon: calendar,
           route: 'academic-years',
           title: formatMessage({ id: 'academicYears' }),
+        },
+        {
+          icon: organization,
+          route: 'school-profile',
+          title: formatMessage({ id: 'schoolProfile' }),
         },
       ],
     },
   ];
 
-  const noLayoutRoutes = ['/signin', '/reset-password', '/new-password'];
+  const noLayoutRoutes = ['/signin', '/reset-password'];
   const { asPath } = useRouter();
 
   const [shouldUseLayout, setShouldUseLayout] = useState<boolean>(false);
 
   useEffect(() => {
-    if (noLayoutRoutes.includes(asPath)) setShouldUseLayout(false);
+    if (noLayoutRoutes.includes(asPath) || asPath.includes('new-password'))
+      setShouldUseLayout(false);
     else setShouldUseLayout(true);
   }, [asPath]);
 

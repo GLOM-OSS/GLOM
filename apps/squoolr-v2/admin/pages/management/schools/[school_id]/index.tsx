@@ -4,6 +4,10 @@ import {
   useUpdateSchoolStatus,
   useValidateSchoolDemand,
 } from '@glom/data-access/squoolr';
+import {
+  useBreadcrumb,
+  useDispatchBreadcrumb,
+} from '@glom/squoolr-v2/side-nav';
 import { useTheme } from '@glom/theme';
 import {
   Box,
@@ -26,6 +30,7 @@ export default function index() {
   const theme = useTheme();
   const {
     query: { school_id },
+    asPath,
   } = useRouter();
   const schoolId = school_id as string;
   const {
@@ -46,39 +51,74 @@ export default function index() {
     updateDemandStatus('SUSPENDED', {
       onSuccess() {
         refetchSchoolData();
+        setIsConfirmSuspendDialogOpen(false);
       },
     });
   }
-  const { mutate: validateDemand, isPending: isValidatingDemand } =
-    useValidateSchoolDemand(schoolId);
+  const [isValidatingDemand, setIsValidatingDemand] = useState<boolean>(false);
+  const [isRejectingDemand, setIsRejectingDemand] = useState<boolean>(false);
+  const { mutate: validateDemand } = useValidateSchoolDemand(schoolId);
 
   function rejectSchool(rejectionReason: string) {
+    setIsRejectingDemand(true);
     validateDemand(
       { rejection_reason: rejectionReason },
       {
         onSuccess() {
           refetchSchoolData();
+          setIsRejectingDemand(false);
+        },
+        onError() {
+          setIsRejectingDemand(false);
         },
       }
     );
   }
 
   function validateSchool(subdomain: string) {
+    setIsValidatingDemand(true);
     validateDemand(
       { subdomain },
       {
         onSuccess() {
           refetchSchoolData();
+          setIsValidatingDemand(false);
+        },
+        onError() {
+          setIsValidatingDemand(false);
         },
       }
     );
   }
 
+  const breadcrumbDispatch = useDispatchBreadcrumb();
+  const breadcrumbs = useBreadcrumb();
   useEffect(() => {
-    if (schoolData) {
+    const tt = asPath.split('/');
+    const doesBreadcrumbHaveItem = breadcrumbs.find(
+      ({ route }) => route && route.includes(tt[tt.length - 1])
+    );
+    if (!!schoolData) {
       const {
-        school: { school_demand_status },
+        school: { school_demand_status, school_code, school_acronym },
       } = schoolData;
+
+      if (!doesBreadcrumbHaveItem)
+        breadcrumbDispatch({
+          action: 'ADD',
+          payload: [{ title: school_acronym, route: asPath }],
+        });
+      else if (doesBreadcrumbHaveItem.title !== school_acronym) {
+        const tt = breadcrumbs.filter(
+          ({ route }) =>
+            (route && !route.includes(school_code as string)) || !route
+        );
+        breadcrumbDispatch({
+          action: 'RESET',
+          payload: [...tt, { title: school_acronym, route: asPath }],
+        });
+      }
+
       setTimeout(() => {
         if (school_demand_status === 'PENDING')
           updateDemandStatus('PROCESSING', {
@@ -87,6 +127,12 @@ export default function index() {
             },
           });
       }, 2 * 60 * 1000);
+    } else {
+      if (!doesBreadcrumbHaveItem)
+        breadcrumbDispatch({
+          action: 'ADD',
+          payload: [{ title: formatMessage({ id: 'loading' }), route: asPath }],
+        });
     }
   }, [schoolData]);
 
@@ -237,9 +283,9 @@ export default function index() {
                       variant="contained"
                       color="error"
                       onClick={() => setIsRejectDialogOpen(true)}
-                      disabled={isValidatingDemand || isValidatingDemand}
+                      disabled={isValidatingDemand || isRejectingDemand}
                       startIcon={
-                        isValidatingDemand && (
+                        isRejectingDemand && (
                           <CircularProgress color="error" size={18} />
                         )
                       }
@@ -250,7 +296,7 @@ export default function index() {
                       variant="contained"
                       color="primary"
                       onClick={() => setIsValidateDialogOpen(true)}
-                      disabled={isValidatingDemand || isValidatingDemand}
+                      disabled={isValidatingDemand || isRejectingDemand}
                       startIcon={
                         isValidatingDemand && (
                           <CircularProgress color="primary" size={18} />

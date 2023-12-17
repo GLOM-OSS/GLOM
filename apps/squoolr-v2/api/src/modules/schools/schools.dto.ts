@@ -10,6 +10,7 @@ import {
   AnnualDocumentSigner,
   AnnualSchoolSetting,
   MarkInsertionSource,
+  School,
   SchoolDemandStatus,
 } from '@prisma/client';
 import { Exclude, Transform, Type } from 'class-transformer';
@@ -22,10 +23,18 @@ import {
   IsPhoneNumber,
   IsString,
   NotContains,
-  ValidateNested
+  ValidateNested,
 } from 'class-validator';
 import { CreatePersonDto, PersonEntity } from '../../app/auth/auth.dto';
 import { CreateAcademicYearDto } from '../academic-years/academic-years.dto';
+import { QueryParamsDto } from '../modules.dto';
+
+export class QuerySchoolDto extends QueryParamsDto {
+  @IsOptional()
+  @IsEnum(SchoolDemandStatus, { each: true })
+  @ApiPropertyOptional({ enum: SchoolDemandStatus, isArray: true })
+  schoolDemandStatus?: SchoolDemandStatus[];
+}
 
 export class CreateSchoolDto {
   @ApiProperty()
@@ -64,9 +73,7 @@ export class CreateSchoolDto {
   initial_year_ends_at: Date;
 
   constructor(props: CreateSchoolDto) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -74,7 +81,7 @@ export class SubmitSchoolDemandDto {
   @IsString()
   @IsOptional()
   @ApiPropertyOptional()
-  payment_phone?: string;
+  payment_id?: string;
 
   @IsNotEmptyObject()
   @ValidateNested()
@@ -101,11 +108,14 @@ export class ValidateSchoolDemandDto {
   subdomain?: string;
 }
 
-export class SchoolEntity extends OmitType(CreateSchoolDto, [
-  'referral_code',
-  'initial_year_ends_at',
-  'initial_year_starts_at',
-]) {
+export class SchoolEntity
+  extends OmitType(CreateSchoolDto, [
+    'referral_code',
+    'initial_year_ends_at',
+    'initial_year_starts_at',
+  ])
+  implements School
+{
   @ApiProperty()
   school_id: string;
 
@@ -137,14 +147,46 @@ export class SchoolEntity extends OmitType(CreateSchoolDto, [
   created_at: Date;
 
   @Exclude()
-  @ApiProperty()
+  @ApiHideProperty()
   created_by: string;
+
+  @ApiProperty()
+  longitude: number;
+
+  @ApiProperty()
+  latitude: number;
+
+  @ApiProperty()
+  address: string;
+
+  @ApiProperty()
+  logo_ref: string;
+
+  @ApiProperty()
+  is_validated: boolean;
+
+  @Exclude()
+  @ApiHideProperty()
+  validated_at: Date;
+
+  @Exclude()
+  @ApiHideProperty()
+  validated_by: string;
+
+  @ApiProperty()
+  is_deleted: boolean;
+
+  @Exclude()
+  @ApiHideProperty()
+  deleted_at: Date;
+
+  @Exclude()
+  @ApiHideProperty()
+  deleted_by: string;
 
   constructor(props: SchoolEntity) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -162,9 +204,7 @@ export class SchoolDemandDetails {
   academicYear: CreateAcademicYearDto;
 
   constructor(props: SchoolDemandDetails) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -174,17 +214,20 @@ export class UpdateSchoolDemandStatus {
   school_demand_status: SchoolDemandStatus;
 
   constructor(props: UpdateSchoolDemandStatus) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
 export class UpdateSchoolDto extends PartialType(
-  OmitType(SchoolEntity, [
-    'paid_amount',
-    'lead_funnel',
-    'school_rejection_reason',
+  PickType(SchoolEntity, [
+    'creation_decree_number',
+    'description',
+    'school_acronym',
+    'school_email',
+    'address',
+    'logo_ref',
+    'school_name',
+    'school_phone_number',
     'subdomain',
   ])
 ) {}
@@ -203,9 +246,7 @@ export class CreateDocumentSignerDto {
   hierarchy_level: number;
 
   constructor(props: CreateDocumentSignerDto) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -236,9 +277,7 @@ export class DocumentSignerEntity
 
   constructor(props: DocumentSignerEntity) {
     super(props);
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 
@@ -266,9 +305,7 @@ export class SchoolSettingEntity implements AnnualSchoolSetting {
   documentSigners: DocumentSignerEntity[];
 
   constructor(props: SchoolSettingEntity) {
-    Object.entries(props).forEach(([key, value]) => {
-      if (key in this) this[key] = value;
-    });
+    Object.assign(this, props);
   }
 }
 

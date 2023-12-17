@@ -25,3 +25,8 @@ export type DisableDepartmentsPayload = SchemaRequestQuery<
   operations,
   'DepartmentsController_disableManyDepartments'
 >;
+
+export type QueryParams = SchemaRequestQuery<
+  operations,
+  'DepartmentsController_getDepartments'
+>;

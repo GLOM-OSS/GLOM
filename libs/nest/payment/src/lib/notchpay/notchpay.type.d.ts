@@ -16,12 +16,26 @@ export type InitiatePaymentPayload = {
   currency?: string;
   /**The customer's fullname or business name */
   name?: string;
+  callback?: string;
 };
 
 export type CompletePaymentPayload = {
   channel: 'cm.mtn' | 'cm.orange' | 'cm.mobile';
   phone: string;
 };
+
+export type NotchPaymentStatus =
+  | 'pending'
+  | 'failed'
+  | 'complete'
+  | 'rejected'
+  | 'canceled'
+  | 'abandoned'
+  | 'expired'
+  | 'hold'
+  | 'incomplete'
+  | 'processing'
+  | 'refunded';
 
 export type NotchpayTransaction = {
   fee: number;
@@ -32,7 +46,7 @@ export type NotchpayTransaction = {
   description: string;
   reference: string;
   merchant_reference: string;
-  status: 'pending';
+  status: NotchPaymentStatus;
   currency: string;
   initiated_at: string;
   updated_at: string;
@@ -45,6 +59,7 @@ export type NotchpayResponse = {
 };
 
 export type InitializePaymentResponse = NotchpayResponse & {
+  authorization_url: string;
   transaction: NotchpayTransaction;
 };
 

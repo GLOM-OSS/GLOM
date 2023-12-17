@@ -1,6 +1,10 @@
 import {
+  useCreateDepartment,
+  useUpdateDepartment,
+} from '@glom/data-access/squoolr';
+import {
   CreateDepartmentPayload,
-  UpdateDepartmentPayload,
+  DepartmentEntity,
 } from '@glom/data-types/squoolr';
 import { generateShort } from '@glom/utils';
 import {
@@ -25,14 +29,13 @@ export default function NewDepartmentDialog({
 }: {
   isDialogOpen: boolean;
   closeDialog: () => void;
-  editableDepartment?: UpdateDepartmentPayload;
+  editableDepartment?: DepartmentEntity;
 }) {
-  //TODO: UpdateDepartmentPayload needs to have the department_id in it
   const { formatMessage } = useIntl();
 
   const initialValues: CreateDepartmentPayload = {
     department_acronym: editableDepartment?.department_acronym ?? '',
-    department_name: editableDepartment?.department_acronym ?? '',
+    department_name: editableDepartment?.department_name ?? '',
   };
 
   const validationSchema = Yup.object().shape({
@@ -44,25 +47,31 @@ export default function NewDepartmentDialog({
     ),
   });
 
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { mutate: createDepartment, isPending: isCreatingDepartment } =
+    useCreateDepartment();
+  const { mutate: updateDepartment, isPending: isUpdatingDepartment } =
+    useUpdateDepartment(editableDepartment?.department_id);
+  const isSubmitting = isCreatingDepartment || isUpdatingDepartment;
   const formik = useFormik({
     initialValues,
     validationSchema,
     enableReinitialize: true,
     onSubmit: (values, { resetForm }) => {
       if (!!editableDepartment) {
-        //TODO: CALL API HERE TO UPDATE DEPARTMENT WITH DATA values
+        updateDepartment(values, {
+          onSuccess() {
+            close();
+            resetForm();
+          },
+        });
       } else {
-        //TODO: call api here to create department with data values
+        createDepartment(values, {
+          onSuccess() {
+            close();
+            resetForm();
+          },
+        });
       }
-      setIsSubmitting(true);
-      setTimeout(() => {
-        alert('done creating');
-        close();
-        resetForm();
-        setIsSubmitting(false);
-      }, 3000);
     },
   });
 
@@ -161,7 +170,14 @@ export default function NewDepartmentDialog({
               variant="contained"
               color="primary"
               type="submit"
-              disabled={isSubmitting}
+              disabled={
+                isSubmitting ||
+                (!!editableDepartment &&
+                  editableDepartment.department_acronym ===
+                    formik.values.department_acronym &&
+                  editableDepartment.department_name ===
+                    formik.values.department_name)
+              }
               startIcon={
                 isSubmitting && <CircularProgress color="primary" size={18} />
               }

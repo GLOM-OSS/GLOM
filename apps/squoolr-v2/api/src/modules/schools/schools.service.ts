@@ -2,6 +2,7 @@ import { NotchPayService } from '@glom/payment';
 import { GlomPrismaService } from '@glom/prisma';
 import { excludeKeys } from '@glom/utils';
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
@@ -14,10 +15,10 @@ import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 import { AcademicYearArgsFactory } from '../academic-years/academic-year-args.factory';
 import { SchoolArgsFactory } from './school-args.factory';
 import {
+  QuerySchoolDto,
   SchoolDemandDetails,
   SchoolSettingEntity,
   SubmitSchoolDemandDto,
-  UpdateSchoolDemandStatus,
   UpdateSchoolDto,
   UpdateSchoolSettingDto,
   ValidateSchoolDemandDto,
@@ -68,16 +69,32 @@ export class SchoolsService {
     });
   }
 
-  async findAll() {
+  async findAll(params?: QuerySchoolDto) {
     const schools = await this.prismaService.school.findMany({
       ...SchoolArgsFactory.getSchoolSelect(),
+      where: {
+        is_deleted: params?.is_deleted ?? false,
+        school_name: params?.keywords
+          ? { search: params?.keywords }
+          : undefined,
+        SchoolDemand: params?.schoolDemandStatus
+          ? { demand_status: { in: params?.schoolDemandStatus } }
+          : undefined,
+      },
     });
     return schools.map((school) => SchoolArgsFactory.getSchoolEntity(school));
   }
 
+  private async verifyPayment(payment_id: string) {
+    const payment = await this.prismaService.payment.findUniqueOrThrow({
+      where: { payment_id },
+    });
+    return this.notchPayService.verifyPayment(payment.payment_ref);
+  }
+
   async create(demandpayload: SubmitSchoolDemandDto) {
     const {
-      payment_phone,
+      payment_id,
       school: {
         school_email,
         school_phone_number,
@@ -94,20 +111,10 @@ export class SchoolsService {
       data: { school_code },
     } = await this.getFistYearSetup(demandpayload);
 
-    let payment_ref: string;
-    let onboarding_fee: number;
-    if (payment_phone) {
-      const payment = await this.payOnboardingFee(payment_phone).catch(
-        (error: AxiosError) => {
-          throw new UnprocessableEntityException(
-            `Payment failed for: ${
-              error.response.data['message'] || error.message
-            }`
-          );
-        }
-      );
-      payment_ref = payment.reference;
-      onboarding_fee = payment.amount;
+    if (payment_id) {
+      const payment = await this.verifyPayment(payment_id);
+      if (payment.status !== 'complete')
+        throw new UnprocessableEntityException('Payment was not completed');
     }
     const [school] = await this.prismaService.$transaction([
       this.prismaService.school.create({
@@ -127,15 +134,10 @@ export class SchoolsService {
           },
           SchoolDemand: {
             create: {
-              ...(payment_phone
+              ...(payment_id
                 ? {
                     Payment: {
-                      create: {
-                        payment_ref,
-                        provider: 'NotchPay',
-                        amount: onboarding_fee,
-                        payment_reason: 'Onboarding',
-                      },
+                      connect: { payment_id },
                     },
                   }
                 : { Ambassador: { connect: { referral_code } } }),
@@ -194,7 +196,7 @@ export class SchoolsService {
 
   async updateStatus(
     school_id: string,
-    payload: UpdateSchoolDemandStatus,
+    school_demand_status: SchoolDemandStatus,
     audited_by: string
   ) {
     const schoolDemand = await this.prismaService.schoolDemand.findFirst({
@@ -203,20 +205,28 @@ export class SchoolsService {
     if (!schoolDemand) throw new NotFoundException('School demand');
 
     const { demand_status, ambassador_id, rejection_reason } = schoolDemand;
-    await this.prismaService.schoolDemand.update({
-      data: {
-        demand_status: payload.school_demand_status,
-        SchoolDemandAudits: {
-          create: {
-            audited_by,
-            ambassador_id,
-            demand_status,
-            rejection_reason,
+    if (
+      (demand_status === 'VALIDATED' && school_demand_status !== 'SUSPENDED') ||
+      (demand_status === 'PENDING' && school_demand_status === 'PROCESSING')
+    )
+      await this.prismaService.schoolDemand.update({
+        data: {
+          demand_status: school_demand_status,
+          SchoolDemandAudits: {
+            create: {
+              audited_by,
+              ambassador_id,
+              demand_status,
+              rejection_reason,
+            },
           },
         },
-      },
-      where: { school_id },
-    });
+        where: { school_id },
+      });
+    else
+      throw new BadRequestException(
+        `Cannot change status from '${demand_status}' to ${school_demand_status}`
+      );
   }
 
   async update(
@@ -237,6 +247,8 @@ export class SchoolsService {
               'subdomain',
               'created_at',
               'created_by',
+              'school_id',
+              'school_code',
             ]),
             AuditedBy: { connect: { annual_configurator_id: audited_by } },
           },
@@ -301,20 +313,6 @@ export class SchoolsService {
         where: { academic_year_id },
       });
     return new SchoolSettingEntity({ ...schoolSetting, documentSigners });
-  }
-
-  private async payOnboardingFee(phone: string) {
-    const settings =
-      await this.prismaService.platformSettings.findFirstOrThrow();
-    const newPayment = await this.notchPayService.initiatePayment({
-      amount: settings.onboarding_fee,
-      phone,
-    });
-    await this.notchPayService.completePayment(newPayment.reference, {
-      channel: 'cm.mobile',
-      phone,
-    });
-    return newPayment;
   }
 
   private async getFistYearSetup({
