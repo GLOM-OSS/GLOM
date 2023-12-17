@@ -8,3 +8,9 @@ export type CreateCourseModuleInput = Pick<
   | 'semester_number'
   | 'annual_classroom_id'
 > & { module_code: string; school_id: string };
+
+export type UpdateCourseModuleInput = Partial<
+  Omit<CreateCourseModuleInput, 'academic_year_id'> & {
+    disable: boolean;
+  }
+>;

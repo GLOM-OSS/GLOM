@@ -1,10 +1,10 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
 import { QueryCourseDto } from '../course.dto';
-import { CreateCourseModuleInput } from './module';
+import { CreateCourseModuleInput, UpdateCourseModuleInput } from './module';
 import { CourseModuleEntity } from './module.dto';
 import { CodeGeneratorFactory } from '../../../helpers/code-generator.factory';
-import { generateShort } from '@glom/utils';
+import { excludeKeys, generateShort } from '@glom/utils';
 
 @Injectable()
 export class CourseModulesService {
@@ -58,5 +58,35 @@ export class CourseModulesService {
       },
     });
     return new CourseModuleEntity(courseModule);
+  }
+
+  async update(
+    annual_module_id: string,
+    { disable, ...updatePayload }: UpdateCourseModuleInput,
+    audited_by: string
+  ) {
+    const { annual_classroom_id, ...annualModuleAudit } =
+      await this.prismaService.annualModule.findFirstOrThrow({
+        where: { annual_module_id },
+      });
+    await this.prismaService.annualModule.update({
+      data: {
+        ...updatePayload,
+        is_deleted: disable,
+        AnnualModuleAudits: {
+          create: {
+            ...excludeKeys(annualModuleAudit, [
+              'annual_module_id',
+              'academic_year_id',
+              'created_at',
+              'created_by',
+            ]),
+            AnnualClassroom: { connect: { annual_classroom_id } },
+            AuditedBy: { connect: { annual_teacher_id: audited_by } },
+          },
+        },
+      },
+      where: { annual_module_id },
+    });
   }
 }

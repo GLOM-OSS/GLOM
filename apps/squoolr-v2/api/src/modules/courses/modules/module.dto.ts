@@ -2,6 +2,8 @@ import {
   ApiHideProperty,
   ApiProperty,
   ApiPropertyOptional,
+  OmitType,
+  PartialType,
 } from '@nestjs/swagger';
 import { AnnualModule } from '@prisma/client';
 import { Exclude } from 'class-transformer';
@@ -33,6 +35,11 @@ export class CreateCourseModuleDto {
     Object.assign(this, props);
   }
 }
+
+export class UpdateCourseModuleDto extends OmitType(
+  PartialType(CreateCourseModuleDto),
+  ['annual_classroom_id']
+) {}
 
 export class CourseModuleEntity
   extends CreateCourseModuleDto
