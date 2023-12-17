@@ -1,8 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -12,7 +15,7 @@ import { Request } from 'express';
 import { Roles } from '../../../app/auth/auth.decorator';
 import { AuthenticatedGuard } from '../../../app/auth/auth.guard';
 import { Role } from '../../../utils/enums';
-import { QueryCourseModuleDto } from './module.dto';
+import { QueryCourseModuleDto, UpdateCourseModuleDto } from './module.dto';
 import { ModuleEntity, CreateCourseModuleDto } from './module.dto';
 import { CourseModulesService } from './modules.service';
 
@@ -43,6 +46,40 @@ export class CourseModulesController {
     return this.courseModulesService.create(
       newModule,
       { academic_year_id, school_id },
+      annual_teacher_id
+    );
+  }
+
+  @Put(':annual_module_id')
+  @Roles(Role.COORDINATOR)
+  updateModule(
+    @Req() request: Request,
+    @Param('annual_module_id') annualModuleId: string,
+    @Body() updalePayload: UpdateCourseModuleDto
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user;
+    return this.courseModulesService.update(
+      annualModuleId,
+      updalePayload,
+      annual_teacher_id
+    );
+  }
+
+  @Delete(':annual_module_id')
+  @Roles(Role.COORDINATOR)
+  disableModule(
+    @Req() request: Request,
+    @Param('annual_module_id') annualModuleId: string,
+    @Query('disable') disable: UpdateCourseModuleDto['disable']
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user;
+    return this.courseModulesService.update(
+      annualModuleId,
+      { disable },
       annual_teacher_id
     );
   }

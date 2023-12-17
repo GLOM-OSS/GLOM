@@ -5,7 +5,12 @@ import { Prisma } from '@prisma/client';
 import { CodeGeneratorFactory } from '../../../helpers/code-generator.factory';
 import { MetaParams } from '../../module';
 import { UpdateCourseModuleInput } from './module';
-import { CreateCourseModuleDto, ModuleEntity, QueryCourseModuleDto } from './module.dto';
+import {
+  CreateCourseModuleDto,
+  ModuleEntity,
+  QueryCourseModuleDto,
+  UpdateCourseModuleDto,
+} from './module.dto';
 
 @Injectable()
 export class CourseModulesService {
@@ -66,10 +71,10 @@ export class CourseModulesService {
 
   async update(
     annual_module_id: string,
-    { disable, ...updatePayload }: UpdateCourseModuleInput,
+    { disable, ...updatePayload }: UpdateCourseModuleDto,
     audited_by: string
   ) {
-    const { annual_classroom_id, ...annualModuleAudit } =
+    const annualModuleAudit =
       await this.prismaService.annualModule.findFirstOrThrow({
         where: { annual_module_id },
       });
@@ -82,13 +87,21 @@ export class CourseModulesService {
             ...excludeKeys(annualModuleAudit, [
               'annual_module_id',
               'academic_year_id',
+              'annual_classroom_id',
               'created_at',
               'created_by',
             ]),
-            AnnualClassroom: { connect: { annual_classroom_id } },
             AuditedBy: { connect: { annual_teacher_id: audited_by } },
           },
         },
+        AnnualSubjects: disable
+          ? {
+              updateMany: {
+                data: { is_deleted: true },
+                where: { annual_module_id },
+              },
+            }
+          : undefined,
       },
       where: { annual_module_id },
     });

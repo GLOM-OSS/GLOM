@@ -9,10 +9,11 @@ import { AnnualModule } from '@prisma/client';
 import { Exclude, Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsIn,
   IsNumber,
   IsOptional,
-  IsString
+  IsString,
 } from 'class-validator';
 import { QueryParamsDto } from '../../modules.dto';
 
@@ -46,7 +47,12 @@ export class CreateCourseModuleDto {
 export class UpdateCourseModuleDto extends OmitType(
   PartialType(CreateCourseModuleDto),
   ['annual_classroom_id']
-) {}
+) {
+  @IsBoolean()
+  @IsOptional()
+  @ApiPropertyOptional()
+  disable?: boolean;
+}
 
 export class ModuleEntity
   extends CreateCourseModuleDto
