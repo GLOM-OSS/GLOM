@@ -1,10 +1,9 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { excludeKeys, generateShort } from '@glom/utils';
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Prisma, PrismaPromise } from '@prisma/client';
 import { CodeGeneratorFactory } from '../../../helpers/code-generator.factory';
 import { MetaParams } from '../../module';
-import { UpdateCourseModuleInput } from './module';
 import {
   CreateCourseModuleDto,
   DisableCourseModuleDto,
