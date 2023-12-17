@@ -41,7 +41,8 @@ export class CourseModulesController {
       annualTeacher: { annual_teacher_id },
     } = request.user;
     return this.courseModulesService.create(
-      { ...newModule, academic_year_id, school_id },
+      newModule,
+      { academic_year_id, school_id },
       annual_teacher_id
     );
   }

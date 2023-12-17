@@ -1,10 +1,11 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { Injectable } from '@nestjs/common';
-import { QueryCourseModuleDto } from './module.dto';
-import { CreateCourseModuleInput, UpdateCourseModuleInput } from './module';
-import { ModuleEntity } from './module.dto';
-import { CodeGeneratorFactory } from '../../../helpers/code-generator.factory';
 import { excludeKeys, generateShort } from '@glom/utils';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { CodeGeneratorFactory } from '../../../helpers/code-generator.factory';
+import { MetaParams } from '../../module';
+import { UpdateCourseModuleInput } from './module';
+import { CreateCourseModuleDto, ModuleEntity, QueryCourseModuleDto } from './module.dto';
 
 @Injectable()
 export class CourseModulesService {
@@ -25,28 +26,25 @@ export class CourseModulesService {
         module_code: params?.keywords ? { search: params.keywords } : undefined,
       },
     });
-    return annualModules.map(
-      (annualModule) => new ModuleEntity(annualModule)
-    );
+    return annualModules.map((annualModule) => new ModuleEntity(annualModule));
   }
 
   async create(
     {
       annual_classroom_id,
-      academic_year_id,
       module_code,
-      school_id,
       module_name,
       credit_points,
       semester_number,
-    }: CreateCourseModuleInput,
+    }: CreateCourseModuleDto,
+    metaParams: MetaParams,
     created_by: string
   ) {
     let moduleCode = module_code;
     const moduleShort = generateShort(module_name);
     if (!moduleCode || moduleCode === moduleShort)
       moduleCode = await this.codeGenerator.getModuleCode(
-        school_id,
+        metaParams.school_id,
         moduleShort
       );
 
@@ -58,7 +56,9 @@ export class CourseModulesService {
         module_code: moduleCode,
         AnnualClassroom: { connect: { annual_classroom_id } },
         CreatedBy: { connect: { annual_teacher_id: created_by } },
-        AcademicYear: { connect: { academic_year_id } },
+        AcademicYear: {
+          connect: { academic_year_id: metaParams.academic_year_id },
+        },
       },
     });
     return new ModuleEntity(courseModule);

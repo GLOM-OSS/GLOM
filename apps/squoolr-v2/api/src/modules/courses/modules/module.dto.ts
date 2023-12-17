@@ -7,7 +7,13 @@ import {
 } from '@nestjs/swagger';
 import { AnnualModule } from '@prisma/client';
 import { Exclude, Type } from 'class-transformer';
-import { IsArray, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsIn,
+  IsNumber,
+  IsOptional,
+  IsString
+} from 'class-validator';
 import { QueryParamsDto } from '../../modules.dto';
 
 export class CreateCourseModuleDto {
