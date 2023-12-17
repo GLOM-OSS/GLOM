@@ -1,12 +1,13 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { excludeKeys, generateShort } from '@glom/utils';
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, PrismaPromise } from '@prisma/client';
 import { CodeGeneratorFactory } from '../../../helpers/code-generator.factory';
 import { MetaParams } from '../../module';
 import { UpdateCourseModuleInput } from './module';
 import {
   CreateCourseModuleDto,
+  DisableCourseModuleDto,
   ModuleEntity,
   QueryCourseModuleDto,
   UpdateCourseModuleDto,
@@ -105,5 +106,43 @@ export class CourseModulesService {
       },
       where: { annual_module_id },
     });
+  }
+
+  disable(annual_module_id: string, disable: boolean, audited_by: string) {
+    return this.update(annual_module_id, { disable }, audited_by);
+  }
+
+  async disableMany(
+    { annualModuleIds, disable }: DisableCourseModuleDto,
+    audited_by: string
+  ) {
+    const annualModuleAudits = await this.prismaService.annualModule.findMany({
+      where: { annual_module_id: { in: annualModuleIds } },
+    });
+    const prismaTransactions: PrismaPromise<Prisma.BatchPayload>[] = [
+      this.prismaService.annualModule.updateMany({
+        data: { is_deleted: disable },
+        where: { annual_module_id: { in: annualModuleIds } },
+      }),
+      this.prismaService.annualModuleAudit.createMany({
+        data: annualModuleAudits.map((annualModule) => ({
+          ...excludeKeys(annualModule, [
+            'academic_year_id',
+            'annual_classroom_id',
+            'created_at',
+            'created_by',
+          ]),
+          audited_by,
+        })),
+      }),
+    ];
+    if (disable)
+      prismaTransactions.push(
+        this.prismaService.annualSubject.updateMany({
+          data: { is_deleted: true },
+          where: { annual_module_id: { in: annualModuleIds } },
+        })
+      );
+    await this.prismaService.$transaction(prismaTransactions);
   }
 }

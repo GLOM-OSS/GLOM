@@ -8,6 +8,7 @@ import {
 import { AnnualModule } from '@prisma/client';
 import { Exclude, Type } from 'class-transformer';
 import {
+  ArrayMinSize,
   IsArray,
   IsBoolean,
   IsIn,
@@ -96,4 +97,14 @@ export class QueryCourseModuleDto extends QueryParamsDto {
   @IsString()
   @ApiProperty()
   annual_classroom_id: string;
+}
+
+export class DisableCourseModuleDto {
+  @ArrayMinSize(1)
+  @IsString({ each: true })
+  annualModuleIds: string[];
+
+  @IsBoolean()
+  @ApiProperty()
+  disable: boolean;
 }

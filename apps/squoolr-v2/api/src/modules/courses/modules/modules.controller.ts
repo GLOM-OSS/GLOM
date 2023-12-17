@@ -15,7 +15,11 @@ import { Request } from 'express';
 import { Roles } from '../../../app/auth/auth.decorator';
 import { AuthenticatedGuard } from '../../../app/auth/auth.guard';
 import { Role } from '../../../utils/enums';
-import { QueryCourseModuleDto, UpdateCourseModuleDto } from './module.dto';
+import {
+  DisableCourseModuleDto,
+  QueryCourseModuleDto,
+  UpdateCourseModuleDto,
+} from './module.dto';
 import { ModuleEntity, CreateCourseModuleDto } from './module.dto';
 import { CourseModulesService } from './modules.service';
 
@@ -77,9 +81,24 @@ export class CourseModulesController {
     const {
       annualTeacher: { annual_teacher_id },
     } = request.user;
-    return this.courseModulesService.update(
+    return this.courseModulesService.disable(
       annualModuleId,
-      { disable },
+      disable,
+      annual_teacher_id
+    );
+  }
+
+  @Delete()
+  @Roles(Role.COORDINATOR)
+  disableManyModules(
+    @Req() request: Request,
+    @Query() disablePayload: DisableCourseModuleDto
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user;
+    return this.courseModulesService.disableMany(
+      disablePayload,
       annual_teacher_id
     );
   }
