@@ -135,3 +135,13 @@ export class UpdateCourseSubjectDto extends OmitType(
   @ApiProperty()
   disable: boolean;
 }
+
+export class DisableCourseSubjectDto {
+  @ArrayMinSize(1)
+  @IsString({ each: true })
+  annualSubjectIds: string[];
+
+  @IsBoolean()
+  @ApiProperty()
+  disable: boolean;
+}

@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -17,6 +18,7 @@ import { AuthenticatedGuard } from '../../../app/auth/auth.guard';
 import { Role } from '../../../utils/enums';
 import {
   CreateCourseSubjectDto,
+  DisableCourseSubjectDto,
   QueryCourseSubjectDto,
   SubjectEntity,
   UpdateCourseSubjectDto,
@@ -75,6 +77,40 @@ export class CourseSubjectsController {
     return this.courseSubjectsService.update(
       annualSubjectId,
       payload,
+      annual_teacher_id
+    );
+  }
+
+  @Delete(':annual_subject_id')
+  @Roles(Role.COORDINATOR)
+  @ApiOkResponse({ type: SubjectEntity })
+  disableSubject(
+    @Req() request: Request,
+    @Param('annual_subject_id') annualSubjectId: string,
+    @Query('disable') disable: UpdateCourseSubjectDto['disable']
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user;
+    return this.courseSubjectsService.disable(
+      annualSubjectId,
+      disable,
+      annual_teacher_id
+    );
+  }
+
+  @Delete()
+  @Roles(Role.COORDINATOR)
+  @ApiOkResponse({ type: SubjectEntity })
+  disableManySubjects(
+    @Req() request: Request,
+    @Query() disablePayload: DisableCourseSubjectDto
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user;
+    return this.courseSubjectsService.disableMany(
+      disablePayload,
       annual_teacher_id
     );
   }
