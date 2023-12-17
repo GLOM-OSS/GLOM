@@ -6,8 +6,9 @@ import {
   PartialType,
 } from '@nestjs/swagger';
 import { AnnualModule } from '@prisma/client';
-import { Exclude } from 'class-transformer';
-import { IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Exclude, Type } from 'class-transformer';
+import { IsArray, IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
+import { QueryParamsDto } from '../../modules.dto';
 
 export class CreateCourseModuleDto {
   @IsString()
@@ -41,7 +42,7 @@ export class UpdateCourseModuleDto extends OmitType(
   ['annual_classroom_id']
 ) {}
 
-export class CourseModuleEntity
+export class ModuleEntity
   extends CreateCourseModuleDto
   implements AnnualModule
 {
@@ -68,8 +69,19 @@ export class CourseModuleEntity
   @ApiHideProperty()
   created_by: string;
 
-  constructor(props: CourseModuleEntity) {
+  constructor(props: ModuleEntity) {
     super(props);
     Object.assign(this, props);
   }
+}
+export class QueryCourseModuleDto extends QueryParamsDto {
+  @IsArray()
+  @IsOptional()
+  @Type(() => Number)
+  @ApiPropertyOptional()
+  semesters?: number[];
+
+  @IsString()
+  @ApiProperty()
+  annual_classroom_id: string;
 }

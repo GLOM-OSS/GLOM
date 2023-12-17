@@ -12,8 +12,8 @@ import { Request } from 'express';
 import { Roles } from '../../../app/auth/auth.decorator';
 import { AuthenticatedGuard } from '../../../app/auth/auth.guard';
 import { Role } from '../../../utils/enums';
-import { QueryCourseDto } from '../course.dto';
-import { CourseModuleEntity, CreateCourseModuleDto } from './module.dto';
+import { QueryCourseModuleDto } from './module.dto';
+import { ModuleEntity, CreateCourseModuleDto } from './module.dto';
 import { CourseModulesService } from './modules.service';
 
 @ApiTags('Course modules')
@@ -23,14 +23,14 @@ export class CourseModulesController {
   constructor(private courseModulesService: CourseModulesService) {}
 
   @Get()
-  @ApiOkResponse({ type: [CourseModuleEntity] })
-  getCourseModules(@Query() params: QueryCourseDto) {
+  @ApiOkResponse({ type: [ModuleEntity] })
+  getCourseModules(@Query() params: QueryCourseModuleDto) {
     return this.courseModulesService.findAll(params);
   }
 
   @Post('new')
   @Roles(Role.COORDINATOR)
-  @ApiOkResponse({ type: CourseModuleEntity })
+  @ApiOkResponse({ type: ModuleEntity })
   createCourseModule(
     @Req() request: Request,
     @Body() newModule: CreateCourseModuleDto

@@ -1,8 +1,8 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
-import { QueryCourseDto } from '../course.dto';
+import { QueryCourseModuleDto } from './module.dto';
 import { CreateCourseModuleInput, UpdateCourseModuleInput } from './module';
-import { CourseModuleEntity } from './module.dto';
+import { ModuleEntity } from './module.dto';
 import { CodeGeneratorFactory } from '../../../helpers/code-generator.factory';
 import { excludeKeys, generateShort } from '@glom/utils';
 
@@ -13,7 +13,7 @@ export class CourseModulesService {
     private codeGenerator: CodeGeneratorFactory
   ) {}
 
-  async findAll(params?: QueryCourseDto) {
+  async findAll(params?: QueryCourseModuleDto) {
     const semesters = params?.semesters ?? [];
     const annualModules = await this.prismaService.annualModule.findMany({
       where: {
@@ -21,10 +21,12 @@ export class CourseModulesService {
         annual_classroom_id: params?.annual_classroom_id,
         semester_number:
           semesters.length > 0 ? { in: params?.semesters } : undefined,
+        module_name: params?.keywords ? { search: params.keywords } : undefined,
+        module_code: params?.keywords ? { search: params.keywords } : undefined,
       },
     });
     return annualModules.map(
-      (annualModule) => new CourseModuleEntity(annualModule)
+      (annualModule) => new ModuleEntity(annualModule)
     );
   }
 
@@ -41,11 +43,13 @@ export class CourseModulesService {
     created_by: string
   ) {
     let moduleCode = module_code;
-    if (!moduleCode)
+    const moduleShort = generateShort(module_name);
+    if (!moduleCode || moduleCode === moduleShort)
       moduleCode = await this.codeGenerator.getModuleCode(
         school_id,
-        generateShort(module_name)
+        moduleShort
       );
+
     const courseModule = await this.prismaService.annualModule.create({
       data: {
         module_name,
@@ -57,7 +61,7 @@ export class CourseModulesService {
         AcademicYear: { connect: { academic_year_id } },
       },
     });
-    return new CourseModuleEntity(courseModule);
+    return new ModuleEntity(courseModule);
   }
 
   async update(
