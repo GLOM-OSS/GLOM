@@ -165,14 +165,13 @@ export class MajorsService {
     payload: UpdateMajorPayload,
     audited_by: string
   ) {
-    const { AnnualModules, ...annualMajorAudit } =
+    const { AnnualClassrooms, ...annualMajorAudit } =
       await this.prismaService.annualMajor.findFirstOrThrow({
         select: {
-          annual_major_id: true,
           major_acronym: true,
           major_name: true,
           is_deleted: true,
-          AnnualModules: true,
+          AnnualClassrooms: true,
         },
         where: { annual_major_id },
       });
@@ -193,14 +192,20 @@ export class MajorsService {
         ? [
             this.prismaService.annualModule.updateMany({
               data: { is_deleted: true },
-              where: { annual_major_id },
+              where: {
+                OR: AnnualClassrooms.map(({ annual_classroom_id }) => ({
+                  annual_classroom_id,
+                })),
+              },
             }),
             this.prismaService.annualSubject.updateMany({
               data: { is_deleted: true },
               where: {
-                OR: AnnualModules.map(({ annual_module_id }) => ({
-                  annual_module_id,
-                })),
+                AnnualModule: {
+                  OR: AnnualClassrooms.map(({ annual_classroom_id }) => ({
+                    annual_classroom_id,
+                  })),
+                },
               },
             }),
             this.prismaService.annualClassroom.updateMany({
