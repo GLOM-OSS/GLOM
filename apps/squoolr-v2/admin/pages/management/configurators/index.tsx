@@ -32,11 +32,11 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import TableSkeleton from 'libs/components/src/table/TableSkeleton';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import FilterMenu from '../../../component/management/configurators/FilterMenu';
 import ManageConfiguratorMenu from '../../../component/management/configurators/ManageConfiguratorMenu';
+import { TableSkeleton } from '@glom/components';
 
 export function Index() {
   const theme = useTheme();

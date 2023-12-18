@@ -96,7 +96,10 @@ export default function Demand() {
   const isSubmitting = isPayingFee || isSubmittingDemand;
 
   function handlePayAndSubmitDemand() {
-    if (referralData.referral_code) handleSubmitDemand();
+    let paymentStatus = localStorage.getItem('paymentStatus');
+    if (paymentStatus) paymentStatus = decrypt<string>(paymentStatus);
+    if (referralData.referral_code || paymentStatus === 'complete')
+      handleSubmitDemand();
     else if (validatePhoneNumber(payingPhone) !== -1)
       payOnboardingFee(
         { payment_phone: `+237${payingPhone}`, callback_url: location.href },
@@ -238,6 +241,7 @@ export default function Demand() {
         ...submitData.configurator,
         confirm_password: submitData.configurator.password,
       });
+      localStorage.setItem('paymentStatus', encrypt(status));
       if (status === 'complete')
         submitDemand(submitData, {
           onSuccess(data) {
@@ -250,6 +254,10 @@ export default function Demand() {
             router.push('/demand');
           },
         });
+      else {
+        setIsCallback(false);
+        router.push('/demand');
+      }
     }
   }, [router.query]);
 

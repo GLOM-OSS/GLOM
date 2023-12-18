@@ -1,6 +1,19 @@
-import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
-import { SchoolDemandStatus } from '@prisma/client';
-import { Transform, Type } from 'class-transformer';
+import {
+  ApiHideProperty,
+  ApiProperty,
+  ApiPropertyOptional,
+  OmitType,
+  PartialType,
+  PickType,
+} from '@nestjs/swagger';
+import {
+  AnnualDocumentSigner,
+  AnnualSchoolSetting,
+  MarkInsertionSource,
+  School,
+  SchoolDemandStatus,
+} from '@prisma/client';
+import { Exclude, Transform, Type } from 'class-transformer';
 import {
   IsDate,
   IsEmail,
@@ -95,11 +108,14 @@ export class ValidateSchoolDemandDto {
   subdomain?: string;
 }
 
-export class SchoolEntity extends OmitType(CreateSchoolDto, [
-  'referral_code',
-  'initial_year_ends_at',
-  'initial_year_starts_at',
-]) {
+export class SchoolEntity
+  extends OmitType(CreateSchoolDto, [
+    'referral_code',
+    'initial_year_ends_at',
+    'initial_year_starts_at',
+  ])
+  implements School
+{
   @ApiProperty()
   school_id: string;
 
@@ -121,8 +137,52 @@ export class SchoolEntity extends OmitType(CreateSchoolDto, [
   @ApiProperty({ nullable: true })
   subdomain: string | null;
 
+  @ApiProperty({ nullable: true })
+  creation_decree_number: string | null;
+
+  @ApiProperty({ nullable: true })
+  description: string | null;
+
   @ApiProperty()
   created_at: Date;
+
+  @Exclude()
+  @ApiHideProperty()
+  created_by: string;
+
+  @ApiProperty()
+  longitude: number;
+
+  @ApiProperty()
+  latitude: number;
+
+  @ApiProperty()
+  address: string;
+
+  @ApiProperty()
+  logo_ref: string;
+
+  @ApiProperty()
+  is_validated: boolean;
+
+  @Exclude()
+  @ApiHideProperty()
+  validated_at: Date;
+
+  @Exclude()
+  @ApiHideProperty()
+  validated_by: string;
+
+  @ApiProperty()
+  is_deleted: boolean;
+
+  @Exclude()
+  @ApiHideProperty()
+  deleted_at: Date;
+
+  @Exclude()
+  @ApiHideProperty()
+  deleted_by: string;
 
   constructor(props: SchoolEntity) {
     super(props);
@@ -156,4 +216,111 @@ export class UpdateSchoolDemandStatus {
   constructor(props: UpdateSchoolDemandStatus) {
     Object.assign(this, props);
   }
+}
+
+export class UpdateSchoolDto extends PartialType(
+  PickType(SchoolEntity, [
+    'creation_decree_number',
+    'description',
+    'school_acronym',
+    'school_email',
+    'address',
+    'logo_ref',
+    'school_name',
+    'school_phone_number',
+    'subdomain',
+  ])
+) {}
+
+export class CreateDocumentSignerDto {
+  @ApiProperty({ example: 'Yongua' })
+  signer_name: string;
+
+  @ApiProperty({ example: 'The Rector' })
+  signer_title: string;
+
+  @ApiProperty({ example: 'Mr, Ms, Dr, etc' })
+  honorific: string;
+
+  @ApiProperty()
+  hierarchy_level: number;
+
+  constructor(props: CreateDocumentSignerDto) {
+    Object.assign(this, props);
+  }
+}
+
+export class DocumentSignerEntity
+  extends CreateDocumentSignerDto
+  implements AnnualDocumentSigner
+{
+  @ApiProperty()
+  annual_document_signer_id: string;
+
+  @ApiProperty()
+  annual_school_setting_id: string;
+
+  @Exclude()
+  @ApiHideProperty()
+  is_deleted: boolean;
+
+  @ApiProperty()
+  created_at: Date;
+
+  @Exclude()
+  @ApiHideProperty()
+  created_by: string;
+
+  @Exclude()
+  @ApiHideProperty()
+  deleted_by: string;
+
+  constructor(props: DocumentSignerEntity) {
+    super(props);
+    Object.assign(this, props);
+  }
+}
+
+export class SchoolSettingEntity implements AnnualSchoolSetting {
+  @ApiProperty()
+  annual_school_setting_id: string;
+
+  @ApiProperty()
+  academic_year_id: string;
+
+  @ApiProperty()
+  can_pay_fee: boolean;
+
+  @ApiProperty({ enum: MarkInsertionSource })
+  mark_insertion_source: MarkInsertionSource;
+
+  @ApiProperty()
+  created_at: Date;
+
+  @Exclude()
+  @ApiHideProperty()
+  created_by: string;
+
+  @ApiProperty({ type: [DocumentSignerEntity] })
+  documentSigners: DocumentSignerEntity[];
+
+  constructor(props: SchoolSettingEntity) {
+    Object.assign(this, props);
+  }
+}
+
+export class UpdateSchoolSettingDto extends PickType(
+  PartialType(SchoolSettingEntity),
+  ['can_pay_fee', 'mark_insertion_source']
+) {
+  @IsOptional()
+  @ApiPropertyOptional()
+  @IsString({ each: true })
+  deletedSignerIds?: string[];
+
+  @IsOptional()
+  @ApiPropertyOptional({ type: CreateDocumentSignerDto })
+  @ValidateNested({ each: true })
+  @Type(() => CreateDocumentSignerDto)
+  newDocumentSigners?: CreateDocumentSignerDto[];
 }

@@ -2,6 +2,7 @@ import {
   SchemaResponseBody,
   SchemaRequestBody,
   SchemaCreateResponseBody,
+  SchemaRequestQuery,
 } from '../../api-helper';
 import { operations } from '../docs';
 
@@ -18,4 +19,14 @@ export type DepartmentEntity = SchemaCreateResponseBody<
 export type UpdateDepartmentPayload = SchemaRequestBody<
   operations,
   'DepartmentsController_updateDepartment'
+>;
+
+export type DisableDepartmentsPayload = SchemaRequestQuery<
+  operations,
+  'DepartmentsController_disableManyDepartments'
+>;
+
+export type QueryParams = SchemaRequestQuery<
+  operations,
+  'DepartmentsController_getDepartments'
 >;

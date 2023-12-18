@@ -12,12 +12,14 @@ export default function ManageDepartmentMenu({
   isArchived = false,
   confirmArchive,
   confirmUnarchive,
+  editDepartment,
 }: {
   closeMenu: () => void;
   anchorEl: HTMLElement | null;
   isOpen: boolean;
   confirmArchive: () => void;
   confirmUnarchive: () => void;
+  editDepartment: () => void;
   isArchived?: boolean;
 }) {
   const { formatMessage } = useIntl();
@@ -37,7 +39,7 @@ export default function ManageDepartmentMenu({
         <MenuItem
           onClick={() => {
             closeMenu();
-            alert('Edit Department');
+            editDepartment();
           }}
         >
           <Stack direction="row" spacing={1} alignItems={'center'}>

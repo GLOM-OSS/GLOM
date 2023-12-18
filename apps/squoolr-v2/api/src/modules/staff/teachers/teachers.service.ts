@@ -1,5 +1,5 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { StaffRole } from '../../../utils/enums';
 import {
   CreateTeacherInput,
@@ -10,6 +10,7 @@ import {
 } from '../staff';
 import { StaffArgsFactory } from '../staff-args.factory';
 import { StaffEntity, TeacherEntity } from '../staff.dto';
+import { excludeKeys, pickKeys } from '@glom/utils';
 
 @Injectable()
 export class TeachersService
@@ -18,19 +19,8 @@ export class TeachersService
   constructor(private prismaService: GlomPrismaService) {}
   async findOne(annual_teacher_id: string) {
     const {
-      Teacher: {
-        Login: {
-          login_id,
-          Person,
-          Logs: [log],
-          AnnualConfigurators: [configrator],
-          AnnualRegistries: [registry],
-          Teacher: {
-            AnnualTeachers: [{ AnnualClassroomDivisions: codinatedClass }],
-          },
-        },
-        ...teacher
-      },
+      Teacher: { Login, matricule, ...teacher },
+      is_deleted,
       ...annual_teacher
     } = await this.prismaService.annualTeacher.findFirstOrThrow({
       select: StaffArgsFactory.getTeacherSelect(),
@@ -38,82 +28,31 @@ export class TeachersService
     });
 
     return new TeacherEntity({
-      login_id,
-      annual_teacher_id,
       ...teacher,
-      ...Person,
       ...annual_teacher,
-      last_connected: log?.logged_in_at ?? null,
-      roles: [{ registry }, { configrator }, { codinatedClass }].reduce<
-        StaffRole[]
-      >(
-        (roles, _) =>
-          _.registry
-            ? [...roles, StaffRole.REGISTRY]
-            : _.configrator
-            ? [...roles, StaffRole.CONFIGURATOR]
-            : _.codinatedClass
-            ? [...roles, StaffRole.COORDINATOR]
-            : roles,
-        [StaffRole.TEACHER]
-      ),
+      ...StaffArgsFactory.getStaffEntity({ Login, is_deleted, matricule }),
+      annual_teacher_id,
       role: StaffRole.TEACHER,
     });
   }
 
   async findAll(staffParams?: StaffSelectParams) {
+    const teacherSelect = StaffArgsFactory.getStaffSelect(staffParams);
+    const { academic_year_id, is_deleted, ...teacherWhereInput } =
+      StaffArgsFactory.getStaffWhereInput(staffParams);
     const teachers = await this.prismaService.annualTeacher.findMany({
       select: {
-        annual_teacher_id: true,
-        Teacher: {
-          select: {
-            matricule: true,
-            ...StaffArgsFactory.getStaffSelect(staffParams),
-          },
-        },
+        is_deleted: true,
+        Teacher: { select: excludeKeys(teacherSelect, ['is_deleted']) },
       },
-      where: { Teacher: StaffArgsFactory.getStaffWhereInput(staffParams) },
+      where: { academic_year_id, is_deleted, Teacher: teacherWhereInput },
     });
-    return teachers.map(
-      ({
-        annual_teacher_id,
-        Teacher: {
-          matricule,
-          is_deleted,
-          Login: {
-            login_id,
-            Person,
-            Logs: [log],
-            AnnualConfigurators: [configrator],
-            AnnualRegistries: [registry],
-            Teacher: {
-              AnnualTeachers: [{ AnnualClassroomDivisions: codinatedClass }],
-            },
-          },
-        },
-      }) =>
-        new StaffEntity({
-          login_id,
-          ...Person,
-          matricule,
-          is_deleted,
-          annual_teacher_id,
-          last_connected: log?.logged_in_at ?? null,
-          roles: [{ registry }, { configrator }, { codinatedClass }].reduce<
-            StaffRole[]
-          >(
-            (roles, _) =>
-              _.registry
-                ? [...roles, StaffRole.REGISTRY]
-                : _.configrator
-                ? [...roles, StaffRole.CONFIGURATOR]
-                : _.codinatedClass
-                ? [...roles, StaffRole.COORDINATOR]
-                : roles,
-            [StaffRole.TEACHER]
-          ),
-          role: StaffRole.TEACHER,
-        })
+    return teachers.map(({ is_deleted, Teacher: { matricule, Login } }) =>
+      StaffArgsFactory.getStaffEntity({
+        Login,
+        matricule,
+        is_deleted,
+      })
     );
   }
 
@@ -132,6 +71,14 @@ export class TeachersService
   ) {
     const { AcademicYear, Login } =
       StaffArgsFactory.getStaffCreateInput(payload);
+    const login = await this.prismaService.login.findUnique({
+      where: {
+        person_id_school_id: {
+          school_id: payload.school_id,
+          person_id: payload.person_id ?? '',
+        },
+      },
+    });
     const {
       Teacher: {
         Login: { login_id, Person: person },
@@ -155,7 +102,7 @@ export class TeachersService
               private_code: payload.private_code,
               TeacherType: { connect: { teacher_type_id } },
             },
-            where: {},
+            where: { login_id: login?.login_id ?? '' },
           },
         },
         AcademicYear,
@@ -184,6 +131,7 @@ export class TeachersService
       origin_institute,
       has_signed_convention,
       hourly_rate,
+      delete: archive,
       ...payload
     }: UpdateTeacherInput,
     audited_by: string
@@ -193,6 +141,7 @@ export class TeachersService
         Login: { Person },
         ...teacher
       },
+      is_deleted,
       ...annualTeacher
     } = await this.prismaService.annualTeacher.findUniqueOrThrow({
       select: {
@@ -201,52 +150,73 @@ export class TeachersService
       },
       where: { annual_teacher_id },
     });
-    const isDeleted = payload.delete ? !annualTeacher.is_deleted : undefined;
     await this.prismaService.annualTeacher.update({
       data: {
-        ...(isDeleted !== undefined
-          ? { is_deleted: isDeleted }
-          : {
-              hourly_rate,
-              origin_institute,
-              has_signed_convention,
-              TeachingGrade: teaching_grade_id
-                ? { connect: { teaching_grade_id } }
-                : undefined,
-              Teacher: {
+        hourly_rate,
+        origin_institute,
+        has_signed_convention,
+        TeachingGrade: teaching_grade_id
+          ? { connect: { teaching_grade_id } }
+          : undefined,
+        Teacher:
+          has_tax_payers_card ||
+          tax_payer_card_number ||
+          teacher_type_id ||
+          Object.keys(payload).length > 0
+            ? {
                 update: {
                   has_tax_payers_card,
                   tax_payer_card_number,
                   TeacherType: teacher_type_id
                     ? { connect: { teacher_type_id } }
                     : undefined,
-                  TeacherAudits: {
-                    create: {
-                      ...teacher,
-                      audited_by,
-                    },
-                  },
-                  Login: {
-                    update: {
-                      Person: {
-                        update: {
-                          ...payload,
-                          PersonAudits: { create: { ...Person } },
-                        },
-                      },
-                    },
+                  TeacherAudits:
+                    has_tax_payers_card ||
+                    tax_payer_card_number ||
+                    teacher_type_id
+                      ? {
+                          create: {
+                            ...excludeKeys(teacher, ['matricule']),
+                            audited_by,
+                          },
+                        }
+                      : undefined,
+                  Login:
+                    Object.keys(payload).length > 0
+                      ? {
+                          update: {
+                            Person: {
+                              update: {
+                                ...payload,
+                                PersonAudits: { create: { ...Person } },
+                              },
+                            },
+                          },
+                        }
+                      : undefined,
+                },
+              }
+            : undefined,
+        AnnualTeacherAudits:
+          hourly_rate ||
+          origin_institute ||
+          has_signed_convention ||
+          teaching_grade_id
+            ? {
+                create: {
+                  is_deleted,
+                  ...excludeKeys(annualTeacher, [
+                    'teaching_grade_id',
+                    'annual_teacher_id',
+                  ]),
+                  AuditedBy: {
+                    connect: { annual_configurator_id: audited_by },
                   },
                 },
-              },
-            }),
-        AnnualTeacherAudits: {
-          create: {
-            ...annualTeacher,
-            AuditedBy: {
-              connect: { annual_configurator_id: audited_by },
-            },
-          },
-        },
+              }
+            : undefined,
+
+        is_deleted: archive,
       },
       where: { annual_teacher_id },
     });
@@ -268,20 +238,25 @@ export class TeachersService
     }: TeacherCreateFromInput,
     created_by: string
   ) {
+    const existingTeacher = await this.prismaService.annualTeacher.findFirst({
+      where: { academic_year_id, login_id },
+    });
     const {
-      Teacher: {
-        Login: { Person: person },
-        ...teacher
-      },
-      ...annual_teacher
+      Teacher: { Login, ...teacher },
+      ...annualTeacher
     } = await this.prismaService.annualTeacher.upsert({
-      select: StaffArgsFactory.getTeacherSelect(),
+      select: {
+        annual_teacher_id: true,
+        ...StaffArgsFactory.getTeacherSelect(),
+      },
       create: {
-        hourly_rate,
-        origin_institute,
-        has_signed_convention,
+        hourly_rate: hourly_rate ?? 0,
+        origin_institute: origin_institute ?? '',
+        has_signed_convention: has_signed_convention,
         AcademicYear: { connect: { academic_year_id } },
-        TeachingGrade: { connect: { teaching_grade_id } },
+        TeachingGrade: {
+          connect: { teaching_grade_id: teaching_grade_id ?? '' },
+        },
         Teacher: {
           connectOrCreate: {
             create: {
@@ -290,27 +265,51 @@ export class TeachersService
               has_tax_payers_card,
               tax_payer_card_number,
               Login: { connect: { login_id } },
-              TeacherType: { connect: { teacher_type_id } },
+              TeacherType: {
+                connect: { teacher_type_id: teacher_type_id ?? '' },
+              },
             },
             where: { login_id },
           },
         },
         CreatedBy: { connect: { annual_configurator_id: created_by } },
       },
-      update: { is_deleted: false },
+      update: {
+        is_deleted: false,
+        AnnualTeacherAudits: {
+          create: {
+            ...(existingTeacher
+              ? pickKeys(existingTeacher, [
+                  'is_deleted',
+                  'hourly_rate',
+                  'origin_institute',
+                  'has_signed_convention',
+                ])
+              : {
+                  hourly_rate,
+                  origin_institute,
+                  has_signed_convention,
+                  is_deleted: false,
+                }),
+            AuditedBy: {
+              connect: { annual_configurator_id: created_by },
+            },
+          },
+        },
+      },
       where: {
         login_id_academic_year_id: { academic_year_id, login_id },
       },
     });
 
     return new TeacherEntity({
-      login_id,
-      matricule,
-      roles: [],
-      last_connected: null,
+      ...StaffArgsFactory.getStaffEntity({
+        is_deleted: false,
+        matricule,
+        Login,
+      }),
       ...teacher,
-      ...person,
-      ...annual_teacher,
+      ...annualTeacher,
       role: StaffRole.TEACHER,
     });
   }

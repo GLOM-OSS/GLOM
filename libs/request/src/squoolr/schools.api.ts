@@ -5,6 +5,9 @@ import {
   ValidateSchoolDemandPayload,
   SchoolDemandStatus,
   SchoolQueryParams,
+  UpdateSchoolPayload,
+  SchoolSettingEntity,
+  UpdateSchoolSettingPayload,
 } from '@glom/data-types/squoolr';
 import { GlomRequest } from '../lib/glom-request';
 
@@ -61,6 +64,23 @@ export class SchoolsApi {
     const resp = await this.request.put(`/schools/${schoolId}/status`, {
       school_demand_status: status,
     });
+    return resp.data;
+  }
+
+  async updateSchool(payload: UpdateSchoolPayload) {
+    const resp = await this.request.put(`/schools/my-school`, payload);
+    return resp.data;
+  }
+
+  async getSchoolSettings() {
+    const resp = await this.request.get<SchoolSettingEntity>(
+      `/schools/settings`
+    );
+    return resp.data;
+  }
+
+  async updateSchoolSettings(payload: UpdateSchoolSettingPayload) {
+    const resp = await this.request.put(`/schools/settings`, payload);
     return resp.data;
   }
 }

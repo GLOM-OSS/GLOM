@@ -1,3 +1,4 @@
+import { useSetNewPassword } from '@glom/data-access/squoolr';
 import { useTheme } from '@glom/theme';
 import eye from '@iconify/icons-fluent/eye-32-regular';
 import eyeSlash from '@iconify/icons-fluent/eye-hide-24-regular';
@@ -12,16 +13,16 @@ import {
   Typography,
 } from '@mui/material';
 import { useFormik } from 'formik';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import * as Yup from 'yup';
 import Footer from './Footer';
-import { useResetPassword, useSetNewPassword } from '@glom/data-access/squoolr';
-import { useRouter } from 'next/router';
 
 export function ResetPassword() {
   const theme = useTheme();
   const {
+    push,
     query: { reset_password_id: resetPasswordId },
   } = useRouter();
   const { formatMessage } = useIntl();
@@ -48,7 +49,6 @@ export function ResetPassword() {
     validationSchema,
     enableReinitialize: true,
     onSubmit: ({ confirmPassword: new_password }, { resetForm }) => {
-      //TODO: CHECK ON THE NOTIF HERE, AND UPDATE OneUI own
       setNewPassword(
         {
           new_password,
@@ -57,6 +57,7 @@ export function ResetPassword() {
         {
           onSuccess() {
             resetForm();
+            push('/signin');
           },
         }
       );
@@ -169,9 +170,7 @@ export function ResetPassword() {
             fullWidth
             disabled={isSubmitting}
             startIcon={
-              isSubmitting && (
-                <CircularProgress color="primary" size={18} />
-              )
+              isSubmitting && <CircularProgress color="primary" size={18} />
             }
           >
             {formatMessage({ id: 'login' })}

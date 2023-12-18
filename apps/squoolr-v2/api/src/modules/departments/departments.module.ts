@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
+import { MajorsService } from '../majors/majors.service';
 import { DepartmentsController } from './departments.controller';
 import { DepartmentsService } from './departments.service';
-import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
 
 @Module({
-  providers: [CodeGeneratorFactory, DepartmentsService],
+  providers: [DepartmentsService, MajorsService],
   controllers: [DepartmentsController],
 })
 export class DepartmentsModule {}

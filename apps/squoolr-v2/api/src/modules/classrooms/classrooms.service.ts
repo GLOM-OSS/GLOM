@@ -1,47 +1,44 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { Injectable } from '@nestjs/common';
 import { UpdateClassroomPayload } from './classroom';
-import {
-  AnnualClassroomEntity,
-  QueryClassroomDto
-} from './classroom.dto';
+import { AnnualClassroomEntity, QueryClassroomDto } from './classroom.dto';
 
 @Injectable()
 export class ClassroomsService {
   constructor(private prismaService: GlomPrismaService) {}
 
-  async findAll(annual_major_id: string, params?: QueryClassroomDto) {
+  async findAll(params?: QueryClassroomDto) {
     const classrooms = await this.prismaService.annualClassroom.findMany({
+      orderBy: { classroom_level: 'asc' },
       include: {
-        Classroom: { select: { level: true } },
+        AnnualMajor: { select: { major_acronym: true, major_name: true } },
         AnnualClassroomDivisions: { select: { annual_coordinator_id: true } },
       },
       where: {
-        annual_major_id,
-        OR: [
-          {
-            is_deleted: params?.is_deleted,
-            Classroom: params?.level ? { level: params.level } : undefined,
-          },
-          {
-            classroom_name: {
-              search: params?.keywords,
-            },
-          },
-        ],
+        is_deleted: params?.is_deleted ?? false,
+        classroom_level: params?.level,
+        annual_major_id: params?.annual_major_id,
+        AnnualMajor: params?.keywords
+          ? { major_name: { search: params?.keywords } }
+          : undefined,
+        AnnualClassroomDivisions: params?.annual_coordinator_id
+          ? { some: { annual_coordinator_id: params.annual_coordinator_id } }
+          : undefined,
       },
     });
     return classrooms.map(
       ({
-        Classroom: { level },
+        classroom_level,
+        AnnualMajor: { major_acronym, major_name },
         AnnualClassroomDivisions: [{ annual_coordinator_id }],
-        ...data
+        ...classroomData
       }) =>
         new AnnualClassroomEntity({
-          ...data,
+          classroom_level,
           annual_coordinator_id,
-          classroom_level: level,
-          number_of_divisions: 1,
+          classroom_name: `${major_name} ${classroom_level}`,
+          classroom_acronym: `${major_acronym}${classroom_level}`,
+          ...classroomData,
         })
     );
   }
@@ -52,13 +49,12 @@ export class ClassroomsService {
     audited_by: string
   ) {
     const annualClassroomAudit =
-      await this.prismaService.annualClassroom.findUnique({
+      await this.prismaService.annualClassroom.findFirstOrThrow({
         select: {
-          registration_fee: true,
-          total_fee_due: true,
           is_deleted: true,
+          number_of_divisions: true,
         },
-        where: { annual_classroom_id },
+        where: { annual_classroom_id, is_deleted: !payload.is_deleted },
       });
     await this.prismaService.annualClassroom.update({
       data: {
@@ -72,5 +68,17 @@ export class ClassroomsService {
       },
       where: { annual_classroom_id },
     });
+  }
+
+  async disableMany(
+    annualClassroomIds: string[],
+    disable: boolean,
+    disabled_by: string
+  ) {
+    await Promise.all(
+      annualClassroomIds.map((annualClassroomId) =>
+        this.update(annualClassroomId, { is_deleted: disable }, disabled_by)
+      )
+    );
   }
 }

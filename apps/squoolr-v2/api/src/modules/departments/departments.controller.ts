@@ -10,7 +10,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles } from '../../app/auth/auth.decorator';
 import { Role } from '../../utils/enums';
@@ -19,6 +24,7 @@ import { QueryParamsDto } from '../modules.dto';
 import {
   CreateDepartmentDto,
   DepartmentEntity,
+  DisableDepartmentsDto,
   UpdateDepartmentDto,
 } from './department.dto';
 import { DepartmentsService } from './departments.service';
@@ -29,7 +35,7 @@ import { DepartmentsService } from './departments.service';
 export class DepartmentsController {
   constructor(private departmentsService: DepartmentsService) {}
 
-  @Get('all')
+  @Get()
   @ApiOkResponse({ type: [DepartmentEntity] })
   async getDepartments(
     @Req() request: Request,
@@ -77,7 +83,7 @@ export class DepartmentsController {
   @Delete(':department_id')
   @Roles(Role.CONFIGURATOR)
   @ApiNoContentResponse()
-  async deleteDepartment(
+  async disableDepartment(
     @Req() request: Request,
     @Param('department_id') department_id: string
   ) {
@@ -87,6 +93,22 @@ export class DepartmentsController {
     return this.departmentsService.update(
       department_id,
       { is_deleted: true },
+      annual_configurator_id
+    );
+  }
+
+  @Delete()
+  @Roles(Role.CONFIGURATOR)
+  @ApiNoContentResponse()
+  async disableManyDepartments(
+    @Req() request: Request,
+    @Query() { departmentIds }: DisableDepartmentsDto
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user;
+    return this.departmentsService.disableMany(
+      departmentIds,
       annual_configurator_id
     );
   }

@@ -2,12 +2,16 @@ import {
   AcademicYearApi,
   AmbassadorsApi,
   AuthApi,
-  SchoolsApi,
   InquiriesApi,
-  PlatformSettingsApi,
-  StaffApi,
   PaymentsApi,
+  PlatformSettingsApi,
+  SchoolsApi,
+  StaffApi,
 } from '../squoolr';
+import { ClassroomsApi } from '../squoolr/classrooms.api';
+import { DepartmentsApi } from '../squoolr/departments.api';
+import { HelpersApi } from '../squoolr/helpers.api';
+import { MajorsApi } from '../squoolr/majors.api';
 import { GlomRequest, RequestParams } from './glom-request';
 
 export const GLOM_HOSTS = {
@@ -35,6 +39,10 @@ export class GlomApi {
     ambassadors: AmbassadorsApi;
     academicYears: AcademicYearApi;
     platformSettings: PlatformSettingsApi;
+    departments: DepartmentsApi;
+    majors: MajorsApi;
+    classrooms: ClassroomsApi;
+    helpers: HelpersApi;
   };
 
   constructor(public params?: Partial<RequestParams>) {
@@ -54,6 +62,10 @@ export class GlomApi {
       ambassadors: new AmbassadorsApi(squoolrRequest),
       academicYears: new AcademicYearApi(squoolrRequest),
       platformSettings: new PlatformSettingsApi(squoolrRequest),
+      departments: new DepartmentsApi(squoolrRequest),
+      majors: new MajorsApi(squoolrRequest),
+      classrooms: new ClassroomsApi(squoolrRequest),
+      helpers: new HelpersApi(squoolrRequest),
     };
   }
 }

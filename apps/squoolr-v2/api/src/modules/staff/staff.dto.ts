@@ -5,10 +5,8 @@ import {
   IntersectionType,
   OmitType,
   PartialType,
-  PickType,
-  getSchemaPath,
+  getSchemaPath
 } from '@nestjs/swagger';
-import { Gender } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
@@ -35,6 +33,12 @@ export class StaffRoleDto {
   @IsEnum(StaffRole)
   @ApiProperty({ enum: StaffRole })
   role: StaffRole;
+}
+
+export class UpdateStaffStatus extends StaffRoleDto {
+  @ApiProperty()
+  @IsBoolean()
+  disable: boolean;
 }
 
 export class QueryOneStaffDto extends StaffRoleDto {}
@@ -81,9 +85,6 @@ export class StaffEntity
 
   @ApiPropertyOptional()
   annual_teacher_id?: string;
-
-  @ApiPropertyOptional()
-  annual_coordinator_id?: string;
 
   @ApiProperty({ enum: StaffRole, isArray: true })
   roles: StaffRole[];
@@ -275,6 +276,7 @@ export type UpdateStaffPayloadDto =
   UpdateTeacherDto
 )
 export class UpdateStaffDto {
+  @ValidateNested()
   @Type(() => StaffRoleDto, {
     discriminator: {
       property: 'role',
@@ -293,7 +295,7 @@ export class UpdateStaffDto {
   payload: UpdateStaffPayloadDto;
 }
 
-export class ManageStaffDto {
+export class CategorizedStaffIDs {
   @ApiProperty()
   @IsString({ each: true })
   teacherIds: string[];
@@ -307,6 +309,12 @@ export class ManageStaffDto {
   configuratorIds: string[];
 }
 
+export class ManageStaffDto extends CategorizedStaffIDs {
+  @IsBoolean()
+  @ApiProperty()
+  disable: boolean;
+}
+
 export class CoordinateClassDto extends OmitType(UpdateCoordinatorDto, [
   'role',
 ]) {}
@@ -318,9 +326,9 @@ export class UpdateStaffRoleDto {
 
   @IsOptional()
   @ValidateNested()
-  @Type(() => ManageStaffDto)
-  @ApiPropertyOptional({ type: ManageStaffDto })
-  disabledStaffPayload?: ManageStaffDto;
+  @Type(() => CategorizedStaffIDs)
+  @ApiPropertyOptional({ type: CategorizedStaffIDs })
+  disabledStaffPayload?: CategorizedStaffIDs;
 
   @IsOptional()
   @ValidateNested()

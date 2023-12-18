@@ -20,13 +20,15 @@ import { Request } from 'express';
 import { IsPublic, Roles } from '../../app/auth/auth.decorator';
 import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 import { Role } from '../../utils/enums';
-import { QueryParamsDto } from '../modules.dto';
 import {
+  QuerySchoolDto,
   SchoolDemandDetails,
   SchoolEntity,
-  QuerySchoolDto,
+  SchoolSettingEntity,
   SubmitSchoolDemandDto,
   UpdateSchoolDemandStatus,
+  UpdateSchoolDto,
+  UpdateSchoolSettingDto,
   ValidateSchoolDemandDto,
 } from './schools.dto';
 import { SchoolsService } from './schools.service';
@@ -40,27 +42,27 @@ export class SchoolsController {
 
   @Get()
   @ApiOkResponse({ type: [SchoolEntity] })
-  getAllDemands(@Query() params?: QuerySchoolDto) {
+  getSchools(@Query() params?: QuerySchoolDto) {
     return this.schoolsService.findAll(params);
   }
 
   @IsPublic()
   @Get([':school_id', ':school_code'])
   @ApiOkResponse({ type: SchoolEntity })
-  getDemandStatus(@Param('school_id') identifier: string) {
+  getSchool(@Param('school_id') identifier: string) {
     return this.schoolsService.findOne(identifier);
   }
 
   @Get(':school_id/details')
   @ApiOkResponse({ type: SchoolDemandDetails })
-  getDemandDetails(@Param('school_id') schoolId: string) {
+  getSchoolDetails(@Param('school_id') schoolId: string) {
     return this.schoolsService.findDetails(schoolId);
   }
 
   @IsPublic()
   @Post('new')
   @ApiCreatedResponse({ type: SchoolEntity })
-  submitDemand(@Body() schoolDemandPayload: SubmitSchoolDemandDto) {
+  submitSchoolDemand(@Body() schoolDemandPayload: SubmitSchoolDemandDto) {
     const {
       payment_id,
       school: { referral_code },
@@ -78,7 +80,7 @@ export class SchoolsController {
 
   @ApiNoContentResponse()
   @Put(':school_id/validate')
-  validateDemand(
+  validateSchoolDemand(
     @Req() request: Request,
     @Param('school_id') schoolId: string,
     @Body() validatedDemand: ValidateSchoolDemandDto
@@ -89,16 +91,54 @@ export class SchoolsController {
       throw new BadRequestException(
         'rejection_reason and subdomain cannot coexist'
       );
-    return this.schoolsService.validateDemand(
-      schoolId,
-      validatedDemand,
-      userId
+    return this.schoolsService.validate(schoolId, validatedDemand, userId);
+  }
+
+  @Put('my-school')
+  @ApiOkResponse()
+  @Roles(Role.CONFIGURATOR)
+  updateSchool(@Req() request: Request, @Body() payload: UpdateSchoolDto) {
+    const {
+      school_id,
+      annualConfigurator: { annual_configurator_id },
+    } = request.user;
+    return this.schoolsService.update(
+      school_id,
+      payload,
+      annual_configurator_id
+    );
+  }
+
+  @Get('settings')
+  @ApiOkResponse({ type: SchoolSettingEntity })
+  @Roles(Role.CONFIGURATOR)
+  getSchoolSettings(@Req() request: Request) {
+    const {
+      activeYear: { academic_year_id },
+    } = request.user;
+    return this.schoolsService.getSettings(academic_year_id);
+  }
+
+  @Put('settings')
+  @ApiOkResponse()
+  @Roles(Role.CONFIGURATOR)
+  updateSchoolSettings(
+    @Req() request: Request,
+    @Body() payload: UpdateSchoolSettingDto
+  ) {
+    const {
+      activeYear: { academic_year_id },
+      annualConfigurator: { annual_configurator_id },
+    } = request.user;
+    return this.schoolsService.updateSettings(
+      academic_year_id,
+      payload,
+      annual_configurator_id
     );
   }
 
   @Put(':school_id/status')
   @ApiOkResponse()
-  @UseGuards(AuthenticatedGuard)
   updateSchoolStatus(
     @Req() request: Request,
     @Param('school_id') schoolId: string,

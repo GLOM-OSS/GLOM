@@ -18,11 +18,15 @@ export type UpdateStaffPayload = SchemaRequestBody<
 
 export type StaffEntity = SchemaResponseBody<
   operations,
-  'StaffController_getAllStaff'
->;
+  'StaffController_getStaffs'
+>[0];
 
 export type TeacherEntity = components['schemas']['TeacherEntity'];
 export type CoordinatorEntity = components['schemas']['CoordinatorEntity'];
+export type PartialCoordinator = Pick<
+  CoordinatorEntity,
+  'annualClassroomIds' | 'annual_teacher_id'
+>;
 
 export type BulkDisableStaffPayload = SchemaRequestQuery<
   operations,
@@ -51,9 +55,14 @@ export type ResetStaffPasswordPayload = SchemaRequestBody<
 
 export type StaffQueryParams = SchemaRequestQuery<
   operations,
-  'StaffController_getAllStaff'
+  'StaffController_getStaffs'
 >;
 export type StaffRole = SchemaRequestQuery<
   operations,
   'StaffController_getStaff'
 >['role'];
+
+export type StaffCreateResponseType =
+  | StaffEntity
+  | TeacherEntity
+  | CoordinatorEntity;

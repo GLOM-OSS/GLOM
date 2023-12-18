@@ -199,30 +199,31 @@ export class AuthService {
     new_password: string,
     subdomain: string
   ) {
-    const resetPassword = await this.prismaService.resetPassword.findFirst({
+    const {
+      Login: { School: school, ...login },
+    } = await this.prismaService.resetPassword.findFirstOrThrow({
       include: {
         Login: {
           select: {
             is_deleted: true,
             is_personnel: true,
             password: true,
+            School: { select: { subdomain: true } },
           },
         },
       },
       where: {
-        Login: {
-          School:
-            subdomain !== process.env.ADMIN_URL ? { subdomain } : undefined,
-        },
         is_valid: true,
         reset_password_id,
         expires_at: { gte: new Date() },
       },
     });
-    if (!resetPassword) throw new NotFoundException('Reset password not found');
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { Login: login } = resetPassword;
+    if (
+      school &&
+      !subdomain.includes('localhost') &&
+      !subdomain.includes(school.subdomain)
+    )
+      throw new UnauthorizedException('Unauthorized domain');
     return await this.prismaService.resetPassword.update({
       data: {
         is_valid: false,

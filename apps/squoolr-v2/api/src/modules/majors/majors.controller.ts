@@ -21,6 +21,7 @@ import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 import {
   AnnualMajorEntity,
   CreateMajorDto,
+  DisableMajorsDto,
   QueryMajorDto,
   UpdateMajorDto,
 } from './major.dto';
@@ -34,7 +35,7 @@ import { Role } from '../../utils/enums';
 export class MajorsController {
   constructor(private majorsService: MajorsService) {}
 
-  @Get('all')
+  @Get()
   @ApiProperty({ type: [AnnualMajorEntity] })
   async getMajors(@Req() request: Request, @Query() params?: QueryMajorDto) {
     const {
@@ -94,6 +95,23 @@ export class MajorsController {
     return this.majorsService.update(
       annualMajorId,
       { is_deleted: true },
+      annual_configurator_id
+    );
+  }
+
+  @Delete()
+  @Roles(Role.CONFIGURATOR)
+  @ApiNoContentResponse()
+  async disableMajors(
+    @Req() request: Request,
+    @Query() { annualMajorIds, disable }: DisableMajorsDto
+  ) {
+    const {
+      annualConfigurator: { annual_configurator_id },
+    } = request.user;
+    return this.majorsService.disableMany(
+      annualMajorIds,
+      disable,
       annual_configurator_id
     );
   }

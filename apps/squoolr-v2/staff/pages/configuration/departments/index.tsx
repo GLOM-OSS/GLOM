@@ -2,6 +2,7 @@ import {
   ConfirmDialog,
   NoTableElement,
   TableHeaderItem,
+  TableSkeleton,
 } from '@glom/components';
 import { DepartmentEntity } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
@@ -28,12 +29,15 @@ import {
   TextField,
   Tooltip,
 } from '@mui/material';
-import FilterMenu from 'apps/squoolr-v2/staff/components/configuration/departments/FilterMenu';
-import ManageDepartmentMenu from 'apps/squoolr-v2/staff/components/configuration/departments/ManageDepartmentMenu';
-import NewDepartmentDialog from 'apps/squoolr-v2/staff/components/configuration/departments/NewDepartmentDialog';
-import TableSkeleton from 'libs/components/src/table/TableSkeleton';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
+import FilterMenu from '../../../components/configuration/departments/FilterMenu';
+import ManageDepartmentMenu from '../../../components/configuration/departments/ManageDepartmentMenu';
+import NewDepartmentDialog from '../../../components/configuration/departments/NewDepartmentDialog';
+import {
+  useDepartments,
+  useDisableDepartments,
+} from '@glom/data-access/squoolr';
 
 export function Index() {
   const theme = useTheme();
@@ -47,44 +51,19 @@ export function Index() {
     '',
   ];
 
-  //TODO: REPLACE WITH with reactQuery own
-  const [isDepartmentDataFetching, setIsDepartmentDataFetching] =
-    useState<boolean>(true);
-
-  //TODO: FETCH LIST OF departments HERE
-  const [departmentData, setDepartmentData] = useState<DepartmentEntity[]>();
-
-  //TODO: REMOVE THIS WHEN INTEGRATION IS DONE
-  useEffect(() => {
-    setTimeout(() => {
-      setDepartmentData([
-        {
-          created_at: new Date().toISOString(),
-          created_by: '',
-          department_acronym: 'DS',
-          department_code: 'EF1203',
-          department_id: 'EF1203',
-          department_name: 'Department des Sciences',
-          is_deleted: false,
-          school_id: 'slei',
-        },
-      ]);
-      setIsDepartmentDataFetching(false);
-    }, 3000);
-  }, []);
+  const [searchValue, setSearchValue] = useState<string>('');
+  const [showArchives, setShowArchives] = useState<boolean>(false);
+  const {
+    isFetching: isDepartmentDataFetching,
+    data: departmentData,
+    refetch: refetchDepartments,
+  } = useDepartments({ is_deleted: showArchives, keywords: searchValue });
 
   const [canSearchExpand, setCanSearchExpand] = useState<boolean>(false);
-  const [searchValue, setSearchValue] = useState<string>('');
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [showArchives, setShowArchives] = useState<boolean>(false);
   const [filterAnchorEl, setFilterAnchorEl] = useState<HTMLElement | null>(
     null
   );
-
-  useEffect(() => {
-    //TODO: CALL fetch list of departments API HERE with searchValue and showArchives use it to filter. MUTATE DEMAND DATA WHEN IT'S DONE
-    alert('hello world');
-  }, [searchValue, showArchives]);
 
   const [selectedDepartmentIds, setSelectedDepartmentIds] = useState<string[]>(
     []
@@ -117,46 +96,44 @@ export function Index() {
   const [isConfirmUnarchiveDialogOpen, setIsConfirmUnarchiveDialogOpen] =
     useState<boolean>(false);
 
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isEditingDeparment, setIsEditingDepartment] = useState<boolean>(false);
-
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isArchiving, setIsArchiving] = useState<boolean>(false);
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isUnarchiving, setIsUnarchiving] = useState<boolean>(false);
+  const { mutate: archiveDepartment, isPending: isHandlingArchive } =
+    useDisableDepartments();
   function confirmArchiveUnarchive() {
-    if (isConfirmArchiveDialogOpen) {
-      setIsArchiving(true);
-      //TODO: CALL API HERE TO ARCHIVE DEPARTMENT with data selectedDepartmentIds if length>1 or otherwise [activeDepartmentId]
-      setTimeout(() => {
-        alert('done archiving');
-        //TODO: MUTATE departmentData here so the data updates
-        setIsArchiving(false);
-        setIsConfirmArchiveDialogOpen(false);
-        setActiveDepartmentId(undefined);
-      }, 3000);
-    }
-    if (isConfirmUnarchiveDialogOpen) {
-      setIsUnarchiving(true);
-      //TODO: CALL API HERE TO ARCHIVE DEPARTMENT with data selectedDepartmentIds if length>1 or otherwise [activeDepartmentId]
-      setTimeout(() => {
-        alert('done unarchiving');
-        //TODO: MUTATE departmentData here so the data updates
-        setIsUnarchiving(false);
-        setIsConfirmUnarchiveDialogOpen(false);
-        setActiveDepartmentId(undefined);
-      }, 3000);
-    }
+    archiveDepartment(
+      selectedDepartmentIds.length > 1
+        ? selectedDepartmentIds
+        : [activeDepartmentId],
+      {
+        onSuccess() {
+          (isConfirmArchiveDialogOpen
+            ? setIsConfirmArchiveDialogOpen
+            : setIsConfirmUnarchiveDialogOpen)(false);
+          setActiveDepartmentId(undefined);
+          refetchDepartments();
+        },
+      }
+    );
   }
 
   const [isNewDepartmentDialogOpen, setIsNewDepartmentDialogOpen] =
     useState<boolean>(false);
+  const [isEditDepartmentDialogOpen, setIsEditDepartmentDialogOpen] =
+    useState<boolean>(false);
+
+  const [editableDepartment, setEditableDepartment] =
+    useState<DepartmentEntity>();
 
   return (
     <>
       <NewDepartmentDialog
-        isDialogOpen={isNewDepartmentDialogOpen}
-        closeDialog={() => setIsNewDepartmentDialogOpen(false)}
+        isDialogOpen={isEditDepartmentDialogOpen || isNewDepartmentDialogOpen}
+        closeDialog={() => {
+          setEditableDepartment(undefined);
+          setIsNewDepartmentDialogOpen(false);
+          setIsEditDepartmentDialogOpen(false);
+          refetchDepartments();
+        }}
+        editableDepartment={editableDepartment}
       />
       <FilterMenu
         closeMenu={() => {
@@ -173,8 +150,18 @@ export function Index() {
         closeMenu={() => setAnchorEl(null)}
         isOpen={!!anchorEl}
         isArchived={isActiveDepartmentArchived}
-        confirmArchive={() => setIsConfirmArchiveDialogOpen(true)}
-        confirmUnarchive={() => setIsConfirmUnarchiveDialogOpen(true)}
+        confirmArchive={() => {
+          setEditableDepartment(undefined);
+          setIsConfirmArchiveDialogOpen(true);
+        }}
+        confirmUnarchive={() => {
+          setEditableDepartment(undefined);
+          setIsConfirmUnarchiveDialogOpen(true);
+        }}
+        editDepartment={() => {
+          setActiveDepartmentId(undefined);
+          setIsEditDepartmentDialogOpen(true);
+        }}
       />
       <ConfirmDialog
         closeDialog={() => {
@@ -208,7 +195,7 @@ export function Index() {
         })}
         danger
         closeOnConfirm
-        isSubmitting={isArchiving || isUnarchiving}
+        isSubmitting={isHandlingArchive}
       />
       <Box sx={{ height: '100%', position: 'relative' }}>
         <Box
@@ -273,10 +260,7 @@ export function Index() {
             <TableHeaderItem
               icon={reset}
               title={formatMessage({ id: 'reload' })}
-              onClick={() => {
-                //TODO: MUTATE TABLE VALUES HERE AND SEARCH AGAIN.
-                alert('hello world');
-              }}
+              onClick={() => refetchDepartments()}
             />
           </Box>
           {
@@ -292,7 +276,7 @@ export function Index() {
                 <Button
                   variant="outlined"
                   color="warning"
-                  disabled={isArchiving || isUnarchiving || isEditingDeparment}
+                  disabled={isHandlingArchive}
                   onClick={() => setIsConfirmUnarchiveDialogOpen(true)}
                 >
                   {formatMessage({ id: 'unarchiveSelected' })}
@@ -302,7 +286,7 @@ export function Index() {
                 <Button
                   variant="outlined"
                   color="warning"
-                  disabled={isArchiving || isUnarchiving || isEditingDeparment}
+                  disabled={isHandlingArchive}
                   onClick={() => setIsConfirmArchiveDialogOpen(true)}
                 >
                   {formatMessage({ id: 'archiveSelected' })}
@@ -340,17 +324,13 @@ export function Index() {
                         disabled={
                           !departmentData ||
                           isDepartmentDataFetching ||
-                          isArchiving ||
-                          isUnarchiving ||
-                          isEditingDeparment
+                          isHandlingArchive
                         }
                         onClick={() =>
-                          isArchiving || isUnarchiving || isEditingDeparment
-                            ? null
-                            : selectAllDepartments()
+                          isHandlingArchive ? null : selectAllDepartments()
                         }
                         checked={
-                          departmentData &&
+                          !!departmentData &&
                           selectedDepartmentIds.length === departmentData.length
                         }
                         icon={
@@ -389,23 +369,19 @@ export function Index() {
             </TableHead>
             <TableBody>
               {!departmentData || isDepartmentDataFetching ? (
-                [...new Array(4)].map((_, index) => (
-                  <TableSkeleton key={index} hasCheckbox hasMore />
-                ))
+                <TableSkeleton hasCheckbox hasMore />
               ) : departmentData.length === 0 ? (
                 <NoTableElement />
               ) : (
-                departmentData.map(
-                  (
-                    {
-                      created_at,
-                      department_acronym,
-                      department_name,
-                      department_id,
-                      is_deleted,
-                    },
-                    index
-                  ) => (
+                departmentData.map((department, index) => {
+                  const {
+                    created_at,
+                    department_acronym,
+                    department_name,
+                    department_id,
+                    is_deleted,
+                  } = department;
+                  return (
                     <TableRow
                       key={index}
                       sx={{
@@ -484,20 +460,12 @@ export function Index() {
                           <Tooltip arrow title={formatMessage({ id: 'more' })}>
                             <IconButton
                               size="small"
-                              disabled={
-                                isArchiving ||
-                                isUnarchiving ||
-                                isEditingDeparment
-                              }
+                              disabled={isHandlingArchive}
                               onClick={(event) => {
-                                if (
-                                  isArchiving ||
-                                  isUnarchiving ||
-                                  isEditingDeparment
-                                )
-                                  return null;
+                                if (isHandlingArchive) return null;
                                 setAnchorEl(event.currentTarget);
                                 setActiveDepartmentId(department_id);
+                                setEditableDepartment(department);
                                 setIsActiveDepartmentArchived(is_deleted);
                               }}
                             >
@@ -507,8 +475,8 @@ export function Index() {
                         )}
                       </TableCell>
                     </TableRow>
-                  )
-                )
+                  );
+                })
               )}
             </TableBody>
           </Table>

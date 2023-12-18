@@ -1,10 +1,11 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { excludeKeys } from '@glom/utils';
+import { excludeKeys, pickKeys } from '@glom/utils';
 import {
   Injectable,
   NotFoundException,
-  NotImplementedException,
+  NotImplementedException
 } from '@nestjs/common';
+import { Prisma, PrismaPromise } from '@prisma/client';
 import { StaffRole } from '../../../utils/enums';
 import { BatchPayloadDto } from '../../modules.dto';
 import {
@@ -43,7 +44,7 @@ export class CoordinatorsService
   async findOne(annual_coordinator_id: string) {
     const coordinatedClasses =
       await this.prismaService.annualClassroomDivision.findMany({
-        distinct: ['annual_coordinator_id'],
+        distinct: ['annual_classroom_id'],
         select: {
           annual_classroom_id: true,
           AnnualTeacher: {
@@ -54,110 +55,60 @@ export class CoordinatorsService
       });
     if (coordinatedClasses.length === 0)
       throw new NotFoundException('Coordinated classrooms not found !!!');
-    return coordinatedClasses.reduce<CoordinatorEntity>(
-      (
-        coordo,
-        {
-          annual_classroom_id,
-          AnnualTeacher: {
-            Teacher: {
-              Login: {
-                login_id,
-                Person,
-                Logs: [log],
-                AnnualConfigurators: [configrator],
-                AnnualRegistries: [registry],
-              },
-              ...teacher
-            },
-            ...annual_teacher
-          },
-        }
-      ) =>
-        new CoordinatorEntity(
-          coordo
-            ? {
-                ...coordo,
-                annualClassroomIds: coordo.annualClassroomIds.includes(
-                  annual_classroom_id
-                )
-                  ? coordo.annualClassroomIds
-                  : [...coordo.annualClassroomIds, annual_classroom_id],
-              }
-            : {
-                login_id,
-                ...Person,
-                ...teacher,
-                ...annual_teacher,
-                last_connected: log?.logged_in_at ?? null,
-                annualClassroomIds: [annual_classroom_id],
-                roles: [{ registry }, { configrator }].reduce<StaffRole[]>(
-                  (roles, _) =>
-                    _.registry
-                      ? [...roles, StaffRole.REGISTRY]
-                      : _.configrator
-                      ? [...roles, StaffRole.CONFIGURATOR]
-                      : roles,
-                  [StaffRole.TEACHER, StaffRole.COORDINATOR]
-                ),
-                role: StaffRole.COORDINATOR,
-              }
-        ),
-      CoordinatorEntity.prototype
-    );
+    const [
+      {
+        annual_classroom_id,
+        AnnualTeacher: {
+          Teacher: { Login, matricule, ...teacher },
+          is_deleted,
+          ...annualTeacher
+        },
+      },
+      ...otherClassess
+    ] = coordinatedClasses;
+    return new CoordinatorEntity({
+      ...StaffArgsFactory.getStaffEntity({
+        Login,
+        is_deleted,
+        matricule,
+      }),
+      ...teacher,
+      ...annualTeacher,
+      annualClassroomIds: [
+        annual_classroom_id,
+        ...(otherClassess ?? []).map((_) => _.annual_classroom_id),
+      ],
+      role: StaffRole.COORDINATOR,
+    });
   }
 
   async findAll(staffParams?: StaffSelectParams) {
+    const teacherSelect = StaffArgsFactory.getStaffSelect(staffParams);
+    const { academic_year_id, is_deleted, ...teacherWhereInput } =
+      StaffArgsFactory.getStaffWhereInput(staffParams);
     const coordinators =
       await this.prismaService.annualClassroomDivision.findMany({
         distinct: ['annual_coordinator_id'],
         select: {
           AnnualTeacher: {
-            select: StaffArgsFactory.getTeacherSelect(),
+            select: {
+              is_deleted: true,
+              Teacher: { select: excludeKeys(teacherSelect, ['is_deleted']) },
+            },
           },
         },
         where: {
-          is_deleted: false,
+          is_deleted,
           AnnualTeacher: {
-            Teacher: StaffArgsFactory.getStaffWhereInput(staffParams),
+            academic_year_id,
+            is_deleted,
+            Teacher: teacherWhereInput,
           },
         },
       });
     return coordinators.map(
-      ({
-        AnnualTeacher: {
-          Teacher: {
-            matricule,
-            is_deleted,
-            Login: {
-              login_id,
-              Person,
-              Logs: [log],
-              AnnualConfigurators: [configrator],
-              AnnualRegistries: [registry],
-            },
-          },
-          annual_teacher_id,
-        },
-      }) =>
-        new StaffEntity({
-          login_id,
-          ...Person,
-          matricule,
-          is_deleted,
-          annual_teacher_id,
-          last_connected: log?.logged_in_at ?? null,
-          roles: [{ registry }, { configrator }].reduce<StaffRole[]>(
-            (roles, _) =>
-              _.registry
-                ? [...roles, StaffRole.REGISTRY]
-                : _.configrator
-                ? [...roles, StaffRole.CONFIGURATOR]
-                : roles,
-            [StaffRole.TEACHER, StaffRole.COORDINATOR]
-          ),
-          role: StaffRole.COORDINATOR,
-        })
+      ({ AnnualTeacher: { is_deleted, Teacher: teacher } }) =>
+        StaffArgsFactory.getStaffEntity({ is_deleted, ...teacher })
     );
   }
 
@@ -221,32 +172,40 @@ export class CoordinatorsService
       ({ annual_classroom_id }) =>
         !annualClassroomIds.find((id) => id === annual_classroom_id)
     );
-    await this.prismaService.$transaction([
-      this.prismaService.annualClassroomDivision.updateMany({
-        data: {
-          annual_coordinator_id,
-        },
-        where: {
-          OR: addedClasses.map((annual_classroom_id) => ({
-            annual_classroom_id,
+    const prismaTransactions: PrismaPromise<Prisma.BatchPayload>[] = [];
+    if (addedClasses.length > 0)
+      prismaTransactions.push(
+        this.prismaService.annualClassroomDivision.updateMany({
+          data: { annual_coordinator_id },
+          where: {
+            OR: addedClasses.map((annual_classroom_id) => ({
+              annual_classroom_id,
+            })),
+          },
+        })
+      );
+    if (deletedClasses.length > 0)
+      prismaTransactions.push(
+        this.prismaService.annualClassroomDivision.updateMany({
+          data: { annual_coordinator_id: null },
+          where: {
+            OR: deletedClasses.map(({ annual_classroom_id }) => ({
+              annual_classroom_id,
+            })),
+          },
+        }),
+        this.prismaService.annualClassroomDivisionAudit.createMany({
+          data: deletedClasses.map((deletedClass) => ({
+            audited_by,
+            ...pickKeys(deletedClass, [
+              'annual_classroom_division_id',
+              'annual_coordinator_id',
+              'is_deleted',
+            ]),
           })),
-        },
-      }),
-      this.prismaService.annualClassroomDivision.updateMany({
-        data: { is_deleted: true },
-        where: {
-          OR: deletedClasses.map(({ annual_classroom_id }) => ({
-            annual_classroom_id,
-          })),
-        },
-      }),
-      this.prismaService.annualClassroomDivisionAudit.createMany({
-        data: deletedClasses.map((deletedClass) => ({
-          audited_by,
-          ...excludeKeys(deletedClass, ['created_by', 'created_at']),
-        })),
-        skipDuplicates: true,
-      }),
-    ]);
+          skipDuplicates: true,
+        })
+      );
+    await this.prismaService.$transaction(prismaTransactions);
   }
 }
