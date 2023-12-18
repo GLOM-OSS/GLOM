@@ -296,7 +296,7 @@ model SchoolDemand {
     demand_status    SchoolDemandStatus @default(PENDING)
     created_at       DateTime           @default(now()) @db.DateTime(0)
     rejection_reason String?            @db.Text
-    payment_id       String?            @db.VarChar(36)
+    payment_id       String?            @unique @db.VarChar(36)
     Payment          Payment?           @relation(fields: [payment_id], references: [payment_id], onDelete: Cascade, onUpdate: Cascade)
     school_id        String             @unique
     School           School             @relation(fields: [school_id], references: [school_id], onDelete: Cascade, onUpdate: Cascade)
