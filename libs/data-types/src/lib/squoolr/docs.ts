@@ -20,6 +20,9 @@ export interface paths {
   "/v1/cycles": {
     get: operations["AppController_getCycles"];
   };
+  "/v1/subject-parts": {
+    get: operations["AppController_getSubjectParts"];
+  };
   "/v1/auth/signin": {
     post: operations["AuthController_signIn"];
   };
@@ -196,6 +199,28 @@ export interface paths {
     put: operations["GradeWeightingsController_updateGradeWeighting"];
     delete: operations["GradeWeightingsController_deleteGradeWeighting"];
   };
+  "/v1/course-modules": {
+    get: operations["CourseModulesController_getCourseModules"];
+    delete: operations["CourseModulesController_disableManyModules"];
+  };
+  "/v1/course-modules/new": {
+    post: operations["CourseModulesController_createCourseModule"];
+  };
+  "/v1/course-modules/{annual_module_id}": {
+    put: operations["CourseModulesController_updateModule"];
+    delete: operations["CourseModulesController_disableModule"];
+  };
+  "/v1/course-subjects": {
+    get: operations["CourseSubjectsController_getSubjects"];
+    delete: operations["CourseSubjectsController_disableManySubjects"];
+  };
+  "/v1/course-subjects/new": {
+    post: operations["CourseSubjectsController_createSubject"];
+  };
+  "/v1/course-subjects/{annual_subject_id}": {
+    put: operations["CourseSubjectsController_updateSubject"];
+    delete: operations["CourseSubjectsController_disableSubject"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -226,6 +251,12 @@ export interface components {
       /** @enum {string} */
       cycle_name: "HND" | "DUT" | "DTS" | "BACHELOR" | "MASTER" | "DOCTORATE";
       number_of_years: number;
+      /** Format: date-time */
+      created_at: string;
+    };
+    SubjectPartEntity: {
+      subject_part_id: string;
+      subject_part_name: string;
       /** Format: date-time */
       created_at: string;
     };
@@ -882,6 +913,78 @@ export interface components {
       grade: string;
       point: number;
     };
+    ModuleEntity: {
+      module_name: string;
+      module_code?: string;
+      credit_points: number;
+      semester_number?: number;
+      annual_classroom_id: string;
+      annual_module_id: string;
+      is_exam_published: boolean;
+      is_resit_published: boolean;
+      is_deleted: boolean;
+      /** Format: date-time */
+      created_at: string;
+    };
+    CreateCourseModuleDto: {
+      module_name: string;
+      module_code?: string;
+      credit_points: number;
+      semester_number?: number;
+      annual_classroom_id: string;
+    };
+    UpdateCourseModuleDto: {
+      module_name?: string;
+      module_code?: string;
+      credit_points?: number;
+      semester_number?: number;
+      disable?: boolean;
+    };
+    CourseSubjectPart: {
+      number_of_hours: number;
+      subject_part_id: string;
+      subject_part_name: string;
+    };
+    CreateModuleNestedDto: {
+      credit_points: number;
+      semester_number?: number;
+      annual_classroom_id: string;
+    };
+    SubjectEntity: {
+      weighting: number;
+      objective?: string;
+      subject_code: string;
+      subject_name: string;
+      subjectParts: components["schemas"]["CourseSubjectPart"][];
+      annual_module_id?: string;
+      module?: components["schemas"]["CreateModuleNestedDto"];
+      annual_subject_id: string;
+      is_deleted: boolean;
+      /** Format: date-time */
+      created_at: string;
+    };
+    CreateSubjectPartDto: {
+      number_of_hours: number;
+      subject_part_id: string;
+    };
+    CreateCourseSubjectDto: {
+      weighting: number;
+      objective?: string;
+      subject_code: string;
+      subject_name: string;
+      subjectParts: components["schemas"]["CreateSubjectPartDto"][];
+      annual_module_id?: string;
+      module?: components["schemas"]["CreateModuleNestedDto"];
+    };
+    UpdateCourseSubjectDto: {
+      weighting?: number;
+      objective?: string;
+      subject_code?: string;
+      subject_name?: string;
+      subjectParts?: components["schemas"]["CreateSubjectPartDto"][];
+      module?: components["schemas"]["CreateModuleNestedDto"];
+      disable: boolean;
+    };
   };
   responses: never;
   parameters: never;
@@ -935,6 +1038,15 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["CycleEntity"][];
+        };
+      };
+    };
+  };
+  AppController_getSubjectParts: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["SubjectPartEntity"][];
         };
       };
     };
@@ -1799,6 +1911,150 @@ export interface operations {
     parameters: {
       path: {
         annual_grade_weighting_id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  CourseModulesController_getCourseModules: {
+    parameters: {
+      query: {
+        is_deleted?: boolean;
+        keywords?: string;
+        semesters?: string[];
+        annual_classroom_id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["ModuleEntity"][];
+        };
+      };
+    };
+  };
+  CourseModulesController_disableManyModules: {
+    parameters: {
+      query: {
+        annualModuleIds: string[];
+        disable: boolean;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  CourseModulesController_createCourseModule: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateCourseModuleDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["ModuleEntity"];
+        };
+      };
+    };
+  };
+  CourseModulesController_updateModule: {
+    parameters: {
+      path: {
+        annual_module_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateCourseModuleDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  CourseModulesController_disableModule: {
+    parameters: {
+      path: {
+        annual_module_id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  CourseSubjectsController_getSubjects: {
+    parameters: {
+      query: {
+        is_deleted?: boolean;
+        keywords?: string;
+        annual_module_id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["SubjectEntity"][];
+        };
+      };
+    };
+  };
+  CourseSubjectsController_disableManySubjects: {
+    parameters: {
+      query: {
+        disable: boolean;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  CourseSubjectsController_createSubject: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateCourseSubjectDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["SubjectEntity"];
+        };
+      };
+    };
+  };
+  CourseSubjectsController_updateSubject: {
+    parameters: {
+      path: {
+        annual_subject_id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateCourseSubjectDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  CourseSubjectsController_disableSubject: {
+    parameters: {
+      path: {
+        annual_subject_id: string;
       };
     };
     responses: {
