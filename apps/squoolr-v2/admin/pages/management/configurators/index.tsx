@@ -115,9 +115,13 @@ export function Index() {
 
   const { mutate: toggleAccountActiveState, isPending: isDisablingAccount } =
     useDisableStaffMembers();
-  function disableConfiguratorAccount(annualConfiguratorId: string | string[]) {
+  function toggleConfiguratorAccountActivity(
+    annualConfiguratorId: string | string[],
+    action: 'activate' | 'deactivate'
+  ) {
     toggleAccountActiveState(
       {
+        disable: action === 'deactivate',
         teacherIds: [],
         registryIds: [],
         configuratorIds:
@@ -226,10 +230,11 @@ export function Index() {
               : 'disableAccount',
         })}
         confirm={() =>
-          disableConfiguratorAccount(
+          toggleConfiguratorAccountActivity(
             selectedConfiguratorIds.length > 0
               ? selectedConfiguratorIds
-              : activeAnnualConfiguratorId
+              : activeAnnualConfiguratorId,
+            'deactivate'
           )
         }
       />
@@ -256,10 +261,11 @@ export function Index() {
               : 'enableAccount',
         })}
         confirm={() =>
-          disableConfiguratorAccount(
+          toggleConfiguratorAccountActivity(
             selectedConfiguratorIds.length > 0
               ? selectedConfiguratorIds
-              : activeAnnualConfiguratorId
+              : activeAnnualConfiguratorId,
+            'activate'
           )
         }
       />
