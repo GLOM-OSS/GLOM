@@ -1,0 +1,60 @@
+version: '3.3'
+
+services:
+  redis_dev:
+    image: 'bitnami/redis:latest'
+    restart: always
+    command: redis-server --save '' --appendonly no --loglevel warning --protected-mode no
+    volumes:
+      - squoolr_dev_cache:/data
+  mysql_dev:
+    image: mysql:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=V4ln3
+    volumes:
+      - squoolr_dev_data:/var/lib/mysql
+  api_dev:
+    build:
+      dockerfile: ./Dockerfile.dev.api
+      context: .
+    restart: always
+    volumes:
+      - ./libs/encrypter:/app/libs/encrypter
+      - ./libs/utils:/app/libs/utils
+      - ./libs/axios:/app/libs/axios
+      - ./libs/constants:/app/libs/constants
+      - ./libs/nest/auth:/app/libs/nest/auth
+      - ./libs/nest/payment:/app/libs/nest/payment
+      - ./libs/nest/exceptions:/app/libs/nest/exceptions
+      - ./libs/nest/prisma:/app/libs/nest/prisma
+      - ./libs/nest/redis:/app/libs/nest/redis
+      - ./libs/request:/app/libs/requests
+      - ./apps/squoolr-v2/api:/app/apps/squoolr-v2/api
+      - ./schemas/squoolr/:/app/prisma
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=mysql://root:V4ln3@mysql_dev/squoolr_dev_db
+      - REDIS_URL=redis_dev
+      - SESSION_SECRET=squoolr-session-secret
+      - APP_PORT=8000
+      - SALT=12
+      - NX_API_BASE_URL=http://localhost:8001
+      - ADMIN_URL=localhost:4201
+      - PLATFORM_FEE=2000
+      - ONBOARDING_FEE=50000
+      - ADMIN_EMAIL=glomexam@gmail.com
+      - SESSION_NAME=__sqlrId
+      - SESSION_AGE=3600000
+      - CRYPTJS_SECRET=I_hate_trash
+      - NOTCH_API_KEY=sb.uAcDvJnHIxUNecc9Nd3Mka6SggHkLVsZZfHmZNqKbacGeW4GfoI8R6wOyLvQgulWRv8vni1EfWasH8iU5sUFckDPLtb2cZzjW0YIhGUDXmEtv9e3vTyMex2JlLXwF
+      - ADMIN_PASSWORD=default-password
+    ports:
+      - "8001:8000"
+    depends_on:
+      - mysql_dev
+      - redis_dev
+volumes:
+  squoolr_dev_cache:
+    driver: local
+  squoolr_dev_data:
+    driver: local
