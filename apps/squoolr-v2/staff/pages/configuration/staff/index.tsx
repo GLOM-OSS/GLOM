@@ -413,7 +413,7 @@ export default function Staff() {
               {!staffData || isStaffDataFetching ? (
                 <TableSkeleton cols={7} hasCheckbox hasMore />
               ) : staffData.length === 0 ? (
-                <NoTableElement />
+                <NoTableElement rowSpan={7} />
               ) : (
                 staffData.map((staff, index) => (
                   <StaffRow

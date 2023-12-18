@@ -393,7 +393,7 @@ export function Index() {
               {!majorData || isMajorDataFetching ? (
                 <TableSkeleton cols={7} hasCheckbox hasMore />
               ) : majorData.length === 0 ? (
-                <NoTableElement />
+                <NoTableElement rowSpan={7} />
               ) : (
                 majorData.map((major, index) => {
                   const {
