@@ -137,6 +137,7 @@ export class UpdateCourseSubjectDto extends OmitType(
 }
 
 export class DisableCourseSubjectDto {
+  @ApiProperty()
   @ArrayMinSize(1)
   @IsString({ each: true })
   annualSubjectIds: string[];

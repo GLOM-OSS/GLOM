@@ -100,6 +100,7 @@ export class QueryCourseModuleDto extends QueryParamsDto {
 }
 
 export class DisableCourseModuleDto {
+  @ApiProperty()
   @ArrayMinSize(1)
   @IsString({ each: true })
   annualModuleIds: string[];
