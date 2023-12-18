@@ -1,11 +1,11 @@
 import { ConfirmDialog, NoTableElement, TableSkeleton } from '@glom/components';
 import {
-  BulkDisableStaffPayload,
-  MajorEntity,
-  StaffEntity,
-  StaffRole,
-} from '@glom/data-types/squoolr';
-import { useDispatchBreadcrumb } from '@glom/squoolr-v2/side-nav';
+  useDisableStaffMembers,
+  useResetStaffPasswords,
+  useResetStaffPrivateCode,
+  useStaffMembers,
+} from '@glom/data-access/squoolr';
+import { BulkDisableStaffPayload, StaffRole } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
 import add from '@iconify/icons-fluent/add-48-regular';
 import { Icon } from '@iconify/react';
@@ -19,26 +19,17 @@ import {
 } from '@mui/material';
 import AddCoordinatorDialog from 'apps/squoolr-v2/staff/components/configuration/staff/AddCoordinatorDialog';
 import AddStaffDialog from 'apps/squoolr-v2/staff/components/configuration/staff/AddStaffDialog';
+import AddTeacherDialog from 'apps/squoolr-v2/staff/components/configuration/staff/AddTeacherDialog';
 import NewStaffMenu from 'apps/squoolr-v2/staff/components/configuration/staff/NewStaffMenu';
 import StaffRow from 'apps/squoolr-v2/staff/components/configuration/staff/StaffRow';
 import StaffTableHead from 'apps/squoolr-v2/staff/components/configuration/staff/StaffTableHead';
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import FilterMenu from '../../../components/configuration/staff/FilterMenu';
 import TableHeader from '../../../components/configuration/staff/TableHeader';
-import AddTeacherDialog from 'apps/squoolr-v2/staff/components/configuration/staff/AddTeacherDialog';
-import {
-  useDisableStaffMembers,
-  useResetStaffPasswords,
-  useResetStaffPrivateCode,
-  useStaffMembers,
-} from '@glom/data-access/squoolr';
 export default function Staff() {
   const theme = useTheme();
-  const { push, asPath } = useRouter();
-  const breadcrumbDispatch = useDispatchBreadcrumb();
-  const { formatMessage, formatDate, formatNumber } = useIntl();
+  const { formatMessage } = useIntl();
 
   const [searchValue, setSearchValue] = useState<string>('');
   const [showArchives, setShowArchives] = useState<boolean>(false);
