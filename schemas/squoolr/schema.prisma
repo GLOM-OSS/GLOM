@@ -334,7 +334,7 @@ model AcademicYear {
     started_at       DateTime?           @db.DateTime(0)
     ended_at         DateTime?           @db.DateTime(0)
     year_status      AcademicYearStatus  @default(INACTIVE)
-    year_code        String              @unique @db.VarChar(36)
+    year_code        String              @db.VarChar(36)
     is_deleted       Boolean             @default(false) @db.TinyInt
     created_at       DateTime            @default(now()) @db.DateTime(0)
     school_id        String              @db.VarChar(36)
@@ -357,6 +357,8 @@ model AcademicYear {
     AnnualSemesterExamAcess        AnnualSemesterExamAcess[]
     AnnualGradeWeightings          AnnualGradeWeighting[]
     AnnualEvaluationSubTypes       AnnualEvaluationSubType[]
+
+    @@unique([year_code, school_id])
 }
 
 model Login {
