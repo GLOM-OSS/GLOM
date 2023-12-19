@@ -103,18 +103,18 @@ export class AuthService {
             (!is_parent && this.checkOrigin(origin, KeyRole.ADMIN))))
     );
     if (!loginData) throw new UnauthorizedException('Wrong origin !!!');
-    const numberOfActiveSessions = await this.prismaService.log.count({
-      where: {
-        closed_at: null,
-        logged_out_at: null,
-        login_id: loginData.login.login_id,
-      },
-    });
-    if (numberOfActiveSessions > 2)
-      throw new HttpException(
-        { error: 'TOO_MANY_REQUESTS', message: 'Too many session opened !!' },
-        HttpStatus.TOO_MANY_REQUESTS
-      );
+    // const numberOfActiveSessions = await this.prismaService.log.count({
+    //   where: {
+    //     closed_at: null,
+    //     logged_out_at: null,
+    //     login_id: loginData.login.login_id,
+    //   },
+    // });
+    // if (numberOfActiveSessions > 2)
+    //   throw new HttpException(
+    //     { error: 'TOO_MANY_REQUESTS', message: 'Too many session opened !!' },
+    //     HttpStatus.TOO_MANY_REQUESTS
+    //   );
     return loginData.login;
   }
 
