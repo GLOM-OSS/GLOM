@@ -59,6 +59,7 @@ export class CourseModulesService {
         credit_points,
         semester_number,
         module_code: moduleCode,
+        is_subject_module: false,
         AnnualClassroom: { connect: { annual_classroom_id } },
         CreatedBy: { connect: { annual_teacher_id: created_by } },
         AcademicYear: {

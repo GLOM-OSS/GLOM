@@ -861,6 +861,7 @@ model AnnualModule {
     is_exam_published   Boolean         @default(false) @db.TinyInt
     is_resit_published  Boolean         @default(false) @db.TinyInt
     is_deleted          Boolean         @default(false) @db.TinyInt
+    is_subject_module   Boolean         @db.TinyInt
     created_at          DateTime        @default(now()) @db.DateTime(0)
     annual_classroom_id String          @db.VarChar(36)
     AnnualClassroom     AnnualClassroom @relation(fields: [annual_classroom_id], references: [annual_classroom_id], onDelete: Cascade, onUpdate: Cascade)
@@ -868,6 +869,8 @@ model AnnualModule {
     AcademicYear        AcademicYear    @relation(fields: [academic_year_id], references: [academic_year_id], onDelete: Cascade, onUpdate: Cascade)
     created_by          String          @db.VarChar(36)
     CreatedBy           AnnualTeacher   @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    created_from        String?         @unique @db.VarChar(36)
+    CreatedFrom         AnnualSubject?  @relation(name: "CreatedFrom_Module", fields: [created_from], references: [annual_subject_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualModuleAudits      AnnualModuleAudit[]
     AnnualSubjects          AnnualSubject[]
@@ -886,6 +889,7 @@ model AnnualModuleAudit {
     is_exam_published      Boolean       @db.TinyInt
     is_resit_published     Boolean       @db.TinyInt
     is_deleted             Boolean       @db.TinyInt
+    is_subject_module      Boolean       @db.TinyInt
     audited_at             DateTime      @default(now()) @db.DateTime(0)
     annual_module_id       String        @db.VarChar(36)
     AnnualModule           AnnualModule  @relation(fields: [annual_module_id], references: [annual_module_id], onDelete: Cascade, onUpdate: Cascade)
@@ -914,6 +918,7 @@ model AnnualSubject {
     created_by        String        @db.VarChar(36)
     CreatedBy         AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 
+    CreatedFromModule   AnnualModule?        @relation(name: "CreatedFrom_Module")
     AnnualSubjectAudits AnnualSubjectAudit[]
     AnnualSubjectParts  AnnualSubjectPart[]
     Evaluations         Evaluation[]

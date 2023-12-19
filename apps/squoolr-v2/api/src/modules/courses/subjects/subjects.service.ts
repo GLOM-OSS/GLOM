@@ -102,6 +102,7 @@ export class CourseSubjectsService {
       annualModule = {
         credit_points,
         semester_number,
+        is_subject_module: true,
         module_code: subjectCode,
         module_name: subject_name,
         AnnualClassroom: { connect: { annual_classroom_id } },

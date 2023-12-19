@@ -82,6 +82,14 @@ export class ModuleEntity
   @ApiHideProperty()
   created_by: string;
 
+  @Exclude()
+  @ApiHideProperty()
+  is_subject_module: boolean;
+
+  @Exclude()
+  @ApiHideProperty()
+  created_from: string;
+
   constructor(props: ModuleEntity) {
     super(props);
     Object.assign(this, props);
