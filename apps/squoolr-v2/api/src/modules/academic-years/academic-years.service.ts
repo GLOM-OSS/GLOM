@@ -84,7 +84,7 @@ export class AcademicYearsService {
             connect: { annual_configurator_id: created_by },
           },
           AcademicYear: {
-            connect: { year_code },
+            connect: { year_code_school_id: { school_id, year_code } },
           },
         },
       }),

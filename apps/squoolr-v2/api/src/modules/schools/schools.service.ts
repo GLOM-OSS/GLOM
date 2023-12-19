@@ -413,14 +413,14 @@ export class SchoolsService {
         this.prismaService.annualSchoolSetting.create({
           data: {
             mark_insertion_source: 'Teacher',
-            AcademicYear: { connect: { year_code } },
+            AcademicYear: { connect: { academic_year_id } },
             CreatedBy: { connect: { annual_configurator_id } },
           },
         }),
         this.prismaService.annualCarryOverSytem.create({
           data: {
             carry_over_system: CarryOverSystemEnum.SUBJECT,
-            AcademicYear: { connect: { year_code } },
+            AcademicYear: { connect: { academic_year_id } },
             CreatedBy: {
               connect: { annual_configurator_id },
             },
