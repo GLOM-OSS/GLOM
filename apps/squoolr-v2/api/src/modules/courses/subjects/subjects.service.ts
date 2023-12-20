@@ -1,17 +1,17 @@
 import { GlomPrismaService } from '@glom/prisma';
+import { excludeKeys, generateShort, pickKeys } from '@glom/utils';
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import { Prisma, PrismaPromise } from '@prisma/client';
+import { CodeGeneratorFactory } from '../../../helpers/code-generator.factory';
+import { MetaParams } from '../../module';
+import { SubjectArgsFactory } from './subject-args.factory';
 import {
   CreateCourseSubjectDto,
   CreateModuleNestedDto,
   DisableCourseSubjectDto,
   QueryCourseSubjectDto,
-  SubjectEntity,
-  UpdateCourseSubjectDto,
+  UpdateCourseSubjectDto
 } from './subject.dto';
-import { MetaParams } from '../../module';
-import { excludeKeys, generateShort } from '@glom/utils';
-import { CodeGeneratorFactory } from '../../../helpers/code-generator.factory';
-import { AnnualMajor, Prisma, PrismaPromise } from '@prisma/client';
 
 @Injectable()
 export class CourseSubjectsService {
@@ -21,58 +21,25 @@ export class CourseSubjectsService {
   ) {}
 
   async findAll(params?: QueryCourseSubjectDto) {
-    let major: AnnualMajor;
-    if (params?.annual_module_id)
-      major = await this.prismaService.annualMajor.findFirstOrThrow({
-        where: {
-          AnnualClassrooms: {
-            some: {
-              AnnualModules: {
-                some: { annual_module_id: params.annual_module_id },
-              },
-            },
-          },
-        },
-      });
-    const subjects = await this.prismaService.annualSubject.findMany({
-      include: {
-        AnnualSubjectParts: {
-          select: { number_of_hours: true, SubjectPart: true },
-        },
-        AnnualModule: !major?.uses_module_system
-          ? {
-              select: {
-                credit_points: true,
-                semester_number: true,
-                annual_classroom_id: true,
-              },
-            }
-          : undefined,
-      },
+    const subjects = await this.prismaService.annualModulesSubject.findMany({
+      ...SubjectArgsFactory.getSelectArgs(),
       where: {
         is_deleted: params?.is_deleted,
         annual_module_id: params?.annual_module_id,
-        annual_teacher_id: params?.annual_teacher_id,
-        subject_name: params?.keywords
-          ? { search: params.keywords }
-          : undefined,
-        subject_code: params?.keywords
-          ? { search: params.keywords }
+        AnnualSubject: params?.keywords
+          ? {
+              subject_name: params?.keywords
+                ? { search: params.keywords }
+                : undefined,
+              subject_code: params?.keywords
+                ? { search: params.keywords }
+                : undefined,
+            }
           : undefined,
       },
     });
-    return subjects.map(
-      ({ AnnualModule: courseModule, AnnualSubjectParts: parts, ...subject }) =>
-        new SubjectEntity({
-          ...subject,
-          module: courseModule,
-          subjectParts: parts.map(
-            ({
-              SubjectPart: { subject_part_id, subject_part_name },
-              number_of_hours,
-            }) => ({ subject_part_id, subject_part_name, number_of_hours })
-          ),
-        })
+    return subjects.map((subject) =>
+      SubjectArgsFactory.getSubjectEntity(subject)
     );
   }
 
@@ -84,7 +51,6 @@ export class CourseSubjectsService {
       objective,
       weighting,
       annual_module_id,
-      annual_teacher_id,
       module: courseModule,
     }: CreateCourseSubjectDto,
     metaParams: MetaParams,
@@ -117,39 +83,44 @@ export class CourseSubjectsService {
       };
     }
 
-    const { AnnualSubjectParts: parts, ...subject } =
-      await this.prismaService.annualSubject.create({
-        include: {
-          AnnualSubjectParts: {
-            select: { number_of_hours: true, SubjectPart: true },
-          },
-        },
-        data: {
-          objective,
-          weighting,
-          subject_name,
-          subject_code: subjectCode,
-          AnnualModule: annualModule
-            ? { create: annualModule }
-            : { connect: { annual_module_id } },
-          TaughtBy: { connect: { annual_teacher_id } },
-          CreatedBy: { connect: { annual_teacher_id: created_by } },
-          AnnualSubjectParts: {
-            createMany: {
-              data: subjectParts.map((part) => ({ ...part, created_by })),
+    const subject = await this.prismaService.annualModulesSubject.create({
+      ...SubjectArgsFactory.getSelectArgs(),
+      data: {
+        objective,
+        weighting,
+        AnnualSubject: {
+          connectOrCreate: {
+            create: {
+              subject_name,
+              subject_code: subjectCode,
+              AcademicYear: {
+                connect: { academic_year_id: metaParams.academic_year_id },
+              },
+              CreatedBy: { connect: { annual_teacher_id: created_by } },
+              AnnualSubjectParts: {
+                createMany: {
+                  data: subjectParts.map((part) => ({
+                    ...part,
+                    created_by,
+                  })),
+                },
+              },
+            },
+            where: {
+              subject_code_academic_year_id: {
+                academic_year_id: metaParams.academic_year_id,
+                subject_code,
+              },
             },
           },
         },
-      });
-    return new SubjectEntity({
-      ...subject,
-      subjectParts: parts.map(
-        ({
-          SubjectPart: { subject_part_id, subject_part_name },
-          number_of_hours,
-        }) => ({ subject_part_id, subject_part_name, number_of_hours })
-      ),
+        AnnualModule: annualModule
+          ? { create: annualModule }
+          : { connect: { annual_module_id } },
+        CreatedBy: { connect: { annual_teacher_id: created_by } },
+      },
     });
+    return SubjectArgsFactory.getSubjectEntity(subject);
   }
 
   private async validateInput(courseModule: CreateModuleNestedDto) {
@@ -171,52 +142,78 @@ export class CourseSubjectsService {
   }
 
   async update(
-    annual_subject_id: string,
+    annual_modules_subject_id: string,
     {
       disable,
       module: courseModule,
       subjectParts,
-      annual_teacher_id,
-      ...updatePayload
+      objective,
+      weighting,
+      subject_code,
+      subject_name,
     }: UpdateCourseSubjectDto,
     audited_by: string
   ) {
     if (courseModule) await this.validateInput(courseModule);
     const {
       AnnualModule: annualModule,
-      AnnualSubjectParts: annualSubjectParts,
+      AnnualSubject: { AnnualSubjectParts: annualSubjectParts },
       ...annualSubjectAudit
-    } = await this.prismaService.annualSubject.findUniqueOrThrow({
+    } = await this.prismaService.annualModulesSubject.findUniqueOrThrow({
       include: {
-        AnnualSubjectParts: !!subjectParts,
+        AnnualSubject: { include: { AnnualSubjectParts: !!subjectParts } },
         AnnualModule: !!courseModule,
       },
-      where: { annual_subject_id },
+      where: { annual_modules_subject_id },
     });
     await this.prismaService.$transaction([
-      this.prismaService.annualSubject.update({
+      this.prismaService.annualModulesSubject.update({
         data: {
-          ...updatePayload,
+          objective,
+          weighting,
           is_deleted: disable,
-          TaughtBy: annual_teacher_id
-            ? { connect: { annual_teacher_id } }
-            : undefined,
-          AnnualSubjectParts: {
-            updateMany: {
-              data: subjectParts,
-              where: {
-                annual_subject_id: {
-                  in: subjectParts.map((_) => _.subject_part_id),
-                },
-              },
-            },
-          },
+          AnnualSubject:
+            subject_name || subject_code || subjectParts.length > 0
+              ? {
+                  update: {
+                    subject_code,
+                    subject_name,
+                    AnnualSubjectParts:
+                      subjectParts.length > 0
+                        ? {
+                            updateMany: {
+                              data: subjectParts,
+                              where: {
+                                annual_subject_id: {
+                                  in: subjectParts.map(
+                                    (_) => _.subject_part_id
+                                  ),
+                                },
+                              },
+                            },
+                          }
+                        : undefined,
+                    AnnualSubjectAudits:
+                      subject_name || subject_code
+                        ? {
+                            create: {
+                              subject_code,
+                              subject_name,
+                              AuditedBy: {
+                                connect: { annual_teacher_id: audited_by },
+                              },
+                            },
+                          }
+                        : undefined,
+                  },
+                }
+              : undefined,
           AnnualModule: courseModule
             ? {
                 update: {
                   ...courseModule,
-                  module_name: updatePayload?.subject_name,
-                  module_code: updatePayload?.subject_code,
+                  module_name: subject_name,
+                  module_code: subject_code,
                   AnnualModuleAudits: {
                     create: {
                       ...excludeKeys(annualModule, [
@@ -232,35 +229,28 @@ export class CourseSubjectsService {
                 },
               }
             : undefined,
-          AnnualSubjectAudits:
-            typeof disable === 'boolean' ||
-            Object.keys(updatePayload).length > 0
+          AnnualModulesSubjectAudits:
+            typeof disable === 'boolean' || objective || weighting
               ? {
                   create: {
-                    TaughtBy: {
-                      connect: {
-                        annual_teacher_id: annualSubjectAudit.annual_teacher_id,
-                      },
-                    },
-                    ...excludeKeys(annualSubjectAudit, [
-                      'annual_module_id',
-                      'annual_teacher_id',
-                      'annual_subject_id',
-                      'created_at',
-                      'created_by',
+                    ...pickKeys(annualSubjectAudit, [
+                      'is_deleted',
+                      'objective',
+                      'weighting',
                     ]),
                     AuditedBy: { connect: { annual_teacher_id: audited_by } },
                   },
                 }
               : undefined,
         },
-        where: { annual_subject_id },
+        where: { annual_modules_subject_id },
       }),
       this.prismaService.annualSubjectPartAudit.createMany({
         data: annualSubjectParts.map(
-          ({ number_of_hours, annual_subject_part_id }) => ({
+          ({ number_of_hours, annual_subject_part_id, annual_teacher_id }) => ({
             number_of_hours,
             annual_subject_part_id,
+            annual_teacher_id,
             audited_by,
           })
         ),
@@ -276,17 +266,16 @@ export class CourseSubjectsService {
     { annualSubjectIds, disable }: DisableCourseSubjectDto,
     audited_by: string
   ) {
-    const annualSubjectAudits = await this.prismaService.annualSubject.findMany(
-      {
-        where: { annual_subject_id: { in: annualSubjectIds } },
-      }
-    );
+    const annualSubjectAudits =
+      await this.prismaService.annualModulesSubject.findMany({
+        where: { annual_modules_subject_id: { in: annualSubjectIds } },
+      });
     const prismaTransactions: PrismaPromise<Prisma.BatchPayload>[] = [
-      this.prismaService.annualSubject.updateMany({
+      this.prismaService.annualModulesSubject.updateMany({
         data: { is_deleted: disable },
         where: { annual_subject_id: { in: annualSubjectIds } },
       }),
-      this.prismaService.annualSubjectAudit.createMany({
+      this.prismaService.annualModulesSubjectAudit.createMany({
         data: annualSubjectAudits.map((annualSubject) => ({
           ...excludeKeys(annualSubject, [
             'annual_module_id',
@@ -299,7 +288,7 @@ export class CourseSubjectsService {
     ];
     if (disable)
       prismaTransactions.push(
-        this.prismaService.annualSubject.updateMany({
+        this.prismaService.annualModulesSubject.updateMany({
           data: { is_deleted: true },
           where: { annual_subject_id: { in: annualSubjectIds } },
         })

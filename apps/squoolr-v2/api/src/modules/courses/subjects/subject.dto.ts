@@ -30,6 +30,10 @@ export class CreateSubjectPartDto {
   @ApiProperty()
   subject_part_id: string;
 
+  @IsString()
+  @ApiProperty()
+  annual_teacher_id: string;
+
   constructor(props: CreateSubjectPartDto) {
     Object.assign(this, props);
   }
@@ -71,10 +75,6 @@ export class CreateCourseSubjectDto {
   @ApiProperty()
   subject_name: string;
 
-  @IsString()
-  @ApiProperty()
-  annual_teacher_id: string;
-
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => CreateSubjectPartDto)
@@ -101,7 +101,10 @@ export class SubjectEntity
   extends CreateCourseSubjectDto
   implements AnnualSubject
 {
-  @ApiProperty()
+  @ApiProperty({
+    description:
+      'This is the intermidiate table ID between the actual annual suject id and its module',
+  })
   annual_subject_id: string;
 
   @ApiProperty()
@@ -109,6 +112,9 @@ export class SubjectEntity
 
   @ApiProperty()
   created_at: Date;
+
+  @ApiProperty()
+  academic_year_id: string;
 
   @Exclude()
   @ApiHideProperty()
