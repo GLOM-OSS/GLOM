@@ -145,7 +145,7 @@ export class QueryCourseSubjectDto extends QueryParamsDto {
 
 export class UpdateCourseSubjectDto extends OmitType(
   PartialType(CreateCourseSubjectDto),
-  ['annual_module_id']
+  ['annual_module_id', 'subject_code']
 ) {
   @IsBoolean()
   @ApiProperty()

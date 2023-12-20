@@ -10,7 +10,7 @@ import {
   CreateModuleNestedDto,
   DisableCourseSubjectDto,
   QueryCourseSubjectDto,
-  UpdateCourseSubjectDto
+  UpdateCourseSubjectDto,
 } from './subject.dto';
 
 @Injectable()
@@ -149,7 +149,6 @@ export class CourseSubjectsService {
       subjectParts,
       objective,
       weighting,
-      subject_code,
       subject_name,
     }: UpdateCourseSubjectDto,
     audited_by: string
@@ -173,10 +172,9 @@ export class CourseSubjectsService {
           weighting,
           is_deleted: disable,
           AnnualSubject:
-            subject_name || subject_code || subjectParts.length > 0
+            subject_name || subjectParts.length > 0
               ? {
                   update: {
-                    subject_code,
                     subject_name,
                     AnnualSubjectParts:
                       subjectParts.length > 0
@@ -193,18 +191,16 @@ export class CourseSubjectsService {
                             },
                           }
                         : undefined,
-                    AnnualSubjectAudits:
-                      subject_name || subject_code
-                        ? {
-                            create: {
-                              subject_code,
-                              subject_name,
-                              AuditedBy: {
-                                connect: { annual_teacher_id: audited_by },
-                              },
+                    AnnualSubjectAudits: subject_name
+                      ? {
+                          create: {
+                            subject_name,
+                            AuditedBy: {
+                              connect: { annual_teacher_id: audited_by },
                             },
-                          }
-                        : undefined,
+                          },
+                        }
+                      : undefined,
                   },
                 }
               : undefined,
@@ -213,7 +209,6 @@ export class CourseSubjectsService {
                 update: {
                   ...courseModule,
                   module_name: subject_name,
-                  module_code: subject_code,
                   AnnualModuleAudits: {
                     create: {
                       ...excludeKeys(annualModule, [
