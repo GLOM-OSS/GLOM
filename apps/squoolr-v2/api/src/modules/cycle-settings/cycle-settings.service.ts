@@ -1,4 +1,7 @@
 import { GlomPrismaService } from '@glom/prisma';
+import { Injectable } from '@nestjs/common';
+import { Prisma, PrismaPromise } from '@prisma/client';
+import { randomUUID } from 'crypto';
 import {
   CycleSettingMeta,
   EvaluationTypeInput,
@@ -12,8 +15,6 @@ import {
   UpdateMajorSettingsDto,
   WeightingSystemEntity,
 } from './cycle-settings.dto';
-import { Injectable } from '@nestjs/common';
-import { AnnualSubject, Prisma, PrismaPromise } from '@prisma/client';
 
 @Injectable()
 export class CycleSettingsService {
@@ -230,17 +231,15 @@ export class CycleSettingsService {
         uses_module_system: { not: uses_module_system },
       },
     });
-    const annualModules = await this.prismaService.annualModule.findMany({
-      include: { AnnualSubjects: true },
-      where: { AnnualClassroom: { annual_major_id: { in: annualMajorIds } } },
-    });
-    const subjects = annualModules.reduce<AnnualSubject[]>(
-      (annualSubjects, { AnnualSubjects: subjects }) => [
-        ...annualSubjects,
-        ...subjects,
-      ],
-      []
-    );
+    const annualModules =
+      await this.prismaService.annualModulesSubject.findMany({
+        include: { AnnualModule: true, AnnualSubject: true },
+        where: {
+          AnnualModule: {
+            AnnualClassroom: { annual_major_id: { in: annualMajorIds } },
+          },
+        },
+      });
     const toogleTeachingSystemTransactions: PrismaPromise<Prisma.BatchPayload>[] =
       [];
     if (uses_module_system) switchToModuleSystem();
@@ -261,46 +260,71 @@ export class CycleSettingsService {
     ]);
 
     function switchToNoModuleSystem() {
-      const newModules: Prisma.AnnualModuleCreateManyInput[] = subjects.map(
-        ({
-          annual_subject_id,
-          subject_code,
-          subject_name,
-          weighting,
-          annual_module_id,
-        }) => {
-          const {
-            academic_year_id,
-            annual_classroom_id,
-            credit_points,
-            semester_number,
-          } = annualModules.find(
-            (_) => (_.annual_module_id = annual_module_id)
-          );
-          return {
-            semester_number,
-            academic_year_id,
-            annual_classroom_id,
-            created_by: audited_by,
-            is_subject_module: true,
-            module_code: subject_code,
-            module_name: subject_name,
-            created_from: annual_subject_id,
-            credit_points: (weighting * credit_points) / 100,
-          };
-        }
-      );
+      const { modules: newModules, moduleSubjects: newModulesSubjects } =
+        annualModules.reduce(
+          (
+            payload,
+            {
+              objective,
+              weighting,
+              annual_subject_id,
+              annual_module_id,
+              AnnualSubject: { subject_code, subject_name },
+            }
+          ) => {
+            const {
+              AnnualModule: {
+                academic_year_id,
+                annual_classroom_id,
+                credit_points,
+                semester_number,
+              },
+            } = annualModules.find(
+              (_) => _.annual_module_id === annual_module_id
+            );
+            const annualModuleId = randomUUID();
+            const newModule: Prisma.AnnualModuleCreateManyInput = {
+              semester_number,
+              academic_year_id,
+              annual_classroom_id,
+              created_by: audited_by,
+              is_subject_module: true,
+              module_code: subject_code,
+              module_name: subject_name,
+              created_from: annual_subject_id,
+              annual_module_id: annualModuleId,
+              credit_points: (weighting * credit_points) / 100,
+            };
+            const newModulesSubject: Prisma.AnnualModulesSubjectCreateManyInput =
+              {
+                objective,
+                weighting,
+                annual_subject_id,
+                created_by: audited_by,
+                annual_module_id: annualModuleId,
+              };
+            return {
+              modules: [...payload.modules, newModule],
+              moduleSubjects: [...payload.moduleSubjects, newModulesSubject],
+            };
+          },
+          { modules: [], moduleSubjects: [] }
+        );
       toogleTeachingSystemTransactions.push(
         this.prismaService.annualModule.createMany({
           data: newModules,
+          skipDuplicates: true,
+        }),
+        this.prismaService.AnnualModulesSubject.createMany({
+          data: newModulesSubjects,
           skipDuplicates: true,
         })
       );
 
       const disableModuleIds = annualModules
-        .filter((_) => !_.is_subject_module)
+        .filter(({ AnnualModule: _ }) => !_.is_subject_module)
         .map((_) => _.annual_module_id);
-      const disableSubjectsIds = subjects
+      const disableSubjectsIds = annualModules
         .filter((_) => disableModuleIds.includes(_.annual_module_id))
         .map((_) => _.annual_subject_id);
       toogleTeachingSystemTransactions.push(
@@ -315,9 +339,9 @@ export class CycleSettingsService {
       );
 
       const enableModuleIds = annualModules
-        .filter((_) => _.created_from)
+        .filter(({ AnnualModule: _ }) => _.created_from)
         .map((_) => _.annual_module_id);
-      const enableSubjectIds = subjects
+      const enableSubjectIds = annualModules
         .filter((_) => enableModuleIds.includes(_.annual_module_id))
         .map((_) => _.annual_subject_id);
       toogleTeachingSystemTransactions.push(
@@ -334,9 +358,9 @@ export class CycleSettingsService {
 
     function switchToModuleSystem() {
       const disableModuleIds = annualModules
-        .filter((_) => _.created_from && _.is_subject_module)
+        .filter(({ AnnualModule: _ }) => _.created_from && _.is_subject_module)
         .map((_) => _.annual_module_id);
-      const disableSubjectsIds = subjects
+      const disableSubjectsIds = annualModules
         .filter((_) => disableModuleIds.includes(_.annual_module_id))
         .map((_) => _.annual_subject_id);
       toogleTeachingSystemTransactions.push(
@@ -344,14 +368,14 @@ export class CycleSettingsService {
           data: { is_deleted: true },
           where: { annual_module_id: { in: disableModuleIds } },
         }),
-        this.prismaService.annualSubject.updateMany({
+        this.prismaService.annualModulesSubject.updateMany({
           data: { is_deleted: true },
           where: { annual_subject_id: { in: disableSubjectsIds } },
         })
       );
 
       const updateModuleIds = annualModules
-        .filter((_) => !_.created_from && _.is_subject_module)
+        .filter(({ AnnualModule: _ }) => !_.created_from && _.is_subject_module)
         .map((_) => _.annual_module_id);
       toogleTeachingSystemTransactions.push(
         this.prismaService.annualModule.updateMany({
@@ -361,9 +385,9 @@ export class CycleSettingsService {
       );
 
       const enableModuleIds = annualModules
-        .filter((_) => !_.is_subject_module)
+        .filter(({ AnnualModule: _ }) => !_.is_subject_module)
         .map((_) => _.annual_module_id);
-      const enableSubjectIds = subjects
+      const enableSubjectIds = annualModules
         .filter((_) => enableModuleIds.includes(_.annual_module_id))
         .map((_) => _.annual_subject_id);
       toogleTeachingSystemTransactions.push(
@@ -371,7 +395,7 @@ export class CycleSettingsService {
           data: { is_deleted: false },
           where: { annual_module_id: { in: enableModuleIds } },
         }),
-        this.prismaService.annualSubject.updateMany({
+        this.prismaService.annualModulesSubject.updateMany({
           data: { is_deleted: false },
           where: { annual_subject_id: { in: enableSubjectIds } },
         })
