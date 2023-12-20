@@ -21,17 +21,19 @@ export class CourseSubjectsService {
   ) {}
 
   async findAll(params?: QueryCourseSubjectDto) {
-    const major = await this.prismaService.annualMajor.findFirstOrThrow({
-      where: {
-        AnnualClassrooms: {
-          some: {
-            AnnualModules: {
-              some: { annual_module_id: params?.annual_module_id },
+    let major: AnnualMajor;
+    if (params?.annual_module_id)
+      major = await this.prismaService.annualMajor.findFirstOrThrow({
+        where: {
+          AnnualClassrooms: {
+            some: {
+              AnnualModules: {
+                some: { annual_module_id: params.annual_module_id },
+              },
             },
           },
         },
-      },
-    });
+      });
     const subjects = await this.prismaService.annualSubject.findMany({
       include: {
         AnnualSubjectParts: {
@@ -50,6 +52,7 @@ export class CourseSubjectsService {
       where: {
         is_deleted: params?.is_deleted,
         annual_module_id: params?.annual_module_id,
+        annual_teacher_id: params?.annual_teacher_id,
         subject_name: params?.keywords
           ? { search: params.keywords }
           : undefined,
@@ -81,6 +84,7 @@ export class CourseSubjectsService {
       objective,
       weighting,
       annual_module_id,
+      annual_teacher_id,
       module: courseModule,
     }: CreateCourseSubjectDto,
     metaParams: MetaParams,
@@ -128,6 +132,7 @@ export class CourseSubjectsService {
           AnnualModule: annualModule
             ? { create: annualModule }
             : { connect: { annual_module_id } },
+          TaughtBy: { connect: { annual_teacher_id } },
           CreatedBy: { connect: { annual_teacher_id: created_by } },
           AnnualSubjectParts: {
             createMany: {
@@ -171,6 +176,7 @@ export class CourseSubjectsService {
       disable,
       module: courseModule,
       subjectParts,
+      annual_teacher_id,
       ...updatePayload
     }: UpdateCourseSubjectDto,
     audited_by: string
@@ -192,6 +198,9 @@ export class CourseSubjectsService {
         data: {
           ...updatePayload,
           is_deleted: disable,
+          TaughtBy: annual_teacher_id
+            ? { connect: { annual_teacher_id } }
+            : undefined,
           AnnualSubjectParts: {
             updateMany: {
               data: subjectParts,
@@ -228,8 +237,14 @@ export class CourseSubjectsService {
             Object.keys(updatePayload).length > 0
               ? {
                   create: {
+                    TaughtBy: {
+                      connect: {
+                        annual_teacher_id: annualSubjectAudit.annual_teacher_id,
+                      },
+                    },
                     ...excludeKeys(annualSubjectAudit, [
                       'annual_module_id',
+                      'annual_teacher_id',
                       'annual_subject_id',
                       'created_at',
                       'created_by',

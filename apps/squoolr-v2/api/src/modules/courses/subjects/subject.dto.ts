@@ -71,6 +71,10 @@ export class CreateCourseSubjectDto {
   @ApiProperty()
   subject_name: string;
 
+  @IsString()
+  @ApiProperty()
+  annual_teacher_id: string;
+
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => CreateSubjectPartDto)
@@ -123,8 +127,14 @@ export class SubjectEntity
 
 export class QueryCourseSubjectDto extends QueryParamsDto {
   @IsString()
-  @ApiProperty()
-  annual_module_id: string;
+  @IsOptional()
+  @ApiPropertyOptional()
+  annual_module_id?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional()
+  annual_teacher_id?: string;
 }
 
 export class UpdateCourseSubjectDto extends OmitType(
