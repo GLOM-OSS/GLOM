@@ -881,6 +881,7 @@ model AnnualModule {
     AnnualStudentHasModules AnnualStudentHasModule[]
     AnnualModulesSubjects   AnnualModulesSubject[]
 
+    @@unique([module_code, annual_classroom_id])
     @@fulltext([module_name])
     @@fulltext([module_name, module_code])
 }
@@ -935,7 +936,6 @@ model AnnualSubject {
 
 model AnnualSubjectAudit {
     annua_subject_audit_id String        @id @default(uuid()) @db.VarChar(36)
-    subject_code           String        @db.VarChar(45)
     subject_name           String        @db.VarChar(45)
     audited_at             DateTime      @default(now()) @db.DateTime(0)
     audited_by             String        @db.VarChar(36)
@@ -959,6 +959,8 @@ model AnnualModulesSubject {
 
     AnnualModulesSubjectAudits AnnualModulesSubjectAudit[]
     CreatedAnnualModule        AnnualModule?               @relation(name: "CreatedFrom_AnnualModulesSubject")
+
+    @@unique([annual_module_id, annual_subject_id])
 }
 
 model AnnualModulesSubjectAudit {
