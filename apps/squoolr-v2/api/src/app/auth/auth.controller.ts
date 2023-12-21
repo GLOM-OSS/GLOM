@@ -48,7 +48,7 @@ export class AuthController {
       user = { ...user, ...annualSessionData };
     }
     await this.authService.createSessionLog(request);
-    return new UserEntity(await this.authService.getUser(user));
+    return this.authService.getUser(user);
   }
 
   @Post('reset-password')
@@ -102,7 +102,7 @@ export class AuthController {
   @Get('user')
   @ApiOkResponse({ type: UserEntity })
   @UseGuards(AuthenticatedGuard)
-  async getUser(@Req() request: Request) {
+  getUser(@Req() request: Request) {
     return this.authService.getUser(request.user);
   }
 }

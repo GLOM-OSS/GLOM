@@ -216,7 +216,7 @@ export class AuthService {
     return { login_id, school_id, ...person, ...deserialedUser };
   }
 
-  async getUser({
+  getUser({
     activeYear,
     annualConfigurator,
     annualRegistry,

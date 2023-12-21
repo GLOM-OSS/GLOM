@@ -68,7 +68,7 @@ export class AcademicYearsController {
     );
 
     await this.authService.updateSession(request, { academic_year_id });
-    const { roles, active_year_id } = await this.authService.getUser({
+    const { roles, active_year_id } = this.authService.getUser({
       ...request.user,
       ...annualSessionData,
     });
