@@ -67,21 +67,23 @@ export class AuthService {
     };
   }
 
-  async updateUserSession(request: Request, login_id: string) {
-    let annualSessionData: AnnualSessionData;
-    const academicYears = await this.academicYearService.findAll(login_id);
+  async getAnnualSessionData(request: Request, login_id: string) {
+    const academicYears = await this.academicYearService.findByLoginId(
+      login_id
+    );
     const numberOfAcademicYear = academicYears.length;
     if (numberOfAcademicYear === 0)
       throw new NotFoundException('No academic year was found');
     else if (numberOfAcademicYear === 1) {
       const [{ academic_year_id }] = academicYears;
-      annualSessionData = await this.academicYearService.selectAcademicYear(
-        login_id,
-        academic_year_id
-      );
+      const annualSessionData =
+        await this.academicYearService.selectAcademicYear(
+          login_id,
+          academic_year_id
+        );
       await this.updateSession(request, { academic_year_id });
+      return annualSessionData;
     }
-    return { academicYears, annualSessionData };
   }
 
   async updateSession(
