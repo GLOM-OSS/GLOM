@@ -651,6 +651,7 @@ model Log {
     user_agent    String
     logged_in_at  DateTime   @default(now()) @db.DateTime(0)
     logged_out_at DateTime?  @db.DateTime(0)
+    updated_at    DateTime?  @db.DateTime(0)
     closed_at     DateTime?  @db.DateTime(0)
     login_id      String     @db.VarChar(36)
     Login         Login      @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
