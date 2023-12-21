@@ -28,11 +28,15 @@ import {
 import { AuthenticatedGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { LocalGuard } from './local/local.guard';
+import { LogsService } from './logs/logs.service';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private logsService: LogsService
+  ) {}
 
   @Post('signin')
   @UseGuards(LocalGuard)
@@ -48,7 +52,11 @@ export class AuthController {
       academicYears = result.academicYears;
       user = { ...user, ...result.annualSessionData };
     }
-    await this.authService.openSession(request, user.login_id);
+    await this.logsService.create({
+      log_id: request.sessionID,
+      login_id: user.login_id,
+      user_agent: request.headers['user-agent'],
+    });
     return new SingInResponse({
       academicYears,
       user: await this.authService.getUser(user),
