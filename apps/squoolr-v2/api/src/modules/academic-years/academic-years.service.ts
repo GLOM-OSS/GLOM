@@ -355,7 +355,7 @@ export class AcademicYearsService {
   //   return academicYearId;
   // }
 
-  async findAll(login_id: string) {
+  async findByLoginId(login_id: string) {
     //check for annual student
     const annualStudents = await this.prismaService.annualStudent.findMany({
       select: { AcademicYear: true },

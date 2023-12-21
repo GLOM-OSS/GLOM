@@ -34,7 +34,7 @@ export class AcademicYearsController {
   @ApiOkResponse({ type: [AcademicYearEntity] })
   async getAcademicYears(@Req() request: Request) {
     const { login_id } = request.user;
-    return this.academicYearService.findAll(login_id);
+    return this.academicYearService.findByLoginId(login_id);
   }
 
   @Post('/new')
