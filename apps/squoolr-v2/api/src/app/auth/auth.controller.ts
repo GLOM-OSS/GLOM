@@ -33,10 +33,7 @@ import { LogsService } from './logs/logs.service';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private authService: AuthService,
-    private logsService: LogsService
-  ) {}
+  constructor(private authService: AuthService) {}
 
   @Post('signin')
   @UseGuards(LocalGuard)
@@ -52,11 +49,7 @@ export class AuthController {
       academicYears = result.academicYears;
       user = { ...user, ...result.annualSessionData };
     }
-    await this.logsService.create({
-      log_id: request.sessionID,
-      login_id: user.login_id,
-      user_agent: request.headers['user-agent'],
-    });
+    await this.authService.createSessionLog(request);
     return new SingInResponse({
       academicYears,
       user: await this.authService.getUser(user),
