@@ -1,6 +1,6 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { Injectable } from '@nestjs/common';
-import { LogCreateInput, LogUpdateInput } from './log';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { LogCreateInput, LogUpdateInput, LogWhereInput } from './log';
 
 @Injectable()
 export class LogsService {
@@ -18,5 +18,11 @@ export class LogsService {
 
   update(log_id: string, payload: LogUpdateInput) {
     return this.prismaService.log.update({ data: payload, where: { log_id } });
+  }
+
+  count(loginId: string, params?: LogWhereInput) {
+    return this.prismaService.log.count({
+      where: { ...params, login_id: loginId },
+    });
   }
 }

@@ -9,3 +9,7 @@ export type LogUpdateInput = Pick<
   Prisma.LogCreateInput,
   'closed_at' | 'logged_out_at' | 'updated_at'
 >;
+
+export type LogWhereInput = Required<
+  Pick<Prisma.LogWhereInput, 'closed_at' | 'logged_out_at'>
+>;
