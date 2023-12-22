@@ -3,9 +3,7 @@ import {
   useCycles,
   useDepartments,
 } from '@glom/data-access/squoolr';
-import {
-  CreateMajorPayload
-} from '@glom/data-types/squoolr';
+import { CreateMajorPayload } from '@glom/data-types/squoolr';
 import { generateShort } from '@glom/utils';
 import {
   Box,
@@ -37,7 +35,7 @@ export default function AddMajorDialog({
   const { formatMessage, formatNumber } = useIntl();
 
   const { data: cycles } = useCycles();
-  const { data: departments } = useDepartments();
+  const { data: departments } = useDepartments({});
 
   const initialValues: CreateMajorPayload = {
     major_acronym: '',
