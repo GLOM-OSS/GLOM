@@ -24,6 +24,7 @@ import { CacheInterceptor } from '@nestjs/cache-manager';
 import { AcademicYearsModule } from '../modules/academic-years/academic-years.module';
 import { AmbassadorsModule } from '../modules/ambassadors/ambassadors.module';
 import { ClassroomsModule } from '../modules/classrooms/classrooms.module';
+import { CoursesModule } from '../modules/courses/courses.module';
 import { CycleSettingsModule } from '../modules/cycle-settings/cycle-settings.module';
 import { DepartmentsModule } from '../modules/departments/departments.module';
 import { MajorsModule } from '../modules/majors/majors.module';
@@ -37,7 +38,6 @@ import { AppMiddleware } from './app.middleware';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
-import { CoursesModule } from '../modules/courses/courses.module';
 
 @Module({
   imports: [
@@ -81,7 +81,7 @@ import { CoursesModule } from '../modules/courses/courses.module';
     ClassroomsModule,
     StaffModule,
     CycleSettingsModule,
-    CoursesModule
+    CoursesModule,
   ],
   controllers: [AppController],
   providers: [

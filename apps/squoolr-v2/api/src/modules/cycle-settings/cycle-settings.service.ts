@@ -27,7 +27,7 @@ export class CycleSettingsService {
       });
     if (!schoolSettings?.can_pay_fee) return [];
     const examAccessSettings =
-      await this.prismaService.annualSemesterExamAcess.findMany({
+      await this.prismaService.annualSemesterExamAccess.findMany({
         take: 2,
         where: metaParams,
       });
@@ -45,13 +45,13 @@ export class CycleSettingsService {
       where: { academic_year_id, can_pay_fee: true },
     });
     const examAccessSettings =
-      await this.prismaService.annualSemesterExamAcess.findMany({
+      await this.prismaService.annualSemesterExamAccess.findMany({
         take: 2,
         where: { academic_year_id, cycle_id },
       });
     await this.prismaService.$transaction([
       ...updateSettings.map(({ annual_semester_number, payment_percentage }) =>
-        this.prismaService.annualSemesterExamAcess.upsert({
+        this.prismaService.annualSemesterExamAccess.upsert({
           create: {
             payment_percentage,
             annual_semester_number,
@@ -69,7 +69,7 @@ export class CycleSettingsService {
           },
         })
       ),
-      this.prismaService.annualSemesterExamAcessAudit.createMany({
+      this.prismaService.annualSemesterExamAccessAudit.createMany({
         data: examAccessSettings.map(
           ({ payment_percentage, annual_semester_exam_access_id }) => ({
             annual_semester_exam_access_id,
@@ -232,7 +232,7 @@ export class CycleSettingsService {
       },
     });
     const annualModules =
-      await this.prismaService.annualModulesSubject.findMany({
+      await this.prismaService.annualModuleHasSubject.findMany({
         include: { AnnualModule: true, AnnualSubject: true },
         where: {
           AnnualModule: {
@@ -295,7 +295,7 @@ export class CycleSettingsService {
               annual_module_id: annualModuleId,
               credit_points: (weighting * credit_points) / 100,
             };
-            const newModulesSubject: Prisma.AnnualModulesSubjectCreateManyInput =
+            const newModulesSubject: Prisma.AnnualModuleHasSubjectCreateManyInput =
               {
                 objective,
                 weighting,
@@ -315,7 +315,7 @@ export class CycleSettingsService {
           data: newModules,
           skipDuplicates: true,
         }),
-        this.prismaService.AnnualModulesSubject.createMany({
+        this.prismaService.AnnualModuleHasSubject.createMany({
           data: newModulesSubjects,
           skipDuplicates: true,
         })
@@ -368,7 +368,7 @@ export class CycleSettingsService {
           data: { is_deleted: true },
           where: { annual_module_id: { in: disableModuleIds } },
         }),
-        this.prismaService.annualModulesSubject.updateMany({
+        this.prismaService.annualModuleHasSubject.updateMany({
           data: { is_deleted: true },
           where: { annual_subject_id: { in: disableSubjectsIds } },
         })
@@ -395,7 +395,7 @@ export class CycleSettingsService {
           data: { is_deleted: false },
           where: { annual_module_id: { in: enableModuleIds } },
         }),
-        this.prismaService.annualModulesSubject.updateMany({
+        this.prismaService.annualModuleHasSubject.updateMany({
           data: { is_deleted: false },
           where: { annual_subject_id: { in: enableSubjectIds } },
         })

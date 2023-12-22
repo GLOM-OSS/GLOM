@@ -21,7 +21,7 @@ export class GlomRedisModule {
         }),
         CacheModule.register({
           isGlobal,
-          ttl: 60000,
+          ttl: 0.0,
         }),
       ],
     };

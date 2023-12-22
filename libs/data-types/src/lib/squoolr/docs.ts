@@ -295,27 +295,6 @@ export interface components {
       active_year_id?: string;
       roles: ("ADMIN" | "PARENT" | "STUDENT" | "TEACHER" | "REGISTRY" | "COORDINATOR" | "CONFIGURATOR")[];
     };
-    AcademicYearEntity: {
-      /** Format: date-time */
-      starts_at: string;
-      /** Format: date-time */
-      ends_at: string;
-      academic_year_id: string;
-      year_code: string;
-      /** Format: date-time */
-      started_at: string;
-      /** Format: date-time */
-      ended_at: string;
-      /** @enum {string} */
-      year_status: "INACTIVE" | "ACTIVE" | "FINISHED";
-      school_id: string;
-      /** Format: date-time */
-      created_at: string;
-    };
-    SingInResponse: {
-      user: components["schemas"]["UserEntity"];
-      academicYears?: components["schemas"]["AcademicYearEntity"][];
-    };
     ResetPasswordDto: {
       email: string;
     };
@@ -492,6 +471,23 @@ export interface components {
     UpdateSchoolDemandStatus: {
       /** @enum {string} */
       school_demand_status: "PENDING" | "PROCESSING" | "REJECTED" | "VALIDATED" | "SUSPENDED";
+    };
+    AcademicYearEntity: {
+      /** Format: date-time */
+      starts_at: string;
+      /** Format: date-time */
+      ends_at: string;
+      academic_year_id: string;
+      year_code: string;
+      /** Format: date-time */
+      started_at: string;
+      /** Format: date-time */
+      ended_at: string;
+      /** @enum {string} */
+      year_status: "INACTIVE" | "ACTIVE" | "FINISHED";
+      school_id: string;
+      /** Format: date-time */
+      created_at: string;
     };
     UserAnnualRoles: {
       active_year_id?: string;
@@ -1060,7 +1056,7 @@ export interface operations {
     responses: {
       201: {
         content: {
-          "application/json": components["schemas"]["SingInResponse"];
+          "application/json": components["schemas"]["UserEntity"];
         };
       };
     };

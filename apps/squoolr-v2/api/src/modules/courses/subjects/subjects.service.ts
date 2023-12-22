@@ -21,7 +21,7 @@ export class CourseSubjectsService {
   ) {}
 
   async findAll(params?: QueryCourseSubjectDto) {
-    const subjects = await this.prismaService.annualModulesSubject.findMany({
+    const subjects = await this.prismaService.annualModuleHasSubject.findMany({
       ...SubjectArgsFactory.getSelectArgs(),
       where: {
         is_deleted: params?.is_deleted,
@@ -83,7 +83,7 @@ export class CourseSubjectsService {
       };
     }
 
-    const subject = await this.prismaService.annualModulesSubject.create({
+    const subject = await this.prismaService.annualModuleHasSubject.create({
       ...SubjectArgsFactory.getSelectArgs(),
       data: {
         objective,
@@ -158,7 +158,7 @@ export class CourseSubjectsService {
       AnnualModule: annualModule,
       AnnualSubject: { AnnualSubjectParts: annualSubjectParts },
       ...annualSubjectAudit
-    } = await this.prismaService.annualModulesSubject.findUniqueOrThrow({
+    } = await this.prismaService.annualModuleHasSubject.findUniqueOrThrow({
       include: {
         AnnualSubject: { include: { AnnualSubjectParts: !!subjectParts } },
         AnnualModule: !!courseModule,
@@ -166,7 +166,7 @@ export class CourseSubjectsService {
       where: { annual_modules_subject_id },
     });
     await this.prismaService.$transaction([
-      this.prismaService.annualModulesSubject.update({
+      this.prismaService.annualModuleHasSubject.update({
         data: {
           objective,
           weighting,
@@ -224,7 +224,7 @@ export class CourseSubjectsService {
                 },
               }
             : undefined,
-          AnnualModulesSubjectAudits:
+          AnnualModuleHasSubjectAudits:
             typeof disable === 'boolean' || objective || weighting
               ? {
                   create: {
@@ -262,15 +262,15 @@ export class CourseSubjectsService {
     audited_by: string
   ) {
     const annualSubjectAudits =
-      await this.prismaService.annualModulesSubject.findMany({
+      await this.prismaService.annualModuleHasSubject.findMany({
         where: { annual_modules_subject_id: { in: annualSubjectIds } },
       });
     const prismaTransactions: PrismaPromise<Prisma.BatchPayload>[] = [
-      this.prismaService.annualModulesSubject.updateMany({
+      this.prismaService.annualModuleHasSubject.updateMany({
         data: { is_deleted: disable },
         where: { annual_subject_id: { in: annualSubjectIds } },
       }),
-      this.prismaService.annualModulesSubjectAudit.createMany({
+      this.prismaService.annualModuleHasSubjectAudit.createMany({
         data: annualSubjectAudits.map((annualSubject) => ({
           ...excludeKeys(annualSubject, [
             'annual_module_id',
@@ -283,7 +283,7 @@ export class CourseSubjectsService {
     ];
     if (disable)
       prismaTransactions.push(
-        this.prismaService.annualModulesSubject.updateMany({
+        this.prismaService.annualModuleHasSubject.updateMany({
           data: { is_deleted: true },
           where: { annual_subject_id: { in: annualSubjectIds } },
         })

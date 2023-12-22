@@ -61,95 +61,17 @@ services:
       - "85:3000"
     depends_on:
       - api
+  staff:
+    build:
+      dockerfile: ./Dockerfile.squoolr-v2.staff
+      context: .
+    restart: always
+    ports:
+      - "107:3000"
+    depends_on:
+      - api
 volumes:
   squoolr_prod_cache:
     driver: local
   squoolr_prod_data:
     driver: local
-
-
-
-
-# ingl.io, www.ingl.io, lynkr.net {
-#         reverse_proxy localhost:83
-# }
-
-# beta.ingl.io {
-#         reverse_proxy localhost:84
-# }
-
-# app.ingl.io {
-#         reverse_proxy localhost:89
-# }
-
-# marketplace.ingl.io {
-#         reverse_proxy localhost:92
-# }
-
-# admin.squoolr.com {
-#         reverse_proxy localhost:85
-# }
-
-# squoolr.com {
-#         reverse_proxy localhost:91
-# }
-
-# api.squoolr.com {
-#         reverse_proxy localhost:86
-# }
-
-# student.squoolr.com {
-#         reverse_proxy localhost:87
-# }
-
-# hopehome.app, www.hopehome.app {
-#         reverse_proxy localhost:93
-# }
-
-# api.hopehome.app {
-#         reverse_proxy localhost:95
-# }
-
-# pay.xafshop.com {
-#         reverse_proxy localhost:98
-# }
-
-# api.xafshop.com {
-#         reverse_proxy localhost:99
-# }
-
-# accountant.xafshop.com {
-#         reverse_proxy localhost:100
-# }
-
-# admin.xafshop.com {
-#         reverse_proxy localhost:88
-# }
-
-# app.xafshop.com {
-#         reverse_proxy localhost:101
-# }
-
-# api-stage.xafshop.com {
-#         reverse_proxy localhost:102
-# }
-
-# accountant-stage.xafshop.com {
-#         reverse_proxy localhost:103
-# }
-
-# admin-stage.xafshop.com {
-#         reverse_proxy localhost:104
-# }
-
-# app-stage.xafshop.com {
-#         reverse_proxy localhost:105
-# }
-
-# pay-stage.xafshop.com {
-#         reverse_proxy localhost:106
-# }
-
-#db.xafshop.com {
-#       reverse_proxy localhost:5037
-#}

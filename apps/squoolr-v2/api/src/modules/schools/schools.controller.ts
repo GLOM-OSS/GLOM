@@ -69,11 +69,11 @@ export class SchoolsController {
     } = schoolDemandPayload;
     if (payment_id && referral_code)
       throw new BadRequestException(
-        'payment number and referral code cannot be both provided'
+        'payment id and referral code cannot be both provided'
       );
     if (!payment_id && !referral_code)
       throw new BadRequestException(
-        'please provide payment number or referral code'
+        'please provide payment id or referral code'
       );
     return this.schoolsService.create(schoolDemandPayload);
   }

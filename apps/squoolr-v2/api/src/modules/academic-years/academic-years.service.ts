@@ -78,7 +78,7 @@ export class AcademicYearsService {
             connect: { annual_configurator_id: created_by },
           },
           AcademicYear: {
-            connect: { year_code },
+            connect: { year_code_school_id: { school_id, year_code } },
           },
         },
       }),
@@ -349,7 +349,7 @@ export class AcademicYearsService {
   //   return academicYearId;
   // }
 
-  async findAll(login_id: string) {
+  async findByLoginId(login_id: string) {
     //check for annual student
     const annualStudents = await this.prismaService.annualStudent.findMany({
       select: { AcademicYear: true },

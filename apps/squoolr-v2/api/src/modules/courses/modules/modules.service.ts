@@ -95,7 +95,7 @@ export class CourseModulesService {
             AuditedBy: { connect: { annual_teacher_id: audited_by } },
           },
         },
-        AnnualModulesSubjects: disable
+        AnnualModuleHasSubjects: disable
           ? {
               updateMany: {
                 data: { is_deleted: true },
@@ -138,7 +138,7 @@ export class CourseModulesService {
     ];
     if (disable)
       prismaTransactions.push(
-        this.prismaService.annualModulesSubject.updateMany({
+        this.prismaService.annualModuleHasSubject.updateMany({
           data: { is_deleted: true },
           where: { annual_module_id: { in: annualModuleIds } },
         })

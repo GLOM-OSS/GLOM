@@ -3,7 +3,7 @@ import { SubjectEntity } from './subject.dto';
 
 export class SubjectArgsFactory {
   static getSelectArgs = () =>
-    Prisma.validator<Prisma.AnnualModulesSubjectArgs>()({
+    Prisma.validator<Prisma.AnnualModuleHasSubjectArgs>()({
       include: {
         AnnualSubject: {
           include: {
@@ -32,7 +32,7 @@ export class SubjectArgsFactory {
     AnnualModule: { is_subject_module, ...courseModule },
     annual_modules_subject_id,
     ...moduleSubject
-  }: Prisma.AnnualModulesSubjectGetPayload<
+  }: Prisma.AnnualModuleHasSubjectGetPayload<
     typeof SubjectArgsFactory.subjectSelect
   >) => {
     return new SubjectEntity({

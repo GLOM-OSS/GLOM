@@ -10,6 +10,8 @@
     "prisma:squoolr": "prisma migrate dev --schema schemas/squoolr/schema.prisma",
     "prisma:gen:squoolr": "prisma generate --schema schemas/squoolr/schema.prisma",
     "prisma:squoolr-v1": "prisma migrate dev --schema schemas/squoolr-v1/schema.prisma",
+    "deploy:dev:up": "docker-compose -f docker-compose-squoolr-v2.dev.yml up --build -d",
+    "deploy:dev:down": "docker-compose -f docker-compose-squoolr-v2.dev.yml down",
     "deploy:prod:up": "docker-compose -f docker-compose-squoolr-v2.yml up --build -d",
     "deploy:prod:down": "docker-compose -f docker-compose-squoolr-v2.yml down"
   },

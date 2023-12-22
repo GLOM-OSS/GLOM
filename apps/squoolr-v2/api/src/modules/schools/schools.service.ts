@@ -372,7 +372,7 @@ export class SchoolsService {
         }),
         this.prismaService.academicYear.update({
           data: AcademicYearArgsFactory.getInitialSetup(annual_configurator_id),
-          where: { year_code },
+          where: { academic_year_id },
         }),
       ],
     };

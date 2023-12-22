@@ -6,7 +6,7 @@ import {
 import {
   AnnualEvaluationType,
   AnnualModuleSetting,
-  AnnualSemesterExamAcess,
+  AnnualSemesterExamAccess,
   AnnualWeighting,
   CarryOverSystemEnum,
   EvaluationTypeEnum,
@@ -61,7 +61,7 @@ export class UpdateExamAcessSettingDto extends QueryCycleSettingsDto {
 
 export class ExamAccessSettingEntitty
   extends ExamAcessSettingPayload
-  implements AnnualSemesterExamAcess
+  implements AnnualSemesterExamAccess
 {
   @ApiProperty()
   annual_semester_exam_access_id: string;

@@ -1,0 +1,36 @@
+FROM node:18.12.1-alpine3.16 as builder
+
+# #set the working directory
+WORKDIR /app
+
+# # install app dependencies
+COPY package*.json ./
+
+# #clean install dependecies
+RUN npm install --force
+
+# COPY workspace configs
+COPY ./tsconfig.base.json ./
+COPY ./nx.json ./
+
+# COPY REQUIRED LIBS AND CONCERNED APP
+COPY /libs/encrypter ./libs/encrypter
+COPY /libs/utils ./libs/utils
+COPY /libs/axios ./libs/axios
+COPY /libs/constants ./libs/constants
+COPY /libs/nest/auth ./libs/nest/auth
+COPY /libs/nest/payment ./libs/nest/payment
+COPY /libs/nest/exceptions ./libs/nest/exceptions
+COPY /libs/nest/prisma ./libs/nest/prisma
+COPY /libs/nest/redis ./libs/nest/redis
+COPY /libs/request ./libs/requests
+COPY ./apps/squoolr-v2/api ./apps/squoolr-v2/api
+COPY ./schemas/squoolr/ ./prisma
+
+#migrate prisma models
+RUN npx prisma generate
+
+EXPOSE 8000
+
+CMD ["npx","nx","run","squoolr-v2-api:serve:development"]
+
