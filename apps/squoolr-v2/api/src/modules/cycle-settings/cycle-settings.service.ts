@@ -26,7 +26,7 @@ export class CycleSettingsService {
       });
     if (!schoolSettings?.can_pay_fee) return [];
     const examAccessSettings =
-      await this.prismaService.annualSemesterExamAcess.findMany({
+      await this.prismaService.annualSemesterExamAccess.findMany({
         take: 2,
         where: metaParams,
       });
@@ -44,13 +44,13 @@ export class CycleSettingsService {
       where: { academic_year_id, can_pay_fee: true },
     });
     const examAccessSettings =
-      await this.prismaService.annualSemesterExamAcess.findMany({
+      await this.prismaService.annualSemesterExamAccess.findMany({
         take: 2,
         where: { academic_year_id, cycle_id },
       });
     await this.prismaService.$transaction([
       ...updateSettings.map(({ annual_semester_number, payment_percentage }) =>
-        this.prismaService.annualSemesterExamAcess.upsert({
+        this.prismaService.annualSemesterExamAccess.upsert({
           create: {
             payment_percentage,
             annual_semester_number,
@@ -68,7 +68,7 @@ export class CycleSettingsService {
           },
         })
       ),
-      this.prismaService.annualSemesterExamAcessAudit.createMany({
+      this.prismaService.annualSemesterExamAccessAudit.createMany({
         data: examAccessSettings.map(
           ({ payment_percentage, annual_semester_exam_access_id }) => ({
             annual_semester_exam_access_id,
