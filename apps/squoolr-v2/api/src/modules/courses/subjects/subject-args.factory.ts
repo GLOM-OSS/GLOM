@@ -30,7 +30,7 @@ export class SubjectArgsFactory {
   static getSubjectEntity = ({
     AnnualSubject: { AnnualSubjectParts: parts, ...subject },
     AnnualModule: { is_subject_module, ...courseModule },
-    annual_modules_subject_id,
+    annual_module_has_subject_id,
     ...moduleSubject
   }: Prisma.AnnualModuleHasSubjectGetPayload<
     typeof SubjectArgsFactory.subjectSelect
@@ -38,7 +38,7 @@ export class SubjectArgsFactory {
     return new SubjectEntity({
       ...subject,
       ...moduleSubject,
-      annual_subject_id: annual_modules_subject_id,
+      annual_subject_id: annual_module_has_subject_id,
       module: is_subject_module ? courseModule : undefined,
       subjectParts: parts.map(
         ({

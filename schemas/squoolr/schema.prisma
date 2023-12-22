@@ -702,8 +702,8 @@ model AnnualTeacher {
     CreatedPresenceListHasModuleStudents PresenceListHasAnnualModuleStudent[] @relation(name: "CreatedBy_AnnualTeacher")
     DeletedPresenceListHasModuleStudents PresenceListHasAnnualModuleStudent[] @relation(name: "DeletedBy_AnnualTeacher")
     AnnualStudentAnswerQuestions         AnnualStudentAnswerQuestion[]
-    AnnualModulesSubjects                AnnualModuleHasSubject[]
-    AnnualModulesSubjectAudits           AnnualModulesSubjectAudit[]
+    AnnualModuleHasSubjects              AnnualModuleHasSubject[]
+    AnnualModuleHasSubjectAudits         AnnualModuleHasSubjectAudit[]
 
     @@unique([login_id, academic_year_id])
     @@map("annual_teachers")
@@ -951,11 +951,11 @@ model AnnualModule {
     created_by          String                  @db.VarChar(36)
     CreatedBy           AnnualTeacher           @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
     created_from        String?                 @unique @db.VarChar(36)
-    CreatedFrom         AnnualModuleHasSubject? @relation(name: "CreatedFrom_AnnualModulesSubject", fields: [created_from], references: [annual_modules_subject_id], onDelete: Cascade, onUpdate: Cascade)
+    CreatedFrom         AnnualModuleHasSubject? @relation(name: "CreatedFrom_AnnualModuleHasSubject", fields: [created_from], references: [annual_module_has_subject_id], onDelete: Cascade, onUpdate: Cascade)
 
     AnnualModuleAudits      AnnualModuleAudit[]
     AnnualStudentHasModules AnnualStudentHasModule[]
-    AnnualModulesSubjects   AnnualModuleHasSubject[]
+    AnnualModuleHasSubjects AnnualModuleHasSubject[]
 
     @@unique([module_code, annual_classroom_id])
     @@fulltext([module_name])
@@ -1001,14 +1001,14 @@ model AnnualSubject {
     created_by        String        @db.VarChar(36)
     CreatedBy         AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AnnualSubjectAudits   AnnualSubjectAudit[]
-    AnnualSubjectParts    AnnualSubjectPart[]
-    Evaluations           Evaluation[]
-    Chapters              Chapter[]
-    Resources             Resource[]
-    Assessments           Assessment[]
-    PresenceLists         PresenceList[]
-    AnnualModulesSubjects AnnualModuleHasSubject[]
+    AnnualSubjectAudits     AnnualSubjectAudit[]
+    AnnualSubjectParts      AnnualSubjectPart[]
+    Evaluations             Evaluation[]
+    Chapters                Chapter[]
+    Resources               Resource[]
+    Assessments             Assessment[]
+    PresenceLists           PresenceList[]
+    AnnualModuleHasSubjects AnnualModuleHasSubject[]
 
     @@unique([subject_code, academic_year_id])
     @@fulltext([subject_name])
@@ -1029,35 +1029,35 @@ model AnnualSubjectAudit {
 }
 
 model AnnualModuleHasSubject {
-    annual_modules_subject_id String        @id @default(uuid()) @db.VarChar(36)
-    weighting                 Float
-    objective                 String?       @db.MediumText
-    is_deleted                Boolean       @default(false) @db.TinyInt
-    created_at                DateTime      @default(now()) @db.DateTime(0)
-    created_by                String        @db.VarChar(36)
-    CreatedBy                 AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
-    annual_module_id          String        @db.VarChar(36)
-    AnnualModule              AnnualModule  @relation(fields: [annual_module_id], references: [annual_module_id], onDelete: Cascade, onUpdate: Cascade)
-    annual_subject_id         String
-    AnnualSubject             AnnualSubject @relation(fields: [annual_subject_id], references: [annual_subject_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_module_has_subject_id String        @id @default(uuid()) @db.VarChar(36)
+    weighting                    Float
+    objective                    String?       @db.MediumText
+    is_deleted                   Boolean       @default(false) @db.TinyInt
+    created_at                   DateTime      @default(now()) @db.DateTime(0)
+    created_by                   String        @db.VarChar(36)
+    CreatedBy                    AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_module_id             String        @db.VarChar(36)
+    AnnualModule                 AnnualModule  @relation(fields: [annual_module_id], references: [annual_module_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_subject_id            String
+    AnnualSubject                AnnualSubject @relation(fields: [annual_subject_id], references: [annual_subject_id], onDelete: Cascade, onUpdate: Cascade)
 
-    AnnualModulesSubjectAudits AnnualModulesSubjectAudit[]
-    CreatedAnnualModule        AnnualModule?               @relation(name: "CreatedFrom_AnnualModulesSubject")
+    AnnualModuleHasSubjectAudits AnnualModuleHasSubjectAudit[]
+    CreatedAnnualModule          AnnualModule?                 @relation(name: "CreatedFrom_AnnualModuleHasSubject")
 
     @@unique([annual_module_id, annual_subject_id])
     @@map("annual_module_has_subjects")
 }
 
-model AnnualModulesSubjectAudit {
-    annual_modules_subject_audit_id String                 @id @default(uuid()) @db.VarChar(36)
-    weighting                       Float
-    objective                       String?                @db.MediumText
-    is_deleted                      Boolean                @db.TinyInt
-    created_at                      DateTime               @default(now()) @db.DateTime(0)
-    audited_by                      String                 @db.VarChar(36)
-    AuditedBy                       AnnualTeacher          @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
-    annual_modules_subject_id       String
-    AnnualModulesSubject            AnnualModuleHasSubject @relation(fields: [annual_modules_subject_id], references: [annual_modules_subject_id], onDelete: Cascade, onUpdate: Cascade)
+model AnnualModuleHasSubjectAudit {
+    annual_module_has_subject_audit_id String                 @id @default(uuid()) @db.VarChar(36)
+    weighting                          Float
+    objective                          String?                @db.MediumText
+    is_deleted                         Boolean                @db.TinyInt
+    created_at                         DateTime               @default(now()) @db.DateTime(0)
+    audited_by                         String                 @db.VarChar(36)
+    AuditedBy                          AnnualTeacher          @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_module_has_subject_id       String
+    AnnualModuleHasSubject             AnnualModuleHasSubject @relation(fields: [annual_module_has_subject_id], references: [annual_module_has_subject_id], onDelete: Cascade, onUpdate: Cascade)
 
     @@map("annual_module_has_subject_audits")
 }

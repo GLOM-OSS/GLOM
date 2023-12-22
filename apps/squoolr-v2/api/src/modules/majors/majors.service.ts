@@ -199,7 +199,7 @@ export class MajorsService {
                 })),
               },
             }),
-            this.prismaService.annualSubject.updateMany({
+            this.prismaService.annualModuleHasSubject.updateMany({
               data: { is_deleted: true },
               where: {
                 AnnualModule: {

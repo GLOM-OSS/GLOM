@@ -142,7 +142,7 @@ export class CourseSubjectsService {
   }
 
   async update(
-    annual_modules_subject_id: string,
+    annual_module_has_subject_id: string,
     {
       disable,
       module: courseModule,
@@ -163,7 +163,7 @@ export class CourseSubjectsService {
         AnnualSubject: { include: { AnnualSubjectParts: !!subjectParts } },
         AnnualModule: !!courseModule,
       },
-      where: { annual_modules_subject_id },
+      where: { annual_module_has_subject_id },
     });
     await this.prismaService.$transaction([
       this.prismaService.annualModuleHasSubject.update({
@@ -238,7 +238,7 @@ export class CourseSubjectsService {
                 }
               : undefined,
         },
-        where: { annual_modules_subject_id },
+        where: { annual_module_has_subject_id },
       }),
       this.prismaService.annualSubjectPartAudit.createMany({
         data: annualSubjectParts.map(
@@ -263,7 +263,7 @@ export class CourseSubjectsService {
   ) {
     const annualSubjectAudits =
       await this.prismaService.annualModuleHasSubject.findMany({
-        where: { annual_modules_subject_id: { in: annualSubjectIds } },
+        where: { annual_module_has_subject_id: { in: annualSubjectIds } },
       });
     const prismaTransactions: PrismaPromise<Prisma.BatchPayload>[] = [
       this.prismaService.annualModuleHasSubject.updateMany({
