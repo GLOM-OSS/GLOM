@@ -6,9 +6,11 @@ import { AuthSerializer } from './auth.serializer';
 import { AuthService } from './auth.service';
 import { LocalStrategy } from './local/local.strategy';
 import { LogsService } from './logs/logs.service';
+import { ScheduleModule, SchedulerRegistry } from '@nestjs/schedule';
 
 @Global()
 @Module({
+  imports: [ScheduleModule.forRoot()],
   providers: [
     AuthService,
     LogsService,
@@ -16,6 +18,7 @@ import { LogsService } from './logs/logs.service';
     AuthSerializer,
     CodeGeneratorFactory,
     AcademicYearsService,
+    SchedulerRegistry,
   ],
   exports: [AuthService, LogsService],
   controllers: [AuthController],

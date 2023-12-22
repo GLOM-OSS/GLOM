@@ -339,7 +339,10 @@ export class AuthService {
     );
     if (activeSessionCount > 2)
       throw new HttpException(
-        { error: 'TOO_MANY_REQUESTS', message: 'Too many session opened !!' },
+        {
+          error: 'TOO_MANY_REQUESTS',
+          message: 'Too many session opened. Please try again later',
+        },
         HttpStatus.TOO_MANY_REQUESTS
       );
     return loginData.login;
