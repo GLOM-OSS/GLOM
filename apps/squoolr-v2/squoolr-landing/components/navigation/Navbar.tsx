@@ -1,17 +1,13 @@
-import { useActiveLanguage, useDispatchLanguage, useTheme } from '@glom/theme';
+import { useTheme } from '@glom/theme';
 import list from '@iconify/icons-fluent/list-28-filled';
 import { Icon } from '@iconify/react';
 import {
   AppBar,
   Box,
   Button,
-  FormControl,
   IconButton,
-  MenuItem,
-  Select,
   Tooltip,
   Typography,
-  capitalize,
   useScrollTrigger,
 } from '@mui/material';
 import Image from 'next/image';
@@ -129,8 +125,6 @@ export default function Navbar({
   const { formatMessage } = useIntl();
   const { push, pathname, asPath } = useRouter();
   const theme = useTheme();
-  const changeLanguage = useDispatchLanguage();
-  const activeLanguage = useActiveLanguage();
 
   const [isSideNavOpen, setIsSideNavOpen] = useState<boolean>(false);
 
@@ -152,7 +146,7 @@ export default function Navbar({
               display: 'grid',
               gridTemplateColumns: {
                 mobile: '1fr auto auto',
-                desktop: 'auto 1fr auto auto',
+                desktop: 'auto 1fr  auto',
               },
               justifyItems: 'center',
               columnGap: 1,
@@ -259,30 +253,6 @@ export default function Navbar({
                 {formatMessage({ id: 'contactUs' })}
               </Typography>
             </Box>
-            <FormControl
-              fullWidth
-              sx={{
-                '& .MuiSelect-select': {
-                  paddingTop: 1,
-                  paddingBottom: 1,
-                },
-              }}
-            >
-              <Select
-                value={activeLanguage}
-                onChange={() => {
-                  changeLanguage({
-                    type:
-                      capitalize(activeLanguage) === 'En'
-                        ? 'USE_FRENCH'
-                        : 'USE_ENGLISH',
-                  });
-                }}
-              >
-                <MenuItem value={'en'}>{formatMessage({ id: 'en' })}</MenuItem>
-                <MenuItem value={'fr'}>{formatMessage({ id: 'fr' })}</MenuItem>
-              </Select>
-            </FormControl>
             <Tooltip arrow title={formatMessage({ id: 'menu' })}>
               <IconButton
                 sx={{

@@ -204,15 +204,17 @@ model School {
     AcademicYears AcademicYear[]
     SchoolDemand  SchoolDemand?
     SchoolAudits  SchoolAudit[]
+
+    @@fulltext([school_name])
+    @@fulltext([school_name, address])
 }
 
 model SchoolAudit {
     school_audit_id        String             @id @default(uuid()) @db.VarChar(36)
-    address                String?            @db.VarChar(20)
     longitude              Float?
     latitude               Float?
+    address                String?            @db.VarChar(20)
     school_name            String             @db.VarChar(50)
-    school_code            String             @db.VarChar(45)
     school_acronym         String             @db.VarChar(45)
     school_email           String             @unique @db.VarChar(50)
     school_phone_number    String             @db.VarChar(15)
@@ -294,7 +296,7 @@ model SchoolDemand {
     demand_status    SchoolDemandStatus @default(PENDING)
     created_at       DateTime           @default(now()) @db.DateTime(0)
     rejection_reason String?            @db.Text
-    payment_id       String?            @db.VarChar(36)
+    payment_id       String?            @unique @db.VarChar(36)
     Payment          Payment?           @relation(fields: [payment_id], references: [payment_id], onDelete: Cascade, onUpdate: Cascade)
     school_id        String             @unique
     School           School             @relation(fields: [school_id], references: [school_id], onDelete: Cascade, onUpdate: Cascade)
@@ -332,7 +334,7 @@ model AcademicYear {
     started_at       DateTime?           @db.DateTime(0)
     ended_at         DateTime?           @db.DateTime(0)
     year_status      AcademicYearStatus  @default(INACTIVE)
-    year_code        String              @unique @db.VarChar(36)
+    year_code        String              @db.VarChar(36)
     is_deleted       Boolean             @default(false) @db.TinyInt
     created_at       DateTime            @default(now()) @db.DateTime(0)
     school_id        String              @db.VarChar(36)
@@ -353,6 +355,8 @@ model AcademicYear {
     AnnualAcademicProfiles  AnnualAcademicProfile[]
     AnnualSemesterExamAcess AnnualSemesterExamAcess[]
     AnnualGradeWeightings   AnnualGradeWeighting[]
+
+    @@unique([year_code, school_id])
 }
 
 model Login {
@@ -624,8 +628,8 @@ model AnnualTeacherAudit {
     annual_teacher_audit_id String             @id @default(uuid()) @db.VarChar(36)
     hourly_rate             Int
     origin_institute        String             @db.VarChar(45)
-    has_signed_convention   Boolean            @default(false) @db.TinyInt
-    is_deleted              Boolean            @default(false) @db.TinyInt
+    has_signed_convention   Boolean            @db.TinyInt
+    is_deleted              Boolean            @db.TinyInt
     audited_at              DateTime           @default(now()) @db.DateTime(0)
     annual_teacher_id       String             @db.VarChar(36)
     AnnualTeacher           AnnualTeacher      @relation(fields: [annual_teacher_id], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
@@ -646,6 +650,7 @@ model Log {
     user_agent    String
     logged_in_at  DateTime   @default(now()) @db.DateTime(0)
     logged_out_at DateTime?  @db.DateTime(0)
+    updated_at    DateTime?  @db.DateTime(0)
     closed_at     DateTime?  @db.DateTime(0)
     login_id      String     @db.VarChar(36)
     Login         Login      @relation(fields: [login_id], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
@@ -661,8 +666,6 @@ model ResetPassword {
     AnnualConfigurator         AnnualConfigurator? @relation(fields: [generated_by_confiigurator], references: [annual_configurator_id], onDelete: Cascade, onUpdate: Cascade)
     generated_by_admin         String?             @db.VarChar(36)
     Admin                      Login?              @relation("Admin_Generated_ResetPassword", fields: [generated_by_admin], references: [login_id], onDelete: Cascade, onUpdate: Cascade)
-
-    @@unique([login_id, is_valid])
 }
 
 model Department {

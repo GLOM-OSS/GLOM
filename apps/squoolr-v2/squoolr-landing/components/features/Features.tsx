@@ -1,8 +1,8 @@
 import { useTheme } from '@glom/theme';
 import left from '@iconify/icons-fluent/arrow-left-20-filled';
 import { Icon } from '@iconify/react';
-import { Box, Divider, IconButton, Tooltip } from '@mui/material';
-import { useState } from 'react';
+import { Box, Divider, IconButton, Tooltip, lighten } from '@mui/material';
+import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import FeatureCard from './FeatureCard';
 import FeaturesHeader from './FeaturesHeader';
@@ -26,7 +26,7 @@ export default function Features({
   const features: IFeature[] = [
     {
       description: formatMessage({ id: 'courseManagementDescription' }),
-      image: 'course_management.png',
+      image: 'course_management.svg',
       isComingSoon: true,
       title: formatMessage({ id: 'courseManagement' }),
     },
@@ -34,7 +34,7 @@ export default function Features({
       description: formatMessage({
         id: 'gradingAndResultPublicationDescription',
       }),
-      image: 'coming_soon.png',
+      image: 'coming_soon.svg',
       isComingSoon: true,
       title: formatMessage({ id: 'gradingAndResultPublication' }),
     },
@@ -42,13 +42,13 @@ export default function Features({
       description: formatMessage({
         id: 'configurationsDescription',
       }),
-      image: 'feature_configuration.png',
+      image: 'feature_configuration.svg',
       isComingSoon: true,
       title: formatMessage({ id: 'configurations' }),
     },
     {
       description: formatMessage({ id: 'andMoreFeaturesDescription' }),
-      image: 'more.png',
+      image: 'more.svg',
       isComingSoon: true,
       title: formatMessage({ id: 'andMoreFeatures' }),
     },
@@ -58,6 +58,22 @@ export default function Features({
   setTimeout(() => {
     setAnimationKey((prevKey) => prevKey + 1);
   }, 12000);
+
+  const [screenWidth, setScreenWidth] = useState(0);
+
+  useEffect(() => {
+    const updateScreenWidth = () => {
+      setScreenWidth(window.innerWidth);
+    };
+
+    // Initial screen width
+    updateScreenWidth();
+    window.addEventListener('resize', updateScreenWidth);
+
+    return () => {
+      window.removeEventListener('resize', updateScreenWidth);
+    };
+  }, []);
 
   return (
     <Box
@@ -78,7 +94,7 @@ export default function Features({
 
       <Box
         sx={{
-          padding: { mobile: '0 16px', laptop: '0 118px' },
+          padding: '0 16px',
           position: 'relative',
         }}
       >
@@ -94,7 +110,10 @@ export default function Features({
           key={animationKey}
           sx={{
             position: { mobile: 'initial', laptop: 'absolute' },
-            bottom: '50px',
+            bottom: {
+              laptop: '50px',
+              desktop: screenWidth >= 1550 ? '100px' : '40px',
+            },
 
             animation: 'shake .9s cubic-bezier(.45,.05,.55,.95) .5s forwards',
             '@keyframes shake': {
@@ -121,27 +140,14 @@ export default function Features({
             sx={{
               display: 'grid',
               alignItems: 'center',
-              gridTemplateColumns: {
-                mobile: 'auto 1fr auto',
-                laptop: 'auto 300px auto',
-              },
-              columnGap: 0.5,
+              minWidth: '350px',
+              rowGap: 1,
             }}
           >
-            <Tooltip arrow title={formatMessage({ id: 'previous' })}>
-              <IconButton
-                size="small"
-                onClick={() =>
-                  setActiveCard((prev) => (prev === 1 ? 1 : prev - 1))
-                }
-              >
-                <Icon icon={left} color="black" />
-              </IconButton>
-            </Tooltip>
             <Box sx={{ position: 'relative' }}>
               <Divider
                 sx={{
-                  backgroundColor: 'black',
+                  backgroundColor: lighten(theme.palette.secondary.light, 0.7),
                   height: '5px',
                   borderRadius: '1000px',
                 }}
@@ -159,18 +165,54 @@ export default function Features({
                 }}
               />
             </Box>
-            <Tooltip arrow title={formatMessage({ id: 'next' })}>
-              <IconButton
-                size="small"
-                onClick={() =>
-                  setActiveCard((prev) =>
-                    prev === features.length ? features.length : prev + 1
-                  )
-                }
-              >
-                <Icon icon={left} rotate={2} color="black" />
-              </IconButton>
-            </Tooltip>
+            <Box
+              sx={{
+                display: 'grid',
+                gridAutoFlow: 'column',
+                columnGap: 1,
+                justifyContent: 'start',
+              }}
+            >
+              <Tooltip arrow title={formatMessage({ id: 'previous' })}>
+                <IconButton
+                  size="small"
+                  sx={{
+                    backgroundColor: lighten(
+                      theme.palette.secondary.light,
+                      0.7
+                    ),
+                  }}
+                  onClick={() =>
+                    setActiveCard((prev) => (prev === 1 ? 1 : prev - 1))
+                  }
+                >
+                  <Icon icon={left} color={theme.palette.secondary.main} />
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip arrow title={formatMessage({ id: 'next' })}>
+                <IconButton
+                  size="small"
+                  sx={{
+                    backgroundColor: lighten(
+                      theme.palette.secondary.light,
+                      0.7
+                    ),
+                  }}
+                  onClick={() =>
+                    setActiveCard((prev) =>
+                      prev === features.length ? features.length : prev + 1
+                    )
+                  }
+                >
+                  <Icon
+                    icon={left}
+                    rotate={2}
+                    color={theme.palette.secondary.main}
+                  />
+                </IconButton>
+              </Tooltip>
+            </Box>
           </Box>
         </Box>
       </Box>

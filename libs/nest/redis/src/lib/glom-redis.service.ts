@@ -1,7 +1,8 @@
-import { Redis, RedisOptions } from 'ioredis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { Injectable } from '@nestjs/common';
+import { Redis } from 'ioredis';
 
-export class GlomRedisService extends Redis {
-  constructor(url: string, options: RedisOptions) {
-    super(url, options);
-  }
+@Injectable()
+export class GlomRedisService {
+  constructor(@InjectRedis() public client: Redis) {}
 }

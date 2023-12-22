@@ -68,7 +68,7 @@ export default function Hero({
       <Box sx={{ height: '100%' }}>
         <Box
           component="img"
-          src="/hero_image.png"
+          src="/hero_image.svg"
           sx={{
             marginTop: { mobile: 0, desktop: '-40px' },
             width: '100%',

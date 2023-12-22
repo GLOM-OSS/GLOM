@@ -412,20 +412,20 @@ export const website = {
   comingSoon: 'Bientôt',
   courseManagement: 'Gestion des Cours',
   courseManagementDescription:
-    'Squoolr introduit un système de gestion de cours avancé qui facilite les interactions entre étudiants et enseignants. Des devoirs et soumissions aux évaluations, aux notations et à la publication des résultats, notre système flexible et convivial favorise la communication et améliore la compréhension des matières de cours.',
+    'Squoolr présente un système avancé de gestion des cours, favorisant des interactions fluides pour les devoirs, les évaluations et la publication des résultats. Notre plateforme conviviale améliore la communication et la compréhension entre les étudiants et les enseignants',
   gradingAndResultPublication: 'Notation et Publication des Résultats',
   gradingAndResultPublicationDescription:
-    "Notre plateforme simplifie la notation en permettant aux enseignants de saisir les notes d'évaluation, réduisant ainsi les retards administratifs. Chaque institution peut configurer son système de notation selon ses préférences, et nous calculons les résultats instantanément, les mettant à disposition en un simple clic.",
+    "Notre plateforme simplifie la notation, permettant aux enseignants de saisir les notes d'évaluation et réduisant les retards administratifs. Les institutions peuvent personnaliser leur système de notation, et nous offrons des calculs de résultats instantanés d'un simple clic.",
   andMoreFeatures: 'Et Plus Encore...',
   andMoreFeaturesDescription:
-    "Grâce à nos processus rationalisés, Squoolr offre aux institutions la flexibilité de demander des fonctionnalités spéciales, que ce soient des idées que nous avons envisagées ou des idées auxquelles nous n'avons pas encore pensé. Squoolr transforme vos aspirations ambitieuses en matière de gestion en réalité !",
+    "Les processus rationalisés de Squoolr permettent aux institutions de demander des fonctionnalités spéciales, qu'il s'agisse d'idées considérées ou non encore envisagées. Transformez vos aspirations ambitieuses en matière de gestion en réalité avec Squoolr !",
   configurationsDescription:
-    "Nous comprenons chez Squoolr que chaque institution est unique, avec ses propres exigences et objectifs. C'est pourquoi nous offrons une personnalisation inégalée, vous permettant d'ajuster la plateforme pour qu'elle corresponde parfaitement aux besoins uniques de votre institution. Que vous soyez petit, grand, ou quelque part entre les deux, Squoolr s'intègre sans effort à vos flux de travail. De la personnalisation des rôles et des permissions des utilisateurs à la conception de modèles de rapports personnalisés, notre plateforme existe pour refléter l'identité de votre institution.",
+    "Chez Squoolr, nous comprenons que chaque institution est unique. Avec une personnalisation inégalée, notre plateforme s'adapte sans effort à vos besoins, qu'ils soient petits ou grands. Des rôles d'utilisateur aux modèles de rapport, Squoolr reflète l'identité de votre institution.",
   previous: 'Précédent',
 
   ourComprehensiveSolution: 'Notre Solution Complète',
   ourComprehensiveSolutionSubtitle:
-    "Au fur et à mesure que votre institution grandit et évolue, nous grandissons avec vous. Nous comprenons la nature dynamique des environnements éducatifs, et notre plateforme est conçue pour s'adapter facilement à vos besoins croissants. Que vous connaissiez une augmentation des inscriptions d'étudiants, ajoutiez de nouveaux départements ou introduisiez des cours supplémentaires, nous restons le partenaire fiable pour accompagner votre croissance. Avec la possibilité de demander des fonctionnalités personnalisées, nous nous assurons que Squoolr continue de suivre l'évolution du paysage de l'éducation. Vous pouvez être assuré que Squoolr continuera de soutenir et d'habiliter votre institution alors qu'elle vise des sommets plus élevés de réussite.",
+    "Au fur et à mesure que votre institution évolue, Squoolr s'adapte de manière transparente pour répondre à vos besoins croissants. Que ce soit une augmentation des inscriptions ou de nouveaux cours, nous nous adaptons avec des fonctionnalités personnalisables. Squoolr est votre partenaire fiable, soutenant votre parcours vers un plus grand succès dans l'éducation.",
 
   pageNotFound: 'Page non trouvée',
   missingPage:
@@ -611,4 +611,119 @@ export const website = {
     "Cette action archivera ces départements sélectionnés ainsi que toutes leurs sous-entités (filères, classes et matières), empêchant toute action ultérieure. C'est une action dangereuse ! Confirmez-vous toujours l'archivage ?",
   confirmUnarchiveDepartmentsDialogMessage:
     'Cette action désarchivera ces départements sélectionnés. Notez que toutes les sous-entités doivent être désarchivées manuellement. Souhaitez-vous continuer ?',
+  enableAccounts: 'Activer les comptes',
+  enableAccount: 'Activer le compte',
+  enableConfiguratorAccountsDialogMessage:
+    'Cette action rétablira les privilèges des utilisateurs dans leurs institutions. Souhaitez-vous continuer ?',
+  enableConfiguratorAccountDialogMessage:
+    "Cette action rétablira les privilèges de l'utilisateur dans son institution. Souhaitez-vous continuer ?",
+  notAvailable: 'N/A',
+
+  archiveSelectedMajors: 'Archiver les filières sélectionnées',
+  unarchiveSelectedMajors: 'Désarchiver les filières sélectionnées',
+  BTS: 'BTS',
+  DUT: 'DUT',
+  DTS: 'DTS',
+  BACHELOR: 'Licence',
+  majorName: 'Nom de la filière',
+  majorAcronym: 'Acronyme de la filière',
+  departmentCode: 'Code du département',
+  cursus: 'Programme',
+  goToClasses: 'Ouvrir les salles de classe',
+  editMajor: 'Modifier la filière',
+  createMajor: 'Créer une filière',
+  archiveMajors: 'Archiver les filières sélectionnées',
+  archiveMajor: 'Archiver la filière',
+  unarchiveMajors: 'Désarchiver les filières sélectionnées',
+  unarchiveMajor: 'Désarchiver la filière',
+  confirmArchiveMajorsDialogMessage:
+    "Cette action archivera ces filières sélectionnées ainsi que toutes leurs sous-entités (salles de classe et matières), empêchant toute action ultérieure. C'est une action dangereuse ! Confirmez-vous toujours l'archivage ?",
+  confirmArchiveMajorDialogMessage:
+    "Cette action archivera cette filière ainsi que toutes ses sous-entités (salles de classe et matières), empêchant toute action ultérieure. C'est une action dangereuse. Confirmez-vous toujours l'archivage ?",
+  confirmUnarchiveMajorsDialogMessage:
+    'Cette action désarchivera ces filières sélectionnées. Notez que toutes les sous-entités devront être désarchivées manuellement. Souhaitez-vous continuer ?',
+  confirmUnarchiveMajorDialogMessage:
+    'Cette action désarchivera cette filière. Notez que toutes les sous-entités devront être désarchivées manuellement. Confirmez-vous toujours la désarchivage ?',
+
+  numberOfDivisions: 'Nombre de divisions',
+  className: 'Nom de la salle de classe',
+  editNumberOfDivisions: 'Modifier le nombre de divisions',
+  confirmArchiveClassroomsDialogMessage:
+    'Cette action archivera les salles de classe sélectionnées, les retirant du flux. Êtes-vous sûr de vouloir continuer ?',
+  confirmArchiveClassroomDialogMessage:
+    "Cette action archivera cette salle de classe, la retirant de l'utilisation. Êtes-vous sûr de vouloir continuer ?",
+  confirmUnarchiveClassroomsDialogMessage:
+    'Cette action désarchivera les salles de classe sélectionnées. Êtes-vous sûr de vouloir continuer ?',
+  confirmUnarchiveClassroomDialogMessage:
+    'Cette action désarchivera cette salle de classe. Êtes-vous sûr de vouloir continuer ?',
+  archiveClassrooms: 'Archiver les salles de classe',
+  archiveClassroom: 'Archiver la salle de classe',
+  unarchiveClassrooms: 'Désarchiver les salles de classe',
+  unarchiveClassroom: 'Désarchiver la salle de classe',
+  loading: 'Chargement...',
+  classesOf: 'Salles de classe de',
+  numberOfDivisionsExplanation:
+    "Facilite la division des grandes classes en groupes plus petits, permettant un meilleur contrôle et une meilleure gestion au sein de divisions distinctes, chacune pouvant accueillir jusqu'à, disons, 50 étudiants.",
+  staff: 'Personnel',
+  schoolProfile: "Profil de l'école",
+  telephone: 'Téléphone',
+  roles: 'Rôles',
+  staffName: 'Nom du personnel',
+  configurator: 'Configurateur',
+  banSelectedStaff: 'Interdire la sélection',
+  resetSelectedStaffPasswords: 'Réinitialiser les mots de passe',
+  unBanSelectedStaff: "Lever l'interdiction de la sélection",
+  resetSelectedPrivateCode: 'Réinitialiser les codes privés de la sélection',
+  manageRoles: 'Gérer les rôles',
+  addNewStaff: 'Ajouter un nouveau personnel',
+  addConfigurator: 'Ajouter un configurateur',
+  addRegistry: 'Ajouter un registre',
+  resetStaffPassword: 'Réinitialiser le mot de passe du personnel',
+  confirmResetStaffPasswordDialogMessage:
+    "Confirmez pour révoquer l'accès au compte et initier l'envoi d'un lien de réinitialisation du mot de passe à l'e-mail du personnel. Procédez uniquement si vous avez reçu une demande par e-mail valide. Continuer ?",
+  resetStaffPrivateCode: 'Réinitialiser le code privé du personnel',
+  confirmResetStaffPrivateCodeDialogMessage:
+    "Confirmez pour désactiver l'ancien code et émettre un nouveau pour le membre du personnel. Procédez uniquement si vous avez reçu une demande valide. Continuer ?",
+  archiveStaffMember: 'Interdire le membre du personnel',
+  confirmArchiveStaffDialogMessage:
+    "Confirmez pour révoquer l'accès du membre du personnel à la plateforme. Procédez uniquement si vous avez reçu une demande par e-mail valide. Continuer ?",
+  confirmUnarchiveStaffDialogMessage:
+    "Confirmez pour lever l'interdiction du compte du membre du personnel. Notez que cela ne restaurera pas les salles de classe coordonnées mais rétablira tous les autres rôles. Continuer ?",
+  unarchiveStaffMember: "Lever l'interdiction du membre du personnel",
+  ban: 'Interdire',
+  revokeBan: "Révoquer l'interdiction",
+
+  selectTeacher: "Sélectionner l'enseignant",
+  selectClassrooms: 'Sélectionner les salles de classe',
+  cannotBeGreaterThanToday: "Ne peut pas être après aujourd'hui !",
+  shortNidNumber: 'Entrer un numéro de NID court',
+  nidPositiveNumber: 'Ne peut pas être un nombre négatif',
+  nidValidLength: 'Le numéro de NID doit comporter 9 ou 12 chiffres',
+  nidNumber: "Numéro d'identité nationale",
+  add: 'Ajouter',
+  address: 'Adresse',
+  editConfigurator: 'Modifier le configurateur',
+  editRegistry: 'Modifier le registre',
+  details: 'Détails',
+  configuratorDetails: 'Détails du configurateur',
+  registryDetails: 'Détails du registre',
+  ok: 'Ok',
+  teacherType: "Type d'enseignant",
+  teacherGrade: "Niveau de l'enseignant",
+  originInstitute: "Institut d'origine",
+  hourlyRate: 'Taux horaire',
+  hasSignedConvention: 'A signé une convention',
+  hasTaxPayersCard: 'A une carte de contribuable',
+  editTeacher: "Modifier l'enseignant",
+  teacherDetails: "Détails de l'enseignant",
+  no: 'Non',
+  yes: 'Oui',
+  has_signed_convention: 'A signé une convention',
+  has_tax_payers_card: 'A une carte de contribuable',
+  teacher_type: "Type d'enseignant",
+  teacher_grade: "Niveau de l'enseignant",
+  completeTeacherInformation: "Compléter les informations de l'enseignant",
+  selectedCoordinatedClassrooms:
+    "Sélectionner ou supprimer les salles de classe coordonnées par l'enseignant",
+  manageRolesSubHeading: 'attribuer et supprimer des rôles ici',
 };

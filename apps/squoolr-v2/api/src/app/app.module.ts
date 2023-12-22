@@ -18,14 +18,18 @@ import * as passport from 'passport';
 import { GlomExceptionsFilter } from '@glom/execeptions';
 import { GlomPrismaModule } from '@glom/prisma';
 
+import { GlomPaymentModule } from '@glom/payment';
 import { GlomRedisModule, GlomRedisService } from '@glom/redis';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { AcademicYearsModule } from '../modules/academic-years/academic-years.module';
 import { AmbassadorsModule } from '../modules/ambassadors/ambassadors.module';
 import { ClassroomsModule } from '../modules/classrooms/classrooms.module';
-import { SchoolsModule } from '../modules/schools/schools.module';
+import { CycleSettingsModule } from '../modules/cycle-settings/cycle-settings.module';
 import { DepartmentsModule } from '../modules/departments/departments.module';
 import { MajorsModule } from '../modules/majors/majors.module';
+import { PaymentsModule } from '../modules/payments/payments.module';
+import { SchoolsModule } from '../modules/schools/schools.module';
+import { StaffModule } from '../modules/staff/staff.module';
 import { seedData } from './app-seeder.factory';
 import { AppController } from './app.controller';
 import { AppInterceptor } from './app.interceptor';
@@ -33,8 +37,6 @@ import { AppMiddleware } from './app.middleware';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
-import { StaffModule } from '../modules/staff/staff.module';
-import { CycleSettingsModule } from '../modules/cycle-settings/cycle-settings.module';
 
 @Module({
   imports: [
@@ -53,9 +55,22 @@ import { CycleSettingsModule } from '../modules/cycle-settings/cycle-settings.mo
     }),
     GlomPrismaModule.forRoot({
       isGlobal: true,
-      // seedData,
+      seedData,
+    }),
+    GlomPaymentModule.forRoot({
+      isGlobal: true,
+      aggrConfigs: [
+        {
+          aggr: 'notchpay',
+          options: {
+            apiKey: process.env.NOTCH_API_KEY,
+            endpoint: 'api.notchpay.co',
+          },
+        },
+      ],
     }),
     AuthModule,
+    PaymentsModule,
     SchoolsModule,
     AcademicYearsModule,
     InquiriesModule,
@@ -70,7 +85,10 @@ import { CycleSettingsModule } from '../modules/cycle-settings/cycle-settings.mo
   providers: [
     AppService,
     ...[AppInterceptor, ClassSerializerInterceptor, CacheInterceptor].map(
-      (Interceptor) => ({ provide: APP_INTERCEPTOR, useClass: Interceptor })
+      (Interceptor) => ({
+        provide: APP_INTERCEPTOR,
+        useClass: Interceptor,
+      })
     ),
     {
       provide: APP_FILTER,
@@ -87,20 +105,20 @@ import { CycleSettingsModule } from '../modules/cycle-settings/cycle-settings.mo
   ],
 })
 export class AppModule implements NestModule {
-  constructor(private redisClient: GlomRedisService) {}
+  constructor(private redisService: GlomRedisService) {}
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(
         session({
           name: process.env.SESSION_NAME,
-          store: new RedisStore({ client: this.redisClient }),
+          store: new RedisStore({ client: this.redisService.client }),
           secret: process.env.SESSION_SECRET,
           genid: () => randomUUID(),
           saveUninitialized: false,
           resave: false,
           rolling: true,
           cookie: {
-            maxAge: 60 * 60 * 1000, //60 minutes of inativity,
+            maxAge: Number(process.env.SESSION_AGE),
           },
         }),
         passport.initialize(),

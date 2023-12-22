@@ -12,6 +12,7 @@ import { useTheme } from '@glom/theme';
 import reset from '@iconify/icons-fluent/arrow-counterclockwise-48-regular';
 import checked from '@iconify/icons-fluent/checkbox-checked-16-filled';
 import unchecked from '@iconify/icons-fluent/checkbox-unchecked-16-filled';
+import filter from '@iconify/icons-fluent/filter-28-regular';
 import more from '@iconify/icons-fluent/more-vertical-48-regular';
 import search from '@iconify/icons-fluent/search-48-regular';
 import { Icon } from '@iconify/react';
@@ -31,10 +32,11 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import ManageConfiguratorMenu from '../../../component/management/configurators/ManageConfiguratorMenu';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
-import TableSkeleton from 'libs/components/src/table/TableSkeleton';
+import FilterMenu from '../../../component/management/configurators/FilterMenu';
+import ManageConfiguratorMenu from '../../../component/management/configurators/ManageConfiguratorMenu';
+import { TableSkeleton } from '@glom/components';
 
 export function Index() {
   const theme = useTheme();
@@ -43,11 +45,20 @@ export function Index() {
   const tableHeaders = ['', 'name', 'email', 'phone', 'lastConnected', ''];
 
   const [searchValue, setSearchValue] = useState<string>('');
+  const [showArchives, setShowArchives] = useState<boolean>(false);
+  const [filterAnchorEl, setFilterAnchorEl] = useState<HTMLElement | null>(
+    null
+  );
+
   const {
     data: configuratorsData,
     refetch: refetchStaffMembers,
     isLoading: isLoadingConfigurators,
-  } = useStaffMembers({ roles: ['CONFIGURATOR'], keywords: searchValue });
+  } = useStaffMembers({
+    roles: ['CONFIGURATOR'],
+    keywords: searchValue,
+    is_deleted: showArchives,
+  });
 
   const [canSearchExpand, setCanSearchExpand] = useState<boolean>(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -102,11 +113,15 @@ export function Index() {
     );
   }
 
-  const { mutate: disableAccounts, isPending: isDisablingAccount } =
+  const { mutate: toggleAccountActiveState, isPending: isDisablingAccount } =
     useDisableStaffMembers();
-  function disableConfiguratorAccount(annualConfiguratorId: string | string[]) {
-    disableAccounts(
+  function toggleConfiguratorAccountActivity(
+    annualConfiguratorId: string | string[],
+    action: 'activate' | 'deactivate'
+  ) {
+    toggleAccountActiveState(
       {
+        disable: action === 'deactivate',
         teacherIds: [],
         registryIds: [],
         configuratorIds:
@@ -124,6 +139,10 @@ export function Index() {
     );
   }
 
+  useEffect(() => {
+    refetchStaffMembers();
+  }, [showArchives]);
+
   const [isConfirmResetDialogOpen, setIsConfirmResetDialogOpen] =
     useState<boolean>(false);
   const [
@@ -131,8 +150,22 @@ export function Index() {
     setIsConfirmDisableAccountDialogOpen,
   ] = useState<boolean>(false);
 
+  const [
+    isConfirmEnableAccountDialogOpen,
+    setIsConfirmEnableAccountDialogOpen,
+  ] = useState<boolean>(false);
+
   return (
     <>
+      <FilterMenu
+        closeMenu={() => {
+          setFilterAnchorEl(null);
+        }}
+        isOpen={!!filterAnchorEl}
+        onShowArchives={() => setShowArchives((prev) => !prev)}
+        anchorEl={filterAnchorEl}
+        showArchives={showArchives}
+      />
       <ManageConfiguratorMenu
         anchorEl={anchorEl}
         closeMenu={() => {
@@ -140,8 +173,10 @@ export function Index() {
           //   setActiveAnnualConfiguratorId(undefined);
         }}
         isOpen={!!anchorEl && !!activeAnnualConfiguratorId}
+        isDisabled={showArchives}
         onResetPassword={() => setIsConfirmResetDialogOpen(true)}
         onDisableAccount={() => setIsConfirmDisableAccountDialogOpen(true)}
+        onEnableAccount={() => setIsConfirmEnableAccountDialogOpen(true)}
       />
       <ConfirmDialog
         closeDialog={() => setIsConfirmResetDialogOpen(false)}
@@ -187,6 +222,7 @@ export function Index() {
               : 'disableAccount',
         })}
         isDialogOpen={isConfirmDisableAccountDialogOpen}
+        danger
         dialogTitle={formatMessage({
           id:
             selectedConfiguratorIds.length > 1
@@ -194,10 +230,42 @@ export function Index() {
               : 'disableAccount',
         })}
         confirm={() =>
-          disableConfiguratorAccount(
+          toggleConfiguratorAccountActivity(
             selectedConfiguratorIds.length > 0
               ? selectedConfiguratorIds
-              : activeAnnualConfiguratorId
+              : activeAnnualConfiguratorId,
+            'deactivate'
+          )
+        }
+      />
+      <ConfirmDialog
+        closeDialog={() => setIsConfirmEnableAccountDialogOpen(false)}
+        dialogMessage={formatMessage({
+          id:
+            selectedConfiguratorIds.length > 1
+              ? 'enableConfiguratorAccountsDialogMessage'
+              : 'enableConfiguratorAccountDialogMessage',
+        })}
+        confirmButton={formatMessage({
+          id:
+            selectedConfiguratorIds.length > 1
+              ? 'enableAccounts'
+              : 'enableAccount',
+        })}
+        isDialogOpen={isConfirmEnableAccountDialogOpen}
+        danger
+        dialogTitle={formatMessage({
+          id:
+            selectedConfiguratorIds.length > 1
+              ? 'enableAccounts'
+              : 'enableAccount',
+        })}
+        confirm={() =>
+          toggleConfiguratorAccountActivity(
+            selectedConfiguratorIds.length > 0
+              ? selectedConfiguratorIds
+              : activeAnnualConfiguratorId,
+            'activate'
           )
         }
       />
@@ -267,33 +335,62 @@ export function Index() {
               onClick={() => refetchStaffMembers()}
             />
           </Box>
-          {selectedConfiguratorIds.length > 0 && (
-            <Box
-              sx={{
-                display: 'grid',
-                gridAutoFlow: 'column',
-                alignItems: 'center',
-                columnGap: 2,
+          <Box
+            sx={{
+              display: 'grid',
+              gridAutoFlow: 'column',
+              alignItems: 'center',
+              columnGap: 2,
+            }}
+          >
+            {selectedConfiguratorIds.length > 0 && (
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridAutoFlow: 'column',
+                  alignItems: 'center',
+                  columnGap: 2,
+                }}
+              >
+                {!showArchives && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    disabled={isResettingPassword || isDisablingAccount}
+                    onClick={() => setIsConfirmResetDialogOpen(true)}
+                  >
+                    {formatMessage({ id: 'resetPasswords' })}
+                  </Button>
+                )}
+                {showArchives ? (
+                  <Button
+                    variant="outlined"
+                    color="warning"
+                    disabled={isResettingPassword || isDisablingAccount}
+                    onClick={() => setIsConfirmEnableAccountDialogOpen(true)}
+                  >
+                    {formatMessage({ id: 'enableAccounts' })}
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outlined"
+                    color="warning"
+                    disabled={isResettingPassword || isDisablingAccount}
+                    onClick={() => setIsConfirmDisableAccountDialogOpen(true)}
+                  >
+                    {formatMessage({ id: 'disableAccounts' })}
+                  </Button>
+                )}
+              </Box>
+            )}
+            <TableHeaderItem
+              icon={filter}
+              title={formatMessage({ id: 'filter' })}
+              onClick={(event) => {
+                setFilterAnchorEl(event.currentTarget);
               }}
-            >
-              <Button
-                variant="outlined"
-                color="error"
-                disabled={isResettingPassword || isDisablingAccount}
-                onClick={() => setIsConfirmResetDialogOpen(true)}
-              >
-                {formatMessage({ id: 'resetPasswords' })}
-              </Button>
-              <Button
-                variant="outlined"
-                color="warning"
-                disabled={isResettingPassword || isDisablingAccount}
-                onClick={() => setIsConfirmDisableAccountDialogOpen(true)}
-              >
-                {formatMessage({ id: 'disableAccounts' })}
-              </Button>
-            </Box>
-          )}
+            />
+          </Box>
         </Box>
         <TableContainer
           sx={{
@@ -316,7 +413,9 @@ export function Index() {
                       <Checkbox
                         disabled={isResettingPassword || isDisablingAccount}
                         onClick={() =>
-                          isResettingPassword ? null : selectAllConfigurators()
+                          isResettingPassword || isDisablingAccount
+                            ? null
+                            : selectAllConfigurators()
                         }
                         checked={
                           selectedConfiguratorIds.length ===
@@ -372,6 +471,7 @@ export function Index() {
                       phone_number,
                       last_connected,
                       annual_configurator_id,
+                      is_deleted,
                     },
                     index
                   ) => (
@@ -387,11 +487,14 @@ export function Index() {
                     >
                       <TableCell>
                         <Checkbox
+                          disabled={isResettingPassword || isDisablingAccount}
                           checked={selectedConfiguratorIds.includes(
                             annual_configurator_id
                           )}
                           onClick={() =>
-                            selectConfigurator(annual_configurator_id)
+                            isResettingPassword || isDisablingAccount
+                              ? null
+                              : selectConfigurator(annual_configurator_id)
                           }
                           icon={
                             <Icon
@@ -415,52 +518,87 @@ export function Index() {
                           }
                         />
                       </TableCell>
-                      <TableCell>{`${first_name} ${last_name}`}</TableCell>
-                      <TableCell>
-                        <Typography
-                          component="a"
-                          href={`mailto:${email}`}
-                          target="_blank"
-                          style={{
-                            color: theme.palette.primary.main,
-                          }}
-                        >
-                          {email}
-                        </Typography>
+                      <TableCell
+                        sx={{
+                          color: is_deleted
+                            ? theme.common.line
+                            : theme.common.body,
+                        }}
+                      >{`${first_name} ${last_name}`}</TableCell>
+                      <TableCell
+                        sx={{
+                          color: is_deleted
+                            ? theme.common.line
+                            : theme.common.body,
+                        }}
+                      >
+                        {is_deleted ? (
+                          email
+                        ) : (
+                          <Typography
+                            component="a"
+                            href={`mailto:${email}`}
+                            target="_blank"
+                            style={{
+                              color: theme.palette.primary.main,
+                            }}
+                          >
+                            {email}
+                          </Typography>
+                        )}
                       </TableCell>
-                      <TableCell>
-                        {phone_number.split('+')[1]?.replace(/(.{3})/g, ' $1')}
+                      <TableCell
+                        sx={{
+                          color: is_deleted
+                            ? theme.common.line
+                            : theme.common.body,
+                        }}
+                      >
+                        {(phone_number.length > 9
+                          ? phone_number.split('+')[1]
+                          : phone_number
+                        ).replace(/(.{3})/g, ' $1')}
                       </TableCell>
-                      <TableCell>
-                        {formatDate(last_connected, {
-                          weekday: 'short',
-                          month: 'short',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          year: '2-digit',
-                          day: '2-digit',
-                        })}
+                      <TableCell
+                        sx={{
+                          color: is_deleted
+                            ? theme.common.line
+                            : theme.common.body,
+                        }}
+                      >
+                        {!!last_connected
+                          ? formatDate(last_connected, {
+                              weekday: 'short',
+                              month: 'short',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              year: '2-digit',
+                              day: '2-digit',
+                            })
+                          : formatMessage({ id: 'notAvailable' })}
                       </TableCell>
                       <TableCell align="right">
                         {selectedConfiguratorIds.length > 0 ? (
                           ''
                         ) : (
                           <Tooltip arrow title={formatMessage({ id: 'more' })}>
-                            <IconButton
-                              size="small"
-                              disabled={
-                                isResettingPassword || isDisablingAccount
-                              }
-                              onClick={(event) => {
-                                if (isResettingPassword) return null;
-                                setAnchorEl(event.currentTarget);
-                                setActiveAnnualConfiguratorId(
-                                  annual_configurator_id
-                                );
-                              }}
-                            >
-                              <Icon icon={more} />
-                            </IconButton>
+                            {!(isDisablingAccount || isResettingPassword) && (
+                              <IconButton
+                                size="small"
+                                disabled={
+                                  isResettingPassword || isDisablingAccount
+                                }
+                                onClick={(event) => {
+                                  if (isResettingPassword) return null;
+                                  setAnchorEl(event.currentTarget);
+                                  setActiveAnnualConfiguratorId(
+                                    annual_configurator_id
+                                  );
+                                }}
+                              >
+                                <Icon icon={more} />
+                              </IconButton>
+                            )}
                           </Tooltip>
                         )}
                       </TableCell>

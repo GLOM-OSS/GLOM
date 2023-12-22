@@ -1,8 +1,21 @@
+import {
+  useInitEntryFeePayment,
+  usePlatformSettings,
+  useSubmitSchoolDemand,
+} from '@glom/data-access/squoolr';
 import { SubmitSchoolDemandPayload } from '@glom/data-types/squoolr';
+import { decrypt, encrypt } from '@glom/encrypter';
 import { useTheme } from '@glom/theme';
-import { validatePhoneNumber, excludeKeys } from '@glom/utils';
-import { Box, Divider, Paper, Typography } from '@mui/material';
-import { Fragment, useState } from 'react';
+import { excludeKeys, validatePhoneNumber } from '@glom/utils';
+import {
+  Box,
+  CircularProgress,
+  Divider,
+  Paper,
+  Typography,
+} from '@mui/material';
+import { useRouter } from 'next/router';
+import { Fragment, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import DemandContactUs from '../../components/demand/DemandContactUs';
 import ReviewStep from '../../components/demand/ReviewStep';
@@ -22,10 +35,6 @@ import ReferralInformation, {
 import SchoolInformation, {
   ISchoolInformation,
 } from '../../components/demand/forms/SchoolInformation';
-import {
-  usePlatformSettings,
-  useSubmitSchoolDemand,
-} from '@glom/data-access/squoolr';
 
 interface IStep {
   title: string | JSX.Element;
@@ -36,6 +45,7 @@ interface IStep {
 export default function Demand() {
   const theme = useTheme();
   const { formatMessage } = useIntl();
+  const router = useRouter();
 
   const [activeStep, setActiveStep] = useState<number>(0);
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -79,25 +89,57 @@ export default function Demand() {
     setActiveStep((prev) => (prev > 0 ? prev - 1 : prev));
   }
 
-  const { mutate: submitDemand, isPending: isSubmitting } =
+  const { mutate: submitDemand, isPending: isSubmittingDemand } =
     useSubmitSchoolDemand();
+  const { mutate: payOnboardingFee, isPending: isPayingFee } =
+    useInitEntryFeePayment();
+  const isSubmitting = isPayingFee || isSubmittingDemand;
 
-  function handleSubmitDemand() {
-    const submitData: SubmitSchoolDemandPayload = {
-      configurator: { ...excludeKeys(personnalData, ['confirm_password']) },
-      school: { ...institutionData, ...referralData },
-      payment_phone: payingPhone,
-    };
-    if (referralData.referral_code || validatePhoneNumber(payingPhone) !== -1) {
-      submitDemand(submitData, {
-        onSuccess(data) {
-          setSchoolCode(data.school_code);
-          handleNext();
-        },
-      });
-    }
+  function handlePayAndSubmitDemand() {
+    let paymentStatus = localStorage.getItem('paymentStatus');
+    if (paymentStatus) paymentStatus = decrypt<string>(paymentStatus);
+    if (referralData.referral_code || paymentStatus === 'complete')
+      handleSubmitDemand();
+    else if (validatePhoneNumber(payingPhone) !== -1)
+      payOnboardingFee(
+        { payment_phone: `+237${payingPhone}`, callback_url: location.href },
+        {
+          onSuccess({ authorization_url, payment }) {
+            const submitData: SubmitSchoolDemandPayload = {
+              payment_id: payment.payment_id,
+              configurator: {
+                ...excludeKeys(personnalData, ['confirm_password']),
+              },
+              school: { ...institutionData, ...referralData },
+            };
+            localStorage.setItem('schoolDemandData', encrypt(submitData));
+            window.open(authorization_url, '_top');
+          },
+        }
+      );
     //TODO change to toast
     else alert(formatMessage({ id: 'enterValidPhoneForPayment' }));
+  }
+
+  function handleSubmitDemand() {
+    const storedSubmitData = localStorage.getItem('schoolDemandData');
+    const submitData: SubmitSchoolDemandPayload = {
+      configurator: {
+        ...excludeKeys(personnalData, ['confirm_password']),
+      },
+      school: { ...institutionData, ...referralData },
+      payment_id: storedSubmitData
+        ? decrypt<SubmitSchoolDemandPayload>(storedSubmitData).payment_id
+        : undefined,
+    };
+    submitDemand(submitData, {
+      onSuccess(data) {
+        setSchoolCode(data.school_code);
+        localStorage.removeItem('schoolDemandData');
+        localStorage.removeItem('paymentStatus');
+        handleNext();
+      },
+    });
   }
 
   const stepp: Record<string, IStep> = {
@@ -174,7 +216,7 @@ export default function Demand() {
           isSubmitting={isSubmitting || !!schoolCode}
           onboarding_fee={platformSettings?.onboarding_fee ?? 0}
           onPrev={handleBack}
-          onNext={handleSubmitDemand}
+          onNext={handlePayAndSubmitDemand}
         />
       ),
     },
@@ -185,10 +227,53 @@ export default function Demand() {
     },
   };
 
+  const [isCallback, setIsCallback] = useState(false);
+
+  useEffect(() => {
+    const { reference, status } = router.query;
+    const storedSubmitData = localStorage.getItem('schoolDemandData');
+    if (storedSubmitData) {
+      const submitData = decrypt<SubmitSchoolDemandPayload>(storedSubmitData);
+      setActiveStep(3);
+      setCurrentStep(3);
+      setInstitutionData(submitData.school);
+      setReferralData({
+        lead_funnel: submitData.school.lead_funnel,
+        referral_code: submitData.school.referral_code,
+      });
+      setPersonnalData({
+        ...submitData.configurator,
+        confirm_password: submitData.configurator.password,
+      });
+      if (reference) {
+        setIsCallback(true);
+        localStorage.setItem('paymentStatus', encrypt(status));
+        if (status === 'complete')
+          submitDemand(submitData, {
+            onSuccess(data) {
+              setSchoolCode(data.school_code);
+              localStorage.removeItem('schoolDemandData');
+              localStorage.removeItem('paymentStatus');
+              handleNext();
+            },
+            onSettled() {
+              setIsCallback(false);
+              router.push('/demand');
+            },
+          });
+        else {
+          setIsCallback(false);
+          localStorage.removeItem('schoolDemandData');
+          localStorage.removeItem('paymentStatus');
+          router.push('/demand');
+        }
+      }
+    }
+  }, [router.query]);
+
   return (
     <>
       <DemandContactUs />
-
       <Box
         sx={{
           marginTop: '150px',
@@ -265,7 +350,20 @@ export default function Demand() {
             title={stepp[activeStep].title}
             description={stepp[activeStep].description}
           />
-          {stepp[activeStep].form}
+          {isCallback ? (
+            <Box
+              sx={{
+                display: 'grid',
+                gridAutoFlow: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <CircularProgress size={100} />
+            </Box>
+          ) : (
+            stepp[activeStep].form
+          )}
         </Box>
       </Box>
     </>

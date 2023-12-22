@@ -343,7 +343,7 @@ export const website = {
 
   technologyForAllSchoolSizes: 'Technology For All School Sizes',
   technologyForAllSchoolSizesSubtitle:
-    "Our comprehensive solution revolutionizing your institution's daily operations, Squoolr offers seamless accessibility for administrators, teachers, students, accountants, and parents. From enrollment to reporting, it consolidates all aspects of your institution. Eliminate paperwork and duplication, work from anywhere with Squoolr's user-friendly interfaces.The Next Era is here! Join Squoolr today and experience efficient and transparent institution management.",
+    'Squoolr revolutionizes institution management. From enrollment to reporting, it offers seamless accessibility for all users, eliminating paperwork. Join us for efficient, transparent operations in the Next Era!',
   howCanSquoolrHelpOurSchool:
     'What is Squoolr, and how can it help our institution?',
   howCanSquoolrHelpOurSchoolAnswer:
@@ -391,19 +391,19 @@ export const website = {
   comingSoon: 'Soon',
   courseManagement: 'Course Management',
   courseManagementDescription:
-    'Squoolr introduces an advanced course management system that facilitates interactions between students and teachers. From assignments and submissions to evaluations, grading, and result publication, our flexible, user-friendly system fosters communication and enhances understanding of course materials.',
+    'Squoolr introduces an advanced course management system, promoting seamless interactions for assignments, evaluations, and result publication. Our user-friendly platform enhances communication and understanding between students and teachers.',
   gradingAndResultPublication: 'Grading & Result Publication',
   gradingAndResultPublicationDescription:
-    'Our platform streamlines grading by allowing teachers to enter evaluation marks, reducing administrative delays. Every institution can configure its grading system to their preferences, and we calculate results instantly, making them available with a simple click.',
+    'Our platform streamlines grading, enabling teachers to enter evaluation marks and reducing administrative delays. Institutions can customize their grading system, and we provide instant result calculations with a simple click.',
   andMoreFeatures: 'And More...',
   andMoreFeaturesDescription:
-    "Through our streamlined processes, Squoolr offers institutions the flexibility to request special features, whether they are ideas we've considered or ones we haven't thought of yet. Squoolr transforms your ambitious management aspirations into reality!",
+    "Squoolr's streamlined processes empower institutions to request special features—whether considered ideas or ones not yet envisioned. Transform your ambitious management aspirations into reality with Squoolr!",
   configurationsDescription:
-    "We understand at Squoolr,  that every institution is distinct, with its own set of requirements and objectives. That's why we offer unparalleled customization, allowing you to tailor the platform to perfectly align with your institution's unique needs. Whether you're small, huge, or anything in between, Squoolr fits effortlessly to your workflows. From customizing user roles and permissions to designing personalized report templates, our platform exists to reflect your institution's identity.",
+    "At Squoolr, we understand every institution is unique. With unparalleled customization, our platform adapts effortlessly to your needs—whether small or large. From user roles to report templates, Squoolr reflects your institution's identity.",
   previous: 'Previous',
   ourComprehensiveSolution: 'Our Comprehensive Solution',
   ourComprehensiveSolutionSubtitle:
-    'As your institution grows and evolves, we with you. We understand the dynamic nature of educational environments, and our platform is designed to scale effortlessly to meet your expanding needs. Whether you experience an increase in student enrollment, add new departments, or introduce additional courses, we remains the reliable partner to accommodate your growth. With the ability to request for customized features and functionalities, we ensure that Squoolr keeps pace with the changing landscape of education. You can rest assured that Squoolr will continue to support and empower your institution as it aims for higher heights of success.',
+    "As your institution evolves, Squoolr seamlessly scales to meet growing needs. Whether it's increased enrollment or new courses, we adapt with customizable features. Squoolr is your reliable partner, supporting your journey to higher success in education.",
 
   pageNotFound: 'Page Not Found',
   missingPage:
@@ -584,7 +584,123 @@ export const website = {
   archiveDepartments: 'Archive Selected Departments',
   unarchiveDepartments: 'Unarchive Selected Departments',
   confirmArchiveDepartmentsDialogMessage:
-    'This action will archive these selected departments and all their sub-entities (majors, classrooms, and subjects) preventing anything from being done. This is dangerous action! Do you still want to archive?',
+    'This action will archive these selected departments and all their sub-entities (majors, classrooms, and subjects) preventing anything from being done. This is a dangerous action! Do you still want to archive?',
   confirmUnarchiveDepartmentsDialogMessage:
     'This action will unarchive these selected departments. Note that all sub-entities need to be unarchived manually. Do you want to continue?',
+  enableAccounts: 'Enable Accounts',
+  enableAccount: 'Enable Account',
+  enableConfiguratorAccountsDialogMessage:
+    "This action will reinstate the users' priviledges on their institutions. Do you want to proceed?",
+  enableConfiguratorAccountDialogMessage:
+    "This action will reinstate the user's priviledges on their institution. Do you want to proceed?",
+  notAvailable: 'N/A',
+
+  archiveSelectedMajors: 'Archive selected majors',
+  unarchiveSelectedMajors: 'Unarchive selected majors',
+  BTS: 'HND',
+  DUT: 'DUT',
+  DTS: 'DTS',
+  BACHELOR: 'Bachelor',
+  majorName: 'Major name',
+  majorAcronym: 'Major acronym',
+  departmentCode: 'Department code',
+  cursus: 'Program',
+  goToClasses: 'Open classrooms',
+  editMajor: 'Edit major',
+  createMajor: 'Create major',
+  archiveMajors: 'Archive Selected Majors',
+  archiveMajor: 'Archive Major',
+  unarchiveMajors: 'Unarchive Selected Majors',
+  unarchiveMajor: 'Unarchive Major',
+  confirmArchiveMajorsDialogMessage:
+    'This action will archive these selected majors and all their sub-entities (classrooms and subjects) preventing anything from being done. This is a dangerous action! Do you still want to archive?',
+  confirmArchiveMajorDialogMessage:
+    "This action will archive this major and all it's sub-entities (classrooms and subjects) preventing anything from being done. This is a dangerous action. Do you still want to archive?",
+  confirmUnarchiveMajorsDialogMessage:
+    'This action will unarchive these selected major. Note that all sub-entities will need to be unarchived manually. Do you want to continue?',
+  confirmUnarchiveMajorDialogMessage:
+    'This action will unarchive this major. Note that all sub-entities will need to be unarchived manually. Do you still want to continue?',
+
+  numberOfDivisions: 'Number of divisions',
+  className: 'Classroom name',
+  editNumberOfDivisions: 'Edit number of divisions',
+  confirmArchiveClassroomsDialogMessage:
+    'This action will archive the selected classrooms removing it for flow. Are you sure you want to continue?',
+  confirmArchiveClassroomDialogMessage:
+    'This action will archive this classroom removing it for usage. Are you sure you want to continue?',
+  confirmUnarchiveClassroomsDialogMessage:
+    'This action will unarchive these selected classrooms. Are you sure you want to continue?',
+  confirmUnarchiveClassroomDialogMessage:
+    'This Action will unarchive this classroom. Are you sure you want to continue?',
+  archiveClassrooms: 'Archive classrooms',
+  archiveClassroom: 'Archive classroom',
+  unarchiveClassrooms: 'Unarchive classrooms',
+  unarchiveClassroom: 'Unarchive classroom',
+  loading: 'Loading...',
+  classesOf: 'Classrooms of',
+  numberOfDivisionsExplanation:
+    'Facilitates dividing large classes into smaller groups, enabling better control and management within separate divisions, each accommodating up to say 50 students.',
+  staff: 'Staff',
+  schoolProfile: 'School Profile',
+
+  telephone: 'Telephone',
+  roles: 'Roles',
+  staffName: 'Staff Name',
+  configurator: 'Configurator',
+  banSelectedStaff: 'Ban Selected',
+  resetSelectedStaffPasswords: 'Reset Passwords',
+  unBanSelectedStaff: 'Unban Selected',
+  resetSelectedPrivateCode: 'Reset Private Codes',
+  manageRoles: 'Manage Roles',
+  addNewStaff: 'Add New Staff',
+  addConfigurator: 'Add Configurator',
+  addRegistry: 'Add Registry',
+  resetStaffPassword: 'Reset Staff Password',
+  confirmResetStaffPasswordDialogMessage:
+    "Confirm to revoke account access and initiate a password reset link sent to the staff's email. Proceed only if you've received a valid email request. Continue?",
+  resetStaffPrivateCode: 'Reset Staff Private Code',
+  confirmResetStaffPrivateCodeDialogMessage:
+    "Confirm to disable the previous code and issue a new one for the staff member. Proceed only if you've received a valid request. Continue?",
+  archiveStaffMember: 'Ban Staff Member',
+  confirmArchiveStaffDialogMessage:
+    "Confirm to revoke staff member's platform access. Proceed only if you've received a valid email request. Continue?",
+  confirmUnarchiveStaffDialogMessage:
+    "Confirm to lift the ban on the staff member's account. Note that this won't restore coordinated classrooms but will reinstate all other roles. Continue?",
+  unarchiveStaffMember: 'Revoke Staff Member Ban',
+  ban: 'Ban',
+  revokeBan: 'Revoke Ban',
+
+  selectTeacher: 'Select teacher',
+  selectClassrooms: 'Select classrooms',
+  cannotBeGreaterThanToday: 'Cannot be before today!',
+  shortNidNumber: 'Enter short NID number',
+  nidPositiveNumber: 'cannot be negative number',
+  nidValidLength: 'NID number is either 9 or 12 digits',
+  nidNumber: 'National ID number',
+  add: 'Add',
+  address: 'Address',
+  editConfigurator: 'Edit Configurator',
+  editRegistry: 'Edit Registry',
+  details: 'Details',
+  configuratorDetails: 'Configurator Details',
+  registryDetails: 'Registry Details',
+  ok: 'Ok',
+  teacherType: 'Teacher type',
+  teacherGrade: 'Teacher grade',
+  originInstitute: 'Origin institute',
+  hourlyRate: 'Hourly rate',
+  hasSignedConvention: 'Has signed convention',
+  hasTaxPayersCard: 'Has tax payers card',
+  editTeacher: 'Edit Teacher',
+  teacherDetails: 'Teacher Details',
+  no: 'No',
+  yes: 'Yes',
+  has_signed_convention: 'Has signed convention',
+  has_tax_payers_card: 'Has tax payers card',
+  teacher_type: 'Teacher type',
+  teacher_grade: 'Teacher grade',
+  completeTeacherInformation: 'Complete Teacher Information',
+  selectedCoordinatedClassrooms:
+    'Select or remove classrooms below coordinated by teacher',
+  manageRolesSubHeading: 'attribute and remove roles here',
 };

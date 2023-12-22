@@ -34,7 +34,7 @@ export class AcademicYearsController {
   @ApiOkResponse({ type: [AcademicYearEntity] })
   async getAcademicYears(@Req() request: Request) {
     const { login_id } = request.user;
-    return this.academicYearService.findAll(login_id);
+    return this.academicYearService.findByLoginId(login_id);
   }
 
   @Post('/new')
@@ -68,7 +68,7 @@ export class AcademicYearsController {
     );
 
     await this.authService.updateSession(request, { academic_year_id });
-    const { roles, active_year_id } = await this.authService.getUser({
+    const { roles, active_year_id } = this.authService.getUser({
       ...request.user,
       ...annualSessionData,
     });

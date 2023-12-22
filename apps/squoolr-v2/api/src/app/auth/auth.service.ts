@@ -16,10 +16,12 @@ import { AcademicYearsService } from '../../modules/academic-years/academic-year
 import { KeyRole, Role, StaffRole } from '../../utils/enums';
 import { AnnualSessionData, PassportUser } from './auth';
 import { UserEntity } from './auth.dto';
+import { LogsService } from './logs/logs.service';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private logsService: LogsService,
     private prismaService: GlomPrismaService,
     private academicYearService: AcademicYearsService
   ) {}
@@ -36,7 +38,7 @@ export class AuthService {
     });
     if (!person)
       throw new UnauthorizedException('Incorrect email or password !!');
-    const login = await this.getValidLogin(person.Logins, origin);
+    const login = await this.findValidLogin(origin, person.Logins);
     if (!bcrypt.compareSync(password, login.password))
       throw new UnauthorizedException('Incorrect email or password !!');
 
@@ -57,7 +59,7 @@ export class AuthService {
       where: { email },
     });
     if (!person) throw new UnauthorizedException();
-    const login = await this.getValidLogin(person.Logins, origin);
+    const login = await this.findValidLogin(origin, person.Logins);
     return {
       ...person,
       login_id: login.login_id,
@@ -65,92 +67,23 @@ export class AuthService {
     };
   }
 
-  /**
-   * Gets the first login whose priviligies are attached to the given origin
-   * @param logins list of logins to validate
-   * @param origin request origin
-   * @returns a login from the given list
-   */
-  async getValidLogin(logins: Login[], origin: string): Promise<Login> {
-    const loginsData = await Promise.all(
-      logins.map(async (login) => {
-        const { login_id, school_id } = login;
-        const schoolId = school_id ? school_id : '';
-        return {
-          login,
-          school: await this.prismaService.school.findFirst({
-            where: { school_id: schoolId, is_validated: true },
-          }),
-          student: await this.prismaService.student.findFirst({
-            where: { login_id, Login: { school_id: schoolId } },
-          }),
-        };
-      })
+  async getAnnualSessionData(request: Request, login_id: string) {
+    const academicYears = await this.academicYearService.findByLoginId(
+      login_id
     );
-    const loginData = loginsData.find(
-      ({ login: { is_parent, is_personnel }, school, student }) =>
-        (school &&
-          ((is_personnel &&
-            this.checkOrigin(origin, KeyRole.STAFF, school.subdomain)) ||
-            (student &&
-              this.checkOrigin(origin, KeyRole.STUDENT, school.subdomain)))) ||
-        (!school &&
-          ((is_parent && this.checkOrigin(origin, KeyRole.PARENT)) ||
-            (!is_parent && this.checkOrigin(origin, KeyRole.ADMIN))))
-    );
-    if (!loginData) throw new UnauthorizedException('Wrong origin !!!');
-    const numberOfActiveSessions = await this.prismaService.log.count({
-      where: {
-        login_id: loginData.login.login_id,
-        OR: {
-          logged_out_at: null,
-          closed_at: null,
-        },
-      },
-    });
-    if (numberOfActiveSessions > 2)
-      throw new HttpException(
-        { error: 'TOO_MANY_REQUESTS', message: 'Too many session opened !!' },
-        HttpStatus.TOO_MANY_REQUESTS
-      );
-    return loginData.login;
-  }
-
-  private checkOrigin(origin: string, role: KeyRole, subdomain?: string) {
-    const env = process.env.NODE_ENV;
-    return (
-      (role === KeyRole.ADMIN && origin === process.env.ADMIN_URL) ||
-      (role === KeyRole.PARENT && origin === process.env.PARENT_URL) ||
-      (role === KeyRole.STUDENT &&
-        origin ===
-          (env === 'production'
-            ? `${subdomain}.squoolr.com`
-            : 'localhost:4200')) ||
-      (role !== KeyRole.ADMIN &&
-        role !== KeyRole.PARENT &&
-        role !== KeyRole.STUDENT &&
-        origin ===
-          (env === 'production'
-            ? `${subdomain}-staff.squoolr.com`
-            : 'localhost:4201'))
-    );
-  }
-
-  async updateUserSession(request: Request, login_id: string) {
-    let annualSessionData: AnnualSessionData;
-    const academicYears = await this.academicYearService.findAll(login_id);
     const numberOfAcademicYear = academicYears.length;
     if (numberOfAcademicYear === 0)
       throw new NotFoundException('No academic year was found');
     else if (numberOfAcademicYear === 1) {
       const [{ academic_year_id }] = academicYears;
-      annualSessionData = await this.academicYearService.selectAcademicYear(
-        login_id,
-        academic_year_id
-      );
+      const annualSessionData =
+        await this.academicYearService.selectAcademicYear(
+          login_id,
+          academic_year_id
+        );
       await this.updateSession(request, { academic_year_id });
+      return annualSessionData;
     }
-    return { academicYears, annualSessionData };
   }
 
   async updateSession(
@@ -164,6 +97,14 @@ export class AuthService {
         if (err) throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
         resolve(1);
       });
+    });
+  }
+
+  async createSessionLog(request: Request) {
+    await this.logsService.create({
+      log_id: request.sessionID,
+      login_id: request.user.login_id,
+      user_agent: request.headers['user-agent'],
     });
   }
 
@@ -199,30 +140,31 @@ export class AuthService {
     new_password: string,
     subdomain: string
   ) {
-    const resetPassword = await this.prismaService.resetPassword.findFirst({
+    const {
+      Login: { School: school, ...login },
+    } = await this.prismaService.resetPassword.findFirstOrThrow({
       include: {
         Login: {
           select: {
             is_deleted: true,
             is_personnel: true,
             password: true,
+            School: { select: { subdomain: true } },
           },
         },
       },
       where: {
-        Login: {
-          School:
-            subdomain !== process.env.ADMIN_URL ? { subdomain } : undefined,
-        },
         is_valid: true,
         reset_password_id,
         expires_at: { gte: new Date() },
       },
     });
-    if (!resetPassword) throw new NotFoundException('Reset password not found');
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { Login: login } = resetPassword;
+    if (
+      school &&
+      !subdomain.includes('localhost') &&
+      !subdomain.includes(school.subdomain)
+    )
+      throw new UnauthorizedException('Unauthorized domain');
     return await this.prismaService.resetPassword.update({
       data: {
         is_valid: false,
@@ -245,7 +187,10 @@ export class AuthService {
   }: PassportUser): Promise<Express.User> {
     const login = await this.prismaService.login.findFirst({
       include: { Person: true },
-      where: { login_id },
+      where: {
+        login_id,
+        Logs: { some: { closed_at: null, logged_out_at: null } },
+      },
     });
     if (!login) return null;
     const { Person: person, is_parent, school_id } = login;
@@ -271,49 +216,7 @@ export class AuthService {
     return { login_id, school_id, ...person, ...deserialedUser };
   }
 
-  async openSession(request: Request, login_id: string) {
-    await this.prismaService.log.create({
-      data: {
-        log_id: request.sessionID,
-        Login: { connect: { login_id } },
-        user_agent: request.headers['user-agent'],
-      },
-    });
-  }
-
-  async closeSession(sessionID: string, payload: Prisma.LogUpdateInput) {
-    await this.prismaService.log.update({
-      data: payload,
-      where: { log_id: sessionID },
-    });
-  }
-
-  async validateOrigin(user: Express.User, origin: string) {
-    const {
-      login_id,
-      annualConfigurator,
-      annualRegistry,
-      annualStudent,
-      annualTeacher,
-      tutorStudentIds,
-    } = user;
-    const school = await this.prismaService.school.findFirst({
-      where: {
-        Logins: {
-          some: { login_id },
-        },
-      },
-    });
-    return (
-      (login_id && this.checkOrigin(origin, KeyRole.ADMIN)) || //Admin -> process.env.ADMIN_URL
-      (annualStudent && this.checkOrigin(origin, KeyRole.STUDENT)) || //Student -> `${school.subdomain}.squoolr.com`
-      (tutorStudentIds && this.checkOrigin(origin, KeyRole.PARENT)) || //Parent -> `parent.squoolr.com`
-      ((annualConfigurator || annualRegistry || annualTeacher) &&
-        this.checkOrigin(origin, KeyRole.STAFF, school.subdomain)) //Personnel -> `${school.subdomain}-staff.squoolr.com`
-    );
-  }
-
-  async getUser({
+  getUser({
     activeYear,
     annualConfigurator,
     annualRegistry,
@@ -331,6 +234,136 @@ export class AuthService {
         ...(annualTeacher ? [Role.TEACHER] : []),
       ],
     });
+  }
+
+  async validateOriginAccess(user: Express.User, origin: string) {
+    const {
+      login_id,
+      annualConfigurator,
+      annualRegistry,
+      annualStudent,
+      annualTeacher,
+      tutorStudentIds,
+    } = user;
+    const school = await this.prismaService.school.findFirst({
+      where: {
+        Logins: {
+          some: { login_id },
+        },
+      },
+    });
+    return (
+      (login_id && this.verifyOrigin(origin, KeyRole.ADMIN)) || //Admin -> process.env.ADMIN_URL
+      (annualStudent && this.verifyOrigin(origin, KeyRole.STUDENT)) || //Student -> `${school.subdomain}.squoolr.com`
+      (tutorStudentIds && this.verifyOrigin(origin, KeyRole.PARENT)) || //Parent -> `parent.squoolr.com`
+      ((annualConfigurator || annualRegistry || annualTeacher) &&
+        this.verifyOrigin(origin, KeyRole.STAFF, school.subdomain)) //Personnel -> `${school.subdomain}-staff.squoolr.com`
+    );
+  }
+
+  async validateRolesAccess(user: Express.User, roles: Role[]) {
+    return roles.some(
+      (role) =>
+        (user.tutorStudentIds && role === Role.PARENT) ||
+        (user.annualConfigurator && role === Role.CONFIGURATOR) ||
+        (user.annualRegistry && role === Role.REGISTRY) ||
+        (user.annualTeacher && role === Role.TEACHER) ||
+        (user.annualStudent && role === Role.STUDENT) ||
+        (!user.school_id && role === Role.ADMIN)
+    );
+  }
+
+  async validatePrivateAccess(request: Request, roles: Role[]) {
+    const { login_id, annualRegistry } = request.user;
+    const private_code = request.body['private_code'];
+
+    return (
+      (roles.includes(Role.TEACHER) &&
+        (await this.verifyPrivateCode(StaffRole.TEACHER, {
+          private_code,
+          user_id: login_id,
+        }))) ||
+      (roles.includes(Role.REGISTRY) &&
+        (await this.verifyPrivateCode(StaffRole.REGISTRY, {
+          private_code,
+          user_id: annualRegistry?.annual_registry_id,
+        })))
+    );
+  }
+
+  /**
+   * Gets the first login whose priviligies are attached to the given origin
+   * @param origin request origin
+   * @param logins list of logins to validate
+   * @returns a login from the given list
+   */
+  private async findValidLogin(
+    origin: string,
+    logins: Login[]
+  ): Promise<Login> {
+    const loginsData = await Promise.all(
+      logins.map(async (login) => {
+        const { login_id, school_id } = login;
+        const schoolId = school_id ? school_id : '';
+        return {
+          login,
+          school: await this.prismaService.school.findFirst({
+            where: {
+              school_id: schoolId,
+              is_validated: true,
+              SchoolDemand: { demand_status: 'VALIDATED' },
+            },
+          }),
+          student: await this.prismaService.student.findFirst({
+            where: { login_id, Login: { school_id: schoolId } },
+          }),
+        };
+      })
+    );
+    const loginData = loginsData.find(
+      ({ login: { is_parent, is_personnel }, school, student }) =>
+        (school &&
+          ((is_personnel &&
+            this.verifyOrigin(origin, KeyRole.STAFF, school.subdomain)) ||
+            (student &&
+              this.verifyOrigin(origin, KeyRole.STUDENT, school.subdomain)))) ||
+        (!school &&
+          ((is_parent && this.verifyOrigin(origin, KeyRole.PARENT)) ||
+            (!is_parent && this.verifyOrigin(origin, KeyRole.ADMIN))))
+    );
+    if (!loginData) throw new UnauthorizedException('Wrong origin !!!');
+
+    const activeSessionCount = await this.logsService.count(
+      loginData.login.login_id,
+      { closed_at: null, logged_out_at: null }
+    );
+    if (activeSessionCount > 2)
+      throw new HttpException(
+        {
+          error: 'TOO_MANY_REQUESTS',
+          message: 'Too many session opened. Please try again later',
+        },
+        HttpStatus.TOO_MANY_REQUESTS
+      );
+    return loginData.login;
+  }
+
+  private verifyOrigin(origin: string, role: KeyRole, subdomain?: string) {
+    const env = process.env.NODE_ENV;
+    return (
+      (role === KeyRole.ADMIN && origin === process.env.ADMIN_URL) ||
+      (role === KeyRole.PARENT && origin === process.env.PARENT_URL) ||
+      (role === KeyRole.STUDENT &&
+        origin ===
+          (env === 'production'
+            ? `${subdomain}.squoolr.com`
+            : 'localhost:4200')) ||
+      (role === KeyRole.STAFF &&
+        origin ===
+          (env === 'production'
+            ? `${subdomain}-staff.squoolr.com`
+            : 'localhost:4201'))
+    );
   }
 
   async verifyPrivateCode(

@@ -40,88 +40,89 @@ body {
 .p2,
 .p2--space,
 .p4 {
-  font-weight: 600;
+  font-weight: 600 !important;
   color: var(--label);
 }
 .p1 {
-  font-size: 18px;
-  line-height: 28px;
+  font-size: 18px !important;
+  line-height: 28px !important;
 }
 
 .p1--space {
-  font-size: 18px;
-  line-height: 32px;
+  font-size: 18px !important;
+  font-weight: 400 !important;
+  // line-height: 32px !important;
 
   @media (max-width: $desktop) {
-    font-size: 12px;
-    line-height: 16px;
+    font-size: 16px !important;
+    // line-height: 20px !important;
   }
 }
 
 .p2,
 .p2--space {
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 16px !important;
+  line-height: 24px !important;
 }
 
 .p2--space {
-  line-height: 28px;
+  line-height: 28px !important;
 }
 
 .p3,
 .p3--space,
 .table {
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 20px;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  line-height: 20px !important;
   color: var(--label);
 }
 
 .p3--space {
-  line-height: 24px;
+  line-height: 24px !important;
 }
 
 .p4 {
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 12px !important;
+  line-height: 16px !important;
 }
 
 .label1 {
-  font-size: 12px;
-  line-height: 12px;
-  letter-spacing: 0.6px;
-  font-weight: 500;
+  font-size: 12px !important;
+  line-height: 12px !important;
+  letter-spacing: 0.6px !important;
+  font-weight: 500 !important;
 }
 
 .label2 {
-  font-size: 10px;
-  line-height: 10px;
-  letter-spacing: 0.6px;
+  font-size: 10px !important;
+  line-height: 10px !important;
+  letter-spacing: 0.6px !important;
 }
 
 .title-landing-page {
-  font-size: 56px;
-  font-weight: 700;
-  line-height: 70px;
-  letter-spacing: -0.23px;
+  font-size: 56px !important;
+  font-weight: 700 !important;
+  line-height: 70px !important;
+  letter-spacing: -0.23px !important;
   padding-bottom: var(--paragraph-spacing);
-  text-align: center;
+  text-align: center !important;
   @media (max-width: $desktop) {
-    font-size: 30px;
-    line-height: 36px;
-    letter-spacing: -0.28px;
+    font-size: 30px !important;
+    line-height: 36px !important;
+    letter-spacing: -0.28px !important;
   }
 }
 
 .title2-landing-page {
-  font-size: 48px;
-  font-weight: 700;
-  line-height: 56px;
-  letter-spacing: -0.23px;
+  font-size: 48px !important;
+  font-weight: 700 !important;
+  line-height: 56px !important;
+  letter-spacing: -0.23px !important;
   @media (max-width: $desktop) {
-    font-size: 30px;
-    line-height: 36px;
-    letter-spacing: -0.28px;
+    font-size: 30px !important;
+    line-height: 36px !important;
+    letter-spacing: -0.28px !important;
   }
 }
 
@@ -135,40 +136,40 @@ body {
 }
 
 .h2--mobile {
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 28px;
-  letter-spacing: -0.28px;
-  padding-bottom: var(--paragraph-spacing);
+  font-weight: 700 !important;
+  font-size: 24px !important;
+  line-height: 28px !important;
+  letter-spacing: -0.28px !important;
+  padding-bottom: var(--paragraph-spacing) !important;
 }
 
 .h3--mobile {
-  font-weight: 600;
-  font-size: 20px;
-  line-height: 24px;
-  letter-spacing: -0.23px;
-  padding-bottom: var(--paragraph-spacing);
+  font-weight: 600 !important;
+  font-size: 20px !important;
+  line-height: 24px !important;
+  letter-spacing: -0.23px !important;
+  padding-bottom: var(--paragraph-spacing) !important;
 }
 
 .h4--mobile,
 .h5--mobile {
   @media (max-width: $laptop) {
-    font-weight: 600;
-    line-height: 20px;
-    letter-spacing: -0.18px;
-    padding-bottom: 10px;
-    font-size: 18px;
+    font-weight: 600 !important;
+    line-height: 20px !important;
+    letter-spacing: -0.18px !important;
+    padding-bottom: 10px !important;
+    font-size: 18px !important;
   }
 }
 
 .h5--mobile {
-  font-size: 16px;
+  font-size: 16px !important;
 }
 
 .table {
-  font-weight: 400;
+  font-weight: 400 !important;
 }
 
 .color-body {
-  color: var(--body);
+  color: var(--body) !important;
 }
