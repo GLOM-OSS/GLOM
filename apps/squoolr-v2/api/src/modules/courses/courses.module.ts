@@ -4,10 +4,17 @@ import { CourseModulesController } from './modules/modules.controller';
 import { CourseSubjectsService } from './subjects/subjects.service';
 import { CourseSubjectsController } from './subjects/subjects.controller';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
+import { CoursesController } from './courses.controller';
+import { CoursesService } from './courses.service';
 
 @Module({
-  controllers: [CourseModulesController, CourseSubjectsController],
+  controllers: [
+    CoursesController,
+    CourseModulesController,
+    CourseSubjectsController,
+  ],
   providers: [
+    CoursesService,
     CourseModulesService,
     CourseSubjectsService,
     CodeGeneratorFactory,
