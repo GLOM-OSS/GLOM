@@ -11,6 +11,9 @@ export class CourseClassroom {
 
 export class CourseEntity {
   @ApiProperty()
+  annual_subject_id: string;
+
+  @ApiProperty()
   subject_code: string;
 
   @ApiProperty()

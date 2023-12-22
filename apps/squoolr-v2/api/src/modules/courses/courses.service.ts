@@ -31,7 +31,12 @@ export class CoursesService {
       },
     });
     return annualSubjects.map(
-      ({ subject_code, subject_name, AnnualModuleHasSubjects: subjects }) => {
+      ({
+        subject_code,
+        subject_name,
+        annual_subject_id,
+        AnnualModuleHasSubjects: subjects,
+      }) => {
         const hasUnsetObjective = subjects.some(
           (subject) => !subject.objective
         );
@@ -53,6 +58,7 @@ export class CoursesService {
         return new CourseEntity({
           subject_code,
           subject_name,
+          annual_subject_id,
           objective: hasUnsetObjective ? null : subjects[0].objective,
           classrooms: classroomAcronyms.map((classroom_acronym) => ({
             classroom_acronym,
