@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { ChaptersService } from './chapters.service';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ChapterEntity } from './chapter.dto';
@@ -15,5 +15,11 @@ export class ChaptersController {
   @ApiOkResponse({ type: [ChapterEntity] })
   getChapters(@Query() params?: QueryCourseDto) {
     return this.chaptersService.findAll(params);
+  }
+
+  @Get(':chapter_id')
+  @ApiOkResponse({ type: ChapterEntity })
+  getChapter(@Param() chapterId: string) {
+    return this.chaptersService.findOne(chapterId);
   }
 }

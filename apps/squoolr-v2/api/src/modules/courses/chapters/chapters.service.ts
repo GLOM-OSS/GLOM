@@ -22,4 +22,12 @@ export class ChaptersService {
     });
     return chapters.map((chapter) => new ChapterEntity(chapter));
   }
+
+  async findOne(chapter_id: string) {
+    const chapter = await this.prismaService.chapter.findFirst({
+      orderBy: { chapter_position: 'desc' },
+      where: { chapter_id, is_deleted: false },
+    });
+    return new ChapterEntity(chapter);
+  }
 }
