@@ -1,26 +1,33 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
+  ParseBoolPipe,
   Post,
   Put,
   Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ChaptersService } from './chapters.service';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { Request } from 'express';
+import { Roles } from '../../../app/auth/auth.decorator';
+import { AuthenticatedGuard } from '../../../app/auth/auth.guard';
+import { Role } from '../../../utils/enums';
+import { QueryCourseDto } from '../course.dto';
 import {
   ChapterEntity,
   CreateChapterDto,
   UpdateChapterDto,
 } from './chapter.dto';
-import { QueryCourseDto } from '../course.dto';
-import { AuthenticatedGuard } from '../../../app/auth/auth.guard';
-import { Request } from 'express';
-import { Roles } from '../../../app/auth/auth.decorator';
-import { Role } from '../../../utils/enums';
+import { ChaptersService } from './chapters.service';
 
 @ApiTags('Chapters')
 @Controller('courses/chapters')
@@ -42,7 +49,7 @@ export class ChaptersController {
 
   @Post('new')
   @Roles(Role.TEACHER)
-  @ApiOkResponse({ type: ChapterEntity })
+  @ApiCreatedResponse({ type: ChapterEntity })
   createChapter(@Req() request: Request, @Body() newChapter: CreateChapterDto) {
     const {
       annualTeacher: { annual_teacher_id },
@@ -52,7 +59,7 @@ export class ChaptersController {
 
   @Put(':chapter_id')
   @Roles(Role.TEACHER)
-  @ApiOkResponse({ type: ChapterEntity })
+  @ApiNoContentResponse()
   updateChapter(
     @Req() request: Request,
     @Param('chapter_id') chapterId: string,
@@ -66,5 +73,19 @@ export class ChaptersController {
       updatePayload,
       annual_teacher_id
     );
+  }
+
+  @Delete(':chapter_id')
+  @Roles(Role.TEACHER)
+  @ApiNoContentResponse()
+  deleteChapter(
+    @Req() request: Request,
+    @Param('chapter_id') chapterId: string,
+    @Query('is_deleted', ParseBoolPipe) isDeleted: boolean
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user;
+    return this.chaptersService.delete(chapterId, isDeleted, annual_teacher_id);
   }
 }

@@ -84,4 +84,8 @@ export class ChaptersService {
       where: { chapter_id },
     });
   }
+
+  delete(chapter_id: string, is_deleted: boolean, deleted_by: string) {
+    return this.update(chapter_id, { is_deleted }, deleted_by);
+  }
 }
