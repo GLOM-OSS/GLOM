@@ -23,7 +23,7 @@ export class CourseModulesService {
     const semesters = params?.semesters ?? [];
     const annualModules = await this.prismaService.annualModule.findMany({
       where: {
-        is_deleted: params?.is_deleted,
+        is_deleted: params?.is_deleted ?? false,
         annual_classroom_id: params?.annual_classroom_id,
         semester_number:
           semesters.length > 0 ? { in: params?.semesters } : undefined,

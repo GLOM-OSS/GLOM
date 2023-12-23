@@ -1,11 +1,11 @@
 import { GlomPrismaService } from '@glom/prisma';
+import { pickKeys } from '@glom/utils';
 import { QueryCourseDto } from '../course.dto';
 import {
   ChapterEntity,
   CreateChapterDto,
   UpdateChapterDto,
 } from './chapter.dto';
-import { excludeKeys, pickKeys } from '@glom/utils';
 
 export class ChaptersService {
   constructor(private prismaService: GlomPrismaService) {}
@@ -14,7 +14,7 @@ export class ChaptersService {
     const chapters = await this.prismaService.chapter.findMany({
       orderBy: { chapter_position: 'desc' },
       where: {
-        is_deleted: params?.is_deleted,
+        is_deleted: params?.is_deleted ?? false,
         annual_subject_id: params?.annual_subject_id,
         parent_chapter_id: params?.parent_chapter_id ?? null,
         ...(params

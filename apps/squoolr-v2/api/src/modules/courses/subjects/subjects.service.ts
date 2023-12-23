@@ -24,7 +24,7 @@ export class CourseSubjectsService {
     const subjects = await this.prismaService.annualModuleHasSubject.findMany({
       ...SubjectArgsFactory.getSelectArgs(),
       where: {
-        is_deleted: params?.is_deleted,
+        is_deleted: params?.is_deleted ?? false,
         annual_module_id: params?.annual_module_id,
         AnnualSubject: params?.keywords
           ? {

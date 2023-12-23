@@ -21,7 +21,7 @@ export class MajorsService {
       include: annualMajorSelect,
       where: {
         academic_year_id,
-        is_deleted: params?.is_deleted,
+        is_deleted: params?.is_deleted ?? false,
         department_id: params?.department_id,
         uses_module_system: params?.uses_module_system,
         major_name: params ? { search: params.keywords } : undefined,

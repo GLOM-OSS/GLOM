@@ -7,7 +7,7 @@ import { QueryParams } from './module';
 export class QueryParamsDto implements QueryParams {
   @IsBoolean()
   @IsOptional()
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ default: false })
   is_deleted?: boolean;
 
   @IsString()
