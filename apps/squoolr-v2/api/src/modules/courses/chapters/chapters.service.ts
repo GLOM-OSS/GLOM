@@ -85,7 +85,28 @@ export class ChaptersService {
     });
   }
 
-  delete(chapter_id: string, is_deleted: boolean, deleted_by: string) {
-    return this.update(chapter_id, { is_deleted }, deleted_by);
+  async delete(chapter_id: string, is_deleted: boolean, deleted_by: string) {
+    const chapters = await this.prismaService.chapter.findMany({
+      where: { OR: [{ chapter_id }, { parent_chapter_id: chapter_id }] },
+    });
+    await this.prismaService.$transaction([
+      this.prismaService.chapter.updateMany({
+        data: { is_deleted },
+        where: { OR: [{ chapter_id }, { parent_chapter_id: chapter_id }] },
+      }),
+      this.prismaService.chapterAudit.createMany({
+        data: chapters.map((chapter) => ({
+          ...pickKeys(chapter, [
+            'is_deleted',
+            'chapter_id',
+            'chapter_title',
+            'chapter_objective',
+            'chapter_position',
+          ]),
+          audited_by: deleted_by,
+        })),
+        skipDuplicates: true,
+      }),
+    ]);
   }
 }
