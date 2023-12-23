@@ -11,11 +11,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiTags
-} from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles } from '../../../app/auth/auth.decorator';
 import { AuthenticatedGuard } from '../../../app/auth/auth.guard';
@@ -27,13 +23,13 @@ import {
   SubjectEntity,
   UpdateCourseSubjectDto,
 } from './subject.dto';
-import { CourseSubjectsService } from './subjects.service';
+import { SubjectsService } from './subjects.service';
 
 @ApiTags('Course subjects')
-@Controller('course-subjects')
+@Controller('courses/subjects')
 @UseGuards(AuthenticatedGuard)
-export class CourseSubjectsController {
-  constructor(private courseSubjectsService: CourseSubjectsService) {}
+export class SubjectsController {
+  constructor(private courseSubjectsService: SubjectsService) {}
 
   @Get()
   @ApiOkResponse({ type: [SubjectEntity] })

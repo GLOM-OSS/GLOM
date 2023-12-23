@@ -29,7 +29,7 @@ import {
 } from './chapter.dto';
 import { ChaptersService } from './chapters.service';
 
-@ApiTags('Chapters')
+@ApiTags('Course chapters')
 @Controller('courses/chapters')
 @UseGuards(AuthenticatedGuard)
 export class ChaptersController {

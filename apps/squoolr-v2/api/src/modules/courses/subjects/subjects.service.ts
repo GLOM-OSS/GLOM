@@ -14,7 +14,7 @@ import {
 } from './subject.dto';
 
 @Injectable()
-export class CourseSubjectsService {
+export class SubjectsService {
   constructor(
     private prismaService: GlomPrismaService,
     private codeGenerator: CodeGeneratorFactory
