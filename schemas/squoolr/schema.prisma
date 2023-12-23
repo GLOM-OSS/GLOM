@@ -1425,6 +1425,8 @@ model Chapter {
     Resources               Resource[]
     PresenceListHasChapters PresenceListHasChapter[]
 
+    @@fulltext([chapter_title])
+    @@fulltext([chapter_title, chapter_objective])
     @@map("chapters")
 }
 
