@@ -2,6 +2,8 @@ import {
   ApiHideProperty,
   ApiProperty,
   ApiPropertyOptional,
+  PartialType,
+  PickType,
 } from '@nestjs/swagger';
 import { Chapter } from '@prisma/client';
 import { Exclude } from 'class-transformer';
@@ -29,6 +31,11 @@ export class CreateChapterDto {
     Object.assign(this, props);
   }
 }
+
+export class UpdateChapterDto extends PickType(PartialType(CreateChapterDto), [
+  'chapter_title',
+  'chapter_objective',
+]) {}
 
 export class ChapterEntity extends CreateChapterDto implements Chapter {
   @ApiProperty()
