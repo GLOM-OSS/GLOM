@@ -41,5 +41,5 @@ export class QueryCourseDto extends QueryParamsDto {
   @IsString()
   @IsOptional()
   @ApiPropertyOptional()
-  chapter_parent_id?: string;
+  parent_chapter_id?: string;
 }

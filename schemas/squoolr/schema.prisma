@@ -1414,13 +1414,13 @@ model Chapter {
     created_at        DateTime      @default(now()) @db.DateTime(0)
     annual_subject_id String        @db.VarChar(36)
     AnnualSubject     AnnualSubject @relation(fields: [annual_subject_id], references: [annual_subject_id], onDelete: Cascade, onUpdate: Cascade)
-    chapter_parent_id String?       @db.VarChar(36)
-    ChapterParent     Chapter?      @relation(name: "ChapterParent", fields: [chapter_parent_id], references: [chapter_id], onDelete: Cascade, onUpdate: Cascade)
+    parent_chapter_id String?       @db.VarChar(36)
+    ParentChapter     Chapter?      @relation(name: "ParentChapter", fields: [parent_chapter_id], references: [chapter_id], onDelete: Cascade, onUpdate: Cascade)
     created_by        String        @db.VarChar(36)
     CreatedBy         AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 
     Assessment              Assessment?
-    Chapters                Chapter[]                @relation(name: "ChapterParent")
+    Chapters                Chapter[]                @relation(name: "ParentChapter")
     ChapterAudits           ChapterAudit[]
     Resources               Resource[]
     PresenceListHasChapters PresenceListHasChapter[]

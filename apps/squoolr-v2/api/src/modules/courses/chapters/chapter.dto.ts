@@ -2,7 +2,6 @@ import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Chapter } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 
-
 export class ChapterEntity implements Chapter {
   @ApiProperty()
   chapter_id: string;
@@ -26,7 +25,7 @@ export class ChapterEntity implements Chapter {
   created_at: Date;
 
   @ApiProperty()
-  chapter_parent_id: string;
+  parent_chapter_id: string;
 
   @Exclude()
   @ApiHideProperty()

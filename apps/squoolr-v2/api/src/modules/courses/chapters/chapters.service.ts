@@ -11,7 +11,7 @@ export class ChaptersService {
       where: {
         is_deleted: params?.is_deleted,
         annual_subject_id: params?.annual_subject_id,
-        chapter_parent_id: params?.chapter_parent_id ?? null,
+        parent_chapter_id: params?.parent_chapter_id ?? null,
         ...(params
           ? {
               chapter_title: { search: params?.keywords },
@@ -25,7 +25,6 @@ export class ChaptersService {
 
   async findOne(chapter_id: string) {
     const chapter = await this.prismaService.chapter.findFirst({
-      orderBy: { chapter_position: 'desc' },
       where: { chapter_id, is_deleted: false },
     });
     return new ChapterEntity(chapter);
