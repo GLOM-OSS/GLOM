@@ -1,9 +1,21 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ChaptersService } from './chapters.service';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { ChapterEntity } from './chapter.dto';
+import { ChapterEntity, CreateChapterDto } from './chapter.dto';
 import { QueryCourseDto } from '../course.dto';
 import { AuthenticatedGuard } from '../../../app/auth/auth.guard';
+import { Request } from 'express';
+import { Roles } from '../../../app/auth/auth.decorator';
+import { Role } from '../../../utils/enums';
 
 @ApiTags('Chapters')
 @Controller('courses/chapters')
@@ -21,5 +33,15 @@ export class ChaptersController {
   @ApiOkResponse({ type: ChapterEntity })
   getChapter(@Param() chapterId: string) {
     return this.chaptersService.findOne(chapterId);
+  }
+
+  @Post('new')
+  @Roles(Role.TEACHER)
+  @ApiOkResponse({ type: ChapterEntity })
+  createChapter(@Req() request: Request, @Body() newChapter: CreateChapterDto) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user;
+    return this.chaptersService.create(newChapter, annual_teacher_id);
   }
 }

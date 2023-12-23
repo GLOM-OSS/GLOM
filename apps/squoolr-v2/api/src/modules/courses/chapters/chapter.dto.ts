@@ -1,16 +1,38 @@
-import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import {
+  ApiHideProperty,
+  ApiProperty,
+  ApiPropertyOptional,
+} from '@nestjs/swagger';
 import { Chapter } from '@prisma/client';
 import { Exclude } from 'class-transformer';
+import { IsOptional, IsString } from 'class-validator';
 
-export class ChapterEntity implements Chapter {
-  @ApiProperty()
-  chapter_id: string;
-
+export class CreateChapterDto {
+  @IsString()
   @ApiProperty()
   chapter_title: string;
 
+  @IsString()
   @ApiProperty()
   chapter_objective: string;
+
+  @IsString()
+  @ApiProperty()
+  annual_subject_id: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional()
+  parent_chapter_id: string | null;
+
+  constructor(props: CreateChapterDto) {
+    Object.assign(this, props);
+  }
+}
+
+export class ChapterEntity extends CreateChapterDto implements Chapter {
+  @ApiProperty()
+  chapter_id: string;
 
   @ApiProperty()
   chapter_position: number;
@@ -19,19 +41,14 @@ export class ChapterEntity implements Chapter {
   is_deleted: boolean;
 
   @ApiProperty()
-  annual_subject_id: string;
-
-  @ApiProperty()
   created_at: Date;
-
-  @ApiProperty()
-  parent_chapter_id: string;
 
   @Exclude()
   @ApiHideProperty()
   created_by: string;
 
   constructor(props: ChapterEntity) {
+    super(props);
     Object.assign(this, props);
   }
 }
