@@ -1,11 +1,11 @@
 import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { AuthenticatedGuard } from '../../app/auth/auth.guard';
-import { CoursesService } from './courses.service';
-import { CourseEntity } from './course.dto';
 import { Request } from 'express';
 import { Roles } from '../../app/auth/auth.decorator';
+import { AuthenticatedGuard } from '../../app/auth/auth.guard';
 import { Role } from '../../utils/enums';
+import { CourseEntity } from './course.dto';
+import { CoursesService } from './courses.service';
 
 @ApiTags('Courses')
 @Controller('courses')

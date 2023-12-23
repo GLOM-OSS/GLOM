@@ -1,7 +1,6 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { QueryCourseSubjectDto } from './subjects/subject.dto';
-import { CourseEntity } from './course.dto';
 import { CourseArgsFactory } from './course-args.factory';
+import { QueryCourseSubjectDto } from './subjects/subject.dto';
 
 export class CoursesService {
   constructor(private prismaService: GlomPrismaService) {}
