@@ -5,7 +5,7 @@ import {
   IntersectionType,
   OmitType,
   PartialType,
-  getSchemaPath
+  getSchemaPath,
 } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {

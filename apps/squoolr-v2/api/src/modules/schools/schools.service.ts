@@ -24,45 +24,6 @@ import {
   ValidateSchoolDemandDto,
 } from './schools.dto';
 
-const schoolSelectAttr = Prisma.validator<Prisma.SchoolArgs>()({
-  include: {
-    SchoolDemand: {
-      include: {
-        Payment: true,
-        Ambassador: {
-          select: {
-            Login: {
-              select: {
-                Person: { select: { email: true } },
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-});
-const getSchoolEntity = (
-  data: Prisma.SchoolGetPayload<typeof schoolSelectAttr>
-) => {
-  const {
-    SchoolDemand: {
-      demand_status,
-      rejection_reason,
-      Payment: { amount: paid_amount },
-      Ambassador,
-    },
-    ...school
-  } = data;
-  return new SchoolEntity({
-    ...school,
-    paid_amount,
-    school_demand_status: demand_status,
-    school_rejection_reason: rejection_reason,
-    ambassador_email: Ambassador?.Login.Person.email,
-  });
-};
-
 @Injectable()
 export class SchoolsService {
   constructor(
@@ -121,7 +82,7 @@ export class SchoolsService {
           : undefined,
       },
     });
-    return schools.map((school) => getSchoolEntity(school));
+    return schools.map((school) => SchoolArgsFactory.getSchoolEntity(school));
   }
 
   private async verifyPayment(payment_id: string) {
@@ -129,64 +90,6 @@ export class SchoolsService {
       where: { payment_id },
     });
     return this.notchPayService.verifyPayment(payment.payment_ref);
-  }
-
-  async create(demandpayload: SubmitSchoolDemandDto) {
-    const {
-      payment_id,
-      school: {
-        school_email,
-        school_phone_number,
-        school_name,
-        school_acronym,
-        referral_code,
-        lead_funnel,
-      },
-      configurator: { password, phone_number, ...person },
-    } = demandpayload;
-
-    const {
-      transactions: academicYearSetupTransactions,
-      data: { school_code },
-    } = await this.getFistYearSetup(demandpayload);
-
-    if (payment_id) {
-      const payment = await this.verifyPayment(payment_id);
-      if (payment.status !== 'complete')
-        throw new UnprocessableEntityException('Payment was not completed');
-    }
-    const [school] = await this.prismaService.$transaction([
-      this.prismaService.school.create({
-        ...schoolSelectAttr,
-        data: {
-          school_email,
-          school_code,
-          school_acronym,
-          school_phone_number,
-          school_name,
-          lead_funnel,
-          CreatedBy: {
-            connectOrCreate: {
-              create: { ...person, phone_number },
-              where: { email: person.email },
-            },
-          },
-          SchoolDemand: {
-            create: {
-              ...(payment_id
-                ? {
-                    Payment: {
-                      connect: { payment_id },
-                    },
-                  }
-                : { Ambassador: { connect: { referral_code } } }),
-            },
-          },
-        },
-      }),
-      ...academicYearSetupTransactions,
-    ]);
-    return getSchoolEntity(school);
   }
 
   async validate(
@@ -198,9 +101,7 @@ export class SchoolsService {
       demand_status,
       rejection_reason: reason,
       ambassador_id,
-      Payment: { amount: paid_amount },
     } = await this.prismaService.schoolDemand.findFirstOrThrow({
-      include: { Payment: true },
       where: {
         School: { school_id },
       },
@@ -222,7 +123,6 @@ export class SchoolsService {
         SchoolDemandAudits: {
           create: {
             audited_by,
-            paid_amount,
             ambassador_id,
             demand_status,
             rejection_reason: reason,
@@ -374,37 +274,9 @@ export class SchoolsService {
             },
           },
         }),
-        this.prismaService.annualSchoolSetting.create({
-          data: {
-            mark_insertion_source: 'Teacher',
-            AcademicYear: { connect: { academic_year_id } },
-            CreatedBy: { connect: { annual_configurator_id } },
-          },
-        }),
-        this.prismaService.annualCarryOverSytem.create({
-          data: {
-            carry_over_system: CarryOverSystemEnum.SUBJECT,
-            AcademicYear: { connect: { academic_year_id } },
-            CreatedBy: {
-              connect: { annual_configurator_id },
-            },
-          },
-        }),
-        this.prismaService.annualSemesterExamAcess.createMany({
-          data: [
-            {
-              academic_year_id,
-              payment_percentage: 0,
-              annual_semester_number: 1,
-              created_by: annual_configurator_id,
-            },
-            {
-              academic_year_id,
-              payment_percentage: 0,
-              annual_semester_number: 2,
-              created_by: annual_configurator_id,
-            },
-          ],
+        this.prismaService.academicYear.update({
+          data: AcademicYearArgsFactory.getInitialSetup(annual_configurator_id),
+          where: { academic_year_id },
         }),
       ],
     };
