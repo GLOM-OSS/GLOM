@@ -1,987 +1,987 @@
 /*
   Warnings:
 
-  - You are about to drop the `academicyear` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `ambassador` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualacademicprofile` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualacademicprofileaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualcarryoversytem` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualcarryoversytemaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualclassroom` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualclassroomaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualclassroomdivision` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualclassroomdivisionaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualconfigurator` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualdocumentsigner` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualevaluationsubtype` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualevaluationsubtypeaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualevaluationtypeweighting` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualevaluationtypeweightingaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualgradeweighting` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualgradeweightingaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualmajor` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualmajoraudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualminimummodulationscore` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualminimummodulationscoreaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualmodule` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualmoduleaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualregistry` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualregistryaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualschoolsetting` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualschoolsettingaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualsemesterexamacess` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualsemesterexamacessaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualstudent` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualstudentanswerquestion` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualstudentanswerquestionaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualstudenthasmodule` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualstudenttakeassessment` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualsubject` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualsubjectaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualsubjectpart` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualsubjectpartaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualteacher` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualteacheraudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualweighting` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `annualweightingaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `assessment` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `assessmentaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `assignmentgroupmember` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `chapter` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `chapteraudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `classroom` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `cycle` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `department` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `departmentaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `evaluation` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `evaluationaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `evaluationhasstudent` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `evaluationhasstudentaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `evaluationtype` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `grade` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `inquiry` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `log` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `login` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `loginaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `major` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `majoraudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `payment` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `person` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `personaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `platformsettings` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `platformsettingsaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `presencelist` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `presencelistaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `presencelisthaschapter` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `presencelisthasmodulestudent` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `question` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `questionaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `questionoption` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `questionoptionaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `questionresource` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `resetpassword` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `resource` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `ressourceaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `school` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `schoolaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `schooldemand` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `schooldemandaudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `student` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `studentpayment` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `subjectpart` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `teacher` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `teacheraudit` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `teachertype` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `teachinggrade` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AcademicYear` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Ambassador` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualAcademicProfile` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualAcademicProfileAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualCarryOverSytem` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualCarryOverSytemAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualClassroom` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualClassroomAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualClassroomDivision` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualClassroomDivisionAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualConfigurator` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualDocumentSigner` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualEvaluationSubType` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualEvaluationSubTypeAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualEvaluationTypeWeighting` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualEvaluationTypeWeightingAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualGradeWeighting` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualGradeWeightingAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualMajor` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualMajorAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualMinimumModulationScore` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualMinimumModulationScoreAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualModule` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualModuleAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualRegistry` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualRegistryAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualSchoolSetting` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualSchoolSettingAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualSemesterExamAcess` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualSemesterExamAcessAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualStudent` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualStudentAnswerQuestion` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualStudentAnswerQuestionAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualStudentHasModule` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualStudentTakeAssessment` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualSubject` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualSubjectAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualSubjectPart` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualSubjectPartAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualTeacher` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualTeacherAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualWeighting` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AnnualWeightingAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Assessment` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AssessmentAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `AssignmentGroupMember` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Chapter` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `ChapterAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Classroom` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Cycle` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Department` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `DepartmentAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Evaluation` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `EvaluationAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `EvaluationHasStudent` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `EvaluationHasStudentAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `EvaluationType` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Grade` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Inquiry` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Log` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Login` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `LoginAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Major` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `MajorAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Payment` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Person` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `PersonAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `PlatformSettings` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `PlatformSettingsAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `PresenceList` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `PresenceListAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `PresenceListHasChapter` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `PresenceListHasModuleStudent` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Question` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `QuestionAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `QuestionOption` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `QuestionOptionAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `QuestionResource` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `ResetPassword` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Resource` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `RessourceAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `School` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `SchoolAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `SchoolDemand` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `SchoolDemandAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Student` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `StudentPayment` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `SubjectPart` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Teacher` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `TeacherAudit` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `TeacherType` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `TeachingGrade` table. If the table is not empty, all the data it contains will be lost.
 
 */
 -- DropForeignKey
-ALTER TABLE `academicyear` DROP FOREIGN KEY `AcademicYear_created_by_fkey`;
+ALTER TABLE `AcademicYear` DROP FOREIGN KEY `AcademicYear_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `academicyear` DROP FOREIGN KEY `AcademicYear_school_id_fkey`;
+ALTER TABLE `AcademicYear` DROP FOREIGN KEY `AcademicYear_school_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `ambassador` DROP FOREIGN KEY `Ambassador_login_id_fkey`;
+ALTER TABLE `Ambassador` DROP FOREIGN KEY `Ambassador_login_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualacademicprofile` DROP FOREIGN KEY `AnnualAcademicProfile_academic_year_id_fkey`;
+ALTER TABLE `AnnualAcademicProfile` DROP FOREIGN KEY `AnnualAcademicProfile_academic_year_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualacademicprofile` DROP FOREIGN KEY `AnnualAcademicProfile_created_by_fkey`;
+ALTER TABLE `AnnualAcademicProfile` DROP FOREIGN KEY `AnnualAcademicProfile_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualacademicprofileaudit` DROP FOREIGN KEY `AnnualAcademicProfileAudit_annual_academic_profile_id_fkey`;
+ALTER TABLE `AnnualAcademicProfileAudit` DROP FOREIGN KEY `AnnualAcademicProfileAudit_annual_academic_profile_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualacademicprofileaudit` DROP FOREIGN KEY `AnnualAcademicProfileAudit_audited_by_fkey`;
+ALTER TABLE `AnnualAcademicProfileAudit` DROP FOREIGN KEY `AnnualAcademicProfileAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualcarryoversytem` DROP FOREIGN KEY `AnnualCarryOverSytem_academic_year_id_fkey`;
+ALTER TABLE `AnnualCarryOverSytem` DROP FOREIGN KEY `AnnualCarryOverSytem_academic_year_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualcarryoversytem` DROP FOREIGN KEY `AnnualCarryOverSytem_created_by_fkey`;
+ALTER TABLE `AnnualCarryOverSytem` DROP FOREIGN KEY `AnnualCarryOverSytem_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualcarryoversytemaudit` DROP FOREIGN KEY `AnnualCarryOverSytemAudit_annual_carry_over_system_id_fkey`;
+ALTER TABLE `AnnualCarryOverSytemAudit` DROP FOREIGN KEY `AnnualCarryOverSytemAudit_annual_carry_over_system_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualcarryoversytemaudit` DROP FOREIGN KEY `AnnualCarryOverSytemAudit_audited_by_fkey`;
+ALTER TABLE `AnnualCarryOverSytemAudit` DROP FOREIGN KEY `AnnualCarryOverSytemAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualclassroom` DROP FOREIGN KEY `AnnualClassroom_annual_major_id_fkey`;
+ALTER TABLE `AnnualClassroom` DROP FOREIGN KEY `AnnualClassroom_annual_major_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualclassroom` DROP FOREIGN KEY `AnnualClassroom_classroom_id_fkey`;
+ALTER TABLE `AnnualClassroom` DROP FOREIGN KEY `AnnualClassroom_classroom_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualclassroomaudit` DROP FOREIGN KEY `AnnualClassroomAudit_annual_classroom_id_fkey`;
+ALTER TABLE `AnnualClassroomAudit` DROP FOREIGN KEY `AnnualClassroomAudit_annual_classroom_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualclassroomaudit` DROP FOREIGN KEY `AnnualClassroomAudit_audited_by_fkey`;
+ALTER TABLE `AnnualClassroomAudit` DROP FOREIGN KEY `AnnualClassroomAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualclassroomdivision` DROP FOREIGN KEY `AnnualClassroomDivision_annual_classroom_id_fkey`;
+ALTER TABLE `AnnualClassroomDivision` DROP FOREIGN KEY `AnnualClassroomDivision_annual_classroom_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualclassroomdivision` DROP FOREIGN KEY `AnnualClassroomDivision_annual_coordinator_id_fkey`;
+ALTER TABLE `AnnualClassroomDivision` DROP FOREIGN KEY `AnnualClassroomDivision_annual_coordinator_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualclassroomdivision` DROP FOREIGN KEY `AnnualClassroomDivision_created_by_fkey`;
+ALTER TABLE `AnnualClassroomDivision` DROP FOREIGN KEY `AnnualClassroomDivision_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualclassroomdivisionaudit` DROP FOREIGN KEY `AnnualClassroomDivisionAudit_annual_classroom_division_id_fkey`;
+ALTER TABLE `AnnualClassroomDivisionAudit` DROP FOREIGN KEY `AnnualClassroomDivisionAudit_annual_classroom_division_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualclassroomdivisionaudit` DROP FOREIGN KEY `AnnualClassroomDivisionAudit_annual_coordinator_id_fkey`;
+ALTER TABLE `AnnualClassroomDivisionAudit` DROP FOREIGN KEY `AnnualClassroomDivisionAudit_annual_coordinator_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualclassroomdivisionaudit` DROP FOREIGN KEY `AnnualClassroomDivisionAudit_audited_by_fkey`;
+ALTER TABLE `AnnualClassroomDivisionAudit` DROP FOREIGN KEY `AnnualClassroomDivisionAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualconfigurator` DROP FOREIGN KEY `AnnualConfigurator_academic_year_id_fkey`;
+ALTER TABLE `AnnualConfigurator` DROP FOREIGN KEY `AnnualConfigurator_academic_year_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualconfigurator` DROP FOREIGN KEY `AnnualConfigurator_created_by_fkey`;
+ALTER TABLE `AnnualConfigurator` DROP FOREIGN KEY `AnnualConfigurator_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualconfigurator` DROP FOREIGN KEY `AnnualConfigurator_deleted_by_fkey`;
+ALTER TABLE `AnnualConfigurator` DROP FOREIGN KEY `AnnualConfigurator_deleted_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualconfigurator` DROP FOREIGN KEY `AnnualConfigurator_disabled_by_fkey`;
+ALTER TABLE `AnnualConfigurator` DROP FOREIGN KEY `AnnualConfigurator_disabled_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualconfigurator` DROP FOREIGN KEY `AnnualConfigurator_login_id_fkey`;
+ALTER TABLE `AnnualConfigurator` DROP FOREIGN KEY `AnnualConfigurator_login_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualdocumentsigner` DROP FOREIGN KEY `AnnualDocumentSigner_annual_school_setting_id_fkey`;
+ALTER TABLE `AnnualDocumentSigner` DROP FOREIGN KEY `AnnualDocumentSigner_annual_school_setting_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualdocumentsigner` DROP FOREIGN KEY `AnnualDocumentSigner_created_by_fkey`;
+ALTER TABLE `AnnualDocumentSigner` DROP FOREIGN KEY `AnnualDocumentSigner_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualdocumentsigner` DROP FOREIGN KEY `AnnualDocumentSigner_deleted_by_fkey`;
+ALTER TABLE `AnnualDocumentSigner` DROP FOREIGN KEY `AnnualDocumentSigner_deleted_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualevaluationsubtype` DROP FOREIGN KEY `AnnualEvaluationSubType_academic_year_id_fkey`;
+ALTER TABLE `AnnualEvaluationSubType` DROP FOREIGN KEY `AnnualEvaluationSubType_academic_year_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualevaluationsubtype` DROP FOREIGN KEY `AnnualEvaluationSubType_evaluation_type_id_fkey`;
+ALTER TABLE `AnnualEvaluationSubType` DROP FOREIGN KEY `AnnualEvaluationSubType_evaluation_type_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualevaluationsubtypeaudit` DROP FOREIGN KEY `AnnualEvaluationSubTypeAudit_annual_evaluation_sub_type_id_fkey`;
+ALTER TABLE `AnnualEvaluationSubTypeAudit` DROP FOREIGN KEY `AnnualEvaluationSubTypeAudit_annual_evaluation_sub_type_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualevaluationtypeweighting` DROP FOREIGN KEY `AnnualEvaluationTypeWeighting_academic_year_id_fkey`;
+ALTER TABLE `AnnualEvaluationTypeWeighting` DROP FOREIGN KEY `AnnualEvaluationTypeWeighting_academic_year_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualevaluationtypeweighting` DROP FOREIGN KEY `AnnualEvaluationTypeWeighting_created_by_fkey`;
+ALTER TABLE `AnnualEvaluationTypeWeighting` DROP FOREIGN KEY `AnnualEvaluationTypeWeighting_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualevaluationtypeweighting` DROP FOREIGN KEY `AnnualEvaluationTypeWeighting_cycle_id_fkey`;
+ALTER TABLE `AnnualEvaluationTypeWeighting` DROP FOREIGN KEY `AnnualEvaluationTypeWeighting_cycle_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualevaluationtypeweighting` DROP FOREIGN KEY `AnnualEvaluationTypeWeighting_evaluation_type_id_fkey`;
+ALTER TABLE `AnnualEvaluationTypeWeighting` DROP FOREIGN KEY `AnnualEvaluationTypeWeighting_evaluation_type_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualevaluationtypeweightingaudit` DROP FOREIGN KEY `AnnualEvaluationTypeWeightingAudit_annual_evaluation_type_w_fkey`;
+ALTER TABLE `AnnualEvaluationTypeWeightingAudit` DROP FOREIGN KEY `AnnualEvaluationTypeWeightingAudit_annual_evaluation_type_w_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualevaluationtypeweightingaudit` DROP FOREIGN KEY `AnnualEvaluationTypeWeightingAudit_audited_by_fkey`;
+ALTER TABLE `AnnualEvaluationTypeWeightingAudit` DROP FOREIGN KEY `AnnualEvaluationTypeWeightingAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualgradeweighting` DROP FOREIGN KEY `AnnualGradeWeighting_academic_year_id_fkey`;
+ALTER TABLE `AnnualGradeWeighting` DROP FOREIGN KEY `AnnualGradeWeighting_academic_year_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualgradeweighting` DROP FOREIGN KEY `AnnualGradeWeighting_created_by_fkey`;
+ALTER TABLE `AnnualGradeWeighting` DROP FOREIGN KEY `AnnualGradeWeighting_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualgradeweighting` DROP FOREIGN KEY `AnnualGradeWeighting_cycle_id_fkey`;
+ALTER TABLE `AnnualGradeWeighting` DROP FOREIGN KEY `AnnualGradeWeighting_cycle_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualgradeweighting` DROP FOREIGN KEY `AnnualGradeWeighting_grade_id_fkey`;
+ALTER TABLE `AnnualGradeWeighting` DROP FOREIGN KEY `AnnualGradeWeighting_grade_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualgradeweightingaudit` DROP FOREIGN KEY `AnnualGradeWeightingAudit_annual_grade_weighting_id_fkey`;
+ALTER TABLE `AnnualGradeWeightingAudit` DROP FOREIGN KEY `AnnualGradeWeightingAudit_annual_grade_weighting_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualgradeweightingaudit` DROP FOREIGN KEY `AnnualGradeWeightingAudit_audited_by_fkey`;
+ALTER TABLE `AnnualGradeWeightingAudit` DROP FOREIGN KEY `AnnualGradeWeightingAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualgradeweightingaudit` DROP FOREIGN KEY `AnnualGradeWeightingAudit_grade_id_fkey`;
+ALTER TABLE `AnnualGradeWeightingAudit` DROP FOREIGN KEY `AnnualGradeWeightingAudit_grade_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualmajor` DROP FOREIGN KEY `AnnualMajor_academic_year_id_fkey`;
+ALTER TABLE `AnnualMajor` DROP FOREIGN KEY `AnnualMajor_academic_year_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualmajor` DROP FOREIGN KEY `AnnualMajor_created_by_fkey`;
+ALTER TABLE `AnnualMajor` DROP FOREIGN KEY `AnnualMajor_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualmajor` DROP FOREIGN KEY `AnnualMajor_department_id_fkey`;
+ALTER TABLE `AnnualMajor` DROP FOREIGN KEY `AnnualMajor_department_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualmajor` DROP FOREIGN KEY `AnnualMajor_major_id_fkey`;
+ALTER TABLE `AnnualMajor` DROP FOREIGN KEY `AnnualMajor_major_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualmajoraudit` DROP FOREIGN KEY `AnnualMajorAudit_annual_major_id_fkey`;
+ALTER TABLE `AnnualMajorAudit` DROP FOREIGN KEY `AnnualMajorAudit_annual_major_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualmajoraudit` DROP FOREIGN KEY `AnnualMajorAudit_audited_by_fkey`;
+ALTER TABLE `AnnualMajorAudit` DROP FOREIGN KEY `AnnualMajorAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualminimummodulationscore` DROP FOREIGN KEY `AnnualMinimumModulationScore_academic_year_id_fkey`;
+ALTER TABLE `AnnualMinimumModulationScore` DROP FOREIGN KEY `AnnualMinimumModulationScore_academic_year_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualminimummodulationscore` DROP FOREIGN KEY `AnnualMinimumModulationScore_created_by_fkey`;
+ALTER TABLE `AnnualMinimumModulationScore` DROP FOREIGN KEY `AnnualMinimumModulationScore_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualminimummodulationscore` DROP FOREIGN KEY `AnnualMinimumModulationScore_cycle_id_fkey`;
+ALTER TABLE `AnnualMinimumModulationScore` DROP FOREIGN KEY `AnnualMinimumModulationScore_cycle_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualminimummodulationscoreaudit` DROP FOREIGN KEY `AnnualMinimumModulationScoreAudit_annual_minimum_modulation_fkey`;
+ALTER TABLE `AnnualMinimumModulationScoreAudit` DROP FOREIGN KEY `AnnualMinimumModulationScoreAudit_annual_minimum_modulation_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualminimummodulationscoreaudit` DROP FOREIGN KEY `AnnualMinimumModulationScoreAudit_created_by_fkey`;
+ALTER TABLE `AnnualMinimumModulationScoreAudit` DROP FOREIGN KEY `AnnualMinimumModulationScoreAudit_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualmodule` DROP FOREIGN KEY `AnnualModule_academic_year_id_fkey`;
+ALTER TABLE `AnnualModule` DROP FOREIGN KEY `AnnualModule_academic_year_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualmodule` DROP FOREIGN KEY `AnnualModule_annual_major_id_fkey`;
+ALTER TABLE `AnnualModule` DROP FOREIGN KEY `AnnualModule_annual_major_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualmodule` DROP FOREIGN KEY `AnnualModule_created_by_fkey`;
+ALTER TABLE `AnnualModule` DROP FOREIGN KEY `AnnualModule_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualmoduleaudit` DROP FOREIGN KEY `AnnualModuleAudit_annual_module_id_fkey`;
+ALTER TABLE `AnnualModuleAudit` DROP FOREIGN KEY `AnnualModuleAudit_annual_module_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualmoduleaudit` DROP FOREIGN KEY `AnnualModuleAudit_audited_by_fkey`;
+ALTER TABLE `AnnualModuleAudit` DROP FOREIGN KEY `AnnualModuleAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualregistry` DROP FOREIGN KEY `AnnualRegistry_academic_year_id_fkey`;
+ALTER TABLE `AnnualRegistry` DROP FOREIGN KEY `AnnualRegistry_academic_year_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualregistry` DROP FOREIGN KEY `AnnualRegistry_created_by_fkey`;
+ALTER TABLE `AnnualRegistry` DROP FOREIGN KEY `AnnualRegistry_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualregistry` DROP FOREIGN KEY `AnnualRegistry_login_id_fkey`;
+ALTER TABLE `AnnualRegistry` DROP FOREIGN KEY `AnnualRegistry_login_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualregistryaudit` DROP FOREIGN KEY `AnnualRegistryAudit_annual_registry_id_fkey`;
+ALTER TABLE `AnnualRegistryAudit` DROP FOREIGN KEY `AnnualRegistryAudit_annual_registry_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualregistryaudit` DROP FOREIGN KEY `AnnualRegistryAudit_audited_by_fkey`;
+ALTER TABLE `AnnualRegistryAudit` DROP FOREIGN KEY `AnnualRegistryAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualschoolsetting` DROP FOREIGN KEY `AnnualSchoolSetting_academic_year_id_fkey`;
+ALTER TABLE `AnnualSchoolSetting` DROP FOREIGN KEY `AnnualSchoolSetting_academic_year_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualschoolsetting` DROP FOREIGN KEY `AnnualSchoolSetting_created_by_fkey`;
+ALTER TABLE `AnnualSchoolSetting` DROP FOREIGN KEY `AnnualSchoolSetting_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualschoolsettingaudit` DROP FOREIGN KEY `AnnualSchoolSettingAudit_annual_school_setting_id_fkey`;
+ALTER TABLE `AnnualSchoolSettingAudit` DROP FOREIGN KEY `AnnualSchoolSettingAudit_annual_school_setting_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualschoolsettingaudit` DROP FOREIGN KEY `AnnualSchoolSettingAudit_audited_by_fkey`;
+ALTER TABLE `AnnualSchoolSettingAudit` DROP FOREIGN KEY `AnnualSchoolSettingAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualsemesterexamacess` DROP FOREIGN KEY `AnnualSemesterExamAcess_academic_year_id_fkey`;
+ALTER TABLE `AnnualSemesterExamAcess` DROP FOREIGN KEY `AnnualSemesterExamAcess_academic_year_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualsemesterexamacess` DROP FOREIGN KEY `AnnualSemesterExamAcess_created_by_fkey`;
+ALTER TABLE `AnnualSemesterExamAcess` DROP FOREIGN KEY `AnnualSemesterExamAcess_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualsemesterexamacessaudit` DROP FOREIGN KEY `AnnualSemesterExamAcessAudit_annual_semester_exam_access_id_fkey`;
+ALTER TABLE `AnnualSemesterExamAcessAudit` DROP FOREIGN KEY `AnnualSemesterExamAcessAudit_annual_semester_exam_access_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualsemesterexamacessaudit` DROP FOREIGN KEY `AnnualSemesterExamAcessAudit_audited_by_fkey`;
+ALTER TABLE `AnnualSemesterExamAcessAudit` DROP FOREIGN KEY `AnnualSemesterExamAcessAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualstudent` DROP FOREIGN KEY `AnnualStudent_academic_year_id_fkey`;
+ALTER TABLE `AnnualStudent` DROP FOREIGN KEY `AnnualStudent_academic_year_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualstudent` DROP FOREIGN KEY `AnnualStudent_annual_classroom_division_id_fkey`;
+ALTER TABLE `AnnualStudent` DROP FOREIGN KEY `AnnualStudent_annual_classroom_division_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualstudent` DROP FOREIGN KEY `AnnualStudent_student_id_fkey`;
+ALTER TABLE `AnnualStudent` DROP FOREIGN KEY `AnnualStudent_student_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualstudentanswerquestion` DROP FOREIGN KEY `AnnualStudentAnswerQuestion_annual_student_take_assessment__fkey`;
+ALTER TABLE `AnnualStudentAnswerQuestion` DROP FOREIGN KEY `AnnualStudentAnswerQuestion_annual_student_take_assessment__fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualstudentanswerquestion` DROP FOREIGN KEY `AnnualStudentAnswerQuestion_answered_option_id_fkey`;
+ALTER TABLE `AnnualStudentAnswerQuestion` DROP FOREIGN KEY `AnnualStudentAnswerQuestion_answered_option_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualstudentanswerquestion` DROP FOREIGN KEY `AnnualStudentAnswerQuestion_corrected_by_fkey`;
+ALTER TABLE `AnnualStudentAnswerQuestion` DROP FOREIGN KEY `AnnualStudentAnswerQuestion_corrected_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualstudentanswerquestion` DROP FOREIGN KEY `AnnualStudentAnswerQuestion_question_id_fkey`;
+ALTER TABLE `AnnualStudentAnswerQuestion` DROP FOREIGN KEY `AnnualStudentAnswerQuestion_question_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualstudentanswerquestionaudit` DROP FOREIGN KEY `AnnualStudentAnswerQuestionAudit_annual_student_answer_ques_fkey`;
+ALTER TABLE `AnnualStudentAnswerQuestionAudit` DROP FOREIGN KEY `AnnualStudentAnswerQuestionAudit_annual_student_answer_ques_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualstudentanswerquestionaudit` DROP FOREIGN KEY `AnnualStudentAnswerQuestionAudit_audited_by_fkey`;
+ALTER TABLE `AnnualStudentAnswerQuestionAudit` DROP FOREIGN KEY `AnnualStudentAnswerQuestionAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualstudentanswerquestionaudit` DROP FOREIGN KEY `AnnualStudentAnswerQuestionAudit_previous_auditer_fkey`;
+ALTER TABLE `AnnualStudentAnswerQuestionAudit` DROP FOREIGN KEY `AnnualStudentAnswerQuestionAudit_previous_auditer_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualstudenthasmodule` DROP FOREIGN KEY `AnnualStudentHasModule_annual_module_id_fkey`;
+ALTER TABLE `AnnualStudentHasModule` DROP FOREIGN KEY `AnnualStudentHasModule_annual_module_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualstudenthasmodule` DROP FOREIGN KEY `AnnualStudentHasModule_annual_student_id_fkey`;
+ALTER TABLE `AnnualStudentHasModule` DROP FOREIGN KEY `AnnualStudentHasModule_annual_student_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualstudenttakeassessment` DROP FOREIGN KEY `AnnualStudentTakeAssessment_annual_student_id_fkey`;
+ALTER TABLE `AnnualStudentTakeAssessment` DROP FOREIGN KEY `AnnualStudentTakeAssessment_annual_student_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualstudenttakeassessment` DROP FOREIGN KEY `AnnualStudentTakeAssessment_assessment_id_fkey`;
+ALTER TABLE `AnnualStudentTakeAssessment` DROP FOREIGN KEY `AnnualStudentTakeAssessment_assessment_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualsubject` DROP FOREIGN KEY `AnnualSubject_annual_module_id_fkey`;
+ALTER TABLE `AnnualSubject` DROP FOREIGN KEY `AnnualSubject_annual_module_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualsubject` DROP FOREIGN KEY `AnnualSubject_created_by_fkey`;
+ALTER TABLE `AnnualSubject` DROP FOREIGN KEY `AnnualSubject_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualsubjectaudit` DROP FOREIGN KEY `AnnualSubjectAudit_annual_subject_id_fkey`;
+ALTER TABLE `AnnualSubjectAudit` DROP FOREIGN KEY `AnnualSubjectAudit_annual_subject_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualsubjectaudit` DROP FOREIGN KEY `AnnualSubjectAudit_audited_by_fkey`;
+ALTER TABLE `AnnualSubjectAudit` DROP FOREIGN KEY `AnnualSubjectAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualsubjectpart` DROP FOREIGN KEY `AnnualSubjectPart_annual_subject_id_fkey`;
+ALTER TABLE `AnnualSubjectPart` DROP FOREIGN KEY `AnnualSubjectPart_annual_subject_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualsubjectpart` DROP FOREIGN KEY `AnnualSubjectPart_created_by_fkey`;
+ALTER TABLE `AnnualSubjectPart` DROP FOREIGN KEY `AnnualSubjectPart_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualsubjectpart` DROP FOREIGN KEY `AnnualSubjectPart_subject_part_id_fkey`;
+ALTER TABLE `AnnualSubjectPart` DROP FOREIGN KEY `AnnualSubjectPart_subject_part_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualsubjectpartaudit` DROP FOREIGN KEY `AnnualSubjectPartAudit_annual_subject_part_id_fkey`;
+ALTER TABLE `AnnualSubjectPartAudit` DROP FOREIGN KEY `AnnualSubjectPartAudit_annual_subject_part_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualsubjectpartaudit` DROP FOREIGN KEY `AnnualSubjectPartAudit_audited_by_fkey`;
+ALTER TABLE `AnnualSubjectPartAudit` DROP FOREIGN KEY `AnnualSubjectPartAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualteacher` DROP FOREIGN KEY `AnnualTeacher_academic_year_id_fkey`;
+ALTER TABLE `AnnualTeacher` DROP FOREIGN KEY `AnnualTeacher_academic_year_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualteacher` DROP FOREIGN KEY `AnnualTeacher_created_by_fkey`;
+ALTER TABLE `AnnualTeacher` DROP FOREIGN KEY `AnnualTeacher_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualteacher` DROP FOREIGN KEY `AnnualTeacher_login_id_fkey`;
+ALTER TABLE `AnnualTeacher` DROP FOREIGN KEY `AnnualTeacher_login_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualteacher` DROP FOREIGN KEY `AnnualTeacher_teaching_grade_id_fkey`;
+ALTER TABLE `AnnualTeacher` DROP FOREIGN KEY `AnnualTeacher_teaching_grade_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualteacheraudit` DROP FOREIGN KEY `AnnualTeacherAudit_annual_teacher_id_fkey`;
+ALTER TABLE `AnnualTeacherAudit` DROP FOREIGN KEY `AnnualTeacherAudit_annual_teacher_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualteacheraudit` DROP FOREIGN KEY `AnnualTeacherAudit_audited_by_fkey`;
+ALTER TABLE `AnnualTeacherAudit` DROP FOREIGN KEY `AnnualTeacherAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualweighting` DROP FOREIGN KEY `AnnualWeighting_academic_year_id_fkey`;
+ALTER TABLE `AnnualWeighting` DROP FOREIGN KEY `AnnualWeighting_academic_year_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualweighting` DROP FOREIGN KEY `AnnualWeighting_created_by_fkey`;
+ALTER TABLE `AnnualWeighting` DROP FOREIGN KEY `AnnualWeighting_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualweightingaudit` DROP FOREIGN KEY `AnnualWeightingAudit_annual_weighting_id_fkey`;
+ALTER TABLE `AnnualWeightingAudit` DROP FOREIGN KEY `AnnualWeightingAudit_annual_weighting_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `annualweightingaudit` DROP FOREIGN KEY `AnnualWeightingAudit_audited_by_fkey`;
+ALTER TABLE `AnnualWeightingAudit` DROP FOREIGN KEY `AnnualWeightingAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `assessment` DROP FOREIGN KEY `Assessment_annual_subject_id_fkey`;
+ALTER TABLE `Assessment` DROP FOREIGN KEY `Assessment_annual_subject_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `assessment` DROP FOREIGN KEY `Assessment_chapter_id_fkey`;
+ALTER TABLE `Assessment` DROP FOREIGN KEY `Assessment_chapter_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `assessment` DROP FOREIGN KEY `Assessment_created_by_fkey`;
+ALTER TABLE `Assessment` DROP FOREIGN KEY `Assessment_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `assessment` DROP FOREIGN KEY `Assessment_evaluation_id_fkey`;
+ALTER TABLE `Assessment` DROP FOREIGN KEY `Assessment_evaluation_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `assessmentaudit` DROP FOREIGN KEY `AssessmentAudit_assessment_id_fkey`;
+ALTER TABLE `AssessmentAudit` DROP FOREIGN KEY `AssessmentAudit_assessment_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `assessmentaudit` DROP FOREIGN KEY `AssessmentAudit_audited_by_fkey`;
+ALTER TABLE `AssessmentAudit` DROP FOREIGN KEY `AssessmentAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `assignmentgroupmember` DROP FOREIGN KEY `AssignmentGroupMember_annual_student_take_assessment_id_fkey`;
+ALTER TABLE `AssignmentGroupMember` DROP FOREIGN KEY `AssignmentGroupMember_annual_student_take_assessment_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `assignmentgroupmember` DROP FOREIGN KEY `AssignmentGroupMember_assessment_id_fkey`;
+ALTER TABLE `AssignmentGroupMember` DROP FOREIGN KEY `AssignmentGroupMember_assessment_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `chapter` DROP FOREIGN KEY `Chapter_annual_subject_id_fkey`;
+ALTER TABLE `Chapter` DROP FOREIGN KEY `Chapter_annual_subject_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `chapter` DROP FOREIGN KEY `Chapter_chapter_parent_id_fkey`;
+ALTER TABLE `Chapter` DROP FOREIGN KEY `Chapter_chapter_parent_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `chapter` DROP FOREIGN KEY `Chapter_created_by_fkey`;
+ALTER TABLE `Chapter` DROP FOREIGN KEY `Chapter_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `chapteraudit` DROP FOREIGN KEY `ChapterAudit_audited_by_fkey`;
+ALTER TABLE `ChapterAudit` DROP FOREIGN KEY `ChapterAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `chapteraudit` DROP FOREIGN KEY `ChapterAudit_chapter_id_fkey`;
+ALTER TABLE `ChapterAudit` DROP FOREIGN KEY `ChapterAudit_chapter_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `classroom` DROP FOREIGN KEY `Classroom_created_by_fkey`;
+ALTER TABLE `Classroom` DROP FOREIGN KEY `Classroom_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `classroom` DROP FOREIGN KEY `Classroom_major_id_fkey`;
+ALTER TABLE `Classroom` DROP FOREIGN KEY `Classroom_major_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `department` DROP FOREIGN KEY `Department_created_by_fkey`;
+ALTER TABLE `Department` DROP FOREIGN KEY `Department_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `department` DROP FOREIGN KEY `Department_school_id_fkey`;
+ALTER TABLE `Department` DROP FOREIGN KEY `Department_school_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `departmentaudit` DROP FOREIGN KEY `DepartmentAudit_audited_by_fkey`;
+ALTER TABLE `DepartmentAudit` DROP FOREIGN KEY `DepartmentAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `departmentaudit` DROP FOREIGN KEY `DepartmentAudit_department_id_fkey`;
+ALTER TABLE `DepartmentAudit` DROP FOREIGN KEY `DepartmentAudit_department_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `evaluation` DROP FOREIGN KEY `Evaluation_annual_evaluation_sub_type_id_fkey`;
+ALTER TABLE `Evaluation` DROP FOREIGN KEY `Evaluation_annual_evaluation_sub_type_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `evaluation` DROP FOREIGN KEY `Evaluation_annual_subject_id_fkey`;
+ALTER TABLE `Evaluation` DROP FOREIGN KEY `Evaluation_annual_subject_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `evaluation` DROP FOREIGN KEY `Evaluation_anonimated_by_fkey`;
+ALTER TABLE `Evaluation` DROP FOREIGN KEY `Evaluation_anonimated_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `evaluation` DROP FOREIGN KEY `Evaluation_created_by_fkey`;
+ALTER TABLE `Evaluation` DROP FOREIGN KEY `Evaluation_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `evaluation` DROP FOREIGN KEY `Evaluation_published_by_fkey`;
+ALTER TABLE `Evaluation` DROP FOREIGN KEY `Evaluation_published_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `evaluationaudit` DROP FOREIGN KEY `EvaluationAudit_audited_by_fkey`;
+ALTER TABLE `EvaluationAudit` DROP FOREIGN KEY `EvaluationAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `evaluationaudit` DROP FOREIGN KEY `EvaluationAudit_evaluation_id_fkey`;
+ALTER TABLE `EvaluationAudit` DROP FOREIGN KEY `EvaluationAudit_evaluation_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `evaluationhasstudent` DROP FOREIGN KEY `EvaluationHasStudent_annual_student_id_fkey`;
+ALTER TABLE `EvaluationHasStudent` DROP FOREIGN KEY `EvaluationHasStudent_annual_student_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `evaluationhasstudent` DROP FOREIGN KEY `EvaluationHasStudent_evaluation_id_fkey`;
+ALTER TABLE `EvaluationHasStudent` DROP FOREIGN KEY `EvaluationHasStudent_evaluation_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `evaluationhasstudent` DROP FOREIGN KEY `EvaluationHasStudent_ref_evaluation_has_student_id_fkey`;
+ALTER TABLE `EvaluationHasStudent` DROP FOREIGN KEY `EvaluationHasStudent_ref_evaluation_has_student_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `evaluationhasstudentaudit` DROP FOREIGN KEY `EvaluationHasStudentAudit_audited_by_fkey`;
+ALTER TABLE `EvaluationHasStudentAudit` DROP FOREIGN KEY `EvaluationHasStudentAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `evaluationhasstudentaudit` DROP FOREIGN KEY `EvaluationHasStudentAudit_evaluation_has_student_id_fkey`;
+ALTER TABLE `EvaluationHasStudentAudit` DROP FOREIGN KEY `EvaluationHasStudentAudit_evaluation_has_student_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `log` DROP FOREIGN KEY `Log_login_id_fkey`;
+ALTER TABLE `Log` DROP FOREIGN KEY `Log_login_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `login` DROP FOREIGN KEY `Login_person_id_fkey`;
+ALTER TABLE `Login` DROP FOREIGN KEY `Login_person_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `login` DROP FOREIGN KEY `Login_school_id_fkey`;
+ALTER TABLE `Login` DROP FOREIGN KEY `Login_school_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `loginaudit` DROP FOREIGN KEY `LoginAudit_login_id_fkey`;
+ALTER TABLE `LoginAudit` DROP FOREIGN KEY `LoginAudit_login_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `major` DROP FOREIGN KEY `Major_created_by_fkey`;
+ALTER TABLE `Major` DROP FOREIGN KEY `Major_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `major` DROP FOREIGN KEY `Major_cycle_id_fkey`;
+ALTER TABLE `Major` DROP FOREIGN KEY `Major_cycle_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `majoraudit` DROP FOREIGN KEY `MajorAudit_audited_by_fkey`;
+ALTER TABLE `MajorAudit` DROP FOREIGN KEY `MajorAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `majoraudit` DROP FOREIGN KEY `MajorAudit_cycle_id_fkey`;
+ALTER TABLE `MajorAudit` DROP FOREIGN KEY `MajorAudit_cycle_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `majoraudit` DROP FOREIGN KEY `MajorAudit_major_id_fkey`;
+ALTER TABLE `MajorAudit` DROP FOREIGN KEY `MajorAudit_major_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `personaudit` DROP FOREIGN KEY `PersonAudit_audited_by_fkey`;
+ALTER TABLE `PersonAudit` DROP FOREIGN KEY `PersonAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `personaudit` DROP FOREIGN KEY `PersonAudit_person_id_fkey`;
+ALTER TABLE `PersonAudit` DROP FOREIGN KEY `PersonAudit_person_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `platformsettings` DROP FOREIGN KEY `PlatformSettings_created_by_fkey`;
+ALTER TABLE `PlatformSettings` DROP FOREIGN KEY `PlatformSettings_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `platformsettingsaudit` DROP FOREIGN KEY `PlatformSettingsAudit_audited_by_fkey`;
+ALTER TABLE `PlatformSettingsAudit` DROP FOREIGN KEY `PlatformSettingsAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `platformsettingsaudit` DROP FOREIGN KEY `PlatformSettingsAudit_platform_settings_id_fkey`;
+ALTER TABLE `PlatformSettingsAudit` DROP FOREIGN KEY `PlatformSettingsAudit_platform_settings_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `presencelist` DROP FOREIGN KEY `PresenceList_annual_subject_id_fkey`;
+ALTER TABLE `PresenceList` DROP FOREIGN KEY `PresenceList_annual_subject_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `presencelistaudit` DROP FOREIGN KEY `PresenceListAudit_audited_by_fkey`;
+ALTER TABLE `PresenceListAudit` DROP FOREIGN KEY `PresenceListAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `presencelistaudit` DROP FOREIGN KEY `PresenceListAudit_presence_list_id_fkey`;
+ALTER TABLE `PresenceListAudit` DROP FOREIGN KEY `PresenceListAudit_presence_list_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `presencelisthaschapter` DROP FOREIGN KEY `PresenceListHasChapter_chapter_id_fkey`;
+ALTER TABLE `PresenceListHasChapter` DROP FOREIGN KEY `PresenceListHasChapter_chapter_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `presencelisthaschapter` DROP FOREIGN KEY `PresenceListHasChapter_created_by_fkey`;
+ALTER TABLE `PresenceListHasChapter` DROP FOREIGN KEY `PresenceListHasChapter_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `presencelisthaschapter` DROP FOREIGN KEY `PresenceListHasChapter_deleted_by_fkey`;
+ALTER TABLE `PresenceListHasChapter` DROP FOREIGN KEY `PresenceListHasChapter_deleted_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `presencelisthaschapter` DROP FOREIGN KEY `PresenceListHasChapter_presence_list_id_fkey`;
+ALTER TABLE `PresenceListHasChapter` DROP FOREIGN KEY `PresenceListHasChapter_presence_list_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `presencelisthasmodulestudent` DROP FOREIGN KEY `PresenceListHasModuleStudent_annual_student_has_module_id_fkey`;
+ALTER TABLE `PresenceListHasModuleStudent` DROP FOREIGN KEY `PresenceListHasModuleStudent_annual_student_has_module_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `presencelisthasmodulestudent` DROP FOREIGN KEY `PresenceListHasModuleStudent_created_by_fkey`;
+ALTER TABLE `PresenceListHasModuleStudent` DROP FOREIGN KEY `PresenceListHasModuleStudent_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `presencelisthasmodulestudent` DROP FOREIGN KEY `PresenceListHasModuleStudent_deleted_by_fkey`;
+ALTER TABLE `PresenceListHasModuleStudent` DROP FOREIGN KEY `PresenceListHasModuleStudent_deleted_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `presencelisthasmodulestudent` DROP FOREIGN KEY `PresenceListHasModuleStudent_presence_list_id_fkey`;
+ALTER TABLE `PresenceListHasModuleStudent` DROP FOREIGN KEY `PresenceListHasModuleStudent_presence_list_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `question` DROP FOREIGN KEY `Question_assessment_id_fkey`;
+ALTER TABLE `Question` DROP FOREIGN KEY `Question_assessment_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `question` DROP FOREIGN KEY `Question_created_by_fkey`;
+ALTER TABLE `Question` DROP FOREIGN KEY `Question_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `questionaudit` DROP FOREIGN KEY `QuestionAudit_audited_by_fkey`;
+ALTER TABLE `QuestionAudit` DROP FOREIGN KEY `QuestionAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `questionaudit` DROP FOREIGN KEY `QuestionAudit_question_id_fkey`;
+ALTER TABLE `QuestionAudit` DROP FOREIGN KEY `QuestionAudit_question_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `questionoption` DROP FOREIGN KEY `QuestionOption_created_by_fkey`;
+ALTER TABLE `QuestionOption` DROP FOREIGN KEY `QuestionOption_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `questionoption` DROP FOREIGN KEY `QuestionOption_question_id_fkey`;
+ALTER TABLE `QuestionOption` DROP FOREIGN KEY `QuestionOption_question_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `questionoptionaudit` DROP FOREIGN KEY `QuestionOptionAudit_audited_by_fkey`;
+ALTER TABLE `QuestionOptionAudit` DROP FOREIGN KEY `QuestionOptionAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `questionoptionaudit` DROP FOREIGN KEY `QuestionOptionAudit_question_option_id_fkey`;
+ALTER TABLE `QuestionOptionAudit` DROP FOREIGN KEY `QuestionOptionAudit_question_option_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `questionresource` DROP FOREIGN KEY `QuestionResource_created_by_fkey`;
+ALTER TABLE `QuestionResource` DROP FOREIGN KEY `QuestionResource_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `questionresource` DROP FOREIGN KEY `QuestionResource_deleted_by_fkey`;
+ALTER TABLE `QuestionResource` DROP FOREIGN KEY `QuestionResource_deleted_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `questionresource` DROP FOREIGN KEY `QuestionResource_question_id_fkey`;
+ALTER TABLE `QuestionResource` DROP FOREIGN KEY `QuestionResource_question_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `resetpassword` DROP FOREIGN KEY `ResetPassword_generated_by_admin_fkey`;
+ALTER TABLE `ResetPassword` DROP FOREIGN KEY `ResetPassword_generated_by_admin_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `resetpassword` DROP FOREIGN KEY `ResetPassword_generated_by_confiigurator_fkey`;
+ALTER TABLE `ResetPassword` DROP FOREIGN KEY `ResetPassword_generated_by_confiigurator_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `resetpassword` DROP FOREIGN KEY `ResetPassword_login_id_fkey`;
+ALTER TABLE `ResetPassword` DROP FOREIGN KEY `ResetPassword_login_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `resource` DROP FOREIGN KEY `Resource_annual_subject_id_fkey`;
+ALTER TABLE `Resource` DROP FOREIGN KEY `Resource_annual_subject_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `resource` DROP FOREIGN KEY `Resource_chapter_id_fkey`;
+ALTER TABLE `Resource` DROP FOREIGN KEY `Resource_chapter_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `resource` DROP FOREIGN KEY `Resource_created_by_fkey`;
+ALTER TABLE `Resource` DROP FOREIGN KEY `Resource_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `ressourceaudit` DROP FOREIGN KEY `RessourceAudit_audited_by_fkey`;
+ALTER TABLE `RessourceAudit` DROP FOREIGN KEY `RessourceAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `ressourceaudit` DROP FOREIGN KEY `RessourceAudit_resource_id_fkey`;
+ALTER TABLE `RessourceAudit` DROP FOREIGN KEY `RessourceAudit_resource_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `school` DROP FOREIGN KEY `School_created_by_fkey`;
+ALTER TABLE `School` DROP FOREIGN KEY `School_created_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `school` DROP FOREIGN KEY `School_deleted_by_fkey`;
+ALTER TABLE `School` DROP FOREIGN KEY `School_deleted_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `school` DROP FOREIGN KEY `School_validated_by_fkey`;
+ALTER TABLE `School` DROP FOREIGN KEY `School_validated_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `schoolaudit` DROP FOREIGN KEY `SchoolAudit_audited_by_fkey`;
+ALTER TABLE `SchoolAudit` DROP FOREIGN KEY `SchoolAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `schoolaudit` DROP FOREIGN KEY `SchoolAudit_school_id_fkey`;
+ALTER TABLE `SchoolAudit` DROP FOREIGN KEY `SchoolAudit_school_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `schooldemand` DROP FOREIGN KEY `SchoolDemand_ambassador_id_fkey`;
+ALTER TABLE `SchoolDemand` DROP FOREIGN KEY `SchoolDemand_ambassador_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `schooldemand` DROP FOREIGN KEY `SchoolDemand_payment_id_fkey`;
+ALTER TABLE `SchoolDemand` DROP FOREIGN KEY `SchoolDemand_payment_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `schooldemand` DROP FOREIGN KEY `SchoolDemand_school_id_fkey`;
+ALTER TABLE `SchoolDemand` DROP FOREIGN KEY `SchoolDemand_school_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `schooldemandaudit` DROP FOREIGN KEY `SchoolDemandAudit_ambassador_id_fkey`;
+ALTER TABLE `SchoolDemandAudit` DROP FOREIGN KEY `SchoolDemandAudit_ambassador_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `schooldemandaudit` DROP FOREIGN KEY `SchoolDemandAudit_audited_by_fkey`;
+ALTER TABLE `SchoolDemandAudit` DROP FOREIGN KEY `SchoolDemandAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `schooldemandaudit` DROP FOREIGN KEY `SchoolDemandAudit_school_demand_id_fkey`;
+ALTER TABLE `SchoolDemandAudit` DROP FOREIGN KEY `SchoolDemandAudit_school_demand_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `student` DROP FOREIGN KEY `Student_classroom_id_fkey`;
+ALTER TABLE `Student` DROP FOREIGN KEY `Student_classroom_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `student` DROP FOREIGN KEY `Student_login_id_fkey`;
+ALTER TABLE `Student` DROP FOREIGN KEY `Student_login_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `student` DROP FOREIGN KEY `Student_tutor_id_fkey`;
+ALTER TABLE `Student` DROP FOREIGN KEY `Student_tutor_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `studentpayment` DROP FOREIGN KEY `StudentPayment_annual_student_id_fkey`;
+ALTER TABLE `StudentPayment` DROP FOREIGN KEY `StudentPayment_annual_student_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `studentpayment` DROP FOREIGN KEY `StudentPayment_paid_by_fkey`;
+ALTER TABLE `StudentPayment` DROP FOREIGN KEY `StudentPayment_paid_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `studentpayment` DROP FOREIGN KEY `StudentPayment_payment_id_fkey`;
+ALTER TABLE `StudentPayment` DROP FOREIGN KEY `StudentPayment_payment_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `teacher` DROP FOREIGN KEY `Teacher_login_id_fkey`;
+ALTER TABLE `Teacher` DROP FOREIGN KEY `Teacher_login_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `teacher` DROP FOREIGN KEY `Teacher_teacher_type_id_fkey`;
+ALTER TABLE `Teacher` DROP FOREIGN KEY `Teacher_teacher_type_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `teacheraudit` DROP FOREIGN KEY `TeacherAudit_audited_by_fkey`;
+ALTER TABLE `TeacherAudit` DROP FOREIGN KEY `TeacherAudit_audited_by_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `teacheraudit` DROP FOREIGN KEY `TeacherAudit_teacher_id_fkey`;
+ALTER TABLE `TeacherAudit` DROP FOREIGN KEY `TeacherAudit_teacher_id_fkey`;
 
 -- DropForeignKey
-ALTER TABLE `teacheraudit` DROP FOREIGN KEY `TeacherAudit_teacher_type_id_fkey`;
+ALTER TABLE `TeacherAudit` DROP FOREIGN KEY `TeacherAudit_teacher_type_id_fkey`;
 
 -- DropTable
-DROP TABLE `academicyear`;
+DROP TABLE `AcademicYear`;
 
 -- DropTable
-DROP TABLE `ambassador`;
+DROP TABLE `Ambassador`;
 
 -- DropTable
-DROP TABLE `annualacademicprofile`;
+DROP TABLE `AnnualAcademicProfile`;
 
 -- DropTable
-DROP TABLE `annualacademicprofileaudit`;
+DROP TABLE `AnnualAcademicProfileAudit`;
 
 -- DropTable
-DROP TABLE `annualcarryoversytem`;
+DROP TABLE `AnnualCarryOverSytem`;
 
 -- DropTable
-DROP TABLE `annualcarryoversytemaudit`;
+DROP TABLE `AnnualCarryOverSytemAudit`;
 
 -- DropTable
-DROP TABLE `annualclassroom`;
+DROP TABLE `AnnualClassroom`;
 
 -- DropTable
-DROP TABLE `annualclassroomaudit`;
+DROP TABLE `AnnualClassroomAudit`;
 
 -- DropTable
-DROP TABLE `annualclassroomdivision`;
+DROP TABLE `AnnualClassroomDivision`;
 
 -- DropTable
-DROP TABLE `annualclassroomdivisionaudit`;
+DROP TABLE `AnnualClassroomDivisionAudit`;
 
 -- DropTable
-DROP TABLE `annualconfigurator`;
+DROP TABLE `AnnualConfigurator`;
 
 -- DropTable
-DROP TABLE `annualdocumentsigner`;
+DROP TABLE `AnnualDocumentSigner`;
 
 -- DropTable
-DROP TABLE `annualevaluationsubtype`;
+DROP TABLE `AnnualEvaluationSubType`;
 
 -- DropTable
-DROP TABLE `annualevaluationsubtypeaudit`;
+DROP TABLE `AnnualEvaluationSubTypeAudit`;
 
 -- DropTable
-DROP TABLE `annualevaluationtypeweighting`;
+DROP TABLE `AnnualEvaluationTypeWeighting`;
 
 -- DropTable
-DROP TABLE `annualevaluationtypeweightingaudit`;
+DROP TABLE `AnnualEvaluationTypeWeightingAudit`;
 
 -- DropTable
-DROP TABLE `annualgradeweighting`;
+DROP TABLE `AnnualGradeWeighting`;
 
 -- DropTable
-DROP TABLE `annualgradeweightingaudit`;
+DROP TABLE `AnnualGradeWeightingAudit`;
 
 -- DropTable
-DROP TABLE `annualmajor`;
+DROP TABLE `AnnualMajor`;
 
 -- DropTable
-DROP TABLE `annualmajoraudit`;
+DROP TABLE `AnnualMajorAudit`;
 
 -- DropTable
-DROP TABLE `annualminimummodulationscore`;
+DROP TABLE `AnnualMinimumModulationScore`;
 
 -- DropTable
-DROP TABLE `annualminimummodulationscoreaudit`;
+DROP TABLE `AnnualMinimumModulationScoreAudit`;
 
 -- DropTable
-DROP TABLE `annualmodule`;
+DROP TABLE `AnnualModule`;
 
 -- DropTable
-DROP TABLE `annualmoduleaudit`;
+DROP TABLE `AnnualModuleAudit`;
 
 -- DropTable
-DROP TABLE `annualregistry`;
+DROP TABLE `AnnualRegistry`;
 
 -- DropTable
-DROP TABLE `annualregistryaudit`;
+DROP TABLE `AnnualRegistryAudit`;
 
 -- DropTable
-DROP TABLE `annualschoolsetting`;
+DROP TABLE `AnnualSchoolSetting`;
 
 -- DropTable
-DROP TABLE `annualschoolsettingaudit`;
+DROP TABLE `AnnualSchoolSettingAudit`;
 
 -- DropTable
-DROP TABLE `annualsemesterexamacess`;
+DROP TABLE `AnnualSemesterExamAcess`;
 
 -- DropTable
-DROP TABLE `annualsemesterexamacessaudit`;
+DROP TABLE `AnnualSemesterExamAcessAudit`;
 
 -- DropTable
-DROP TABLE `annualstudent`;
+DROP TABLE `AnnualStudent`;
 
 -- DropTable
-DROP TABLE `annualstudentanswerquestion`;
+DROP TABLE `AnnualStudentAnswerQuestion`;
 
 -- DropTable
-DROP TABLE `annualstudentanswerquestionaudit`;
+DROP TABLE `AnnualStudentAnswerQuestionAudit`;
 
 -- DropTable
-DROP TABLE `annualstudenthasmodule`;
+DROP TABLE `AnnualStudentHasModule`;
 
 -- DropTable
-DROP TABLE `annualstudenttakeassessment`;
+DROP TABLE `AnnualStudentTakeAssessment`;
 
 -- DropTable
-DROP TABLE `annualsubject`;
+DROP TABLE `AnnualSubject`;
 
 -- DropTable
-DROP TABLE `annualsubjectaudit`;
+DROP TABLE `AnnualSubjectAudit`;
 
 -- DropTable
-DROP TABLE `annualsubjectpart`;
+DROP TABLE `AnnualSubjectPart`;
 
 -- DropTable
-DROP TABLE `annualsubjectpartaudit`;
+DROP TABLE `AnnualSubjectPartAudit`;
 
 -- DropTable
-DROP TABLE `annualteacher`;
+DROP TABLE `AnnualTeacher`;
 
 -- DropTable
-DROP TABLE `annualteacheraudit`;
+DROP TABLE `AnnualTeacherAudit`;
 
 -- DropTable
-DROP TABLE `annualweighting`;
+DROP TABLE `AnnualWeighting`;
 
 -- DropTable
-DROP TABLE `annualweightingaudit`;
+DROP TABLE `AnnualWeightingAudit`;
 
 -- DropTable
-DROP TABLE `assessment`;
+DROP TABLE `Assessment`;
 
 -- DropTable
-DROP TABLE `assessmentaudit`;
+DROP TABLE `AssessmentAudit`;
 
 -- DropTable
-DROP TABLE `assignmentgroupmember`;
+DROP TABLE `AssignmentGroupMember`;
 
 -- DropTable
-DROP TABLE `chapter`;
+DROP TABLE `Chapter`;
 
 -- DropTable
-DROP TABLE `chapteraudit`;
+DROP TABLE `ChapterAudit`;
 
 -- DropTable
-DROP TABLE `classroom`;
+DROP TABLE `Classroom`;
 
 -- DropTable
-DROP TABLE `cycle`;
+DROP TABLE `Cycle`;
 
 -- DropTable
-DROP TABLE `department`;
+DROP TABLE `Department`;
 
 -- DropTable
-DROP TABLE `departmentaudit`;
+DROP TABLE `DepartmentAudit`;
 
 -- DropTable
-DROP TABLE `evaluation`;
+DROP TABLE `Evaluation`;
 
 -- DropTable
-DROP TABLE `evaluationaudit`;
+DROP TABLE `EvaluationAudit`;
 
 -- DropTable
-DROP TABLE `evaluationhasstudent`;
+DROP TABLE `EvaluationHasStudent`;
 
 -- DropTable
-DROP TABLE `evaluationhasstudentaudit`;
+DROP TABLE `EvaluationHasStudentAudit`;
 
 -- DropTable
-DROP TABLE `evaluationtype`;
+DROP TABLE `EvaluationType`;
 
 -- DropTable
-DROP TABLE `grade`;
+DROP TABLE `Grade`;
 
 -- DropTable
-DROP TABLE `inquiry`;
+DROP TABLE `Inquiry`;
 
 -- DropTable
-DROP TABLE `log`;
+DROP TABLE `Log`;
 
 -- DropTable
-DROP TABLE `login`;
+DROP TABLE `Login`;
 
 -- DropTable
-DROP TABLE `loginaudit`;
+DROP TABLE `LoginAudit`;
 
 -- DropTable
-DROP TABLE `major`;
+DROP TABLE `Major`;
 
 -- DropTable
-DROP TABLE `majoraudit`;
+DROP TABLE `MajorAudit`;
 
 -- DropTable
-DROP TABLE `payment`;
+DROP TABLE `Payment`;
 
 -- DropTable
-DROP TABLE `person`;
+DROP TABLE `Person`;
 
 -- DropTable
-DROP TABLE `personaudit`;
+DROP TABLE `PersonAudit`;
 
 -- DropTable
-DROP TABLE `platformsettings`;
+DROP TABLE `PlatformSettings`;
 
 -- DropTable
-DROP TABLE `platformsettingsaudit`;
+DROP TABLE `PlatformSettingsAudit`;
 
 -- DropTable
-DROP TABLE `presencelist`;
+DROP TABLE `PresenceList`;
 
 -- DropTable
-DROP TABLE `presencelistaudit`;
+DROP TABLE `PresenceListAudit`;
 
 -- DropTable
-DROP TABLE `presencelisthaschapter`;
+DROP TABLE `PresenceListHasChapter`;
 
 -- DropTable
-DROP TABLE `presencelisthasmodulestudent`;
+DROP TABLE `PresenceListHasModuleStudent`;
 
 -- DropTable
-DROP TABLE `question`;
+DROP TABLE `Question`;
 
 -- DropTable
-DROP TABLE `questionaudit`;
+DROP TABLE `QuestionAudit`;
 
 -- DropTable
-DROP TABLE `questionoption`;
+DROP TABLE `QuestionOption`;
 
 -- DropTable
-DROP TABLE `questionoptionaudit`;
+DROP TABLE `QuestionOptionAudit`;
 
 -- DropTable
-DROP TABLE `questionresource`;
+DROP TABLE `QuestionResource`;
 
 -- DropTable
-DROP TABLE `resetpassword`;
+DROP TABLE `ResetPassword`;
 
 -- DropTable
-DROP TABLE `resource`;
+DROP TABLE `Resource`;
 
 -- DropTable
-DROP TABLE `ressourceaudit`;
+DROP TABLE `RessourceAudit`;
 
 -- DropTable
-DROP TABLE `school`;
+DROP TABLE `School`;
 
 -- DropTable
-DROP TABLE `schoolaudit`;
+DROP TABLE `SchoolAudit`;
 
 -- DropTable
-DROP TABLE `schooldemand`;
+DROP TABLE `SchoolDemand`;
 
 -- DropTable
-DROP TABLE `schooldemandaudit`;
+DROP TABLE `SchoolDemandAudit`;
 
 -- DropTable
-DROP TABLE `student`;
+DROP TABLE `Student`;
 
 -- DropTable
-DROP TABLE `studentpayment`;
+DROP TABLE `StudentPayment`;
 
 -- DropTable
-DROP TABLE `subjectpart`;
+DROP TABLE `SubjectPart`;
 
 -- DropTable
-DROP TABLE `teacher`;
+DROP TABLE `Teacher`;
 
 -- DropTable
-DROP TABLE `teacheraudit`;
+DROP TABLE `TeacherAudit`;
 
 -- DropTable
-DROP TABLE `teachertype`;
+DROP TABLE `TeacherType`;
 
 -- DropTable
-DROP TABLE `teachinggrade`;
+DROP TABLE `TeachingGrade`;
 
 -- CreateTable
 CREATE TABLE `payments` (
