@@ -6,6 +6,7 @@ import {
   CreateChapterDto,
   UpdateChapterDto,
 } from './chapter.dto';
+import { UnprocessableEntityException } from '@nestjs/common';
 
 export class ChaptersService {
   constructor(private prismaService: GlomPrismaService) {}
@@ -46,6 +47,10 @@ export class ChaptersService {
     const chapterCount = await this.prismaService.chapter.count({
       where: { annual_subject_id, parent_chapter_id, is_deleted: false },
     });
+    if (parent_chapter_id && (await getChapterLevel(parent_chapter_id)) >= 3)
+      throw new UnprocessableEntityException(
+        'Chapter part must not be more than two level nested'
+      );
     const newChapter = await this.prismaService.chapter.create({
       data: {
         ...chapterPayload,
@@ -56,6 +61,15 @@ export class ChaptersService {
       },
     });
     return new ChapterEntity(newChapter);
+
+    async function getChapterLevel(chapter_id: string, level = 1) {
+      const { parent_chapter_id } =
+        await this.prismaService.chapter.findFirstOrThrow({
+          where: { chapter_id },
+        });
+      if (parent_chapter_id) getChapterLevel(parent_chapter_id, level + 1);
+      else return level;
+    }
   }
 
   async update(
