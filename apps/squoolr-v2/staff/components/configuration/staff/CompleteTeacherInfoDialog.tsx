@@ -1,9 +1,6 @@
 import { DialogTransition } from '@glom/components';
-import {
-  ManageStaffRolesPayload,
-  StaffEntity,
-  UpdateStaffPayload,
-} from '@glom/data-types/squoolr';
+import { useTeacherTypes, useTeachingGrades } from '@glom/data-access/squoolr';
+import { ManageStaffRolesPayload } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
 import {
   Box,
@@ -24,21 +21,8 @@ import {
   Typography,
 } from '@mui/material';
 import { useFormik } from 'formik';
-import { useState } from 'react';
 import { useIntl } from 'react-intl';
 import * as Yup from 'yup';
-
-//TODO: EXPOSE THIS INTERFACES AN DELETE THIS
-interface TeacherTypeEntity {
-  teacher_type_id: string;
-  teacher_type: string;
-}
-
-//TODO: EXPOSE THIS INTERFACES AN DELETE THIS
-interface TeacherGradeEntity {
-  teacher_grade_id: string;
-  teacher_grade: string;
-}
 
 export default function CompleteTeacherInfoDialog({
   closeDialog,
@@ -56,22 +40,10 @@ export default function CompleteTeacherInfoDialog({
   const { formatMessage } = useIntl();
   const theme = useTheme();
 
-  //TODO: REMOVE THIS STATE AND USE reactQuery own
-  const [isFetchingTeacherTypes] = useState<boolean>(false);
-  //TODO: CALL API HER TO FETCH teacherTypes
-  const [teacherTypes, setTeacherTypes] = useState<TeacherTypeEntity[]>([
-    { teacher_type: 'Vacataire', teacher_type_id: '1' },
-    { teacher_type: 'Permanent', teacher_type_id: '3' },
-    { teacher_type: 'Missionnaire', teacher_type_id: '2' },
-  ]);
-  //TODO: REMOVE THIS STATE AND USE reactQuery own
-  const [isFetchingTeacherGrades] = useState<boolean>(false);
-  //TODO: CALL API HER TO FETCH teacherGrades
-  const [teacherGrades, setTeacherGrades] = useState<TeacherGradeEntity[]>([
-    { teacher_grade: 'Professeur', teacher_grade_id: '1' },
-    { teacher_grade: 'Maitre des conferences', teacher_grade_id: '2' },
-    { teacher_grade: 'Licencie', teacher_grade_id: '3' },
-  ]);
+  const { data: teacherTypes, isFetching: isFetchingTeacherTypes } =
+    useTeacherTypes();
+  const { data: teachingGrades, isFetching: isFetchingTeachingGrades } =
+    useTeachingGrades();
 
   const initialValues: ManageStaffRolesPayload['teacherPayload'] = {
     role: 'TEACHER',
@@ -97,11 +69,10 @@ export default function CompleteTeacherInfoDialog({
       .oneOf(teacherTypes.map(({ teacher_type_id }) => teacher_type_id))
       .required(formatMessage({ id: 'required' })),
     teaching_grade_id: Yup.string()
-      .oneOf(teacherGrades.map(({ teacher_grade_id }) => teacher_grade_id))
+      .oneOf(teachingGrades.map(({ teaching_grade_id }) => teaching_grade_id))
       .required(formatMessage({ id: 'required' })),
   });
 
-  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
   const formik = useFormik({
     initialValues,
     validationSchema,
@@ -157,13 +128,11 @@ export default function CompleteTeacherInfoDialog({
                 disabled={isFetchingTeacherTypes || isSubmitting}
                 required
               >
-                {teacherTypes.map(
-                  ({ teacher_type, teacher_type_id }, index) => (
-                    <MenuItem key={index} value={teacher_type_id}>
-                      {teacher_type}
-                    </MenuItem>
-                  )
-                )}
+                {teacherTypes.map(({ teacher_type, teacher_type_id }) => (
+                  <MenuItem key={teacher_type_id} value={teacher_type_id}>
+                    {teacher_type}
+                  </MenuItem>
+                ))}
               </Select>
               {formik.touched.teacher_type_id &&
                 !!formik.errors.teacher_type_id && (
@@ -186,16 +155,14 @@ export default function CompleteTeacherInfoDialog({
                 size="small"
                 label={formatMessage({ id: 'teacherGrade' })}
                 {...formik.getFieldProps('teaching_grade_id')}
-                disabled={isFetchingTeacherGrades || isSubmitting}
+                disabled={isFetchingTeachingGrades || isSubmitting}
                 required
               >
-                {teacherGrades.map(
-                  ({ teacher_grade, teacher_grade_id }, index) => (
-                    <MenuItem key={index} value={teacher_grade_id}>
-                      {teacher_grade}
-                    </MenuItem>
-                  )
-                )}
+                {teachingGrades.map(({ teaching_grade, teaching_grade_id }) => (
+                  <MenuItem key={teaching_grade_id} value={teaching_grade_id}>
+                    {teaching_grade}
+                  </MenuItem>
+                ))}
               </Select>
               {formik.touched.teaching_grade_id &&
                 !!formik.errors.teaching_grade_id && (

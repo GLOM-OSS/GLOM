@@ -34,6 +34,10 @@ import { useIntl } from 'react-intl';
 import FilterMenu from '../../../components/configuration/departments/FilterMenu';
 import ManageDepartmentMenu from '../../../components/configuration/departments/ManageDepartmentMenu';
 import NewDepartmentDialog from '../../../components/configuration/departments/NewDepartmentDialog';
+import {
+  useDepartments,
+  useDisableDepartments,
+} from '@glom/data-access/squoolr';
 
 export function Index() {
   const theme = useTheme();
@@ -47,43 +51,19 @@ export function Index() {
     '',
   ];
 
-  //TODO: REPLACE WITH with reactQuery own
-  const [isDepartmentDataFetching, setIsDepartmentDataFetching] =
-    useState<boolean>(true);
-
-  //TODO: FETCH LIST OF departments HERE
-  const [departmentData, setDepartmentData] = useState<DepartmentEntity[]>();
-
-  //TODO: REMOVE THIS WHEN INTEGRATION IS DONE
-  useEffect(() => {
-    setTimeout(() => {
-      setDepartmentData([
-        {
-          created_at: new Date().toISOString(),
-          created_by: '',
-          department_acronym: 'DS',
-          department_id: 'EF1203',
-          department_name: 'Department des Sciences',
-          is_deleted: false,
-          school_id: 'slei',
-        },
-      ]);
-      setIsDepartmentDataFetching(false);
-    }, 3000);
-  }, []);
+  const [searchValue, setSearchValue] = useState<string>('');
+  const [showArchives, setShowArchives] = useState<boolean>(false);
+  const {
+    isFetching: isDepartmentDataFetching,
+    data: departmentData,
+    refetch: refetchDepartments,
+  } = useDepartments({ is_deleted: showArchives, keywords: searchValue });
 
   const [canSearchExpand, setCanSearchExpand] = useState<boolean>(false);
-  const [searchValue, setSearchValue] = useState<string>('');
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [showArchives, setShowArchives] = useState<boolean>(false);
   const [filterAnchorEl, setFilterAnchorEl] = useState<HTMLElement | null>(
     null
   );
-
-  useEffect(() => {
-    //TODO: CALL fetch list of departments API HERE with searchValue and showArchives use it to filter. MUTATE DEMAND DATA WHEN IT'S DONE
-    alert('hello world');
-  }, [searchValue, showArchives]);
 
   const [selectedDepartmentIds, setSelectedDepartmentIds] = useState<string[]>(
     []
@@ -116,33 +96,23 @@ export function Index() {
   const [isConfirmUnarchiveDialogOpen, setIsConfirmUnarchiveDialogOpen] =
     useState<boolean>(false);
 
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isArchiving, setIsArchiving] = useState<boolean>(false);
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isUnarchiving, setIsUnarchiving] = useState<boolean>(false);
+  const { mutate: archiveDepartment, isPending: isHandlingArchive } =
+    useDisableDepartments();
   function confirmArchiveUnarchive() {
-    if (isConfirmArchiveDialogOpen) {
-      setIsArchiving(true);
-      //TODO: CALL API HERE TO ARCHIVE DEPARTMENT with data selectedDepartmentIds if length>1 or otherwise [activeDepartmentId]
-      setTimeout(() => {
-        alert('done archiving');
-        //TODO: MUTATE departmentData here so the data updates
-        setIsArchiving(false);
-        setIsConfirmArchiveDialogOpen(false);
-        setActiveDepartmentId(undefined);
-      }, 3000);
-    }
-    if (isConfirmUnarchiveDialogOpen) {
-      setIsUnarchiving(true);
-      //TODO: CALL API HERE TO ARCHIVE DEPARTMENT with data selectedDepartmentIds if length>1 or otherwise [activeDepartmentId]
-      setTimeout(() => {
-        alert('done unarchiving');
-        //TODO: MUTATE departmentData here so the data updates
-        setIsUnarchiving(false);
-        setIsConfirmUnarchiveDialogOpen(false);
-        setActiveDepartmentId(undefined);
-      }, 3000);
-    }
+    archiveDepartment(
+      selectedDepartmentIds.length > 1
+        ? selectedDepartmentIds
+        : [activeDepartmentId],
+      {
+        onSuccess() {
+          (isConfirmArchiveDialogOpen
+            ? setIsConfirmArchiveDialogOpen
+            : setIsConfirmUnarchiveDialogOpen)(false);
+          setActiveDepartmentId(undefined);
+          refetchDepartments();
+        },
+      }
+    );
   }
 
   const [isNewDepartmentDialogOpen, setIsNewDepartmentDialogOpen] =
@@ -161,6 +131,7 @@ export function Index() {
           setEditableDepartment(undefined);
           setIsNewDepartmentDialogOpen(false);
           setIsEditDepartmentDialogOpen(false);
+          refetchDepartments();
         }}
         editableDepartment={editableDepartment}
       />
@@ -224,7 +195,7 @@ export function Index() {
         })}
         danger
         closeOnConfirm
-        isSubmitting={isArchiving || isUnarchiving}
+        isSubmitting={isHandlingArchive}
       />
       <Box sx={{ height: '100%', position: 'relative' }}>
         <Box
@@ -289,10 +260,7 @@ export function Index() {
             <TableHeaderItem
               icon={reset}
               title={formatMessage({ id: 'reload' })}
-              onClick={() => {
-                //TODO: MUTATE TABLE VALUES HERE AND SEARCH AGAIN.
-                alert('hello world');
-              }}
+              onClick={() => refetchDepartments()}
             />
           </Box>
           {
@@ -308,7 +276,7 @@ export function Index() {
                 <Button
                   variant="outlined"
                   color="warning"
-                  disabled={isArchiving || isUnarchiving}
+                  disabled={isHandlingArchive}
                   onClick={() => setIsConfirmUnarchiveDialogOpen(true)}
                 >
                   {formatMessage({ id: 'unarchiveSelected' })}
@@ -318,7 +286,7 @@ export function Index() {
                 <Button
                   variant="outlined"
                   color="warning"
-                  disabled={isArchiving || isUnarchiving}
+                  disabled={isHandlingArchive}
                   onClick={() => setIsConfirmArchiveDialogOpen(true)}
                 >
                   {formatMessage({ id: 'archiveSelected' })}
@@ -356,13 +324,10 @@ export function Index() {
                         disabled={
                           !departmentData ||
                           isDepartmentDataFetching ||
-                          isArchiving ||
-                          isUnarchiving
+                          isHandlingArchive
                         }
                         onClick={() =>
-                          isArchiving || isUnarchiving
-                            ? null
-                            : selectAllDepartments()
+                          isHandlingArchive ? null : selectAllDepartments()
                         }
                         checked={
                           !!departmentData &&
@@ -495,9 +460,9 @@ export function Index() {
                           <Tooltip arrow title={formatMessage({ id: 'more' })}>
                             <IconButton
                               size="small"
-                              disabled={isArchiving || isUnarchiving}
+                              disabled={isHandlingArchive}
                               onClick={(event) => {
-                                if (isArchiving || isUnarchiving) return null;
+                                if (isHandlingArchive) return null;
                                 setAnchorEl(event.currentTarget);
                                 setActiveDepartmentId(department_id);
                                 setEditableDepartment(department);

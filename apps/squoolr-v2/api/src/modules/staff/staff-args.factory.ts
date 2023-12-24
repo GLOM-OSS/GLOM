@@ -10,24 +10,21 @@ import { StaffEntity } from './staff.dto';
 import { DefaultArgs } from '@prisma/client/runtime';
 
 export class StaffArgsFactory {
-  static getStaffWhereInput = ({
-    academic_year_id,
-    params,
-  }: StaffSelectParams) => ({
-    academic_year_id,
-    is_deleted: params?.is_deleted ?? false,
-    Login: params?.keywords
+  static getStaffWhereInput = (staffWhereParams?: StaffSelectParams) => ({
+    academic_year_id: staffWhereParams?.academic_year_id,
+    is_deleted: staffWhereParams?.params?.is_deleted ?? false,
+    Login: staffWhereParams?.params?.keywords
       ? Prisma.validator<Prisma.LoginWhereInput>()({
           Person: {
             OR: {
               email: {
-                search: params.keywords,
+                search: staffWhereParams.params.keywords,
               },
               last_name: {
-                search: params.keywords,
+                search: staffWhereParams.params.keywords,
               },
               first_name: {
-                search: params.keywords,
+                search: staffWhereParams.params.keywords,
               },
             },
           },
@@ -35,65 +32,60 @@ export class StaffArgsFactory {
       : undefined,
   });
 
-  static getStaffSelect = (staffParams?: StaffSelectParams) => ({
-    matricule: true,
-    is_deleted: true,
-    Login: Prisma.validator<Prisma.LoginFindManyArgs>()({
-      select: {
-        login_id: true,
-        AnnualConfigurators:
-          staffParams?.activeRole === Role.CONFIGURATOR
-            ? {
-                select: { matricule: true, annual_configurator_id: true },
-                where: this.getStaffWhereInput(staffParams),
-              }
-            : undefined,
-        AnnualRegistries:
-          staffParams?.activeRole === Role.REGISTRY
-            ? {
-                select: { matricule: true, annual_registry_id: true },
-                where: this.getStaffWhereInput(staffParams),
-              }
-            : undefined,
-        Teacher:
-          staffParams?.activeRole === Role.TEACHER
-            ? {
+  static getStaffSelect = (staffParams?: StaffSelectParams) => {
+    const { is_deleted, academic_year_id, Login } =
+      this.getStaffWhereInput(staffParams);
+    return {
+      matricule: true,
+      is_deleted: true,
+      Login: Prisma.validator<Prisma.LoginFindManyArgs>()({
+        select: {
+          login_id: true,
+          AnnualConfigurators: {
+            select: { matricule: true, annual_configurator_id: true },
+            where: { academic_year_id, is_deleted, Login },
+          },
+          AnnualRegistries: {
+            select: { matricule: true, annual_registry_id: true },
+            where: { academic_year_id, is_deleted, Login },
+          },
+          Teacher: {
+            select: {
+              AnnualTeachers: {
                 select: {
-                  AnnualTeachers: {
-                    select: {
-                      annual_teacher_id: true,
-                      AnnualClassroomDivisions: {
-                        select: { annual_coordinator_id: true },
-                      },
-                    },
-                    where: this.getStaffWhereInput(staffParams),
+                  annual_teacher_id: true,
+                  AnnualClassroomDivisions: {
+                    select: { annual_classroom_division_id: true },
                   },
                 },
-              }
-            : undefined,
-        Person: {
-          select: {
-            national_id_number: true,
-            preferred_lang: true,
-            phone_number: true,
-            first_name: true,
-            last_name: true,
-            birthdate: true,
-            address: true,
-            gender: true,
-            email: true,
+                where: { academic_year_id, is_deleted, Teacher: { Login } },
+              },
+            },
+          },
+          Person: {
+            select: {
+              national_id_number: true,
+              preferred_lang: true,
+              phone_number: true,
+              first_name: true,
+              last_name: true,
+              birthdate: true,
+              address: true,
+              gender: true,
+              email: true,
+            },
+          },
+          Logs: {
+            take: 1,
+            orderBy: {
+              logged_in_at: 'desc',
+            },
+            select: { logged_in_at: true },
           },
         },
-        Logs: {
-          take: 1,
-          orderBy: {
-            logged_in_at: 'desc',
-          },
-          select: { logged_in_at: true },
-        },
-      },
-    }),
-  });
+      }),
+    };
+  };
 
   static getStaffCreateInput = ({
     matricule,
@@ -125,13 +117,15 @@ export class StaffArgsFactory {
       AcademicYear: { connect: { academic_year_id } },
     });
 
-  static getTeacherSelect = () =>
-    Prisma.validator<Prisma.AnnualTeacherSelect>()({
+  static getTeacherSelect = () => {
+    const { is_deleted, ...staffSelect } = StaffArgsFactory.getStaffSelect();
+    return Prisma.validator<Prisma.AnnualTeacherSelect>()({
       has_signed_convention: true,
       teaching_grade_id: true,
       annual_teacher_id: true,
       origin_institute: true,
       hourly_rate: true,
+      is_deleted,
       Teacher: {
         select: {
           matricule: true,
@@ -139,10 +133,11 @@ export class StaffArgsFactory {
           has_tax_payers_card: true,
           tax_payer_card_number: true,
           teacher_type_id: true,
-          ...StaffArgsFactory.getStaffSelect(),
+          ...staffSelect,
         },
       },
     });
+  };
 
   private static select = StaffArgsFactory.getStaffSelect();
   static getStaffEntity = ({
@@ -160,6 +155,8 @@ export class StaffArgsFactory {
     select: typeof StaffArgsFactory.select;
   }>) => {
     let roles: StaffRole[] = [];
+    const annualTeachers =
+      Teacher?.AnnualTeachers?.length > 0 ? Teacher.AnnualTeachers : [];
     return new StaffEntity({
       login_id,
       ...Person,
@@ -168,18 +165,18 @@ export class StaffArgsFactory {
       last_connected: log?.logged_in_at ?? null,
       annual_registry_id: registry?.annual_registry_id,
       annual_configurator_id: configrator?.annual_configurator_id,
-      annual_teacher_id: Teacher?.AnnualTeachers[0]?.annual_teacher_id,
+      annual_teacher_id: annualTeachers[0]?.annual_teacher_id,
       roles: [
         { configrator },
         { registry },
-        { teacher: Teacher?.AnnualTeachers },
+        { teacher: annualTeachers[0] },
       ].reduce<StaffRole[]>((accRoles, _) => {
         roles = _.configrator
           ? [...accRoles, StaffRole.CONFIGURATOR]
           : _.registry
           ? [...accRoles, StaffRole.REGISTRY]
           : _.teacher
-          ? _.teacher[0].AnnualClassroomDivisions
+          ? _.teacher.AnnualClassroomDivisions.length > 0
             ? [...accRoles, StaffRole.TEACHER, StaffRole.COORDINATOR]
             : [...accRoles, StaffRole.TEACHER]
           : accRoles;

@@ -44,6 +44,11 @@ export class BatchPayloadDto implements Prisma.BatchPayload {
   @ApiProperty()
   message: string;
 
+  @ApiPropertyOptional({
+    description: 'describes the next action the client needs to perform',
+  })
+  next_action?: string;
+
   constructor(props: BatchPayloadDto) {
     Object.entries(props).forEach(([key, value]) => {
       if (key in this) this[key] = value;

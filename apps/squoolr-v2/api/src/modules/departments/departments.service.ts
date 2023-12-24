@@ -17,7 +17,7 @@ export class DepartmentsService {
     const departments = await this.prismaService.department.findMany({
       where: {
         school_id,
-        is_deleted: params?.is_deleted,
+        is_deleted: params?.is_deleted ?? false,
         department_name: params?.keywords
           ? {
               search: params?.keywords,
@@ -72,6 +72,7 @@ export class DepartmentsService {
     if (payload?.is_deleted)
       await this.majorsService.disableMany(
         annualMajors.map((_) => _.annual_major_id),
+        payload.is_deleted,
         audited_by
       );
   }

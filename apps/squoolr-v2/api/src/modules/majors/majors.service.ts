@@ -85,6 +85,7 @@ export class MajorsService {
         data: {
           major_name,
           major_acronym,
+          annual_major_id: annualMajorId,
           Major: {
             create: {
               Cycle: { connect: { cycle_id } },
@@ -168,7 +169,6 @@ export class MajorsService {
     const { AnnualModules, ...annualMajorAudit } =
       await this.prismaService.annualMajor.findFirstOrThrow({
         select: {
-          annual_major_id: true,
           major_acronym: true,
           major_name: true,
           is_deleted: true,
@@ -211,10 +211,15 @@ export class MajorsService {
         : []),
     ]);
   }
-  async disableMany(annualMajorIds: string[], disabled_by: string) {
+
+  async disableMany(
+    annualMajorIds: string[],
+    disable: boolean,
+    disabled_by: string
+  ) {
     await Promise.all(
       annualMajorIds.map((annualMajorId) =>
-        this.update(annualMajorId, { is_deleted: true }, disabled_by)
+        this.update(annualMajorId, { is_deleted: disable }, disabled_by)
       )
     );
   }

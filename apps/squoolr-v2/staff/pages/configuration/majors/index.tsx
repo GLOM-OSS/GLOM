@@ -1,8 +1,8 @@
 import {
-    ConfirmDialog,
-    NoTableElement,
-    TableHeaderItem,
-    TableSkeleton,
+  ConfirmDialog,
+  NoTableElement,
+  TableHeaderItem,
+  TableSkeleton,
 } from '@glom/components';
 import { MajorEntity } from '@glom/data-types/squoolr';
 import { useDispatchBreadcrumb } from '@glom/squoolr-v2/side-nav';
@@ -16,19 +16,19 @@ import more from '@iconify/icons-fluent/more-vertical-48-regular';
 import search from '@iconify/icons-fluent/search-48-regular';
 import { Icon } from '@iconify/react';
 import {
-    Box,
-    Button,
-    Checkbox,
-    IconButton,
-    InputAdornment,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TextField,
-    Tooltip,
+  Box,
+  Button,
+  Checkbox,
+  IconButton,
+  InputAdornment,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Tooltip,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -37,6 +37,11 @@ import FilterMenu from '../../../components/configuration/departments/FilterMenu
 import AddMajorDialog from '../../../components/configuration/majors/AddMajorDialog';
 import EditMajorDialog from '../../../components/configuration/majors/EditMajorDialog';
 import ManageMajorMenu from '../../../components/configuration/majors/ManageMajorMenu';
+import {
+  useDisableMajors,
+  useMajors,
+  useUpdateMajor,
+} from '@glom/data-access/squoolr';
 
 export function Index() {
   const theme = useTheme();
@@ -54,49 +59,22 @@ export function Index() {
     '',
   ];
 
-  //TODO: REPLACE WITH with reactQuery own
-  const [isMajorDataFetching, setIsMajorDataFetching] = useState<boolean>(true);
-
-  //TODO: FETCH LIST OF majors HERE
-  const [majorData, setMajorData] = useState<MajorEntity[]>();
-
-  //TODO: REMOVE THIS WHEN INTEGRATION IS DONE
-  useEffect(() => {
-    setTimeout(() => {
-      setMajorData([
-        {
-          annual_major_id: 'boston123',
-          cycle: {
-            cycle_id: 'Licence',
-            cycle_name: 'BACHELOR',
-            created_at: new Date().toISOString(),
-            number_of_years: 3,
-          },
-          department_acronym: 'DST',
-          department_id: 'boston1234',
-          major_acronym: 'IRT',
-          major_id: 'boston1234',
-          major_name: 'Informatique, Reseaux et Telecommunications',
-          created_at: new Date().toISOString(),
-          is_deleted: false,
-        },
-      ]);
-      setIsMajorDataFetching(false);
-    }, 3000);
-  }, []);
+  const [searchValue, setSearchValue] = useState<string>('');
+  const [showArchives, setShowArchives] = useState<boolean>(false);
+  const {
+    data: majorData,
+    isFetching: isMajorDataFetching,
+    refetch: refetchMajors,
+  } = useMajors({
+    is_deleted: showArchives,
+    keywords: searchValue,
+  });
 
   const [canSearchExpand, setCanSearchExpand] = useState<boolean>(false);
-  const [searchValue, setSearchValue] = useState<string>('');
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [showArchives, setShowArchives] = useState<boolean>(false);
   const [filterAnchorEl, setFilterAnchorEl] = useState<HTMLElement | null>(
     null
   );
-
-  useEffect(() => {
-    //TODO: CALL fetch list of major API HERE with searchValue and showArchives use it to filter. MUTATE majors DATA WHEN IT'S DONE
-    alert('hello world');
-  }, [searchValue, showArchives]);
 
   const [selectedMajorIds, setSelectedMajorIds] = useState<string[]>([]);
 
@@ -127,36 +105,26 @@ export function Index() {
   const [isConfirmUnarchiveDialogOpen, setIsConfirmUnarchiveDialogOpen] =
     useState<boolean>(false);
 
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isEditingMajor, setIsEditingDepartment] = useState<boolean>(false);
+  const { mutate: archiveMajors, isPending: isHandlingArchive } =
+    useDisableMajors();
 
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isArchiving, setIsArchiving] = useState<boolean>(false);
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isUnarchiving, setIsUnarchiving] = useState<boolean>(false);
-  function confirmArchiveUnarchive() {
-    if (isConfirmArchiveDialogOpen) {
-      setIsArchiving(true);
-      //TODO: CALL API HERE TO ARCHIVE major with data selectedMajorIds if length>1 or otherwise [activeMajorId]
-      setTimeout(() => {
-        alert('done archiving');
-        //TODO: MUTATE MajorData here so the data updates
-        setIsArchiving(false);
-        setIsConfirmArchiveDialogOpen(false);
-        setActiveMajorId(undefined);
-      }, 3000);
-    }
-    if (isConfirmUnarchiveDialogOpen) {
-      setIsUnarchiving(true);
-      //TODO: CALL API HERE TO ARCHIVE MAJOR with data selectedMajorIds if length>1 or otherwise [activeMajorId]
-      setTimeout(() => {
-        alert('done unarchiving');
-        //TODO: MUTATE majorData here so the data updates
-        setIsUnarchiving(false);
-        setIsConfirmUnarchiveDialogOpen(false);
-        setActiveMajorId(undefined);
-      }, 3000);
-    }
+  function handleArchive() {
+    archiveMajors(
+      {
+        disable: isConfirmArchiveDialogOpen || !isConfirmUnarchiveDialogOpen,
+        annualMajorIds:
+          selectedMajorIds.length > 1 ? selectedMajorIds : [activeMajorId],
+      },
+      {
+        onSuccess() {
+          (isConfirmArchiveDialogOpen
+            ? setIsConfirmArchiveDialogOpen
+            : setIsConfirmUnarchiveDialogOpen)(false);
+          setActiveMajorId(undefined);
+          refetchMajors();
+        },
+      }
+    );
   }
 
   const [isNewMajorDialogOpen, setIsNewMajorDialogOpen] =
@@ -170,12 +138,18 @@ export function Index() {
     <>
       <AddMajorDialog
         isDialogOpen={isNewMajorDialogOpen}
-        closeDialog={() => setIsNewMajorDialogOpen(false)}
+        closeDialog={() => {
+          setIsNewMajorDialogOpen(false);
+          refetchMajors();
+        }}
       />
       {editableMajor && (
         <EditMajorDialog
           isDialogOpen={isEditMajorDialogOpen}
-          closeDialog={() => setIsEditMajorDialogOpen(false)}
+          closeDialog={() => {
+            refetchMajors();
+            setIsEditMajorDialogOpen(false);
+          }}
           editableMajor={editableMajor}
         />
       )}
@@ -230,7 +204,7 @@ export function Index() {
         isDialogOpen={
           isConfirmArchiveDialogOpen || isConfirmUnarchiveDialogOpen
         }
-        confirm={confirmArchiveUnarchive}
+        confirm={handleArchive}
         dialogTitle={formatMessage({
           id: isConfirmArchiveDialogOpen
             ? selectedMajorIds.length > 1
@@ -245,7 +219,7 @@ export function Index() {
         })}
         danger
         closeOnConfirm
-        isSubmitting={isArchiving || isUnarchiving}
+        isSubmitting={isHandlingArchive}
       />
       <Box sx={{ height: '100%', position: 'relative' }}>
         <Box
@@ -310,10 +284,7 @@ export function Index() {
             <TableHeaderItem
               icon={reset}
               title={formatMessage({ id: 'reload' })}
-              onClick={() => {
-                //TODO: MUTATE TABLE VALUES HERE AND SEARCH AGAIN.
-                alert('hello world');
-              }}
+              onClick={() => refetchMajors()}
             />
           </Box>
           {
@@ -329,7 +300,7 @@ export function Index() {
                 <Button
                   variant="outlined"
                   color="warning"
-                  disabled={isArchiving || isUnarchiving || isEditingMajor}
+                  disabled={isHandlingArchive}
                   onClick={() => setIsConfirmUnarchiveDialogOpen(true)}
                 >
                   {formatMessage({ id: 'unarchiveSelectedMajors' })}
@@ -339,7 +310,7 @@ export function Index() {
                 <Button
                   variant="outlined"
                   color="warning"
-                  disabled={isArchiving || isUnarchiving || isEditingMajor}
+                  disabled={isHandlingArchive}
                   onClick={() => setIsConfirmArchiveDialogOpen(true)}
                 >
                   {formatMessage({ id: 'archiveSelectedMajors' })}
@@ -375,16 +346,10 @@ export function Index() {
                     {index === 0 ? (
                       <Checkbox
                         disabled={
-                          !majorData ||
-                          isMajorDataFetching ||
-                          isArchiving ||
-                          isUnarchiving ||
-                          isEditingMajor
+                          !majorData || isMajorDataFetching || isHandlingArchive
                         }
                         onClick={() =>
-                          isArchiving || isUnarchiving || isEditingMajor
-                            ? null
-                            : selectAllMajors()
+                          isHandlingArchive ? null : selectAllMajors()
                         }
                         checked={
                           !!majorData &&
@@ -428,7 +393,7 @@ export function Index() {
               {!majorData || isMajorDataFetching ? (
                 <TableSkeleton cols={7} hasCheckbox hasMore />
               ) : majorData.length === 0 ? (
-                <NoTableElement />
+                <NoTableElement cols={7} />
               ) : (
                 majorData.map((major, index) => {
                   const {
@@ -539,16 +504,9 @@ export function Index() {
                           <Tooltip arrow title={formatMessage({ id: 'more' })}>
                             <IconButton
                               size="small"
-                              disabled={
-                                isArchiving || isUnarchiving || isEditingMajor
-                              }
+                              disabled={isHandlingArchive}
                               onClick={(event) => {
-                                if (
-                                  isArchiving ||
-                                  isUnarchiving ||
-                                  isEditingMajor
-                                )
-                                  return null;
+                                if (isHandlingArchive) return null;
                                 setAnchorEl(event.currentTarget);
                                 setActiveMajorId(annual_major_id);
                                 setIsActiveMajorArchived(is_deleted);

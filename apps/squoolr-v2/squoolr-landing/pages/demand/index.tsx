@@ -4,8 +4,9 @@ import {
   useSubmitSchoolDemand,
 } from '@glom/data-access/squoolr';
 import { SubmitSchoolDemandPayload } from '@glom/data-types/squoolr';
+import { decrypt, encrypt } from '@glom/encrypter';
 import { useTheme } from '@glom/theme';
-import { excludeKeys, pickKeys, validatePhoneNumber } from '@glom/utils';
+import { excludeKeys, validatePhoneNumber } from '@glom/utils';
 import {
   Box,
   CircularProgress,
@@ -13,6 +14,7 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
+import { useRouter } from 'next/router';
 import { Fragment, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import DemandContactUs from '../../components/demand/DemandContactUs';
@@ -33,8 +35,6 @@ import ReferralInformation, {
 import SchoolInformation, {
   ISchoolInformation,
 } from '../../components/demand/forms/SchoolInformation';
-import { useRouter } from 'next/router';
-import { decrypt, encrypt } from '@glom/encrypter';
 
 interface IStep {
   title: string | JSX.Element;
@@ -96,7 +96,10 @@ export default function Demand() {
   const isSubmitting = isPayingFee || isSubmittingDemand;
 
   function handlePayAndSubmitDemand() {
-    if (referralData.referral_code) handleSubmitDemand();
+    let paymentStatus = localStorage.getItem('paymentStatus');
+    if (paymentStatus) paymentStatus = decrypt<string>(paymentStatus);
+    if (referralData.referral_code || paymentStatus === 'complete')
+      handleSubmitDemand();
     else if (validatePhoneNumber(payingPhone) !== -1)
       payOnboardingFee(
         { payment_phone: `+237${payingPhone}`, callback_url: location.href },
@@ -119,15 +122,21 @@ export default function Demand() {
   }
 
   function handleSubmitDemand() {
+    const storedSubmitData = localStorage.getItem('schoolDemandData');
     const submitData: SubmitSchoolDemandPayload = {
       configurator: {
         ...excludeKeys(personnalData, ['confirm_password']),
       },
       school: { ...institutionData, ...referralData },
+      payment_id: storedSubmitData
+        ? decrypt<SubmitSchoolDemandPayload>(storedSubmitData).payment_id
+        : undefined,
     };
     submitDemand(submitData, {
       onSuccess(data) {
         setSchoolCode(data.school_code);
+        localStorage.removeItem('schoolDemandData');
+        localStorage.removeItem('paymentStatus');
         handleNext();
       },
     });
@@ -222,11 +231,9 @@ export default function Demand() {
 
   useEffect(() => {
     const { reference, status } = router.query;
-    if (reference) {
-      setIsCallback(true);
-      const submitData = decrypt<SubmitSchoolDemandPayload>(
-        localStorage.getItem('schoolDemandData')
-      );
+    const storedSubmitData = localStorage.getItem('schoolDemandData');
+    if (storedSubmitData) {
+      const submitData = decrypt<SubmitSchoolDemandPayload>(storedSubmitData);
       setActiveStep(3);
       setCurrentStep(3);
       setInstitutionData(submitData.school);
@@ -238,18 +245,29 @@ export default function Demand() {
         ...submitData.configurator,
         confirm_password: submitData.configurator.password,
       });
-      if (status === 'complete')
-        submitDemand(submitData, {
-          onSuccess(data) {
-            setSchoolCode(data.school_code);
-            localStorage.removeItem('schoolDemandData');
-            handleNext();
-          },
-          onSettled() {
-            setIsCallback(false);
-            router.push('/demand');
-          },
-        });
+      if (reference) {
+        setIsCallback(true);
+        localStorage.setItem('paymentStatus', encrypt(status));
+        if (status === 'complete')
+          submitDemand(submitData, {
+            onSuccess(data) {
+              setSchoolCode(data.school_code);
+              localStorage.removeItem('schoolDemandData');
+              localStorage.removeItem('paymentStatus');
+              handleNext();
+            },
+            onSettled() {
+              setIsCallback(false);
+              router.push('/demand');
+            },
+          });
+        else {
+          setIsCallback(false);
+          localStorage.removeItem('schoolDemandData');
+          localStorage.removeItem('paymentStatus');
+          router.push('/demand');
+        }
+      }
     }
   }, [router.query]);
 

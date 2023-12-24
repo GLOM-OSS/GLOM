@@ -1,9 +1,18 @@
-import { useTheme } from '@glom/theme';
-import { Box, Typography } from '@mui/material';
+import { useActiveLanguage, useDispatchLanguage, useTheme } from '@glom/theme';
+import down from '@iconify/icons-fluent/chevron-down-28-filled';
+import { Icon } from '@iconify/react';
+import { Facebook, LinkedIn, Twitter, YouTube } from '@mui/icons-material';
+import {
+  Box,
+  FormControl,
+  MenuItem,
+  Select,
+  Typography,
+  capitalize,
+} from '@mui/material';
+import { useRouter } from 'next/router';
 import { useIntl } from 'react-intl';
 import { LogoHolder } from '../navigation/Navbar';
-import { YouTube, LinkedIn, Facebook, Twitter } from '@mui/icons-material';
-import { useRouter } from 'next/router';
 
 export function Footer({
   openContactUs,
@@ -17,6 +26,8 @@ export function Footer({
   const theme = useTheme();
   const { push } = useRouter();
   const { formatMessage } = useIntl();
+  const changeLanguage = useDispatchLanguage();
+  const activeLanguage = useActiveLanguage();
 
   return (
     <Box
@@ -234,6 +245,32 @@ export function Footer({
           <Facebook sx={{ color: 'white' }} fontSize="medium" />
           <Twitter sx={{ color: 'white' }} fontSize="medium" />
           <YouTube sx={{ color: 'white' }} fontSize="medium" />
+          <FormControl
+            fullWidth
+            sx={{
+              '& .MuiSelect-select': {
+                paddingTop: 1,
+                paddingBottom: 1,
+              },
+            }}
+          >
+            <Select
+              value={activeLanguage}
+              size="small"
+              sx={{ color: 'white' }}
+              onChange={() => {
+                changeLanguage({
+                  type:
+                    capitalize(activeLanguage) === 'En'
+                      ? 'USE_FRENCH'
+                      : 'USE_ENGLISH',
+                });
+              }}
+            >
+              <MenuItem value={'en'}>{formatMessage({ id: 'en' })}</MenuItem>
+              <MenuItem value={'fr'}>{formatMessage({ id: 'fr' })}</MenuItem>
+            </Select>
+          </FormControl>
         </Box>
       </Box>
     </Box>

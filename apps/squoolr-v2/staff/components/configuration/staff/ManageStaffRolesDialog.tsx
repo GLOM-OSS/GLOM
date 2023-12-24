@@ -1,6 +1,12 @@
 import { DialogTransition } from '@glom/components';
 import {
+  useClassrooms,
+  useManageStaffRoles,
+  useStaffMember,
+} from '@glom/data-access/squoolr';
+import {
   ClassroomEntity,
+  CoordinatorEntity,
   ManageStaffRolesPayload,
   StaffEntity,
   StaffRole,
@@ -31,20 +37,31 @@ import CompleteTeacherInfoDialog from './CompleteTeacherInfoDialog';
 export default function ManageStaffRolesDialog({
   isDialogOpen,
   closeDialog,
-  staff: { annual_configurator_id, annual_registry_id, annual_teacher_id },
+  staff: {
+    annual_configurator_id,
+    annual_registry_id,
+    annual_teacher_id,
+    login_id,
+  },
   staff,
 }: {
   isDialogOpen: boolean;
   closeDialog: () => void;
   staff: StaffEntity;
 }) {
-  const { formatMessage } = useIntl();
   const theme = useTheme();
+  const { formatMessage } = useIntl();
+  const { data: coordinator } = useStaffMember<CoordinatorEntity>(
+    staff.annual_teacher_id,
+    staff.roles.includes('COORDINATOR') ? 'COORDINATOR' : 'TEACHER'
+  );
   const [submitValue, setSubmitValue] = useState<ManageStaffRolesPayload>({
     newRoles: [],
     coordinatorPayload: {
       annualClassroomIds: [
-        ...(!!staff.annualClassroomIds ? staff.annualClassroomIds : []),
+        ...(coordinator?.annualClassroomIds
+          ? coordinator.annualClassroomIds
+          : []),
       ],
     },
     disabledStaffPayload: {
@@ -63,10 +80,6 @@ export default function ManageStaffRolesDialog({
       teaching_grade_id: '',
     },
   });
-
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [isCompleteInfoDialogOpen, setIsCompleteInfoDialogOpen] =
-    useState<boolean>(false);
 
   function confirmNewTeacherRole(
     data?: ManageStaffRolesPayload['teacherPayload']
@@ -89,10 +102,10 @@ export default function ManageStaffRolesDialog({
           ...submitValue,
           newRoles: submitValue.newRoles.filter((role) => role !== 'TEACHER'),
         });
-        if (!!staff.annualClassroomIds) {
+        if (!!coordinator?.annualClassroomIds) {
           setNewClassrooms(
             classrooms.filter(({ annual_classroom_id: ac_id }) =>
-              staff.annualClassroomIds.includes(ac_id)
+              coordinator.annualClassroomIds.includes(ac_id)
             )
           );
         }
@@ -120,13 +133,14 @@ export default function ManageStaffRolesDialog({
                 teacherIds: [],
               },
             });
-            if (!!staff.annualClassroomIds)
+            if (!!coordinator?.annualClassroomIds)
               setNewClassrooms(
                 classrooms.filter(({ annual_classroom_id: ac_id }) =>
-                  staff.annualClassroomIds.includes(ac_id)
+                  coordinator.annualClassroomIds.includes(ac_id)
                 )
               );
-          } else
+          } else {
+            setNewClassrooms([]);
             setSubmitValue({
               ...submitValue,
               disabledStaffPayload: {
@@ -134,6 +148,7 @@ export default function ManageStaffRolesDialog({
                 teacherIds: [annual_teacher_id],
               },
             });
+          }
         } else {
           confirmNewTeacherRole();
         }
@@ -218,49 +233,26 @@ export default function ManageStaffRolesDialog({
     }
   }
 
-  //TODO: REMOVE THIS DURING INTEGRATION. USE reactQuery own
-  const [isFetchingClassrooms, setIsFetchingClassrooms] =
-    useState<boolean>(false);
-  //TODO: CALL API HERE TO FETCH CLASSROOMS
-  const [classrooms, setClassrooms] = useState<ClassroomEntity[]>([
-    {
-      annual_classroom_id: 'wieos',
-      annual_coordinator_id: '',
-      annual_major_id: '',
-      classroom_acronym: 'IRT',
-      classroom_id: 'clesan',
-      classroom_level: 2,
-      classroom_name: 'Informatique Reseau telecommunications',
-      created_at: new Date().toISOString(),
-      is_deleted: false,
-      number_of_divisions: 1,
-    },
-    {
-      annual_classroom_id: 'wsieos',
-      annual_coordinator_id: '',
-      annual_major_id: '',
-      classroom_acronym: 'IMB',
-      classroom_id: 'clesan',
-      classroom_level: 3,
-      classroom_name: 'Ingenieurie, Biomedical',
-      created_at: new Date().toISOString(),
-      is_deleted: false,
-      number_of_divisions: 1,
-    },
-  ]);
+  const { data: classrooms, isFetching: isFetchingClassrooms } =
+    useClassrooms();
 
   const [newClassrooms, setNewClassrooms] = useState<ClassroomEntity[]>([]);
 
   useEffect(() => {
-    if (!!classrooms && !!staff.annualClassroomIds) {
+    if (!!classrooms && !!coordinator?.annualClassroomIds) {
       setNewClassrooms(
         classrooms.filter(({ annual_classroom_id: ac_id }) =>
-          staff.annualClassroomIds.includes(ac_id)
+          coordinator.annualClassroomIds.includes(ac_id)
         )
       );
     }
-  }, [classrooms, staff.annualClassroomIds, isDialogOpen]);
+  }, [classrooms, coordinator?.annualClassroomIds, isDialogOpen]);
 
+  const [isCompleteInfoDialogOpen, setIsCompleteInfoDialogOpen] =
+    useState<boolean>(false);
+
+  const { mutate: manageStaffRoles, isPending: isSubmitting } =
+    useManageStaffRoles(login_id);
   function submitManageRoles() {
     const submitValues: ManageStaffRolesPayload = {
       ...submitValue,
@@ -271,17 +263,13 @@ export default function ManageStaffRolesDialog({
         ),
       },
     };
-
-    setIsSubmitting(true);
-    //TODO: CALL API HERE TO MANAGE ROLES WITH DATA submitValues
-    setTimeout(() => {
-      alert(JSON.stringify(submitValues));
-      setIsSubmitting(false);
-      //TODO: DURING INTEGRATION, execute this code only if require teacher complete info, ps: change the condition to suite
-      if (submitValues.newRoles.includes('TEACHER')) {
-        setIsCompleteInfoDialogOpen(true);
-      } else close();
-    }, 3000);
+    manageStaffRoles(submitValues, {
+      onSuccess(data) {
+        if (data.next_action && submitValues.newRoles.includes('TEACHER')) {
+          setIsCompleteInfoDialogOpen(true);
+        } else close();
+      },
+    });
   }
 
   function submitTeacherData(staff: ManageStaffRolesPayload['teacherPayload']) {
@@ -295,13 +283,11 @@ export default function ManageStaffRolesDialog({
       },
     };
 
-    setIsSubmitting(true);
-    //TODO: CALL API HERE TO complete teacher information with data submitValues
-    setTimeout(() => {
-      alert(JSON.stringify(submitValues));
-      setIsSubmitting(false);
-      close();
-    }, 3000);
+    manageStaffRoles(submitValues, {
+      onSuccess() {
+        close();
+      },
+    });
   }
 
   function close() {
@@ -330,7 +316,7 @@ export default function ManageStaffRolesDialog({
 
   function areCoordinatedClassroomsSame() {
     const ac_ids = newClassrooms.map(({ annual_classroom_id: ac_id }) => ac_id);
-    const initialClassrooms = staff.annualClassroomIds ?? [];
+    const initialClassrooms = coordinator?.annualClassroomIds ?? [];
 
     return (
       ac_ids.sort((a, b) => (a > b ? 1 : -1)).join('*') ===
@@ -532,21 +518,19 @@ export default function ManageStaffRolesDialog({
                   <ArrowDropDown />
                 )
               }
-              getOptionLabel={(option) => {
-                const { classroom_acronym, classroom_level } =
-                  option as ClassroomEntity;
-                return `${classroom_acronym} ${classroom_level}`;
-              }}
+              getOptionLabel={(option) => option.classroom_acronym}
               renderOption={(
                 props,
-                { classroom_acronym, classroom_level, annual_classroom_id }
+                { classroom_acronym, annual_classroom_id }
               ) => {
                 return (
                   <Typography
                     {...props}
                     key={annual_classroom_id}
                     component="li"
-                  >{`${classroom_acronym} ${classroom_level}`}</Typography>
+                  >
+                    {classroom_acronym}
+                  </Typography>
                 );
               }}
               renderInput={(params) => (

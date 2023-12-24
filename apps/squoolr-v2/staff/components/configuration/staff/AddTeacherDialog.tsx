@@ -1,8 +1,15 @@
 import { DialogTransition } from '@glom/components';
 import {
+  useCreateStaffMember,
+  useStaffMember,
+  useTeacherTypes,
+  useTeachingGrades,
+  useUpdateStaffMember,
+} from '@glom/data-access/squoolr';
+import {
   CreateStaffPayload,
   StaffEntity,
-  StaffRole,
+  TeacherEntity,
 } from '@glom/data-types/squoolr';
 import { useTheme } from '@glom/theme';
 import { LocationOnOutlined } from '@mui/icons-material';
@@ -25,7 +32,6 @@ import {
   Switch,
   TextField,
   Typography,
-  capitalize,
   debounce,
 } from '@mui/material';
 import { MobileDatePicker } from '@mui/x-date-pickers';
@@ -63,18 +69,6 @@ function loadScript(src: string, position: HTMLElement | null, id: string) {
   position.appendChild(script);
 }
 
-//TODO: EXPOSE THIS INTERFACES AN DELETE THIS
-interface TeacherTypeEntity {
-  teacher_type_id: string;
-  teacher_type: string;
-}
-
-//TODO: EXPOSE THIS INTERFACES AN DELETE THIS
-interface TeacherGradeEntity {
-  teacher_grade_id: string;
-  teacher_grade: string;
-}
-
 export default function AddTeacherDialog({
   closeDialog,
   isDialogOpen,
@@ -87,39 +81,31 @@ export default function AddTeacherDialog({
   const { formatMessage } = useIntl();
   const theme = useTheme();
 
-  //   TODO: REMOVE THIS STATE AND USE reactQuery own
-  const [isFetchingTeacherTypes] = useState<boolean>(false);
-  //TODO: CALL API HER TO FETCH teacherTypes
-  const [teacherTypes, setTeacherTypes] = useState<TeacherTypeEntity[]>([
-    { teacher_type: 'Vacataire', teacher_type_id: '1' },
-    { teacher_type: 'Permanent', teacher_type_id: '3' },
-    { teacher_type: 'Missionnaire', teacher_type_id: '2' },
-  ]);
-  //   TODO: REMOVE THIS STATE AND USE reactQuery own
-  const [isFetchingTeacherGrades] = useState<boolean>(false);
-  //TODO: CALL API HER TO FETCH teacherGrades
-  const [teacherGrades, setTeacherGrades] = useState<TeacherGradeEntity[]>([
-    { teacher_grade: 'Professeur', teacher_grade_id: '1' },
-    { teacher_grade: 'Maitre des conferences', teacher_grade_id: '2' },
-    { teacher_grade: 'Licencie', teacher_grade_id: '3' },
-  ]);
+  const { data: teacherTypes, isFetching: isFetchingTeacherTypes } =
+    useTeacherTypes();
+  const { data: teachingGrades, isFetching: isFetchingTeachingGrades } =
+    useTeachingGrades();
+  const { data: teacher } = useStaffMember<TeacherEntity>(
+    staff?.annual_teacher_id,
+    'TEACHER'
+  );
 
   const initialValues: CreateStaffPayload['payload'] = {
     role: 'TEACHER',
-    email: staff ? staff.email : '',
-    first_name: staff ? staff.first_name : '',
-    last_name: staff ? staff.last_name : '',
-    phone_number: staff ? staff.phone_number.split('+237')[1] : '',
-    address: staff ? staff.address : '',
-    birthdate: staff ? staff.birthdate : '',
-    gender: staff ? staff.gender : 'Female',
-    national_id_number: staff ? staff.national_id_number : '',
-    has_signed_convention: staff ? staff.has_signed_convention : false,
-    has_tax_payers_card: staff ? staff.has_tax_payers_card : false,
-    hourly_rate: staff ? staff.hourly_rate : 0,
-    origin_institute: staff ? staff.origin_institute : '',
-    teacher_type_id: staff ? staff.teacher_type_id : '',
-    teaching_grade_id: staff ? staff.teaching_grade_id : '',
+    email: teacher ? teacher.email : '',
+    first_name: teacher ? teacher.first_name : '',
+    last_name: teacher ? teacher.last_name : '',
+    phone_number: teacher ? teacher.phone_number.split('+237')[1] : '',
+    address: teacher ? teacher.address : '',
+    birthdate: teacher ? teacher.birthdate : '',
+    gender: teacher ? teacher.gender : 'Female',
+    national_id_number: teacher ? teacher.national_id_number : '',
+    has_signed_convention: teacher ? teacher.has_signed_convention : false,
+    has_tax_payers_card: teacher ? teacher.has_tax_payers_card : false,
+    hourly_rate: teacher ? teacher.hourly_rate : 0,
+    origin_institute: teacher ? teacher.origin_institute : '',
+    teacher_type_id: teacher ? teacher.teacher_type_id : '',
+    teaching_grade_id: teacher ? teacher.teaching_grade_id : '',
   };
   const validationSchema = Yup.object().shape({
     gender: Yup.string()
@@ -137,7 +123,8 @@ export default function AddTeacherDialog({
         formatMessage({ id: 'invalidPhonenumber' })
       )
       .required(formatMessage({ id: 'requiredField' })),
-    address: Yup.string().required(formatMessage({ id: 'required' })),
+    address: Yup.string(),
+    // .required(formatMessage({ id: 'required' })),
     birthdate: Yup.date()
       .max(new Date(), formatMessage({ id: 'cannotBeGreaterThanToday' }))
       .required(formatMessage({ id: 'required' })),
@@ -158,42 +145,35 @@ export default function AddTeacherDialog({
       .oneOf(teacherTypes.map(({ teacher_type_id }) => teacher_type_id))
       .required(formatMessage({ id: 'required' })),
     teaching_grade_id: Yup.string()
-      .oneOf(teacherGrades.map(({ teacher_grade_id }) => teacher_grade_id))
+      .oneOf(teachingGrades.map(({ teaching_grade_id }) => teaching_grade_id))
       .required(formatMessage({ id: 'required' })),
   });
 
-  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { mutate: createTeacher, isPending: isCreating } =
+    useCreateStaffMember();
+  const { mutate: updateStaff, isPending: isUpdating } = useUpdateStaffMember(
+    staff?.annual_teacher_id
+  );
+  const isSubmitting = isCreating || isUpdating;
+
   const formik = useFormik({
     initialValues,
     validationSchema,
     enableReinitialize: true,
     onSubmit: (values, { resetForm }) => {
-      setIsSubmitting(true);
       const submitValue = {
         ...values,
         phone_number: `+237${values.phone_number}`,
-        ...(staff
-          ? {
-              ...(staff.annual_configurator_id
-                ? { annual_configurator_id: staff.annual_configurator_id }
-                : {}),
-              ...(staff.annual_registry_id
-                ? { annual_registry_id: staff.annual_registry_id }
-                : {}),
-              ...(staff.annual_teacher_id
-                ? { annual_registry_id: staff.annual_teacher_id }
-                : {}),
-            }
-          : {}),
       };
-      //TODO; call api here to create staff with data submitValue
-      setTimeout(() => {
-        setIsSubmitting(false);
-        alert(JSON.stringify(submitValue));
-        resetForm();
-        close();
-      }, 3000);
+      (teacher ? updateStaff : createTeacher)(
+        { payload: submitValue },
+        {
+          onSuccess() {
+            resetForm();
+            close();
+          },
+        }
+      );
     },
   });
 
@@ -290,7 +270,7 @@ export default function AddTeacherDialog({
     >
       <DialogTitle>
         {formatMessage({
-          id: `${staff ? 'edit' : 'add'}Teacher`,
+          id: `${teacher ? 'edit' : 'add'}Teacher`,
         })}
       </DialogTitle>
       <DialogContent>
@@ -459,7 +439,7 @@ export default function AddTeacherDialog({
               <TextField
                 {...params}
                 label={`${formatMessage({ id: 'address' })}`}
-                required
+                // required
                 color="primary"
                 variant="outlined"
                 fullWidth
@@ -533,8 +513,8 @@ export default function AddTeacherDialog({
                 required
               >
                 {teacherTypes.map(
-                  ({ teacher_type, teacher_type_id }, index) => (
-                    <MenuItem key={index} value={teacher_type_id}>
+                  ({ teacher_type, teacher_type_id }) => (
+                    <MenuItem key={teacher_type_id} value={teacher_type_id}>
                       {teacher_type}
                     </MenuItem>
                   )
@@ -561,13 +541,13 @@ export default function AddTeacherDialog({
                 size="small"
                 label={formatMessage({ id: 'teacherGrade' })}
                 {...formik.getFieldProps('teaching_grade_id')}
-                disabled={isSubmitting || isFetchingTeacherGrades}
+                disabled={isSubmitting || isFetchingTeachingGrades}
                 required
               >
-                {teacherGrades.map(
-                  ({ teacher_grade, teacher_grade_id }, index) => (
-                    <MenuItem key={index} value={teacher_grade_id}>
-                      {teacher_grade}
+                {teachingGrades.map(
+                  ({ teaching_grade, teaching_grade_id }) => (
+                    <MenuItem key={teaching_grade_id} value={teaching_grade_id}>
+                      {teaching_grade}
                     </MenuItem>
                   )
                 )}
@@ -663,32 +643,32 @@ export default function AddTeacherDialog({
               variant="contained"
               disabled={
                 isSubmitting ||
-                (staff &&
-                  staff.address === formik.values.address &&
-                  staff.birthdate === formik.values.birthdate &&
-                  staff.email === formik.values.email &&
-                  staff.first_name === formik.values.first_name &&
-                  staff.gender === formik.values.gender &&
-                  staff.last_name === formik.values.last_name &&
-                  staff.national_id_number ===
+                (teacher &&
+                  teacher.address === formik.values.address &&
+                  teacher.birthdate === formik.values.birthdate &&
+                  teacher.email === formik.values.email &&
+                  teacher.first_name === formik.values.first_name &&
+                  teacher.gender === formik.values.gender &&
+                  teacher.last_name === formik.values.last_name &&
+                  teacher.national_id_number ===
                     formik.values.national_id_number &&
-                  staff.phone_number.split('+237')[1] ===
+                  teacher.phone_number.split('+237')[1] ===
                     formik.values.phone_number &&
-                  staff.has_signed_convention ===
+                  teacher.has_signed_convention ===
                     formik.values.has_signed_convention &&
-                  staff.has_tax_payers_card ===
+                  teacher.has_tax_payers_card ===
                     formik.values.has_tax_payers_card &&
-                  staff.hourly_rate === formik.values.hourly_rate &&
-                  staff.origin_institute === formik.values.origin_institute &&
-                  staff.teacher_type_id === formik.values.teacher_type_id &&
-                  staff.teaching_grade_id === formik.values.teaching_grade_id)
+                  teacher.hourly_rate === formik.values.hourly_rate &&
+                  teacher.origin_institute === formik.values.origin_institute &&
+                  teacher.teacher_type_id === formik.values.teacher_type_id &&
+                  teacher.teaching_grade_id === formik.values.teaching_grade_id)
               }
               type="submit"
               startIcon={
                 isSubmitting && <CircularProgress color="primary" size={18} />
               }
             >
-              {formatMessage({ id: staff ? 'save' : 'create' })}
+              {formatMessage({ id: teacher ? 'save' : 'create' })}
             </Button>
           </DialogActions>
         </Box>

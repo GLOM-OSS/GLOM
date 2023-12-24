@@ -10,6 +10,12 @@ export const seedData = async (prisma: PrismaClient) => {
   const adminId = await seeder.seedDefautAdmin();
   //seed first ambassador
   await seeder.seedFirstAmbassador(adminId);
+  //seed teacher types
+  await seeder.seedTeacherTypes();
+  //seed teaching grades
+  await seeder.seedTeachingGrades();
+  //seed cycles
+  await seeder.seedCycles();
 };
 
 export class AppSeederFactory {
@@ -75,6 +81,103 @@ export class AppSeederFactory {
       create: data,
       update: data,
       where: { ambassador_id: ambassadorId },
+    });
+  }
+
+  async seedTeacherTypes() {
+    // vacataire, permanent, missionnaire
+    await this.prismaService.teacherType.createMany({
+      data: [
+        {
+          teacher_type_id: 'd1299d68-9450-4d45-a340-4fef60ae159b',
+          teacher_type: 'PART_TIME',
+        },
+        {
+          teacher_type_id: '3ad91464-5c97-45f8-b95a-6e6cc94e92b9',
+          teacher_type: 'PERMAMENT',
+        },
+        {
+          teacher_type_id: 'c2d49fa9-98c3-42f0-a546-437a6ddd059f',
+          teacher_type: 'MISSIONARY',
+        },
+      ],
+      skipDuplicates: true,
+    });
+  }
+
+  async seedTeachingGrades() {
+    await this.prismaService.teachingGrade.createMany({
+      data: [
+        {
+          teaching_grade_id: 'c114f260-8e89-4bdf-951b-1b1a166225cb',
+          teaching_grade: 'CLASS_C',
+        },
+        {
+          teaching_grade_id: 'a9a94997-bdb5-4b69-9743-219428deda7b',
+          teaching_grade: 'CLASS_D',
+        },
+        {
+          teaching_grade_id: '6bcf44dd-47c4-44a9-9e65-07434f8546ef',
+          teaching_grade: 'LECTURER',
+        },
+        {
+          teaching_grade_id: '57f7e2ec-1635-472a-bbea-85f76d4b47f2',
+          teaching_grade: 'COURSE_INSTRUTOR',
+        },
+        {
+          teaching_grade_id: '9f20bf3d-4ecc-493a-9a9d-9eb5817f979c',
+          teaching_grade: 'ASSISTANT',
+        },
+      ],
+      skipDuplicates: true,
+    });
+  }
+
+  async seedCycles() {
+    await this.prismaService.cycle.createMany({
+      data: [
+        {
+          cycle_id: 'd1591ab7-401b-42a2-b63e-aa05bf6e6d2d',
+          cycle_name: 'BACHELOR',
+          number_of_years: 3,
+        },
+        {
+          cycle_id: 'c2955afe-4596-423b-9759-38200de9698e',
+          cycle_name: 'DUT',
+          number_of_years: 2,
+        },
+        {
+          cycle_id: '593ca811-fa34-40dc-a4d5-3d0690df4859',
+          cycle_name: 'DTS',
+          number_of_years: 2,
+        },
+        {
+          cycle_id: 'ada232fb-764b-4191-a615-f3a75e5e717f',
+          cycle_name: 'DUT',
+          number_of_years: 2,
+        },
+        {
+          cycle_id: 'c5dd02f0-92d6-4e7c-ae5a-001bf4dda757',
+          cycle_name: 'MASTER',
+          number_of_years: 2,
+        },
+        {
+          cycle_id: '9783f126-5b64-4659-9870-4556f9b8344b',
+          cycle_name: 'MASTER',
+          number_of_years: 5,
+        },
+        {
+          cycle_id: 'd1299d68-9450-4d45-a340-4fef60ae159b',
+          cycle_name: 'DOCTORATE',
+          number_of_years: 7,
+        },
+        {
+          cycle_id: '11aa093f-e983-4f18-a40a-10b20bb2d069',
+          cycle_name: 'DOCTORATE',
+          number_of_years: 2,
+        },
+      ],
+      skipDuplicates: true,
     });
   }
 }

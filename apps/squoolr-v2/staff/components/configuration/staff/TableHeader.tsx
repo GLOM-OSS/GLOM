@@ -31,6 +31,7 @@ export default function TableHeader({
   banUsers,
   unbanUsers,
   resetPrivateCode,
+  refreshTableData,
 }: {
   searchValue: string;
   setSearchValue: (searchValue: string) => void;
@@ -44,6 +45,7 @@ export default function TableHeader({
   banUsers: () => void;
   unbanUsers: () => void;
   resetPrivateCode: () => void;
+  refreshTableData: () => void;
 }) {
   const theme = useTheme();
   const { formatMessage } = useIntl();
@@ -110,10 +112,7 @@ export default function TableHeader({
         <TableHeaderItem
           icon={reset}
           title={formatMessage({ id: 'reload' })}
-          onClick={() => {
-            //TODO: MUTATE TABLE VALUES HERE AND SEARCH AGAIN.
-            alert('hello world');
-          }}
+          onClick={refreshTableData}
         />
       </Box>
       {

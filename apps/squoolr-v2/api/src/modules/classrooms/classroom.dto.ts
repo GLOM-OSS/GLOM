@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { AnnualClassroom } from '@prisma/client';
 import {
+  IsBoolean,
   IsNumber,
   IsNumberString,
   IsOptional,
@@ -18,8 +19,13 @@ export class ClassroomDivisionQueryDto {
 export class QueryClassroomDto extends QueryParamsDto {
   @IsUUID()
   @IsOptional()
-  @ApiProperty()
-  annual_major_id: string;
+  @ApiPropertyOptional()
+  annual_major_id?: string;
+
+  @IsUUID()
+  @IsOptional()
+  @ApiPropertyOptional()
+  annual_coordinator_id?: string;
 
   @IsNumber()
   @IsOptional()
@@ -71,7 +77,11 @@ export class UpdateClassroomDto {
   number_of_divisions: number;
 }
 
-export class DisanleClassroomsDto {
+export class DisableClassroomsDto {
+  @IsBoolean()
+  @ApiProperty()
+  disable: boolean;
+
   @IsString({ each: true })
   @ApiProperty({ type: [String] })
   annualClassroomIds: string[];

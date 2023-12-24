@@ -69,11 +69,11 @@ export class SchoolsController {
     } = schoolDemandPayload;
     if (payment_id && referral_code)
       throw new BadRequestException(
-        'payment number and referral code cannot be both provided'
+        'payment id and referral code cannot be both provided'
       );
     if (!payment_id && !referral_code)
       throw new BadRequestException(
-        'please provide payment number or referral code'
+        'please provide payment id or referral code'
       );
     return this.schoolsService.create(schoolDemandPayload);
   }
@@ -94,19 +94,16 @@ export class SchoolsController {
     return this.schoolsService.validate(schoolId, validatedDemand, userId);
   }
 
-  @Put(':school_id')
+  @Put('my-school')
   @ApiOkResponse()
   @Roles(Role.CONFIGURATOR)
-  updateSchool(
-    @Req() request: Request,
-    @Param('school_id') schoolId: string,
-    @Body() payload: UpdateSchoolDto
-  ) {
+  updateSchool(@Req() request: Request, @Body() payload: UpdateSchoolDto) {
     const {
+      school_id,
       annualConfigurator: { annual_configurator_id },
     } = request.user;
     return this.schoolsService.update(
-      schoolId,
+      school_id,
       payload,
       annual_configurator_id
     );

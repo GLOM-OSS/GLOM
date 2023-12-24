@@ -1,3 +1,9 @@
+import { ConfirmDialog } from '@glom/components';
+import {
+  useDisableStaffMembers,
+  useResetStaffPasswords,
+  useResetStaffPrivateCode,
+} from '@glom/data-access/squoolr';
 import { BulkDisableStaffPayload, StaffEntity } from '@glom/data-types';
 import { useTheme } from '@glom/theme';
 import checked from '@iconify/icons-fluent/checkbox-checked-16-filled';
@@ -13,13 +19,12 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
-import ManageStaffMenu from './ManageStaffMenu';
-import StaffRoles from './StaffRoles';
-import { ConfirmDialog } from '@glom/components';
 import AddStaffDialog from './AddStaffDialog';
-import StaffDetailsDialog from './StaffDetailsDialog';
 import AddTeacherDialog from './AddTeacherDialog';
+import ManageStaffMenu from './ManageStaffMenu';
 import ManageStaffRolesDialog from './ManageStaffRolesDialog';
+import StaffDetailsDialog from './StaffDetailsDialog';
+import StaffRoles from './StaffRoles';
 
 export default function StaffRow({
   staff: {
@@ -39,9 +44,10 @@ export default function StaffRow({
   showMoreIcon,
   disabled,
   showArchived,
+  refetchStaffData,
 }: {
   staff: StaffEntity;
-  selectedStaff: Record<keyof BulkDisableStaffPayload, string[]>;
+  selectedStaff: Omit<BulkDisableStaffPayload, 'disable'>;
   selectStaff: (
     configuratorId?: string,
     registryId?: string,
@@ -50,71 +56,74 @@ export default function StaffRow({
   showMoreIcon: boolean;
   disabled: boolean;
   showArchived: boolean;
+  refetchStaffData: () => void;
 }) {
   const theme = useTheme();
   const { formatDate, formatMessage } = useIntl();
+  const staffPayload: Omit<BulkDisableStaffPayload, 'disable'> = {
+    configuratorIds: annual_configurator_id ? [annual_configurator_id] : [],
+    teacherIds: annual_teacher_id ? [annual_teacher_id] : [],
+    registryIds: annual_registry_id ? [annual_registry_id] : [],
+  };
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [
     isConfirmResetPasswordDialogOpen,
     setIsConfirmResetPasswordDialogOpen,
   ] = useState<boolean>(false);
-  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
-  const [isResettingStaffPassword, setIsResettingStaffPassword] =
-    useState<boolean>(false);
+
+  const { mutate: resetStaffPassword, isPending: isResettingStaffPassword } =
+    useResetStaffPasswords();
+
   function confirmResetPassword() {
-    //TODO: CALL API HERE RESET USER PASSWORD WITH DATA staff.login_id
-    setIsResettingStaffPassword(true);
-    setTimeout(() => {
-      alert('done resetting password');
-      setIsResettingStaffPassword(false);
-      setIsConfirmResetPasswordDialogOpen(false);
-    }, 3000);
+    resetStaffPassword(staffPayload, {
+      onSuccess() {
+        refetchStaffData();
+        setIsConfirmResetPasswordDialogOpen(false);
+      },
+    });
   }
 
   const [
     isConfirmResetPrivateCodeDialogOpen,
     setIsConfirmResetPrivateCodeDialogOpen,
   ] = useState<boolean>(false);
-  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
-  const [isResettingStaffPrivateCode, setIsResettingStaffPrivateCode] =
-    useState<boolean>(false);
+
+  const {
+    mutate: resetStaffPrivateCode,
+    isPending: isResettingStaffPrivateCode,
+  } = useResetStaffPrivateCode();
   function confirmResetPrivateCode() {
-    //TODO: CALL API HERE RESET USER private code WITH DATA staff.annual_teacher_id or staff.annual_registry_id
-    setIsResettingStaffPrivateCode(true);
-    setTimeout(() => {
-      alert('done resetting private code');
-      setIsResettingStaffPrivateCode(false);
-      setIsConfirmResetPrivateCodeDialogOpen(false);
-    }, 3000);
+    resetStaffPrivateCode(staffPayload, {
+      onSuccess() {
+        refetchStaffData();
+        setIsConfirmResetPrivateCodeDialogOpen(false);
+      },
+    });
   }
+
+  const { mutate: disableStaffMembers, isPending: isHandlingArchive } =
+    useDisableStaffMembers();
 
   const [isConfirmArchiveDialogOpen, setIsConfirmArchiveDialogOpen] =
     useState<boolean>(false);
-  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
-  const [isArchiving, setIsArchiving] = useState<boolean>(false);
-  function confirmArchive() {
-    //TODO: CALL API HERE archive user WITH DATA staff.annual_teacher_id and/or staff.annual_registry_id and/or annual_configurator_id
-    setIsArchiving(true);
-    setTimeout(() => {
-      alert('done archiving');
-      setIsArchiving(false);
-      setIsConfirmArchiveDialogOpen(false);
-    }, 3000);
-  }
-
   const [isConfirmUnarchiveDialogOpen, setIsConfirmUnarchiveDialogOpen] =
     useState<boolean>(false);
-  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
-  const [isUnarchiving, setIsUnarchiving] = useState<boolean>(false);
-  function confirmUnarchive() {
-    //TODO: CALL API HERE unarchive user WITH DATA staff.annual_teacher_id and/or staff.annual_registry_id and/or annual_configurator_id
-    setIsUnarchiving(true);
-    setTimeout(() => {
-      alert('done unarchiving');
-      setIsUnarchiving(false);
-      setIsConfirmUnarchiveDialogOpen(false);
-    }, 3000);
+  function handleArchive() {
+    disableStaffMembers(
+      {
+        ...staffPayload,
+        disable: isConfirmArchiveDialogOpen || !isConfirmUnarchiveDialogOpen,
+      },
+      {
+        onSuccess() {
+          refetchStaffData();
+          (isConfirmArchiveDialogOpen
+            ? setIsConfirmArchiveDialogOpen
+            : setIsConfirmUnarchiveDialogOpen)(false);
+        },
+      }
+    );
   }
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
@@ -141,17 +150,26 @@ export default function StaffRow({
       />
       <ManageStaffRolesDialog
         isDialogOpen={isManageRolesDialogOpen}
-        closeDialog={() => setIsManageRolesDialogOpen(false)}
+        closeDialog={() => {
+          refetchStaffData();
+          setIsManageRolesDialogOpen(false);
+        }}
         staff={staff}
       />
       <AddStaffDialog
-        closeDialog={() => setIsEditDialogOpen(false)}
+        closeDialog={() => {
+          refetchStaffData();
+          setIsEditDialogOpen(false);
+        }}
         isDialogOpen={isEditDialogOpen && !roles.includes('TEACHER')}
         usage={roles.includes('CONFIGURATOR') ? 'CONFIGURATOR' : 'REGISTRY'}
         staff={staff}
       />
       <AddTeacherDialog
-        closeDialog={() => setIsEditDialogOpen(false)}
+        closeDialog={() => {
+          refetchStaffData();
+          setIsEditDialogOpen(false);
+        }}
         isDialogOpen={isEditDialogOpen && roles.includes('TEACHER')}
         staff={staff}
       />
@@ -192,7 +210,7 @@ export default function StaffRow({
       />
       <ConfirmDialog
         closeDialog={() => setIsConfirmArchiveDialogOpen(false)}
-        confirm={confirmArchive}
+        confirm={handleArchive}
         dialogMessage={formatMessage({
           id: 'confirmArchiveStaffDialogMessage',
         })}
@@ -201,11 +219,11 @@ export default function StaffRow({
         confirmButton={formatMessage({ id: 'ban' })}
         danger
         dialogTitle={formatMessage({ id: 'archiveStaffMember' })}
-        isSubmitting={isArchiving}
+        isSubmitting={isHandlingArchive}
       />
       <ConfirmDialog
         closeDialog={() => setIsConfirmUnarchiveDialogOpen(false)}
-        confirm={confirmUnarchive}
+        confirm={handleArchive}
         dialogMessage={formatMessage({
           id: 'confirmUnarchiveStaffDialogMessage',
         })}
@@ -214,7 +232,7 @@ export default function StaffRow({
         confirmButton={formatMessage({ id: 'revokeBan' })}
         danger
         dialogTitle={formatMessage({ id: 'unarchiveStaffMember' })}
-        isSubmitting={isUnarchiving}
+        isSubmitting={isHandlingArchive}
       />
       <TableRow
         sx={{

@@ -1,5 +1,9 @@
 import { DialogTransition } from '@glom/components';
 import {
+  useCreateStaffMember,
+  useUpdateStaffMember,
+} from '@glom/data-access/squoolr';
+import {
   CreateStaffPayload,
   StaffEntity,
   StaffRole,
@@ -102,7 +106,8 @@ export default function AddStaffDialog({
         formatMessage({ id: 'invalidPhonenumber' })
       )
       .required(formatMessage({ id: 'requiredField' })),
-    address: Yup.string().required(formatMessage({ id: 'required' })),
+    address: Yup.string(),
+    // .required(formatMessage({ id: 'required' })),
     birthdate: Yup.date()
       .max(new Date(), formatMessage({ id: 'cannotBeGreaterThanToday' }))
       .required(formatMessage({ id: 'required' })),
@@ -111,36 +116,35 @@ export default function AddStaffDialog({
       .required(formatMessage({ id: 'required' })),
   });
 
-  //TODO: REMOVE THIS AND REPLACE WITH reactQuery own
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { mutate: createStaff, isPending: isCreating } = useCreateStaffMember();
+  const { mutate: updateStaff, isPending: isUpdating } = useUpdateStaffMember(
+    !staff
+      ? null
+      : usage === 'CONFIGURATOR'
+      ? staff.annual_configurator_id
+      : staff.annual_registry_id
+  );
+  const isSubmitting = isCreating || isUpdating;
+
   const formik = useFormik({
     initialValues,
     validationSchema,
     enableReinitialize: true,
     onSubmit: (values, { resetForm }) => {
-      setIsSubmitting(true);
       const submitValue = {
         ...values,
         role: usage,
         phone_number: `+237${values.phone_number}`,
-        ...(staff
-          ? {
-              ...(staff.annual_configurator_id
-                ? { annual_configurator_id: staff.annual_configurator_id }
-                : {}),
-              ...(staff.annual_registry_id
-                ? { annual_registry_id: staff.annual_registry_id }
-                : {}),
-            }
-          : {}),
       };
-      //TODO; call api here to create staff with data submitValue
-      setTimeout(() => {
-        setIsSubmitting(false);
-        alert(JSON.stringify(submitValue));
-        resetForm();
-        close();
-      }, 3000);
+      (staff ? updateStaff : createStaff)(
+        { payload: submitValue },
+        {
+          onSuccess() {
+            resetForm();
+            close();
+          },
+        }
+      );
     },
   });
 
@@ -408,7 +412,7 @@ export default function AddStaffDialog({
               <TextField
                 {...params}
                 label={`${formatMessage({ id: 'address' })}`}
-                required
+                // required
                 color="primary"
                 variant="outlined"
                 fullWidth

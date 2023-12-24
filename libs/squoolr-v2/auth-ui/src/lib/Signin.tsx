@@ -50,7 +50,7 @@ export function Signin({ app }: { app: IAppType }) {
       //TODO: CHECK ON THE NOTIF HERE, AND UPDATE OneUI own
       signIn(values, {
         onSuccess() {
-          push('/management');
+          push('/');
           resetForm();
         },
       });

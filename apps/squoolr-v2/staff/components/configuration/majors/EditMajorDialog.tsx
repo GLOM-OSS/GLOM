@@ -1,3 +1,4 @@
+import { useUpdateMajor } from '@glom/data-access/squoolr';
 import { MajorEntity, UpdateMajorPayload } from '@glom/data-types/squoolr';
 import { generateShort } from '@glom/utils';
 import {
@@ -24,7 +25,6 @@ export default function EditMajorDialog({
   closeDialog: () => void;
   editableMajor: MajorEntity;
 }) {
-  //TODO: UpdateMajorPayload needs to have the annual_major_id in it
   const { formatMessage } = useIntl();
 
   const initialValues: UpdateMajorPayload = {
@@ -39,21 +39,20 @@ export default function EditMajorDialog({
     major_name: Yup.string().required(formatMessage({ id: 'requiredField' })),
   });
 
-  //TODO: REMOVE THIS AND USE reactQuery own
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { mutate: updateMajor, isPending: isSubmitting } = useUpdateMajor(
+    editableMajor.annual_major_id
+  );
   const formik = useFormik({
     initialValues,
     validationSchema,
     enableReinitialize: true,
     onSubmit: (values, { resetForm }) => {
-      //TODO: CALL API HERE TO UPDATE MAJOR WITH DATA values for major with id: editableMajor.annual_major_id
-      setIsSubmitting(true);
-      setTimeout(() => {
-        alert('done editing');
-        close();
-        resetForm();
-        setIsSubmitting(false);
-      }, 3000);
+      updateMajor(values, {
+        onSuccess() {
+          close();
+          resetForm();
+        },
+      });
     },
   });
 

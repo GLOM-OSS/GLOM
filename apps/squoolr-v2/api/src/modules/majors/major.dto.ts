@@ -82,4 +82,8 @@ export class DisableMajorsDto {
   @IsString({ each: true })
   @ApiProperty({ type: [String] })
   annualMajorIds: string[];
+
+  @IsBoolean()
+  @ApiProperty()
+  disable: boolean;
 }

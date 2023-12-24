@@ -104,13 +104,14 @@ export class MajorsController {
   @ApiNoContentResponse()
   async disableMajors(
     @Req() request: Request,
-    @Query() { annualMajorIds }: DisableMajorsDto
+    @Query() { annualMajorIds, disable }: DisableMajorsDto
   ) {
     const {
       annualConfigurator: { annual_configurator_id },
     } = request.user;
     return this.majorsService.disableMany(
       annualMajorIds,
+      disable,
       annual_configurator_id
     );
   }

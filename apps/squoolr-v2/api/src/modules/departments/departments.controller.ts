@@ -35,7 +35,7 @@ import { DepartmentsService } from './departments.service';
 export class DepartmentsController {
   constructor(private departmentsService: DepartmentsService) {}
 
-  @Get('all')
+  @Get()
   @ApiOkResponse({ type: [DepartmentEntity] })
   async getDepartments(
     @Req() request: Request,

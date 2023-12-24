@@ -11,12 +11,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBody,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AcademicYear } from '@prisma/client';
 import { Request, Response } from 'express';
 import {
   ResetPasswordDto,
@@ -36,23 +36,19 @@ export class AuthController {
 
   @Post('signin')
   @UseGuards(LocalGuard)
-  @ApiCreatedResponse({ type: SingInResponse })
-  async signIn(@Req() request: Request, @Body() login: SignInDto) {
+  @ApiBody({ type: SignInDto })
+  @ApiCreatedResponse({ type: UserEntity })
+  async signIn(@Req() request: Request) {
     let user = request.user;
-    let academicYears: AcademicYear[] = [];
     if (user.school_id) {
-      const result = await this.authService.updateUserSession(
+      const annualSessionData = await this.authService.getAnnualSessionData(
         request,
         user.login_id
       );
-      academicYears = result.academicYears;
-      user = { ...user, ...result.annualSessionData };
+      user = { ...user, ...annualSessionData };
     }
-    await this.authService.openSession(request, user.login_id);
-    return new SingInResponse({
-      academicYears,
-      user: await this.authService.getUser(user),
-    });
+    await this.authService.createSessionLog(request);
+    return this.authService.getUser(user);
   }
 
   @Post('reset-password')
@@ -106,7 +102,7 @@ export class AuthController {
   @Get('user')
   @ApiOkResponse({ type: UserEntity })
   @UseGuards(AuthenticatedGuard)
-  async getUser(@Req() request: Request) {
+  getUser(@Req() request: Request) {
     return this.authService.getUser(request.user);
   }
 }

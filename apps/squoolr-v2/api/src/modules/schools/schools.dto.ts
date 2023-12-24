@@ -10,6 +10,7 @@ import {
   AnnualDocumentSigner,
   AnnualSchoolSetting,
   MarkInsertionSource,
+  School,
   SchoolDemandStatus,
 } from '@prisma/client';
 import { Exclude, Transform, Type } from 'class-transformer';
@@ -109,11 +110,14 @@ export class ValidateSchoolDemandDto {
   subdomain?: string;
 }
 
-export class SchoolEntity extends OmitType(CreateSchoolDto, [
-  'referral_code',
-  'initial_year_ends_at',
-  'initial_year_starts_at',
-]) {
+export class SchoolEntity
+  extends OmitType(CreateSchoolDto, [
+    'referral_code',
+    'initial_year_ends_at',
+    'initial_year_starts_at',
+  ])
+  implements School
+{
   @ApiProperty()
   school_id: string;
 
@@ -145,8 +149,42 @@ export class SchoolEntity extends OmitType(CreateSchoolDto, [
   created_at: Date;
 
   @Exclude()
-  @ApiProperty()
+  @ApiHideProperty()
   created_by: string;
+
+  @ApiProperty()
+  longitude: number;
+
+  @ApiProperty()
+  latitude: number;
+
+  @ApiProperty()
+  address: string;
+
+  @ApiProperty()
+  logo_ref: string;
+
+  @ApiProperty()
+  is_validated: boolean;
+
+  @Exclude()
+  @ApiHideProperty()
+  validated_at: Date;
+
+  @Exclude()
+  @ApiHideProperty()
+  validated_by: string;
+
+  @ApiProperty()
+  is_deleted: boolean;
+
+  @Exclude()
+  @ApiHideProperty()
+  deleted_at: Date;
+
+  @Exclude()
+  @ApiHideProperty()
+  deleted_by: string;
 
   constructor(props: SchoolEntity) {
     super(props);
@@ -189,10 +227,15 @@ export class UpdateSchoolDemandStatus {
 }
 
 export class UpdateSchoolDto extends PartialType(
-  OmitType(SchoolEntity, [
-    'paid_amount',
-    'lead_funnel',
-    'school_rejection_reason',
+  PickType(SchoolEntity, [
+    'creation_decree_number',
+    'description',
+    'school_acronym',
+    'school_email',
+    'address',
+    'logo_ref',
+    'school_name',
+    'school_phone_number',
     'subdomain',
   ])
 ) {}

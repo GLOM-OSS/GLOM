@@ -10,7 +10,6 @@ export type StaffIDs = {
 
 export type StaffSelectParams = {
   params?: QueryParams;
-  activeRole?: StaffRole;
   academic_year_id?: string;
 };
 

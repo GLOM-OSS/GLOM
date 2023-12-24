@@ -1,6 +1,10 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { excludeKeys, generatePassword } from '@glom/utils';
-import { BadGatewayException, Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { CodeGeneratorFactory } from '../../helpers/code-generator.factory';
@@ -12,14 +16,15 @@ import { CoordinatorsService } from './coordinators/coordinators.service';
 import { RegistriesService } from './registries/registries.service';
 import { IStaffService, StaffSelectParams } from './staff';
 import {
+  CategorizedStaffIDs,
+  CoordinatorEntity,
   CreateCoordinatorDto,
   CreateStaffPayloadDto,
-  ManageStaffDto,
   StaffEntity,
-  StaffRoleDto,
   TeacherEntity,
   UpdateStaffPayloadDto,
   UpdateStaffRoleDto,
+  UpdateStaffStatus,
 } from './staff.dto';
 import { TeachersService } from './teachers/teachers.service';
 
@@ -27,7 +32,7 @@ import { TeachersService } from './teachers/teachers.service';
 export class StaffService {
   private staffServices: Record<
     StaffRole,
-    IStaffService<StaffEntity | TeacherEntity>
+    IStaffService<StaffEntity | TeacherEntity | CoordinatorEntity>
   >;
   constructor(
     private prismaService: GlomPrismaService,
@@ -64,9 +69,7 @@ export class StaffService {
   }
 
   async findOne(role: StaffRole, annual_personnel_id: string) {
-    return this.staffServices[
-      role === StaffRole.COORDINATOR ? StaffRole.TEACHER : role
-    ].findOne(annual_personnel_id);
+    return this.staffServices[role].findOne(annual_personnel_id);
   }
 
   async create(
@@ -80,6 +83,7 @@ export class StaffService {
         created_by
       );
     }
+
     const person = await this.prismaService.person.findUnique({
       where: { email: payload.email },
     });
@@ -93,12 +97,12 @@ export class StaffService {
     );
     return this.staffServices[payload.role].create(
       {
-        ...payload,
-        ...metadata,
         matricule,
         private_code,
-        person_id: person?.person_id,
         password: generatePassword(),
+        person_id: person?.person_id ?? randomUUID(),
+        ...metadata,
+        ...excludeKeys(payload, ['role']),
       },
       created_by
     );
@@ -112,7 +116,7 @@ export class StaffService {
   ) {
     return this.staffServices[payload.role].update(
       annual_staff_id,
-      payload,
+      excludeKeys(payload, ['role']),
       audited_by,
       isAdmin
     );
@@ -120,20 +124,28 @@ export class StaffService {
 
   async disable(
     annual_staff_id: string,
-    payload: StaffRoleDto,
+    payload: UpdateStaffStatus,
     disabled_by: string,
     isAdmin = false
   ) {
-    return this.staffServices[payload.role].update(
+    await this.staffServices[payload.role].update(
       annual_staff_id,
-      { delete: true },
+      { delete: payload.disable },
       disabled_by,
       isAdmin
     );
+    if (payload.role === StaffRole.TEACHER)
+      await this.staffServices[StaffRole.COORDINATOR].update(
+        annual_staff_id,
+        { annualClassroomIds: [] },
+        disabled_by,
+        isAdmin
+      );
   }
 
   async disableMany(
-    payload: ManageStaffDto,
+    payload: CategorizedStaffIDs,
+    disable: boolean,
     disabled_by: string,
     isAdmin = false
   ) {
@@ -146,10 +158,10 @@ export class StaffService {
       Object.keys(staffIDToRole).reduce<Promise<void>[]>(
         (methods, key) => [
           ...methods,
-          ...payload[key as keyof ManageStaffDto].map((staffId) =>
+          ...payload[key as keyof CategorizedStaffIDs].map((staffId) =>
             this.disable(
               staffId,
-              { role: staffIDToRole[key] },
+              { role: staffIDToRole[key], disable },
               disabled_by,
               isAdmin
             )
@@ -165,49 +177,15 @@ export class StaffService {
   }
 
   async resetPasswords(
-    { teacherIds, registryIds, configuratorIds }: ManageStaffDto,
+    payload: CategorizedStaffIDs,
     disabledBy: string,
     isAdmin?: boolean
   ) {
-    const getEmptyArray = () => [];
-    const [teachers, configurators, registries] = await Promise.all([
-      ...(teacherIds?.length > 0
-        ? [
-            this.prismaService.annualTeacher.findMany({
-              select: { login_id: true },
-              where: {
-                OR: teacherIds.map((annual_teacher_id) => ({
-                  annual_teacher_id,
-                })),
-              },
-            }),
-          ]
-        : getEmptyArray()),
-      ...(configuratorIds?.length > 0
-        ? [
-            this.prismaService.annualConfigurator.findMany({
-              where: {
-                OR: configuratorIds.map((annual_configurator_id) => ({
-                  annual_configurator_id,
-                })),
-              },
-            }),
-          ]
-        : getEmptyArray()),
-      ...(registryIds?.length > 0
-        ? [
-            this.prismaService.annualRegistry.findMany({
-              where: {
-                OR: registryIds.map((annual_registry_id) => ({
-                  annual_registry_id,
-                })),
-              },
-            }),
-          ]
-        : getEmptyArray()),
-    ]);
-    const loginIds = [...registries, ...configurators, ...teachers].map(
-      (_) => _.login_id
+    const [teachers, registries, configurators] =
+      await this.getCategorizedStaffs(payload);
+    const loginIds = [];
+    [...registries, ...configurators, ...teachers].forEach((_) =>
+      !loginIds.includes(_.login_id) ? loginIds.push(_.login_id) : loginIds
     );
 
     const resetPassworIds: string[] = [];
@@ -225,7 +203,6 @@ export class StaffService {
             };
           }),
         ],
-        skipDuplicates: true,
       }),
       this.prismaService.resetPassword.updateMany({
         data: { expires_at: new Date(), is_valid: false },
@@ -253,18 +230,21 @@ export class StaffService {
     audited_by: string
   ) {
     if (disabledStaffPayload)
-      await this.disableMany(disabledStaffPayload, audited_by);
-
-    const addedRoles: StaffRole[] = newRoles.reduce(
-      (roles, role) =>
-        roles.includes(role)
-          ? roles
-          : [
-              ...roles,
-              role === StaffRole.COORDINATOR ? StaffRole.TEACHER : role,
-            ],
-      []
-    );
+      await this.disableMany(disabledStaffPayload, true, audited_by);
+    if (coordinatorPayload?.annualClassroomIds.length > 0)
+      newRoles.push(StaffRole.TEACHER);
+    const addedRoles: Exclude<StaffRole, StaffRole.COORDINATOR>[] =
+      newRoles.reduce(
+        (roles, role) =>
+          roles.includes(role)
+            ? roles
+            : [
+                ...roles,
+                role === StaffRole.COORDINATOR ? StaffRole.TEACHER : role,
+              ],
+        []
+      );
+    let isRequiringMoreData = false;
     await Promise.all(
       addedRoles.map(async (role) => {
         const matricule = await this.codeGenerator.getPersonnelCode(
@@ -275,49 +255,68 @@ export class StaffService {
           this.codeGenerator.formatNumber(Math.floor(Math.random() * 10000)),
           Number(process.env.SALT)
         );
-        if (role === StaffRole.TEACHER && !teacherPayload)
-          throw new BadGatewayException(
-            `Teacher role cannot exist without teacherPayload. Please complete teacher's information`
-          );
-        return this.staffServices[role]
-          .createFrom(
-            login_id,
-            {
-              matricule,
-              private_code,
-              academic_year_id,
-              ...(teacherPayload ? excludeKeys(teacherPayload, ['role']) : {}),
-            },
-            audited_by
-          )
-          .then((staff) => {
-            if (coordinatorPayload && role === StaffRole.TEACHER)
-              this.update(
-                staff.annual_teacher_id,
-                {
-                  role: StaffRole.COORDINATOR,
-                  annualClassroomIds: coordinatorPayload.annualClassroomIds,
-                },
-                audited_by
-              );
-          });
+        if (role === StaffRole.TEACHER) {
+          const disabledTeacher =
+            await this.prismaService.annualTeacher.findFirst({
+              where: { academic_year_id, login_id },
+            });
+          if (!disabledTeacher && !teacherPayload) {
+            isRequiringMoreData = true;
+            return;
+          }
+          return this.staffServices[role]
+            .createFrom(
+              login_id,
+              {
+                matricule,
+                private_code,
+                academic_year_id,
+                ...(teacherPayload
+                  ? excludeKeys(teacherPayload, ['role'])
+                  : {}),
+              },
+              audited_by
+            )
+            .then((staff) => {
+              if (coordinatorPayload?.annualClassroomIds)
+                this.update(
+                  staff.annual_teacher_id,
+                  {
+                    role: StaffRole.COORDINATOR,
+                    annualClassroomIds: coordinatorPayload.annualClassroomIds,
+                  },
+                  audited_by
+                );
+            });
+        }
+        return this.staffServices[role].createFrom(
+          login_id,
+          { matricule, private_code, academic_year_id },
+          audited_by
+        );
       })
-    );
+    ).catch((error) => {
+      throw new InternalServerErrorException(error.message);
+    });
     const totalUpdateRecords =
       addedRoles.length +
       (coordinatorPayload?.annualClassroomIds.length ?? 0) +
       Object.keys(disabledStaffPayload).reduce(
         (count, key) =>
-          count + disabledStaffPayload[key as keyof ManageStaffDto].length,
+          count + disabledStaffPayload[key as keyof CategorizedStaffIDs].length,
         0
       );
     return new BatchPayloadDto({
       count: totalUpdateRecords,
       message: `Updated ${totalUpdateRecords} records in database`,
+      next_action: isRequiringMoreData
+        ? "Requires teacher's payload"
+        : undefined,
     });
   }
 
-  async resetPrivateCodes(payload: ManageStaffDto, reset_by: string) {
+  async resetPrivateCodes(payload: CategorizedStaffIDs, reset_by: string) {
+    const privateCodes: { annualStaffId: string; privateCode: string }[] = [];
     const staffIDToRole: Record<string, StaffRole> = {
       registryIds: StaffRole.REGISTRY,
       teacherIds: StaffRole.TEACHER,
@@ -325,28 +324,73 @@ export class StaffService {
 
     const elts = await Promise.all(
       Object.keys(staffIDToRole).reduce<Promise<void>[]>((methods, key) => {
-        const staffIDKey = key as keyof ManageStaffDto;
+        const staffIDKey = key as keyof CategorizedStaffIDs;
         const annualStaffIds = payload[staffIDKey];
         return [
           ...methods,
           this.staffServices[staffIDToRole[staffIDKey]].resetPrivateCodes(
             annualStaffIds,
-            annualStaffIds.map(() =>
-              bcrypt.hashSync(
-                this.codeGenerator.formatNumber(
-                  Math.floor(Math.random() * 10000)
-                ),
-                Number(process.env.SALT)
-              )
-            ),
+            annualStaffIds.map((annualStaffId) => {
+              const privateCode = this.codeGenerator.formatNumber(
+                Math.floor(Math.random() * 10000)
+              );
+              privateCodes.push({ annualStaffId, privateCode });
+              return bcrypt.hashSync(privateCode, Number(process.env.SALT));
+            }),
             reset_by
           ),
         ];
       }, [])
     );
+
+    Logger.verbose(privateCodes, StaffService.name);
     return new BatchPayloadDto({
       count: elts.length,
       message: `Updated ${elts.length} records in database`,
     });
+  }
+
+  private getCategorizedStaffs({
+    teacherIds,
+    registryIds,
+    configuratorIds,
+  }: CategorizedStaffIDs) {
+    const getEmptyArray = () => [[]];
+    return Promise.all([
+      ...(teacherIds?.length > 0
+        ? [
+            this.prismaService.annualTeacher.findMany({
+              select: { login_id: true },
+              where: {
+                OR: teacherIds.map((annual_teacher_id) => ({
+                  annual_teacher_id,
+                })),
+              },
+            }),
+          ]
+        : getEmptyArray()),
+      ...(registryIds?.length > 0
+        ? [
+            this.prismaService.annualRegistry.findMany({
+              where: {
+                OR: registryIds.map((annual_registry_id) => ({
+                  annual_registry_id,
+                })),
+              },
+            }),
+          ]
+        : getEmptyArray()),
+      ...(configuratorIds?.length > 0
+        ? [
+            this.prismaService.annualConfigurator.findMany({
+              where: {
+                OR: configuratorIds.map((annual_configurator_id) => ({
+                  annual_configurator_id,
+                })),
+              },
+            }),
+          ]
+        : getEmptyArray()),
+    ]);
   }
 }

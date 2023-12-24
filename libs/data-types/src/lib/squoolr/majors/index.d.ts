@@ -26,3 +26,8 @@ export type DisableMajorsPayload = SchemaRequestQuery<
   operations,
   'MajorsController_disableMajors'
 >;
+
+export type QueryMajorParams = SchemaRequestQuery<
+  operations,
+  'MajorsController_getMajors'
+>;
