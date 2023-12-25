@@ -1,6 +1,11 @@
-import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import {
+  ApiHideProperty,
+  ApiProperty,
+  ApiPropertyOptional,
+} from '@nestjs/swagger';
 import { Resource, ResourceType } from '@prisma/client';
 import { Exclude } from 'class-transformer';
+import { IsOptional, IsString } from 'class-validator';
 
 export class ResourceEntity implements Resource {
   @ApiProperty()
@@ -34,4 +39,15 @@ export class ResourceEntity implements Resource {
   constructor(props: ResourceEntity) {
     Object.assign(this, props);
   }
+}
+
+export class UpdateResourceDto {
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional()
+  resource_name?: string;
+
+  @Exclude()
+  @ApiHideProperty()
+  is_deleted?: boolean;
 }
