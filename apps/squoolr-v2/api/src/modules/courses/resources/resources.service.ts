@@ -40,4 +40,8 @@ export class ResourcesService {
       where: { resource_id },
     });
   }
+
+  delete(resource_id: string, deleted_by: string) {
+    return this.update(resource_id, { is_deleted: true }, deleted_by);
+  }
 }

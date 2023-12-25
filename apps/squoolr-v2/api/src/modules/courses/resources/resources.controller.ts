@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Put,
@@ -45,5 +46,18 @@ export class ResourcesController {
       updatePayload,
       annual_teacher_id
     );
+  }
+
+  @Delete(':resource_id')
+  @Roles(Role.TEACHER)
+  @ApiNoContentResponse()
+  deleteResource(
+    @Req() request: Request,
+    @Param('resource_id') resourceId: string
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user;
+    return this.resourcesService.delete(resourceId, annual_teacher_id);
   }
 }
