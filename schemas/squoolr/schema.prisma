@@ -1472,17 +1472,14 @@ model Resource {
 }
 
 model ResourceAudit {
-    resource_audit_id  String        @id @default(uuid()) @db.VarChar(36)
-    resource_type      ResourceType
-    resource_extension String?       @db.VarChar(5)
-    resource_ref       String        @db.VarChar(90)
-    resource_name      String        @db.VarChar(45)
-    is_deleted         Boolean       @db.TinyInt
-    audited_at         DateTime      @default(now()) @db.DateTime(0)
-    resource_id        String
-    Resource           Resource      @relation(fields: [resource_id], references: [resource_id], onDelete: Cascade, onUpdate: Cascade)
-    audited_by         String        @db.VarChar(36)
-    AuditedBy          AnnualTeacher @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    resource_audit_id String        @id @default(uuid()) @db.VarChar(36)
+    resource_name     String        @db.VarChar(45)
+    is_deleted        Boolean       @db.TinyInt
+    audited_at        DateTime      @default(now()) @db.DateTime(0)
+    resource_id       String
+    Resource          Resource      @relation(fields: [resource_id], references: [resource_id], onDelete: Cascade, onUpdate: Cascade)
+    audited_by        String        @db.VarChar(36)
+    AuditedBy         AnnualTeacher @relation(fields: [audited_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 
     @@map("resource_audits")
 }
