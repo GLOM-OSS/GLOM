@@ -1453,19 +1453,18 @@ enum ResourceType {
 }
 
 model Resource {
-    resource_id        String        @id @default(uuid()) @db.VarChar(36)
-    resource_type      ResourceType
-    resource_extension String?       @db.VarChar(5)
-    resource_ref       String        @db.VarChar(255)
-    resource_name      String        @db.VarChar(191)
-    is_deleted         Boolean       @default(false) @db.TinyInt
-    created_at         DateTime      @default(now()) @db.DateTime(0)
-    chapter_id         String?       @db.VarChar(36)
-    Chapter            Chapter?      @relation(fields: [chapter_id], references: [chapter_id], onDelete: Cascade, onUpdate: Cascade)
-    annual_subject_id  String        @db.VarChar(36)
-    AnnualSubject      AnnualSubject @relation(fields: [annual_subject_id], references: [annual_subject_id], onDelete: Cascade, onUpdate: Cascade)
-    created_by         String        @db.VarChar(36)
-    CreatedBy          AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
+    resource_id       String        @id @default(uuid()) @db.VarChar(36)
+    resource_type     ResourceType
+    resource_ref      String        @db.VarChar(255)
+    resource_name     String        @db.VarChar(191)
+    is_deleted        Boolean       @default(false) @db.TinyInt
+    created_at        DateTime      @default(now()) @db.DateTime(0)
+    chapter_id        String?       @db.VarChar(36)
+    Chapter           Chapter?      @relation(fields: [chapter_id], references: [chapter_id], onDelete: Cascade, onUpdate: Cascade)
+    annual_subject_id String        @db.VarChar(36)
+    AnnualSubject     AnnualSubject @relation(fields: [annual_subject_id], references: [annual_subject_id], onDelete: Cascade, onUpdate: Cascade)
+    created_by        String        @db.VarChar(36)
+    CreatedBy         AnnualTeacher @relation(fields: [created_by], references: [annual_teacher_id], onDelete: Cascade, onUpdate: Cascade)
 
     RessourceAudits ResourceAudit[]
 
