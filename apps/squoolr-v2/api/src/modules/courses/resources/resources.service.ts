@@ -73,4 +73,25 @@ export class ResourcesService {
       })),
     });
   }
+
+  async deleteMany(resourceIds: string[], deleted_by: string) {
+    const resources = await this.prismaService.resource.findMany({
+      where: { resource_id: { in: resourceIds }, is_deleted: false },
+    });
+    await this.prismaService.$transaction([
+      this.prismaService.resource.updateMany({
+        data: { is_deleted: true },
+        where: { resource_id: { in: resourceIds } },
+      }),
+      this.prismaService.resourceAudit.createMany({
+        data: resources.map(({ resource_id, resource_name, is_deleted }) => ({
+          is_deleted,
+          resource_id,
+          resource_name,
+          audited_by: deleted_by,
+        })),
+        skipDuplicates: true,
+      }),
+    ]);
+  }
 }

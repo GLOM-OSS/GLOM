@@ -12,9 +12,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import {
-  AnyFilesInterceptor
-} from '@nestjs/platform-express';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import {
   ApiCreatedResponse,
   ApiNoContentResponse,
@@ -93,5 +91,15 @@ export class ResourcesController {
       files,
       annual_teacher_id
     );
+  }
+
+  @Delete()
+  @Roles(Role.TEACHER)
+  @ApiNoContentResponse()
+  deleteManyResources(@Req() request: Request, @Query() resourceIds: string[]) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user;
+    return this.resourcesService.deleteMany(resourceIds, annual_teacher_id);
   }
 }
