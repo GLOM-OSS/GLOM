@@ -10,10 +10,10 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
 
-import path = require('path');
 import * as shell from 'shelljs';
 
-if (process.env.NODE_ENV === 'production') {
+const isProduction = process.env.NODE_ENV === 'production';
+if (isProduction) {
   shell.exec(
     `npx prisma migrate deploy`
     // `npx prisma migrate reset --force && npx prisma migrate dev --name deploy && npx prisma migrate deploy`
@@ -21,13 +21,10 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 async function bootstrap() {
-  const origin =
-    process.env.NODE_ENV === 'production'
-      ? ['https://squoolr.com', /\.squoolr\.com$/]
-      : /localhost:420/;
+  const allowedOrigins = isProduction ? /squoolr\.com$/ : /localhost:420[0-2]$/;
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: {
-      origin,
+      origin: allowedOrigins,
       credentials: true,
     },
   });
@@ -36,7 +33,14 @@ async function bootstrap() {
     defaultVersion: '1',
   });
 
-  app.useStaticAssets(path.join(__dirname, './assets'));
+  app.useStaticAssets('uploads', {
+    setHeaders(res) {
+      const requestedOrigin = res.get('host') || '';
+      if (allowedOrigins.test(requestedOrigin)) {
+        res.set('Access-Control-Allow-Origin', requestedOrigin);
+      }
+    },
+  });
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
       .setTitle('Squoolr APIs')
