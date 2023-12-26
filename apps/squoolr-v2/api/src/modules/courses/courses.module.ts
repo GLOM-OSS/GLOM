@@ -5,8 +5,8 @@ import { CoursesController } from './courses.controller';
 import { CoursesService } from './courses.service';
 import { CourseModulesController } from './modules/modules.controller';
 import { CourseModulesService } from './modules/modules.service';
-import { SubjectsModule } from './subjects/subjects.module';
 import { ResourcesModule } from './resources/resources.module';
+import { SubjectsModule } from './subjects/subjects.module';
 
 @Module({
   imports: [SubjectsModule, ChaptersModule, ResourcesModule],
