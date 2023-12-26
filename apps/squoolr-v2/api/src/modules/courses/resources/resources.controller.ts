@@ -4,19 +4,34 @@ import {
   Delete,
   Get,
   Param,
+  Post,
   Put,
   Query,
   Req,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { AuthenticatedGuard } from '../../../app/auth/auth.guard';
-import { QueryCourseDto } from '../course.dto';
-import { ResourceEntity, UpdateResourceDto } from './resource.dto';
-import { ResourcesService } from './resources.service';
+import {
+  AnyFilesInterceptor
+} from '@nestjs/platform-express';
+import {
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles } from '../../../app/auth/auth.decorator';
+import { AuthenticatedGuard } from '../../../app/auth/auth.guard';
 import { Role } from '../../../utils/enums';
+import { QueryCourseDto } from '../course.dto';
+import {
+  CreateResourceDto,
+  ResourceEntity,
+  UpdateResourceDto,
+} from './resource.dto';
+import { ResourcesService } from './resources.service';
 
 @ApiTags('Course resources')
 @UseGuards(AuthenticatedGuard)
@@ -59,5 +74,24 @@ export class ResourcesController {
       annualTeacher: { annual_teacher_id },
     } = request.user;
     return this.resourcesService.delete(resourceId, annual_teacher_id);
+  }
+
+  @Post('new')
+  @Roles(Role.TEACHER)
+  @ApiCreatedResponse({ type: ResourceEntity })
+  @UseInterceptors(AnyFilesInterceptor())
+  uploadResource(
+    @Req() request: Request,
+    @Body() uploadPayload: CreateResourceDto,
+    @UploadedFiles() files: Array<Express.Multer.File>
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user;
+    return this.resourcesService.uploadResources(
+      uploadPayload,
+      files,
+      annual_teacher_id
+    );
   }
 }

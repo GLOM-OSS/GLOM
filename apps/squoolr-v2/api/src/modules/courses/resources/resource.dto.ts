@@ -7,7 +7,22 @@ import { Resource, ResourceType } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 import { IsOptional, IsString } from 'class-validator';
 
-export class ResourceEntity implements Resource {
+export class CreateResourceDto {
+  @IsString()
+  @ApiProperty()
+  annual_subject_id: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty()
+  chapter_id: string | null;
+
+  constructor(props: CreateResourceDto) {
+    Object.assign(this, props);
+  }
+}
+
+export class ResourceEntity extends CreateResourceDto implements Resource {
   @ApiProperty()
   resource_id: string;
 
@@ -26,17 +41,12 @@ export class ResourceEntity implements Resource {
   @ApiProperty()
   created_at: Date;
 
-  @ApiProperty()
-  chapter_id: string;
-
-  @ApiProperty()
-  annual_subject_id: string;
-
   @Exclude()
   @ApiHideProperty()
   created_by: string;
 
   constructor(props: ResourceEntity) {
+    super(props);
     Object.assign(this, props);
   }
 }

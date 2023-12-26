@@ -1,6 +1,11 @@
 import { GlomPrismaService } from '@glom/prisma';
 import { QueryCourseDto } from '../course.dto';
-import { ResourceEntity, UpdateResourceDto } from './resource.dto';
+import {
+  CreateResourceDto,
+  ResourceEntity,
+  UpdateResourceDto,
+} from './resource.dto';
+import { ResourceType } from '@prisma/client';
 
 export class ResourcesService {
   constructor(private prismaService: GlomPrismaService) {}
@@ -43,5 +48,22 @@ export class ResourcesService {
 
   delete(resource_id: string, deleted_by: string) {
     return this.update(resource_id, { is_deleted: true }, deleted_by);
+  }
+
+  async uploadResources(
+    { annual_subject_id, chapter_id }: CreateResourceDto,
+    files: Array<Express.Multer.File>,
+    uploaded_by: string
+  ) {
+    return this.prismaService.resource.createMany({
+      data: files.map((file) => ({
+        chapter_id,
+        annual_subject_id,
+        resource_ref: file.filename,
+        resource_name: file.originalname,
+        resource_type: ResourceType.FILE,
+        created_by: uploaded_by,
+      })),
+    });
   }
 }
