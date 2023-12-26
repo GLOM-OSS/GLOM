@@ -6,6 +6,8 @@ import {
   UpdateResourceDto,
 } from './resource.dto';
 import { ResourceType } from '@prisma/client';
+import * as fs from 'fs';
+import path = require('path');
 
 export class ResourcesService {
   constructor(private prismaService: GlomPrismaService) {}
@@ -31,7 +33,7 @@ export class ResourcesService {
       await this.prismaService.resource.findFirstOrThrow({
         where: { resource_id, is_deleted: false },
       });
-    await this.prismaService.resource.update({
+    return await this.prismaService.resource.update({
       data: {
         ...payload,
         RessourceAudits: {
@@ -46,8 +48,13 @@ export class ResourcesService {
     });
   }
 
-  delete(resource_id: string, deleted_by: string) {
-    return this.update(resource_id, { is_deleted: true }, deleted_by);
+  async delete(resource_id: string, deleted_by: string) {
+    const resource = await this.update(
+      resource_id,
+      { is_deleted: true },
+      deleted_by
+    );
+    fs.unlinkSync(path.join(__dirname, resource.resource_ref));
   }
 
   async uploadResources(
@@ -59,10 +66,10 @@ export class ResourcesService {
       data: files.map((file) => ({
         chapter_id,
         annual_subject_id,
-        resource_ref: file.filename,
+        created_by: uploaded_by,
         resource_name: file.originalname,
         resource_type: ResourceType.FILE,
-        created_by: uploaded_by,
+        resource_ref: `${process.env.NX_API_BASE_URL}/${file.destination}/${file.filename}`,
       })),
     });
   }

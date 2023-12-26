@@ -9,7 +9,7 @@ import path = require('path');
 export const FILE_DEST = 'UPLOAD_FILES_DESTINATION';
 @Injectable()
 export class GlomMulterService implements MulterOptionsFactory {
-  createMulterOptions(fileDest = './assets'): MulterModuleOptions {
+  createMulterOptions(fileDest = 'assets'): MulterModuleOptions {
     return {
       dest: fileDest,
       storage: diskStorage({
