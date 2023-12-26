@@ -8,7 +8,7 @@ export class GlomMulterModule {
   static register(multerOptions?: GlomMulterOptions): DynamicModule {
     const multerService = new GlomMulterService();
     const multerModule = MulterModule.registerAsync({
-      useFactory: () => multerService.createMulterOptions(multerOptions.dest),
+      useFactory: () => multerService.createMulterOptions(multerOptions?.dest),
     });
     return {
       ...multerModule,
