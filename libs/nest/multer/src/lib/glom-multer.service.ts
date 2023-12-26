@@ -1,7 +1,4 @@
-import {
-  BadRequestException,
-  Injectable
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import {
   MulterModuleOptions,
   MulterOptionsFactory,
@@ -9,14 +6,15 @@ import {
 import { diskStorage } from 'multer';
 import path = require('path');
 
+export const FILE_DEST = 'UPLOAD_FILES_DESTINATION';
 @Injectable()
 export class GlomMulterService implements MulterOptionsFactory {
-  createMulterOptions(): MulterModuleOptions {
+  createMulterOptions(fileDest = './assets/uploads'): MulterModuleOptions {
     return {
-      dest: 'uploads',
+      dest: fileDest,
       storage: diskStorage({
         destination: (req, file, callback) => {
-          callback(null, 'uploads');
+          callback(null, fileDest);
         },
         filename: (req, file, callback) => {
           const now = new Date().toISOString();

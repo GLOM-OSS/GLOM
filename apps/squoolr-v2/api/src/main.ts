@@ -10,6 +10,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
 
+import path = require('path');
 import * as shell from 'shelljs';
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -33,7 +34,7 @@ async function bootstrap() {
     defaultVersion: '1',
   });
 
-  app.useStaticAssets('uploads', {
+  app.useStaticAssets(path.join(__dirname, 'assets'), {
     setHeaders(res) {
       const requestedOrigin = res.get('host') || '';
       if (allowedOrigins.test(requestedOrigin)) {
