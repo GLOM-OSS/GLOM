@@ -1567,8 +1567,7 @@ model QuestionAudit {
     question          String        @db.LongText
     question_mark     Float
     question_answer   String?       @db.LongText
-    question_type     QuestionType  @default(MCQ)
-    is_deleted        Boolean       @default(false) @db.TinyInt
+    is_deleted        Boolean       @db.TinyInt
     audited_at        DateTime      @default(now()) @db.DateTime(0)
     question_id       String        @db.VarChar(36)
     Question          Question      @relation(fields: [question_id], references: [question_id], onDelete: Cascade, onUpdate: Cascade)
@@ -1615,7 +1614,7 @@ model QuestionOptionAudit {
     question_option__audit_id String         @id @default(uuid()) @db.VarChar(36)
     option                    String         @db.TinyText
     is_answer                 Boolean        @db.TinyInt
-    is_deleted                Boolean        @default(false) @db.TinyInt
+    is_deleted                Boolean        @db.TinyInt
     audited_at                DateTime       @default(now()) @db.DateTime(0)
     question_option_id        String         @db.VarChar(36)
     QuestionOption            QuestionOption @relation(fields: [question_option_id], references: [question_option_id], onDelete: Cascade, onUpdate: Cascade)
