@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -66,6 +67,27 @@ export class AssessmentsController {
     return this.assessmentsService.publish(
       assessmentId,
       payload,
+      annual_teacher_id
+    );
+  }
+
+  @Delete([
+    ':assessment_id/unpublish',
+    ':assessment_id/enable',
+    ':assessment_id/disable',
+  ])
+  @Roles(Role.TEACHER)
+  @ApiNoContentResponse()
+  updateAssesment(
+    @Req() request: Request,
+    @Param('assessment_id') assessmentId: string
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user;
+    return this.assessmentsService.update(
+      assessmentId,
+      request.url.split('/').pop() as 'unpublish' | 'enable' | 'disable',
       annual_teacher_id
     );
   }

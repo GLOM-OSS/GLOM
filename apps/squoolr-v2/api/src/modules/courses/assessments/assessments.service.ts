@@ -91,6 +91,7 @@ export class AssessmentsService {
         assessment_date,
         number_per_group,
         submission_type,
+        is_published: true,
         AssessmentAudits: {
           create: {
             ...excludeKeys(assessment, [
@@ -101,6 +102,40 @@ export class AssessmentsService {
               'created_by',
             ]),
             AuditedBy: { connect: { annual_teacher_id: published_by } },
+          },
+        },
+      },
+      where: { assessment_id },
+    });
+  }
+
+  async update(
+    assessment_id: string,
+    action: 'unpublish' | 'enable' | 'disable',
+    audited_by: string
+  ) {
+    const assessment = await this.prismaService.assessment.findFirstOrThrow({
+      where: { assessment_id },
+    });
+    if (new Date(assessment.assessment_date).getTime() <= Date.now())
+      throw new UnprocessableEntityException(
+        'Cannot update an assessment that has already been started, and/or completed !!'
+      );
+
+    await this.prismaService.assessment.update({
+      data: {
+        is_deleted: action === 'disable',
+        is_published: action === 'unpublish' ? false : undefined,
+        AssessmentAudits: {
+          create: {
+            ...excludeKeys(assessment, [
+              'annual_subject_id',
+              'assessment_id',
+              'chapter_id',
+              'created_at',
+              'created_by',
+            ]),
+            AuditedBy: { connect: { annual_teacher_id: audited_by } },
           },
         },
       },
