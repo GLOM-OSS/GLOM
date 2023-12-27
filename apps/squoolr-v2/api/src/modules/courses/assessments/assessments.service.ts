@@ -12,9 +12,20 @@ export class AssessmentsService {
 
   async findAll(params?: QueryAssessmentDto) {
     const assessments = await this.prismaService.assessment.findMany({
+      orderBy: { created_at: 'asc' },
       where: { ...params, is_deleted: params?.is_deleted ?? false },
     });
-    return assessments.map((assessment) => new AssessmentEntity(assessment));
+    let examCount = 0,
+      assignmentCount = 0;
+    return assessments.map(
+      (assessment) =>
+        new AssessmentEntity({
+          ...assessment,
+          assessment_name: assessment.is_assignment
+            ? `Assignment ${++assignmentCount}`
+            : `Exam ${++examCount}`,
+        })
+    );
   }
 
   async create(
@@ -29,6 +40,14 @@ export class AssessmentsService {
         CreatedBy: { connect: { annual_teacher_id: created_by } },
       },
     });
-    return new AssessmentEntity(assessment);
+    const assessmentCount = await this.prismaService.assessment.count({
+      where: { is_assignment, annual_subject_id, is_deleted: false },
+    });
+    return new AssessmentEntity({
+      ...assessment,
+      assessment_name: assessment.is_assignment
+        ? `Assignment ${assessmentCount}`
+        : `Exam ${assessmentCount}`,
+    });
   }
 }

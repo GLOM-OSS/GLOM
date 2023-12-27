@@ -53,6 +53,9 @@ export class AssessmentEntity implements Assessment {
   @ApiProperty()
   assessment_id: string;
 
+  @ApiProperty()
+  assessment_name: string;
+
   @ApiProperty({ nullable: true })
   assessment_date: Date;
 
