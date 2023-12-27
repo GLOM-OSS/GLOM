@@ -1,15 +1,17 @@
 import {
-    BadRequestException,
-    Body,
-    Controller,
-    Get,
-    Post,
-    Query,
-    Req,
-    UnprocessableEntityException,
-    UploadedFiles,
-    UseGuards,
-    UseInterceptors,
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  Req,
+  UnprocessableEntityException,
+  UploadedFiles,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
@@ -19,9 +21,10 @@ import { Request } from 'express';
 import * as fs from 'fs';
 import { AuthenticatedGuard } from '../../../../app/auth/auth.guard';
 import {
-    CreateQuestionDto,
-    QueryQuestionsDto,
-    QuestionEntity,
+  CreateQuestionDto,
+  QueryQuestionsDto,
+  QuestionEntity,
+  UpdateQuestionDto,
 } from './question.dto';
 import { QuestionsService } from './questions.service';
 import path = require('path');
@@ -48,7 +51,7 @@ export class QuestionsController {
   ) {
     if (payload.question_type === 'File' && files.length === 0)
       throw new BadRequestException(
-        'File question require file resource to be uploaded'
+        'File type questions require at least one file resource'
       );
     if (
       payload.question_type === 'MCQ' &&
@@ -68,5 +71,25 @@ export class QuestionsController {
       annualTeacher: { annual_teacher_id },
     } = request.user;
     return this.questionsService.create(payload, files, annual_teacher_id);
+  }
+
+  @Put(':question_id')
+  @Roles(Role.TEACHER)
+  @UseInterceptors(AnyFilesInterceptor())
+  updateQuestion(
+    @Req() request: Request,
+    @Param('question_id') questionId: string,
+    @Body() payload: UpdateQuestionDto,
+    @UploadedFiles() files: Array<Express.Multer.File>
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user;
+    return this.questionsService.update(
+      questionId,
+      payload,
+      files,
+      annual_teacher_id
+    );
   }
 }

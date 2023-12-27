@@ -1,4 +1,5 @@
 import {
+  ArrayMinSize,
   IsBoolean,
   IsEnum,
   IsNumber,
@@ -17,6 +18,8 @@ import {
   ApiHideProperty,
   ApiProperty,
   ApiPropertyOptional,
+  OmitType,
+  PartialType,
 } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
 
@@ -129,6 +132,7 @@ export class CreateQuestionDto {
   })
   question_answer: string | null;
 
+  @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => CreateOptionDto)
   @ApiPropertyOptional({ type: [CreateOptionDto] })
@@ -163,4 +167,48 @@ export class QuestionEntity extends CreateQuestionDto implements Question {
     super(props);
     Object.assign(this, props);
   }
+}
+
+export class UpdateOptionDto extends PartialType(CreateOptionDto) {
+  @IsString()
+  @ApiProperty()
+  question_option_id: string;
+}
+export class UpdateOptionsDto {
+  @IsOptional()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => CreateOptionDto)
+  @ApiPropertyOptional({ type: [CreateOptionDto] })
+  added?: CreateOptionDto[];
+
+  @IsOptional()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => UpdateOptionDto)
+  @ApiPropertyOptional({ type: [UpdateOptionDto] })
+  updated?: UpdateOptionDto[];
+
+  @IsOptional()
+  @ArrayMinSize(1)
+  @IsString({ each: true })
+  @ApiPropertyOptional({ type: [String] })
+  deleted?: string[];
+}
+
+export class UpdateQuestionDto extends OmitType(
+  PartialType(CreateQuestionDto),
+  ['assessment_id', 'question_type', 'options']
+) {
+  @IsOptional()
+  @ArrayMinSize(1)
+  @IsString({ each: true })
+  @ApiPropertyOptional({ type: [String] })
+  deletedResourceIds?: string[];
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpdateOptionsDto)
+  @ApiPropertyOptional({ type: UpdateOptionsDto })
+  options?: UpdateOptionsDto;
 }

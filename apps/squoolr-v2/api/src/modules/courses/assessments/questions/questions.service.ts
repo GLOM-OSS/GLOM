@@ -1,12 +1,20 @@
 import { GlomPrismaService } from '@glom/prisma';
-import { Injectable } from '@nestjs/common';
+import { excludeKeys, pickKeys } from '@glom/utils';
+import {
+  BadRequestException,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import {
   CreateQuestionDto,
   QueryQuestionsDto,
   QuestionEntity,
   QuestionOptionDto,
   QuestionResourceDto,
+  UpdateQuestionDto,
 } from './question.dto';
+import * as fs from 'fs';
+import path = require('path');
 
 @Injectable()
 export class QuestionsService {
@@ -102,5 +110,148 @@ export class QuestionsService {
         (resource) => new QuestionResourceDto(resource)
       ),
     });
+  }
+
+  async update(
+    question_id: string,
+    {
+      options: optionsPayload,
+      deletedResourceIds,
+      delete: deleteQuestion,
+      ...payload
+    }: UpdateQuestionDto & { delete?: boolean },
+    files: Array<Express.Multer.File>,
+    audited_by: string
+  ) {
+    const {
+      QuestionOptions: options,
+      QuestionResources: resources,
+      ...question
+    } = await this.prismaService.question.findUniqueOrThrow({
+      include: {
+        QuestionOptions:
+          optionsPayload?.deleted || optionsPayload?.updated
+            ? {
+                where: {
+                  question_option_id: {
+                    in: optionsPayload.updated
+                      .map((_) => _.question_option_id)
+                      .concat(optionsPayload.deleted),
+                  },
+                },
+              }
+            : undefined,
+        QuestionResources: deletedResourceIds
+          ? { where: { deleted_at: null } }
+          : undefined,
+      },
+      where: { question_id },
+    });
+    if (
+      question.question_type === 'File' &&
+      resources.length === deletedResourceIds?.length &&
+      files.length === 0
+    )
+      throw new BadRequestException(
+        'File type questions require at least one file resource'
+      );
+    const unchangedOptions = options.filter(
+      (_) =>
+        ![
+          ...optionsPayload?.deleted,
+          ...optionsPayload?.updated?.map((_) => _.question_option_id),
+        ].some(
+          (question_option_id) => _.question_option_id === question_option_id
+        )
+    );
+    if (
+      question.question_type === 'MCQ' &&
+      optionsPayload &&
+      (![
+        ...(optionsPayload?.added ?? []),
+        ...(optionsPayload?.updated ?? []),
+      ].some((_) => _.is_answer) ||
+        !unchangedOptions.some((_) => _.is_answer) ||
+        (optionsPayload?.added?.length ?? 0) +
+          (optionsPayload?.updated?.length ?? 0) +
+          unchangedOptions.length -
+          (optionsPayload?.deleted?.length ?? 0) <
+          2)
+    ) {
+      files.forEach((file) =>
+        fs.unlinkSync(
+          path.join(__dirname, `${file.destination}${file.filename}`)
+        )
+      );
+      throw new UnprocessableEntityException(
+        'MCQ must have at least two options with one the options being an answer'
+      );
+    }
+    await this.prismaService.$transaction([
+      this.prismaService.question.update({
+        data: {
+          ...payload,
+          is_deleted: deleteQuestion ? !question.is_deleted : undefined,
+          QuestionAudits:
+            deleteQuestion !== undefined && Object.keys(payload).length > 0
+              ? {
+                  create: {
+                    ...pickKeys(question, [
+                      'is_deleted',
+                      'question',
+                      'question_mark',
+                    ]),
+                    AuditedBy: { connect: { annual_teacher_id: audited_by } },
+                  },
+                }
+              : undefined,
+          QuestionResources: deletedResourceIds
+            ? {
+                updateMany: {
+                  data: { deleted_at: new Date(), deleted_by: audited_by },
+                  where: { question_resource_id: { in: deletedResourceIds } },
+                },
+              }
+            : undefined,
+          QuestionOptions: optionsPayload
+            ? {
+                createMany: optionsPayload?.added
+                  ? {
+                      data: optionsPayload.added.map((option) => ({
+                        ...option,
+                        created_by: audited_by,
+                      })),
+                      skipDuplicates: true,
+                    }
+                  : undefined,
+                updateMany: optionsPayload?.deleted
+                  ? {
+                      data: { is_deleted: true },
+                      where: {
+                        question_option_id: { in: optionsPayload.deleted },
+                      },
+                    }
+                  : undefined,
+              }
+            : undefined,
+        },
+        where: { question_id },
+      }),
+      ...(optionsPayload?.updated
+        ? optionsPayload?.updated.map(({ question_option_id, ...option }) =>
+            this.prismaService.questionOption.update({
+              data: option,
+              where: { question_option_id },
+            })
+          )
+        : []),
+      this.prismaService.questionOptionAudit.createMany({
+        data: options.map((option) => ({
+          ...excludeKeys(option, ['created_at', 'created_by', 'question_id']),
+          audited_by,
+        })),
+        skipDuplicates: true,
+      }),
+    ]);
   }
 }
