@@ -7,9 +7,10 @@ import { CourseModulesController } from './modules/modules.controller';
 import { CourseModulesService } from './modules/modules.service';
 import { ResourcesModule } from './resources/resources.module';
 import { SubjectsModule } from './subjects/subjects.module';
+import { AssessmentsModule } from './assessments/assessments.module';
 
 @Module({
-  imports: [SubjectsModule, ChaptersModule, ResourcesModule],
+  imports: [SubjectsModule, ChaptersModule, ResourcesModule, AssessmentsModule],
   controllers: [CoursesController, CourseModulesController],
   providers: [CoursesService, CourseModulesService, CodeGeneratorFactory],
 })
