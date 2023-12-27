@@ -5,7 +5,14 @@ import {
 } from '@nestjs/swagger';
 import { Assessment, SubmissionType } from '@prisma/client';
 import { Exclude } from 'class-transformer';
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class QueryAssessmentDto {
   @IsString()
@@ -96,4 +103,28 @@ export class AssessmentEntity implements Assessment {
   constructor(props: AssessmentEntity) {
     Object.assign(this, props);
   }
+}
+
+export class PublishAssessmentDto {
+  @IsDateString()
+  @ApiProperty({ nullable: true })
+  assessment_date: Date;
+
+  @IsNumber()
+  @IsOptional()
+  @ApiPropertyOptional({ description: 'duration in milliseconds' })
+  duration?: number;
+
+  @IsNumber()
+  @IsOptional()
+  @ApiPropertyOptional({ default: 1 })
+  number_per_group?: number;
+
+  @IsOptional()
+  @IsEnum(SubmissionType)
+  @ApiPropertyOptional({
+    default: SubmissionType.Individual,
+    enum: SubmissionType,
+  })
+  submission_type?: SubmissionType;
 }
