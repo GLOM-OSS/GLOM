@@ -141,21 +141,22 @@ export class QuestionsService {
                 },
               }
             : undefined,
-        QuestionResources: deletedResourceIds
-          ? { where: { deleted_at: null } }
-          : undefined,
+        QuestionResources:
+          deletedResourceIds || files.length > 0
+            ? { where: { deleted_at: null } }
+            : undefined,
       },
       where: { question_id },
     });
     if (
       question.question_type === 'File' &&
-      resources.length === deletedResourceIds?.length &&
+      resources?.length === deletedResourceIds?.length &&
       files.length === 0
     )
       throw new BadRequestException(
         'File type questions require at least one file resource'
       );
-    const unchangedOptions = options.filter(
+    const unchangedOptions = options?.filter(
       (_) =>
         ![
           ...optionsPayload?.deleted,
@@ -174,7 +175,7 @@ export class QuestionsService {
         !unchangedOptions.some((_) => _.is_answer) ||
         (optionsPayload?.added?.length ?? 0) +
           (optionsPayload?.updated?.length ?? 0) +
-          unchangedOptions.length -
+          (unchangedOptions?.length ?? 0) -
           (optionsPayload?.deleted?.length ?? 0) <
           2)
     ) {
@@ -184,7 +185,7 @@ export class QuestionsService {
         )
       );
       throw new UnprocessableEntityException(
-        'MCQ must have at least two options with one the options being an answer'
+        'MCQ must have at least (two options?? []) with one (the options?? []) being an answer'
       );
     }
     const newResources = files.filter((_) => _.fieldname === 'answerFile');
@@ -203,7 +204,7 @@ export class QuestionsService {
                 )
                 .concat(
                   resources
-                    .filter(
+                    ?.filter(
                       (_) =>
                         !deletedResourceIds?.includes(_.question_resource_id)
                     )
@@ -274,7 +275,7 @@ export class QuestionsService {
           )
         : []),
       this.prismaService.questionOptionAudit.createMany({
-        data: options.map((option) => ({
+        data: (options ?? []).map((option) => ({
           ...excludeKeys(option, ['created_at', 'created_by', 'question_id']),
           audited_by,
         })),
