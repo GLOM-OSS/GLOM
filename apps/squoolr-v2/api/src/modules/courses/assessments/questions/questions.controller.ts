@@ -15,7 +15,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'apps/squoolr-v2/api/src/app/auth/auth.decorator';
 import { Role } from 'apps/squoolr-v2/api/src/utils/enums';
 import { Request } from 'express';
@@ -45,6 +45,7 @@ export class QuestionsController {
   @Post('new')
   @Roles(Role.TEACHER)
   @UseInterceptors(AnyFilesInterceptor())
+  @ApiCreatedResponse({ type: QuestionEntity })
   createQuestion(
     @Req() request: Request,
     @Body() payload: CreateQuestionDto,
