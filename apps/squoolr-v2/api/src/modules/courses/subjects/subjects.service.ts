@@ -14,7 +14,7 @@ import {
 } from './subject.dto';
 
 @Injectable()
-export class CourseSubjectsService {
+export class SubjectsService {
   constructor(
     private prismaService: GlomPrismaService,
     private codeGenerator: CodeGeneratorFactory
@@ -24,7 +24,7 @@ export class CourseSubjectsService {
     const subjects = await this.prismaService.annualModuleHasSubject.findMany({
       ...SubjectArgsFactory.getSelectArgs(),
       where: {
-        is_deleted: params?.is_deleted,
+        is_deleted: params?.is_deleted ?? false,
         annual_module_id: params?.annual_module_id,
         AnnualSubject: params?.keywords
           ? {
@@ -142,7 +142,7 @@ export class CourseSubjectsService {
   }
 
   async update(
-    annual_modules_subject_id: string,
+    annual_module_has_subject_id: string,
     {
       disable,
       module: courseModule,
@@ -163,7 +163,7 @@ export class CourseSubjectsService {
         AnnualSubject: { include: { AnnualSubjectParts: !!subjectParts } },
         AnnualModule: !!courseModule,
       },
-      where: { annual_modules_subject_id },
+      where: { annual_module_has_subject_id },
     });
     await this.prismaService.$transaction([
       this.prismaService.annualModuleHasSubject.update({
@@ -238,7 +238,7 @@ export class CourseSubjectsService {
                 }
               : undefined,
         },
-        where: { annual_modules_subject_id },
+        where: { annual_module_has_subject_id },
       }),
       this.prismaService.annualSubjectPartAudit.createMany({
         data: annualSubjectParts.map(
@@ -263,7 +263,7 @@ export class CourseSubjectsService {
   ) {
     const annualSubjectAudits =
       await this.prismaService.annualModuleHasSubject.findMany({
-        where: { annual_modules_subject_id: { in: annualSubjectIds } },
+        where: { annual_module_has_subject_id: { in: annualSubjectIds } },
       });
     const prismaTransactions: PrismaPromise<Prisma.BatchPayload>[] = [
       this.prismaService.annualModuleHasSubject.updateMany({

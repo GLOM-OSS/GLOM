@@ -6,7 +6,7 @@
 /out-tsc
 
 # dependencies
-uploads
+assets
 node_modules
 uploads
 

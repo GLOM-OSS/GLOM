@@ -25,7 +25,7 @@ import {
 import { CourseModulesService } from './modules.service';
 
 @ApiTags('Course modules')
-@Controller('course-modules')
+@Controller('course/modules')
 @UseGuards(AuthenticatedGuard)
 export class CourseModulesController {
   constructor(private courseModulesService: CourseModulesService) {}
