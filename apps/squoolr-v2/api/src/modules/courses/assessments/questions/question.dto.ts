@@ -1,4 +1,11 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { QueryParamsDto } from '../../../modules.dto';
 import {
   Question,
@@ -11,7 +18,7 @@ import {
   ApiProperty,
   ApiPropertyOptional,
 } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 
 export class QueryQuestionsDto extends QueryParamsDto {
   @IsString()
@@ -58,15 +65,25 @@ export class QuestionResourceDto implements QuestionResource {
   }
 }
 
-export class QuestionOptionDto implements QuestionOption {
-  @ApiProperty()
-  question_option_id: string;
-
+export class CreateOptionDto {
+  @IsString()
   @ApiProperty()
   option: string;
 
+  @IsBoolean()
   @ApiProperty()
   is_answer: boolean;
+
+  constructor(props: CreateOptionDto) {
+    Object.assign(this, props);
+  }
+}
+export class QuestionOptionDto
+  extends CreateOptionDto
+  implements QuestionOption
+{
+  @ApiProperty()
+  question_option_id: string;
 
   @ApiProperty()
   question_id: string;
@@ -82,28 +99,49 @@ export class QuestionOptionDto implements QuestionOption {
   created_by: string;
 
   constructor(props: QuestionOptionDto) {
+    super(props);
     Object.assign(this, props);
   }
 }
 
-export class QuestionEntity implements Question {
-  @ApiProperty()
-  question_id: string;
-
+export class CreateQuestionDto {
+  @IsString()
   @ApiProperty()
   assessment_id: string;
 
   @ApiProperty({ enum: QuestionType })
   question_type: QuestionType;
 
+  @IsString()
   @ApiProperty()
   question: string;
 
+  @IsNumber()
   @ApiProperty()
   question_mark: number;
 
-  @ApiProperty({ nullable: true })
-  question_answer: string;
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional({
+    example:
+      'https://squoolr-question-resource-1.pdf,https://squoolr-question-resource-2.pdf',
+    description: `For File type question, this a string containing the answer files links seperated by commats`,
+  })
+  question_answer: string | null;
+
+  @ValidateNested({ each: true })
+  @Type(() => CreateOptionDto)
+  @ApiPropertyOptional({ type: [CreateOptionDto] })
+  options: CreateOptionDto[];
+
+  constructor(props: CreateQuestionDto) {
+    Object.assign(this, props);
+  }
+}
+
+export class QuestionEntity extends CreateQuestionDto implements Question {
+  @ApiProperty()
+  question_id: string;
 
   @ApiProperty()
   is_deleted: boolean;
@@ -122,6 +160,7 @@ export class QuestionEntity implements Question {
   created_by: string;
 
   constructor(props: QuestionEntity) {
+    super(props);
     Object.assign(this, props);
   }
 }
