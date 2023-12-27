@@ -187,10 +187,30 @@ export class QuestionsService {
         'MCQ must have at least two options with one the options being an answer'
       );
     }
+    const newResources = files.filter((_) => _.fieldname === 'answerFile');
     await this.prismaService.$transaction([
       this.prismaService.question.update({
         data: {
           ...payload,
+          question_answer: payload.question_answer
+            ? payload.question_answer
+            : question.question_type === 'File' &&
+              (newResources.length > 0 || deletedResourceIds.length > 0)
+            ? newResources
+                .map(
+                  (_) =>
+                    `${process.env.NX_API_BASE_URL}/${_.destination}/${_.filename}`
+                )
+                .concat(
+                  resources
+                    .filter(
+                      (_) =>
+                        !deletedResourceIds?.includes(_.question_resource_id)
+                    )
+                    .map((_) => _.resource_ref)
+                )
+                .join(',')
+            : undefined,
           is_deleted: deleteQuestion ? !question.is_deleted : undefined,
           QuestionAudits:
             deleteQuestion !== undefined && Object.keys(payload).length > 0
@@ -207,6 +227,14 @@ export class QuestionsService {
               : undefined,
           QuestionResources: deletedResourceIds
             ? {
+                createMany: {
+                  data: newResources.map((file, index) => ({
+                    caption: index + 1,
+                    created_by: audited_by,
+                    resource_ref: `${process.env.NX_API_BASE_URL}/${file.destination}/${file.filename}`,
+                  })),
+                  skipDuplicates: true,
+                },
                 updateMany: {
                   data: { deleted_at: new Date(), deleted_by: audited_by },
                   where: { question_resource_id: { in: deletedResourceIds } },
