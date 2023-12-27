@@ -1,7 +1,7 @@
 import {
-    ApiHideProperty,
-    ApiProperty,
-    ApiPropertyOptional
+  ApiHideProperty,
+  ApiProperty,
+  ApiPropertyOptional,
 } from '@nestjs/swagger';
 import { Assessment, SubmissionType } from '@prisma/client';
 import { Exclude } from 'class-transformer';
@@ -34,11 +34,26 @@ export class QueryAssessmentDto {
   is_deleted: boolean;
 }
 
+export class CreateAssessmentDto {
+  @IsBoolean()
+  @ApiProperty()
+  is_assignment: boolean;
+
+  @IsString()
+  @ApiProperty()
+  annual_subject_id: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional()
+  chapter_id: string;
+}
+
 export class AssessmentEntity implements Assessment {
   @ApiProperty()
   assessment_id: string;
 
-  @ApiProperty()
+  @ApiProperty({ nullable: true })
   assessment_date: Date;
 
   @ApiProperty({ description: 'duration in milliseconds' })
