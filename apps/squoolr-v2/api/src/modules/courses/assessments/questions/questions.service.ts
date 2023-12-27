@@ -283,4 +283,8 @@ export class QuestionsService {
       }),
     ]);
   }
+
+  async delete(question_id: string, deleted_by: string) {
+    return this.update(question_id, { delete: true }, [], deleted_by);
+  }
 }

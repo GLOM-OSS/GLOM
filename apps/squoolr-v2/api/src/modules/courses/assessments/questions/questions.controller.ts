@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -91,5 +92,17 @@ export class QuestionsController {
       files,
       annual_teacher_id
     );
+  }
+
+  @Delete(':question_id')
+  @Roles(Role.TEACHER)
+  deleteQuestion(
+    @Req() request: Request,
+    @Param('question_id') questionId: string
+  ) {
+    const {
+      annualTeacher: { annual_teacher_id },
+    } = request.user;
+    return this.questionsService.delete(questionId, annual_teacher_id);
   }
 }
